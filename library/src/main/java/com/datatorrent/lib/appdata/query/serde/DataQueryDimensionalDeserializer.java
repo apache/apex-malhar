@@ -138,7 +138,12 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
         latestNumBuckets = time.getInt(DataQueryDimensional.FIELD_LATEST_NUM_BUCKETS);
       }
 
-      bucket = TimeBucket.BUCKET_TO_TYPE.get(time.getString(DataQueryDimensional.FIELD_BUCKET));
+      if(time.has(DataQueryDimensional.FIELD_BUCKET)) {
+        bucket = TimeBucket.BUCKET_TO_TYPE.get(time.getString(DataQueryDimensional.FIELD_BUCKET));
+      }
+      else {
+        bucket = gsd.getDimensionalConfigurationSchema().getTimeBuckets().get(0);
+      }
     }
 
     //// Keys

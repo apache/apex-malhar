@@ -1249,6 +1249,15 @@ public class DimensionalConfigurationSchema
   }
 
   /**
+   * Return the time buckets used in this schema.
+   * @return The timeBuckets used in this schema.
+   */
+  public List<TimeBucket> getTimeBuckets()
+  {
+    return timeBuckets;
+  }
+
+  /**
    * Gets the dimensionsDescriptorIDToAggregatorToAggregateDescriptor.
    * @return The dimensionsDescriptorIDToAggregatorToAggregateDescriptor.
    */
