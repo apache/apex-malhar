@@ -22,7 +22,6 @@ import com.datatorrent.lib.appdata.schemas.Type;
 import com.datatorrent.lib.dimensions.aggregator.Aggregator;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorCount;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorIncrementalType;
-import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 import com.datatorrent.lib.dimensions.DimensionsComputationUnifierImpl;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate.AggregateHashingStrategy;
@@ -74,7 +73,7 @@ public class DimensionsComputationUnifierImplTest
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     Aggregator<InputEvent,Aggregate>[] aggregators = new Aggregator[1];
-    aggregators[0] = new AggregatorCount();
+    aggregators[0] = AggregatorCount.INSTANCE;
     unifier.setAggregators(aggregators);
     unifier.setHashingStrategy(new AggregateHashingStrategy());
 

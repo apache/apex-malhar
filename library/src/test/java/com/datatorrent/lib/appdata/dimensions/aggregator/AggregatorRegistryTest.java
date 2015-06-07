@@ -20,7 +20,6 @@ import com.datatorrent.lib.dimensions.aggregator.AggregatorAverage;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorCount;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorSum;
-import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
 import com.datatorrent.lib.dimensions.aggregator.OTFAggregator;
 import com.datatorrent.lib.util.TestUtils;
@@ -46,7 +45,7 @@ public class AggregatorRegistryTest
   {
     Map<String, IncrementalAggregator> nameToIncrementalAggregator = Maps.newHashMap();
     nameToIncrementalAggregator.put("SUM", new AggregatorSum());
-    nameToIncrementalAggregator.put("COUNT", new AggregatorCount());
+    nameToIncrementalAggregator.put("COUNT", AggregatorCount.INSTANCE);
 
     Map<String, OTFAggregator> nameToOTFAggregator = Maps.newHashMap();
     nameToOTFAggregator.put("AVG", new AggregatorAverage());
