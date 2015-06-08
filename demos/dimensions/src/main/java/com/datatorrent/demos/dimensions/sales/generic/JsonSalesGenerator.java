@@ -236,9 +236,9 @@ public class JsonSalesGenerator implements InputOperator
   }
 
   SalesEvent generateSalesEvent() throws Exception {
-    int regionId = regionalGenerator.next() - 1;
+    int regionId = regionalGenerator.next();
     int productId = randomId(maxProductId) - 1;
-    int channelId = channelGenerator.next() - 1;
+    int channelId = channelGenerator.next();
     int customerId = randomCustomerByRegion(regionId + 1) - 1;
 
     SalesEvent salesEvent = new SalesEvent();
