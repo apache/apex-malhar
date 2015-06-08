@@ -16,9 +16,11 @@
 
 package com.datatorrent.lib.dimensions;
 
-import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 
+/**
+ *
+ */
 public class DimensionsConversionContext
 {
   public int schemaID;

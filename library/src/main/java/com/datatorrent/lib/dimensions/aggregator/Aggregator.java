@@ -16,7 +16,7 @@
 
 package com.datatorrent.lib.dimensions.aggregator;
 
-import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.AggregateResult;
+import com.datatorrent.lib.dimensions.DimensionsComputation.AggregateResult;
 import java.io.Serializable;
 
 /**

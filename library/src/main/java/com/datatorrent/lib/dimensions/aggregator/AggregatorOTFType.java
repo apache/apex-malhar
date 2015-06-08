@@ -31,8 +31,11 @@ public enum AggregatorOTFType
   /**
    * The average {@link OTFAggregator}.
    */
-  AVG(new AggregatorAverage());
+  AVG(AggregatorAverage.INSTANCE);
 
+  /**
+   * A map from {@link OTFAggregator} names to {@link OTFAggregator}s.
+   */
   public static final Map<String, OTFAggregator> NAME_TO_AGGREGATOR;
 
   static {

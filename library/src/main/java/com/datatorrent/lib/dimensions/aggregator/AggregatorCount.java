@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * This aggregator performs a count of the number of times an input is encountered.
+ * This {@link IncrementalAggregator} performs a count of the number of times an input is encountered.
  */
 public class AggregatorCount implements IncrementalAggregator
 {
@@ -39,7 +39,7 @@ public class AggregatorCount implements IncrementalAggregator
   public static transient final Map<Type, Type> TYPE_CONVERSION_MAP;
 
   /**
-   * Singleton
+   * Singleton.
    */
   public static final AggregatorCount INSTANCE = new AggregatorCount();
 

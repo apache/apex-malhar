@@ -26,6 +26,11 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This registry is used by generic dimensions computation operators in order to support plugging different
+ * aggregators into the operator. Subclasses of {@link AbstractDimensionsComputationFlexible} use this registry
+ * to support pluggable aggregators when doing dimensions computation, and Subclasses of {@link
+ */
 public class AggregatorRegistry implements Serializable
 {
   private static final long serialVersionUID = 20154301642L;

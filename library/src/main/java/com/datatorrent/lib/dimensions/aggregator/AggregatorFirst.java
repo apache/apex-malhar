@@ -21,17 +21,30 @@ import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 
 /**
- * Note when aggregates are combined in a unifier it is not possible to tell which came first or last,
- * one is picked arbitrarily.
+ * <p>
+ * This aggregator creates an aggregate out of the first {@link InputEvent} encountered by this aggregator. All subsequent
+ * {@link InputEvent}s are ignored.
+ * </p>
+ * <p>
+ * <b>Note:</b> when aggregates are combined in a unifier it is not possible to tell which came first or last, so
+ * one is picked arbitrarily to be the first.
+ * </p>
  */
 public class AggregatorFirst implements IncrementalAggregator
 {
   private static final long serialVersionUID = 20154301646L;
 
+  /**
+   * The singleton instance of this class.
+   */
   public static final AggregatorFirst INSTANCE = new AggregatorFirst();
 
+  /**
+   * Singleton constructor.
+   */
   private AggregatorFirst()
   {
+    //Do nothing
   }
 
   @Override

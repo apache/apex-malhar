@@ -25,11 +25,11 @@ import java.util.Map;
 
 public enum AggregatorIncrementalType
 {
-  SUM(new AggregatorSum()),
-  MIN(new AggregatorMin()),
-  MAX(new AggregatorMax()),
+  SUM(AggregatorSum.INSTANCE),
+  MIN(AggregatorMin.INSTANCE),
+  MAX(AggregatorMax.INSTANCE),
   COUNT(AggregatorCount.INSTANCE),
-  LAST(new AggregatorLast()),
+  LAST(AggregatorLast.INSTANCE),
   FIRST(AggregatorFirst.INSTANCE);
 
   private static final Logger logger = LoggerFactory.getLogger(AggregatorIncrementalType.class);

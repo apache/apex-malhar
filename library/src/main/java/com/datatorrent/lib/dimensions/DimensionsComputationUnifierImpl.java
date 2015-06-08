@@ -16,29 +16,45 @@
 
 package com.datatorrent.lib.dimensions;
 
-import com.datatorrent.lib.dimensions.aggregator.Aggregator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.DTHashingStrategy;
-import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.UnifiableAggregate;
-import com.esotericsoftware.kryo.serializers.FieldSerializer.Bind;
-import com.esotericsoftware.kryo.serializers.JavaSerializer;
+import com.datatorrent.lib.dimensions.DimensionsComputation.UnifiableAggregate;
+import com.datatorrent.lib.dimensions.aggregator.Aggregator;
 import com.google.common.base.Preconditions;
 import gnu.trove.map.hash.TCustomHashMap;
 
+/**
+ * A unifier for dimensions computation operators.
+ * @param <AGGREGATE_INPUT> The input type for aggregators which will be set on this unifier.
+ * @param <AGGREGATE> The type of the data which the unifier receives, unifies and emits.
+ */
 public class DimensionsComputationUnifierImpl<AGGREGATE_INPUT, AGGREGATE extends UnifiableAggregate> implements
              DimensionsComputationUnifier<AGGREGATE_INPUT, AGGREGATE>
 {
-  @Bind(JavaSerializer.class)
+  /**
+   * The map which holds the aggregates being unified.
+   */
   private TCustomHashMap<AGGREGATE, AGGREGATE> aggregateMap;
+  /**
+   * The hashing strategy used to determine what aggregates to unify together.
+   */
   private DTHashingStrategy<AGGREGATE> hashingStrategy;
-
+  /**
+   * The aggregators to use during unification.
+   */
   private Aggregator<AGGREGATE_INPUT, AGGREGATE>[] aggregators;
-
+  /**
+   * The output port for unified aggregates.
+   */
   public transient final DefaultOutputPort<AGGREGATE> output = new DefaultOutputPort<AGGREGATE>();
 
+  /**
+   * Constructor for creating a unifier.
+   */
   public DimensionsComputationUnifierImpl()
   {
+    //Do nothing
   }
 
   @Override

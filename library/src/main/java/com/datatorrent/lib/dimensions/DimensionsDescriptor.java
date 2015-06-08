@@ -15,7 +15,6 @@
  */
 package com.datatorrent.lib.dimensions;
 
-import com.datatorrent.lib.appdata.schemas.DimensionalSchema;
 import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.TimeBucket;
@@ -32,26 +31,87 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * <p>
+ * This class defines a dimensions combination which is used by dimensions computation operators
+ * and stores. A dimension combination is composed of the names of the fields that constitute the key,
+ * as well as the TimeBucket under which data is stored.
+ * </p>
+ * <p>
+ * This class supports the creation of a dimensions combination from a {@link TimeBucket} object and a set of fields.
+ * It also supports the creation of a dimensions combination an aggregation string. An aggregation string looks like
+ * the following:
+ * <br/>
+ * <br/>
+ * {@code
+ *  "time=MINUTES:publisher:advertiser"
+ * }
+ * <br/>
+ * <br/>
+ * In the example above <b>"time=MINUTES"</b> represents a time bucket, and the other colon separated strings represent
+ * the name of fields which comprise the key for this dimension combination. When specifiying a time bucket in an
+ * aggregation string you must use the name of one of the TimeUnit enums.
+ * </p>
+ * <p>
+ * One of the primary uses of a {@link DimensionsDescriptor} is for querying a dimensional data store. When a query is
+ * received for a dimensional data store, the query must be mapped to many things including a dimensionDescriptorID. The
+ * dimensionDescriptorID is an id assigned to a class of dimension combinations which share the same keys. This mapping is
+ * performed by creating a {@link DimensionsDescriptor} object from the query, and then using the {@link DimensionsDescriptor} object
+ * to look up the correct dimensionsDescriptorID. This lookup to retrieve a dimensionsDescriptorID is necessary because a
+ * dimensionsDescriptorID is used for storage in order to prevent key conflicts.
+ * </p>
+ */
 public class DimensionsDescriptor
 {
   private static final Logger logger = LoggerFactory.getLogger(DimensionsDescriptor.class);
 
-  public static final Map<String, Type> DIMENSION_FIELD_TO_TYPE;
-
+  /**
+   * Name of the reserved time field.
+   */
   public static final String DIMENSION_TIME = "time";
+  /**
+   * Type of the reserved time field.
+   */
   public static final Type DIMENSION_TIME_TYPE = Type.LONG;
-
+  /**
+   * Name of the reserved time bucket field.
+   */
   public static final String DIMENSION_TIME_BUCKET = "timeBucket";
+  /**
+   * Type of the reserved time bucket field.
+   */
   public static final Type DIMENSION_TIME_BUCKET_TYPE = Type.INTEGER;
-
+  /**
+   * The set of fields used for time, which are intended to be queried. Not that the
+   * timeBucket field is not included here because its not intended to be queried.
+   */
   public static final Fields TIME_FIELDS = new Fields(Sets.newHashSet(DIMENSION_TIME));
+  /**
+   * This set represents the field names which cannot be part of the user defined field names in a schema for
+   * dimensions computation.
+   */
   public static final Set<String> RESERVED_DIMENSION_NAMES = ImmutableSet.of(DIMENSION_TIME,
                                                                              DIMENSION_TIME_BUCKET);
-
+  /**
+   * This is the equals string separator used when defining a time bucket for a dimensions combination.
+   */
   public static final String DELIMETER_EQUALS = "=";
+  /**
+   * This separates dimensions in the dimensions combination.
+   */
   public static final String DELIMETER_SEPERATOR = ":";
+  /**
+   * A map from a key field to its type.
+   */
+  public static final Map<String, Type> DIMENSION_FIELD_TO_TYPE;
 
+  /**
+   * The time bucket used for this dimension combination.
+   */
   private TimeBucket timeBucket;
+  /**
+   * The set of key fields which compose this dimension combination.
+   */
   private Fields fields;
 
   static
@@ -64,11 +124,19 @@ public class DimensionsDescriptor
     DIMENSION_FIELD_TO_TYPE = Collections.unmodifiableMap(dimensionFieldToType);
   }
 
+  /**
+   * Constructor for kryo serialization.
+   */
   private DimensionsDescriptor()
   {
     //for kryo
   }
 
+  /**
+   * Creates a dimensions descriptor (dimensions combination) with the given timebucket and key fields.
+   * @param timeBucket The timebucket that this dimensions combination represents.
+   * @param fields The key fields included in this dimensions combination.
+   */
   public DimensionsDescriptor(TimeBucket timeBucket,
                               Fields fields)
   {
@@ -76,18 +144,19 @@ public class DimensionsDescriptor
     setFields(fields);
   }
 
+  /**
+   * This construction creates a dimensions descriptor (dimensions combination) from the given aggregation string.
+   * @param aggregationString The aggregation string to use when initializing this dimensions combination.
+   */
   public DimensionsDescriptor(String aggregationString)
   {
     initialize(aggregationString);
   }
 
-  public DimensionsDescriptor(TimeBucket timeBucket,
-                              String aggregationString)
-  {
-    setTimeBucket(timeBucket);
-    initialize(aggregationString);
-  }
-
+  /**
+   * Initializes the dimensions combination with the given aggregation string.
+   * @param aggregationString The aggregation string with which to initialize this dimensions combination.
+   */
   private void initialize(String aggregationString)
   {
     String[] fieldArray = aggregationString.split(DELIMETER_SEPERATOR);
@@ -113,6 +182,7 @@ public class DimensionsDescriptor
         }
 
         if(fieldAndValue.length == 2) {
+
           timeBucket = TimeBucket.TIME_UNIT_TO_TIME_BUCKET.get(TimeUnit.valueOf(fieldAndValue[1]));
         }
       }
@@ -121,28 +191,54 @@ public class DimensionsDescriptor
     fields = new Fields(fieldSet);
   }
 
+  /**
+   * This is a helper method which sets and validates the {@link TimeBucket}.
+   * @param timeBucket The {@link TimeBucket} to set and validate.
+   */
   private void setTimeBucket(TimeBucket timeBucket)
   {
     Preconditions.checkNotNull(timeBucket);
     this.timeBucket = timeBucket;
   }
 
+  /**
+   * Gets the {@link TimeBucket} for this {@link DimensionsDescriptor} object.
+   * @return The {@link TimeBucket} for this {@link DimensionsDescriptor} object.
+   */
   public TimeBucket getTimeBucket()
   {
     return timeBucket;
   }
 
+  /**
+   * This is a helper method which sets and validates the set of key fields for this
+   * {@link DimensionsDescriptor} object.
+   * @param fields The set of key fields for this {@link DimensionsDescriptor} object.
+   */
   private void setFields(Fields fields)
   {
     Preconditions.checkNotNull(fields);
     this.fields = fields;
   }
 
+  /**
+   * Returns the set of key fields for this {@link DimensionsDescriptor} object.
+   * @return The set of key fields for this {@link DimensionsDescriptor} object.
+   */
   public Fields getFields()
   {
     return fields;
   }
 
+  /**
+   * This method is used to create a new {@link FieldsDescriptor} object representing this
+   * {@link DimensionsDescriptor} object from another {@link FieldsDescriptor} object which
+   * defines the names and types of all the available key fields.
+   * @param parentDescriptor The {@link FieldsDescriptor} object which defines the name and
+   * type of all the available key fields.
+   * @return A {@link FieldsDescriptor} object which represents this {@link DimensionsDescriptor} (dimensions combination)
+   * derived from the given {@link FieldsDescriptor} object.
+   */
   public FieldsDescriptor createFieldsDescriptor(FieldsDescriptor parentDescriptor)
   {
     Map<String, Type> fieldToType = Maps.newHashMap();
@@ -162,66 +258,6 @@ public class DimensionsDescriptor
     }
 
     return new FieldsDescriptor(fieldToType);
-  }
-
-  public static boolean validateDimensions(DimensionalSchema schema,
-                                           String aggregationString)
-  {
-    if(aggregationString.isEmpty()) {
-      logger.error("The dimensions string cannot be empty.");
-      return false;
-    }
-
-    Set<String> fieldSet = Sets.newHashSet();
-    String[] fields = aggregationString.split(DELIMETER_SEPERATOR);
-
-    for(String field: fields) {
-      String[] fieldAndValue = field.split(DELIMETER_EQUALS);
-
-      if(fieldAndValue.length == 0) {
-        logger.error("There is no field data in: {}", aggregationString);
-        return false;
-      }
-
-      String fieldName = fieldAndValue[0];
-
-      if(!schema.getDimensionalConfigurationSchema().getKeyDescriptor().getFields().getFields().contains(fieldName)) {
-        logger.error("{} is not a valid field.", fieldName);
-        return false;
-      }
-
-      if(!fieldSet.add(fieldName)) {
-        logger.error("Cannot duplicate the field {} in the aggregation string.", fieldName);
-        return false;
-      }
-
-      if(fieldAndValue.length > 2) {
-        logger.error("Cannot have more than one " +
-                     DELIMETER_EQUALS +
-                     " symbols in the field expression: {}",
-                     field);
-        return false;
-      }
-      else if(fieldAndValue.length == 2)
-      {
-        if(fieldName.equals(DIMENSION_TIME)) {
-          String fieldValue = fieldAndValue[1];
-
-          try {
-            TimeUnit.valueOf(fieldValue);
-          }
-          catch(Exception e) {
-            logger.error("No valid timeunit for " + fieldValue, e);
-          }
-        }
-        else {
-          logger.error("A bucket cannot be specified for field: {}", fieldName);
-          return false;
-        }
-      }
-    }
-
-    return true;
   }
 
   @Override

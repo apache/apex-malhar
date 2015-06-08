@@ -19,7 +19,7 @@ package com.datatorrent.lib.dimensions;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.AggregateMap;
-import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.UnifiableAggregate;
+import com.datatorrent.lib.dimensions.DimensionsComputation.UnifiableAggregate;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -34,19 +34,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+/**
+ * This is a simple partitioner for dimensions computation operators that extend {@link AbstractDimensionsComputation}.
+ * @param <AGGREGATOR_INPUT> The type of the input data that is received by the dimensions computation operator.
+ * @param <AGGREGATE> The type of the aggregated data that is output by the dimensions computation operator.
+ * @param <DIMENSIONS_OPERATOR> The type of the dimensions computation operator.
+ */
 public class DimensionsComputationRoundRobinPartitioner<AGGREGATOR_INPUT,
-                                                    AGGREGATE extends UnifiableAggregate,
-                                                    DIMENSIONS_OPERATOR extends AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE>>
-implements Partitioner<DIMENSIONS_OPERATOR>
+                                                        AGGREGATE extends UnifiableAggregate,
+                                                        DIMENSIONS_OPERATOR extends AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE>>
+                                                        implements Partitioner<DIMENSIONS_OPERATOR>
 {
+  /**
+   * The number of partitions.
+   */
   @Min(1)
   private int partitionCount;
 
+  /**
+   * Sets the desired number of partitions.
+   * @param partitionCount The desired number of partitions.
+   */
   public void setPartitionCount(int partitionCount)
   {
     this.partitionCount = partitionCount;
   }
 
+  /**
+   * Gets the desired number of partitions.
+   * @return The desired number of partitions.
+   */
   public int getPartitionCount()
   {
     return partitionCount;
@@ -60,6 +77,7 @@ implements Partitioner<DIMENSIONS_OPERATOR>
     int newPartitionsCount = DefaultPartition.getRequiredPartitionCount(context, this.partitionCount);
 
     if(partitions.size() == newPartitionsCount) {
+      //number of partitions is the same, no additional work required.
       return partitions;
     }
 
@@ -68,12 +86,13 @@ implements Partitioner<DIMENSIONS_OPERATOR>
 
     Kryo kryo = new Kryo();
 
-    //This will only happen the first time define partitions is called and there will only be one operator
     if(operator.maps == null)
     {
+      //This will only happen the first time define partitions is called and there will only be one operator
       Collection<Partition<DIMENSIONS_OPERATOR>> collection =
       Lists.newArrayList();
 
+      //Allocate the desired number of partitions
       for(int index = 0;
           index < newPartitionsCount;
           index++) {
@@ -85,13 +104,15 @@ implements Partitioner<DIMENSIONS_OPERATOR>
       return collection;
     }
 
-    if(newPartitionsCount >= partitions.size()) {
+    if(newPartitionsCount > partitions.size()) {
+      //more new partitions than old.
       Collection<Partition<DIMENSIONS_OPERATOR>> collection =
       Lists.newArrayList();
 
       collection.addAll(partitions);
       int remaining = partitions.size() - newPartitionsCount;
 
+      //create a clone of the operator to intialize the new partitions.
       DIMENSIONS_OPERATOR noMap;
 
       try {
@@ -101,12 +122,13 @@ implements Partitioner<DIMENSIONS_OPERATOR>
         throw new RuntimeException(ex);
       }
 
+      //new partitions should have a cleared map.
       noMap.maps = null;
 
+      //initialize the new collection of partitions.
       collection.add(new DefaultPartition<DIMENSIONS_OPERATOR>(noMap));
 
       for(int index = 1; index < remaining; index++) {
-
         DIMENSIONS_OPERATOR tempOperator;
 
         try {
@@ -122,6 +144,7 @@ implements Partitioner<DIMENSIONS_OPERATOR>
       return collection;
     }
     else {
+      //there are fewer new partitions than old partitions
       List<Partition<DIMENSIONS_OPERATOR>> collection = Lists.newArrayList();
 
       //Pre allocate list
@@ -134,16 +157,20 @@ implements Partitioner<DIMENSIONS_OPERATOR>
       Iterator<Partition<DIMENSIONS_OPERATOR>> partitionIterator =
       partitions.iterator();
 
+      //loop through the old partitions.
       for(int index = 0;
           index < partitions.size();
           index++) {
         int newIndex = index % newPartitionsCount;
         Partition<DIMENSIONS_OPERATOR> partition = partitionIterator.next();
-        
+
         if(collection.get(newIndex) == null) {
+          //if the new operator hasn't been set yet, set an old one.
           collection.set(newIndex, partition);
         }
         else {
+          //if the new operator is set, then take the data from the old operator
+          //and aggregate it with the data of the new operator.
           Partition<DIMENSIONS_OPERATOR> existing = collection.get(newIndex);
 
           for(int mapIndex = 0;
@@ -169,10 +196,19 @@ implements Partitioner<DIMENSIONS_OPERATOR>
         }
       }
 
+      //return the new operators
       return (Collection<Partition<DIMENSIONS_OPERATOR>>) collection;
     }
   }
 
+  /**
+   * This is a utility method to clone operators.
+   * @param <T> The type of the operator to clone.
+   * @param kryo The kryo object to use for cloning.
+   * @param src The source operator to clone.
+   * @return The cloned operator.
+   * @throws IOException
+   */
   public static <T> T clone(Kryo kryo, T src) throws IOException
   {
     ByteArrayOutputStream bos = new ByteArrayOutputStream();

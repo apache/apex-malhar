@@ -60,14 +60,17 @@ public interface OTFAggregator extends Serializable
    * This method performs an on the fly aggregation from the given aggregates. The aggregates
    * provided to this aggregator are each the result of one of this aggregators child aggregators.
    * The order in which the aggregates are passed to this method is the same as the order in
-   * which the child aggregators are listed in the the result of the {@link #getChildAggregators}.
+   * which the child aggregators are listed in the result of the {@link #getChildAggregators} method.
+   * Also note that this aggregator does not aggregate one field at a time. This aggregator recieves
+   * a batch of fields from each child aggregator, and the result of the method is also a batch of fields.
    * @param aggregates These are the results of all the child aggregators. The results are in the same
    * order as the child aggregators specified in the result of the {@link #getChildAggregators} method.
    * @return The result of the on the fly aggregation.
    */
   public GPOMutable aggregate(GPOMutable... aggregates);
   /**
-   * Returns the output type of the {@link OTFAggregator}.
+   * Returns the output type of the {@link OTFAggregator}. <b>Note<b> that any combination of input types
+   * will produce the same output type for {@link OTFAggregator}s.
    * @return The output type of the {@link OTFAggregator}.
    */
   public Type getOutputType();

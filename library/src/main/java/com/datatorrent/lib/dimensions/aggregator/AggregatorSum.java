@@ -21,13 +21,24 @@ import com.datatorrent.lib.dimensions.DimensionsEvent;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 
-
+/**
+ * This {@link IncrementalAggregator} performs a sum operation over the fields in the given {@link InputEvent}.
+ */
 public class AggregatorSum implements IncrementalAggregator
 {
   private static final long serialVersionUID = 20154301649L;
 
-  public AggregatorSum()
+  /**
+   * The singleton instance of this class.
+   */
+  public static final AggregatorSum INSTANCE = new AggregatorSum();
+
+  /**
+   * Singleton constructor.
+   */
+  private AggregatorSum()
   {
+    //Do nothing
   }
 
   @Override
@@ -54,6 +65,11 @@ public class AggregatorSum implements IncrementalAggregator
     return new Aggregate(inputEvent.getEventKey(), inputEvent.getAggregates());
   }
 
+  /**
+   * This is a helper method which performs the sum operation.
+   * @param dest The destination of the sum aggregate.
+   * @param src The new values to add to the existing sum aggregation.
+   */
   private void aggregateHelper(DimensionsEvent dest, DimensionsEvent src)
   {
     GPOMutable destAggs = dest.getAggregates();

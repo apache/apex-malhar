@@ -19,7 +19,7 @@ package com.datatorrent.demos.dimensions.ads;
 import com.datatorrent.lib.appdata.schemas.TimeBucket;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.DTHashingStrategy;
-import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.UnifiableAggregate;
+import com.datatorrent.lib.dimensions.DimensionsComputation.UnifiableAggregate;
 import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.datatorrent.lib.statistics.DimensionsComputation.Aggregator;
 import java.io.Serializable;

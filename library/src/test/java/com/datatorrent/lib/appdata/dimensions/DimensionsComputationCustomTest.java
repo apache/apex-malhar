@@ -17,7 +17,7 @@
 package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.DimensionsCombination;
-import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.UnifiableAggregate;
+import com.datatorrent.lib.dimensions.DimensionsComputation.UnifiableAggregate;
 import com.datatorrent.lib.dimensions.DimensionsComputationCustom;
 import com.datatorrent.lib.dimensions.DimensionsComputationUnifierImpl;
 import com.datatorrent.lib.dimensions.aggregator.Aggregator;

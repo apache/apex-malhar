@@ -25,19 +25,39 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
+/**
+ * This is the average {@link OTFAggregator}.
+ */
 public class AggregatorAverage implements OTFAggregator
 {
   private static final long serialVersionUID = 20154301644L;
 
+  /**
+   * The array index of the sum aggregates in the argument list of the {@link #aggregate} function.
+   */
   public static int SUM_INDEX = 0;
+  /**
+   * The array index of the count aggregates in the argument list of the {@link #aggregate} function.
+   */
   public static int COUNT_INDEX = 1;
+  /**
+   * The singleton instance of this class.
+   */
+  public static final AggregatorAverage INSTANCE = new AggregatorAverage();
 
+  /**
+   * The list of {@link IncrementalAggregator}s that this {@link OTFAggregator} depends on.
+   */
   public static final transient List<Class<? extends IncrementalAggregator>> CHILD_AGGREGATORS =
   ImmutableList.of(AggregatorIncrementalType.SUM.getAggregator().getClass(),
                    AggregatorIncrementalType.COUNT.getAggregator().getClass());
 
-  public AggregatorAverage()
+  /**
+   * Constructor for singleton pattern.
+   */
+  private AggregatorAverage()
   {
+    //Do nothing
   }
 
   @Override

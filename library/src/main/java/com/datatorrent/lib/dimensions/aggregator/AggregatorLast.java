@@ -22,15 +22,30 @@ import com.datatorrent.lib.appdata.schemas.Type;
 import com.datatorrent.lib.dimensions.DimensionsEvent;
 
 /**
- * Note when aggregates are combined in a unifier it is not possible to tell which came first or last,
- * one is picked arbitrarily.
+ * <p>
+ * This aggregator creates an aggregate out of the last {@link InputEvent} encountered by this aggregator. All previous
+ * {@link InputEvent}s are ignored.
+ * </p>
+ * <p>
+ * <b>Note:</b> when aggregates are combined in a unifier it is not possible to tell which came first or last, so
+ * one is picked arbitrarily to be the last.
+ * </p>
  */
 public class AggregatorLast implements IncrementalAggregator
 {
   private static final long serialVersionUID = 20154301647L;
 
-  public AggregatorLast()
+  /**
+   * The singleton instance of this class.
+   */
+  public static final AggregatorLast INSTANCE = new AggregatorLast();
+
+  /**
+   * Singleton constructor.
+   */
+  private AggregatorLast()
   {
+    //Do nothing
   }
 
   @Override

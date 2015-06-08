@@ -21,12 +21,24 @@ import com.datatorrent.lib.dimensions.DimensionsEvent;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 
+/**
+ * This {@link IncrementalAggregator} takes the max of the fields provided in the {@link InputEvent}.
+ */
 public class AggregatorMax implements IncrementalAggregator
 {
   private static final long serialVersionUID = 201503120332L;
 
-  public AggregatorMax()
+  /**
+   * The singleton instance of this class.
+   */
+  public static final AggregatorMax INSTANCE = new AggregatorMax();
+
+  /**
+   * Singleton constructor.
+   */
+  private AggregatorMax()
   {
+    //Do nothing
   }
 
   @Override

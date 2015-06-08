@@ -16,11 +16,11 @@
 
 package com.datatorrent.lib.dimensions;
 
-import com.datatorrent.lib.dimensions.aggregator.Aggregator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.AggregateMap;
-import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.UnifiableAggregate;
+import com.datatorrent.lib.dimensions.DimensionsComputation.UnifiableAggregate;
+import com.datatorrent.lib.dimensions.aggregator.Aggregator;
 import com.google.common.collect.Lists;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;

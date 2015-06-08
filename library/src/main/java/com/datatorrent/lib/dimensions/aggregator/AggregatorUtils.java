@@ -23,10 +23,20 @@ import com.google.common.collect.Maps;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * This class contains utility methods which are useful for aggregators.
+ */
 public final class AggregatorUtils
 {
-
+  /**
+   * This is an identity type map, which maps input types to the same output types.
+   */
   public static transient final Map<Type, Type> IDENTITY_TYPE_MAP;
+  /**
+   * This is an identity type map, for numeric types only. This is
+   * helpful when creating aggregators like {@link AggregatorSum}, where the sum of ints is an
+   * int and the sum of floats is a float.
+   */
   public static transient final Map<Type, Type> IDENTITY_NUMBER_TYPE_MAP;
 
   static {
@@ -47,11 +57,26 @@ public final class AggregatorUtils
     IDENTITY_NUMBER_TYPE_MAP = Collections.unmodifiableMap(identityNumberTypeMap);
   }
 
+  /**
+   * Don't instantiate this class.
+   */
   private AggregatorUtils()
   {
     //Don't instantiate this class.
   }
 
+  /**
+   * This is a helper method which takes a {@link FieldsDescriptor} object, which defines the types of the fields
+   * that the {@link IncrementalAggregator} receives as input. It then uses the given {@link IncrementalAggregator}
+   * and {@link FieldsDescriptor} object to compute the {@link FieldsDescriptor} object for the aggregation produced
+   * byte the given {@link IncrementalAggregator} when it receives an input corresponding to the given input {@link FieldsDescriptor}.
+   * @param inputFieldsDescriptor This is a {@link FieldsDescriptor} object which defines the names and types of input
+   * data recieved by an aggregator.
+   * @param incrementalAggregator This is the {@link IncrementalAggregator} for which an output {@link FieldsDescriptor} needs
+   * to be computed.
+   * @return The output {@link FieldsDescriptor} for this aggregator when it receives input data with the same schema as
+   * the specified input {@link FieldsDescriptor}.
+   */
   public static FieldsDescriptor getOutputFieldsDescriptor(FieldsDescriptor inputFieldsDescriptor,
                                                            IncrementalAggregator incrementalAggregator)
   {
@@ -68,6 +93,12 @@ public final class AggregatorUtils
     return new FieldsDescriptor(fieldToType);
   }
 
+  /**
+   *
+   * @param inputFieldsDescriptor
+   * @param otfAggregator
+   * @return
+   */
   public static FieldsDescriptor getOutputFieldsDescriptor(FieldsDescriptor inputFieldsDescriptor,
                                                            OTFAggregator otfAggregator)
   {
@@ -83,6 +114,12 @@ public final class AggregatorUtils
     return new FieldsDescriptor(fieldToType);
   }
 
+  /**
+   *
+   * @param fields
+   * @param otfAggregator
+   * @return
+   */
   public static FieldsDescriptor getOutputFieldsDescriptor(Fields fields,
                                                            OTFAggregator otfAggregator)
   {

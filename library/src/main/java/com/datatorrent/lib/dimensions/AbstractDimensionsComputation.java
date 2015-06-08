@@ -16,11 +16,11 @@
 
 package com.datatorrent.lib.dimensions;
 
-import com.datatorrent.lib.dimensions.aggregator.Aggregator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
-import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.UnifiableAggregate;
+import com.datatorrent.lib.dimensions.DimensionsComputation.UnifiableAggregate;
+import com.datatorrent.lib.dimensions.aggregator.Aggregator;
 import com.esotericsoftware.kryo.DefaultSerializer;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
@@ -45,9 +45,18 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE extends UnifiableAggregate> implements Operator
 {
+  /**
+   * The aggregate maps in which aggregates are created.
+   */
   @VisibleForTesting
   public AggregateMap<AGGREGATOR_INPUT, AGGREGATE>[] maps;
+  /**
+   * The unifier for this operator.
+   */
   protected DimensionsComputationUnifier<AGGREGATOR_INPUT, AGGREGATE> unifier;
+  /**
+   * The hashing strategy to set on the unifier.
+   */
   protected DTHashingStrategy<AGGREGATE> unifierHashingStrategy;
 
   public final transient DefaultOutputPort<AGGREGATE> output = new DefaultOutputPort<AGGREGATE>() {
@@ -59,15 +68,28 @@ public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE 
     }
   };
 
+  /**
+   * Constructor for creating the operator.
+   */
   public AbstractDimensionsComputation()
   {
+    //Do nothing
   }
 
+  /**
+   * Sets the unifier for this operator.
+   * @param unifier The unifier for this operator.
+   */
   public void setUnifier(DimensionsComputationUnifier<AGGREGATOR_INPUT, AGGREGATE> unifier)
   {
     this.unifier = unifier;
   }
 
+  /**
+   * This method configures the unifier set on this operator with the appropriate aggregators.
+   * @return The aggregators set on the unifier.
+   */
+  @VisibleForTesting
   public abstract Aggregator<AGGREGATOR_INPUT, AGGREGATE>[] configureDimensionsComputationUnifier();
 
   @Override
@@ -84,6 +106,7 @@ public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE 
   @Override
   public void endWindow()
   {
+    //Emit the contents of the aggregate map
     for(AggregateMap<AGGREGATOR_INPUT, AGGREGATE> map: maps) {
       for(AGGREGATE value: map.values()) {
         output.emit(value);
@@ -98,6 +121,11 @@ public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE 
   {
   }
 
+  /**
+   * This class is used to serialize an {@link AggregateMap}.
+   * @param <AGGREGATOR_INPUT> The type of the input data received by the dimensions computation operator.
+   * @param <AGGREGATE> The type of the aggregate data emitted by the dimensions computation operator.
+   */
   public static class ExternalizableSerializer<AGGREGATOR_INPUT, AGGREGATE extends UnifiableAggregate> extends Serializer<AggregateMap<AGGREGATOR_INPUT, AGGREGATE>>
   {
     @Override
@@ -106,8 +134,11 @@ public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE 
       try {
         ObjectOutputStream stream = new ObjectOutputStream(output);
 
+        //serialize the map first, because TCustomHashmap clears output stream
         object.writeExternal(stream);
+        //serialize the aggregator for this map
         writeObject(object.aggregator, stream);
+        //serialize the hashing strategy for this map
         writeObject(object.hashingStrategy, stream);
 
         stream.flush();
@@ -117,18 +148,33 @@ public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE 
       }
     }
 
+    /**
+     * This is a helper method which writes the given object to the given {@link ObjectOutputStream}. This is done
+     * with the following steps:
+     * <ol>
+     *  <li>Serializing the object using java serialization.</li>
+     *  <li>Writing the byte length of the serialized object out to the given {@link ObjectOutputStream}.</li>
+     *  <li>Writing the serialized object out to the given {@link ObjectOutputStream}.</li>
+     * </ol>
+     * @param object The object to write out to the given output stream.
+     * @param stream The stream to which the given object is written out to.
+     */
     private void writeObject(Object object, ObjectOutputStream stream)
     {
       ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
       ObjectOutputStream fieldStream;
 
       try {
+        //Java serialization
         fieldStream = new ObjectOutputStream(byteOutputStream);
         fieldStream.writeObject(object);
         fieldStream.flush();
         fieldStream.close();
+        //Object bytes
         byte[] fieldBytes = byteOutputStream.toByteArray();
+        //write out size of object bytes
         stream.writeInt(fieldBytes.length);
+        //write out serialized object
         stream.write(fieldBytes);
       }
       catch(IOException ex) {
@@ -145,9 +191,11 @@ public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE 
         kryo.reference(object);
 
         ObjectInputStream objectInputStream = new ObjectInputStream(input);
+        //read in the map
         object.readExternal(objectInputStream);
-
+        //read in the aggregator
         object.aggregator = readObject(objectInputStream);
+        //read in the hashing strategy
         object.hashingStrategy = readObject(objectInputStream);
       }
       catch (IOException ex) {
@@ -160,6 +208,13 @@ public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE 
       return object;
     }
 
+    /**
+     * This is a helper method, which reads an object from the given {@link ObjectInputStream}. It is assumed
+     * that the object read from the input stream was written with the {@link #writeObject} method.
+     * @param <T> The type of the object read from the input stream.
+     * @param ois The {@link ObjectInputStream} to read the object from.
+     * @return An object read from the given {@link ObjectInputStream}.
+     */
     private static <T> T readObject(ObjectInputStream ois)
     {
       try {
@@ -180,11 +235,24 @@ public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE 
       }
     }
 
+    /**
+     * This is an input stream that reads from a given byte array.
+     */
     private static class ByteBufferInputStream extends InputStream
     {
+      /**
+       * The current index in the byte array.
+       */
       private int index = 0;
+      /**
+       * The byte array to read from.
+       */
       private byte[] bytes;
 
+      /**
+       * Creates a {@link ByteBufferInputStream} which reads from the given byte array.
+       * @param bytes The byte array from which to read data.
+       */
       public ByteBufferInputStream(byte[] bytes)
       {
         this.bytes = bytes;
@@ -202,21 +270,43 @@ public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE 
     }
   }
 
+  /**
+   * This class is responsible for storing aggregates, and aggregating input with the correct aggregates.
+   * @param <AGGREGATOR_INPUT> The type of input values to be aggregated.
+   * @param <AGGREGATE> The type of aggregate.
+   */
   @DefaultSerializer(ExternalizableSerializer.class)
   public static class AggregateMap<AGGREGATOR_INPUT, AGGREGATE extends UnifiableAggregate> extends TCustomHashMap<AGGREGATOR_INPUT, AGGREGATE>
   {
     private static final long serialVersionUID = 201505200427L;
-    private transient Aggregator<AGGREGATOR_INPUT, AGGREGATE> aggregator;
-    private int aggregateIndex;
+    /**
+     * The aggregator to use for this aggregator map
+     */
+    private Aggregator<AGGREGATOR_INPUT, AGGREGATE> aggregator;
+    /**
+     * The dimensions combination used for this aggregate map
+     */
     private DimensionsCombination<AGGREGATOR_INPUT, AGGREGATE> hashingStrategy;
+    /**
+     * The aggregateIndex assigned to this aggregate map.
+     */
+    private int aggregateIndex;
 
+    /**
+     * Constructor to create map.
+     */
     public AggregateMap()
     {
-      /* Needed for Serialization */
+      // Needed for Serialization
       super();
-      LOG.debug("No arg constructor");
     }
 
+    /**
+     * Creates the aggregate map with the given aggregator and dimensions combination.
+     * @param aggregator The aggregator to use for this aggregate map.
+     * @param hashingStrategy The dimensions combination to use for this aggregate map.
+     * @param aggregateIndex The aggregate index assigned to this aggregate map.
+     */
     public AggregateMap(Aggregator<AGGREGATOR_INPUT, AGGREGATE> aggregator,
                         DimensionsCombination<AGGREGATOR_INPUT, AGGREGATE> hashingStrategy,
                         int aggregateIndex)
@@ -228,16 +318,30 @@ public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE 
       this.aggregateIndex = aggregateIndex;
     }
 
+    /**
+     * Sets the aggregator for this aggregate map.
+     * @param aggregator The aggregator to use for this aggregate map.
+     */
     public void setAggregator(Aggregator<AGGREGATOR_INPUT, AGGREGATE> aggregator)
     {
-      this.aggregator = aggregator;
+      this.aggregator = Preconditions.checkNotNull(aggregator);
     }
 
+    /**
+     * Returns the aggregator for the aggregate map.
+     * @return The aggregator for the aggregate map.
+     */
     public Aggregator<AGGREGATOR_INPUT, AGGREGATE> getAggregator()
     {
       return aggregator;
     }
 
+    /**
+     * Aggregates the given input with the correct aggregate if the corresponding aggregate already
+     * exists. If the corresponding aggregate does not already exist, then it is created from the
+     * aggregatorInput.
+     * @param aggregatorInput The input event to aggregate to an aggregation.
+     */
     public void aggregate(AGGREGATOR_INPUT aggregatorInput)
     {
       AGGREGATE aggregate = get(aggregatorInput);
@@ -278,19 +382,45 @@ public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE 
     }
   }
 
+  /**
+   * This interface is used to mask the {@link HashingStrategy} interface, which will likely be removed in the future.
+   * @param <AGGREGATOR_INPUT> The type of input values to be aggregated.
+   */
   public static interface DTHashingStrategy<AGGREGATOR_INPUT> extends HashingStrategy<AGGREGATOR_INPUT> {}
 
+  /**
+   * A {@link DimensionsCombination} is a class that defines a dimensions combination for dimensions computation operator.
+   * A dimension combination is defined by implementing a hashing strategy which maps inputs to aggregates with the same key combination.
+   * Additionally a dimension combination is used to initialize the keys of a newly create aggregate with the {@link setKeys}
+   * method.
+   * @param <AGGREGATOR_INPUT> The type of input values to be aggregated.
+   * @param <AGGREGATE> The type of aggregate.
+   */
   public static interface DimensionsCombination<AGGREGATOR_INPUT, AGGREGATE> extends DTHashingStrategy<AGGREGATOR_INPUT>
   {
+    /**
+     * This method sets the keys derived from the given aggregator input onto the given aggregate.
+     * @param aggregatorInput The aggregator input from which to derive the keys which comprise this dimension combination.
+     * @param aggregate The aggregate on which to set the dimensions combination keys.
+     */
     public void setKeys(AGGREGATOR_INPUT aggregatorInput, AGGREGATE aggregate);
   }
 
+  /**
+   * This is a hashing strategy that utilizes the {@link java.lang.Object#equals} and {@link java.lang.Object#hashCode} methods.
+   * @param <AGGREGATOR_INPUT> The type of input values to be aggregated.
+   * @param <AGGREGATE> The type of aggregate.
+   */
   public static class DirectDimensionsCombination<AGGREGATOR_INPUT, AGGREGATE> implements DimensionsCombination<AGGREGATOR_INPUT, AGGREGATE>
   {
     private static final long serialVersionUID = 201505230252L;
 
+    /**
+     * Constructor to create object.
+     */
     public DirectDimensionsCombination()
     {
+      //Do nothing
     }
 
     @Override
@@ -310,14 +440,6 @@ public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE 
     {
       //NOOP
     }
-  }
-
-  public interface AggregateResult {}
-
-  public interface UnifiableAggregate extends AggregateResult
-  {
-    public int getAggregateIndex();
-    public void setAggregateIndex(int aggregateIndex);
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractDimensionsComputation.class);
