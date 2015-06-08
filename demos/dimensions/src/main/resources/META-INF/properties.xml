@@ -152,39 +152,39 @@
   <!-- Settings for AdsDimensionsDemoPerformant -->
 
   <property>
-    <name>dt.application.AdsDimensionsDemoPerformant-Customer.operator.InputGenerator.numTuplesPerWindow</name>
+    <name>dt.application.AdsDimensionsDemoSummit-Customer.operator.InputGenerator.numTuplesPerWindow</name>
     <value>2000000000</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemoPerformant-Customer.operator.Store.fileStore.basePathPrefix</name>
+    <name>dt.application.AdsDimensionsDemoSummit-Customer.operator.Store.fileStore.basePathPrefix</name>
     <value>AdsDimensionsDemoPerformant/Store</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemoPerformant-Customer.operator.Query.topic</name>
+    <name>dt.application.AdsDimensionsDemoSummit-Customer.operator.Query.topic</name>
     <value>AdsQuery</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemoPerformant-Customer.operator.QueryResult.topic</name>
+    <name>dt.application.AdsDimensionsDemoSummit-Customer.operator.QueryResult.topic</name>
     <value>AdsQueryResult</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemoPerformant-Customer.operator.DimensionsComputation.port.data.attr.PARTITION_PARALLEL</name>
+    <name>dt.application.AdsDimensionsDemoSummit-Customer.operator.DimensionsComputation.port.data.attr.PARTITION_PARALLEL</name>
     <value>true</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemoPerformant-Customer.operator.InputGenerator.attr.PARTITIONER</name>
+    <name>dt.application.AdsDimensionsDemoSummit-Customer.operator.InputGenerator.attr.PARTITIONER</name>
     <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
   </property>
   <property>
-    <value>dt.application.AdsDimensionsDemoPerformant-Customer.operator.InputGenerator.attr.MEMORY_MB</value>
+    <value>dt.application.AdsDimensionsDemoSummit-Customer.operator.InputGenerator.attr.MEMORY_MB</value>
     <name>16384</name>
   </property>
   <property>
-    <value>dt.application.AdsDimensionsDemoPerformant-Customer.operator.DimensionsComputation.attr.MEMORY_MB</value>
+    <value>dt.application.AdsDimensionsDemoSummit-Customer.operator.DimensionsComputation.attr.MEMORY_MB</value>
     <name>16384</name>
   </property>
    <property>
-     <name>dt.application.AdsDimensionsDemoPerformant-Customer.port.*.attr.QUEUE_CAPACITY</name>
+     <name>dt.application.AdsDimensionsDemoSummit-Customer.port.*.attr.QUEUE_CAPACITY</name>
      <value>32000</value>
   </property>
 
