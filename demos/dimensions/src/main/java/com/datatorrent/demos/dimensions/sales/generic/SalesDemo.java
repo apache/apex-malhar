@@ -18,23 +18,18 @@ import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.dimensions.DimensionsComputationFlexibleSingleSchemaMap;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
+import com.google.common.collect.Maps;
 import java.net.URI;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 
-
-/**
- *
- * @author Timothy Farkas: tim@datatorrent.com
- */
 @ApplicationAnnotation(name=SalesDemo.APP_NAME)
 public class SalesDemo implements StreamingApplication
 {
-  private static final Logger logger = LoggerFactory.getLogger(SalesDemo.class);
-
   public static final String APP_NAME = "SalesDemo-Customer";
   public static final String PROP_USE_WEBSOCKETS = "dt.application." + APP_NAME + ".useWebSockets";
   public static final String PROP_STORE_PATH = "dt.application." + APP_NAME + ".operator.Store.fileStore.basePathPrefix";
@@ -69,6 +64,10 @@ public class SalesDemo implements StreamingApplication
     String dimensionalSchema = SchemaUtils.jarResourceFileToString(DIMENSIONAL_SCHEMA);
 
     dimensions.setEventSchemaJSON(eventSchema);
+    Map<String, String> fieldToMapField = Maps.newHashMap();
+    fieldToMapField.put("sales", "amount");
+    dimensions.setFieldToMapField(fieldToMapField);
+
     store.setEventSchemaJSON(eventSchema);
     store.setDimensionalSchemaJSON(dimensionalSchema);
     input.setEventSchemaJSON(eventSchema);
@@ -92,4 +91,6 @@ public class SalesDemo implements StreamingApplication
     dag.addStream("Query", queryPort, store.query).setLocality(Locality.CONTAINER_LOCAL);
     dag.addStream("QueryResult", store.queryResult, queryResultPort).setLocality(Locality.CONTAINER_LOCAL);
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(SalesDemo.class);
 }
