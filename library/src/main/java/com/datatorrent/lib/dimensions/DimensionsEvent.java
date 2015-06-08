@@ -543,8 +543,8 @@ public abstract class DimensionsEvent implements Serializable, UnifiableAggregat
 
   /**
    * This subclass of {@link DimensionsEvent} is used to represent input events for dimensions computation operators
-   * that extend {@link AbstractDimensionsComputationFlexible}. {@link InputEvents} do not have data or functionality
-   * that the {@link DimensionsEvent}s do not. The primary purpose behind this class is to make it clear to programmers
+   * that extend {@link AbstractDimensionsComputationFlexible}. {@link InputEvent}s do not have data or functionality
+   * that {@link DimensionsEvent}s do not. The primary purpose behind this class is to make it clear to programmers
    * implementing {@link IncrementalAggregator}s that the inputs to their aggregators are not the same thing as the aggregates
    * themselves.
    */
@@ -618,10 +618,19 @@ public abstract class DimensionsEvent implements Serializable, UnifiableAggregat
     }
   }
 
+  /**
+   * This subclass of {@link DimensionsEvent} is used to represent aggregates for dimensions computation operators
+   * that extend {@link AbstractDimensionsComputationFlexible}. {@link Aggregate}s do not have data or functionality
+   * that {@link DimensionsEvent}s do not. The primary purpose behind this class is to make it clear to programmers
+   * implementing {@link IncrementalAggregator}s that the output of their aggregators are not the same thing as the inputs.
+   */
   public static class Aggregate extends DimensionsEvent
   {
     private static final long serialVersionUID = 201505181028L;
 
+    /**
+     * Constructor for Kryo serialization.
+     */
     private Aggregate()
     {
       //For kryo

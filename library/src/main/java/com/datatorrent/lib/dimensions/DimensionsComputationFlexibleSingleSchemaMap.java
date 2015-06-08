@@ -18,6 +18,7 @@ package com.datatorrent.lib.dimensions;
 
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
+import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 
@@ -29,6 +30,7 @@ public class DimensionsComputationFlexibleSingleSchemaMap extends AbstractDimens
 
   public DimensionsComputationFlexibleSingleSchemaMap()
   {
+    this.unifier = new DimensionsComputationUnifierImpl<InputEvent, Aggregate>();
   }
 
   @Override

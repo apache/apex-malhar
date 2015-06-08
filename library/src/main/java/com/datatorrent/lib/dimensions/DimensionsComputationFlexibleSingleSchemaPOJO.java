@@ -22,6 +22,7 @@ import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.TimeBucket;
 import com.datatorrent.lib.appdata.schemas.Type;
+import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 import com.datatorrent.lib.util.PojoUtils;
@@ -53,6 +54,7 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
 
   public DimensionsComputationFlexibleSingleSchemaPOJO()
   {
+    this.unifier = new DimensionsComputationUnifierImpl<InputEvent, Aggregate>();
   }
 
   @Override

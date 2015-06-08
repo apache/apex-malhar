@@ -58,13 +58,10 @@ public class GenericSalesDemoWithHDHT implements StreamingApplication
     AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", AppDataSingleSchemaDimensionStoreHDHT.class);
 
     String basePath = conf.get(PROP_STORE_PATH);
-    TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();
-
-    if(basePath != null) {
-      basePath += System.currentTimeMillis();
-      hdsFile.setBasePath(basePath);
-      System.out.println("Setting basePath " + basePath);
-    }
+    TFileImpl hdsFile = new TFileImpl.DTFileImpl();
+    basePath += System.currentTimeMillis();
+    hdsFile.setBasePath(basePath);
+    System.out.println("Setting basePath " + basePath);
 
     store.setFileStore(hdsFile);
     dag.setAttribute(store, Context.OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator< MutableLong >());
