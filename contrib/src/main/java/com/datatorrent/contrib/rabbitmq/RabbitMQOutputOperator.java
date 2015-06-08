@@ -16,11 +16,11 @@ public class RabbitMQOutputOperator extends AbstractSinglePortRabbitMQOutputOper
   @Override
   public void processTuple(byte[] tuple)
   {
-      try {
-        channel.basicPublish(exchange, "", null, tuple);
-      } catch (IOException e) {
-        
-        logger.debug(e.toString());
-      }   
+    try {
+      channel.basicPublish(exchange, "", null, tuple);
+    } catch (IOException e) {
+
+      logger.debug(e.toString());
+    }   
   }
 }

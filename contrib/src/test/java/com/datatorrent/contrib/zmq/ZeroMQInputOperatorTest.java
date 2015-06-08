@@ -31,86 +31,86 @@ import com.datatorrent.contrib.testhelper.MessageQueueTestHelper;
 public class ZeroMQInputOperatorTest
 {
   protected static Logger logger = LoggerFactory.getLogger(ZeroMQInputOperatorTest.class);
-  
+
   @Test
   public void testDag() throws InterruptedException, Exception {
-	  final int testNum = 3;
-	  testHelper(testNum);
+    final int testNum = 3;
+    testHelper(testNum);
   }
 
   protected void testHelper(final int testNum)
   {
-	  LocalMode lma = LocalMode.newInstance();
-	  DAG dag = lma.getDAG();
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
 
-	  final ZeroMQMessageGenerator publisher = new ZeroMQMessageGenerator(logger);
-	  publisher.setup();
+    final ZeroMQMessageGenerator publisher = new ZeroMQMessageGenerator(logger);
+    publisher.setup();
 
-	  ZeroMQInputOperator generator = dag.addOperator("Generator", ZeroMQInputOperator.class);
-	  final CollectorModule<byte[]> collector = dag.addOperator("Collector", new CollectorModule<byte[]>());
+    ZeroMQInputOperator generator = dag.addOperator("Generator", ZeroMQInputOperator.class);
+    final CollectorModule<byte[]> collector = dag.addOperator("Collector", new CollectorModule<byte[]>());
 
-	  generator.setFilter("");
-	  generator.setUrl("tcp://localhost:5556");
-	  generator.setSyncUrl("tcp://localhost:5557");
+    generator.setFilter("");
+    generator.setUrl("tcp://localhost:5556");
+    generator.setSyncUrl("tcp://localhost:5557");
 
-	  dag.addStream("Stream", generator.outputPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
-	  new Thread() {
-		  @Override
-		  public void run() {
-			  try {
-				  publisher.generateMessages(testNum);
-			  }
-			  catch (InterruptedException ex) {
-				  logger.debug(ex.toString());
-			  }
-		  }
-	  }.start();
-	  
-	  final LocalMode.Controller lc = lma.getController();
-	  lc.setHeartbeatMonitoringEnabled(false);
-	  
-	  new Thread("LocalClusterController")
-	  {
-		  @Override
-		  public void run()
-		  {
-			  int count = 0;
-			  try {
-				  Thread.sleep(1000);
-				  while (true) {
-					  if (count++ < testNum * 3) {
-						  Thread.sleep(100);
-					  }
-					  else {
-						  break;
-					  }			            
-				  }
-			  }
-			  catch (InterruptedException ex) {
-			  }
+    dag.addStream("Stream", generator.outputPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
+    new Thread() {
+      @Override
+      public void run() {
+        try {
+          publisher.generateMessages(testNum);
+        }
+        catch (InterruptedException ex) {
+          logger.debug(ex.toString());
+        }
+      }
+    }.start();
 
-			  logger.debug("Shutting down..");
-			  lc.shutdown();
+    final LocalMode.Controller lc = lma.getController();
+    lc.setHeartbeatMonitoringEnabled(false);
 
-			  try {
-				  Thread.sleep(1000);
-			  } catch (InterruptedException e) {
-				  // TODO Auto-generated catch block
-				  e.printStackTrace();
-			  }
-			  
-			  publisher.teardown();
-			 
-		  }
-	  }.start();
-	   
-	  lc.run();
+    new Thread("LocalClusterController")
+    {
+      @Override
+      public void run()
+      {
+        int count = 0;
+        try {
+          Thread.sleep(1000);
+          while (true) {
+            if (count++ < testNum * 3) {
+              Thread.sleep(100);
+            }
+            else {
+              break;
+            }			            
+          }
+        }
+        catch (InterruptedException ex) {
+        }
 
-	  
-	 // logger.debug("collection size:"+collector.inputPort.collections.size()+" "+collector.inputPort.collections.toString());
+        logger.debug("Shutting down..");
+        lc.shutdown();
 
-	  MessageQueueTestHelper.validateResults(testNum, collector.inputPort.collections);
-	  logger.debug("end of test");
+        try {
+          Thread.sleep(1000);
+        } catch (InterruptedException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+
+        publisher.teardown();
+
+      }
+    }.start();
+
+    lc.run();
+
+
+    // logger.debug("collection size:"+collector.inputPort.collections.size()+" "+collector.inputPort.collections.toString());
+
+    MessageQueueTestHelper.validateResults(testNum, collector.inputPort.collections);
+    logger.debug("end of test");
   }
-  
 }
+

@@ -33,5 +33,6 @@ public class RabbitMQOutputOperatorBenchmark extends RabbitMQOutputOperatorTest
     final int testNum = 100000;
     runTest(testNum);
     
-    logger.debug("end of test");  }
+    logger.debug("end of test");  
+  }
 }
