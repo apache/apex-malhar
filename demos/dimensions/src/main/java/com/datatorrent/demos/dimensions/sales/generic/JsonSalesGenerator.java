@@ -18,7 +18,6 @@ package com.datatorrent.demos.dimensions.sales.generic;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
 import com.datatorrent.lib.appdata.schemas.DimensionalSchema;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
@@ -160,6 +159,8 @@ public class JsonSalesGenerator implements InputOperator
   @Override
   public void setup(Context.OperatorContext context)
   {
+    AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY.setup();
+    
     schema = new DimensionalSchema(new DimensionalConfigurationSchema(eventSchemaJSON,
                                                               AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY));
 
