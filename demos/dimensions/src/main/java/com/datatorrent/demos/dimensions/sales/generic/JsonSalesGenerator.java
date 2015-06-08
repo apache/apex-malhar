@@ -239,7 +239,7 @@ public class JsonSalesGenerator implements InputOperator
     int regionId = regionalGenerator.next() - 1;
     int productId = randomId(maxProductId) - 1;
     int channelId = channelGenerator.next() - 1;
-    int customerId = randomCustomerByRegion(regionId) - 1;
+    int customerId = randomCustomerByRegion(regionId + 1) - 1;
 
     SalesEvent salesEvent = new SalesEvent();
     salesEvent.time = System.currentTimeMillis();
