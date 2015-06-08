@@ -30,19 +30,19 @@ import org.slf4j.LoggerFactory;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-@ApplicationAnnotation(name=GenericSalesDemoWithHDHT.APP_NAME)
-public class GenericSalesDemoWithHDHT implements StreamingApplication
+@ApplicationAnnotation(name=SalesDemo.APP_NAME)
+public class SalesDemo implements StreamingApplication
 {
-  private static final Logger logger = LoggerFactory.getLogger(GenericSalesDemoWithHDHT.class);
+  private static final Logger logger = LoggerFactory.getLogger(SalesDemo.class);
 
-  public static final String APP_NAME = "SalesDemo";
+  public static final String APP_NAME = "SalesDemo-Customer";
   public static final String PROP_USE_WEBSOCKETS = "dt.application." + APP_NAME + ".useWebSockets";
   public static final String PROP_STORE_PATH = "dt.application." + APP_NAME + ".operator.Store.fileStore.basePathPrefix";
 
   public static final String EVENT_SCHEMA = "salesGenericEventSchema.json";
   public static final String DIMENSIONAL_SCHEMA = "salesGenericDataSchema.json";
 
-  public GenericSalesDemoWithHDHT()
+  public SalesDemo()
   {
   }
 

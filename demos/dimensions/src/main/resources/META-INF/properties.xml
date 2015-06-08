@@ -192,31 +192,31 @@
   <!-- Settings for SalesDemo -->
 
   <property>
-    <name>dt.application.SalesDemo.operator.Store.fileStore.basePathPrefix</name>
+    <name>dt.application.SalesDemo-Customer.operator.Store.fileStore.basePathPrefix</name>
     <value>SalesDemo/Store</value>
   </property>
   <property>
-    <name>dt.application.SalesDemo.useWebSockets</name>
+    <name>dt.application.SalesDemo-Customer.useWebSockets</name>
     <value>true</value>
   </property>
   <property>
-    <name>dt.application.SalesDemo.operator.Query.topic</name>
+    <name>dt.application.SalesDemo-Customer.operator.Query.topic</name>
     <value>SalesQuery</value>
   </property>
   <property>
-    <name>dt.application.SalesDemo.operator.QueryResult.topic</name>
+    <name>dt.application.SalesDemo-Customer.operator.QueryResult.topic</name>
     <value>SalesQueryResult</value>
   </property>
   <property>
-    <name>dt.application.SalesDemo.operator.DimensionsComputation.attr.PARTITIONER</name>
+    <name>dt.application.SalesDemo-Customer.operator.DimensionsComputation.attr.PARTITIONER</name>
     <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
   </property>
   <property>
-    <name>dt.application.SalesDemo.operator.InputGenerator.maxTuplesPerWindow</name>
-    <value>13000</value>
+    <name>dt.application.SalesDemo-Customer.operator.InputGenerator.maxTuplesPerWindow</name>
+    <value>20000</value>
   </property>
   <property>
-    <name>dt.application.SalesDemo.operator.InputGenerator.tuplesPerWindowDeviation</name>
+    <name>dt.application.SalesDemo-Customer.operator.InputGenerator.tuplesPerWindowDeviation</name>
     <value>7000</value>
   </property>
 

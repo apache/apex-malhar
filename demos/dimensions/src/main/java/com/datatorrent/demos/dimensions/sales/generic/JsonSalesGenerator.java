@@ -160,14 +160,14 @@ public class JsonSalesGenerator implements InputOperator
   public void setup(Context.OperatorContext context)
   {
     AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY.setup();
-    
+
     schema = new DimensionalSchema(new DimensionalConfigurationSchema(eventSchemaJSON,
                                                               AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY));
 
-    maxProductId = schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_PRODUCT).size() - 1;
-    maxCustomerId = schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_CUSTOMER).size() - 1;
-    maxChannelId = schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_CHANNEL).size() - 1;
-    maxRegionId = schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_REGION).size() - 1;
+    maxProductId = schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_PRODUCT).size();
+    maxCustomerId = schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_CUSTOMER).size();
+    maxChannelId = schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_CHANNEL).size();
+    maxRegionId = schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_REGION).size();
 
     tuplesPerCurrentWindow = maxTuplesPerWindow;
     generateDiscounts();
@@ -236,10 +236,10 @@ public class JsonSalesGenerator implements InputOperator
   }
 
   SalesEvent generateSalesEvent() throws Exception {
-    int regionId = regionalGenerator.next();
-    int productId = randomId(maxProductId);
-    int channelId = channelGenerator.next();
-    int customerId = randomCustomerByRegion(regionId);
+    int regionId = regionalGenerator.next() - 1;
+    int productId = randomId(maxProductId) - 1;
+    int channelId = channelGenerator.next() - 1;
+    int customerId = randomCustomerByRegion(regionId) - 1;
 
     SalesEvent salesEvent = new SalesEvent();
     salesEvent.time = System.currentTimeMillis();
