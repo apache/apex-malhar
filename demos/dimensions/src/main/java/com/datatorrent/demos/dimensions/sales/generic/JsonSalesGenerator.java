@@ -201,11 +201,11 @@ public class JsonSalesGenerator implements InputOperator
   void initializeDataGenerators() {
     // Channels - with increased level of change
     channelGenerator.setMoveDeviation(channelGenerator.getMoveDeviation() * 2);
-    for (int i=1; i <= getMaxChannelId(); i++) {
+    for (int i=0; i < getMaxChannelId(); i++) {
       channelGenerator.add(i);
     }
     // Regions - default level of change
-    for (int i=1; i <= getMaxRegionId(); i++) {
+    for (int i=0; i < getMaxRegionId(); i++) {
       regionalGenerator.add(i);
     }
   }
@@ -215,12 +215,12 @@ public class JsonSalesGenerator implements InputOperator
    */
   void generateDiscounts() {
     // Discounts per sales channel
-    for (int i=1; i <= getMaxChannelId(); i++) {
+    for (int i=0; i < getMaxChannelId(); i++) {
       // 50% chance of applying discount to a channel
       channelDiscount.put(i, (random.nextBoolean()) ? discountTiers[random.nextInt(discountTiers.length)] : 0.0);
     }
     // Discounts per region
-    for (int i=1; i <= getMaxRegionId(); i++) {
+    for (int i=0; i < getMaxRegionId(); i++) {
       // 50% chance of applying discount to a region
       regionalDiscount.put(i, (random.nextBoolean()) ? discountTiers[random.nextInt(discountTiers.length)] : 0.0);
     }
@@ -230,7 +230,7 @@ public class JsonSalesGenerator implements InputOperator
    * Generate taxes based on each region
    */
   void generateRegionalTax() {
-    for (int i=1; i <= getMaxRegionId(); i++) {
+    for (int i=0; i < getMaxRegionId(); i++) {
       regionalTax.put(i, taxTiers[random.nextInt(taxTiers.length)]);
     }
   }
