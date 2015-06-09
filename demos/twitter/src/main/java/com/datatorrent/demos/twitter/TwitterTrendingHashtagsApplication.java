@@ -139,7 +139,7 @@ import java.util.Map;
  *
  * @since 1.0.2
  */
-@ApplicationAnnotation(name="TwitterTrendingDemo-Customer")
+@ApplicationAnnotation(name="TwitterTrendingDemoTest")
 public class TwitterTrendingHashtagsApplication implements StreamingApplication
 {
   public static final String TABULAR_SCHEMA = "twitterHashTagDataSchema.json";
