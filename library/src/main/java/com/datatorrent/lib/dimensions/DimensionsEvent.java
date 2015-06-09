@@ -649,50 +649,69 @@ public abstract class DimensionsEvent implements Serializable, UnifiableAggregat
     }
 
     /**
-     * Creates
-     * @param keys
-     * @param aggregates
-     * @param bucketID
-     * @param schemaID
-     * @param dimensionDescriptorID
-     * @param aggregatorIndex
+     * Creates an {@link Aggregate} from the given data.
+     * @param keys The keys to use when creating the aggregate.
+     * @param aggregates The aggregates to use when creating the aggregate.
+     * @param bucketID The bucket ID assigned to the aggregate.
+     * @param schemaID The schema ID assigned to the aggregate.
+     * @param dimensionDescriptorID The dimension descriptor ID assigned to the aggregate.
+     * @param aggregatorID The ID of the aggregator to apply to this aggregate.
      */
     public Aggregate(GPOMutable keys,
                      GPOMutable aggregates,
                      int bucketID,
                      int schemaID,
                      int dimensionDescriptorID,
-                     int aggregatorIndex)
+                     int aggregatorID)
     {
       super(keys,
             aggregates,
             bucketID,
             schemaID,
             dimensionDescriptorID,
-            aggregatorIndex);
+            aggregatorID);
     }
 
+    /**
+     * This creates an {@link Aggregate} with the given information.
+     * @param keys The key.
+     * @param aggregates The aggregates.
+     * @param schemaID The schemaID.
+     * @param dimensionDescriptorID The dimensionDescriptorID.
+     * @param aggregatorID The ID of the aggregator to apply to this aggregate.
+     */
     public Aggregate(GPOMutable keys,
                      GPOMutable aggregates,
                      int schemaID,
                      int dimensionDescriptorID,
-                     int aggregatorIndex)
+                     int aggregatorID)
     {
       super(keys,
             aggregates,
             schemaID,
             dimensionDescriptorID,
-            aggregatorIndex);
+            aggregatorID);
     }
 
+    /**
+     * This is a hashing strategy for {@link Aggregate}s, which maps aggregates based on their
+     * {@link EventKey}.
+     */
     public static class AggregateHashingStrategy implements DTHashingStrategy<Aggregate>
     {
+      /**
+       * The singleton instance of this class.
+       */
       public static final AggregateHashingStrategy INSTANCE = new AggregateHashingStrategy();
 
       private static final long serialVersionUID = 201505200426L;
 
-      public AggregateHashingStrategy()
+      /**
+       * Singleton pattern.
+       */
+      private AggregateHashingStrategy()
       {
+        //Do nothing
       }
 
       @Override

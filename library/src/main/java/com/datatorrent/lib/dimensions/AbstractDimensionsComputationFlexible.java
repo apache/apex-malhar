@@ -50,7 +50,7 @@ public abstract class AbstractDimensionsComputationFlexible<INPUT> extends Abstr
 
   public AbstractDimensionsComputationFlexible()
   {
-    unifierHashingStrategy = new AggregateHashingStrategy();
+    unifierHashingStrategy = AggregateHashingStrategy.INSTANCE;
   }
 
   public abstract void processInputEvent(INPUT tuple);

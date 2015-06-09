@@ -75,7 +75,7 @@ public class DimensionsComputationUnifierImplTest
     Aggregator<InputEvent,Aggregate>[] aggregators = new Aggregator[1];
     aggregators[0] = AggregatorCount.INSTANCE;
     unifier.setAggregators(aggregators);
-    unifier.setHashingStrategy(new AggregateHashingStrategy());
+    unifier.setHashingStrategy(AggregateHashingStrategy.INSTANCE);
 
     unifier.setup(null);
 

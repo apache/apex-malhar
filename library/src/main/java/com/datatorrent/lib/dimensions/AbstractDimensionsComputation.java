@@ -39,7 +39,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is a base class for dimensions computation.
+ * <p>
+ * This is a base class for dimensions computation. This operator performs dimension computation by
+ * utilizing {@link AggregatorMap}s. The {@link AggregatorMap} is intended to simplify aggregating
+ * data. Each {@link AggregatorMap} has three things assigned to it: an
+ * aggregate index, an {@link Aggregator}, and a {@link DimensionsCombination}. The aggregate index is
+ * used by the unifier to unify the correct aggregates together. The {@link Aggregator} is used by the
+ * {@link AggregatorMap} to perform the correct aggregations on the data it receives. The {@link DimensionsCombination}
+ * is used to determine the key combination / dimensions descriptor that the {@link AggregatorMap} is responsible
+ * for aggregating over.
+ * </p>
  * @param <AGGREGATOR_INPUT>
  * @param <AGGREGATE>
  */
@@ -389,10 +398,66 @@ public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE 
   public static interface DTHashingStrategy<AGGREGATOR_INPUT> extends HashingStrategy<AGGREGATOR_INPUT> {}
 
   /**
+   * <p>
    * A {@link DimensionsCombination} is a class that defines a dimensions combination for dimensions computation operator.
    * A dimension combination is defined by implementing a hashing strategy which maps inputs to aggregates with the same key combination.
    * Additionally a dimension combination is used to initialize the keys of a newly create aggregate with the {@link setKeys}
    * method.
+   * </p>
+   * <p>
+   * An example of a DimensionsCombination is the following:
+   * <br/>
+   * <br/>
+   * Consider the following class:
+   * <br/>
+   * <br/>
+   * {@code
+   *  public class AdInfo
+   *  {
+   *    @NotNull
+   *    public String advertiser;
+   *    @NotNull
+   *    public String publisher;
+   *    @NotNull
+   *    public String location;
+   *  }
+   *
+   *  public class AdInfoAggregate
+   *  {
+   *    public String advertiser;
+   *    public String publisher;
+   *    public String location;
+   *    ...
+   *  }
+   * }
+   * <br/>
+   * <br/>
+   * An {@link AggregatorMap} responsible for aggregating across different combinations of advertisers and publishers
+   * would have a {@link DimensionsCombination} which looks like the following:
+   * {@code
+   *  public class PublisherAndAdvertiserCombination<AdInfo, AdInfoAggregate> implements DimensionsCombination<AdInfo, AdInfoAggregate>
+   *  {
+   *    public int computeHashCode(AdInfo adInfo)
+   *    {
+   *      return adInfo.advertiser.hashCode() ^ adInfo.publisher.hashCode();
+   *    }
+   *
+   *    public equals(AdInfo a, AdInfo b)
+   *    {
+   *      return a.advertiser.equals(b.advertiser) && a.publisher.equals(b.publisher);
+   *    }
+   *
+   *    public void setKeys(AdInfo aggregatorInput, AdInfoAggregate aggregate)
+   *    {
+   *      aggregate.publisher = aggregatorInput.publisher;
+   *      aggregate.advertiser = aggregatorInput.advertiser;
+   *    }
+   *  }
+   * }
+   * </p>
+   * <br/>
+   * As can be seen above, the {@link #computeHashCode} and equals method only utilize publisher and advertiser. So the {@link AggregatorMap}
+   * only aggregates values with the
    * @param <AGGREGATOR_INPUT> The type of input values to be aggregated.
    * @param <AGGREGATE> The type of aggregate.
    */
