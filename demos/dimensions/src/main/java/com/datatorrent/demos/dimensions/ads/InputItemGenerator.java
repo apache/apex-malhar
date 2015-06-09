@@ -31,7 +31,7 @@ import java.util.Random;
 public class InputItemGenerator implements InputOperator
 {
   private String eventSchemaJSON;
-  private DimensionalConfigurationSchema schema;
+  private transient DimensionalConfigurationSchema schema;
 
   public static final String PUBLISHER = "publisher";
   public static final String ADVERTISER = "advertiser";
