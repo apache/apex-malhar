@@ -636,6 +636,11 @@ public abstract class DimensionsEvent implements Serializable, UnifiableAggregat
       //For kryo
     }
 
+    /**
+     * Creates an {@link Aggregate} from the given key and aggregates.
+     * @param eventKey The key.
+     * @param aggregates The aggregates.
+     */
     public Aggregate(EventKey eventKey,
                      GPOMutable aggregates)
     {
@@ -643,6 +648,15 @@ public abstract class DimensionsEvent implements Serializable, UnifiableAggregat
             aggregates);
     }
 
+    /**
+     * Creates
+     * @param keys
+     * @param aggregates
+     * @param bucketID
+     * @param schemaID
+     * @param dimensionDescriptorID
+     * @param aggregatorIndex
+     */
     public Aggregate(GPOMutable keys,
                      GPOMutable aggregates,
                      int bucketID,

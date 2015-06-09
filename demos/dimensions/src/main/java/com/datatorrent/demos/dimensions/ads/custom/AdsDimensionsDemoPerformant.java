@@ -125,7 +125,6 @@ public class AdsDimensionsDemoPerformant implements StreamingApplication
     System.out.println(dag.getAttributes().get(DAG.APPLICATION_ID));
     basePath += Path.SEPARATOR + System.currentTimeMillis();
     hdsFile.setBasePath(basePath);
-    System.out.println("Setting basePath " + basePath);
     store.setFileStore(hdsFile);
     store.getAppDataFormatter().setContinuousFormatString("#.00");
     store.setEventSchemaJSON(eventSchema);
