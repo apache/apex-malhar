@@ -73,6 +73,10 @@ public class DataResultTabularSerializer implements CustomMessageSerializer
 
     jo.put(DataResultTabular.FIELD_DATA, ja);
 
+    if(!gResult.isOneTime()) {
+      jo.put(Result.FIELD_COUNTDOWN, gResult.getCountdown());
+    }
+
     return jo.toString();
   }
 }

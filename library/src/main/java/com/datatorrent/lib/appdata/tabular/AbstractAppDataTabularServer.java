@@ -233,7 +233,8 @@ public abstract class AbstractAppDataTabularServer<INPUT_EVENT> implements Opera
     public Result executeQuery(Query query, Void metaQuery, MutableLong queueContext)
     {
       return new DataResultTabular(query,
-                                   currentData);
+                                   currentData,
+                                   queueContext.getValue());
     }
   }
 

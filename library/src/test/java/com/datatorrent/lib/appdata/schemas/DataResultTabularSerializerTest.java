@@ -38,6 +38,60 @@ public class DataResultTabularSerializerTest
   @Test
   public void simpleResultSerializerTest() throws Exception
   {
+    List<GPOMutable> dataValues = createValues();
+    DataQueryTabular gQuery = new DataQueryTabular("1",
+                                                   new Fields(Sets.newHashSet("a", "b")));
+
+    DataResultTabular result = new DataResultTabular(gQuery,
+                                                     dataValues);
+
+    DataResultTabularSerializer serializer = new DataResultTabularSerializer();
+
+    final String expectedJSONResult =
+    "{\"id\":\"1\",\"type\":\"dataResult\",\"data\":[{\"b\":\"hello\",\"a\":\"1\"},{\"b\":\"world\",\"a\":\"2\"}]}";
+    String resultJSON = serializer.serialize(result, new ResultFormatter());
+
+    JSONObject jo = new JSONObject(expectedJSONResult);
+    JSONArray data = jo.getJSONArray("data");
+    JSONObject jo1 = data.getJSONObject(0);
+    JSONObject jo2 = data.getJSONObject(1);
+
+    JSONObject rjo = new JSONObject(resultJSON);
+    JSONArray rdata = rjo.getJSONArray("data");
+    JSONObject rjo1 = rdata.getJSONObject(0);
+    JSONObject rjo2 = rdata.getJSONObject(1);
+
+    Assert.assertFalse(rjo.has(Result.FIELD_COUNTDOWN));
+
+    Assert.assertEquals("The json doesn't match.", jo1.get("a"), rjo1.get("a"));
+    Assert.assertEquals("The json doesn't match.", jo1.get("b"), rjo1.get("b"));
+    Assert.assertEquals("The json doesn't match.", jo2.get("a"), rjo2.get("a"));
+    Assert.assertEquals("The json doesn't match.", jo2.get("b"), rjo2.get("b"));
+  }
+
+  @Test
+  public void simpleCountdownTest() throws Exception
+  {
+    List<GPOMutable> dataValues = createValues();
+    DataQueryTabular gQuery = new DataQueryTabular("1",
+                                                   new Fields(Sets.newHashSet("a", "b")));
+
+    DataResultTabular result = new DataResultTabular(gQuery,
+                                                     dataValues,
+                                                     2);
+
+    DataResultTabularSerializer serializer = new DataResultTabularSerializer();
+    String resultJSON = serializer.serialize(result, new ResultFormatter());
+
+    JSONObject rjo = new JSONObject(resultJSON);
+
+    long countdown = rjo.getLong(Result.FIELD_COUNTDOWN);
+
+    Assert.assertEquals(2, countdown);
+  }
+
+  private List<GPOMutable> createValues()
+  {
     Map<String, Type> fieldToTypeA = Maps.newHashMap();
     fieldToTypeA.put("a", Type.LONG);
     fieldToTypeA.put("b", Type.STRING);
@@ -58,35 +112,6 @@ public class DataResultTabularSerializerTest
     values.add(gpoA);
     values.add(gpoB);
 
-    DataQueryTabular gQuery = new DataQueryTabular("1",
-                                                   new Fields(Sets.newHashSet("a", "b")));
-
-    DataResultTabular result = new DataResultTabular(gQuery,
-                                                                   values);
-    result.setType(DataResultTabular.TYPE);
-
-    DataResultTabularSerializer serializer = new DataResultTabularSerializer();
-
-    final String expectedJSONResult =
-    "{\"id\":\"1\",\"type\":\"dataResult\",\"data\":[{\"b\":\"hello\",\"a\":\"1\"},{\"b\":\"world\",\"a\":\"2\"}]}";
-    String resultJSON = serializer.serialize(result, new ResultFormatter());
-
-    logger.debug("expected: {}", expectedJSONResult);
-    logger.debug("actual  : {}", resultJSON);
-
-    JSONObject jo = new JSONObject(expectedJSONResult);
-    JSONArray data = jo.getJSONArray("data");
-    JSONObject jo1 = data.getJSONObject(0);
-    JSONObject jo2 = data.getJSONObject(1);
-
-    JSONObject rjo = new JSONObject(resultJSON);
-    JSONArray rdata = rjo.getJSONArray("data");
-    JSONObject rjo1 = rdata.getJSONObject(0);
-    JSONObject rjo2 = rdata.getJSONObject(1);
-
-    Assert.assertEquals("The json doesn't match.", jo1.get("a"), rjo1.get("a"));
-    Assert.assertEquals("The json doesn't match.", jo1.get("b"), rjo1.get("b"));
-    Assert.assertEquals("The json doesn't match.", jo2.get("a"), rjo2.get("a"));
-    Assert.assertEquals("The json doesn't match.", jo2.get("b"), rjo2.get("b"));
+    return values;
   }
 }

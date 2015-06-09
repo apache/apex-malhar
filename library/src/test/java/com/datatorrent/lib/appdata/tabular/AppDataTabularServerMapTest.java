@@ -23,13 +23,15 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 
 public class AppDataTabularServerMapTest
 {
-  public static final String SIMPLE_RESULT = "{\"id\":\"1\",\"type\":\"dataQuery\",\"data\":[{\"count\":\"2\",\"word\":\"a\"},{\"count\":\"3\",\"word\":\"b\"}]}";
+  public static final String SIMPLE_RESULT = "{\"id\":\"1\",\"type\":\"dataQuery\",\"data\":[{\"count\":\"2\",\"word\":\"a\"},{\"count\":\"3\",\"word\":\"b\"}],\"countdown\":10}";
   public static final String SIMPLE_QUERY = "{\"id\": \"1\",\n"
                                             + "\"type\": \"dataQuery\",\n"
                                             + "\"data\": {\n"
@@ -80,10 +82,14 @@ public class AppDataTabularServerMapTest
     tabularServer.query.put(SIMPLE_QUERY);
     tabularServer.endWindow();
 
+    LOG.debug("result {}", tempResultSink.collectedTuples.get(0));
+
     Assert.assertEquals("Should get only 1 result back", 1, tempResultSink.collectedTuples.size());
     Assert.assertEquals("The result was incorrect.", SIMPLE_RESULT, tempResultSink.collectedTuples.get(0));
 
     //Test serialization
     TestUtils.clone(new Kryo(), tabularServer);
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(AppDataTabularServerMapTest.class);
 }

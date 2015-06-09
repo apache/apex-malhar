@@ -21,6 +21,8 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.DTHashingStrategy;
 import com.datatorrent.lib.dimensions.DimensionsComputation.UnifiableAggregate;
 import com.datatorrent.lib.dimensions.aggregator.Aggregator;
+import com.esotericsoftware.kryo.serializers.FieldSerializer.Bind;
+import com.esotericsoftware.kryo.serializers.JavaSerializer;
 import com.google.common.base.Preconditions;
 import gnu.trove.map.hash.TCustomHashMap;
 
@@ -35,6 +37,7 @@ public class DimensionsComputationUnifierImpl<AGGREGATE_INPUT, AGGREGATE extends
   /**
    * The map which holds the aggregates being unified.
    */
+  @Bind(JavaSerializer.class) //This is required otherwise the unifier does not serialize.
   private TCustomHashMap<AGGREGATE, AGGREGATE> aggregateMap;
   /**
    * The hashing strategy used to determine what aggregates to unify together.
