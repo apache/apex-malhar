@@ -75,12 +75,12 @@
   <!-- TwitterTrendingDemo -->
 
   <property>
-    <name>dt.application.TwitterTrendingDemoTest.operator.Query.topic</name>
-    <value>TwitterHashtagQueryTest</value>
+    <name>dt.application.TwitterTrendingDemo-Customer.operator.Query.topic</name>
+    <value>TwitterHashtagQuery</value>
   </property>
   <property>
-    <name>dt.application.TwitterTrendingDemoTest.operator.QueryResult.topic</name>
-    <value>TwitterHashtagQueryResultTest</value>
+    <name>dt.application.TwitterTrendingDemo-Customer.operator.QueryResult.topic</name>
+    <value>TwitterHashtagQueryResult</value>
   </property>
 
 </configuration>
