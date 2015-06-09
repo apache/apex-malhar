@@ -8,7 +8,7 @@
   <!-- default operator size 256MB -->
   <property>
     <name>dt.application.*.operator.*.attr.MEMORY_MB</name>
-    <value>256</value>
+    <value>4096</value>
   </property>
   <property>
     <name>dt.application.*.operator.*.attr.JVM_OPTIONS</name>
