@@ -24,7 +24,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@AppData.AppendQueryIdToTopic(value = true)
+@AppData.AppendQueryIdToTopic(value = false)
 public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<String> implements AppData.ConnectionInfoProvider
 {
   private static final Logger logger = LoggerFactory.getLogger(PubSubWebSocketAppDataResult.class);
