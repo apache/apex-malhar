@@ -21,6 +21,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.ProcessingMode;
 import com.datatorrent.contrib.common.FieldInfo.SupportType;
+import com.datatorrent.contrib.common.TableInfo;
 import com.datatorrent.contrib.model.Employee;
 import com.datatorrent.contrib.model.TupleGenerator;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
@@ -129,7 +130,7 @@ public class HBasePojoPutOperatorTest
 
   protected void configure(HBasePojoPutOperator operator)
   {
-    HBaseTableInfo tableInfo = new HBaseTableInfo();
+    TableInfo<HBaseFieldInfo> tableInfo = new TableInfo<HBaseFieldInfo>();
     
     tableInfo.setRowOrIdExpression("row");
 

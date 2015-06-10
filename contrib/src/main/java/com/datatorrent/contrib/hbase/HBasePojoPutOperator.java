@@ -7,6 +7,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.datatorrent.contrib.common.FieldValueGenerator;
+import com.datatorrent.contrib.common.TableInfo;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
 
@@ -18,7 +19,9 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
  */
 public class HBasePojoPutOperator extends AbstractHBasePutOutputOperator<Object>
 {
-  private HBaseTableInfo tableInfo;
+  private static final long serialVersionUID = 3241368443399294019L;
+
+  private TableInfo<HBaseFieldInfo> tableInfo;
 
   private transient FieldValueGenerator<HBaseFieldInfo> fieldValueGenerator;
 
@@ -28,23 +31,19 @@ public class HBasePojoPutOperator extends AbstractHBasePutOutputOperator<Object>
   public Put operationPut(Object obj)
   {
     final List<HBaseFieldInfo> fieldsInfo = tableInfo.getFieldsInfo();
-    if (fieldValueGenerator == null)
-    {
+    if (fieldValueGenerator == null) {
       fieldValueGenerator = FieldValueGenerator.getFieldValueGenerator(obj.getClass(), fieldsInfo);
     }
-    if (rowGetter == null)
-    {
+    if (rowGetter == null) {
       // use string as row id
       rowGetter = PojoUtils.createGetter(obj.getClass(), tableInfo.getRowOrIdExpression(), String.class);
     }
 
     Map<HBaseFieldInfo, Object> valueMap = fieldValueGenerator.getFieldsValue(obj);
     Put put = new Put(Bytes.toBytes(rowGetter.get(obj)));
-    for (Map.Entry<HBaseFieldInfo, Object> entry : valueMap.entrySet())
-    {
+    for (Map.Entry<HBaseFieldInfo, Object> entry : valueMap.entrySet()) {
       HBaseFieldInfo fieldInfo = entry.getKey();
-      put.add(Bytes.toBytes(fieldInfo.getFamilyName()), Bytes.toBytes(fieldInfo.getColumnName()),
-          fieldInfo.toBytes(entry.getValue()));
+      put.add(Bytes.toBytes(fieldInfo.getFamilyName()), Bytes.toBytes(fieldInfo.getColumnName()), fieldInfo.toBytes(entry.getValue()));
     }
     return put;
   }
@@ -52,7 +51,7 @@ public class HBasePojoPutOperator extends AbstractHBasePutOutputOperator<Object>
   /**
    * HBase table information
    */
-  public HBaseTableInfo getTableInfo()
+  public TableInfo<HBaseFieldInfo> getTableInfo()
   {
     return tableInfo;
   }
@@ -60,7 +59,7 @@ public class HBasePojoPutOperator extends AbstractHBasePutOutputOperator<Object>
   /**
    * HBase table information
    */
-  public void setTableInfo(HBaseTableInfo tableInfo)
+  public void setTableInfo(TableInfo<HBaseFieldInfo> tableInfo)
   {
     this.tableInfo = tableInfo;
   }
