@@ -3,10 +3,21 @@ package com.datatorrent.contrib.hbase;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.datatorrent.contrib.common.FieldInfo;
+import com.datatorrent.contrib.common.FieldInfo.SupportType;
 
 public class HBaseFieldInfo extends FieldInfo
 {
 	private String familyName;
+	
+	public HBaseFieldInfo()
+	{
+	}
+	
+	public HBaseFieldInfo( String columnName, String columnExpression, SupportType type, String familyName )
+	{
+	  super( columnName, columnExpression, type );
+	  setFamilyName( familyName );
+	}
 
 	public String getFamilyName()
 	{

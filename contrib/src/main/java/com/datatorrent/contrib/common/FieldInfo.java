@@ -14,23 +14,17 @@ public class FieldInfo
   private String columnExpression;
 
   private SupportType type;
-  
-//  private static SupportType supportedTypes; // = new Class[]{ Boolean.class, Short.class, Integer.class, Long.class, Float.class, Double.class, String.class };
-//  private static final Map<String, Class> typeMap = new HashMap<String, Class>();
-//  static
-//  {
-//  	for( SupportType supportType : supportedTypes.values() )
-//  	{
-//  		typeMap.put( supportType.getJavaType().getSimpleName().toLowerCase(), clazz );
-//  	}
-//  	
-//  	typeMap.put("int", Integer.class);
-//  }
-//  
-//  protected static Class[] getSupportedTypes()
-//  {
-//  	return supportedTypes;
-//  }
+
+  public FieldInfo()
+  {
+  }
+
+  public FieldInfo(String columnName, String columnExpression, SupportType type)
+  {
+    setColumnName( columnName );
+    setColumnExpression( columnExpression );
+    setType( type );
+  }
   
   /**
    * the column name which keep this field.

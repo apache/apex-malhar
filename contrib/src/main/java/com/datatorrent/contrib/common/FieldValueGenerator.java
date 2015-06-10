@@ -7,16 +7,16 @@ import java.util.Map;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
 
-public class FieldValueGenertor< T extends FieldInfo >
+public class FieldValueGenerator< T extends FieldInfo >
 {
 	private Map<T, Getter<Object,Object>> fieldGetterMap = new HashMap<T,Getter<Object,Object>>();
 	
-	private FieldValueGenertor(){}
+	private FieldValueGenerator(){}
 	
 	@SuppressWarnings("unchecked")
-  public static < T extends FieldInfo > FieldValueGenertor<T> getFieldValueGenerator(final Class<?> clazz, List<T> fieldInfos)
+  public static < T extends FieldInfo > FieldValueGenerator<T> getFieldValueGenerator(final Class<?> clazz, List<T> fieldInfos)
   {
-    FieldValueGenertor<T> fieldValueGenerator = new FieldValueGenertor<T>();
+    FieldValueGenerator<T> fieldValueGenerator = new FieldValueGenerator<T>();
     
     for( T fieldInfo : fieldInfos )
     {

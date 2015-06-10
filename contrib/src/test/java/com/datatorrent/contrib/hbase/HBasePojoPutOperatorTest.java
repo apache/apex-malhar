@@ -134,42 +134,12 @@ public class HBasePojoPutOperatorTest
     tableInfo.setRowOrIdExpression("row");
 
     List<HBaseFieldInfo> fieldsInfo = new ArrayList<HBaseFieldInfo>();
-    {
-      HBaseFieldInfo hfi = new HBaseFieldInfo();
-      hfi.setColumnName("name");
-      hfi.setFamilyName("f0");
-      hfi.setColumnExpression("name");
-      hfi.setType( SupportType.STRING );
-      fieldsInfo.add(hfi);
-    }
-    {
-      HBaseFieldInfo hfi = new HBaseFieldInfo();
-      hfi.setColumnName("age");
-      hfi.setFamilyName("f0");
-      hfi.setColumnExpression("age");
-      hfi.setType( SupportType.INTEGER );
-      fieldsInfo.add(hfi);
-    }
-    {
-      HBaseFieldInfo hfi = new HBaseFieldInfo();
-      hfi.setColumnName("address");
-      hfi.setFamilyName("f1");
-      hfi.setColumnExpression("address");
-      hfi.setType( SupportType.STRING );
-      fieldsInfo.add(hfi);
-    }
+    fieldsInfo.add( new HBaseFieldInfo( "name", "name", SupportType.STRING, "f0") );
+    fieldsInfo.add( new HBaseFieldInfo( "age", "age", SupportType.INTEGER, "f1") );
+    fieldsInfo.add( new HBaseFieldInfo( "address", "address", SupportType.STRING, "f1") );
 
     tableInfo.setFieldsInfo(fieldsInfo);
     operator.setTableInfo(tableInfo);
-
-    // store related information
-
-    // private String zookeeperQuorum;
-    // private int zookeeperClientPort;
-    // protected String tableName;
-    //
-    // protected String principal;
-    // protected String keytabPath;
 
     HBaseStore store = new HBaseStore();
     store.setTableName("employee");

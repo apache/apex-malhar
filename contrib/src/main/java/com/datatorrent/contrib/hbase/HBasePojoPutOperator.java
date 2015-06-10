@@ -6,7 +6,7 @@ import java.util.Map;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.datatorrent.contrib.common.FieldValueGenertor;
+import com.datatorrent.contrib.common.FieldValueGenerator;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
 
@@ -20,7 +20,7 @@ public class HBasePojoPutOperator extends AbstractHBasePutOutputOperator<Object>
 {
   private HBaseTableInfo tableInfo;
 
-  private transient FieldValueGenertor<HBaseFieldInfo> fieldValueGenerator;
+  private transient FieldValueGenerator<HBaseFieldInfo> fieldValueGenerator;
 
   private transient Getter<Object, String> rowGetter;
 
@@ -30,7 +30,7 @@ public class HBasePojoPutOperator extends AbstractHBasePutOutputOperator<Object>
     final List<HBaseFieldInfo> fieldsInfo = tableInfo.getFieldsInfo();
     if (fieldValueGenerator == null)
     {
-      fieldValueGenerator = FieldValueGenertor.getFieldValueGenerator(obj.getClass(), fieldsInfo);
+      fieldValueGenerator = FieldValueGenerator.getFieldValueGenerator(obj.getClass(), fieldsInfo);
     }
     if (rowGetter == null)
     {
