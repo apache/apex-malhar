@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,12 @@ public class MapBasedCouchDbOutputOperator extends AbstractCouchDBOutputOperator
   public String getDocumentId(Map<Object, Object> tuple)
   {
     return (String) tuple.get("_id");
+  }
+
+  @Override
+  public Map<?,?> convertTupleToMap(Map<Object, Object> tuple)
+  {
+    return tuple;
   }
 
 }
