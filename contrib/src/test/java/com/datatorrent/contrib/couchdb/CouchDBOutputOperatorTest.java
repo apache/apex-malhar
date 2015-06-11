@@ -27,6 +27,7 @@ import org.junit.Test;
 import com.google.common.collect.Maps;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import java.util.ArrayList;
 
 /**
  * Test for {@link MapBasedCouchDbOutputOperator}
@@ -67,6 +68,115 @@ public class CouchDBOutputOperatorTest
     Assert.assertEquals("name of document", "TD", docNode.get("name").getTextValue());
     Assert.assertEquals("type of document", "test", docNode.get("type").getTextValue());
     Assert.assertEquals("output-type", "map", docNode.get("output-type").getTextValue());
+  }
+
+  @Test
+  public void testCouchDBPOJOOutputOperator()
+  {
+    String testDocumentId = "test";
+    TestPOJO tuple = new TestPOJO();
+    tuple.setId(testDocumentId);
+    tuple.setName("TD");
+    tuple.setType("test");
+    tuple.setRev("1-75efcce1f083316d622d389f3f9813f8");
+    tuple.setOutput_type("pojo");
+    CouchDbPOJOOutputOperator dbOutputOper = new CouchDbPOJOOutputOperator();
+    CouchDbStore store = new CouchDbStore();
+    store.setDbName(CouchDBTestHelper.TEST_DB);
+    dbOutputOper.setStore(store);
+    String expression = "getId()";
+    ArrayList<String> expressions = new ArrayList<String>();
+    expressions.add("rev");
+    expressions.add("name");
+    expressions.add("type");
+    expressions.add("output_type");
+    ArrayList<String> classNames = new ArrayList<String>();
+    classNames.add("String");
+    classNames.add("String");
+    classNames.add("String");
+    classNames.add("String");
+    dbOutputOper.setClassNamesOfFields(classNames);
+    dbOutputOper.setExpressions(expressions);
+    dbOutputOper.setExpressionForDocId(expression);
+    dbOutputOper.setup(new OperatorContextTestHelper.TestIdOperatorContext(1));
+    dbOutputOper.beginWindow(0);
+    dbOutputOper.input.process(tuple);
+    dbOutputOper.endWindow();
+
+    //Test if the document was persisted
+    JsonNode docNode = CouchDBTestHelper.fetchDocument(testDocumentId);
+    Assert.assertNotNull("Document saved", docNode);
+
+    Assert.assertEquals("name of document", "TD", docNode.get("name").getTextValue());
+    Assert.assertEquals("type of document", "test", docNode.get("type").getTextValue());
+    Assert.assertEquals("output-type", "pojo", docNode.get("output_type").getTextValue());
+
+  }
+
+  public class TestPOJO
+  {
+    private String _id;
+    private String output_type;
+    private String rev;
+
+    public String getRev()
+    {
+      return rev;
+    }
+
+    public void setRev(String rev)
+    {
+      this.rev = rev;
+    }
+
+    public String getOutput_type()
+    {
+      return output_type;
+    }
+
+    public void setOutput_type(String output_type)
+    {
+      this.output_type = output_type;
+    }
+
+    public String getId()
+    {
+      return _id;
+    }
+
+    public void setId(String id)
+    {
+      this._id = id;
+    }
+
+    public TestPOJO()
+    {
+
+    }
+
+    public String getName()
+    {
+      return name;
+    }
+
+    public void setName(String name)
+    {
+      this.name = name;
+    }
+
+    public String getType()
+    {
+      return type;
+    }
+
+    public void setType(String type)
+    {
+      this.type = type;
+    }
+
+    String name;
+    String type;
+
   }
 
   @BeforeClass
