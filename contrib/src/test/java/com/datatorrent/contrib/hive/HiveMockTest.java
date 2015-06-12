@@ -33,6 +33,7 @@ import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.ProcessingMode;
+import com.datatorrent.contrib.hive.FSPojoToHiveOperator.FIELD_TYPE;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.serializers.FieldSerializer;
@@ -56,6 +57,7 @@ public class HiveMockTest extends HiveTestService
   public static final int BLAST_SIZE = 10;
   public static final int DATABASE_SIZE = NUM_WINDOWS * BLAST_SIZE;
   public static final String tablename = "temp";
+  public static final String tablepojo = "temppojo";
   public static final String tablemap = "tempmap";
   public static String delimiterMap = ":";
   public static final String HOST = "localhost";
@@ -137,7 +139,9 @@ public class HiveMockTest extends HiveTestService
       LOG.debug("tables are {}", res.getString(1));
     }
 
-    stmt.execute("CREATE TABLE IF NOT EXISTS " + tablename + " (col1 string) PARTITIONED BY(dt STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\n'  \n"
+    stmt.execute("DROP TABLE " + tablename);
+
+    stmt.execute("CREATE TABLE IF NOT EXISTS " + tablename + " (col1 String) PARTITIONED BY(dt STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\n'  \n"
             + "STORED AS TEXTFILE ");
     /*ResultSet res = stmt.execute("CREATE TABLE IF NOT EXISTS temp4 (col1 map<string,int>,col2 map<string,int>,col3  map<string,int>,col4 map<String,timestamp>, col5 map<string,double>,col6 map<string,double>,col7 map<string,int>,col8 map<string,int>) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','  \n"
      + "COLLECTION ITEMS TERMINATED BY '\n'  \n"
@@ -145,6 +149,25 @@ public class HiveMockTest extends HiveTestService
      + "LINES TERMINATED BY '\n' "
      + "STORED AS TEXTFILE");*/
 
+    hiveStore.disconnect();
+  }
+
+  public static void hiveInitializePOJODatabase(HiveStore hiveStore) throws SQLException
+  {
+    hiveStore.connect();
+    Statement stmt = hiveStore.getConnection().createStatement();
+    // show tables
+    String sql = "show tables";
+
+    LOG.debug(sql);
+    ResultSet res = stmt.executeQuery(sql);
+    if (res.next()) {
+      LOG.debug("tables are {}", res.getString(1));
+    }
+    stmt.execute("DROP TABLE " + tablepojo);
+
+    stmt.execute("CREATE TABLE " + tablepojo + " (col1 int) PARTITIONED BY(dt STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\n'  \n"
+            + "STORED AS TEXTFILE ");
     hiveStore.disconnect();
   }
 
@@ -160,6 +183,8 @@ public class HiveMockTest extends HiveTestService
     if (res.next()) {
       LOG.debug(res.getString(1));
     }
+
+    stmt.execute("DROP TABLE " + tablemap);
 
     stmt.execute("CREATE TABLE IF NOT EXISTS " + tablemap + " (col1 map<string,int>) PARTITIONED BY(dt STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\n'  \n"
             + "MAP KEYS TERMINATED BY '" + delimiterMap + "' \n"
@@ -257,6 +282,113 @@ public class HiveMockTest extends HiveTestService
   }
 
   @Test
+  public void testInsertPOJO() throws Exception
+  {
+    HiveStore hiveStore = createStore(null);
+    hiveStore.setFilepath(testMeta.getDir());
+    ArrayList<String> hivePartitionColumns = new ArrayList<String>();
+    hivePartitionColumns.add("dt");
+    ArrayList<String> hiveColumns = new ArrayList<String>();
+    hiveColumns.add("col1");
+    hiveInitializePOJODatabase(createStore(null));
+    HiveOperator hiveOperator = new HiveOperator();
+    hiveOperator.setHivestore(hiveStore);
+    hiveOperator.setTablename(tablepojo);
+    hiveOperator.setHivePartitionColumns(hivePartitionColumns);
+
+    FSPojoToHiveOperator fsRolling = new FSPojoToHiveOperator();
+    fsRolling.setFilePath(testMeta.getDir());
+    fsRolling.setHiveColumns(hiveColumns);
+    ArrayList<FIELD_TYPE> fieldtypes = new ArrayList<FIELD_TYPE>();
+    ArrayList<FIELD_TYPE> partitiontypes = new ArrayList<FIELD_TYPE>();
+    fieldtypes.add(FIELD_TYPE.INTEGER);
+    partitiontypes.add(FIELD_TYPE.STRING);
+    fsRolling.setHiveColumnDataTypes(fieldtypes);
+    fsRolling.setHivePartitionColumnDataTypes(partitiontypes);
+    //ArrayList<FIELD_TYPE> partitionColumnType = new ArrayList<FIELD_TYPE>();
+    //partitionColumnType.add(FIELD_TYPE.STRING);
+    fsRolling.setHivePartitionColumns(hivePartitionColumns);
+    // fsRolling.setHivePartitionColumnsDataTypes(partitionColumnType);
+    ArrayList<String> expressions = new ArrayList<String>();
+    expressions.add("getId()");
+    ArrayList<String> expressionsPartitions = new ArrayList<String>();
+
+    expressionsPartitions.add("getDate()");
+    short permission = 511;
+    fsRolling.setFilePermission(permission);
+    fsRolling.setMaxLength(128);
+    fsRolling.setExpressionsForHiveColumns(expressions);
+    fsRolling.setExpressionsForHivePartitionColumns(expressionsPartitions);
+    AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
+    attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
+    attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
+    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+
+    fsRolling.setup(context);
+    hiveOperator.setup(context);
+    FilePartitionMapping mapping1 = new FilePartitionMapping();
+    FilePartitionMapping mapping2 = new FilePartitionMapping();
+    mapping1.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-11" + "/" + "0-transaction.out.part.0");
+    ArrayList<String> partitions1 = new ArrayList<String>();
+    partitions1.add("2014-12-11");
+    mapping1.setPartition(partitions1);
+    ArrayList<String> partitions2 = new ArrayList<String>();
+    partitions2.add("2014-12-12");
+    mapping2.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-12" + "/" + "0-transaction.out.part.0");
+    mapping2.setPartition(partitions2);
+    for (int wid = 0, total = 0;
+            wid < NUM_WINDOWS;
+            wid++) {
+      fsRolling.beginWindow(wid);
+      for (int tupleCounter = 1;
+              tupleCounter < BLAST_SIZE && total < DATABASE_SIZE;
+              tupleCounter++, total++) {
+        InnerObj innerObj = new InnerObj();
+        innerObj.setId(tupleCounter);
+        innerObj.setDate("2014-12-1" + tupleCounter);
+        fsRolling.input.process(innerObj);
+      }
+      if (wid == 7) {
+        fsRolling.committed(wid - 1);
+        hiveOperator.processTuple(mapping1);
+        hiveOperator.processTuple(mapping2);
+      }
+
+      fsRolling.endWindow();
+    }
+
+    fsRolling.teardown();
+    hiveStore.connect();
+    client.execute("select * from " + tablepojo + " where dt='2014-12-11'");
+    List<String> recordsInDatePartition1 = client.fetchAll();
+
+    client.execute("select * from " + tablepojo + " where dt='2014-12-12'");
+    List<String> recordsInDatePartition2 = client.fetchAll();
+    client.execute("drop table " + tablepojo);
+    hiveStore.disconnect();
+
+    Assert.assertEquals(7, recordsInDatePartition1.size());
+    for (int i = 0; i < recordsInDatePartition1.size(); i++) {
+      LOG.debug("records in first date partition are {}", recordsInDatePartition1.get(i));
+      /*An array containing partition and data is returned as a string record, hence we need to upcast it to an object first
+       and then downcast to a string in order to use in Assert.*/
+      Object record = recordsInDatePartition1.get(i);
+      Object[] records = (Object[])record;
+      Assert.assertEquals(1, records[0]);
+      Assert.assertEquals("2014-12-11", records[1]);
+    }
+    Assert.assertEquals(7, recordsInDatePartition2.size());
+    for (int i = 0; i < recordsInDatePartition2.size(); i++) {
+      LOG.debug("records in second date partition are {}", recordsInDatePartition2.get(i));
+      Object record = recordsInDatePartition2.get(i);
+      Object[] records = (Object[])record;
+      Assert.assertEquals(2, records[0]);
+      Assert.assertEquals("2014-12-12", records[1]);
+    }
+  }
+
+  @Test
   public void testHiveInsertMapOperator() throws SQLException, TException
   {
     HiveStore hiveStore = createStore(null);
@@ -300,7 +432,7 @@ public class HiveMockTest extends HiveTestService
       for (int tupleCounter = 0;
               tupleCounter < BLAST_SIZE;
               tupleCounter++) {
-        map.put(2014-12-10 + "", 2014-12-10);
+        map.put(2014 - 12 - 10 + "", 2014 - 12 - 10);
         fsRolling.input.put(map);
         map.clear();
       }
@@ -458,6 +590,37 @@ public class HiveMockTest extends HiveTestService
 
   }
 
-  private static transient final Logger LOG = LoggerFactory.getLogger(HiveMockTest.class);
+  public class InnerObj
+  {
+    public InnerObj()
+    {
+    }
+
+    private int id;
+    private String date;
+
+    public String getDate()
+    {
+      return date;
+    }
+
+    public void setDate(String date)
+    {
+      this.date = date;
+    }
+
+    public int getId()
+    {
+      return id;
+    }
+
+    public void setId(int id)
+    {
+      this.id = id;
+    }
+
+  }
+
+  private static final Logger LOG = LoggerFactory.getLogger(HiveMockTest.class);
 
 }
