@@ -34,11 +34,5 @@ public class MapBasedCouchDbOutputOperator extends AbstractCouchDBOutputOperator
     return (String) tuple.get("_id");
   }
 
-  @Override
-  public Map<?,?> convertTupleToMap(Map<Object, Object> tuple)
-  {
-    return tuple;
-  }
-
 }
 

@@ -17,9 +17,6 @@ package com.datatorrent.contrib.couchdb;
 
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -33,51 +30,9 @@ import javax.validation.constraints.NotNull;
 public class CouchDbPOJOOutputOperator extends AbstractCouchDBOutputOperator<Object>
 {
   private transient Getter<Object, String> getterDocId;
-  private transient Getter<Object, ? extends Object> valueGetter;
-  @NotNull
-  private ArrayList<String> expressions;
-  @NotNull
-  private ArrayList<String> classNamesOfFields;
+
   @NotNull
   private String expressionForDocId;
-  @NotNull
-  private String expressionForDocRevision;
-
-  public String getExpressionForDocRevision()
-  {
-    return expressionForDocRevision;
-  }
-
-  public void setExpressionForDocRevision(String expressionForDocRevision)
-  {
-    this.expressionForDocRevision = expressionForDocRevision;
-  }
-
-  /*
-   * An ArrayList of classnames for fields inside pojo.
-   */
-  public ArrayList<String> getClassNamesOfFields()
-  {
-    return classNamesOfFields;
-  }
-
-  public void setClassNamesOfFields(ArrayList<String> classNamesOfFields)
-  {
-    this.classNamesOfFields = classNamesOfFields;
-  }
-
-  /*
-   * An ArrayList of Java expressions that will yield the document field values from the POJO.
-   */
-  public ArrayList<String> getExpressions()
-  {
-    return expressions;
-  }
-
-  public void setExpressions(ArrayList<String> expressions)
-  {
-    this.expressions = expressions;
-  }
 
   /*
    * An Expression to extract value of document Id from input POJO.
@@ -100,26 +55,6 @@ public class CouchDbPOJOOutputOperator extends AbstractCouchDBOutputOperator<Obj
     }
     String docId = getterDocId.get(tuple);
     return docId;
-  }
-
-  @Override
-  public Map<?,?> convertTupleToMap(Object tuple)
-  {
-    Map<Object, Object> mapTuple = new HashMap<Object, Object>();
-    mapTuple.put("_id", getDocumentId(tuple));
-    if (valueGetter == null) {
-      int size = expressions.size();
-      for (int i = 0; i < size; i++) {
-        try {
-          valueGetter = PojoUtils.createGetter(tuple.getClass(), expressions.get(i), Class.forName("java.lang." + classNamesOfFields.get(i)));
-        }
-        catch (ClassNotFoundException ex) {
-          throw new RuntimeException(ex);
-        }
-        mapTuple.put(expressions.get(i), valueGetter.get(tuple));
-      }
-    }
-    return mapTuple;
   }
 
 }

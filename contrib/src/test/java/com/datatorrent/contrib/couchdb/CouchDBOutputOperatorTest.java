@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import org.junit.Test;
 import com.google.common.collect.Maps;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import java.util.ArrayList;
 
 /**
  * Test for {@link MapBasedCouchDbOutputOperator}
@@ -73,30 +72,21 @@ public class CouchDBOutputOperatorTest
   @Test
   public void testCouchDBPOJOOutputOperator()
   {
-    String testDocumentId = "test";
+    String testDocumentId = "test2";
     TestPOJO tuple = new TestPOJO();
     tuple.setId(testDocumentId);
-    tuple.setName("TD");
-    tuple.setType("test");
-    tuple.setRev("1-75efcce1f083316d622d389f3f9813f8");
+    tuple.setName("TD2");
+    tuple.setType("test2");
     tuple.setOutput_type("pojo");
+    Address address = new Address();
+    address.setCity("chandigarh");
+    address.setHousenumber(123);
+    tuple.setAddress(address);
     CouchDbPOJOOutputOperator dbOutputOper = new CouchDbPOJOOutputOperator();
     CouchDbStore store = new CouchDbStore();
     store.setDbName(CouchDBTestHelper.TEST_DB);
     dbOutputOper.setStore(store);
     String expression = "getId()";
-    ArrayList<String> expressions = new ArrayList<String>();
-    expressions.add("rev");
-    expressions.add("name");
-    expressions.add("type");
-    expressions.add("output_type");
-    ArrayList<String> classNames = new ArrayList<String>();
-    classNames.add("String");
-    classNames.add("String");
-    classNames.add("String");
-    classNames.add("String");
-    dbOutputOper.setClassNamesOfFields(classNames);
-    dbOutputOper.setExpressions(expressions);
     dbOutputOper.setExpressionForDocId(expression);
     dbOutputOper.setup(new OperatorContextTestHelper.TestIdOperatorContext(1));
     dbOutputOper.beginWindow(0);
@@ -105,28 +95,46 @@ public class CouchDBOutputOperatorTest
 
     //Test if the document was persisted
     JsonNode docNode = CouchDBTestHelper.fetchDocument(testDocumentId);
-    Assert.assertNotNull("Document saved", docNode);
-
-    Assert.assertEquals("name of document", "TD", docNode.get("name").getTextValue());
-    Assert.assertEquals("type of document", "test", docNode.get("type").getTextValue());
+    Assert.assertNotNull("Document saved ", docNode);
+    Assert.assertEquals("name of document ", "TD2", docNode.get("name").getTextValue());
+    Assert.assertEquals("type of document ", "test2", docNode.get("type").getTextValue());
     Assert.assertEquals("output-type", "pojo", docNode.get("output_type").getTextValue());
+    Assert.assertEquals("Housenumber is ",123,docNode.get("address").get("housenumber").getIntValue());
+    Assert.assertEquals("City is ","chandigarh",docNode.get("address").get("city").getTextValue());
 
   }
-
   public class TestPOJO
   {
     private String _id;
     private String output_type;
-    private String rev;
+    private String revision;
+    private Address address;
+    private  String name;
+    private String type;
 
-    public String getRev()
+    public TestPOJO()
     {
-      return rev;
+
     }
 
-    public void setRev(String rev)
+    public Address getAddress()
     {
-      this.rev = rev;
+      return address;
+    }
+
+    public void setAddress(Address address)
+    {
+      this.address = address;
+    }
+
+    public String getRevision()
+    {
+      return revision;
+    }
+
+    public void setRevision(String rev)
+    {
+      this.revision = rev;
     }
 
     public String getOutput_type()
@@ -149,11 +157,6 @@ public class CouchDBOutputOperatorTest
       this._id = id;
     }
 
-    public TestPOJO()
-    {
-
-    }
-
     public String getName()
     {
       return name;
@@ -174,8 +177,34 @@ public class CouchDBOutputOperatorTest
       this.type = type;
     }
 
-    String name;
-    String type;
+  }
+
+  private class Address
+  {
+    private int housenumber;
+
+    public int getHousenumber()
+    {
+      return housenumber;
+    }
+
+    public void setHousenumber(int housenumber)
+    {
+      this.housenumber = housenumber;
+    }
+
+    public String getCity()
+    {
+      return city;
+    }
+
+    public void setCity(String city)
+    {
+      this.city = city;
+    }
+    private String city;
+
+
 
   }
 
