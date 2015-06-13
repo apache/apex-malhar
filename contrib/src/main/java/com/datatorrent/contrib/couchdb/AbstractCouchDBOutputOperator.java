@@ -40,7 +40,7 @@ public abstract class AbstractCouchDBOutputOperator<T> extends AbstractStoreOutp
   @Override
   public void processTuple(T tuple)
   {
-    store.upsertDocument(getDocumentId(tuple), convertTupleToMap(tuple));
+    store.upsertDocument(getDocumentId(tuple), tuple);
   }
 
   /**
@@ -50,10 +50,5 @@ public abstract class AbstractCouchDBOutputOperator<T> extends AbstractStoreOutp
    * @return document id.
    */
   public abstract String getDocumentId(T tuple);
-
-  /*
-   * Converts Tuple to Map.
-   */
-  public abstract Map<?,?> convertTupleToMap(T tuple);
 
 }
