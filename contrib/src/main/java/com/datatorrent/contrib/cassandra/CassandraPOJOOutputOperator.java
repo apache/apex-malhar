@@ -46,10 +46,10 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
 {
   @NotNull
   private ArrayList<String> columns;
-  private final ArrayList<DataType> columnDataTypes;
+  private final transient ArrayList<DataType> columnDataTypes;
   @NotNull
   private ArrayList<String> expressions;
-  private transient ArrayList<Object> getters;
+  private final transient ArrayList<Object> getters;
 
   /*
    * An ArrayList of Java expressions that will yield the field value from the POJO.
@@ -170,13 +170,13 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
   {
     StringBuilder queryfields = new StringBuilder("");
     StringBuilder values = new StringBuilder("");
-    for (int i = 0; i < columns.size(); i++) {
+    for (String column: columns) {
       if (queryfields.length() == 0) {
-        queryfields.append(columns.get(i));
+        queryfields.append(column);
         values.append("?");
       }
       else {
-        queryfields.append(",").append(columns.get(i));
+        queryfields.append(",").append(column);
         values.append(",").append("?");
       }
     }
@@ -259,5 +259,5 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
     return boundStmnt;
   }
 
-  private static transient final Logger LOG = LoggerFactory.getLogger(CassandraPOJOOutputOperator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CassandraPOJOOutputOperator.class);
 }
