@@ -93,110 +93,86 @@ public class CassandraOperatorTest
     }
   }
 
-
-  private static class TestOutputOperator extends CassandraOutputOperator
+  private static class TestOutputOperator extends CassandraPOJOOutputOperator
   {
     public long getNumOfEventsInStore()
     {
-        String countQuery = "SELECT count(*) from " + TABLE_NAME + ";";
-        ResultSet resultSetCount = session.execute(countQuery);
-        for (Row row: resultSetCount) {
-          return row.getLong(0);
-        }
-        return 0;
+      String countQuery = "SELECT count(*) from " + TABLE_NAME + ";";
+      ResultSet resultSetCount = session.execute(countQuery);
+      for (Row row: resultSetCount) {
+        return row.getLong(0);
+      }
+      return 0;
 
     }
 
     public void getEventsInStore()
     {
-        String recordsQuery = "SELECT * from " + TABLE_NAME + ";";
-        ResultSet resultSetRecords = session.execute(recordsQuery);
-        int count =0;
-        for (Row row: resultSetRecords) {
-          LOG.debug("Boolean value is {}", row.getBool("test"));
-          Assert.assertEquals(true, row.getBool("test"));
-          LOG.debug("lastname returned is {}", row.getString("lastname"));
-          Assert.assertEquals("abclast", row.getString("lastname"));
-          LOG.debug("Double value returned is {}", row.getDouble("doubleValue"));
-          Assert.assertEquals("Double value is",2.0,row.getDouble("doubleValue"),2);
-          LOG.debug("Float value returned is {}", row.getFloat("floatValue"));
-          LOG.debug("age returned is {}", row.getInt("age"));
-          LOG.debug("set returned is {} ", row.getSet("set1", Integer.class));
-          LOG.debug("list returned is {}", row.getList("list1", Integer.class));
-          LOG.debug("map returned is {}", row.getMap("map1", String.class, Integer.class));
-          LOG.debug("date returned is {}", row.getDate("last_visited"));
-          Assert.assertNotEquals(new Date(System.currentTimeMillis()),row.getDate("last_visited"));
-          if(count == 0)
-          {
-            Assert.assertEquals(2, row.getInt("age"));
-            Assert.assertEquals(2.0, row.getFloat("floatValue"),2);
-            Set<Integer> set = new HashSet<Integer>();
-            List<Integer> list = new ArrayList<Integer>();
-            Map<String,Integer> map = new HashMap<String, Integer>();
-            set.add(2);
-            list.add(2);
-            map.put("key2", 2);
-            Assert.assertEquals(set, row.getSet("set1", Integer.class));
-            Assert.assertEquals(map, row.getMap("map1", String.class, Integer.class));
-            Assert.assertEquals(list,row.getList("list1", Integer.class));
-          }
-          if(count == 1)
-          {
-            Assert.assertEquals(0, row.getInt("age"));
-            Assert.assertEquals(0.0, row.getFloat("floatValue"),2);
-            Set<Integer> set = new HashSet<Integer>();
-            List<Integer> list = new ArrayList<Integer>();
-            Map<String,Integer> map = new HashMap<String, Integer>();
-            set.add(0);
-            list.add(0);
-            map.put("key0", 0);
-            Assert.assertEquals(set, row.getSet("set1", Integer.class));
-            Assert.assertEquals(map, row.getMap("map1", String.class, Integer.class));
-            Assert.assertEquals(list,row.getList("list1", Integer.class));
-          }
-          if(count == 2)
-          {
-            Assert.assertEquals(1, row.getInt("age"));
-            Assert.assertEquals(1.0, row.getFloat("floatValue"),2);
-            Set<Integer> set = new HashSet<Integer>();
-            List<Integer> list = new ArrayList<Integer>();
-            Map<String,Integer> map = new HashMap<String, Integer>();
-            set.add(1);
-            list.add(1);
-            map.put("key1", 1);
-            Assert.assertEquals(set, row.getSet("set1", Integer.class));
-            Assert.assertEquals(map, row.getMap("map1", String.class, Integer.class));
-            Assert.assertEquals(list,row.getList("list1", Integer.class));
-          }
-          count++;
+      String recordsQuery = "SELECT * from " + TABLE_NAME + ";";
+      ResultSet resultSetRecords = session.execute(recordsQuery);
+      int count = 0;
+      for (Row row: resultSetRecords) {
+        LOG.debug("Boolean value is {}", row.getBool("test"));
+        Assert.assertEquals(true, row.getBool("test"));
+        LOG.debug("lastname returned is {}", row.getString("lastname"));
+        Assert.assertEquals("abclast", row.getString("lastname"));
+        LOG.debug("Double value returned is {}", row.getDouble("doubleValue"));
+        Assert.assertEquals("Double value is", 2.0, row.getDouble("doubleValue"), 2);
+        LOG.debug("Float value returned is {}", row.getFloat("floatValue"));
+        LOG.debug("age returned is {}", row.getInt("age"));
+        LOG.debug("set returned is {} ", row.getSet("set1", Integer.class));
+        LOG.debug("list returned is {}", row.getList("list1", Integer.class));
+        LOG.debug("map returned is {}", row.getMap("map1", String.class, Integer.class));
+        LOG.debug("date returned is {}", row.getDate("last_visited"));
+        Assert.assertNotEquals(new Date(System.currentTimeMillis()), row.getDate("last_visited"));
+        if (count == 0) {
+          Assert.assertEquals(2, row.getInt("age"));
+          Assert.assertEquals(2.0, row.getFloat("floatValue"), 2);
+          Set<Integer> set = new HashSet<Integer>();
+          List<Integer> list = new ArrayList<Integer>();
+          Map<String, Integer> map = new HashMap<String, Integer>();
+          set.add(2);
+          list.add(2);
+          map.put("key2", 2);
+          Assert.assertEquals(set, row.getSet("set1", Integer.class));
+          Assert.assertEquals(map, row.getMap("map1", String.class, Integer.class));
+          Assert.assertEquals(list, row.getList("list1", Integer.class));
         }
-
+        if (count == 1) {
+          Assert.assertEquals(0, row.getInt("age"));
+          Assert.assertEquals(0.0, row.getFloat("floatValue"), 2);
+          Set<Integer> set = new HashSet<Integer>();
+          List<Integer> list = new ArrayList<Integer>();
+          Map<String, Integer> map = new HashMap<String, Integer>();
+          set.add(0);
+          list.add(0);
+          map.put("key0", 0);
+          Assert.assertEquals(set, row.getSet("set1", Integer.class));
+          Assert.assertEquals(map, row.getMap("map1", String.class, Integer.class));
+          Assert.assertEquals(list, row.getList("list1", Integer.class));
+        }
+        if (count == 2) {
+          Assert.assertEquals(1, row.getInt("age"));
+          Assert.assertEquals(1.0, row.getFloat("floatValue"), 2);
+          Set<Integer> set = new HashSet<Integer>();
+          List<Integer> list = new ArrayList<Integer>();
+          Map<String, Integer> map = new HashMap<String, Integer>();
+          set.add(1);
+          list.add(1);
+          map.put("key1", 1);
+          Assert.assertEquals(set, row.getSet("set1", Integer.class));
+          Assert.assertEquals(map, row.getMap("map1", String.class, Integer.class));
+          Assert.assertEquals(list, row.getList("list1", Integer.class));
+        }
+        count++;
+      }
 
     }
 
   }
 
-  private static class TestInputOperator extends AbstractCassandraInputOperator<TestEvent>
+  private static class TestInputOperator extends CassandraPOJOInputOperator
   {
-
-    private static final String retrieveQuery = "SELECT * FROM " + KEYSPACE + "." + TABLE_NAME + ";";
-
-    @Override
-    public TestEvent getTuple(Row row)
-    {
-      try {
-        return new TestEvent(row.getInt(0));
-      }
-      catch (DriverException e) {
-        throw new RuntimeException(e);
-      }
-    }
-
-    @Override
-    public String queryToRetrieveData()
-    {
-      return retrieveQuery;
-    }
 
     public void insertEventsInTable(int numEvents)
     {
@@ -218,6 +194,45 @@ public class CassandraOperatorTest
         throw new RuntimeException(e);
       }
     }
+
+  }
+
+  public static class TestInputPojo
+  {
+    private UUID id;
+    private String lastname;
+    private int age;
+
+    public int getAge()
+    {
+      return age;
+    }
+
+    public void setAge(int age)
+    {
+      this.age = age;
+    }
+
+    public UUID getId()
+    {
+      return id;
+    }
+
+    public void setId(UUID id)
+    {
+      this.id = id;
+    }
+
+    public String getLastname()
+    {
+      return lastname;
+    }
+
+    public void setLastname(String lastname)
+    {
+      this.lastname = lastname;
+    }
+
 
   }
 
@@ -288,6 +303,7 @@ public class CassandraOperatorTest
   @Test
   public void TestCassandraInputOperator()
   {
+    String retrieveQuery = "SELECT * FROM " + KEYSPACE + "." + TABLE_NAME + ";";
     CassandraStore store = new CassandraStore();
     store.setNode(NODE);
     store.setKeyspace(KEYSPACE);
@@ -297,6 +313,23 @@ public class CassandraOperatorTest
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
 
     TestInputOperator inputOperator = new TestInputOperator();
+    inputOperator.setStore(store);
+    inputOperator.insertEventsInTable(10);
+    inputOperator.setOutputClass("TestInputPojo");
+    inputOperator.setTablename(TABLE_NAME);
+    inputOperator.setRetrieveQuery(retrieveQuery);
+    ArrayList<String> columns = new ArrayList<String>();
+    columns.add("id");
+    columns.add("age");
+    columns.add("lastname");
+
+    inputOperator.setColumns(columns);
+    ArrayList<String> expressions = new ArrayList<String>();
+    expressions.add("id");
+    expressions.add("age");
+    expressions.add("lastname");
+    inputOperator.setExpressions(expressions);
+
     inputOperator.setStore(store);
     inputOperator.insertEventsInTable(10);
 
@@ -313,7 +346,7 @@ public class CassandraOperatorTest
 
   public static class TestPojo
   {
-    private TestPojo(UUID randomUUID, int i, String string, boolean b, float d, double d0, Set<Integer> set1, List<Integer> list1, Map<String, Integer> map1, Date date)
+    public TestPojo(UUID randomUUID, int i, String string, boolean b, float d, double d0, Set<Integer> set1, List<Integer> list1, Map<String, Integer> map1, Date date)
     {
       this.id = randomUUID;
       this.age = i;

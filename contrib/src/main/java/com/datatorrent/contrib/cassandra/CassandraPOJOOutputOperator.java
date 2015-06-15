@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * @tags output operator
  * @since 2.1.0
  */
-public class CassandraOutputOperator extends AbstractCassandraTransactionableOutputOperatorPS<Object>
+public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionableOutputOperatorPS<Object>
 {
   @NotNull
   private ArrayList<String> columns;
@@ -95,7 +95,7 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
     this.tablename = tablename;
   }
 
-  public CassandraOutputOperator()
+  public CassandraPOJOOutputOperator()
   {
     super();
     columnDataTypes = new ArrayList<DataType>();
@@ -259,5 +259,5 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
     return boundStmnt;
   }
 
-  private static transient final Logger LOG = LoggerFactory.getLogger(CassandraOutputOperator.class);
+  private static transient final Logger LOG = LoggerFactory.getLogger(CassandraPOJOOutputOperator.class);
 }
