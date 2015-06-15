@@ -15,6 +15,8 @@
  */
 package com.datatorrent.contrib.zmq;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,13 +76,20 @@ public class ZeroMQInputOperatorTest
       @Override
       public void run()
       {
-        int count = 0;
+        long startTms = System.currentTimeMillis();
+        long timeout = 10000L;
         try {
+          while (!collector.inputPort.collections.containsKey("collector") && System.currentTimeMillis() - startTms < timeout) {
+            Thread.sleep(500);
+          }
           Thread.sleep(1000);
           while (true) {
-            if (count++ < testNum * 3) {
-              Thread.sleep(100);
+            List<?> list = collector.inputPort.collections.get("collector");
+            
+            if (list.size() < testNum * 3) {
+              Thread.sleep(10);
             }
+            
             else {
               break;
             }			            

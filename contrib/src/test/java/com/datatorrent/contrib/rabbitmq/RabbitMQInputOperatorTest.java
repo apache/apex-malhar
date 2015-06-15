@@ -39,8 +39,7 @@ import com.rabbitmq.client.QueueingConsumer;
 public class RabbitMQInputOperatorTest
 {
   protected static Logger logger = LoggerFactory.getLogger(RabbitMQInputOperatorTest.class);
-  static HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
-
+  
   public static final class TestStringRabbitMQInputOperator extends AbstractSinglePortRabbitMQInputOperator<String>
   {
     @Override
@@ -120,7 +119,7 @@ public class RabbitMQInputOperatorTest
     LocalMode lma = LocalMode.newInstance();
     DAG dag = lma.getDAG();
     RabbitMQInputOperator consumer = dag.addOperator("Consumer", RabbitMQInputOperator.class);
-    CollectorModule<byte[]> collector = dag.addOperator("Collector", new CollectorModule<byte[]>());
+    final CollectorModule<byte[]> collector = dag.addOperator("Collector", new CollectorModule<byte[]>());
 
     consumer.setHost("localhost");
     consumer.setExchange("testEx");
@@ -143,13 +142,15 @@ public class RabbitMQInputOperatorTest
         long startTms = System.currentTimeMillis();
         long timeout = 10000L;
         try {
-          while (!collections.containsKey("collector") && System.currentTimeMillis() - startTms < timeout) {
+          while (!collector.inputPort.collections.containsKey("collector") && System.currentTimeMillis() - startTms < timeout) {
             Thread.sleep(500);
           }
           publisher.generateMessages(testNum);
-          while (System.currentTimeMillis() - startTms < timeout) {            
-            if (cnt++ < testNum * 3) {
-              Thread.sleep(100);
+          while (System.currentTimeMillis() - startTms < timeout) {
+            List<?> list = collector.inputPort.collections.get("collector");
+            
+            if (list.size() < testNum * 3) {
+              Thread.sleep(10);
             }
             else {
               break;
@@ -168,7 +169,7 @@ public class RabbitMQInputOperatorTest
 
     lc.run();
 
-    logger.debug("collection size:" + collector.inputPort.collections.size() + " " + collections.toString());
+    logger.debug("collection size:" + collector.inputPort.collections.size() + " " +  collector.inputPort.collections.toString());
 
     MessageQueueTestHelper.validateResults(testNum, collector.inputPort.collections);
   }  

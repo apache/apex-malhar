@@ -9,7 +9,7 @@ import com.datatorrent.api.Operator;
 
 public class CollectorInputPort<T> extends DefaultInputPort<T>
 {
-  public static HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
+  public volatile static HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
   ArrayList<T> list;
 
   final String id;

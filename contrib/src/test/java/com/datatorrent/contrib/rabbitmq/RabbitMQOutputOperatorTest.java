@@ -154,10 +154,9 @@ public class RabbitMQOutputOperatorTest
     final LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
     lc.runAsync();
-    int count = 0;
     try {      
       Thread.sleep(1000);
-      while(count++ < testNum * 3)
+      while(receiver.count < testNum * 3)
       {
         Thread.sleep(100);
       } 
