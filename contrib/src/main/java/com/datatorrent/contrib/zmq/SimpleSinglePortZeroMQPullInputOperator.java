@@ -15,10 +15,10 @@
  */
 package com.datatorrent.contrib.zmq;
 
-import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
-import com.datatorrent.api.Context;
-
 import org.zeromq.ZMQ;
+
+import com.datatorrent.api.Context;
+import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
 
 /**
  * This is the base implementation of a simple single port ZeroMQ input operator.&nbsp;

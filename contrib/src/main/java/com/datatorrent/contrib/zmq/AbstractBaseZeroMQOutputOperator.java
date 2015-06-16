@@ -15,11 +15,12 @@
  */
 package com.datatorrent.contrib.zmq;
 
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.Context.OperatorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
+
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * This is the base implementation of a ZeroMQ output adapter.&nbsp;
