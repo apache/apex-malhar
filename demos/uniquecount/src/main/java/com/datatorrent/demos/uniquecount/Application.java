@@ -23,12 +23,9 @@ import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.partitioner.StatelessPartitioner;
 import com.datatorrent.lib.algo.UniqueCounterValue;
 import com.datatorrent.lib.converter.MapToKeyHashValuePairConverter;
-import com.datatorrent.lib.converter.MapToKeyValuePairConverter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.stream.StreamDuplicater;
 import com.datatorrent.lib.util.KeyHashValPair;
-import com.datatorrent.lib.util.KeyValPair;
-
 import org.apache.hadoop.conf.Configuration;
 
 /**
