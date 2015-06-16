@@ -20,25 +20,30 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.contrib.testhelper.CollectorModule;
-import com.datatorrent.contrib.testhelper.MessageQueueTestHelper;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.QueueingConsumer;
+
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.datatorrent.contrib.helper.CollectorModule;
+import com.datatorrent.contrib.helper.MessageQueueTestHelper;
+
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.LocalMode;
+
+import com.datatorrent.common.util.DTThrowable;
+
 /**
  *
  */
 public class RabbitMQInputOperatorTest
 {
-  protected static Logger logger = LoggerFactory.getLogger(RabbitMQInputOperatorTest.class);
+  private static Logger logger = LoggerFactory.getLogger(RabbitMQInputOperatorTest.class);
   
   public static final class TestStringRabbitMQInputOperator extends AbstractSinglePortRabbitMQInputOperator<String>
   {
@@ -135,7 +140,6 @@ public class RabbitMQInputOperatorTest
 
     new Thread("LocalClusterController")
     {
-      int cnt = 0;
       @Override
       public void run()
       {
@@ -146,6 +150,7 @@ public class RabbitMQInputOperatorTest
             Thread.sleep(500);
           }
           publisher.generateMessages(testNum);
+          startTms = System.currentTimeMillis();
           while (System.currentTimeMillis() - startTms < timeout) {
             List<?> list = collector.inputPort.collections.get("collector");
             
@@ -158,18 +163,20 @@ public class RabbitMQInputOperatorTest
           }
         }
         catch (IOException ex) {
-          logger.debug(ex.toString());
+          logger.error(ex.getMessage(), ex);
+          DTThrowable.rethrow(ex);
+        } catch (InterruptedException ex) {
+          DTThrowable.rethrow(ex);
+        } finally {
+          lc.shutdown();
         }
-        catch (InterruptedException ex) {
-        }
-        lc.shutdown();
       }
 
     }.start();
 
     lc.run();
 
-    logger.debug("collection size:" + collector.inputPort.collections.size() + " " +  collector.inputPort.collections.toString());
+    logger.debug("collection size: {} {}", collector.inputPort.collections.size(), collector.inputPort.collections);
 
     MessageQueueTestHelper.validateResults(testNum, collector.inputPort.collections);
   }  

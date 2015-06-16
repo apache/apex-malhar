@@ -22,10 +22,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.contrib.helper.SourceModule;
+
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.contrib.testhelper.SourceModule;
+
+import com.datatorrent.common.util.DTThrowable;
 
 
 /**
@@ -60,7 +63,7 @@ public class ZeroMQOutputOperatorTest
     final LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
 
-    final ZeroMQMessageReceiver receiver = new ZeroMQMessageReceiver(logger);
+    final ZeroMQMessageReceiver receiver = new ZeroMQMessageReceiver();
     receiver.setup();
     final Thread t = new Thread(receiver);
     t.start();
@@ -71,29 +74,30 @@ public class ZeroMQOutputOperatorTest
       {
         try {
           Thread.sleep(1000);
-          while (true) {
+          long timeout = 10000L;
+          long startTms = System.currentTimeMillis();
+          while (System.currentTimeMillis() - startTms < timeout) {
             if (receiver.count < testNum * 3) {
               Thread.sleep(10);
-            }
-            else {
+            } else {
               break;
             }
           }
         }
         catch (InterruptedException ex) {
+          DTThrowable.rethrow(ex);
+        } finally {
+          logger.debug("done...");
+          lc.shutdown();
+          try {
+            Thread.sleep(1000);
+          } catch (InterruptedException e) {
+            DTThrowable.rethrow(e);
+          } finally {
+            t.interrupt();
+            receiver.teardown();
+          }
         }
-        logger.debug("done...");
-        lc.shutdown();
-        try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        t.interrupt();
-        receiver.teardown();
-        
-                        
       }
     }.start();
 

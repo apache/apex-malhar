@@ -15,9 +15,6 @@
  */
 package com.datatorrent.contrib.rabbitmq;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
@@ -26,13 +23,12 @@ import org.slf4j.LoggerFactory;
  */
 public class RabbitMQOutputOperatorBenchmark extends RabbitMQOutputOperatorTest
 {
+  private static org.slf4j.Logger logger = LoggerFactory.getLogger(RabbitMQOutputOperatorBenchmark.class);
+
   @Test
-  public void testDag() throws InterruptedException, MalformedURLException, IOException, Exception
+  public void testDag() throws Exception
   {
-    logger = LoggerFactory.getLogger(RabbitMQOutputOperatorTest.class);
-    final int testNum = 100000;
-    runTest(testNum);
-    
+    runTest(100000);
     logger.debug("end of test");  
   }
 }

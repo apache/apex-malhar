@@ -15,10 +15,8 @@
  */
 package com.datatorrent.contrib.rabbitmq;
 
-import java.util.HashMap;
-import java.util.List;
-
 import org.junit.Test;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -26,15 +24,12 @@ import org.slf4j.LoggerFactory;
  */
 public class RabbitMQInputOperatorBenchmark extends RabbitMQInputOperatorTest
 {
-  static HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
+  private static final Logger logger = LoggerFactory.getLogger(RabbitMQInputOperatorBenchmark.class);
 
-  
   @Test
   public void testDag() throws Exception
   {
-    logger = LoggerFactory.getLogger(RabbitMQInputOperatorTest.class);
-    final int testNum = 100000;
-    runTest(testNum);
+    runTest(100000);
     logger.debug("end of test");
   }
 }

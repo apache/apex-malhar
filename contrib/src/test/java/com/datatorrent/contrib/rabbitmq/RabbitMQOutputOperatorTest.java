@@ -20,27 +20,24 @@ import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.rabbitmq.client.*;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.contrib.helper.SourceModule;
+
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.contrib.testhelper.SourceModule;
-import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.DefaultConsumer;
-import com.rabbitmq.client.Envelope;
-import com.rabbitmq.client.ShutdownSignalException;
+
 /**
  *
  */
 public class RabbitMQOutputOperatorTest
 {
-  protected static org.slf4j.Logger logger = LoggerFactory.getLogger(RabbitMQOutputOperatorTest.class);
+  private static org.slf4j.Logger logger = LoggerFactory.getLogger(RabbitMQOutputOperatorTest.class);
 
   public class RabbitMQMessageReceiver
   {
@@ -156,14 +153,18 @@ public class RabbitMQOutputOperatorTest
     lc.runAsync();
     try {      
       Thread.sleep(1000);
-      while(receiver.count < testNum * 3)
+      long timeout = 10000L;
+      long startTms = System.currentTimeMillis();
+      while((receiver.count < testNum * 3) && (System.currentTimeMillis() - startTms < timeout))
       {
         Thread.sleep(100);
       } 
     }
     catch (InterruptedException ex) {
+      Assert.fail(ex.getMessage());
+    } finally {
+      lc.shutdown();
     }
-    lc.shutdown();
 
     Assert.assertEquals("emitted value for testNum was ", testNum * 3, receiver.count);
     for (Map.Entry<String, Integer> e : receiver.dataMap.entrySet()) {

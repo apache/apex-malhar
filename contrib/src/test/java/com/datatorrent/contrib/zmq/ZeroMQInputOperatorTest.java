@@ -21,11 +21,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.contrib.helper.CollectorModule;
+import com.datatorrent.contrib.helper.MessageQueueTestHelper;
+
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.contrib.testhelper.CollectorModule;
-import com.datatorrent.contrib.testhelper.MessageQueueTestHelper;
+
+import com.datatorrent.common.util.DTThrowable;
 
 /**
  *
@@ -45,7 +48,7 @@ public class ZeroMQInputOperatorTest
     LocalMode lma = LocalMode.newInstance();
     DAG dag = lma.getDAG();
 
-    final ZeroMQMessageGenerator publisher = new ZeroMQMessageGenerator(logger);
+    final ZeroMQMessageGenerator publisher = new ZeroMQMessageGenerator();
     publisher.setup();
 
     ZeroMQInputOperator generator = dag.addOperator("Generator", ZeroMQInputOperator.class);
@@ -83,33 +86,29 @@ public class ZeroMQInputOperatorTest
             Thread.sleep(500);
           }
           Thread.sleep(1000);
-          while (true) {
+          startTms = System.currentTimeMillis();
+          while (System.currentTimeMillis() - startTms < timeout) {
             List<?> list = collector.inputPort.collections.get("collector");
-            
             if (list.size() < testNum * 3) {
               Thread.sleep(10);
-            }
-            
-            else {
+            } else {
               break;
             }			            
           }
         }
         catch (InterruptedException ex) {
+          DTThrowable.rethrow(ex);
+        } finally {
+          logger.debug("Shutting down..");
+          lc.shutdown();
+          try {
+            Thread.sleep(1000);
+          } catch (InterruptedException e) {
+            DTThrowable.rethrow(e);
+          } finally {
+            publisher.teardown();
+          }
         }
-
-        logger.debug("Shutting down..");
-        lc.shutdown();
-
-        try {
-          Thread.sleep(1000);
-        } catch (InterruptedException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
-
-        publisher.teardown();
-
       }
     }.start();
 

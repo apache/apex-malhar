@@ -1,26 +1,38 @@
+/*
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.datatorrent.contrib.zmq;
 
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
 
 final class ZeroMQMessageReceiver implements Runnable
 {
+  private static final Logger logger = LoggerFactory.getLogger(ZeroMQMessageReceiver.class);
+
   public HashMap<String, Integer> dataMap = new HashMap<String, Integer>();
   public int count = 0;
   protected ZMQ.Context context;
   protected ZMQ.Socket subscriber;
   protected ZMQ.Socket syncclient;
   volatile boolean shutDown = false;
-  
-  private static org.slf4j.Logger logger;
-  
-  public ZeroMQMessageReceiver(org.slf4j.Logger loggerInstance)
-  {
-	logger =  loggerInstance;
-  }
-  
+
   public void setup()
   {
     context = ZMQ.context(1);
@@ -60,7 +72,7 @@ final class ZeroMQMessageReceiver implements Runnable
       int eq = str.indexOf('=');
       String key = str.substring(1, eq);
       int value = Integer.parseInt(str.substring(eq + 1, str.length() - 1));
-      logger.debug("\nsubscriber recv:" + str);
+      logger.debug("\nsubscriber recv: {}", str);
       dataMap.put(key, value);
       count++;
       logger.debug("out of loop.. ");

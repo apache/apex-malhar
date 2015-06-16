@@ -17,16 +17,13 @@ package com.datatorrent.contrib.zmq;
 
 import org.junit.Test;
 
-
-
 /**
  *
  */
 public class ZeroMQInputOperatorBenchmark extends ZeroMQInputOperatorTest
 {
   @Test
-  public void testDag() throws InterruptedException, Exception {
-    final int testNum = 2000000;
-    testHelper(testNum);
+  public void testDag() throws Exception {
+    testHelper(2000000);
   }
 }

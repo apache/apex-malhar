@@ -16,6 +16,7 @@
 package com.datatorrent.contrib.zmq;
 
 import org.junit.Test;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -23,15 +24,13 @@ import org.slf4j.LoggerFactory;
  */
 public class ZeroMQOutputOperatorBenchmark extends ZeroMQOutputOperatorTest
 {
+  private static final Logger logger = LoggerFactory.getLogger(ZeroMQOutputOperatorBenchmark.class);
+
   @Test
   public void testDag() throws Exception
   {
-    final int testNum = 2000000;
-
-    logger = LoggerFactory.getLogger(ZeroMQOutputOperatorTest.class);
-
+    int testNum = 2000000;
     runTest(testNum);
-    
     logger.debug(String.format("\nBenchmarked %d tuples", testNum * 3));
     logger.debug("end of test");
   }
