@@ -41,7 +41,7 @@ public class CouchBaseSetTest
   List<URI> baseURIs = new ArrayList<URI>();
   OperationFuture<Boolean> future;
   CouchbaseClient client = null;
-  private CompletionListener listener;
+  private final CompletionListener listener;
 
   public CouchBaseSetTest()
   {
@@ -87,49 +87,21 @@ public class CouchBaseSetTest
       System.err.println("Error connecting to Couchbase: " + e.getMessage());
       System.exit(1);
     }
-    /*for (int i = 0; i < 100; i++) {
-
-     final OperationFuture<Boolean> future = client.set("Key" + (k * 100 + i), i);
-     future.addListener(new OperationCompletionListener()
-     {
-
-     @Override
-     public void onComplete(OperationFuture<?> f) throws Exception
-     {
-     countLatch.countDown();
-     if (!((Boolean)f.get())) {
-     logger.info("Noway");
-     }
-     j.incrementAndGet();
-
-     }
-
-     });
-     }
-     try {
-     countLatch.await();
-     }
-     catch (InterruptedException ex) {
-     logger.error("Error connecting to Couchbase: " + ex.getMessage());
-     DTThrowable.rethrow(ex.getCause());
-     }*/
+    
     TestPojo obj = new TestPojo();
-    obj.setName("prerna");
+    obj.setName("test");
     obj.setPhone(123344555);
     HashMap<String, Integer> map = new HashMap<String, Integer>();
-    map.put("prer", 12345);
+    map.put("test", 12345);
     obj.setMap(map);
-    long starttime = System.currentTimeMillis();
-    //for (int i = 0; i < 10000; i++) {
-      future = processKeyValue("key" , obj);
-      future.addListener(listener);
-    //}
+    future = processKeyValue("key" , obj);
+    future.addListener(listener);
 
   }
 
   long stopTime = System.currentTimeMillis();
 
-  public OperationFuture processKeyValue(String key, Object value)
+  public OperationFuture<Boolean> processKeyValue(String key, Object value)
   {
     future = client.set(key, value);
     return future;

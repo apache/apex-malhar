@@ -25,7 +25,7 @@ import net.spy.memcached.internal.OperationFuture;
 public abstract class AbstractCouchBaseSetOperator<T> extends AbstractCouchBaseOutputOperator<T>
 {
   @Override
-  public OperationFuture processKeyValue(String key, Object value)
+  public OperationFuture<Boolean> processKeyValue(String key, Object value)
   {
     OperationFuture<Boolean> future = store.getInstance().set(key, value);
     return future;
