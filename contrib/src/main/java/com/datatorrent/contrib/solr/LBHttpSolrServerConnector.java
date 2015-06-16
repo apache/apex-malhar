@@ -37,12 +37,15 @@ public class LBHttpSolrServerConnector extends SolrServerConnector
     }
   }
 
-  // set this property in dt-site.xml
   public void setSolrServerUrls(String[] solrServerUrls)
   {
     this.solrServerUrls = solrServerUrls;
   }
 
+  /*
+   * Urls of solr Server httpClient - http client instance responseParser - ResponseParser instance
+   * Gets the solr server urls
+   */
   public String[] getSolrServerUrls()
   {
     return solrServerUrls;
@@ -53,6 +56,10 @@ public class LBHttpSolrServerConnector extends SolrServerConnector
     this.httpClient = httpClient;
   }
 
+  /*
+   * HttpClient instance
+   * Gets the HTTP Client instance
+   */
   public HttpClient getHttpClient()
   {
     return httpClient;
