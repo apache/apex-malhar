@@ -19,12 +19,16 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.algo.PartitionableUniqueCount;
+import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.partitioner.StatelessPartitioner;
 import com.datatorrent.lib.algo.UniqueCounterValue;
+import com.datatorrent.lib.converter.MapToKeyHashValuePairConverter;
+import com.datatorrent.lib.converter.MapToKeyValuePairConverter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.stream.StreamDuplicater;
 import com.datatorrent.lib.util.KeyHashValPair;
+import com.datatorrent.lib.util.KeyValPair;
+
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -49,10 +53,12 @@ public class Application implements StreamingApplication
 
         /* Initialize with three partition to start with */
     // UniqueCount1 uniqCount = dag.addOperator("uniqevalue", new UniqueCount1());
-    PartitionableUniqueCount<Integer> uniqCount = dag.addOperator("uniqevalue", new PartitionableUniqueCount<Integer>());
+    UniqueCounter<Integer> uniqCount = dag.addOperator("uniqevalue", new UniqueCounter<Integer>());
 
-    uniqCount.setCumulative(false);
-    dag.setAttribute(uniqCount, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<PartitionableUniqueCount<Integer>>(3));
+    MapToKeyHashValuePairConverter<Integer, Integer> converter = dag.addOperator("converter", new MapToKeyHashValuePairConverter());
+    
+ //   uniqCount.setCumulative(false);
+    dag.setAttribute(uniqCount, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<UniqueCounter<Integer>>(3));
 
     CountVerifier<Integer> verifier = dag.addOperator("verifier", new CountVerifier<Integer>());
     StreamDuplicater<KeyHashValPair<Integer, Integer>> dup = dag.addOperator("dup", new StreamDuplicater<KeyHashValPair<Integer, Integer>>());
@@ -69,7 +75,8 @@ public class Application implements StreamingApplication
 
     dag.addStream("datain", randGen.outPort, uniqCount.data);
     dag.addStream("dataverification0", randGen.verificationPort, verifier.in1);
-    dag.addStream("split", uniqCount.count, dup.data);
+    dag.addStream("split", uniqCount.count, converter.input);
+    dag.addStream("split", converter.output, dup.data);
     dag.addStream("consoutput", dup.out1, output.input);
     dag.addStream("dataverification1", dup.out2, verifier.in2);
     dag.addStream("successc", verifier.successPort, successcounter.data);

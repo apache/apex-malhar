@@ -15,19 +15,18 @@
  */
 package com.datatorrent.lib.algo;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
-
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
@@ -85,6 +84,19 @@ public class UniqueValueCount<K> extends BaseOperator {
         }
     };
 
+
+    /**
+     * The output port which emits key and set containing unique values 
+     */
+    public final transient DefaultOutputPort<KeyValPair<K,Set<Object>>> set = new DefaultOutputPort<KeyValPair<K,Set<Object>>>()
+    {
+      @SuppressWarnings({ "unchecked", "rawtypes" })
+      @Override
+      public Unifier<KeyValPair<K, Set<Object>>> getUnifier() {
+        return (Unifier)new UniqueCountUnifier<K>();
+      }
+    };
+    
     public UniqueValueCount (){
         this.interimUniqueValues=Maps.newHashMap();
     }
@@ -95,6 +107,7 @@ public class UniqueValueCount<K> extends BaseOperator {
         for (K key : interimUniqueValues.keySet()) {
             Set<Object> values= interimUniqueValues.get(key);
             output.emit(new InternalCountOutput<K>(key, values.size(),values));
+            set.emit(new KeyValPair<K, Set<Object>>(key, values));
         }
         interimUniqueValues.clear();
     }
@@ -135,6 +148,8 @@ public class UniqueValueCount<K> extends BaseOperator {
 
         public final transient DefaultOutputPort<InternalCountOutput<K>> output = new DefaultOutputPort<InternalCountOutput<K>>();
 
+        public final transient DefaultOutputPort<KeyValPair<K, Set<Object>>> setOutput = new DefaultOutputPort<KeyValPair<K, Set<Object>>>();
+
         private final Map<K,Set<Object>> finalUniqueValues;
 
         public UniqueCountUnifier(){
@@ -159,6 +174,7 @@ public class UniqueValueCount<K> extends BaseOperator {
         public void endWindow() {
             for(K key: finalUniqueValues.keySet()){
                 output.emit(new InternalCountOutput<K>(key,finalUniqueValues.get(key).size(),finalUniqueValues.get(key)));
+                setOutput.emit(new KeyValPair<K, Set<Object>>(key, finalUniqueValues.get(key)));
             }
             finalUniqueValues.clear();
         }

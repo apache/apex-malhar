@@ -15,13 +15,15 @@
  */
 package com.datatorrent.lib.algo;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
-
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.TestUtils;
@@ -39,8 +41,10 @@ public class UniqueValueCountTest {
     public void uniqueCountTest(){
         UniqueValueCount<String> uniqueCountOper= new UniqueValueCount<String>();
         CollectorTestSink<KeyValPair <String,Integer>> outputSink = new CollectorTestSink<KeyValPair <String,Integer>>();
+        CollectorTestSink<KeyValPair <String,Set<Object>>> outputSetSink = new CollectorTestSink<KeyValPair <String, Set<Object>>>();
         TestUtils.setSink(uniqueCountOper.output, outputSink);
-
+        TestUtils.setSink(uniqueCountOper.set, outputSetSink);
+        
         uniqueCountOper.beginWindow(0);
         uniqueCountOper.input.process(new KeyValPair<String, Object>("test1",1));
         uniqueCountOper.input.process(new KeyValPair<String, Object>("test1",2));
@@ -49,9 +53,15 @@ public class UniqueValueCountTest {
 
         Assert.assertEquals("number emitted tuples", 1, outputSink.collectedTuples.size());
         KeyValPair<String,Integer> emittedPair= outputSink.collectedTuples.get(0);
+        
         Assert.assertEquals("emitted key was ", "test1", emittedPair.getKey());
         Assert.assertEquals("emitted value was ",2, emittedPair.getValue().intValue());
 
+        Assert.assertEquals("number emitted tuples", 1, outputSetSink.collectedTuples.size());
+        KeyValPair<String,Set<Object>> emittedSetPair= outputSetSink.collectedTuples.get(0);
+        Assert.assertTrue(emittedSetPair.getValue().contains(1));
+        Assert.assertTrue(emittedSetPair.getValue().contains(2));
+        
         outputSink.clear();
         uniqueCountOper.beginWindow(1);
         uniqueCountOper.input.process(new KeyValPair<String,Object>("test1",1));
