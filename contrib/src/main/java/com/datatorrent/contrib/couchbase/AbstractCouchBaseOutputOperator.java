@@ -42,18 +42,18 @@ import com.datatorrent.common.util.DTThrowable;
 public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggregateTransactionableStoreOutputOperator<T, CouchBaseWindowStore>
 {
   private static final transient Logger logger = LoggerFactory.getLogger(AbstractCouchBaseOutputOperator.class);
-  protected transient HashMap<OperationFuture, Long> mapFuture;
+  protected transient HashMap<OperationFuture<Boolean>, Long> mapFuture;
   protected int numTuples;
   protected CouchBaseSerializer serializer;
   protected TreeMap<Long, T> mapTuples;
   protected long id = 0;
-  private transient CompletionListener listener;
+  private final transient CompletionListener listener;
   private transient boolean failure;
-  private transient Object syncObj;
+  private final transient Object syncObj;
 
   public AbstractCouchBaseOutputOperator()
   {
-    mapFuture = new HashMap<OperationFuture, Long>();
+    mapFuture = new HashMap<OperationFuture<Boolean>, Long>();
     mapTuples = new TreeMap<Long, T>();
     store = new CouchBaseWindowStore();
     listener = new CompletionListener();
@@ -62,9 +62,10 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public void setup(OperatorContext context)
   {
-    ProcessingMode mode = context.getValue(context.PROCESSING_MODE);
+    ProcessingMode mode = context.getValue(OperatorContext.PROCESSING_MODE);
     if (mode == ProcessingMode.AT_MOST_ONCE) {
       //map must be cleared to avoid writing same data twice
       if (numTuples == 0) {
@@ -74,7 +75,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
     numTuples = 0;
     //atleast once, check leftovers in map and send them to couchbase.
     if (!mapTuples.isEmpty()) {
-      Iterator itr = mapTuples.values().iterator();
+      Iterator<?> itr = mapTuples.values().iterator();
       while (itr.hasNext()) {
         processTuple((T)itr.next());
       }
@@ -104,8 +105,10 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
     id++;
     String key = getKey(tuple);
     Object value = getValue(tuple);
+    if(!(value instanceof Boolean) && !(value instanceof Integer) && !(value instanceof String) && !(value instanceof Float) && !(value instanceof Double) && !(value instanceof Character) && !(value instanceof Long) && !(value instanceof Short) && !(value instanceof Byte)){
     if (serializer != null) {
       value = serializer.serialize(value);
+    }
     }
     OperationFuture<Boolean> future = processKeyValue(key, value);
     synchronized (syncObj) {
@@ -129,7 +132,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   public void waitForQueueSize(int sizeOfQueue)
   {
     long startTms = System.currentTimeMillis();
-    long elapsedTime = 0;
+    long elapsedTime ;
     while (numTuples > sizeOfQueue) {
       synchronized (syncObj) {
         if (numTuples > sizeOfQueue) {
@@ -190,6 +193,6 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
 
   public abstract Object getValue(T tuple);
 
-  protected abstract OperationFuture processKeyValue(String key, Object value);
+  protected abstract OperationFuture<Boolean> processKeyValue(String key, Object value);
 
 }
