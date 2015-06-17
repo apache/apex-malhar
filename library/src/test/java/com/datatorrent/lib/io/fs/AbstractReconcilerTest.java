@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.io.fs;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
@@ -101,7 +102,7 @@ public class AbstractReconcilerTest
   {
     LocalMode lma = LocalMode.newInstance();
     Configuration configuration = new Configuration();
-    lma.prepareDAG(new TestDag(),configuration);
+    lma.prepareDAG(new TestDag(), configuration);
     LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
     lc.run(15000);
@@ -112,6 +113,17 @@ public class AbstractReconcilerTest
   {
 
     public transient DefaultOutputPort<String> outputPort = new DefaultOutputPort<String>();
+    private List<String> emitData = new ArrayList<String>();
+
+    @Override
+    public void beginWindow(long windowId)
+    {
+      for (String data : emitData) {
+        outputPort.emit(data);
+      }
+      emitData.clear();
+      super.beginWindow(windowId);
+    }
 
     @Override
     protected void processTuple(String input)
@@ -122,7 +134,7 @@ public class AbstractReconcilerTest
     @Override
     protected void processCommittedData(String meta)
     {
-      outputPort.emit(meta);
+      emitData.add(meta);
     }
   }
 
@@ -144,6 +156,7 @@ public class AbstractReconcilerTest
     reconciler1.input.process("d");
     reconciler1.endWindow();
     reconciler1.committed(0);
+    Thread.sleep(500);
     reconciler1.beginWindow(windowId++);
     reconciler1.input.process("e");
     reconciler1.input.process("f");
@@ -152,7 +165,6 @@ public class AbstractReconcilerTest
     reconciler1.input.process("g");
     reconciler1.input.process("h");
     reconciler1.endWindow();
-    Thread.sleep(500);
     output.add("a");
     output.add("b");
     Assert.assertEquals(output, sink.collectedTuples);
@@ -160,6 +172,8 @@ public class AbstractReconcilerTest
     sink.collectedTuples.clear();
     reconciler1.committed(2);
     Thread.sleep(500);
+    reconciler1.beginWindow(windowId++);
+    reconciler1.endWindow();
     output.add("c");
     output.add("d");
     output.add("e");
