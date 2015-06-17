@@ -44,34 +44,43 @@ public class ConcurrentUpdateSolrServerConnector extends SolrServerConnector
 
   }
 
-  // set this property in dt-site.xml
   public void setSolrServerURL(String solrServerURL)
   {
     this.solrServerURL = solrServerURL;
   }
 
+  /*
+   * The Solr server URL
+   * Gets the solr server URL
+   */
   public String getSolrServerURL()
   {
     return solrServerURL;
   }
 
-  // set this property in dt-site.xml
   public void setQueueSize(int queueSize)
   {
     this.queueSize = queueSize;
   }
 
+  /*
+   * The buffer size before the documents are sent to the server
+   * Gets the queue size of documents buffer
+   */
   public int getQueueSize()
   {
     return queueSize;
   }
 
-  // set this property in dt-site.xml
   public void setThreadCount(int threadCount)
   {
     this.threadCount = threadCount;
   }
 
+  /*
+   * The number of background threads used to empty the queue
+   * Gets the background threads count
+   */
   public int getThreadCount()
   {
     return threadCount;
@@ -82,12 +91,15 @@ public class ConcurrentUpdateSolrServerConnector extends SolrServerConnector
     this.httpClient = httpClient;
   }
 
+  /*
+   * HttpClient instance 
+   * Gets the HTTP Client instance
+   */
   public HttpClient getHttpClient()
   {
     return httpClient;
   }
 
-  // set this property in dt-site.xml
   public void setStreamDeletes(boolean streamDeletes)
   {
     this.streamDeletes = streamDeletes;

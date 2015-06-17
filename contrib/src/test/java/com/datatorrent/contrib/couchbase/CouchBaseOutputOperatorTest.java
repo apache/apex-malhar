@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,14 @@
  */
 package com.datatorrent.contrib.couchbase;
 
+import com.couchbase.client.CouchbaseConnectionFactory;
+import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.python.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,24 +32,55 @@ import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.DAG;
 
 import com.datatorrent.common.util.DTThrowable;
+import java.util.HashMap;
+import java.util.List;
+import org.couchbase.mock.Bucket.BucketType;
+import org.couchbase.mock.BucketConfiguration;
+import org.couchbase.mock.CouchbaseMock;
 
 public class CouchBaseOutputOperatorTest
 {
 
   private static final Logger logger = LoggerFactory.getLogger(CouchBaseOutputOperatorTest.class);
-  private static String APP_ID = "CouchBaseOutputOperatorTest";
-  private static String bucket = "default";
-  private static String password = "";
-  private static int OPERATOR_ID = 0;
+  private static final String APP_ID = "CouchBaseOutputOperatorTest";
+  private static final String password = "";
+  private static final int OPERATOR_ID = 0;
   protected static ArrayList<URI> nodes = new ArrayList<URI>();
   protected static ArrayList<String> keyList;
-  private static String uri = "127.0.0.1:8091";
+  private final int numNodes = 2;
+  private final int numReplicas = 3;
 
-  public static class TestEvent
+  protected CouchbaseConnectionFactory connectionFactory;
+
+  protected CouchbaseMock createMock(String name, String password, BucketConfiguration bucketConfiguration) throws Exception
+  {
+    bucketConfiguration.numNodes = numNodes;
+    bucketConfiguration.numReplicas = numReplicas;
+    bucketConfiguration.name = name;
+    bucketConfiguration.type = BucketType.COUCHBASE;
+    bucketConfiguration.password = password;
+    bucketConfiguration.hostname = "localhost";
+    ArrayList<BucketConfiguration> configList = new ArrayList<BucketConfiguration>();
+    configList.add(bucketConfiguration);
+    CouchbaseMock mockCouchbase = new CouchbaseMock(0, configList);
+    return mockCouchbase;
+  }
+
+  public static class TestEvent1
   {
 
     String key;
-    Integer value;
+    TestPojo test;
+
+    public TestPojo getTest()
+    {
+      return test;
+    }
+
+    public void setTest(TestPojo test)
+    {
+      this.test = test;
+    }
 
     public String getKey()
     {
@@ -62,41 +92,67 @@ public class CouchBaseOutputOperatorTest
       this.key = key;
     }
 
-    public Integer getValue()
-    {
-      return value;
-    }
-
-    public void setValue(Integer value)
-    {
-      this.value = value;
-    }
-
-
-    TestEvent()
+    TestEvent1()
     {
 
     }
 
-    TestEvent(String key, int val)
+  }
+
+  public static class TestEvent2
+  {
+
+    String key;
+    Integer num;
+
+    public Integer getNum()
+    {
+      return num;
+    }
+
+    public void setNum(Integer num)
+    {
+      this.num = num;
+    }
+
+    public String getKey()
+    {
+      return key;
+    }
+
+    public void setKey(String key)
     {
       this.key = key;
-      this.value = val;
+    }
+
+    TestEvent2(String key, Integer test)
+    {
+      this.key = key;
+      this.num = test;
     }
 
   }
 
   @Test
-  public void TestCouchBaseOutputOperator()
+  public void TestCouchBaseOutputOperator() throws InterruptedException, Exception
   {
+    BucketConfiguration bucketConfiguration = new BucketConfiguration();
+    CouchbaseConnectionFactoryBuilder cfb = new CouchbaseConnectionFactoryBuilder();
+    CouchbaseMock mockCouchbase1 = createMock("default", "", bucketConfiguration);
+    mockCouchbase1.start();
+    mockCouchbase1.waitForStartup();
+
+    List<URI> uriList = new ArrayList<URI>();
+    int port1 = mockCouchbase1.getHttpPort();
+    logger.debug("port is {}", port1);
+    uriList.add(new URI("http", null, "localhost", port1, "/pools", "", ""));
+    cfb.buildCouchbaseConnection(uriList, bucketConfiguration.name, bucketConfiguration.password);
+
     CouchBaseWindowStore store = new CouchBaseWindowStore();
-    store.setBucket(bucket);
-    store.setPassword(password);
-    store.setUriString(uri);
-    store.setQueueSize(100);
-    store.setMaxTuples(1000);
-    store.setTimeout(10000);
-    keyList = new ArrayList<String>();
+    store.setBucket(bucketConfiguration.name);
+    store.setPasswordConfig(password);
+    store.setPassword(bucketConfiguration.password);
+    store.setUriString("localhost:" + port1 + "," + "localhost:" + port1);
     try {
       store.connect();
     }
@@ -105,7 +161,7 @@ public class CouchBaseOutputOperatorTest
     }
     store.getInstance().flush();
     store.getMetaInstance().flush();
-    CouchbaseSetTestOperator outputOperator = new CouchbaseSetTestOperator();
+    CouchbasePOJOSetOperator outputOperator = new CouchbasePOJOSetOperator();
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
@@ -115,40 +171,52 @@ public class CouchBaseOutputOperatorTest
     outputOperator.setup(context);
     ArrayList<String> expressions = new ArrayList<String>();
     expressions.add("getKey()");
-    expressions.add("getValue()");
+    expressions.add("getTest()");
     outputOperator.setExpressions(expressions);
-    outputOperator.setValueType(CouchbasePOJOSetOperator.FieldType.NUMBER);
     CouchBaseJSONSerializer serializer = new CouchBaseJSONSerializer();
     outputOperator.setSerializer(serializer);
-    List<TestEvent> events = Lists.newArrayList();
-    for (int i = 0; i < 1000; i++) {
-      events.add(new TestEvent("key" + i, i));
-      keyList.add("key" + i);
-    }
-
-    logger.info("keylist is " + keyList.toString());
+    TestPojo obj = new TestPojo();
+    obj.setName("test");
+    obj.setPhone(123344555);
+    HashMap<String, Integer> map = new HashMap<String, Integer>();
+    map.put("test", 12345);
+    obj.setMap(map);
+    TestEvent1 testEvent = new TestEvent1();
+    testEvent.setKey("key1");
+    testEvent.setTest(obj);
     outputOperator.beginWindow(0);
-    for (TestEvent event: events) {
-      outputOperator.input.process(event);
-    }
+    outputOperator.input.process(testEvent);
     outputOperator.endWindow();
-    Map<String, Object> keyValues = store.getInstance().getBulk(keyList);
-    logger.info("keyValues is" + keyValues.toString());
-    logger.info("size is " + keyValues.size());
-    Assert.assertEquals("rows in couchbase", 1000, keyValues.size());
-
-  }
-
-  private static class CouchbaseSetTestOperator extends CouchbasePOJOSetOperator
-  {
-    public int getNumOfEventsInStore()
-    {
-      Map<String, Object> keyValues = store.client.getBulk(keyList);
-      logger.info("keyValues is" + keyValues.toString());
-      logger.info("size is " + keyValues.size());
-      return keyValues.size();
+    Assert.assertEquals("Value in couchbase is", "{\"name\":\"test\",\"map\":{\"test\":12345},\"phone\":123344555}", store.getInstance().get("key1").toString());
+    outputOperator.teardown();
+    outputOperator = new CouchbasePOJOSetOperator();
+    store = new CouchBaseWindowStore();
+    store.setBucket(bucketConfiguration.name);
+    store.setPasswordConfig(password);
+    store.setPassword(bucketConfiguration.password);
+    store.setUriString("localhost:" + port1 + "," + "localhost:" + port1);
+    try {
+      store.connect();
     }
+    catch (IOException ex) {
+      DTThrowable.rethrow(ex);
+    }
+    store.getInstance().flush();
+    store.getMetaInstance().flush();
+    outputOperator.setStore(store);
 
+    outputOperator.setup(context);
+    expressions = new ArrayList<String>();
+    expressions.add("getKey()");
+    expressions.add("getNum()");
+    outputOperator.setExpressions(expressions);
+    TestEvent2 simpleEvent = new TestEvent2("key2", 123);
+    outputOperator.beginWindow(0);
+    outputOperator.input.process(simpleEvent);
+    outputOperator.endWindow();
+    Assert.assertEquals("Value in couchbase is", "123", store.getInstance().get("key2").toString());
+    outputOperator.teardown();
+    mockCouchbase1.stop();
   }
 
 }

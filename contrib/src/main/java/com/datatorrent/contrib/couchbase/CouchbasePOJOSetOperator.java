@@ -15,7 +15,6 @@
  */
 package com.datatorrent.contrib.couchbase;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import javax.validation.constraints.NotNull;
@@ -39,23 +38,6 @@ public class CouchbasePOJOSetOperator extends AbstractCouchBaseSetOperator<Objec
   private transient Getter<Object, ? extends Object> valueGetter;
   @NotNull
   private ArrayList<String> expressions;
-  @NotNull
-  private FieldType valueType;
-
-  public FieldType getValueType()
-  {
-    return valueType;
-  }
-
-  public void setValueType(FieldType valueType)
-  {
-    this.valueType = valueType;
-  }
-
-  public enum FieldType
-  {
-    BOOLEAN, NUMBER, STRING, ARRAY, OBJECT, NULL
-  };
 
   /*
    * An ArrayList of Java expressions that will yield the field value from the POJO.
@@ -91,28 +73,7 @@ public class CouchbasePOJOSetOperator extends AbstractCouchBaseSetOperator<Objec
     if (null == valueGetter) {
       Class<?> tupleClass = tuple.getClass();
       final String getterExpression = expressions.get(1);
-      switch (valueType) {
-        case NUMBER:
-          valueGetter = PojoUtils.createGetter(tupleClass, getterExpression, Number.class);
-          break;
-        case STRING:
-          valueGetter = PojoUtils.createGetter(tupleClass, getterExpression, String.class);
-          break;
-        case BOOLEAN:
-          valueGetter = PojoUtils.createGetter(tupleClass, getterExpression, Boolean.class);
-          break;
-        case ARRAY:
-          valueGetter = PojoUtils.createGetter(tupleClass, getterExpression, Array.class);
-          break;
-        case OBJECT:
-          valueGetter = PojoUtils.createGetter(tupleClass, getterExpression, Object.class);
-          break;
-        case NULL:
-          break;
-        default:
-          throw new RuntimeException("unsupported data type " + valueType);
-      }
-
+      valueGetter = PojoUtils.createGetter(tupleClass, getterExpression, Object.class);
     }
     if (valueGetter != null) {
       value = valueGetter.get(tuple);

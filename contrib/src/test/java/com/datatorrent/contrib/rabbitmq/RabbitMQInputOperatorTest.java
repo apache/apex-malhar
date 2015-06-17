@@ -20,18 +20,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.QueueingConsumer;
 
-import com.datatorrent.api.*;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.datatorrent.contrib.helper.CollectorModule;
+import com.datatorrent.contrib.helper.MessageQueueTestHelper;
+
+import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.LocalMode;
+
+import com.datatorrent.common.util.DTThrowable;
 
 /**
  *
@@ -39,8 +44,7 @@ import com.datatorrent.api.DAG.Locality;
 public class RabbitMQInputOperatorTest
 {
   private static Logger logger = LoggerFactory.getLogger(RabbitMQInputOperatorTest.class);
-  static HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
-
+  
   public static final class TestStringRabbitMQInputOperator extends AbstractSinglePortRabbitMQInputOperator<String>
   {
     @Override
@@ -96,63 +100,31 @@ public class RabbitMQInputOperatorTest
     public void generateMessages(int msgCount) throws InterruptedException, IOException
     {
       for (int i = 0; i < msgCount; i++) {
-        HashMap<String, Integer> dataMapa = new HashMap<String, Integer>();
-        dataMapa.put("a", 2);
-        process(dataMapa);
-
-        HashMap<String, Integer> dataMapb = new HashMap<String, Integer>();
-        dataMapb.put("b", 20);
-        process(dataMapb);
-
-        HashMap<String, Integer> dataMapc = new HashMap<String, Integer>();
-        dataMapc.put("c", 1000);
-        process(dataMapc);
+        
+        ArrayList<HashMap<String, Integer>>  dataMaps = MessageQueueTestHelper.getMessages();
+        for(int j =0; j < dataMaps.size(); j++)
+        {
+          process(dataMaps.get(j));  
+        }        
       }
     }
 
-  }
-
-  public static class CollectorInputPort<T> extends DefaultInputPort<T>
-  {
-    ArrayList<T> list;
-    final String id;
-
-    public CollectorInputPort(String id, Operator module)
-    {
-      super();
-      this.id = id;
-    }
-
-    @Override
-    public void process(T tuple)
-    {
-//      System.out.print("collector process:"+tuple);
-      list.add(tuple);
-    }
-
-    @Override
-    public void setConnected(boolean flag)
-    {
-      if (flag) {
-        collections.put(id, list = new ArrayList<T>());
-      }
-    }
-
-  }
-
-  public static class CollectorModule<T> extends BaseOperator
-  {
-    public final transient CollectorInputPort<T> inputPort = new CollectorInputPort<T>("collector", this);
   }
 
   @Test
   public void testDag() throws Exception
   {
     final int testNum = 3;
+    runTest(testNum);
+    logger.debug("end of test");
+  }
+
+  protected void runTest(final int testNum) throws IOException
+  {
     LocalMode lma = LocalMode.newInstance();
     DAG dag = lma.getDAG();
-    TestStringRabbitMQInputOperator consumer = dag.addOperator("Consumer", TestStringRabbitMQInputOperator.class);
-    CollectorModule<String> collector = dag.addOperator("Collector", new CollectorModule<String>());
+    RabbitMQInputOperator consumer = dag.addOperator("Consumer", RabbitMQInputOperator.class);
+    final CollectorModule<byte[]> collector = dag.addOperator("Collector", new CollectorModule<byte[]>());
 
     consumer.setHost("localhost");
     consumer.setExchange("testEx");
@@ -160,7 +132,6 @@ public class RabbitMQInputOperatorTest
 
     final RabbitMQMessageGenerator publisher = new RabbitMQMessageGenerator();
     publisher.setup();
-//    publisher.generateMessages(testNum);
 
     dag.addStream("Stream", consumer.outputPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
 
@@ -175,14 +146,15 @@ public class RabbitMQInputOperatorTest
         long startTms = System.currentTimeMillis();
         long timeout = 10000L;
         try {
-          while (!collections.containsKey("collector") && System.currentTimeMillis() - startTms < timeout) {
+          while (!collector.inputPort.collections.containsKey("collector") && System.currentTimeMillis() - startTms < timeout) {
             Thread.sleep(500);
           }
           publisher.generateMessages(testNum);
+          startTms = System.currentTimeMillis();
           while (System.currentTimeMillis() - startTms < timeout) {
-            @SuppressWarnings("unchecked")
-            ArrayList<String> strList = (ArrayList<String>)collections.get("collector");
-            if (strList == null || strList.size() < testNum * 3) {
+            List<?> list = collector.inputPort.collections.get("collector");
+            
+            if (list.size() < testNum * 3) {
               Thread.sleep(10);
             }
             else {
@@ -191,38 +163,21 @@ public class RabbitMQInputOperatorTest
           }
         }
         catch (IOException ex) {
-          logger.debug(ex.toString());
+          logger.error(ex.getMessage(), ex);
+          DTThrowable.rethrow(ex);
+        } catch (InterruptedException ex) {
+          DTThrowable.rethrow(ex);
+        } finally {
+          lc.shutdown();
         }
-        catch (InterruptedException ex) {
-        }
-        lc.shutdown();
       }
 
     }.start();
 
     lc.run();
 
-    logger.debug("collection size:" + collections.size() + " " + collections.toString());
+    logger.debug("collection size: {} {}", collector.inputPort.collections.size(), collector.inputPort.collections);
 
-    ArrayList<String> strList = (ArrayList<String>)collections.get("collector");
-    Assert.assertNotNull("collector list", strList);
-    Assert.assertEquals("emitted value for testNum was ", testNum * 3, strList.size());
-    for (int i = 0; i < strList.size(); i++) {
-      String str = strList.get(i);
-      int eq = str.indexOf('=');
-      String key = str.substring(1, eq);
-      Integer value = Integer.parseInt(str.substring(eq + 1, str.length() - 1));
-      if (key.equals("a")) {
-        Assert.assertEquals("emitted value for 'a' was ", new Integer(2), value);
-      }
-      else if (key.equals("b")) {
-        Assert.assertEquals("emitted value for 'b' was ", new Integer(20), value);
-      }
-      if (key.equals("c")) {
-        Assert.assertEquals("emitted value for 'c' was ", new Integer(1000), value);
-      }
-    }
-    logger.debug("end of test");
-  }
-
+    MessageQueueTestHelper.validateResults(testNum, collector.inputPort.collections);
+  }  
 }

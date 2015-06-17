@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,20 @@
  */
 package com.datatorrent.contrib.zmq;
 
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
+ * Output adapter operator with a single input port which consumes byte array and emits the same to the ZeroMQ port.
+ * <p></p>
+ *
+ * @displayName Single Port Zero MQ output operator
+ * @category Messaging
+ * @tags input operator, string
  *
  */
-public class ZeroMQOutputOperatorBenchmark extends ZeroMQOutputOperatorTest
-{
-  private static final Logger logger = LoggerFactory.getLogger(ZeroMQOutputOperatorBenchmark.class);
 
-  @Test
-  public void testDag() throws Exception
-  {
-    int testNum = 2000000;
-    runTest(testNum);
-    logger.debug(String.format("\nBenchmarked %d tuples", testNum * 3));
-    logger.debug("end of test");
-  }
+public class ZeroMQOutputOperator extends AbstractSinglePortZeroMQOutputOperator<byte[]>{
+
+	@Override
+	public void processTuple(byte[] tuple) {
+		publisher.send(tuple, 0);
+	}
 }
-

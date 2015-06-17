@@ -37,12 +37,15 @@ public class SolrInputOperator extends AbstractSolrInputOperator<Map<String, Obj
     return solrParams;
   }
 
+  /*
+   * Solr search query
+   * Gets the solr search query
+   */
   public String getSolrQuery()
   {
     return solrQuery;
   }
 
-  // set this property in dt-site.xml
   public void setSolrQuery(String solrQuery)
   {
     this.solrQuery = solrQuery;

@@ -230,7 +230,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
     this.kps = partitionIds;
   }
 
-  public SimpleKafkaConsumer(SetMultimap<String, String> zks, String topic, int timeout, int bufferSize, String clientId, Set<KafkaPartition> partitionIds)
+  public SimpleKafkaConsumer(String zks, String topic, int timeout, int bufferSize, String clientId, Set<KafkaPartition> partitionIds)
   {
     super(zks, topic);
     this.timeout = timeout;

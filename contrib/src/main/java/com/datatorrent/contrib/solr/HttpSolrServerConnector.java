@@ -23,12 +23,15 @@ public class HttpSolrServerConnector extends SolrServerConnector
     solrServer = new HttpSolrServer(solrServerURL);
   }
 
-  // set this property in dt-site.xml
   public void setSolrServerURL(String solrServerURL)
   {
     this.solrServerURL = solrServerURL;
   }
 
+  /*
+   * The URL of the Solr server.
+   * Gets the URL of solr server
+   */
   public String getSolrServerURL()
   {
     return solrServerURL;

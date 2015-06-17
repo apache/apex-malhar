@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AbstractRabbitMQOutputOperator extends BaseOperator
 {
-  private static final Logger logger = LoggerFactory.getLogger(AbstractRabbitMQInputOperator.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractRabbitMQOutputOperator.class);
   transient ConnectionFactory connFactory = new ConnectionFactory();
   transient QueueingConsumer consumer = null;
   transient Connection connection = null;
