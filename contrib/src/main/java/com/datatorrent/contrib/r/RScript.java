@@ -37,35 +37,46 @@ import com.datatorrent.netlet.util.DTThrowable;
  * This operator enables a user to execute a R script on tuples for Map<String, Object>. The script should be in the
  * form of a function. This function will then be called by the operator.
  *
- * The user should - 1. set the name of the script file (which contains the script in the form of a function) 2. set the
- * function name. 3. set the name of the return variable 4. Make sure that the script file is available in the
- * classpath. 5. set the type of arguments being passed. This will be done in a Map. 6. Send the data in the form of a
- * tuple consisting of a key:value pair where, "key" represents the name of the argument "value" represents the actual
- * value of the argument. A map of all the arguments is created and passed as input. The result will be returned on one
- * of the output ports depending on the type of the return value.
+ * The user should <br>
+ * 1. set the name of the script file (which contains the script in the form of a function) <br>
+ * 2. set the function name <br>
+ * 3. set the name of the return variable <br>
+ * 4. Make sure that the script file is available in the classpath <br>
+ * 5. set the type of arguments being passed. This will be done in a Map <br>
+ * 6. Send the data in the form of a tuple consisting of a key:value pair where, "key" represents the name of the
+ *    argument "value" represents the actual value of the argument. A map of all the arguments is created and passed as
+ *    input. <br> <br> 
+ *    
+ *    The result will be returned on one of the output ports depending on the type of the return value.
+ * <br> <br>
+ * 
+ * <b> Sample Usage Code : </b> oper is an object of type RScript. Create it by passing  <br> < name of the R script with
+ * path from classpath>, < name of the function to be invoked>, < name of the return variable>);
+ * <br> <br>
+ * Map<String, RScript.REXP_TYPE> argTypeMap = new HashMap<String, RScript.REXP_TYPE>();  <br>
+ * argTypeMap.put(< argument name>, RScript.< argument type in the form of REXP_TYPE>); <br> 
+ * argTypeMap.put(< argument name>, RScript.< argument type in the form of REXP_TYPE>);  <br>
+ * ...... <br>
  *
- * <b> Sample Usage Code : </b> oper is an object of type RScript. Create it by passing - <name of the R script with
- * path from classpath>, <name of the function to be invoked>, <name of the return variable>);
+ * oper.setArgTypeMap(argTypeMap); <br>
  *
- * Map<String, RScript.REXP_TYPE> argTypeMap = new HashMap<String, RScript.REXP_TYPE>(); argTypeMap.put(<argument name>,
- * RScript.<argument type in the form of REXP_TYPE>); argTypeMap.put(<argument name>, RScript.<argument type in the form
- * of REXP_TYPE>); ... ...
+ * HashMap map = new HashMap(); <br>
  *
- * oper.setArgTypeMap(argTypeMap);
- *
- * HashMap map = new HashMap();
- *
- * map.put("<argument name>", <argument value>); map.put("<argument name>", <argument value>); ... ...
- *
+ * map.put("< argument name1>", < argument value1>);  <br>
+ * map.put("< argument name2>", < argument value2>);  <br>
+ * ... ...
+ * <br>
  * Note that the number of arguments inserted into the map should be same in number and order as that mentioned in the
- * argument type map above it.
+ * argument type map above it. <br>
  *
- * Pass this 'map' to the operator now.
+ * Pass this 'map' to the operator now. <br> <br>
  *
  * Currently, support has been added for only int, real, string and boolean type of values and the corresponding arrays
- * to be passed and returned from the R scripts.
+ * to be passed and returned from the R scripts. <br>
  *
- *
+ * @displayName R Script
+ * @category Scripting
+ * @tags script, r
  * @since 2.1.0
  * */
 
@@ -74,16 +85,6 @@ public class RScript extends ScriptOperator
 
   @SuppressWarnings("unused")
   private static final long serialVersionUID = 201401161205L;
-
-  public Map<String, REXP_TYPE> getArgTypeMap()
-  {
-    return argTypeMap;
-  }
-
-  public void setArgTypeMap(Map<String, REXP_TYPE> argTypeMap)
-  {
-    this.argTypeMap = argTypeMap;
-  }
 
   public enum REXP_TYPE {
     REXP_INT(1), REXP_DOUBLE(2), REXP_STR(3), REXP_BOOL(6), REXP_ARRAY_INT(32), REXP_ARRAY_DOUBLE(33), REXP_ARRAY_STR(34), REXP_ARRAY_BOOL(36);
@@ -99,13 +100,20 @@ public class RScript extends ScriptOperator
   @NotNull
   private Map<String, REXP_TYPE> argTypeMap;
 
-  // Name of the return variable
+  /**
+   * Name of the return variable in R script
+   */
   private String returnVariable = "retVal";
 
-  // Function name given to the script inside the script file.
+  /**
+   * Function name to be invoked in R script
+   */
   @NotNull
   private String functionName;
 
+  /**
+   * Path of the R script file
+   */
   @NotNull
   protected String scriptFilePath;
 
@@ -125,44 +133,88 @@ public class RScript extends ScriptOperator
     this.setReturnVariable(returnVariable);
   }
 
+  /**
+   * Returns mapping of argument name to argument type
+   * @return argTypeMap
+   *         map of argument types
+   */
+  public Map<String, REXP_TYPE> getArgTypeMap()
+  {
+    return argTypeMap;
+  }
+
+  /**
+   * Set mapping of argument name to argument type
+   * @param argTypeMap
+   *          map of argument types
+   */
+  public void setArgTypeMap(Map<String, REXP_TYPE> argTypeMap)
+  {
+    this.argTypeMap = argTypeMap;
+  }
+
+  /**
+   * Unused in this operator
+   * @return null
+   */
   @Override
   public Map<String, Object> getBindings()
   {
-    return null; // To change body of implemented methods use File | Settings | File Templates.
+    return null;
   }
 
-  // Get the value of the name of the variable being returned
+  /**
+   * Get name of the return variable in R script
+   * @return returnVariable
+   */
   public String getReturnVariable()
   {
     return returnVariable;
   }
 
-  // Set the name for the return variable
+  /**
+   * Set return variable name in R script
+   * @param returnVariable
+   */
   public void setReturnVariable(String returnVariable)
   {
     this.returnVariable = returnVariable;
   }
 
-  // Get the value of the script file with path as specified.
-  public String getScriptFilePath()
-  {
-    return scriptFilePath;
-  }
-
-  // Set the value of the script file which should be executed.
-  public void setScriptFilePath(String scriptFilePath)
-  {
-    this.scriptFilePath = scriptFilePath;
-  }
-
+  /**
+   * Get name of the function to be invoked in R script
+   * @return functionName
+   */
   public String getFunctionName()
   {
     return functionName;
   }
 
+  /**
+   * Set function to be invoked in R script
+   * @param functionName
+   */
   public void setFunctionName(String functionName)
   {
     this.functionName = functionName;
+  }
+
+  /**
+   * Get path of R script file
+   * @return scriptFilePath
+   */
+  public String getScriptFilePath()
+  {
+    return scriptFilePath;
+  }
+
+  /**
+   * Set path of R script file
+   * @param scriptFilePath
+   */
+  public void setScriptFilePath(String scriptFilePath)
+  {
+    this.scriptFilePath = scriptFilePath;
   }
 
   // Output port on which an int type of value is returned.
