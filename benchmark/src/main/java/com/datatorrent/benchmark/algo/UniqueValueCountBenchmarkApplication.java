@@ -19,7 +19,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.algo.PartitionableUniqueCount;
 import com.datatorrent.lib.partitioner.StatelessPartitioner;
 import com.datatorrent.lib.algo.UniqueCounterValue;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
@@ -53,8 +52,8 @@ public class UniqueValueCountBenchmarkApplication implements StreamingApplicatio
     dag.setAttribute(randGen, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<RandomEventGenerator>(3));
 
     /* Initialize with three partition to start with */
-    PartitionableUniqueCount<Integer> uniqCount = dag.addOperator("uniqevalue", new PartitionableUniqueCount<Integer>());
-    dag.setAttribute(uniqCount, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<PartitionableUniqueCount<Integer>>(3));
+    UniqueCounter<Integer> uniqCount = dag.addOperator("uniqevalue", new UniqueCounter<Integer>());
+    dag.setAttribute(uniqCount, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<UniqueCounter<Integer>>(3));
     dag.setInputPortAttribute(uniqCount.data, Context.PortContext.PARTITION_PARALLEL, true);
     uniqCount.setCumulative(false);
 

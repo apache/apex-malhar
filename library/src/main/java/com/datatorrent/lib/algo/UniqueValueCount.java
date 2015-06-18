@@ -92,7 +92,7 @@ public class UniqueValueCount<K> extends BaseOperator {
       @SuppressWarnings({ "unchecked", "rawtypes" })
       @Override
       public Unifier<KeyValPair<K, Set<Object>>> getUnifier() {
-        return (Unifier)new UniqueCountUnifier<K>();
+        return (Unifier)new UniqueCountSetUnifier<K>();
       }
     };
     
@@ -135,6 +135,57 @@ public class UniqueValueCount<K> extends BaseOperator {
         }
     }
 
+
+    /**
+     * Unifier for {@link UniqueValueCount} operator.<br>
+     * It uses the internal set of values emitted by the operator and
+     * emits {@link KeyValPair} of the key and a set of unique values matching key.<br></br>
+     *
+     * @param <K>Type of Key objects</K>
+     *
+     */
+
+    static class UniqueCountSetUnifier<K> implements Unifier<InternalCountOutput<K>> {
+
+      public final transient DefaultOutputPort<KeyValPair<K, Set<Object>>> output = new DefaultOutputPort<KeyValPair<K, Set<Object>>>();
+
+      private final Map<K,Set<Object>> finalUniqueValues;
+
+      public UniqueCountSetUnifier(){
+        this.finalUniqueValues=Maps.newHashMap();
+      }
+
+      @Override
+      public void process(InternalCountOutput<K> tuple) {
+        Set<Object> values = finalUniqueValues.get(tuple.getKey());
+        if (values == null) {
+          values = Sets.newHashSet();
+          finalUniqueValues.put(tuple.getKey(), values);
+        }
+        values.addAll(tuple.interimUniqueValues);
+      }
+
+      @Override
+      public void beginWindow(long l) {
+      }
+
+      @Override
+      public void endWindow() {
+        for(K key: finalUniqueValues.keySet()){
+          output.emit(new KeyValPair<K, Set<Object>>(key, finalUniqueValues.get(key)));
+        }
+        finalUniqueValues.clear();
+      }
+
+      @Override
+      public void setup(Context.OperatorContext operatorContext) {
+      }
+
+      @Override
+      public void teardown() {
+      }
+    }
+    
     /**
      * Unifier for {@link UniqueValueCount} operator.<br>
      * It uses the internal set of values emitted by the operator and
