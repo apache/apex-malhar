@@ -54,7 +54,7 @@ public class Application implements StreamingApplication
 
     MapToKeyHashValuePairConverter<Integer, Integer> converter = dag.addOperator("converter", new MapToKeyHashValuePairConverter());
     
- //   uniqCount.setCumulative(false);
+    uniqCount.setCumulative(false);
     dag.setAttribute(uniqCount, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<UniqueCounter<Integer>>(3));
 
     CountVerifier<Integer> verifier = dag.addOperator("verifier", new CountVerifier<Integer>());

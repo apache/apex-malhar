@@ -44,7 +44,7 @@ public class UniqueKeyValCountDemo implements StreamingApplication
         /* Initialize with three partition to start with */
     UniqueCounter<KeyValPair<String, Object>> uniqCount =
         dag.addOperator("uniqevalue", new UniqueCounter<KeyValPair<String, Object>>());
-    // uniqCount.setCumulative(false);
+    uniqCount.setCumulative(false);
     dag.setAttribute(randGen, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<UniqueCounter<KeyValPair<String, Object>>>(3));
 
     ConsoleOutputOperator output = dag.addOperator("output", new ConsoleOutputOperator());
