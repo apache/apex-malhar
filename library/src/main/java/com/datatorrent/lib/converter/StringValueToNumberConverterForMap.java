@@ -19,8 +19,6 @@ import com.datatorrent.api.DefaultOutputPort;
  */
 public class StringValueToNumberConverterForMap<K> extends BaseOperator {
 
-  Map<K, Number> outputMap = new HashMap<K, Number>();
-  
   /**
    * Input port which accepts Map<K, Numeric String>.
    */
@@ -28,8 +26,8 @@ public class StringValueToNumberConverterForMap<K> extends BaseOperator {
   {
     @Override
     public void process(Map<K, String> tuple)
-    { 
-      outputMap.clear();
+    {
+      Map<K, Number> outputMap = new HashMap<K, Number>();
       for(Entry<K, String> entry:tuple.entrySet())
       {
         String val = entry.getValue();
