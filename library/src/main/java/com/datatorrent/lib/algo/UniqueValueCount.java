@@ -18,15 +18,17 @@ package com.datatorrent.lib.algo;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
+import com.datatorrent.lib.util.KeyValPair;
+
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
-import com.datatorrent.lib.util.KeyValPair;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 /**
  * This operator counts the number of unique values corresponding to a key within a window.&nbsp;
@@ -87,7 +89,7 @@ public class UniqueValueCount<K> extends BaseOperator {
   /**
    * The output port which emits key and set containing unique values 
    */
-  public final transient DefaultOutputPort<KeyValPair<K,Set<Object>>> set = new DefaultOutputPort<KeyValPair<K,Set<Object>>>()
+  public final transient DefaultOutputPort<KeyValPair<K,Set<Object>>> outputValues = new DefaultOutputPort<KeyValPair<K,Set<Object>>>()
       {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
@@ -109,9 +111,9 @@ public class UniqueValueCount<K> extends BaseOperator {
           {
             output.emit(new InternalCountOutput<K>(key, values.size(),values));
           }
-          if(set.isConnected())
+          if(outputValues.isConnected())
           {
-            set.emit(new KeyValPair<K, Set<Object>>(key, values));
+            outputValues.emit(new KeyValPair<K, Set<Object>>(key, values));
           }
         }
         interimUniqueValues.clear();
@@ -177,8 +179,8 @@ public class UniqueValueCount<K> extends BaseOperator {
 
         @Override
         public void endWindow() {
-          for(K key: finalUniqueValues.keySet()){
-            output.emit(new KeyValPair<K, Set<Object>>(key, finalUniqueValues.get(key)));
+          for (Map.Entry<K, Set<Object>> entry : finalUniqueValues.entrySet()) {
+            output.emit(new KeyValPair<K, Set<Object>>(entry.getKey(), entry.getValue()));
           }
           finalUniqueValues.clear();
         }

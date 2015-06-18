@@ -15,7 +15,6 @@
  */
 package com.datatorrent.lib.algo;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Assert;
@@ -43,7 +42,7 @@ public class UniqueValueCountTest {
         CollectorTestSink<KeyValPair <String,Integer>> outputSink = new CollectorTestSink<KeyValPair <String,Integer>>();
         CollectorTestSink<KeyValPair <String,Set<Object>>> outputSetSink = new CollectorTestSink<KeyValPair <String, Set<Object>>>();
         TestUtils.setSink(uniqueCountOper.output, outputSink);
-        TestUtils.setSink(uniqueCountOper.set, outputSetSink);
+        TestUtils.setSink(uniqueCountOper.outputValues, outputSetSink);
         
         uniqueCountOper.beginWindow(0);
         uniqueCountOper.input.process(new KeyValPair<String, Object>("test1",1));
