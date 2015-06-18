@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.memsql;
+package com.datatorrent.lib.db.jdbc;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.util.PojoUtils;
+import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
 import com.datatorrent.lib.util.PojoUtils.GetterChar;
 import com.datatorrent.lib.util.PojoUtils.GetterDouble;
 import com.datatorrent.lib.util.PojoUtils.GetterFloat;
 import com.datatorrent.lib.util.PojoUtils.GetterInt;
 import com.datatorrent.lib.util.PojoUtils.GetterLong;
-import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.datatorrent.lib.util.PojoUtils.GetterShort;
-
 import java.sql.*;
 import java.util.ArrayList;
 import javax.validation.constraints.NotNull;
@@ -33,49 +32,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A generic implementation of AbstractMemsqlOutputOperator which can take in a POJO.
+ * <p>
+ * JdbcPOJOOutputOperator class.</p>
+ * A Generic implementation of AbstractJdbcTransactionableOutputOperator which takes in any POJO.
  *
+ * @displayName Jdbc Output Operator
+ * @category Output
+ * @tags output operator,transactional, POJO
  * @since 2.1.0
  */
-public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
+public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOperator<Object>
 {
   @NotNull
-  private String tablename;
-  @NotNull
-  //Columns in memsql database set by user.
   private ArrayList<String> dataColumns;
-  //Expressions set by user to get field values from input tuple.
-  @NotNull
-  private ArrayList<String> expression;
   //These are extracted from table metadata
   private ArrayList<Integer> columnDataTypes;
-  private transient boolean isFirstTuple;
-  private transient ArrayList<Object> getters;
 
   /*
-   * An ArrayList of Java expressions that will yield the field value from the POJO.
-   * Each expression corresponds to one column in the memsql table.
-   * Example:
-   */
-  public ArrayList<String> getExpression()
-  {
-    return expression;
-  }
-
-  /*
-   * Set Java Expression.
-   * @param ArrayList of Extraction Expressions
-   */
-  public void setExpression(ArrayList<String> expression)
-  {
-    this.expression = expression;
-  }
-
-  private String insertStatement;
-
-
-  /*
-   * An arraylist of data column names to be set in Memsql database.
+   * An arraylist of data column names to be set in database.
    * Gets column names.
    */
   public ArrayList<String> getDataColumns()
@@ -83,36 +57,49 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
     return dataColumns;
   }
 
-  /*
-   * An arraylist of data column names to be set in Memsql database.
-   * Sets column names.
-   */
   public void setDataColumns(ArrayList<String> dataColumns)
   {
     this.dataColumns = dataColumns;
   }
 
+  @NotNull
+  private String tablename;
 
   /*
-   * Gets the Memsql Tablename
+   * Gets the Tablename in database.
    */
   public String getTablename()
   {
     return tablename;
   }
 
-  /*
-   * Sets the Memsql Tablename
-   */
   public void setTablename(String tablename)
   {
     this.tablename = tablename;
   }
 
+  /*
+   * An ArrayList of Java expressions that will yield the field value from the POJO.
+   * Each expression corresponds to one column in the database table.
+   */
+  public ArrayList<String> getExpressions()
+  {
+    return expressions;
+  }
+
+  public void setExpressions(ArrayList<String> expressions)
+  {
+    this.expressions = expressions;
+  }
+
+  @NotNull
+  private ArrayList<String> expressions;
+  private transient ArrayList<Object> getters;
+  private String insertStatement;
+
   @Override
   public void setup(OperatorContext context)
   {
-    isFirstTuple = true;
     StringBuilder columns = new StringBuilder("");
     StringBuilder values = new StringBuilder("");
     for (int i = 0; i < dataColumns.size(); i++) {
@@ -127,6 +114,7 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
             + tablename
             + " (" + columns.toString() + ")"
             + " VALUES (" + values.toString() + ")";
+    LOG.debug("insert statement is {}", insertStatement);
     super.setup(context);
     Connection conn = store.getConnection();
     LOG.debug("Got Connection.");
@@ -145,6 +133,7 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
       for (int i = 1; i <= numberOfColumns; i++) {
         // get the designated column's SQL type.
         int type = rsMetaData.getColumnType(i);
+        LOG.debug("column name {}", rsMetaData.getColumnTypeName(i));
         columnDataTypes.add(type);
         LOG.debug("sql column type is " + type);
       }
@@ -155,7 +144,7 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
 
   }
 
-  public MemsqlOutputOperator()
+  public JdbcPOJOOutputOperator()
   {
     super();
     columnDataTypes = new ArrayList<Integer>();
@@ -165,10 +154,9 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
   @Override
   public void processTuple(Object tuple)
   {
-    if (isFirstTuple) {
+    if (getters.isEmpty()) {
       processFirstTuple(tuple);
     }
-    isFirstTuple = false;
     super.processTuple(tuple);
   }
 
@@ -178,7 +166,7 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
     final int size = columnDataTypes.size();
     for (int i = 0; i < size; i++) {
       final int type = columnDataTypes.get(i);
-      final String getterExpression = expression.get(i);
+      final String getterExpression = expressions.get(i);
       final Object getter;
       switch (type) {
         case Types.CHAR:
@@ -208,11 +196,11 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
           break;
         default:
           /*
-            Types.DECIMAL
-            Types.DATE
-            Types.TIME
-            Types.ARRAY
-            Types.OTHER
+           Types.DECIMAL
+           Types.DATE
+           Types.TIME
+           Types.ARRAY
+           Types.OTHER
            */
           getter = PojoUtils.createGetter(fqcn, getterExpression, Object.class);
           break;
@@ -238,45 +226,44 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
       final int type = columnDataTypes.get(i);
       switch (type) {
         case (Types.CHAR):
-          // TODO: verify that memsql driver handles char as int
-          statement.setInt(i+1, ((GetterChar<Object>) getters.get(i)).get(tuple));
+          statement.setString(i + 1, ((Getter<Object, String>)getters.get(i)).get(tuple));
           break;
         case (Types.VARCHAR):
-          statement.setString(i+1, ((Getter<Object, String>) getters.get(i)).get(tuple));
+          statement.setString(i + 1, ((Getter<Object, String>)getters.get(i)).get(tuple));
           break;
         case (Types.BOOLEAN):
         case (Types.TINYINT):
-          statement.setBoolean(i+1, ((GetterBoolean<Object>) getters.get(i)).get(tuple));
+          statement.setBoolean(i + 1, ((GetterBoolean<Object>)getters.get(i)).get(tuple));
           break;
         case (Types.SMALLINT):
-          statement.setShort(i+1, ((GetterShort<Object>) getters.get(i)).get(tuple));
+          statement.setShort(i + 1, ((GetterShort<Object>)getters.get(i)).get(tuple));
           break;
         case (Types.INTEGER):
-          statement.setInt(i+1, ((GetterInt<Object>) getters.get(i)).get(tuple));
+          statement.setInt(i + 1, ((GetterInt<Object>)getters.get(i)).get(tuple));
           break;
         case (Types.BIGINT):
-          statement.setLong (i+1, ((GetterLong<Object>) getters.get(i)).get(tuple));
+          statement.setLong(i + 1, ((GetterLong<Object>)getters.get(i)).get(tuple));
           break;
         case (Types.FLOAT):
-          statement.setFloat(i+1, ((GetterFloat<Object>) getters.get(i)).get(tuple));
+          statement.setFloat(i + 1, ((GetterFloat<Object>)getters.get(i)).get(tuple));
           break;
         case (Types.DOUBLE):
-          statement.setDouble(i+1, ((GetterDouble<Object>) getters.get(i)).get(tuple));
+          statement.setDouble(i + 1, ((GetterDouble<Object>)getters.get(i)).get(tuple));
           break;
         default:
           /*
-            Types.DECIMAL
-            Types.DATE
-            Types.TIME
-            Types.ARRAY
-            Types.OTHER
+           Types.DECIMAL
+           Types.DATE
+           Types.TIME
+           Types.ARRAY
+           Types.OTHER
            */
-          statement.setObject(i+1, ((Getter<Object, Object>)getters.get(i)).get(tuple));
+          statement.setObject(i + 1, ((Getter<Object, Object>)getters.get(i)).get(tuple));
           break;
       }
     }
   }
 
-  private static transient final Logger LOG = LoggerFactory.getLogger(MemsqlOutputOperator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JdbcPOJOOutputOperator.class);
 
 }

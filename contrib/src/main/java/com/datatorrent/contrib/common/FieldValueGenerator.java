@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.datatorrent.contrib.common;
 
 import java.util.HashMap;
@@ -9,6 +25,11 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
 
 public class FieldValueGenerator< T extends FieldInfo >
 {
+  public static interface FieldValueHandler<T extends FieldInfo>
+  {
+    public void handleFieldValue( T fieldInfo, Object value );
+  }
+  
 	private Map<T, Getter<Object,Object>> fieldGetterMap = new HashMap<T,Getter<Object,Object>>();
 	
 	private FieldValueGenerator(){}
@@ -27,22 +48,21 @@ public class FieldValueGenerator< T extends FieldInfo >
   }
 	
 	/**
-	 * 
+	 * use FieldValueHandler handle the value
 	 * @param obj
-	 * @return a map from FieldInfo to columnValue
+	 * @param fieldValueHandler
+	 * @return
 	 */
-	public Map< T, Object > getFieldsValue( Object obj )
+	public void handleFieldsValue( Object obj,  FieldValueHandler fieldValueHandler )
 	{
-		Map< T, Object > fieldsValue = new HashMap< T, Object>();
 		for( Map.Entry< T, Getter<Object,Object>> entry : fieldGetterMap.entrySet() )
 		{
 			Getter<Object,Object> getter = entry.getValue();
 			if( getter != null )
 			{
 				Object value = getter.get(obj);
-				fieldsValue.put(entry.getKey(), value);
+				fieldValueHandler.handleFieldValue(entry.getKey(), value);
 			}
 		}
-		return fieldsValue;
 	}
 }

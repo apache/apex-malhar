@@ -59,7 +59,7 @@ public class CouchbasePOJOSetOperator extends AbstractCouchBaseSetOperator<Objec
 
   /*
    * An ArrayList of Java expressions that will yield the field value from the POJO.
-   * Each expression corresponds to one column in the Cassandra table.
+   * Each expression corresponds to one column in the Couchbase table.
    */
   public ArrayList<String> getExpressions()
   {
