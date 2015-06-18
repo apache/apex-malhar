@@ -18,6 +18,7 @@ package com.datatorrent.demos.uniquecount;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.partitioner.StatelessPartitioner;
@@ -26,6 +27,7 @@ import com.datatorrent.lib.converter.MapToKeyHashValuePairConverter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.stream.StreamDuplicater;
 import com.datatorrent.lib.util.KeyHashValPair;
+
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -72,7 +74,7 @@ public class Application implements StreamingApplication
 
     dag.addStream("datain", randGen.outPort, uniqCount.data);
     dag.addStream("dataverification0", randGen.verificationPort, verifier.in1);
-    dag.addStream("split", uniqCount.count, converter.input);
+    dag.addStream("convert", uniqCount.count, converter.input).setLocality(Locality.CONTAINER_LOCAL);
     dag.addStream("split", converter.output, dup.data);
     dag.addStream("consoutput", dup.out1, output.input);
     dag.addStream("dataverification1", dup.out2, verifier.in2);
