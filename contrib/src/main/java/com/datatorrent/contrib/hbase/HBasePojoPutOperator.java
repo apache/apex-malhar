@@ -41,7 +41,8 @@ public class HBasePojoPutOperator extends AbstractHBasePutOutputOperator<Object>
   private transient FieldValueGenerator<HBaseFieldInfo> fieldValueGenerator;
 
   private transient Getter<Object, String> rowGetter;
-
+  private transient  HBaseFieldValueHandler valueHandler = new HBaseFieldValueHandler();
+      
   @Override
   public Put operationPut(Object obj)
   {
@@ -54,7 +55,7 @@ public class HBasePojoPutOperator extends AbstractHBasePutOutputOperator<Object>
       rowGetter = PojoUtils.createGetter(obj.getClass(), tableInfo.getRowOrIdExpression(), String.class);
     }
 
-    HBaseFieldValueHandler valueHandler = new HBaseFieldValueHandler( Bytes.toBytes(rowGetter.get(obj) ) );
+    valueHandler.newRecord( Bytes.toBytes(rowGetter.get(obj) ) );
     fieldValueGenerator.handleFieldsValue(obj, valueHandler );
     return valueHandler.getPut();
   }
@@ -79,9 +80,13 @@ public class HBasePojoPutOperator extends AbstractHBasePutOutputOperator<Object>
   public static class HBaseFieldValueHandler implements FieldValueHandler<HBaseFieldInfo>
   {
     private Put put;
-    public HBaseFieldValueHandler( byte[] rowId )
+    public HBaseFieldValueHandler()
     {
-      put = new Put( rowId );
+    }
+
+    public void newRecord( byte[] rowId )
+    {
+      put = new Put( rowId ); 
     }
 
     @Override
