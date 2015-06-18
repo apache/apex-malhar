@@ -66,7 +66,7 @@ public class UniqueValueCountBenchmarkApplication implements StreamingApplicatio
     ConsoleOutputOperator output = dag.addOperator("output", new ConsoleOutputOperator());
 
     dag.addStream("datain", randGen.integer_data, uniqCount.data);    
-    dag.addStream("convert", uniqCount.count, converter.input).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("convert", uniqCount.count, converter.input).setLocality(Locality.THREAD_LOCAL);
     dag.addStream("consoutput", converter.output, counter.data);
     dag.addStream("final", counter.count, output.input);
   }

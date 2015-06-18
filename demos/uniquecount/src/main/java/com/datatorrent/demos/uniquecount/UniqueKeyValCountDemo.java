@@ -18,8 +18,10 @@ package com.datatorrent.demos.uniquecount;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.algo.UniqueCounter;
+import com.datatorrent.lib.converter.MapToKeyHashValuePairConverter;
 import com.datatorrent.lib.partitioner.StatelessPartitioner;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.util.KeyValPair;
@@ -44,12 +46,14 @@ public class UniqueKeyValCountDemo implements StreamingApplication
         /* Initialize with three partition to start with */
     UniqueCounter<KeyValPair<String, Object>> uniqCount =
         dag.addOperator("uniqevalue", new UniqueCounter<KeyValPair<String, Object>>());
+    MapToKeyHashValuePairConverter<KeyValPair<String, Object>, Integer> converter = dag.addOperator("converter", new MapToKeyHashValuePairConverter());
     uniqCount.setCumulative(false);
     dag.setAttribute(randGen, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<UniqueCounter<KeyValPair<String, Object>>>(3));
 
     ConsoleOutputOperator output = dag.addOperator("output", new ConsoleOutputOperator());
 
     dag.addStream("datain", randGen.outPort, uniqCount.data);
-    dag.addStream("consoutput", uniqCount.count, output.input);
+    dag.addStream("convert", uniqCount.count, converter.input).setLocality(Locality.THREAD_LOCAL);
+    dag.addStream("consoutput", converter.output, output.input);
   }
 }
