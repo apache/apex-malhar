@@ -23,7 +23,6 @@ import org.apache.commons.lang.mutable.MutableInt;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-
 import com.datatorrent.lib.util.BaseUniqueKeyCounter;
 import com.datatorrent.lib.util.UnifierHashMapSumKeys;
 
@@ -55,6 +54,8 @@ import com.datatorrent.lib.util.UnifierHashMapSumKeys;
 @OperatorAnnotation(partitionable = true)
 public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
 {
+  private boolean cumulative;
+
   /**
    * The input port which receives incoming tuples.
    */
@@ -101,6 +102,17 @@ public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
     if (tuple != null) {
       count.emit(tuple);
     }
-    map.clear();
+    if(!cumulative)
+    {
+      map.clear();
+    }
+  }
+
+  public boolean isCumulative() {
+    return cumulative;
+  }
+
+  public void setCumulative(boolean cumulative) {
+    this.cumulative = cumulative;
   }
 }

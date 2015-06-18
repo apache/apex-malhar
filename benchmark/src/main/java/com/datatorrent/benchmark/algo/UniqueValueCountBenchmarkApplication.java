@@ -18,12 +18,14 @@ package com.datatorrent.benchmark.algo;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.algo.PartitionableUniqueCount;
 import com.datatorrent.lib.partitioner.StatelessPartitioner;
 import com.datatorrent.lib.algo.UniqueCounterValue;
+import com.datatorrent.lib.converter.MapToKeyHashValuePairConverter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
+
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -53,16 +55,19 @@ public class UniqueValueCountBenchmarkApplication implements StreamingApplicatio
     dag.setAttribute(randGen, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<RandomEventGenerator>(3));
 
     /* Initialize with three partition to start with */
-    PartitionableUniqueCount<Integer> uniqCount = dag.addOperator("uniqevalue", new PartitionableUniqueCount<Integer>());
-    dag.setAttribute(uniqCount, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<PartitionableUniqueCount<Integer>>(3));
+    UniqueCounter<Integer> uniqCount = dag.addOperator("uniqevalue", new UniqueCounter<Integer>());
+    MapToKeyHashValuePairConverter<Integer, Integer> converter = dag.addOperator("converter", new MapToKeyHashValuePairConverter());
+    
+    dag.setAttribute(uniqCount, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<UniqueCounter<Integer>>(3));
     dag.setInputPortAttribute(uniqCount.data, Context.PortContext.PARTITION_PARALLEL, true);
     uniqCount.setCumulative(false);
 
     UniqueCounterValue counter = dag.addOperator("count", new UniqueCounterValue());
     ConsoleOutputOperator output = dag.addOperator("output", new ConsoleOutputOperator());
 
-    dag.addStream("datain", randGen.integer_data, uniqCount.data);
-    dag.addStream("consoutput", uniqCount.count, counter.data);
+    dag.addStream("datain", randGen.integer_data, uniqCount.data);    
+    dag.addStream("convert", uniqCount.count, converter.input).setLocality(Locality.THREAD_LOCAL);
+    dag.addStream("consoutput", converter.output, counter.data);
     dag.addStream("final", counter.count, output.input);
   }
 }
