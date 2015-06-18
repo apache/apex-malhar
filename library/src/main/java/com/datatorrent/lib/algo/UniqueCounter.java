@@ -23,7 +23,6 @@ import org.apache.commons.lang.mutable.MutableInt;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-
 import com.datatorrent.lib.util.BaseUniqueKeyCounter;
 import com.datatorrent.lib.util.UnifierHashMapSumKeys;
 
