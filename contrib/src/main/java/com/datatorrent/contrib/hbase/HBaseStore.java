@@ -177,21 +177,13 @@ public class HBaseStore implements Connectable {
    * Get the HBase table .
    * 
    * @return The HBase table
+   * @omitFromUI
    */
   public HTable getTable() {
     return table;
   }
 
-  /**
-   * Set the HBase table.
-   * 
-   * @param table
-   *            The HBase table
-   */
-  public void setTable(HTable table) {
-    this.table = table;
-  }
-
+  
   /**
    * Get the configuration.
    * 
