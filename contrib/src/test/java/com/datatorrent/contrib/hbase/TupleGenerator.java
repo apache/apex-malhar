@@ -16,7 +16,7 @@
  *
  */
 
-package com.datatorrent.contrib.model;
+package com.datatorrent.contrib.hbase;
 
 import java.lang.reflect.Constructor;
 

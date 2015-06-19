@@ -1,4 +1,4 @@
-package com.datatorrent.contrib.model;
+package com.datatorrent.contrib.hbase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,10 +6,10 @@ import java.util.Map;
 
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.datatorrent.contrib.common.FieldInfo;
-import com.datatorrent.contrib.common.FieldInfo.SupportType;
+import com.datatorrent.contrib.util.FieldInfo;
+import com.datatorrent.contrib.util.FieldInfo.SupportType;
 
-public class Employee
+public class TestPOJO
 {
   public static List<FieldInfo> getFieldsInfo()
   {
@@ -26,14 +26,14 @@ public class Employee
     return "row";
   }
   
-  public static Employee from( Map<String,byte[]> map )
+  public static TestPOJO from( Map<String,byte[]> map )
   {
-    Employee employee = new Employee();
+    TestPOJO testPOJO = new TestPOJO();
     for( Map.Entry<String, byte[]> entry : map.entrySet() )
     {
-      employee.setValue(entry.getKey(), entry.getValue() );
+      testPOJO.setValue(entry.getKey(), entry.getValue() );
     }
-    return employee;
+    return testPOJO;
   }
   
   private long rowId = 0;
@@ -41,14 +41,14 @@ public class Employee
   private int age;
   private String address;
 
-  public Employee(){}
+  public TestPOJO(){}
   
-  public Employee(long rowId)
+  public TestPOJO(long rowId)
   {
     this(rowId, "name" + rowId, (int) rowId, "address" + rowId);
   }
 
-  public Employee(long rowId, String name, int age, String address)
+  public TestPOJO(long rowId, String name, int age, String address)
   {
     this.rowId = rowId;
     setName(name);
@@ -123,7 +123,7 @@ public class Employee
     this.address = address;
   }
 
-  public boolean outputFieldsEquals( Employee other )
+  public boolean outputFieldsEquals( TestPOJO other )
   {
     if( other == null )
       return false;
@@ -136,7 +136,7 @@ public class Employee
     return true;
   }
   
-  public boolean completeEquals( Employee other )
+  public boolean completeEquals( TestPOJO other )
   {
     if( other == null )
       return false;

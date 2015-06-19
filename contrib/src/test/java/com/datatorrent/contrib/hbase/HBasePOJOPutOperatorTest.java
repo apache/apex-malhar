@@ -18,71 +18,61 @@
 
 package com.datatorrent.contrib.hbase;
 
-import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.APP_ID;
-import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.OPERATOR_ID;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.hadoop.hbase.CellUtil;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
-import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mortbay.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
+import org.apache.hadoop.hbase.HColumnDescriptor;
+import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.util.Bytes;
+
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+
+import com.datatorrent.contrib.util.FieldInfo.SupportType;
+import com.datatorrent.contrib.util.TableInfo;
 
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.ProcessingMode;
-import com.datatorrent.contrib.common.FieldInfo.SupportType;
-import com.datatorrent.contrib.common.TableInfo;
-import com.datatorrent.contrib.model.Employee;
-import com.datatorrent.contrib.model.TupleGenerator;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
+
+import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.APP_ID;
+import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.OPERATOR_ID;
 
 
-public class HBasePojoPutOperatorTest
+public class HBasePOJOPutOperatorTest
 {
-  private static final Logger logger = LoggerFactory.getLogger(HBasePojoPutOperatorTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(HBasePOJOPutOperatorTest.class);
   private static final int TEST_SIZE = 15000;
   private static final int WINDOW_SIZE = 1500;
   
-  private HBasePojoPutOperator operator;
+  private HBasePOJOPutOperator operator;
   
   private final long startWindowId = Calendar.getInstance().getTimeInMillis();
   
-  public HBasePojoPutOperatorTest()
+  public HBasePOJOPutOperatorTest()
   {
   }
 
   @Before
-  public void prepare()
+  public void prepare() throws Exception
   {
-    operator = new HBasePojoPutOperator();
+    operator = new HBasePOJOPutOperator();
     setupOperator(operator);
 
     createOrDeleteTable(operator.getStore(), false );
   }
   
   @After
-  public void cleanup()
+  public void cleanup() throws Exception
   {
     createOrDeleteTable(operator.getStore(), true );
   }
@@ -92,7 +82,7 @@ public class HBasePojoPutOperatorTest
    * HBase. it doesn't test connection to the other operators
    */
   @Test
-  public void testPutInternal()
+  public void testPutInternal() throws Exception
   {
     long windowId = startWindowId;
     try
@@ -109,24 +99,20 @@ public class HBasePojoPutOperatorTest
           countInWindow = 0;
         }
       }
-      
-      try
-      {
-        Thread.sleep(30000);
-      }
-      catch(Exception e ){}
+
+      Thread.sleep(30000);
       
       readRecordsAndVerify( operator );
-      
       
     }
     catch (Exception e)
     {
-      Log.warn("testPutInternal() exception.", e);
+      logger.error("testPutInternal() exception.", e);
+      Assert.fail(e.getMessage());
     }
   }
 
-  protected void createOrDeleteTable(HBaseStore store, boolean isDelete )
+  protected void createOrDeleteTable(HBaseStore store, boolean isDelete ) throws Exception
   {
     HBaseAdmin admin = null;
     try
@@ -141,19 +127,17 @@ public class HBasePojoPutOperatorTest
         tableDescriptor.addFamily(new HColumnDescriptor("f1"));
 
         admin.createTable(tableDescriptor);
-        
-
       }
       else if( isDelete )
       {
         admin.disableTable(tableName);
         admin.deleteTable( tableName );
       }
-
     }
     catch (Exception e)
     {
       logger.error("exception", e);
+      throw e;
     }
     finally
     {
@@ -171,7 +155,7 @@ public class HBasePojoPutOperatorTest
     }
   }
 
-  protected void setupOperator(HBasePojoPutOperator operator)
+  protected void setupOperator(HBasePOJOPutOperator operator)
   {
     configure(operator);
 
@@ -186,7 +170,7 @@ public class HBasePojoPutOperatorTest
     operator.setup(context);
   }
 
-  protected void configure(HBasePojoPutOperator operator)
+  protected void configure(HBasePOJOPutOperator operator)
   {
     TableInfo<HBaseFieldInfo> tableInfo = new TableInfo<HBaseFieldInfo>();
     
@@ -201,22 +185,20 @@ public class HBasePojoPutOperatorTest
     operator.setTableInfo(tableInfo);
 
     HBaseStore store = new HBaseStore();
-    store.setTableName("employee");
+    store.setTableName("test");
     store.setZookeeperQuorum("localhost");
     store.setZookeeperClientPort(2181);
-    store.setPrincipal("user1");
-    store.setKeytabPath("");
 
     operator.setStore(store);
 
   }
 
-  private TupleGenerator<Employee> tupleGenerator;
+  private TupleGenerator<TestPOJO> tupleGenerator;
 
   protected Object getNextTuple()
   {
     if( tupleGenerator == null )
-      tupleGenerator = new TupleGenerator<Employee>( Employee.class );
+      tupleGenerator = new TupleGenerator<TestPOJO>( TestPOJO.class );
     
     return tupleGenerator.getNextTuple();
   }
@@ -224,12 +206,12 @@ public class HBasePojoPutOperatorTest
   protected void resetTupleGenerator()
   {
     if( tupleGenerator == null )
-      tupleGenerator = new TupleGenerator<Employee>( Employee.class );
+      tupleGenerator = new TupleGenerator<TestPOJO>( TestPOJO.class );
     else
       tupleGenerator.reset();
   }
 
-  protected void readRecordsAndVerify( HBasePojoPutOperator operator )
+  protected void readRecordsAndVerify( HBasePOJOPutOperator operator )
   {
     int[] rowIds = new int[ TEST_SIZE ];
     for( int i=1; i<=TEST_SIZE; ++i )
@@ -261,9 +243,9 @@ public class HBasePojoPutOperatorTest
           byte[] value = CellUtil.cloneValue(cell);
           map.put(columnName, value);
         }
-        Employee read = Employee.from( map );
+        TestPOJO read = TestPOJO.from(map);
         read.setRowId(rowId);
-        Employee expected = new Employee( rowId );
+        TestPOJO expected = new TestPOJO( rowId );
         
         Assert.assertTrue( String.format( "expected %s, get %s ", expected.toString(), read.toString() ), expected.completeEquals(read) );
         recordCount++;
@@ -279,7 +261,7 @@ public class HBasePojoPutOperatorTest
         {
           if( rowIds[i] != 0 )
           {
-            sb.append( "" + i+1 + ", " );
+            sb.append(i+1).append(", ");
             missedCount++;
           }
           if( missedCount>0 && ( missedCount%20 == 0 ) )

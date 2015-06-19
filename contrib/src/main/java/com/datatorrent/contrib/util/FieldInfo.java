@@ -16,7 +16,7 @@
  *
  */
 
-package com.datatorrent.contrib.common;
+package com.datatorrent.contrib.util;
 
 import javax.validation.constraints.NotNull;
 

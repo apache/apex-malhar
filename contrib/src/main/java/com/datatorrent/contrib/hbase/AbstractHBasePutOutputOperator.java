@@ -19,14 +19,16 @@ import java.io.InterruptedIOException;
 
 import javax.validation.constraints.Min;
 
-import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.common.util.DTThrowable;
+import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
+
 import com.datatorrent.lib.db.AbstractStoreOutputOperator;
+
+import com.datatorrent.common.util.DTThrowable;
 
 /**
  * A base implementation of a StoreOutputOperator operator that stores tuples in HBase rows and offers non-transactional put.Subclasses should provide implementation for put operation. <br>
@@ -83,8 +85,10 @@ public abstract class AbstractHBasePutOutputOperator<T> extends AbstractStoreOut
   {
     try
     {
-      if( unCommittedSize > 0 )
+      if( unCommittedSize > 0 ) {
         store.getTable().flushCommits();
+        unCommittedSize = 0;
+      }
     }
     catch (RetriesExhaustedWithDetailsException e) {
       logger.error("Could not output tuple", e);

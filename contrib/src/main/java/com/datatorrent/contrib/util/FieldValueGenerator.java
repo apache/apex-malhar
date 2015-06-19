@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-package com.datatorrent.contrib.common;
+package com.datatorrent.contrib.util;
 
 import java.util.HashMap;
 import java.util.List;

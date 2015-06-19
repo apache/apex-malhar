@@ -20,11 +20,12 @@ import java.util.List;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.datatorrent.contrib.common.FieldValueGenerator;
-import com.datatorrent.contrib.common.FieldValueGenerator.FieldValueHandler;
-import com.datatorrent.contrib.common.TableInfo;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
+
+import com.datatorrent.contrib.util.FieldValueGenerator;
+import com.datatorrent.contrib.util.FieldValueGenerator.FieldValueHandler;
+import com.datatorrent.contrib.util.TableInfo;
 
 /**
  * 
@@ -32,7 +33,7 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
  * @category Database
  * @tags hbase put, output operator, Pojo
  */
-public class HBasePojoPutOperator extends AbstractHBasePutOutputOperator<Object>
+public class HBasePOJOPutOperator extends AbstractHBasePutOutputOperator<Object>
 {
   private static final long serialVersionUID = 3241368443399294019L;
 
@@ -41,7 +42,7 @@ public class HBasePojoPutOperator extends AbstractHBasePutOutputOperator<Object>
   private transient FieldValueGenerator<HBaseFieldInfo> fieldValueGenerator;
 
   private transient Getter<Object, String> rowGetter;
-  private transient  HBaseFieldValueHandler valueHandler = new HBaseFieldValueHandler();
+  private transient HBaseFieldValueHandler valueHandler = new HBaseFieldValueHandler();
       
   @Override
   public Put operationPut(Object obj)
@@ -55,9 +56,10 @@ public class HBasePojoPutOperator extends AbstractHBasePutOutputOperator<Object>
       rowGetter = PojoUtils.createGetter(obj.getClass(), tableInfo.getRowOrIdExpression(), String.class);
     }
 
-    valueHandler.newRecord( Bytes.toBytes(rowGetter.get(obj) ) );
+    Put put = new Put(Bytes.toBytes(rowGetter.get(obj)));
+    valueHandler.put = put;
     fieldValueGenerator.handleFieldsValue(obj, valueHandler );
-    return valueHandler.getPut();
+    return put;
   }
 
   /**
@@ -79,25 +81,12 @@ public class HBasePojoPutOperator extends AbstractHBasePutOutputOperator<Object>
   
   public static class HBaseFieldValueHandler implements FieldValueHandler<HBaseFieldInfo>
   {
-    private Put put;
-    public HBaseFieldValueHandler()
-    {
-    }
-
-    public void newRecord( byte[] rowId )
-    {
-      put = new Put( rowId ); 
-    }
+    public Put put;
 
     @Override
     public void handleFieldValue(HBaseFieldInfo fieldInfo, Object value)
     {
       put.add(Bytes.toBytes(fieldInfo.getFamilyName()), Bytes.toBytes(fieldInfo.getColumnName()), fieldInfo.toBytes( value ));
-    }
-    
-    public Put getPut()
-    {
-      return put;
     }
 
   }
