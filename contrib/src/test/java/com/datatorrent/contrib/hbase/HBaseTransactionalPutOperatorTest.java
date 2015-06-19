@@ -16,6 +16,7 @@
 package com.datatorrent.contrib.hbase;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import org.apache.hadoop.hbase.client.Put;
 import org.junit.Assert;
@@ -77,6 +78,11 @@ public class HBaseTransactionalPutOperatorTest {
           // TODO Auto-generated method stub
 
         }
+
+        @Override
+        public void sendCustomMetrics(Collection<String> collection)
+        {
+        }
       });
       thop.beginWindow(0);
       thop.input.process(t1);
@@ -135,6 +141,11 @@ public class HBaseTransactionalPutOperatorTest {
         public void setCounters(Object counters) {
           // TODO Auto-generated method stub
 
+        }
+
+        @Override
+        public void sendCustomMetrics(Collection<String> collection)
+        {
         }
       });
       thop.beginWindow(0);
@@ -198,6 +209,11 @@ public class HBaseTransactionalPutOperatorTest {
         public void setCounters(Object counters) {
           // TODO Auto-generated method stub
 
+        }
+
+        @Override
+        public void sendCustomMetrics(Collection<String> collection)
+        {
         }
       });
 

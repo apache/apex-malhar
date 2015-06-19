@@ -16,6 +16,7 @@
 package com.datatorrent.contrib.hbase;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
+
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
 public class HBaseNameValueCsvPutOperatorTest
 {
@@ -44,35 +47,7 @@ public class HBaseNameValueCsvPutOperatorTest
       String s = "name=milind,st=patrick,ct=fremont,sa=cali";
       String s1 = "st=tasman,ct=sancla,name=milinda,sa=cali";
       propPutOperator.setMapping("name=row,st=colfam0.street,ct=colfam0.city,sa=colfam0.state");
-      propPutOperator.setup(new OperatorContext()
-      {
-
-        @Override
-        public <T> T getValue(Attribute<T> key)
-        {
-          return null;
-        }
-
-        @Override
-        public AttributeMap getAttributes()
-        {
-          return null;
-        }
-
-        @Override
-        public int getId()
-        {
-          // TODO Auto-generated method stub
-          return 0;
-        }
-
-        @Override
-        public void setCounters(Object counters)
-        {
-          // TODO Auto-generated method stub
-
-        }
-      });
+      propPutOperator.setup(new OperatorContextTestHelper.TestIdOperatorContext(0));
       propPutOperator.beginWindow(0);
       propPutOperator.input.process(s);
       propPutOperator.input.process(s1);
