@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -32,10 +31,10 @@ import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-
 import com.datatorrent.contrib.util.FieldInfo.SupportType;
 import com.datatorrent.contrib.util.TableInfo;
-
+import com.datatorrent.contrib.util.TestPOJO;
+import com.datatorrent.contrib.util.TupleGenerator;
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
