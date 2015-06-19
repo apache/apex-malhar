@@ -18,9 +18,10 @@ package com.datatorrent.contrib.memsql;
 
 import com.datatorrent.lib.db.jdbc.JdbcTransactionalStore;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Random;
+import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -35,10 +36,10 @@ public class AbstractMemsqlInputOperatorTest
   public static final String USER = "root";
   public static final String PORT = "3307";
   public static final String DATABASE = "bench";
-  public static final String TABLE = "bench";
+  public static final String TABLE = "testtable";
   public static final String FQ_TABLE = DATABASE + "." + TABLE;
   public static final String INDEX_COLUMN = "data_index";
-  public static final String DATA_COLUMN1 = "data1";
+  public static final String DATA_COLUMN2 = "data2";
   public static final int BLAST_SIZE = 10;
   public static final int NUM_WINDOWS = 10;
   public static final int DATABASE_SIZE = NUM_WINDOWS * BLAST_SIZE;
@@ -48,18 +49,17 @@ public class AbstractMemsqlInputOperatorTest
     memsqlStore.connect();
 
     try {
-      Random random = new Random();
-      Statement statement = memsqlStore.getConnection().createStatement();
-
-      for(int counter = 0;
-          counter < DATABASE_SIZE;
-          counter++) {
-        statement.executeUpdate("insert into " +
-                                FQ_TABLE +
-                                " (" + DATA_COLUMN1 + ") values (" + random.nextInt() + ")");
+      String insert = "insert into " + FQ_TABLE + " (" + DATA_COLUMN2 + ") " + "VALUES (" + "?" + ")";
+      PreparedStatement stmt = memsqlStore.getConnection().prepareStatement(insert);
+      for (int counter = 0;
+              counter < DATABASE_SIZE;
+              counter++) {
+        String test = "Testname" + counter;
+        stmt.setString(1, test);
+        stmt.executeUpdate();
       }
 
-      statement.close();
+      stmt.close();
     }
     catch (SQLException ex) {
       LOG.error(null, ex);
@@ -68,7 +68,7 @@ public class AbstractMemsqlInputOperatorTest
     memsqlStore.disconnect();
   }
 
-   public static void memsqlInitializeDatabase(MemsqlStore memsqlStore) throws SQLException
+  public static void memsqlInitializeDatabase(MemsqlStore memsqlStore) throws SQLException
   {
     memsqlStore.connect();
 
@@ -81,12 +81,11 @@ public class AbstractMemsqlInputOperatorTest
     memsqlStore.connect();
 
     statement = memsqlStore.getConnection().createStatement();
-    statement.executeUpdate("create table " +
-                            FQ_TABLE +
-                            "(" + INDEX_COLUMN +
-                            " INTEGER AUTO_INCREMENT PRIMARY KEY, " +
-                            DATA_COLUMN1 +
-                            " INTEGER)");
+    statement.executeUpdate("create table "
+            + FQ_TABLE
+            + "(" + INDEX_COLUMN + " INTEGER AUTO_INCREMENT PRIMARY KEY, "
+            + DATA_COLUMN2
+            + " VARCHAR(256))");
     String createMetaTable = "CREATE TABLE IF NOT EXISTS " + DATABASE + "." + JdbcTransactionalStore.DEFAULT_META_TABLE + " ( "
             + JdbcTransactionalStore.DEFAULT_APP_ID_COL + " VARCHAR(100) NOT NULL, "
             + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT NOT NULL, "
@@ -101,7 +100,7 @@ public class AbstractMemsqlInputOperatorTest
     memsqlStore.disconnect();
   }
 
-   public static MemsqlStore createStore(MemsqlStore memsqlStore, boolean withDatabase)
+  public static MemsqlStore createStore(MemsqlStore memsqlStore, boolean withDatabase)
   {
     String host = HOST;
     String user = USER;
@@ -142,19 +141,19 @@ public class AbstractMemsqlInputOperatorTest
     populateDatabase(createStore(null, true));
 
     MemsqlInputOperator inputOperator = new MemsqlInputOperator();
-    createStore((MemsqlStore) inputOperator.getStore(), true);
+    createStore((MemsqlStore)inputOperator.getStore(), true);
     inputOperator.setBlastSize(BLAST_SIZE);
     inputOperator.setTablename(FQ_TABLE);
     inputOperator.setPrimaryKeyCol(INDEX_COLUMN);
-
+    inputOperator.setTablename(FQ_TABLE);
     CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
     inputOperator.outputPort.setSink(sink);
 
     inputOperator.setup(null);
 
-    for(int wid = 0;
-        wid < NUM_WINDOWS + 1;
-        wid++) {
+    for (int wid = 0;
+            wid < NUM_WINDOWS + 1;
+            wid++) {
       inputOperator.beginWindow(wid);
       inputOperator.emitTuples();
       inputOperator.endWindow();
@@ -162,4 +161,43 @@ public class AbstractMemsqlInputOperatorTest
 
     Assert.assertEquals("Number of tuples in database", DATABASE_SIZE, sink.collectedTuples.size());
   }
+
+  /*
+   * This test can be run against memsql installation on node17.
+   */
+  @Test
+  public void TestMemsqlPOJOInputOperator() throws SQLException
+  {
+    cleanDatabase();
+    populateDatabase(createStore(null, true));
+
+    MemsqlPOJOInputOperator inputOperator = new MemsqlPOJOInputOperator();
+    createStore((MemsqlStore)inputOperator.getStore(), true);
+    inputOperator.setLimit(10);
+    inputOperator.setTablename(FQ_TABLE);
+    inputOperator.setPrimaryKeyColumn(INDEX_COLUMN);
+    ArrayList<String> expressions = new ArrayList<String>();
+    expressions.add("id");
+    expressions.add("name");
+    inputOperator.setExpressions(expressions);
+    inputOperator.setRetrieveQuery("select * from " + FQ_TABLE);
+
+    inputOperator.setOutputClass("com.datatorrent.contrib.memsql.TestInputPojo");
+    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+    inputOperator.outputPort.setSink(sink);
+
+    inputOperator.setup(null);
+
+    inputOperator.beginWindow(0);
+    inputOperator.emitTuples();
+    inputOperator.endWindow();
+
+    Assert.assertEquals("rows from db", 10, sink.collectedTuples.size());
+    for (int i = 0; i < 10; i++) {
+      TestInputPojo object = (TestInputPojo)sink.collectedTuples.get(i);
+      Assert.assertEquals("id set in testpojo", i + 1, object.getId());
+      Assert.assertEquals("name set in testpojo", "Testname" + i, object.getName());
+    }
+  }
+
 }

@@ -16,7 +16,6 @@
 
 package com.datatorrent.contrib.memsql;
 
-import com.datatorrent.contrib.memsql.*;
 import com.datatorrent.api.Context.OperatorContext;
 import java.sql.Statement;
 import java.sql.ResultSet;
@@ -51,7 +50,7 @@ public class MemsqlInputOperator extends AbstractMemsqlInputOperator<Object>
     this.primaryKeyColumn = primaryKeyColumn;
   }
 
-   /*
+  /*
    * Name of the table in Memsql Database.
    * Gets the Memsql Tablename.
    * @return tablename
