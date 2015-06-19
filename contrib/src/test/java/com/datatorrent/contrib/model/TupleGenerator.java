@@ -27,7 +27,7 @@ public class TupleGenerator<T>
 {
   private static final Logger logger = LoggerFactory.getLogger( TupleGenerator.class );
       
-  private volatile long rowId = 1;
+  private volatile long rowId = 0;
   private Constructor<T> constructor;
   
   private static Class<?>[] paramTypes = new Class<?>[]{ Long.class, long.class, Integer.class, int.class };
@@ -59,12 +59,17 @@ public class TupleGenerator<T>
     }
   }
   
+  public void reset()
+  {
+    rowId = 0;
+  }
+  
   public T getNextTuple()
   {
     if( constructor == null )
       throw new RuntimeException( "Not found proper constructor." );
     
-    long curRowId = rowId++;
+    long curRowId = ++rowId;
     try
     {
       return constructor.newInstance( curRowId );

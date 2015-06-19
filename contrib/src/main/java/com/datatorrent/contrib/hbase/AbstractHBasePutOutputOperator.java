@@ -17,6 +17,8 @@ package com.datatorrent.contrib.hbase;
 
 import java.io.InterruptedIOException;
 
+import javax.validation.constraints.Min;
+
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
@@ -47,7 +49,10 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  */
 public abstract class AbstractHBasePutOutputOperator<T> extends AbstractStoreOutputOperator<T, HBaseStore> {
   private static final transient Logger logger = LoggerFactory.getLogger(AbstractHBasePutOutputOperator.class);
-
+  public static final int DEFAULT_BATCH_SIZE = 1000;
+  private int batchSize = DEFAULT_BATCH_SIZE;
+  protected int unCommittedSize = 0;
+  
   public AbstractHBasePutOutputOperator() {
     store = new HBaseStore();
   }
@@ -58,6 +63,11 @@ public abstract class AbstractHBasePutOutputOperator<T> extends AbstractStoreOut
     Put put = operationPut(tuple);
     try {
       table.put(put);
+      if( ++unCommittedSize >= batchSize )
+      {
+        table.flushCommits();
+        unCommittedSize = 0;
+      }
     } catch (RetriesExhaustedWithDetailsException e) {
       logger.error("Could not output tuple", e);
       DTThrowable.rethrow(e);
@@ -68,6 +78,41 @@ public abstract class AbstractHBasePutOutputOperator<T> extends AbstractStoreOut
 
   }
 
+  @Override
+  public void endWindow()
+  {
+    try
+    {
+      if( unCommittedSize > 0 )
+        store.getTable().flushCommits();
+    }
+    catch (RetriesExhaustedWithDetailsException e) {
+      logger.error("Could not output tuple", e);
+      DTThrowable.rethrow(e);
+    } catch (InterruptedIOException e) {
+      logger.error("Could not output tuple", e);
+      DTThrowable.rethrow(e);
+    }
+  }
+  
   public abstract Put operationPut(T t);
 
+  /**
+   * the batch size save flush data
+   */
+  @Min(1)
+  public int getBatchSize()
+  {
+    return batchSize;
+  }
+
+  /**
+   * the batch size save flush data
+   */
+  public void setBatchSize(int batchSize)
+  {
+    this.batchSize = batchSize;
+  }
+
+  
 }
