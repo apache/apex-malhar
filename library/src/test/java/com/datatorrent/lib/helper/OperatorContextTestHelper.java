@@ -7,6 +7,7 @@ package com.datatorrent.lib.helper;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collection;
 
 import javax.annotation.Nonnull;
 
@@ -52,6 +53,13 @@ public class OperatorContextTestHelper
     }
 
     @Override
+    public void sendCustomMetrics(Collection<String> metricNames)
+    {
+      throw new UnsupportedOperationException("not supported");
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
     public <T> T getValue(Attribute<T> key)
     {
       T value = attributes.get(key);
@@ -87,6 +95,12 @@ public class OperatorContextTestHelper
     public void setCounters(Object counters)
     {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void sendCustomMetrics(Collection<String> metricNames)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
     }
 
   }

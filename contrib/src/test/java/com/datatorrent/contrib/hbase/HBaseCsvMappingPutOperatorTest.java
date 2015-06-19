@@ -26,6 +26,8 @@ import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+
 public class HBaseCsvMappingPutOperatorTest {
   private static final Logger logger = LoggerFactory
       .getLogger(HBaseCsvMappingPutOperatorTest.class);
@@ -44,30 +46,7 @@ public class HBaseCsvMappingPutOperatorTest {
       String s1 = "gillett,santaclara,cali,milindas";
       String s2= "aventferry,raleigh,nc,milind";
       csvMappingPutOperator.setMappingString("colfam0.street,colfam0.city,colfam0.state,row");
-      csvMappingPutOperator.setup(new OperatorContext() {
-
-        @Override
-        public <T> T getValue(Attribute<T> key) {
-          return key.defaultValue;
-        }
-
-        @Override
-        public AttributeMap getAttributes() {
-          return null;
-        }
-
-        @Override
-        public int getId() {
-          // TODO Auto-generated method stub
-          return 0;
-        }
-
-        @Override
-        public void setCounters(Object counters) {
-          // TODO Auto-generated method stub
-
-        }
-      });
+      csvMappingPutOperator.setup(new OperatorContextTestHelper.TestIdOperatorContext(0));
       csvMappingPutOperator.beginWindow(0);
       csvMappingPutOperator.input.process(s);
       csvMappingPutOperator.input.process(s1);

@@ -26,6 +26,8 @@ import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+
 public class AccumuloOutputOperatorTest {
   private static final Logger logger = LoggerFactory
       .getLogger(AccumuloOutputOperatorTest.class);
@@ -43,30 +45,7 @@ public class AccumuloOutputOperatorTest {
     atleastOper.getStore().setUserName("root");
     atleastOper.getStore().setPassword("pass");
 
-    atleastOper.setup(new OperatorContext() {
-
-      @Override
-      public <T> T getValue(Attribute<T> key) {
-        return null;
-      }
-
-      @Override
-      public AttributeMap getAttributes() {
-        return null;
-      }
-
-      @Override
-      public int getId() {
-        // TODO Auto-generated method stub
-        return 0;
-      }
-
-      @Override
-      public void setCounters(Object counters) {
-        // TODO Auto-generated method stub
-
-      }
-    });
+    atleastOper.setup(new OperatorContextTestHelper.TestIdOperatorContext(0));
     atleastOper.beginWindow(0);
     AccumuloTuple a=new AccumuloTuple();
     a.setRow("john");a.setColFamily("colfam0");a.setColName("street");a.setColValue("patrick");
