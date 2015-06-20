@@ -180,8 +180,7 @@ public class AbstractMemsqlInputOperatorTest
     expressions.add("id");
     expressions.add("name");
     inputOperator.setExpressions(expressions);
-    inputOperator.setRetrieveQuery("select * from " + FQ_TABLE);
-
+    inputOperator.setQuery("select * from " + FQ_TABLE);
     inputOperator.setOutputClass("com.datatorrent.contrib.memsql.TestInputPojo");
     CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
     inputOperator.outputPort.setSink(sink);
@@ -192,12 +191,32 @@ public class AbstractMemsqlInputOperatorTest
     inputOperator.emitTuples();
     inputOperator.endWindow();
 
-    Assert.assertEquals("rows from db", 10, sink.collectedTuples.size());
+    Assert.assertEquals("rows from db", 30, sink.collectedTuples.size());
     for (int i = 0; i < 10; i++) {
       TestInputPojo object = (TestInputPojo)sink.collectedTuples.get(i);
       Assert.assertEquals("id set in testpojo", i + 1, object.getId());
       Assert.assertEquals("name set in testpojo", "Testname" + i, object.getName());
     }
+    sink.clear();
+    inputOperator.setQuery("select * from " + FQ_TABLE + " where " + "%p" + ">=" + "%s");
+    inputOperator.setStartRow(1);
+    inputOperator.setup(null);
+
+    inputOperator.beginWindow(0);
+    inputOperator.emitTuples();
+    inputOperator.endWindow();
+    Assert.assertEquals("rows from db", 10, sink.collectedTuples.size());
+    sink.clear();
+    inputOperator.setQuery("select * from " + FQ_TABLE + " where " + "%p" + ">=" + "%s" + "%p" + "<" + "%e");
+    inputOperator.setStartRow(1);
+    inputOperator.setLimit(10);
+    inputOperator.setup(null);
+
+    inputOperator.beginWindow(0);
+    inputOperator.emitTuples();
+    inputOperator.endWindow();
+    Assert.assertEquals("rows from db", 10, sink.collectedTuples.size());
+
   }
 
 }
