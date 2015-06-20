@@ -16,6 +16,12 @@
 
 package com.datatorrent.lib.util;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
@@ -24,12 +30,6 @@ import org.codehaus.commons.compiler.CompilerFactoryFactory;
 import org.codehaus.commons.compiler.IScriptEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -219,7 +219,7 @@ public class PojoUtils
   @SuppressWarnings("unchecked")
   public static <T, V> Getter<T, V> createGetter(Class<? extends T> pojoClass, String getterExpr, String exprObjectPlaceholder, Class<? extends V> exprClass)
   {
-    return (Getter<T, V>) constructGetter(pojoClass, getterExpr, exprObjectPlaceholder, exprClass);
+    return (Getter<T, V>) createGetter(pojoClass, getterExpr, exprObjectPlaceholder, exprClass, Getter.class);
   }
 
   /**
@@ -400,7 +400,7 @@ public class PojoUtils
   @SuppressWarnings("unchecked")
   public static <T, V> Setter<T, V> createSetter(Class<? extends T>pojoClass, String setterExpr, String exprObjectPlaceholder, String exprValuePlaceholder, Class<? extends V> exprClass)
   {
-    return (Setter<T, V>) constructSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValuePlaceholder, exprClass);
+    return (Setter<T, V>) createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValuePlaceholder, exprClass, Setter.class);
   }
 
   private static class JavaStatement {
@@ -530,8 +530,17 @@ public class PojoUtils
     return constructGetter(pojoClass, getterExpr, DEFAULT_EXP_OBJECT_PLACEHOLDER, exprClass);
   }
 
-  @SuppressWarnings("StringEquality")
   public static Object constructGetter(Class<?> pojoClass, String getterExpr, String exprObjectPlaceholder, Class<?> exprClass)
+  {
+    Class<?> interfaceToImplement = primitiveClassToGetterInterface.get(exprClass);
+    if (interfaceToImplement == null) {
+      interfaceToImplement = Getter.class;
+    }
+    return createGetter(pojoClass, getterExpr, exprObjectPlaceholder, exprClass, interfaceToImplement);
+  }
+
+  @SuppressWarnings("StringEquality")
+  private static <T> Object createGetter(Class<?> pojoClass, String getterExpr, String exprObjectPlaceholder, Class<?> exprClass, Class<T> getterClass)
   {
     if (getterExpr.startsWith(".")) {
       getterExpr = getterExpr.substring(1);
@@ -541,12 +550,7 @@ public class PojoUtils
       throw new IllegalArgumentException("The getter expression: \"" + getterExpr + "\" is invalid.");
     }
 
-    Class<?> interfaceToImplement = primitiveClassToGetterInterface.get(exprClass);
-    if (interfaceToImplement == null) {
-      interfaceToImplement = Getter.class;
-    }
-
-    logger.debug("{} {} {} {}", pojoClass, getterExpr, exprClass, interfaceToImplement);
+    logger.debug("{} {} {} {}", pojoClass, getterExpr, exprClass, getterClass);
 
     IScriptEvaluator se;
 
@@ -569,7 +573,7 @@ public class PojoUtils
     logger.debug("code: {}", code);
 
     try {
-      return se.createFastEvaluator(code, interfaceToImplement, new String[] {PojoUtils.OBJECT});
+      return se.createFastEvaluator(code, getterClass, new String[] {PojoUtils.OBJECT});
     } catch (CompileException ex) {
       throw new RuntimeException(ex);
     }
@@ -633,6 +637,7 @@ public class PojoUtils
   public static Object constructSetter(Class<?> pojoClass, String setterExpr, Class<?> exprClass) {
     return constructSetter(pojoClass, setterExpr, DEFAULT_EXP_OBJECT_PLACEHOLDER, DEFAULT_EXP_VAL_PLACEHOLDER, exprClass);
   }
+
   /**
    *
    * @param pojoClass Class object that the setter applies to
@@ -641,7 +646,16 @@ public class PojoUtils
    * @return instance of a class that implements requested Setter interface
    */
   @SuppressWarnings("StringEquality")
-  private static Object constructSetter(Class<?> pojoClass, String setterExpr, String exprObjectPlaceholder, String exprValPlaceholder, Class<?> exprClass)
+  public static Object constructSetter(Class<?> pojoClass, String setterExpr, String exprObjectPlaceholder, String exprValPlaceholder, Class<?> exprClass)
+  {
+    Class<?> interfaceToImplement = primitiveClassToSetterInterface.get(exprClass);
+    if (interfaceToImplement == null) {
+      interfaceToImplement = Setter.class;
+    }
+    return createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValPlaceholder, exprClass, interfaceToImplement);
+  }
+
+  private static <T> Object createSetter(Class<?> pojoClass, String setterExpr, String exprObjectPlaceholder, String exprValPlaceholder, Class<?> exprClass, Class<T> setterClass)
   {
     if (setterExpr.startsWith(".")) {
       setterExpr = setterExpr.substring(1);
@@ -651,12 +665,7 @@ public class PojoUtils
       throw new IllegalArgumentException("The setter string: " + setterExpr + "\nis invalid.");
     }
 
-    Class<?> interfaceToImplement = primitiveClassToSetterInterface.get(exprClass);
-    if (interfaceToImplement == null) {
-      interfaceToImplement = Setter.class;
-    }
-
-    logger.debug("{} {} {} {}", pojoClass, setterExpr, exprClass, interfaceToImplement);
+    logger.debug("{} {} {} {}", pojoClass, setterExpr, exprClass, setterClass);
 
     IScriptEvaluator se;
 
@@ -681,7 +690,7 @@ public class PojoUtils
 
       logger.debug("code: {}", code);
 
-      return se.createFastEvaluator(code, interfaceToImplement, new String[] { PojoUtils.OBJECT, PojoUtils.VAL});
+      return se.createFastEvaluator(code, setterClass, new String[] { PojoUtils.OBJECT, PojoUtils.VAL});
     } catch (CompileException ex) {
       throw new RuntimeException(ex);
     }
