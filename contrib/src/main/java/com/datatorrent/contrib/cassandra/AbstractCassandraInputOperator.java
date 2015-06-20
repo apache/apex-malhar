@@ -30,10 +30,11 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
 
 /**
  * Base input adapter which reads data from persistence database through DATASTAX API and writes into output port(s).&nbsp;
- * Subclasses should provide implementation to get tuples and querying to retrieve data. 
+ * Subclasses should provide implementation to get tuples and querying to retrieve data.
  * <p>
  * This is an abstract class. Sub-classes need to implement {@link #queryToRetrieveData()} and {@link #getTuple(Row)}.
  * </p>
+ * @param <T>
  * @displayName Abstract Cassandra Input
  * @category Store
  * @tags input operator

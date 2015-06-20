@@ -42,14 +42,15 @@ import org.slf4j.LoggerFactory;
  * @tags output operator
  * @since 2.1.0
  */
-public class CassandraOutputOperator extends AbstractCassandraTransactionableOutputOperatorPS<Object>
+public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionableOutputOperatorPS<Object>
 {
+  private static final long serialVersionUID = 201506181024L;
   @NotNull
   private ArrayList<String> columns;
-  private final ArrayList<DataType> columnDataTypes;
+  private final transient ArrayList<DataType> columnDataTypes;
   @NotNull
   private ArrayList<String> expressions;
-  private transient ArrayList<Object> getters;
+  private final transient ArrayList<Object> getters;
 
   /*
    * An ArrayList of Java expressions that will yield the field value from the POJO.
@@ -95,7 +96,7 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
     this.tablename = tablename;
   }
 
-  public CassandraOutputOperator()
+  public CassandraPOJOOutputOperator()
   {
     super();
     columnDataTypes = new ArrayList<DataType>();
@@ -170,13 +171,13 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
   {
     StringBuilder queryfields = new StringBuilder("");
     StringBuilder values = new StringBuilder("");
-    for (int i = 0; i < columns.size(); i++) {
+    for (String column: columns) {
       if (queryfields.length() == 0) {
-        queryfields.append(columns.get(i));
+        queryfields.append(column);
         values.append("?");
       }
       else {
-        queryfields.append(",").append(columns.get(i));
+        queryfields.append(",").append(column);
         values.append(",").append("?");
       }
     }
@@ -259,5 +260,5 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
     return boundStmnt;
   }
 
-  private static transient final Logger LOG = LoggerFactory.getLogger(CassandraOutputOperator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CassandraPOJOOutputOperator.class);
 }
