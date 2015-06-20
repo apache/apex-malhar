@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * MemsqlPOJOInputOperator</p>
  * A Generic implementation of AbstractMemsqlInputOperator which gets field values from memsql database columns and sets in a POJO.
  *
- * @displayName Memsql Input Operator
+ * @displayName Memsql POJO Input Operator
  * @category Input
  * @tags input operator
  */
@@ -200,7 +200,7 @@ public class MemsqlPOJOInputOperator extends AbstractMemsqlInputOperator<Object>
       Statement statement = store.getConnection().createStatement();
       resultSet = statement.executeQuery("select count(*) from " + tablename);
       resultSet.next();
-      resultSet = statement.executeQuery("select * from " + tablename);
+      resultSet = statement.executeQuery("describe " + tablename);
       rsMetaData = resultSet.getMetaData();
 
       if (!isUseAllColumns()) {
