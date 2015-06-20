@@ -292,7 +292,7 @@ public class CassandraOperatorTest
   @Test
   public void TestCassandraInputOperator()
   {
-    String retrieveQuery = "SELECT * FROM " + KEYSPACE + "." + TABLE_NAME_INPUT;
+    String query1 = "SELECT * FROM " + KEYSPACE + "." + "%t;";
     CassandraStore store = new CassandraStore();
     store.setNode(NODE);
     store.setKeyspace(KEYSPACE);
@@ -305,7 +305,7 @@ public class CassandraOperatorTest
     inputOperator.setStore(store);
     inputOperator.setOutputClass("com.datatorrent.contrib.cassandra.TestInputPojo");
     inputOperator.setTablename(TABLE_NAME_INPUT);
-    inputOperator.setRetrieveQuery(retrieveQuery);
+    inputOperator.setQuery(query1);
     ArrayList<String> columns = new ArrayList<String>();
     columns.add("id");
     columns.add("age");
@@ -324,14 +324,9 @@ public class CassandraOperatorTest
     inputOperator.outputPort.setSink(sink);
     inputOperator.setup(context);
     inputOperator.beginWindow(0);
-    inputOperator.insertEventsInTable(10);
     inputOperator.emitTuples();
     inputOperator.endWindow();
-    Assert.assertEquals("rows from db", 10, sink.collectedTuples.size());
-    inputOperator.beginWindow(1);
-    inputOperator.emitTuples();
-    inputOperator.endWindow();
-    Assert.assertEquals("rows from db", 20, sink.collectedTuples.size());
+    Assert.assertEquals("rows from db", 30, sink.collectedTuples.size());
     ArrayList<Integer> listOfIDs = inputOperator.getIds();
     // Rows are not stored in the same order in cassandra table in which they are inserted.
     for (int i = 0; i < 10; i++) {
@@ -340,6 +335,25 @@ public class CassandraOperatorTest
       Assert.assertEquals("name set in testpojo", inputOperator.getNames().get(object.getId()), object.getLastname());
       Assert.assertEquals("age set in testpojo", inputOperator.getAge().get(object.getId()).intValue(), object.getAge());
     }
+
+    sink.clear();
+    String query2 = "SELECT * FROM " + KEYSPACE + "." + "%t where token(%p) > %v;";
+    inputOperator.setQuery(query2);
+    inputOperator.setStartRow(10);
+    inputOperator.beginWindow(1);
+    inputOperator.emitTuples();
+    inputOperator.endWindow();
+    Assert.assertEquals("rows from db", 14, sink.collectedTuples.size());
+
+    sink.clear();
+    String query3 = "SELECT * FROM " + KEYSPACE + "." + "%t where token(%p) > %v LIMIT %l;";
+    inputOperator.setQuery(query3);
+    inputOperator.setStartRow(1);
+    inputOperator.setLimit(10);
+    inputOperator.beginWindow(2);
+    inputOperator.emitTuples();
+    inputOperator.endWindow();
+    Assert.assertEquals("rows from db", 10, sink.collectedTuples.size());
 
   }
 

@@ -34,7 +34,6 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * <p>
  * This is an abstract class. Sub-classes need to implement {@link #queryToRetrieveData()} and {@link #getTuple(Row)}.
  * </p>
- *
  * @param <T>
  * @displayName Abstract Cassandra Input
  * @category Store
@@ -75,27 +74,17 @@ public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInp
   {
     String query = queryToRetrieveData();
     logger.debug(String.format("select statement: %s", query));
-    if (!"".equals(query)) {
-      try {
-        ResultSet result = store.getSession().execute(query);
-        processResult(result);
-      }
-      catch (Exception ex) {
-        store.disconnect();
-        DTThrowable.rethrow(ex);
+
+    try {
+      ResultSet result = store.getSession().execute(query);
+      for(Row row: result) {
+        T tuple = getTuple(row);
+        outputPort.emit(tuple);
       }
     }
-  }
-
-  /*
-   * ProcessResult can be overridden in classes providing implementation of  AbstractCassandraInputOperator.
-   * Providing a basic implementation here which iterates through the rows in result,gets the particular tuple from row and emits it.
-   */
-  protected  void processResult(ResultSet result)
-  {
-    for (Row row: result) {
-          T tuple = getTuple(row);
-          outputPort.emit(tuple);
+    catch (Exception ex) {
+      store.disconnect();
+      DTThrowable.rethrow(ex);
     }
   }
 }

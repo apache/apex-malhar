@@ -17,7 +17,6 @@ package com.datatorrent.contrib.cassandra;
 
 import com.datastax.driver.core.ColumnDefinitions;
 import com.datastax.driver.core.DataType;
-import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.util.PojoUtils;
@@ -36,8 +35,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <p>
- * CassandraInputOperator</p>
+ * CassandraPOJOInputOperator</p>
  * A Generic implementation of AbstractCassandraInputOperator which gets field values from Cassandra database columns and sets in a POJO.
+ * User can give a parameterized query with parameters %t for table name, %p for primary key, %s for start value and %l for limit.
  *
  * @displayName Cassandra POJO Input Operator
  * @category Input
@@ -54,13 +54,14 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
   private String tablename;
   private final transient List<Object> setters;
   @NotNull
-  private String retrieveQuery;
+  private String query;
+
   private transient Class<?> objectClass = null;
   private boolean useAllColumns;
-  protected Number lastRowIdInBatch = 0;
   @NotNull
   protected String primaryKeyColumn;
   protected transient DataType primaryKeyColumnType;
+  private transient Row lastRowInBatch;
 
   @Min(1)
   private int limit = 10;
@@ -139,16 +140,18 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
   }
 
   /*
-   * Query input by user: Example: select * from keyspace.tablename;
+   * Parameterized query with parameters such as %t for table name , %p for primary key, %s for start value and %l for limit.
+   * Example of retrieveQuery:
+   * select * from %t where token(%p) > %s limit %l;
    */
-  public String getRetrieveQuery()
+  public String getQuery()
   {
-    return retrieveQuery;
+    return query;
   }
 
-  public void setRetrieveQuery(String retrieveQuery)
+  public void setQuery(String query)
   {
-    this.retrieveQuery = retrieveQuery;
+    this.query = query.replace("%t", tablename);
   }
 
   /*
@@ -224,6 +227,17 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
       }
 
       primaryKeyColumnType = rsMetaData.getType(primaryKeyColumn);
+       if(query.contains("%p"))
+       {
+          query = query.replace("%p", primaryKeyColumn);
+       }
+       if(query.contains("%l"))
+       {
+         query = query.replace("%l", limit+"");
+       }
+
+
+       logger.debug("query is {}",query);
 
       for (int i = 0; i < numberOfColumns; i++) {
         // Get the designated column's data type.
@@ -290,6 +304,7 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
   @SuppressWarnings("unchecked")
   public Object getTuple(Row row)
   {
+    lastRowInBatch = row;
     Object obj = null;
     final int size = columnDataTypes.size();
 
@@ -366,76 +381,53 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
     return obj;
   }
 
+  /*
+   * This method replaces the parameters in Query with actual values given by user.
+   * Example of retrieveQuery:
+   * select * from %t where token(%p) > %v limit %l;
+   */
   @Override
   public String queryToRetrieveData()
   {
-    boolean flag = false;
-
-    switch (primaryKeyColumnType.getName()) {
-      case INT:
-        if (startRow.intValue() > lastRowIdInBatch.intValue()) {
-          flag = true;
-        }
-        break;
-      case COUNTER:
-        if (startRow.longValue() > lastRowIdInBatch.longValue()) {
-          flag = true;
-        }
-        break;
-      case FLOAT:
-        if (startRow.floatValue() > lastRowIdInBatch.floatValue()) {
-          flag = true;
-        }
-        break;
-      case DOUBLE:
-        if (startRow.doubleValue() > lastRowIdInBatch.doubleValue()) {
-          flag = true;
-        }
-        break;
+    String parameterizedQuery;
+    if(query.contains("%v"))
+    {
+      parameterizedQuery = query.replace("%v", startRow+"");
     }
-
-    if (flag) {
-      return "";
+    else
+    {
+      parameterizedQuery = query;
     }
-
-    startRow = lastRowIdInBatch.intValue() + 1;
-    StringBuilder sb = new StringBuilder();
-    sb.append(retrieveQuery).append(" where ").append("token(").append(primaryKeyColumn).append(")").append(">=").append(startRow).append(" LIMIT ").append(limit);
-    logger.debug("retrievequery is {}", sb.toString());
-
-    return sb.toString();
+    return parameterizedQuery;
   }
 
+
   /*
-   * Overriding processResult to save primarykey column value from last row in batch.
+   * Overriding emitTupes to save primarykey column value from last row in batch.
    */
   @Override
-  protected void processResult(ResultSet result)
+  public void emitTuples()
   {
-      Row lastRowInBatch = null;
-        for (Row row: result) {
-          Object tuple = getTuple(row);
-          outputPort.emit(tuple);
-          lastRowInBatch = row;
-        }
-           if (lastRowInBatch != null) {
-          switch (primaryKeyColumnType.getName()) {
-            case INT:
-              lastRowIdInBatch = lastRowInBatch.getInt(0);
-              break;
-            case COUNTER:
-              lastRowIdInBatch = lastRowInBatch.getLong(0);
-              break;
-            case FLOAT:
-              lastRowIdInBatch = lastRowInBatch.getFloat(0);
-              break;
-            case DOUBLE:
-              lastRowIdInBatch = lastRowInBatch.getDouble(0);
-              break;
-            default:
-              throw new RuntimeException("unsupported data type " + primaryKeyColumnType.getName());
-          }
-        }
+    super.emitTuples();
+    if (lastRowInBatch != null) {
+      switch (primaryKeyColumnType.getName()) {
+        case INT:
+          startRow = lastRowInBatch.getInt(primaryKeyColumn);
+          break;
+        case COUNTER:
+          startRow = lastRowInBatch.getLong(primaryKeyColumn);
+          break;
+        case FLOAT:
+          startRow = lastRowInBatch.getFloat(primaryKeyColumn);
+          break;
+        case DOUBLE:
+          startRow = lastRowInBatch.getDouble(primaryKeyColumn);
+          break;
+        default:
+          throw new RuntimeException("unsupported data type " + primaryKeyColumnType.getName());
+      }
+    }
+
   }
 
   private static final Logger logger = LoggerFactory.getLogger(CassandraPOJOInputOperator.class);
