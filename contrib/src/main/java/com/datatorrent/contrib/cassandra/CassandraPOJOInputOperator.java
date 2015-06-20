@@ -15,29 +15,33 @@
  */
 package com.datatorrent.contrib.cassandra;
 
+import java.math.BigDecimal;
+import java.util.*;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
 import com.datastax.driver.core.ColumnDefinitions;
 import com.datastax.driver.core.DataType;
 import com.datastax.driver.core.Row;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Setter;
-import com.datatorrent.lib.util.PojoUtils.SetterBoolean;
-import com.datatorrent.lib.util.PojoUtils.SetterDouble;
-import com.datatorrent.lib.util.PojoUtils.SetterFloat;
-import com.datatorrent.lib.util.PojoUtils.SetterInt;
-import com.datatorrent.lib.util.PojoUtils.SetterLong;
-import java.math.BigDecimal;
-import java.util.*;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.util.PojoUtils;
+import com.datatorrent.lib.util.PojoUtils.*;
+
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * <p>
  * CassandraPOJOInputOperator</p>
- * A Generic implementation of AbstractCassandraInputOperator which gets field values from Cassandra database columns and sets in a POJO.
- * User can give a parameterized query with parameters %t for table name, %p for primary key, %s for start value and %l for limit.
+ * A generic implementation of AbstractCassandraInputOperator that fetches rows of data from Cassandra and emits them as POJOs.
+ * Each row is converted to a POJO by mapping the columns in the row to fields of the POJO based on a user specified mapping.
+ * User should also provide a query to fetch the rows from database. This query is run continuously to fetch new data and
+ * hence should be parameterized. The parameters that can be used are %t for table name, %p for primary key, %s for start value
+ * and %l for limit. The start value is continuously updated with the value of a primary key column of the last row from
+ * the result of the previous run of the query. The primary key column is also identified by the user using a property.
  *
  * @displayName Cassandra POJO Input Operator
  * @category Input
@@ -204,7 +208,6 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
 
       com.datastax.driver.core.ResultSet rs = store.getSession().execute("select * from " + store.keyspace + "." + tablename + " LIMIT " + 1);
       ColumnDefinitions rsMetaData = rs.getColumnDefinitions();
-      int numberOfColumns = rsMetaData.size();
 
       primaryKeyColumnType = rsMetaData.getType(primaryKeyColumn);
        if(query.contains("%p"))
@@ -220,10 +223,7 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
 
       //In case columns is a subset
       int columnSize = columns.size();
-      if (columns.size()<numberOfColumns){
-        numberOfColumns = columnSize;
-      }
-      for (int i = 0; i < numberOfColumns; i++) {
+      for (int i = 0; i < columnSize; i++) {
         // Get the designated column's data type.
         DataType type = rsMetaData.getType(columns.get(i));
         columnDataTypes.add(type);
