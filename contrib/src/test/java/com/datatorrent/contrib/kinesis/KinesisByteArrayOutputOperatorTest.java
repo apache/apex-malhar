@@ -1,20 +1,3 @@
-/**
- * 
- * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
 package com.datatorrent.contrib.kinesis;
 
 import java.nio.ByteBuffer;
@@ -27,40 +10,31 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.services.kinesis.model.Record;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.Pair;
+import com.datatorrent.contrib.kinesis.KinesisPOJOOutputOperatorTest.TestPOJOTupleGenerateOperator;
 import com.datatorrent.contrib.util.FieldInfo;
 import com.datatorrent.contrib.util.FieldValueGenerator;
 import com.datatorrent.contrib.util.POJOTupleGenerateOperator;
-import com.datatorrent.contrib.util.TableInfo;
 import com.datatorrent.contrib.util.TestPOJO;
 import com.datatorrent.contrib.util.TupleGenerator;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
-public class KinesisPOJOOutputOperatorTest extends KinesisOutputOperatorTest< KinesisPOJOOutputOperator, POJOTupleGenerateOperator >
-{ 
-  public static class TestPOJOTupleGenerateOperator extends POJOTupleGenerateOperator< TestPOJO >
-  {
-    public TestPOJOTupleGenerateOperator()
-    {
-      super( TestPOJO.class );
-      setTupleNum(maxTuple);
-    }
-  }
-  
+
+@SuppressWarnings("rawtypes")
+public class KinesisByteArrayOutputOperatorTest extends KinesisOutputOperatorTest< KinesisByteArrayOutputOperator, POJOTupleGenerateOperator >
+{
+  private FieldValueGenerator fieldValueGenerator;
+
+
   @Test
   public void testKinesisOutputOperatorInternal() throws Exception
   {
-    KinesisPOJOOutputOperator operator = new KinesisPOJOOutputOperator();
+    KinesisByteArrayOutputOperator operator = new KinesisByteArrayOutputOperator();
     configureTestingOperator( operator );
     operator.setBatchProcessing(false);
     
-    TableInfo tableInfo = new TableInfo();
-    tableInfo.setFieldsInfo( TestPOJO.getFieldsInfo() );
-    tableInfo.setRowOrIdExpression( TestPOJO.getRowExpression() );
-    operator.setTableInfo( tableInfo );
-
     operator.setup(null);
     
-    TupleGenerator generator = new TupleGenerator( TestPOJO.class );
+    TupleGenerator<TestPOJO> generator = new TupleGenerator<TestPOJO>( TestPOJO.class );
     
     //read tuples
     KinesisTestConsumer listener = createConsumerListener(streamName);
@@ -71,10 +45,19 @@ public class KinesisPOJOOutputOperatorTest extends KinesisOutputOperatorTest< Ki
       if( i%2==0)
         iterator = listener.processNextIterator(iterator);
       
-      operator.processTuple( generator.getNextTuple() );
+      operator.processTuple( getNextTuple( generator) );
     }
     iterator = listener.processNextIterator(iterator);
   }
+  
+  protected Pair<String,byte[]> getNextTuple( TupleGenerator<TestPOJO> generator )
+  {
+    TestPOJO obj = generator.getNextTuple();
+    if( fieldValueGenerator == null )
+      fieldValueGenerator = FieldValueGenerator.getFieldValueGenerator( TestPOJO.class, null);
+    return new Pair<String,byte[]>( obj.getRow(), fieldValueGenerator.serializeObject(obj) );
+  }
+  
   
   @Override
   protected POJOTupleGenerateOperator addGenerateOperator(DAG dag)
@@ -89,24 +72,16 @@ public class KinesisPOJOOutputOperatorTest extends KinesisOutputOperatorTest< Ki
   }
 
   @Override
-  protected KinesisPOJOOutputOperator addTestingOperator(DAG dag)
+  protected KinesisByteArrayOutputOperator addTestingOperator(DAG dag)
   {
-    KinesisPOJOOutputOperator operator = dag.addOperator("Test-KinesisPojoOutputOperator", KinesisPOJOOutputOperator.class);
-    //table info
-    {
-      TableInfo tableInfo = new TableInfo();
-      tableInfo.setFieldsInfo( TestPOJO.getFieldsInfo() );
-      tableInfo.setRowOrIdExpression( TestPOJO.getRowExpression() );
-      operator.setTableInfo( tableInfo );
-    }
+    KinesisByteArrayOutputOperator operator = dag.addOperator("Test-KinesisByteArrayOutputOperator", KinesisByteArrayOutputOperator.class);
+    
     operator.setBatchProcessing(true);
     
     return operator;
   }
 
-  /**
-   * add Consumer to process the record
-   */
+  
   @Override
   protected KinesisTestConsumer createConsumerListener( String streamName )
   {
@@ -118,7 +93,7 @@ public class KinesisPOJOOutputOperatorTest extends KinesisOutputOperatorTest< Ki
   public static class KinesisEmployeeConsumer extends KinesisTestConsumer
   {
     private static final Logger logger = LoggerFactory.getLogger( KinesisEmployeeConsumer.class );
-    protected FieldValueGenerator<FieldInfo> fieldValueGenerator = FieldValueGenerator.getFieldValueGenerator(TestPOJO.class, TestPOJO.getFieldsInfo() );
+    protected FieldValueGenerator<FieldInfo> fieldValueGenerator = FieldValueGenerator.getFieldValueGenerator(TestPOJO.class, null );
     
     public KinesisEmployeeConsumer(String streamNamem )
     {

@@ -55,45 +55,27 @@ public class FieldValueGenerator< T extends FieldInfo >
     FieldValueGenerator<T> fieldValueGenerator = new FieldValueGenerator<T>();
     fieldValueGenerator.clazz = clazz;
     
-    fieldValueGenerator.fieldGetterMap = new HashMap<T,Getter<Object,Object>>();
-    for( T fieldInfo : fieldInfos )
+    if( fieldInfos != null )
     {
-      Getter<Object,Object> getter = PojoUtils.createGetter(clazz, fieldInfo.getColumnExpression(), fieldInfo.getType().getJavaType() );
-      fieldValueGenerator.fieldGetterMap.put( fieldInfo, getter );
-    }
-    
-    fieldValueGenerator.fieldSetterMap = new HashMap<T,Setter<Object,Object>>();
-    for( T fieldInfo : fieldInfos )
-    {
-      Setter<Object,Object> setter = PojoUtils.createSetter(clazz, fieldInfo.getColumnExpression(), fieldInfo.getType().getJavaType() );
-      fieldValueGenerator.fieldSetterMap.put( fieldInfo, setter );
+      fieldValueGenerator.fieldGetterMap = new HashMap<T,Getter<Object,Object>>();
+      for( T fieldInfo : fieldInfos )
+      {
+        Getter<Object,Object> getter = PojoUtils.createGetter(clazz, fieldInfo.getColumnExpression(), fieldInfo.getType().getJavaType() );
+        fieldValueGenerator.fieldGetterMap.put( fieldInfo, getter );
+      }
+      
+      fieldValueGenerator.fieldSetterMap = new HashMap<T,Setter<Object,Object>>();
+      for( T fieldInfo : fieldInfos )
+      {
+        Setter<Object,Object> setter = PojoUtils.createSetter(clazz, fieldInfo.getColumnExpression(), fieldInfo.getType().getJavaType() );
+        fieldValueGenerator.fieldSetterMap.put( fieldInfo, setter );
+      }
     }
     
     return fieldValueGenerator;
   }
   
-   
-  
-  /**
-   * 
-   * @param obj
-   * @return a map from FieldInfo to columnValue
-   */
-//  public Map< T, Object > getFieldsValue( Object obj )
-//  {
-//    Map< T, Object > fieldsValue = new HashMap< T, Object>();
-//    for( Map.Entry< T, Getter<Object,Object>> entry : getFieldGetterMap().entrySet() )
-//    {
-//      Getter<Object,Object> getter = entry.getValue();
-//      if( getter != null )
-//      {
-//        Object value = getter.get(obj);
-//        fieldsValue.put(entry.getKey(), value);
-//      }
-//    }
-//    return fieldsValue;
-//  }
-  
+
   /**
    * get the object which is serialized.
    * this method will convert the object into a map from column name to column value and then serialize it

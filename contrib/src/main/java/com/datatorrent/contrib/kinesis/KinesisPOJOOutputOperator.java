@@ -26,6 +26,12 @@ import com.datatorrent.contrib.util.TableInfo;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
 
+/**
+ * 
+ * @displayName Kinesis Put Output
+ * @category Database
+ * @tags Kinesis put, output operator, Pojo
+ */
 public class KinesisPOJOOutputOperator extends AbstractKinesisOutputOperator<byte[], Object>
 {
   private TableInfo<FieldInfo> tableInfo;
