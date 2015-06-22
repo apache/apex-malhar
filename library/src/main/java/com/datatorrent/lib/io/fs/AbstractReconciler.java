@@ -100,7 +100,9 @@ public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator
   @Override
   public void endWindow()
   {
-    committedTuples.removeAll(doneTuples);
+    while (doneTuples.peek() != null) {
+      committedTuples.remove(doneTuples.poll());
+    }
   }
 
   @Override
