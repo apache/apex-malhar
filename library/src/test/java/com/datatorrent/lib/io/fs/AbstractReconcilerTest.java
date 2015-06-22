@@ -57,9 +57,7 @@ public class AbstractReconcilerTest
       TestMeta meta = new TestMeta();
       meta.windowid = currentWindowId;
       meta.data = windowData.toString();
-
       enqueueForProcessing(meta);
-
       windowData.setLength(0);
     }
 

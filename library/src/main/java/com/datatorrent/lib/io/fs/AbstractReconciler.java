@@ -50,7 +50,6 @@ import com.datatorrent.common.util.NameableThreadFactory;
  *
  * @param <INPUT>      input type
  * @param <QUEUETUPLE> tuple enqueued each window to be processed after window is committed
- *
  * @since 2.0.0
  */
 public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator implements CheckpointListener, IdleTimeHandler
@@ -71,7 +70,9 @@ public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator
   // this stores the mapping from the window to the list of enqueued tuples
   private Map<Long, List<QUEUETUPLE>> currentWindowTuples = Maps.newConcurrentMap();
   private Queue<Long> currentWindows = Queues.newLinkedBlockingQueue();
-  private Queue<List<QUEUETUPLE>> committedTuples = Queues.newLinkedBlockingQueue();
+  private Queue<QUEUETUPLE> committedTuples = Queues.newLinkedBlockingQueue();
+  private transient Queue<QUEUETUPLE> doneTuples = Queues.newLinkedBlockingQueue();
+  private transient Queue<QUEUETUPLE> waitingTuples = Queues.newLinkedBlockingQueue();
   private transient volatile boolean execute;
   private transient AtomicReference<Throwable> cause;
 
@@ -83,6 +84,7 @@ public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator
     }
     execute = true;
     cause = new AtomicReference<Throwable>();
+    waitingTuples.addAll(committedTuples);
     executorService = Executors.newSingleThreadExecutor(new NameableThreadFactory("Reconciler-Helper"));
     executorService.submit(processEnqueuedData());
   }
@@ -93,6 +95,12 @@ public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator
     currentWindowId = windowId;
     currentWindowTuples.put(currentWindowId, new ArrayList<QUEUETUPLE>());
     currentWindows.add(windowId);
+  }
+
+  @Override
+  public void endWindow()
+  {
+    committedTuples.removeAll(doneTuples);
   }
 
   @Override
@@ -129,7 +137,8 @@ public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator
     while (processedWindowId <= l) {
       List<QUEUETUPLE> outputDataList = currentWindowTuples.get(processedWindowId);
       if (outputDataList != null && !outputDataList.isEmpty()) {
-        committedTuples.add(outputDataList);
+        committedTuples.addAll(outputDataList);
+        waitingTuples.addAll(outputDataList);
       }
       currentWindows.remove();
       currentWindowTuples.remove(processedWindowId);
@@ -156,14 +165,12 @@ public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator
       {
         try {
           while (execute) {
-            while (committedTuples.isEmpty()) {
+            while (waitingTuples.isEmpty()) {
               Thread.sleep(spinningTime);
             }
-            List<QUEUETUPLE> outputList = committedTuples.peek();
-            for (QUEUETUPLE output : outputList) {
-              processCommittedData(output);
-            }
-            committedTuples.remove();
+            QUEUETUPLE output = waitingTuples.remove();
+            processCommittedData(output);
+            doneTuples.add(output);
           }
         }
         catch (Throwable e) {
