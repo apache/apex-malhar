@@ -31,7 +31,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
 
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * Emits at end of window, a maximum of all values sub-classed from Number in the incoming stream. <br>

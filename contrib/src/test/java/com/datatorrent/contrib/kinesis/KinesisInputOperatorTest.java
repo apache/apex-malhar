@@ -15,10 +15,13 @@
  */
 package com.datatorrent.contrib.kinesis;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -27,12 +30,13 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.testbench.CollectorTestSink;
+
+import com.datatorrent.api.*;
+import com.datatorrent.api.DAG.Locality;
+
+import com.datatorrent.common.util.BaseOperator;
 
 public class KinesisInputOperatorTest extends KinesisOperatorTestBase
 {

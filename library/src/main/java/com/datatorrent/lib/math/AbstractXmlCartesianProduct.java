@@ -16,7 +16,7 @@
 package com.datatorrent.lib.math;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.lib.xml.AbstractXmlDOMOperator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

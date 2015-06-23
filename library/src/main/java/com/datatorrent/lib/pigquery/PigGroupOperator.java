@@ -25,7 +25,7 @@ import javax.validation.constraints.NotNull;
 import com.datatorrent.lib.pigquery.condition.PigGroupCondition;
 import com.datatorrent.lib.util.UnifierMap;
 
-import com.datatorrent.api.BaseOperator;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 

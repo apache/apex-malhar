@@ -15,7 +15,7 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import com.datatorrent.api.BaseOperator;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import java.util.ArrayList;
 import java.util.List;

@@ -15,16 +15,19 @@
  */
 package com.datatorrent.demos.mrmonitor;
 
-import org.apache.hadoop.conf.Configuration;
+import javax.servlet.Servlet;
+
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.Test;
 
-import com.datatorrent.api.LocalMode;
+import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
+
+import com.datatorrent.api.LocalMode;
 
 /**
  * <p>MapReduceDebuggerApplicationTest class.</p>
@@ -41,7 +44,7 @@ public class MrMonitoringApplicationTest
     Configuration conf = new Configuration(false);
     conf.addResource("dt-site-monitoring.xml");
     Server server = new Server(0);
-    SamplePubSubWebSocketServlet servlet = new SamplePubSubWebSocketServlet();
+    Servlet servlet = new SamplePubSubWebSocketServlet();
     ServletHolder sh = new ServletHolder(servlet);
     ServletContextHandler contextHandler = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
     contextHandler.addServlet(sh, "/pubsub");

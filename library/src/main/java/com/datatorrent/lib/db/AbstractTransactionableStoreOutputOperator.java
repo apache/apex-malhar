@@ -17,7 +17,7 @@ package com.datatorrent.lib.db;
 
 import java.io.IOException;
 
-import com.datatorrent.api.BaseOperator;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;

@@ -18,7 +18,7 @@ package com.datatorrent.contrib.romesyndication;
 import com.datatorrent.contrib.romesyndication.RomeFeedEntry;
 import com.datatorrent.contrib.romesyndication.RomeStreamProvider;
 import com.datatorrent.contrib.romesyndication.RomeSyndicationOperator;
-import com.datatorrent.api.BaseOperator;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;

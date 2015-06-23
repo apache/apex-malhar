@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.db.Connectable;
 
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * CouchBaseStore which provides connect methods to Couchbase data store.

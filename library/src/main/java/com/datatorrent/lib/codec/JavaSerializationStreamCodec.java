@@ -23,7 +23,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import com.datatorrent.api.StreamCodec;
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 
 /**
  * This codec is used for serializing the objects of class which implements

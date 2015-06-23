@@ -38,7 +38,7 @@ public class MRUtil
 {
 
   private static final Logger logger = LoggerFactory.getLogger(MRUtil.class);
-  
+
   /**
    * This method returns the response content for a given url
    * @param url
@@ -50,7 +50,7 @@ public class MRUtil
     logger.debug(url);
     try {
 
-      
+
       HttpGet httpget = new HttpGet(url);
 
       // Create a response handler
@@ -91,5 +91,5 @@ public class MRUtil
       return null;
     }
   }
-  
+
 }

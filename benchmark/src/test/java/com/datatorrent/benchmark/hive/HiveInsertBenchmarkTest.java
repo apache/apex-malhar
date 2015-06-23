@@ -17,7 +17,7 @@
 package com.datatorrent.benchmark.hive;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;

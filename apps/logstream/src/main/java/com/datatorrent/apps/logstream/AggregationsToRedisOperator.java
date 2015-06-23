@@ -22,7 +22,7 @@ import java.util.Map;
 import com.datatorrent.lib.logs.DimensionObject;
 import com.datatorrent.lib.util.KeyValPair;
 
-import com.datatorrent.api.BaseOperator;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;

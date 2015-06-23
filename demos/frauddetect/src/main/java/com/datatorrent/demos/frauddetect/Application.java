@@ -23,7 +23,7 @@ import com.datatorrent.api.Context.DAGContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.demos.frauddetect.operator.HdfsStringOutputOperator;
 import com.datatorrent.demos.frauddetect.operator.MongoDBOutputOperator;
 import com.datatorrent.lib.io.ConsoleOutputOperator;

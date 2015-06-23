@@ -31,6 +31,7 @@ import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator.ActivationListener;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  *

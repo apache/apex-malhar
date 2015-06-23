@@ -20,7 +20,7 @@ import java.util.Map.Entry;
 
 import com.datatorrent.lib.util.KeyValPair;
 
-import com.datatorrent.api.BaseOperator;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 

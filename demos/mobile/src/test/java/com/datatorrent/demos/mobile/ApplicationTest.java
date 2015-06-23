@@ -19,7 +19,8 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.hadoop.conf.Configuration;
+import javax.servlet.Servlet;
+
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -29,12 +30,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.LocalMode;
+import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+
+import com.datatorrent.api.LocalMode;
 
 public class ApplicationTest
 {
@@ -53,7 +56,7 @@ public class ApplicationTest
     Configuration conf = new Configuration(false);
     conf.addResource("dt-site-mobile.xml");
     Server server = new Server(0);
-    SamplePubSubWebSocketServlet servlet = new SamplePubSubWebSocketServlet();
+    Servlet servlet = new SamplePubSubWebSocketServlet();
     ServletHolder sh = new ServletHolder(servlet);
     ServletContextHandler contextHandler = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
     contextHandler.addServlet(sh, "/pubsub");

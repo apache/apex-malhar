@@ -15,6 +15,7 @@
  */
 package com.datatorrent.demos.twitter;
 
+import java.util.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -25,7 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
-import java.util.*;
+
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  *

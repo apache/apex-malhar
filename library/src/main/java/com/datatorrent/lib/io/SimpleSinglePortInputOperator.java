@@ -20,6 +20,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This an input operator which passes data from an asynchronous data source to a port processing thread.

@@ -35,7 +35,8 @@ import com.datatorrent.api.Partitioner.PartitioningContext;
 import com.datatorrent.apps.logstream.LogstreamUtil.AggregateOperation;
 import com.datatorrent.apps.logstream.PropertyRegistry.LogstreamPropertyRegistry;
 import com.datatorrent.apps.logstream.PropertyRegistry.PropertyRegistry;
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * Partitionable dimension operator.

@@ -27,7 +27,7 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
 
 import com.datatorrent.api.DefaultOutputPort;
 
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * Base input adapter which reads data from persistence database through DATASTAX API and writes into output port(s).&nbsp;

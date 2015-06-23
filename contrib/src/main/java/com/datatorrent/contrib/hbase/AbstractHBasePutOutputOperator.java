@@ -28,7 +28,7 @@ import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
 
 import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * A base implementation of a StoreOutputOperator operator that stores tuples in HBase rows and offers non-transactional put.Subclasses should provide implementation for put operation. <br>

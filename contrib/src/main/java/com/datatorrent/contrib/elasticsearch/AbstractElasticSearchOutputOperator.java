@@ -25,7 +25,7 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
 /**

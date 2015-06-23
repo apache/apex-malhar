@@ -15,18 +15,21 @@
  */
 package com.datatorrent.contrib.kinesis;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.DAG.Locality;
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.*;
+import com.datatorrent.api.DAG.Locality;
+
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * A test to verify the input operator will be automatically partitioned per kinesis partition

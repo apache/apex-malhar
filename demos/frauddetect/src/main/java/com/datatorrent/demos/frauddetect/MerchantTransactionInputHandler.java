@@ -15,7 +15,7 @@
  */
 package com.datatorrent.demos.frauddetect;
 
-import com.datatorrent.api.BaseOperator;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import org.slf4j.Logger;

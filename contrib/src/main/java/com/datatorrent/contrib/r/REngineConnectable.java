@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.db.Connectable;
 
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * @since 2.1.0 

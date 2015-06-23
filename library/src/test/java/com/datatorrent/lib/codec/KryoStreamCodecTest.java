@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import com.google.common.base.Preconditions;
 
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 
 /**
  * Tests for {@link KryoSerializableStreamCodec}

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
- 
+
   <groupId>com.datatorrent</groupId>
   <version>2.2.0-SNAPSHOT</version>
   <artifactId>mrmonitor</artifactId>
@@ -127,7 +127,7 @@
                </descriptors>
                <archiverConfig>
                  <defaultDirectoryMode>0755</defaultDirectoryMode>
-               </archiverConfig>                  
+               </archiverConfig>
                <archive>
                  <manifestEntries>
                    <Class-Path>${datatorrent.apppackage.classpath}</Class-Path>
@@ -150,7 +150,7 @@
     <dependency>
       <groupId>com.datatorrent</groupId>
       <artifactId>malhar-library</artifactId>
-      <version>${datatorrent.version}</version>    
+      <version>${datatorrent.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -175,13 +175,33 @@
       <groupId>com.datatorrent</groupId>
       <artifactId>dt-engine</artifactId>
       <version>${datatorrent.version}</version>
-      <scope>provided</scope>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.10</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-websocket</artifactId>
+      <version>8.1.10.v20130312</version>
+      <scope>test</scope>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-servlet</artifactId>
+      <version>8.1.10.v20130312</version>
+      <scope>test</scope>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.3.5</version>
+      <type>jar</type>
     </dependency>
   </dependencies>
 

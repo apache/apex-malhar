@@ -31,7 +31,7 @@ import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.DAG;
 
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 import java.util.HashMap;
 import java.util.List;
 import org.couchbase.mock.Bucket.BucketType;

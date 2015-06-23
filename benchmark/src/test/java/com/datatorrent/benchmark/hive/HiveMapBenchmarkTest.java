@@ -28,7 +28,7 @@ import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.LocalMode;
 
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 

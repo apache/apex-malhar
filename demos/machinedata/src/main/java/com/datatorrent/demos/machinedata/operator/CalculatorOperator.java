@@ -34,6 +34,7 @@ import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.lib.util.KeyValPair;
 
 import com.datatorrent.api.*;
+import com.datatorrent.common.util.BaseOperator;
 
 import com.datatorrent.demos.machinedata.data.*;
 import com.datatorrent.demos.machinedata.util.DataTable;

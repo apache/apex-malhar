@@ -35,7 +35,7 @@ import com.datatorrent.lib.util.ObjectMapperString;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.StringCodec;
 
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 
 /**
  * <p>JsonStreamCodec class.</p>

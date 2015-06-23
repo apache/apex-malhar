@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.db.TransactionableStore;
 
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * CouchBaseWindowStore which transactional support.

@@ -28,7 +28,7 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperato
 
 import com.datatorrent.api.Context.OperatorContext;
 
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * AbstractCouchBaseOutputOperator which extends Transactionable Store Output Operator.

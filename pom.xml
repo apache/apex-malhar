@@ -14,6 +14,13 @@
   <name>Malhar Open Source</name>
   <url>https://www.datatorrent.com/</url>
 
+  <licenses>
+    <license>
+      <name>Copyright &copy; 2015 DataTorrent, Inc.</name>
+      <url>http://www.datatorrent.com/</url>
+    </license>
+  </licenses>
+
   <!-- repository to provide the DataTorrent artifacts -->
   <repositories>
     <repository>
@@ -42,18 +49,48 @@
     <module>apps</module>
   </modules>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>2.11</version>
+        <configuration>
+          <header>license.txt</header>
+          <properties>
+            <owner>DataTorrent, Inc.</owner>
+            <email>apex-dev@googlegroups.com</email>
+          </properties>
+          <excludes>
+            <exclude>license.txt</exclude>
+            <exclude>**/*.xml</exclude>
+            <exclude>**/*.md</exclude>
+            <exclude>web/**</exclude>
+            <exclude>src/test/resources/**</exclude>
+            <exclude>src/main/resources/**</exclude>
+          </excludes>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>dt-api</artifactId>
+      <artifactId>dt-common</artifactId>
       <version>${dt.framework.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>dt-engine</artifactId>
       <version>${dt.framework.version}</version>
-      <scope>provided</scope>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

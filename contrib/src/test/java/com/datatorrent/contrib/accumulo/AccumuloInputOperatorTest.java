@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 
 public class AccumuloInputOperatorTest {
   private static final Logger logger = LoggerFactory.getLogger(AccumuloInputOperatorTest.class);

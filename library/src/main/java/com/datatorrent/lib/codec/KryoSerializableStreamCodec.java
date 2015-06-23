@@ -11,7 +11,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.base.Preconditions;
 import com.datatorrent.api.StreamCodec;
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 
 /**
  * This codec is used for serializing the objects of class which are Kryo serializable.
