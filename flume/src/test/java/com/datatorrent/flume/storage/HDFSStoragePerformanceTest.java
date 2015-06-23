@@ -12,9 +12,12 @@ import com.google.common.primitives.Ints;
 import com.datatorrent.netlet.util.Slice;
 
 /**
+ * <p>HDFSStoragePerformanceTest class.</p>
+ *
  * @author Gaurav Gupta  <gaurav@datatorrent.com>
+ * @since 1.0.1
  */
-public class HDFSStorageMatching
+public class HDFSStoragePerformanceTest
 {
 
   public static void main(String[] args)
@@ -93,6 +96,6 @@ public class HDFSStorageMatching
     return false;
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(HDFSStorageMatching.class);
+  private static final Logger logger = LoggerFactory.getLogger(HDFSStoragePerformanceTest.class);
 }
 

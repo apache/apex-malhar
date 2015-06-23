@@ -18,7 +18,7 @@ import org.apache.flume.sink.AbstractSink;
 import com.datatorrent.api.Component;
 import com.datatorrent.api.StreamCodec;
 
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 import com.datatorrent.flume.discovery.Discovery;
 import com.datatorrent.flume.discovery.Discovery.Service;
 import com.datatorrent.flume.sink.Server.Client;

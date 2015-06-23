@@ -4,11 +4,11 @@
 
   <parent>
     <groupId>com.datatorrent</groupId>
-    <artifactId>malhar-all</artifactId>
+    <artifactId>dt-megh</artifactId>
     <version>2.2.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>malhar-contrib</artifactId>
+  <artifactId>dt-contrib</artifactId>
   <name>Contrib Library</name>
   <packaging>jar</packaging>
 
@@ -286,13 +286,6 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>com.almworks.sqlite4java</groupId>
-      <artifactId>libsqlite4java-linux-amd64</artifactId>
-      <version>0.282</version>
-      <type>so</type>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
       <groupId>com.whalin</groupId>
       <artifactId>Memcached-Java-Client</artifactId>
       <version>3.0.1</version>
@@ -500,14 +493,6 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.apache.servicemix.bundles</groupId>
-      <artifactId>org.apache.servicemix.bundles.splunk</artifactId>
-      <version>1.3.0_1</version>
-      <type>zip</type>
-      <classifier>src</classifier>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
       <groupId>org.apache.accumulo</groupId>
       <artifactId>accumulo-core</artifactId>
       <version>1.5.1</version>
@@ -658,6 +643,24 @@
       <artifactId>jriengine</artifactId>
       <version>1.0</version>
       <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.datatorrent</groupId>
+      <artifactId>malhar-contrib</artifactId>
+      <version>2.2.0-SNAPSHOT</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.datatorrent</groupId>
+      <artifactId>dt-common</artifactId>
+      <version>2.2.0-SNAPSHOT</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.datatorrent</groupId>
+      <artifactId>dt-library</artifactId>
+      <version>2.2.0-SNAPSHOT</version>
+      <type>jar</type>
     </dependency>
   </dependencies>
 </project>

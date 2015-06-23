@@ -4,28 +4,16 @@
 
   <parent>
     <groupId>com.datatorrent</groupId>
-    <artifactId>malhar-all</artifactId>
+    <artifactId>dt-megh</artifactId>
     <version>2.2.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>malhar-demos</artifactId>
+  <artifactId>dt-demos</artifactId>
   <packaging>pom</packaging>
   <name>Demos</name>
 
   <modules>
-    <module>machinedata</module>
     <module>dimensions</module>
-    <module>pi</module>
-    <module>twitter</module>
-    <module>yahoofinance</module>
-    <module>frauddetect</module>
-    <module>mobile</module>
-    <module>wordcount</module>
-    <module>mrmonitor</module>
-    <module>mroperator</module>
-    <module>uniquecount</module>
-    <module>r</module>
-    <module>echoserver</module>
   </modules>
 
 </project>

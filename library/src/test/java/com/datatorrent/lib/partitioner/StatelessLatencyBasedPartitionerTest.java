@@ -19,79 +19,22 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import com.datatorrent.api.*;
+import org.junit.Assert;
+import org.junit.Test;
 
+import com.datatorrent.lib.partitioner.StatelessThroughputBasedPartitionerTest.DummyOperator;
 import com.datatorrent.lib.util.TestUtils;
+
+import com.datatorrent.api.*;
 
 /**
  * Test for {@link StatelessLatencyBasedPartitioner}
  */
 public class StatelessLatencyBasedPartitionerTest
 {
-
-  public static class DummyOperator implements Operator
-  {
-    public final DefaultOutputPort<Integer> output = new DefaultOutputPort<Integer>();
-    public final DefaultInputPort<Integer> input = new DefaultInputPort<Integer>()
-    {
-      @Override
-      public void process(Integer tuple)
-      {
-
-      }
-    };
-
-    private Integer value;
-
-    public DummyOperator()
-    {
-    }
-
-    public DummyOperator(Integer value)
-    {
-      this.value = value;
-    }
-
-    @Override
-    public void beginWindow(long windowId)
-    {
-      //Do nothing
-    }
-
-    @Override
-    public void endWindow()
-    {
-      //Do nothing
-    }
-
-    @Override
-    public void setup(Context.OperatorContext context)
-    {
-      //Do nothing
-    }
-
-    @Override
-    public void teardown()
-    {
-      //Do nothing
-    }
-
-    public void setValue(int value)
-    {
-      this.value = value;
-    }
-
-    public int getValue()
-    {
-      return value;
-    }
-  }
 
   @Test
   public void testPartitioner() throws Exception

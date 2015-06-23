@@ -5,11 +5,11 @@
 
   <parent>
     <groupId>com.datatorrent</groupId>
-    <artifactId>malhar-all</artifactId>
+    <artifactId>dt-megh</artifactId>
     <version>2.2.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>malhar-library</artifactId>
+  <artifactId>dt-library</artifactId>
   <packaging>jar</packaging>
 
   <name>Operator and Codec Library</name>
@@ -324,6 +324,31 @@
           <groupId>org.slf4j</groupId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.datatorrent</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>2.2.0-SNAPSHOT</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.datatorrent</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>2.2.0-SNAPSHOT</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.esotericsoftware.kryo</groupId>
+      <artifactId>kryo</artifactId>
+      <version>2.24.0</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.datatorrent</groupId>
+      <artifactId>dt-common</artifactId>
+      <version>2.2.0-SNAPSHOT</version>
+      <type>jar</type>
     </dependency>
   </dependencies>
 

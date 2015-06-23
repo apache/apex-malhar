@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.bucket;
 
+import com.datatorrent.lib.counters.BasicCounters;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Comparator;
@@ -39,7 +40,6 @@ import com.google.common.collect.MinMaxPriorityQueue;
 import com.google.common.collect.Sets;
 
 import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.lib.counters.BasicCounters;
 
 /**
  * This is the base implementation of BucketManager.
@@ -81,7 +81,7 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
   public static int DEF_NUM_BUCKETS = 1000;
   public static int DEF_NUM_BUCKETS_MEM = 120;
   public static long DEF_MILLIS_PREVENTING_EVICTION = 10 * 60000;
-  private static long RESERVED_BUCKET_KEY = -2;
+  private static final long RESERVED_BUCKET_KEY = -2;
   //Check-pointed
   @Min(1)
   protected int noOfBuckets;
@@ -189,7 +189,7 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
   public void setWriteEventKeysOnly(boolean writeEventKeysOnly)
   {
     this.writeEventKeysOnly = writeEventKeysOnly;
-    if(this.bucketStore !=null){
+    if (this.bucketStore != null) {
       this.bucketStore.setWriteEventKeysOnly(writeEventKeysOnly);
     }
   }

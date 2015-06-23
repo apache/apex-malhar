@@ -4,7 +4,7 @@
  */
 package com.datatorrent.flume.storage;
 
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 
 /**
  * <p>Storage interface.</p>
