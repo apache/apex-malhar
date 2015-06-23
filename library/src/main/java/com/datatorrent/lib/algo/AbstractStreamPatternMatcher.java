@@ -24,7 +24,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.google.common.collect.Lists;
 
-import com.datatorrent.api.BaseOperator;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;

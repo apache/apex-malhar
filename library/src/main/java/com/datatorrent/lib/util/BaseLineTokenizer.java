@@ -15,7 +15,7 @@
  */
 package com.datatorrent.lib.util;
 
-import com.datatorrent.api.BaseOperator;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 
 import javax.validation.constraints.NotNull;

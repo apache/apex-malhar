@@ -15,7 +15,7 @@
  */
 package com.datatorrent.contrib.mqtt;
 
-import com.datatorrent.api.BaseOperator;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import javax.validation.constraints.NotNull;
 import org.fusesource.mqtt.client.BlockingConnection;

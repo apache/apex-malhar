@@ -15,7 +15,7 @@
  */
 package com.datatorrent.contrib.hdht.hfile;
 
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 import com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl;
 import com.google.common.base.Preconditions;
 
@@ -309,7 +309,7 @@ public class HFileImpl extends HDHTFileAccessFSImpl {
   }
 
   /**
-   * Adapter to support comparisons between two {@link com.datatorrent.common.util.Slice} objects.
+   * Adapter to support comparisons between two {@link com.datatorrent.netlet.util.Slice} objects.
    */
   public static class ComparatorAdaptor extends KVComparator
   {

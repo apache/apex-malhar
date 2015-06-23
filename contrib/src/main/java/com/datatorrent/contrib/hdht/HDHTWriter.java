@@ -35,7 +35,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.CheckpointListener;
 import com.datatorrent.common.util.NameableThreadFactory;
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 import com.datatorrent.contrib.hdht.HDHTFileAccess.HDSFileReader;
 import com.datatorrent.contrib.hdht.HDHTFileAccess.HDSFileWriter;
 import com.esotericsoftware.kryo.io.Output;

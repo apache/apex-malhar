@@ -22,14 +22,20 @@ import java.nio.ByteBuffer;
 import java.util.Random;
 import java.util.TreeMap;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.hadoop.conf.Configuration;
+import com.google.common.collect.Lists;
+
 import org.junit.Assert;
 import org.junit.Rule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
+import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.lib.util.KeyValPair;
+import com.datatorrent.lib.util.TestUtils;
+
+import com.datatorrent.contrib.hdht.hfile.HFileImpl;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
@@ -38,10 +44,8 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
-import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hdht.hfile.HFileImpl;
-import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.lib.util.TestUtils;
+import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.netlet.util.Slice;
 
 @ApplicationAnnotation(name="HDHTBenchmarkTest")
 public class HDHTBenchmarkTest implements StreamingApplication

@@ -22,20 +22,23 @@ import java.util.*;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang.mutable.MutableLong;
-import org.apache.hadoop.fs.PositionedReadable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import com.datatorrent.api.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang.mutable.MutableLong;
+import org.apache.hadoop.fs.PositionedReadable;
 
 import com.datatorrent.lib.counters.BasicCounters;
+
+import com.datatorrent.api.*;
+
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * AbstractBlockReader processes a block of data from a stream.<br/>

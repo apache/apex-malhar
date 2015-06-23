@@ -19,7 +19,7 @@ package com.datatorrent.contrib.aerospike;
 import javax.validation.constraints.NotNull;
 import com.aerospike.client.AerospikeClient;
 import com.aerospike.client.AerospikeException;
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.lib.db.Connectable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -15,7 +15,7 @@
  */
 package com.datatorrent.apps.logstream;
 
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 import java.text.NumberFormat;
 import java.text.ParseException;
 

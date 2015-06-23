@@ -20,7 +20,7 @@ import java.io.IOException;
 
 import org.apache.hadoop.fs.FSDataOutputStream;
 
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 import com.datatorrent.contrib.hdht.HDHT.WALReader;
 
 /**

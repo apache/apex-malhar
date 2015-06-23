@@ -18,7 +18,7 @@ package com.datatorrent.contrib.hdht;
 import java.io.Closeable;
 import java.io.IOException;
 
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 
 /**
  * HDHT

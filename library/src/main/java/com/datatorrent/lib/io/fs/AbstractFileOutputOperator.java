@@ -44,7 +44,7 @@ import org.apache.hadoop.fs.permission.FsPermission;
 
 import com.datatorrent.lib.counters.BasicCounters;
 
-import com.datatorrent.api.BaseOperator;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;

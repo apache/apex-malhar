@@ -16,7 +16,7 @@
 
 package com.datatorrent.demos.dimensions.generic;
 
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 

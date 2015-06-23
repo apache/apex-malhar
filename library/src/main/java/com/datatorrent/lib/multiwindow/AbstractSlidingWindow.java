@@ -19,7 +19,7 @@ import java.util.ArrayList;
 
 import javax.validation.constraints.Min;
 
-import com.datatorrent.api.BaseOperator;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 

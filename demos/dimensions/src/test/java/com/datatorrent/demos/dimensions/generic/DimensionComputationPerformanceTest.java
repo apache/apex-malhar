@@ -1,6 +1,6 @@
 package com.datatorrent.demos.dimensions.generic;
 
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 import com.datatorrent.demos.dimensions.ads.AdInfo;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.google.common.collect.Maps;

@@ -15,7 +15,7 @@
  */
 package com.datatorrent.contrib.hdht;
 
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 import com.datatorrent.contrib.hdht.HDFSWalReader;
 import com.datatorrent.contrib.hdht.HDFSWalWriter;
 import com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl;

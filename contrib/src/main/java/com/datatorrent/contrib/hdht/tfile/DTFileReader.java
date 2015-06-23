@@ -28,7 +28,7 @@ import org.apache.hadoop.io.file.tfile.DTFile.Reader.Scanner;
 import org.apache.hadoop.io.file.tfile.DTFile.Reader.Scanner.Entry;
 import org.apache.hadoop.io.file.tfile.TFile;
 
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 import com.datatorrent.contrib.hdht.HDHTFileAccess.HDSFileReader;
 
 /**

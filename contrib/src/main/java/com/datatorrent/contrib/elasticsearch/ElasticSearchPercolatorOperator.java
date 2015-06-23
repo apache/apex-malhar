@@ -10,10 +10,10 @@ import javax.validation.constraints.NotNull;
 
 import org.elasticsearch.action.percolate.PercolateResponse;
 
-import com.datatorrent.api.BaseOperator;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * Percolate operator for ElasticSearch
@@ -61,7 +61,7 @@ public class ElasticSearchPercolatorOperator extends BaseOperator
   }
   
   /* (non-Javadoc)
-   * @see com.datatorrent.api.BaseOperator#teardown()
+   * @see com.datatorrent.common.util.BaseOperator#teardown()
    */
   @Override
   public void teardown()

@@ -16,6 +16,7 @@
 package com.datatorrent.demos.dimensions.generic;
 
 import com.datatorrent.api.*;
+import com.datatorrent.common.util.BaseOperator;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;

@@ -15,7 +15,7 @@
  */
 package com.datatorrent.contrib.couchbase;
 
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 import java.io.IOException;
 import org.codehaus.jackson.map.ObjectMapper;
 

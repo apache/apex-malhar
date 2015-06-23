@@ -23,7 +23,7 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 import com.datatorrent.contrib.hdht.HDHTFileAccess;
 import com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl;
 import com.datatorrent.contrib.hdht.HDHTReader;

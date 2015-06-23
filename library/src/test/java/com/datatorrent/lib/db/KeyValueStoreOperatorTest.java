@@ -21,9 +21,11 @@ import java.util.Map;
 
 import org.junit.Assert;
 
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+
 import com.datatorrent.api.*;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * @param <S>

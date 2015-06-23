@@ -29,7 +29,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 import com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl;
 import com.datatorrent.contrib.hdht.HDHTWriter;
 import com.datatorrent.contrib.hdht.HDHTFileAccess.HDSFileReader;

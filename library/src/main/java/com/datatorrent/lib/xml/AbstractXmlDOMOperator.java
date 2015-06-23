@@ -15,11 +15,16 @@
  */
 package com.datatorrent.lib.xml;
 
-import com.datatorrent.api.*;
-import com.datatorrent.common.util.DTThrowable;
+
 import javax.xml.parsers.*;
+
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+
+import com.datatorrent.api.*;
+
+import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * This is the base implementation for an xml operator,

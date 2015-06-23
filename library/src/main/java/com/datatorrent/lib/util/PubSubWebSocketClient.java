@@ -38,7 +38,7 @@ import com.datatorrent.lib.util.PubSubMessage.PubSubMessageType;
 import com.datatorrent.api.Component;
 import com.datatorrent.api.Context;
 
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.common.util.NameableThreadFactory;
 
 /**

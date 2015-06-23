@@ -19,7 +19,7 @@ import org.apache.hadoop.fs.FSDataInputStream;
 
 import com.datatorrent.api.StatsListener;
 
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 
 /**
  * An {@link AbstractFSBlockReader} which emits fixed-size byte-arrays wrapped in {@link Slice}.<br/>

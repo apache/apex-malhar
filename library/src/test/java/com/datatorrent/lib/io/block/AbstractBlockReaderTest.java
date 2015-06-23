@@ -15,7 +15,7 @@ import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.Stats;
 import com.datatorrent.api.StatsListener;
 
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.util.TestUtils;
 

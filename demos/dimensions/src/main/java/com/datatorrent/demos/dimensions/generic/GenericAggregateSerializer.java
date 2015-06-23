@@ -15,7 +15,7 @@
  */
 package com.datatorrent.demos.dimensions.generic;
 
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 import com.google.common.collect.Maps;
 
 import java.nio.ByteBuffer;

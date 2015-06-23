@@ -20,7 +20,7 @@ import com.google.common.base.Preconditions;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 
 public class HDHTTestOperator extends AbstractSinglePortHDHTWriter<KeyValPair<byte[], byte[]>>
 {

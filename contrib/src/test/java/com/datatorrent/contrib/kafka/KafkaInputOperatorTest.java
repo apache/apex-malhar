@@ -16,7 +16,7 @@
 package com.datatorrent.contrib.kafka;
 
 import com.datatorrent.api.Attribute;
-import com.datatorrent.api.BaseOperator;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;

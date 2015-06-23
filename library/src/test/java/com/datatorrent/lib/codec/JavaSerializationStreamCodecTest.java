@@ -21,7 +21,7 @@ import java.io.Serializable;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 
 /**
  * functional test for {@link com.datatorrent.lib.util.JavaSerializationStreamCodec}.

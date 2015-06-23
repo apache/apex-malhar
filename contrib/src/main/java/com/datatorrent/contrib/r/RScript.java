@@ -32,7 +32,7 @@ import com.datatorrent.lib.script.ScriptOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * This operator enables a user to execute a R script on tuples for Map<String, Object>. The script should be in the

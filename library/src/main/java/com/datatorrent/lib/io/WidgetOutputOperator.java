@@ -31,7 +31,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.datatorrent.lib.util.PubSubMessageCodec;
 import com.datatorrent.lib.util.PubSubWebSocketClient;
 
-import com.datatorrent.api.BaseOperator;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;

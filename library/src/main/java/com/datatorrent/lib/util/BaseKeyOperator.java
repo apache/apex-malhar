@@ -15,7 +15,7 @@
  */
 package com.datatorrent.lib.util;
 
-import com.datatorrent.api.BaseOperator;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This is an abstract operator that allows cloneKey to allow users to use mutable objects.

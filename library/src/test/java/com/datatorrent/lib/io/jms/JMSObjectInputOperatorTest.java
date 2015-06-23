@@ -31,7 +31,7 @@ import org.junit.runner.Description;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 

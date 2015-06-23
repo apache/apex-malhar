@@ -28,7 +28,7 @@ import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.commons.lang.mutable.MutableInt;
 
 import com.datatorrent.common.util.Pair;
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 import com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;

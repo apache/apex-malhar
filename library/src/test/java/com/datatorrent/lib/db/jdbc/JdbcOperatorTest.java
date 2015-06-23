@@ -13,7 +13,7 @@ import com.google.common.collect.Lists;
 
 import com.datatorrent.api.DAG;
 
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;

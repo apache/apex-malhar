@@ -16,7 +16,7 @@
 package com.datatorrent.contrib.hbase;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.lib.util.ReusableStringReader;
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;

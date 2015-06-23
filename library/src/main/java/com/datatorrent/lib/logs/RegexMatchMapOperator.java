@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import com.google.code.regexp.Pattern;
 import com.google.code.regexp.Matcher;
-import com.datatorrent.api.BaseOperator;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;

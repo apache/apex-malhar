@@ -15,13 +15,16 @@
  */
 package com.datatorrent.demos.frauddetect;
 
-import com.datatorrent.api.*;
-import com.datatorrent.demos.frauddetect.util.JsonUtils;
+import java.io.IOException;
+import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.*;
+import com.datatorrent.api.*;
+
+import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.demos.frauddetect.util.JsonUtils;
 
 /**
  * Information tuple generator with randomness.

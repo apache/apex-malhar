@@ -16,7 +16,7 @@
 package com.datatorrent.demos.dimensions.generic;
 
 import com.datatorrent.contrib.parser.AbstractCsvParser;
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.lib.util.ReusableStringReader;
 import java.io.IOException;
 import java.util.Map;
