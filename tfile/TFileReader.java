@@ -18,8 +18,8 @@ package com.datatorrent.contrib.hdht.tfile;
 import java.io.IOException;
 import java.util.TreeMap;
 
-import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.DTThrowable;
+import com.datatorrent.netlet.util.Slice;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
