@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.primitives.Ints;
 
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 
 /**
  * <p>HDFSStoragePerformanceTest class.</p>

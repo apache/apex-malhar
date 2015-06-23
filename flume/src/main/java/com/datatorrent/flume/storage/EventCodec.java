@@ -20,7 +20,7 @@ import org.apache.flume.event.EventBuilder;
 
 import com.datatorrent.api.StreamCodec;
 
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 
 /**
  * <p>EventCodec class.</p>

@@ -28,7 +28,7 @@ import com.google.common.primitives.Longs;
 import com.datatorrent.api.Component;
 
 import com.datatorrent.common.util.NameableThreadFactory;
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.netlet.util.Slice;
 import com.datatorrent.flume.sink.Server;
 
 /**

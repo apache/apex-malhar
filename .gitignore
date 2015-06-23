@@ -1,0 +1,12 @@
+.DS_Store
+.classpath
+.project
+.settings/
+.metadata/
+.idea/
+target/
+/front/dist_tmp
+*.iml
+npm-debug.log
+nb-configuration.xml
+hadoop.log
