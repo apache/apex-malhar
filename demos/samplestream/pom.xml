@@ -3,20 +3,20 @@
   <modelVersion>4.0.0</modelVersion>
   
   <groupId>com.datatorrent</groupId>
-  <version>2.1.0-RC2</version>
+  <version>2.1.0-RC3</version>
   <artifactId>samplestream</artifactId>
   <packaging>jar</packaging>
 
   <properties>
     <!-- change this if you desire to use a different version of DataTorrent -->
-    <datatorrent.version>2.1.0-RC2</datatorrent.version>
+    <datatorrent.version>2.1.0-RC3</datatorrent.version>
     <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
   </properties>
 
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>malhar-demos</artifactId>
-    <version>2.1.0-RC2</version>
+    <version>2.1.0-RC3</version>
   </parent>
 
   <name>DataTorrent Sample Stream Demo</name>
