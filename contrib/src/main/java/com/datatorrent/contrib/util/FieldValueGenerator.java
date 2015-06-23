@@ -37,6 +37,9 @@ public class FieldValueGenerator< T extends FieldInfo >
 	@SuppressWarnings("unchecked")
   public static < T extends FieldInfo > FieldValueGenerator<T> getFieldValueGenerator(final Class<?> clazz, List<T> fieldInfos)
   {
+	  if( fieldInfos == null )
+	    return null;
+	  
     FieldValueGenerator<T> fieldValueGenerator = new FieldValueGenerator<T>();
     
     for( T fieldInfo : fieldInfos )
@@ -65,4 +68,24 @@ public class FieldValueGenerator< T extends FieldInfo >
 			}
 		}
 	}
+	
+	 /**
+   * 
+   * @param obj
+   * @return a map from columnName to columnValue
+   */
+  public Map< String, Object > getFieldsValueAsMap( Object obj )
+  {
+    Map< String, Object > fieldsValue = new HashMap< String, Object>();
+    for( Map.Entry< T, Getter<Object,Object>> entry : fieldGetterMap.entrySet() )
+    {
+      Getter<Object,Object> getter = entry.getValue();
+      if( getter != null )
+      {
+        Object value = getter.get(obj);
+        fieldsValue.put(entry.getKey().getColumnName(), value);
+      }
+    }
+    return fieldsValue;
+  }
 }

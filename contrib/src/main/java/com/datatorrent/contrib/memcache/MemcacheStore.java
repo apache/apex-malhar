@@ -49,6 +49,19 @@ public class MemcacheStore implements KeyValueStore
   {
     serverAddresses.add(addr);
   }
+  
+
+  public List<InetSocketAddress> getServerAddresses()
+  {
+    return serverAddresses;
+  }
+
+
+  public void setServerAddresses(List<InetSocketAddress> serverAddresses)
+  {
+    this.serverAddresses = serverAddresses;
+  }
+
 
   /**
    * Gets the key expiry time.
