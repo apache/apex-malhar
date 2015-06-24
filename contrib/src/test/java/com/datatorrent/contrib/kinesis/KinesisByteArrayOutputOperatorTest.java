@@ -11,7 +11,6 @@ import com.amazonaws.services.kinesis.model.Record;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.Pair;
-import com.datatorrent.contrib.kinesis.KinesisPOJOOutputOperatorTest.TestPOJOTupleGenerateOperator;
 import com.datatorrent.contrib.util.FieldInfo;
 import com.datatorrent.contrib.util.FieldValueGenerator;
 import com.datatorrent.contrib.util.POJOTupleGenerateOperator;
@@ -22,8 +21,17 @@ import com.datatorrent.contrib.util.TupleGenerator;
 @SuppressWarnings("rawtypes")
 public class KinesisByteArrayOutputOperatorTest extends KinesisOutputOperatorTest< KinesisByteArrayOutputOperator, POJOTupleGenerateOperator >
 {
+  public static class TestPOJOTupleGenerateOperator extends POJOTupleGenerateOperator< TestPOJO >
+  {
+    public TestPOJOTupleGenerateOperator()
+    {
+      super( TestPOJO.class );
+      setTupleNum(maxTuple);
+    }
+  }
+  
+  
   private FieldValueGenerator fieldValueGenerator;
-
 
   @Test
   public void testKinesisOutputOperatorInternal() throws Exception
