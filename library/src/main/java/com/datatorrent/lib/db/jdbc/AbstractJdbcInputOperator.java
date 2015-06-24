@@ -46,6 +46,7 @@ public abstract class AbstractJdbcInputOperator<T> extends AbstractStoreInputOpe
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractJdbcInputOperator.class);
   Statement queryStatement = null;
+  private transient int waitForDataTimeout;
 
   /**
    * Any concrete class has to override this method to convert a Database row into Tuple.
@@ -80,20 +81,31 @@ public abstract class AbstractJdbcInputOperator<T> extends AbstractStoreInputOpe
 
     try {
       ResultSet result = queryStatement.executeQuery(query);
-      while (result.next()) {
-        T tuple = getTuple(result);
-        outputPort.emit(tuple);
+      if (result.next()) {
+        do {
+          T tuple = getTuple(result);
+          outputPort.emit(tuple);
+        }
+        while (result.next());
+      }
+      else {
+        // No rows available wait for some time before retrying so as to not continuously slam the database
+        Thread.sleep(waitForDataTimeout);
       }
     }
     catch (SQLException ex) {
       store.disconnect();
       throw new RuntimeException(String.format("Error while running query: %s", query), ex);
     }
+    catch (InterruptedException ex) {
+      throw new RuntimeException(ex);
+    }
   }
 
   @Override
   public void setup(OperatorContext context)
   {
+    waitForDataTimeout = context.getValue(OperatorContext.SPIN_MILLIS);
     super.setup(context);
     try {
       queryStatement = store.getConnection().createStatement();
