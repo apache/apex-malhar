@@ -151,7 +151,7 @@ public abstract class MongoDBOutputOperator<T> extends MongoDBConnectable implem
       maxWindowCollection.save(doc);
     }
 
-    System.out.println("last windowid:" + lastWindowId);
+    logger.debug("last windowid: {}" , lastWindowId);
   }
 
   /**
