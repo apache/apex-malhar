@@ -15,6 +15,8 @@
  */
 package com.datatorrent.lib.util;
 
+import static com.datatorrent.lib.util.PojoUtils.constructGetter;
+import static com.datatorrent.lib.util.PojoUtils.constructSetter;
 import static com.datatorrent.lib.util.PojoUtils.createGetter;
 import static com.datatorrent.lib.util.PojoUtils.createGetterBoolean;
 import static com.datatorrent.lib.util.PojoUtils.createGetterByte;
@@ -250,6 +252,8 @@ public class PojoUtilsTest
   public static class TestPojo
   {
     public static final String INT_FIELD_NAME = "intField";
+    private static final String INT_METHOD_NAME = "intVal";
+
     public int intField;
     @SuppressWarnings("unused")
     private int privateIntField;
@@ -301,23 +305,37 @@ public class PojoUtilsTest
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void testGetterOrFieldExpression()
   {
     TestPojo testObj = new TestPojo(1);
 
     Class<?> testObjClass = testObj.getClass();
 
-    Getter<Object, Object> getObject = createGetter(testObjClass, "intVal", Object.class);
-    assertEquals(testObj.getIntVal(), getObject.get(testObj));
-    assertEquals(testObj.getIntVal(), createGetterInt(testObjClass, "intVal").get(testObj));
+    assertEquals(testObj.intField, createGetterInt(testObjClass, TestPojo.INT_FIELD_NAME).get(testObj));
+    assertEquals(testObj.intField, createGetter(testObjClass, TestPojo.INT_FIELD_NAME, Integer.class).get(testObj).intValue());
+    assertEquals(testObj.intField, ((Integer)createGetter(testObjClass, TestPojo.INT_FIELD_NAME, Object.class).get(testObj)).intValue());
+    assertEquals(testObj.intField, createGetterLong(testObjClass, TestPojo.INT_FIELD_NAME).get(testObj));
+    assertEquals(testObj.intField, ((GetterInt<Object>)constructGetter(testObjClass, TestPojo.INT_FIELD_NAME, int.class)).get(testObj));
+    assertEquals(testObj.intField, ((GetterLong<Object>)constructGetter(testObjClass, TestPojo.INT_FIELD_NAME, long.class)).get(testObj));
+    assertEquals(testObj.intField, ((Getter<Object, Integer>)constructGetter(testObjClass, TestPojo.INT_FIELD_NAME, Integer.class)).get(testObj).intValue());
+    assertEquals(testObj.intField, ((Integer)((Getter<Object, Object>)constructGetter(testObjClass, TestPojo.INT_FIELD_NAME, Object.class)).get(testObj)).intValue());
 
-    getObject = createGetter(testObjClass, "intField", Object.class);
-    assertEquals(testObj.intField, getObject.get(testObj));
-    assertEquals(testObj.intField, createGetterInt(testObjClass, "intField").get(testObj));
+    assertEquals(testObj.getIntVal(), createGetterInt(testObjClass, TestPojo.INT_METHOD_NAME).get(testObj));
+    assertEquals(testObj.getIntVal(), createGetter(testObjClass, TestPojo.INT_METHOD_NAME, Integer.class).get(testObj).intValue());
+    assertEquals(testObj.getIntVal(), ((Integer)createGetter(testObjClass, TestPojo.INT_METHOD_NAME, Object.class).get(testObj)).intValue());
+    assertEquals(testObj.getIntVal(), createGetterLong(testObjClass, TestPojo.INT_METHOD_NAME).get(testObj));
+    assertEquals(testObj.getIntVal(), ((GetterInt<Object>)constructGetter(testObjClass, TestPojo.INT_METHOD_NAME, int.class)).get(testObj));
+    assertEquals(testObj.getIntVal(), ((GetterLong<Object>)constructGetter(testObjClass, TestPojo.INT_METHOD_NAME, long.class)).get(testObj));
+    assertEquals(testObj.getIntVal(), ((Getter<Object, Integer>)constructGetter(testObjClass, TestPojo.INT_METHOD_NAME, Integer.class)).get(testObj).intValue());
+    assertEquals(testObj.getIntVal(), ((Integer)((Getter<Object, Object>)constructGetter(testObjClass, TestPojo.INT_METHOD_NAME, Object.class)).get(testObj)).intValue());
 
-    getObject = PojoUtils.createGetter(testObjClass, "boolVal", Object.class);
-    assertEquals(testObj.isBoolVal(), getObject.get(testObj));
     assertEquals(testObj.isBoolVal(), createGetterBoolean(testObjClass, "boolVal").get(testObj));
+    assertEquals(testObj.isBoolVal(), createGetter(testObjClass, "boolVal", Boolean.class).get(testObj));
+    assertEquals(testObj.isBoolVal(), createGetter(testObjClass, "boolVal", Object.class).get(testObj));
+    assertEquals(testObj.isBoolVal(), ((GetterBoolean<Object>)constructGetter(testObjClass, "boolVal", boolean.class)).get(testObj));
+    assertEquals(testObj.isBoolVal(), ((Getter<Object, Boolean>)constructGetter(testObjClass, "boolVal", Boolean.class)).get(testObj).booleanValue());
+    assertEquals(testObj.isBoolVal(), ((Boolean)((Getter<Object, Object>)constructGetter(testObjClass, "boolVal", Object.class)).get(testObj)).booleanValue());
 
   }
 
@@ -337,31 +355,87 @@ public class PojoUtilsTest
     Class<?> testPojoClass = testPojo.getClass();
     SetterInt<Object> setterInt = createSetterInt(testPojoClass, "{$}.setIntVal({$}.getIntVal() + {#})");
     setterInt.set(testPojo, 20);
+    assertEquals(21, testPojo.getIntVal());
+
     Setter<Object, String> setterString = createSetter(testPojoClass, "{$}.setIntVal(Integer.valueOf({#}))", String.class);
     setterString.set(testPojo, "20");
+    assertEquals(20, testPojo.getIntVal());
   }
 
   @Test
-  @SuppressWarnings("UnnecessaryBoxing")
+  @SuppressWarnings({"unchecked", "UnnecessaryBoxing"})
   public void testSetterOrFieldExpression()
   {
     TestPojo testPojo = new TestPojo(0);
     final Class<?> testPojoClass = testPojo.getClass();
+
     SetterInt<Object> setterInt = createSetterInt(testPojoClass, TestPojo.INT_FIELD_NAME);
     setterInt.set(testPojo, 1);
     assertEquals(1, testPojo.intField);
 
-    setterInt = createSetterInt(testPojoClass, "intVal");
+    setterInt = createSetterInt(testPojoClass, TestPojo.INT_METHOD_NAME);
     setterInt.set(testPojo, 2);
     assertEquals(2, testPojo.getIntVal());
 
-    SetterByte<Object> setterByte = createSetterByte(testPojoClass, TestPojo.INT_FIELD_NAME);
-    setterByte.set(testPojo, (byte)3);
+    setterInt = (SetterInt<Object>)constructSetter(testPojoClass, TestPojo.INT_FIELD_NAME, int.class);
+    setterInt.set(testPojo, 3);
     assertEquals(3, testPojo.intField);
 
+    setterInt = (SetterInt<Object>)constructSetter(testPojoClass, TestPojo.INT_METHOD_NAME, int.class);
+    setterInt.set(testPojo, 4);
+    assertEquals(4, testPojo.getIntVal());
+
+    Setter<Object, Integer> setterInteger = createSetter(testPojoClass, TestPojo.INT_FIELD_NAME, Integer.class);
+    setterInteger.set(testPojo, Integer.valueOf(5));
+    assertEquals(5, testPojo.intField);
+
+    setterInteger = (Setter<Object, Integer>)constructSetter(testPojoClass, TestPojo.INT_FIELD_NAME, Integer.class);
+    setterInteger.set(testPojo, 6);
+    assertEquals(6, testPojo.intField);
+
+    setterInteger = createSetter(testPojoClass, TestPojo.INT_METHOD_NAME, Integer.class);
+    setterInteger.set(testPojo, 7);
+    assertEquals(7, testPojo.getIntVal());
+
+    setterInteger = (Setter<Object, Integer>)constructSetter(testPojoClass, TestPojo.INT_METHOD_NAME, Integer.class);
+    setterInteger.set(testPojo, 8);
+    assertEquals(8, testPojo.getIntVal());
+
+    SetterByte<Object> setterByte = createSetterByte(testPojoClass, TestPojo.INT_FIELD_NAME);
+    setterByte.set(testPojo, (byte) 9);
+    assertEquals(9, testPojo.intField);
+
+    setterByte = (SetterByte<Object>)constructSetter(testPojoClass, TestPojo.INT_FIELD_NAME, byte.class);
+    setterByte.set(testPojo, (byte) 10);
+    assertEquals(10, testPojo.intField);
+
+    setterByte = createSetterByte(testPojoClass, TestPojo.INT_METHOD_NAME);
+    setterByte.set(testPojo, (byte) 11);
+    assertEquals(11, testPojo.getIntVal());
+
+    setterByte = ((SetterByte<Object>)constructSetter(testPojoClass, TestPojo.INT_METHOD_NAME, byte.class));
+    setterByte.set(testPojo, (byte) 12);
+    assertEquals(12, testPojo.getIntVal());
+
+    createSetter(testPojoClass, TestPojo.INT_FIELD_NAME, Byte.class).set(testPojo, Byte.valueOf((byte) 13));
+    assertEquals(13, testPojo.intField);
+
+    ((Setter<Object, Byte>)constructSetter(testPojoClass, TestPojo.INT_FIELD_NAME, Byte.class)).set(testPojo, Byte.valueOf((byte) 14));
+    assertEquals(14, testPojo.getIntVal());
+
+    createSetter(testPojoClass, TestPojo.INT_METHOD_NAME, Byte.class).set(testPojo, Byte.valueOf((byte) 15));
+    assertEquals(15, testPojo.getIntVal());
+
+    ((Setter<Object, Byte>)constructSetter(testPojoClass, TestPojo.INT_METHOD_NAME, Byte.class)).set(testPojo, Byte.valueOf((byte) 16));
+    assertEquals(16, testPojo.getIntVal());
+
     SetterShort<Object> setterShort = createSetterShort(testPojoClass, TestPojo.INT_FIELD_NAME);
-    setterShort.set(testPojo, (short)4);
-    assertEquals(4, testPojo.intField);
+    setterShort.set(testPojo, (short)17);
+    assertEquals(17, testPojo.intField);
+
+    setterShort = createSetterShort(testPojoClass, TestPojo.INT_METHOD_NAME);
+    setterShort.set(testPojo, (short)18);
+    assertEquals(18, testPojo.getIntVal());
 
     try {
       @SuppressWarnings("unused")
@@ -370,10 +444,6 @@ public class PojoUtilsTest
     }
     catch (Exception ignored) {
     }
-
-    Setter<Object, Integer> setterInteger = createSetter(testPojoClass, TestPojo.INT_FIELD_NAME, Integer.class);
-    setterInteger.set(testPojo, Integer.valueOf(5));
-    assertEquals(5, testPojo.intField);
 
   }
 
@@ -399,5 +469,19 @@ public class PojoUtilsTest
     final Class<?> testPojoClass = TestPojo.class;
     @SuppressWarnings("unused")
     SetterInt<Object> setterInt = createSetterInt(testPojoClass, "privateInt");
+  }
+
+  @Test (expected = IllegalArgumentException.class)
+  public void testWrongGetterArgument()
+  {
+    final Class<?> testPojoClass = TestPojo.class;
+    createGetter(testPojoClass, TestPojo.INT_FIELD_NAME, int.class);
+  }
+
+  @Test (expected = IllegalArgumentException.class)
+  public void testWrongSetterArgument()
+  {
+    final Class<?> testPojoClass = TestPojo.class;
+    createSetter(testPojoClass, TestPojo.INT_FIELD_NAME, int.class);
   }
 }
