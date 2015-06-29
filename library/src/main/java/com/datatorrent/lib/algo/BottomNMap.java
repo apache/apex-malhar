@@ -91,4 +91,13 @@ public class BottomNMap<K, V> extends AbstractBaseNNonUniqueOperatorMap<K, V>
   {
     bottom.emit(tuple);
   }
+  
+  /**
+   * @param val Bottom N values to be returned
+   */
+  @Override
+  public void setN(int val)
+  {
+    super.setN(val);
+  }
 }

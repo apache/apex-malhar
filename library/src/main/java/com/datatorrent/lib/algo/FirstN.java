@@ -96,4 +96,13 @@ public class FirstN<K,V> extends AbstractBaseNOperatorMap<K, V>
   {
     keycount.clear();
   }
+  
+  /**
+   * First N number of KeyValue pairs for each Key.
+   * @param val
+   */
+  public void setN(int val)
+  {
+   super.setN(val);
+  }
 }

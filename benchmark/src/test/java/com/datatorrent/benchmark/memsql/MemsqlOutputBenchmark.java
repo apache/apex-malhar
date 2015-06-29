@@ -81,7 +81,7 @@ public class MemsqlOutputBenchmark implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     CustomRandomEventGenerator randomEventGenerator = dag.addOperator("randomEventGenerator", new CustomRandomEventGenerator());
-    randomEventGenerator.setMaxcountofwindows(MAX_WINDOW_COUNT);
+    randomEventGenerator.setMaxCountOfWindows(MAX_WINDOW_COUNT);
     randomEventGenerator.setTuplesBlastIntervalMillis(TUPLE_BLAST_MILLIS);
     randomEventGenerator.setTuplesBlast(TUPLE_BLAST);
 

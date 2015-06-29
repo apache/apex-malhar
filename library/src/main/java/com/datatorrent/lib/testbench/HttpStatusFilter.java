@@ -86,6 +86,10 @@ public class HttpStatusFilter extends BaseOperator
 		return filterStatus;
 	}
 
+	/**
+	 * Only key with the following value is counted.
+	 * @param filterStatus
+	 */
 	public void setFilterStatus(String filterStatus)
 	{
 		this.filterStatus = filterStatus;

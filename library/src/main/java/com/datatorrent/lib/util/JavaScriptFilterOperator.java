@@ -39,11 +39,16 @@ public class JavaScriptFilterOperator extends FilterOperator
   protected String setupScript;
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptFilterOperator.class);
 
+  
   public String getFunctionName()
   {
     return functionName;
   }
 
+  /**
+   * Enter the JavaScript to run against every input.
+   * @param script
+   */
   public void setFunctionName(String script)
   {
     this.functionName = script;
@@ -54,6 +59,11 @@ public class JavaScriptFilterOperator extends FilterOperator
     return setupScript;
   }
 
+  /**
+   * Enter the JavaScript to setup the environment.
+   * @param script
+   */
+  
   public void setSetupScript(String script)
   {
     setupScript = script;

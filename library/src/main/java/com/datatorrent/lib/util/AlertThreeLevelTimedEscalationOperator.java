@@ -28,6 +28,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * @tags time, filter
  * @since 0.3.4
  */
+@Deprecated
 public class AlertThreeLevelTimedEscalationOperator extends AlertEscalationOperator
 {
   protected long levelOneAlertTime = 0;
@@ -49,6 +50,8 @@ public class AlertThreeLevelTimedEscalationOperator extends AlertEscalationOpera
   @Override
   public void processTuple(Object tuple)
   {
+	super.processTuple(tuple);
+	  
     if (inAlertSince >= levelOneAlertTime) {
       alert.emit(tuple);
     }
