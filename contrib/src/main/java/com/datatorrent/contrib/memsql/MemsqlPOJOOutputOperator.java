@@ -1,11 +1,11 @@
-/*
- * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
+/**
+ * Copyright (C) 2015 DataTorrent, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,8 +37,9 @@ import org.slf4j.LoggerFactory;
  *
  * @since 2.1.0
  */
-public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
+public class MemsqlPOJOOutputOperator extends AbstractMemsqlOutputOperator<Object>
 {
+  private static final long serialVersionUID = 20150618346L;
   @NotNull
   private String tablename;
   @NotNull
@@ -48,9 +49,9 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
   @NotNull
   private ArrayList<String> expression;
   //These are extracted from table metadata
-  private ArrayList<Integer> columnDataTypes;
+  private final ArrayList<Integer> columnDataTypes;
   private transient boolean isFirstTuple;
-  private transient ArrayList<Object> getters;
+  private final transient ArrayList<Object> getters;
 
   /*
    * An ArrayList of Java expressions that will yield the field value from the POJO.
@@ -136,7 +137,7 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
 
       ResultSetMetaData rsMetaData = rs.getMetaData();
 
-      int numberOfColumns = 0;
+      int numberOfColumns;
 
       numberOfColumns = rsMetaData.getColumnCount();
 
@@ -155,7 +156,7 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
 
   }
 
-  public MemsqlOutputOperator()
+  public MemsqlPOJOOutputOperator()
   {
     super();
     columnDataTypes = new ArrayList<Integer>();
@@ -277,6 +278,6 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
     }
   }
 
-  private static transient final Logger LOG = LoggerFactory.getLogger(MemsqlOutputOperator.class);
+  private static transient final Logger LOG = LoggerFactory.getLogger(MemsqlPOJOOutputOperator.class);
 
 }

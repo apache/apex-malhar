@@ -13,34 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.datatorrent.contrib.memsql;
 
-package com.datatorrent.lib.security;
-
-import com.datatorrent.api.Attribute;
-import com.datatorrent.api.Context;
-
-/**
- * A context for passing security information.
- *
- * @since 2.0.0
- */
-public interface SecurityContext extends Context
+public class TestInputPojo
 {
+  private int id;
+  private String name;
 
-  /**
-   * Attribute for the user name for login. 
-   */
-  Attribute<String> USER_NAME = new Attribute<String>((String)null);
+  public int getId()
+  {
+    return id;
+  }
 
-  /**
-   * Attribute for the password for login. 
-   */
+  public void setId(int id)
+  {
+    this.id = id;
+  }
 
-  Attribute<char[]> PASSWORD = new Attribute<char[]>((char[])null);
 
-  /**
-   * Attribute for the realm for login.
-   */
-  Attribute<String> REALM = new Attribute<String>((String)null);
-  
+
+  public String getName()
+  {
+    return name;
+  }
+
+  public void setName(String name)
+  {
+    this.name = name;
+  }
+
 }
+

@@ -1,11 +1,11 @@
-/*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+/**
+ * Copyright (C) 2015 DataTorrent, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,11 +15,16 @@
  */
 package com.datatorrent.lib.xml;
 
-import com.datatorrent.api.*;
-import com.datatorrent.common.util.DTThrowable;
+
 import javax.xml.parsers.*;
+
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+
+import com.datatorrent.api.*;
+
+import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * This is the base implementation for an xml operator,

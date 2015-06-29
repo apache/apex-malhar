@@ -1,11 +1,11 @@
-/*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+/**
+ * Copyright (C) 2015 DataTorrent, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * A test to verify the input operator will be automatically partitioned per kafka partition This test is launching its
@@ -187,9 +188,9 @@ public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
 
     p.close();
     lc.shutdown();
-    // kafka has a bug shutdown connector you have to make sure kafka client resource has been cleaned before clean the broker 
+    // kafka has a bug shutdown connector you have to make sure kafka client resource has been cleaned before clean the broker
     Thread.sleep(5000);
   }
-  
+
 
 }

@@ -1,11 +1,11 @@
-/*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+/**
+ * Copyright (C) 2015 DataTorrent, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,7 @@
 package com.datatorrent.contrib.hbase;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.lib.util.ReusableStringReader;
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;

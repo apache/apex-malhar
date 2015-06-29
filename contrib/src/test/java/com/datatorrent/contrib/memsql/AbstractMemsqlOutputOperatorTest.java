@@ -1,11 +1,11 @@
-/*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+/**
+ * Copyright (C) 2015 DataTorrent, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,9 +23,6 @@ import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest
 import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.OPERATOR_ID;
 import com.datatorrent.lib.db.jdbc.JdbcTransactionalStore;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.util.TestUtils;
-import com.esotericsoftware.kryo.Kryo;
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -127,7 +124,7 @@ public class AbstractMemsqlOutputOperatorTest
     cleanDatabase();
     MemsqlStore memsqlStore = createStore(null, true);
 
-    MemsqlOutputOperator outputOperator = new MemsqlOutputOperator();
+    MemsqlPOJOOutputOperator outputOperator = new MemsqlPOJOOutputOperator();
     outputOperator.setStore(memsqlStore);
     outputOperator.setBatchSize(BATCH_SIZE);
     outputOperator.setTablename(FQ_TABLE);
@@ -157,13 +154,11 @@ public class AbstractMemsqlOutputOperatorTest
       outputOperator.endWindow();
     }
 
-    MemsqlOutputOperator newOp = TestUtils.clone(new Kryo(), outputOperator);
-
     outputOperator.teardown();
 
     memsqlStore.connect();
 
-    int databaseSize = -1;
+    int databaseSize ;
 
     Statement statement = memsqlStore.getConnection().createStatement();
     ResultSet resultSet = statement.executeQuery("select count(*) from " + FQ_TABLE);

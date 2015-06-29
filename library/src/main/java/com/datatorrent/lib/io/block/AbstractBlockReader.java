@@ -1,11 +1,11 @@
-/*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+/**
+ * Copyright (C) 2015 DataTorrent, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,20 +22,23 @@ import java.util.*;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang.mutable.MutableLong;
-import org.apache.hadoop.fs.PositionedReadable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import com.datatorrent.api.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang.mutable.MutableLong;
+import org.apache.hadoop.fs.PositionedReadable;
 
 import com.datatorrent.lib.counters.BasicCounters;
+
+import com.datatorrent.api.*;
+
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * AbstractBlockReader processes a block of data from a stream.<br/>
