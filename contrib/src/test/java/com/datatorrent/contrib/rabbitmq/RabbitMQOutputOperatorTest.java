@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.contrib.helper.SourceModule;
-
+import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.LocalMode;
@@ -45,7 +45,7 @@ public class RabbitMQOutputOperatorTest
     public int count = 0;
     private final String host = "localhost";
     ConnectionFactory connFactory = new ConnectionFactory();
-//  QueueingConsumer consumer = null;
+    // QueueingConsumer consumer = null;
     Connection connection = null;
     Channel channel = null;
     TracingConsumer tracingConsumer = null;
@@ -64,8 +64,6 @@ public class RabbitMQOutputOperatorTest
       queueName = channel.queueDeclare().getQueue();
       channel.queueBind(queueName, exchange, "");
 
-//      consumer = new QueueingConsumer(channel);
-//      channel.basicConsume(queueName, true, consumer);
       tracingConsumer = new TracingConsumer(channel);
       cTag = channel.basicConsume(queueName, true, tracingConsumer);
     }
@@ -125,7 +123,6 @@ public class RabbitMQOutputOperatorTest
     }
   }
 
-
   @Test
   public void testDag() throws InterruptedException, MalformedURLException, IOException, Exception
   {
@@ -133,7 +130,7 @@ public class RabbitMQOutputOperatorTest
     runTest(testNum);
     logger.debug("end of test");
   }
-  
+
   protected void runTest(int testNum) throws IOException
   {
     RabbitMQMessageReceiver receiver = new RabbitMQMessageReceiver();
@@ -144,23 +141,22 @@ public class RabbitMQOutputOperatorTest
     SourceModule source = dag.addOperator("source", new SourceModule());
     source.setTestNum(testNum);
     RabbitMQOutputOperator collector = dag.addOperator("generator", new RabbitMQOutputOperator());
-    
+    collector.setIdempotentStorageManager(new IdempotentStorageManager.FSIdempotentStorageManager());
+
     collector.setExchange("testEx");
     dag.addStream("Stream", source.outPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
 
     final LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
     lc.runAsync();
-    try {      
+    try {
       Thread.sleep(1000);
       long timeout = 10000L;
       long startTms = System.currentTimeMillis();
-      while((receiver.count < testNum * 3) && (System.currentTimeMillis() - startTms < timeout))
-      {
+      while ((receiver.count < testNum * 3) && (System.currentTimeMillis() - startTms < timeout)) {
         Thread.sleep(100);
-      } 
-    }
-    catch (InterruptedException ex) {
+      }
+    } catch (InterruptedException ex) {
       Assert.fail(ex.getMessage());
     } finally {
       lc.shutdown();
@@ -170,11 +166,9 @@ public class RabbitMQOutputOperatorTest
     for (Map.Entry<String, Integer> e : receiver.dataMap.entrySet()) {
       if (e.getKey().equals("a")) {
         Assert.assertEquals("emitted value for 'a' was ", new Integer(2), e.getValue());
-      }
-      else if (e.getKey().equals("b")) {
+      } else if (e.getKey().equals("b")) {
         Assert.assertEquals("emitted value for 'b' was ", new Integer(20), e.getValue());
-      }
-      else if (e.getKey().equals("c")) {
+      } else if (e.getKey().equals("c")) {
         Assert.assertEquals("emitted value for 'c' was ", new Integer(1000), e.getValue());
       }
     }

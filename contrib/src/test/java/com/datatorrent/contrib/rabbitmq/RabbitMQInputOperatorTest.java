@@ -25,17 +25,21 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.QueueingConsumer;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.contrib.helper.CollectorModule;
 import com.datatorrent.contrib.helper.MessageQueueTestHelper;
-
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Attribute;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.LocalMode;
-
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.io.IdempotentStorageManager;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
@@ -44,7 +48,7 @@ import com.datatorrent.netlet.util.DTThrowable;
 public class RabbitMQInputOperatorTest
 {
   private static Logger logger = LoggerFactory.getLogger(RabbitMQInputOperatorTest.class);
-  
+
   public static final class TestStringRabbitMQInputOperator extends AbstractSinglePortRabbitMQInputOperator<String>
   {
     @Override
@@ -75,7 +79,6 @@ public class RabbitMQInputOperatorTest
       connection = connFactory.newConnection();
       channel = connection.createChannel();
       channel.exchangeDeclare(exchange, "fanout");
-//      channel.queueDeclare(queueName, false, false, false, null);
     }
 
     public void setQueueName(String queueName)
@@ -86,9 +89,7 @@ public class RabbitMQInputOperatorTest
     public void process(Object message) throws IOException
     {
       String msg = message.toString();
-//      logger.debug("publish:" + msg);
       channel.basicPublish(exchange, "", null, msg.getBytes());
-//      channel.basicPublish("", queueName, null, msg.getBytes());
     }
 
     public void teardown() throws IOException
@@ -100,12 +101,11 @@ public class RabbitMQInputOperatorTest
     public void generateMessages(int msgCount) throws InterruptedException, IOException
     {
       for (int i = 0; i < msgCount; i++) {
-        
-        ArrayList<HashMap<String, Integer>>  dataMaps = MessageQueueTestHelper.getMessages();
-        for(int j =0; j < dataMaps.size(); j++)
-        {
-          process(dataMaps.get(j));  
-        }        
+
+        ArrayList<HashMap<String, Integer>> dataMaps = MessageQueueTestHelper.getMessages();
+        for (int j = 0; j < dataMaps.size(); j++) {
+          process(dataMaps.get(j));
+        }
       }
     }
 
@@ -124,6 +124,8 @@ public class RabbitMQInputOperatorTest
     LocalMode lma = LocalMode.newInstance();
     DAG dag = lma.getDAG();
     RabbitMQInputOperator consumer = dag.addOperator("Consumer", RabbitMQInputOperator.class);
+    consumer.setIdempotentStorageManager(new IdempotentStorageManager.FSIdempotentStorageManager());
+
     final CollectorModule<byte[]> collector = dag.addOperator("Collector", new CollectorModule<byte[]>());
 
     consumer.setHost("localhost");
@@ -144,7 +146,7 @@ public class RabbitMQInputOperatorTest
       public void run()
       {
         long startTms = System.currentTimeMillis();
-        long timeout = 10000L;
+        long timeout = 100000L;
         try {
           while (!collector.inputPort.collections.containsKey("collector") && System.currentTimeMillis() - startTms < timeout) {
             Thread.sleep(500);
@@ -153,16 +155,14 @@ public class RabbitMQInputOperatorTest
           startTms = System.currentTimeMillis();
           while (System.currentTimeMillis() - startTms < timeout) {
             List<?> list = collector.inputPort.collections.get("collector");
-            
+
             if (list.size() < testNum * 3) {
               Thread.sleep(10);
-            }
-            else {
+            } else {
               break;
             }
           }
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
           logger.error(ex.getMessage(), ex);
           DTThrowable.rethrow(ex);
         } catch (InterruptedException ex) {
@@ -179,5 +179,53 @@ public class RabbitMQInputOperatorTest
     logger.debug("collection size: {} {}", collector.inputPort.collections.size(), collector.inputPort.collections);
 
     MessageQueueTestHelper.validateResults(testNum, collector.inputPort.collections);
-  }  
+  }
+
+  @Test
+  public void testRecoveryAndIdempotency() throws Exception
+  {
+    RabbitMQInputOperator operator = new RabbitMQInputOperator();
+    operator.setIdempotentStorageManager(new IdempotentStorageManager.FSIdempotentStorageManager());
+    operator.setHost("localhost");
+    operator.setExchange("testEx");
+    operator.setExchangeType("fanout");
+
+    Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
+    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+
+    operator.outputPort.setSink(sink);
+    OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+
+    operator.setup(context);
+    operator.activate(context);
+
+    final RabbitMQMessageGenerator publisher = new RabbitMQMessageGenerator();
+    publisher.setup();
+    publisher.generateMessages(5);
+
+    Thread.sleep(10000);
+
+    operator.beginWindow(1);
+    operator.emitTuples();
+    operator.endWindow();
+
+    operator.deactivate();
+    Assert.assertEquals("num of messages in window 1", 15, sink.collectedTuples.size());
+
+    // failure and then re-deployment of operator
+    sink.collectedTuples.clear();
+    operator.setup(context);
+    operator.activate(context);
+
+    Assert.assertEquals("largest recovery window", 1, operator.getIdempotentStorageManager().getLargestRecoveryWindow());
+    operator.beginWindow(1);
+    operator.endWindow();
+    Assert.assertEquals("num of messages in window 1", 15, sink.collectedTuples.size());
+    sink.collectedTuples.clear();
+
+    operator.deactivate();
+    operator.teardown();
+    operator.getIdempotentStorageManager().deleteUpTo(context.getId(), 1);
+    publisher.teardown();
+  }
 }
