@@ -29,6 +29,9 @@ import com.datatorrent.api.Context.OperatorContext;
 
 import com.datatorrent.common.util.BaseOperator;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 /**
  *
  * WindowedTopCounter is an operator which counts the most often occurring tuples in a sliding window of a specific size.
@@ -42,7 +45,18 @@ import com.datatorrent.common.util.BaseOperator;
  */
 public class WindowedTopCounter<T> extends BaseOperator
 {
+  public static final String FIELD_TYPE = "type";
+  public static final String FIELD_COUNT = "count";
+
   private static final Logger logger = LoggerFactory.getLogger(WindowedTopCounter.class);
+
+  private PriorityQueue<SlidingContainer<T>> topCounter;
+  private int windows;
+  private int topCount = 10;
+  private int slidingWindowWidth;
+  private int dagWindowWidth;
+  private HashMap<T, SlidingContainer<T>> objects = new HashMap<T, SlidingContainer<T>>();
+
   /**
    * Input port on which map objects containing keys with their respective frequency as values will be accepted.
    */
@@ -60,38 +74,18 @@ public class WindowedTopCounter<T> extends BaseOperator
         holder.adjustCount(e.getValue());
       }
     }
-
   };
-  /**
-   * Output port on which a map object containing most frequently occurring keys with their frequency will be emitted.
-   */
-  public final transient DefaultOutputPort<Map<T, Integer>> output = new DefaultOutputPort<Map<T, Integer>>();
-  private PriorityQueue<SlidingContainer<T>> topCounter;
-  private int windows;
-  private int topCount = 10;
-  private HashMap<T, SlidingContainer<T>> objects = new HashMap<T, SlidingContainer<T>>();
 
-  /**
-   * Set the width of the sliding window.
-   *
-   * Sliding window is typically much larger than the dag window. e.g. One may want to measure the most frequently
-   * occurring keys over the period of 5 minutes. So if dagWindowWidth (which is by default 500ms) is set to 500ms,
-   * the slidingWindowWidth would be (60 * 5 * 1000 =) 300000.
-   *
-   * @param slidingWindowWidth - Sliding window width to be set for this operator, recommended to be multiple of DAG window.
-   * @param dagWindowWidth - DAG's native window width. It has to be the value of the native window set at the application level.
-   */
-  public void setSlidingWindowWidth(long slidingWindowWidth, int dagWindowWidth)
+  public final transient DefaultOutputPort<List<Map<String, Object>>> output = new DefaultOutputPort<List<Map<String, Object>>>();
+
+  @Override
+  public void setup(OperatorContext context)
   {
     windows = (int)(slidingWindowWidth / dagWindowWidth) + 1;
     if (slidingWindowWidth % dagWindowWidth != 0) {
       logger.warn("slidingWindowWidth(" + slidingWindowWidth + ") is not exact multiple of dagWindowWidth(" + dagWindowWidth + ")");
     }
-  }
 
-  @Override
-  public void setup(OperatorContext context)
-  {
     topCounter = new PriorityQueue<SlidingContainer<T>>(this.topCount, new TopSpotComparator());
   }
 
@@ -148,17 +142,23 @@ public class WindowedTopCounter<T> extends BaseOperator
       }
     }
 
-    /*
-     * Emit our top URLs without caring for order.
-     */
-    HashMap<T, Integer> map = new HashMap<T, Integer>();
-    Iterator<SlidingContainer<T>> iterator1 = topCounter.iterator();
-    while (iterator1.hasNext()) {
-      final SlidingContainer<T> wh = iterator1.next();
-      map.put(wh.identifier, wh.totalCount);
+    List<Map<String, Object>> data = Lists.newArrayList();
+
+    Iterator<SlidingContainer<T>> topIter = topCounter.iterator();
+
+    while(topIter.hasNext()) {
+      final SlidingContainer<T> wh = topIter.next();
+      Map<String, Object> tableRow = Maps.newHashMap();
+
+      tableRow.put(FIELD_TYPE, wh.identifier.toString());
+      tableRow.put(FIELD_COUNT, wh.totalCount);
+
+      data.add(tableRow);
     }
 
-    output.emit(map);
+    Collections.sort(data, TwitterOutputSorter.INSTANCE);
+
+    output.emit(data);
     topCounter.clear();
   }
 
@@ -179,6 +179,66 @@ public class WindowedTopCounter<T> extends BaseOperator
     topCount = count;
   }
 
+  /**
+   * @return the windows
+   */
+  public int getWindows()
+  {
+    return windows;
+  }
+
+  /**
+   * @param windows the windows to set
+   */
+  public void setWindows(int windows)
+  {
+    this.windows = windows;
+  }
+
+  /**
+   * @return the slidingWindowWidth
+   */
+  public int getSlidingWindowWidth()
+  {
+    return slidingWindowWidth;
+  }
+
+  /**
+   * Set the width of the sliding window.
+   *
+   * Sliding window is typically much larger than the dag window. e.g. One may want to measure the most frequently
+   * occurring keys over the period of 5 minutes. So if dagWindowWidth (which is by default 500ms) is set to 500ms,
+   * the slidingWindowWidth would be (60 * 5 * 1000 =) 300000.
+   *
+   * @param slidingWindowWidth - Sliding window width to be set for this operator, recommended to be multiple of DAG window.
+   */
+  public void setSlidingWindowWidth(int slidingWindowWidth)
+  {
+    this.slidingWindowWidth = slidingWindowWidth;
+  }
+
+  /**
+   * @return the dagWindowWidth
+   */
+  public int getDagWindowWidth()
+  {
+    return dagWindowWidth;
+  }
+
+  /**
+   * Set the width of the sliding window.
+   *
+   * Sliding window is typically much larger than the dag window. e.g. One may want to measure the most frequently
+   * occurring keys over the period of 5 minutes. So if dagWindowWidth (which is by default 500ms) is set to 500ms,
+   * the slidingWindowWidth would be (60 * 5 * 1000 =) 300000.
+   *
+   * @param dagWindowWidth - DAG's native window width. It has to be the value of the native window set at the application level.
+   */
+  public void setDagWindowWidth(int dagWindowWidth)
+  {
+    this.dagWindowWidth = dagWindowWidth;
+  }
+
   static class TopSpotComparator implements Comparator<SlidingContainer<?>>
   {
     @Override
@@ -193,7 +253,23 @@ public class WindowedTopCounter<T> extends BaseOperator
 
       return 0;
     }
-
   }
 
+  private static class TwitterOutputSorter implements Comparator<Map<String, Object>>
+  {
+    public static final TwitterOutputSorter INSTANCE = new TwitterOutputSorter();
+
+    private TwitterOutputSorter()
+    {
+    }
+
+    @Override
+    public int compare(Map<String, Object> o1, Map<String, Object> o2)
+    {
+      Integer count1 = (Integer) o1.get(FIELD_COUNT);
+      Integer count2 = (Integer) o2.get(FIELD_COUNT);
+
+      return count1.compareTo(count2);
+    }
+  }
 }

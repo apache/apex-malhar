@@ -18,6 +18,8 @@ package com.datatorrent.demos.twitter;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import twitter4j.Status;
 import twitter4j.URLEntity;
@@ -45,4 +47,6 @@ public class TwitterStatusURLExtractor extends BaseOperator
       }
     }
   };
+
+  private static final Logger LOG = LoggerFactory.getLogger(TwitterStatusURLExtractor.class);
 }

@@ -3,7 +3,7 @@
 <configuration>
   <property>
     <name>dt.attr.MASTER_MEMORY_MB</name>
-    <value>1024</value>
+    <value>1256</value>
   </property>
   <!-- default operator size 256MB -->
   <property>
@@ -19,14 +19,6 @@
   <property>
     <name>dt.application.*.operator.*.port.*.attr.BUFFER_MEMORY_MB</name>
     <value>256</value>
-  </property>
-  <property>
-    <name>dt.application.RollingTopWordsDemo.operator.TopCounter.topCount</name>
-    <value>10</value>
-  </property>
-  <property>
-    <name>dt.application.RollingTopWordsDemo.stream.TweetStream.locality</name>
-    <value>CONTAINER_LOCAL</value>
   </property>
   <property>
     <name>dt.operator.TweetSampler.consumerKey</name>
@@ -48,4 +40,76 @@
     <name>dt.operator.TweetSampler.feedMultiplier</name>
     <value>20</value>
   </property>
+
+  <!-- RollingTopWordsDemo -->
+
+  <property>
+    <name>dt.application.RollingTopWordsDemo.operator.TopCounter.topCount</name>
+    <value>10</value>
+  </property>
+  <property>
+    <name>dt.application.RollingTopWordsDemo.stream.TweetStream.locality</name>
+    <value>CONTAINER_LOCAL</value>
+  </property>
+  <property>
+    <name>dt.application.RollingTopWordsDemo.operator.Query.topic</name>
+    <value>TwitterWordsQuery</value>
+  </property>
+  <property>
+    <name>dt.application.RollingTopWordsDemo.operator.QueryResult.topic</name>
+    <value>TwitterWordsQueryResult</value>
+  </property>
+  <property>
+    <name>dt.application.RollingTopWordsDemo.operator.QueryResult.numRetries</name>
+    <value>2147483647</value>
+  </property>
+  <!--
+  <property>
+    <name>dt.application.RollingTopWordsDemo.useAppData</name>
+    <value>true</value>
+  </property>
+  -->
+
+  <!-- TwitterDemo -->
+
+  <property>
+    <name>dt.application.TwitterDemo.operator.Query.topic</name>
+    <value>TwitterURLQuery</value>
+  </property>
+  <property>
+    <name>dt.application.TwitterDemo.operator.QueryResult.topic</name>
+    <value>TwitterURLQueryResult</value>
+  </property>
+  <property>
+    <name>dt.application.TwitterDemo.operator.QueryResult.numRetries</name>
+    <value>2147483647</value>
+  </property>
+  <!--
+  <property>
+    <name>dt.application.TwitterDemo.useAppData</name>
+    <value>true</value>
+  </property>
+  -->
+
+  <!-- TwitterTrendingDemo -->
+
+  <property>
+    <name>dt.application.TwitterTrendingDemo.operator.Query.topic</name>
+    <value>TwitterHashtagQueryDemo</value>
+  </property>
+  <property>
+    <name>dt.application.TwitterTrendingDemo.operator.QueryResult.topic</name>
+    <value>TwitterHashtagQueryResultDemo</value>
+  </property>
+  <property>
+    <name>dt.application.TwitterTrendingDemo.operator.QueryResult.numRetries</name>
+    <value>2147483647</value>
+  </property>
+  <!--
+  <property>
+    <name>dt.application.TwitterTrendingDemo.useAppData</name>
+    <value>true</value>
+  </property>
+  -->
+
 </configuration>
