@@ -21,6 +21,7 @@ import java.util.Map;
 
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
+import com.datatorrent.lib.util.PojoUtils.Setter;
 
 public class FieldValueGenerator< T extends FieldInfo >
 {
@@ -29,7 +30,15 @@ public class FieldValueGenerator< T extends FieldInfo >
     public void handleFieldValue( T fieldInfo, Object value );
   }
   
+  public static interface ValueConverter<T extends FieldInfo>
+  {
+    public Object convertValue( T fieldInfo, Object value );
+  }
+  
 	private Map<T, Getter<Object,Object>> fieldGetterMap = new HashMap<T,Getter<Object,Object>>();
+	private Map<T, Setter<Object,Object>> fieldSetterMap = new HashMap<T,Setter<Object,Object>>();
+	
+	private Map<String, T > fieldInfoMap = new HashMap<String, T >();
 	
 	private FieldValueGenerator(){}
 	
@@ -40,9 +49,19 @@ public class FieldValueGenerator< T extends FieldInfo >
     
     for( T fieldInfo : fieldInfos )
     {
+      fieldValueGenerator.fieldInfoMap.put( fieldInfo.getColumnName(), fieldInfo );
+      
     	Getter<Object,Object> getter = PojoUtils.createGetter(clazz, fieldInfo.getColumnExpression(), fieldInfo.getType().getJavaType() );
     	fieldValueGenerator.fieldGetterMap.put( fieldInfo, getter );
     }
+    
+    
+    for( T fieldInfo : fieldInfos )
+    {
+      Setter<Object,Object> setter = PojoUtils.createSetter(clazz, fieldInfo.getColumnExpression(), fieldInfo.getType().getJavaType() );
+      fieldValueGenerator.fieldSetterMap.put( fieldInfo, setter );
+    }
+  
     return fieldValueGenerator;
   }
 	
@@ -63,5 +82,12 @@ public class FieldValueGenerator< T extends FieldInfo >
 				fieldValueHandler.handleFieldValue(entry.getKey(), value);
 			}
 		}
+	}
+	
+	public void setColumnValue( Object instance, String columnName, Object value, ValueConverter<T> valueConverter )
+	{
+	  T fieldInfo = fieldInfoMap.get(columnName);
+	  Setter<Object,Object> setter = fieldSetterMap.get( fieldInfo );
+	  setter.set(instance, valueConverter == null ? value : valueConverter.convertValue( fieldInfo, value ) );
 	}
 }
