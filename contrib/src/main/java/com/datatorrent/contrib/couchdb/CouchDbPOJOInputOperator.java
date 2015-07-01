@@ -303,9 +303,9 @@ public class CouchDbPOJOInputOperator extends AbstractCouchDBInputOperator<Objec
   }
 
   @Override
-  protected void checkForEmptyResult()
+  protected void resetSkipParameter()
   {
-    if(skip ==1){
+    if(skip == 1){
       skip = 0;
     }
   }

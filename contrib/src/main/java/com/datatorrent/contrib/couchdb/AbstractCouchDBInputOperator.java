@@ -66,7 +66,9 @@ public abstract class AbstractCouchDBInputOperator<T> extends AbstractStoreInput
     if (pageSize == 0) {
       ViewQuery viewQuery = getViewQuery();
       ViewResult result = store.queryStore(viewQuery);
-      checkForEmptyResult();
+      if(result.isEmpty()){
+        resetSkipParameter();
+      };
       try {
         for (ViewResult.Row row : result.getRows()) {
           T tuple = getTuple(row);
@@ -135,7 +137,7 @@ public abstract class AbstractCouchDBInputOperator<T> extends AbstractStoreInput
     this.pageSize = pageSize;
   }
 
-  protected abstract void checkForEmptyResult();
+  protected abstract void resetSkipParameter();
 
 
 }
