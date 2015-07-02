@@ -15,11 +15,14 @@
  */
 package com.datatorrent.lib.util;
 
-import com.datatorrent.api.Context.OperatorContext;
 import java.util.Map;
+
 import javax.script.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * This operator consumes tuples.&nbsp;If the tuples satisfy a specified Java Script filtering function, then they are emitted.
@@ -39,7 +42,6 @@ public class JavaScriptFilterOperator extends FilterOperator
   protected String setupScript;
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptFilterOperator.class);
 
-  
   public String getFunctionName()
   {
     return functionName;

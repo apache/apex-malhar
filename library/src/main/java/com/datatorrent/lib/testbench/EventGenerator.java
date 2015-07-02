@@ -313,7 +313,7 @@ public class EventGenerator implements InputOperator
   }
 
   /**
-   * the Rolling Window count for averaging across these many windows
+   * The Rolling Window count for averaging across these many windows
    * @param r the rolling_window_count for averaging across these many windows
    */
   public void setRollingWindowCount(int r)

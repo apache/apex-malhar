@@ -36,7 +36,7 @@ import com.datatorrent.common.util.BaseOperator;
  *
  * @since 0.3.2
  */
-public abstract class SimpleSinglePortInputOperator<T> extends BaseOperator implements InputOperator, Operator.ActivationListener<OperatorContext>
+public class SimpleSinglePortInputOperator<T> extends BaseOperator implements InputOperator, Operator.ActivationListener<OperatorContext>
 {
   private transient Thread ioThread;
   private transient boolean isActive = false;
