@@ -112,12 +112,12 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
   int s_end = 99;
   private final Random random = new Random();
 
-  public void setSeedstart(int i)
+  public void setSeedStart(int i)
   {
     s_start = i;
   }
 
-  public void setSeedend(int i)
+  public void setSeedEnd(int i)
   {
     s_end = i;
   }

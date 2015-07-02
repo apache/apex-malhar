@@ -34,6 +34,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * @tags time, filter
  * @since 0.3.2
  */
+@Deprecated
 @OperatorAnnotation(partitionable=false)
 public class AlertEscalationOperator extends BaseOperator
 {
@@ -93,6 +94,9 @@ public class AlertEscalationOperator extends BaseOperator
     return alertInterval;
   }
 
+  /**
+   * @param alertInterval time is in milliseconds
+   */
   public void setAlertInterval(long alertInterval)
   {
     this.alertInterval = alertInterval;

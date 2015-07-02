@@ -126,7 +126,11 @@ public class RandomEventGenerator extends BaseOperator implements InputOperator
     }
   }
 
-  public void setMaxcountofwindows(int i)
+  /**
+   * Maximum number of Windows across which this operator will work. 
+   * @param i
+  */
+  public void setMaxCountOfWindows(int i)
   {
     maxCountOfWindows = i;
   }

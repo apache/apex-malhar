@@ -41,7 +41,7 @@ import javax.validation.constraints.Pattern;
  * </p>
  * @displayName Base Match
  * @category Algorithmic
- * @tags compare, filter, key value
+ * @tags compare, filter, key value, abstract
  * @since 0.3.2
  */
 public class BaseMatchOperator<K, V> extends BaseKeyValueOperator<K, V>

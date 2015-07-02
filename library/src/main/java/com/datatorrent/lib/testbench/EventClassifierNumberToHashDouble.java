@@ -151,7 +151,7 @@ public class EventClassifierNumberToHashDouble<K extends Number> extends BaseOpe
   }
 
   /**
-   * setter function for key
+   * Use this key to generate new keys.
    * @param i key is set to i
    */
   public void setKey(String i)

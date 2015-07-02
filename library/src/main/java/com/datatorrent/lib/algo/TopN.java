@@ -101,4 +101,14 @@ public class TopN<K, V> extends AbstractBaseNNonUniqueOperatorMap<K,V> implement
       }
     }
   }
+  
+  /**
+   * Top N tuples per key
+   * @param val
+   */
+  @Override
+  public void setN(int val)
+  {
+    super.setN(val);
+  }
 }

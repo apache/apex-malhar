@@ -28,16 +28,16 @@ import com.datatorrent.api.DefaultOutputPort;
  * This operator consumes key value pairs of strings and integers.&nbsp;
  * If the value of a pair is greater than the specified threshold then the tuple is emitted.
  * <p></p>
- * @displayName Top Occurance
+ * @displayName Top Occurrence
  * @category Testbench
  * @tags numeric, compare
  * @since 0.3.2
  */
-public class TopOccurance extends BaseOperator
+public class TopOccurrence extends BaseOperator
 {
 	// n value
 	private int n = 5;
-	private int threshHold = 5;
+	private int threshold = 5;
 
   /**
    *
@@ -46,7 +46,7 @@ public class TopOccurance extends BaseOperator
 	/**
    *
    */
-  public final transient DefaultOutputPort<Map<Integer, String>> gtThreshHold = new DefaultOutputPort<Map<Integer, String>>();
+  public final transient DefaultOutputPort<Map<Integer, String>> gtThreshold = new DefaultOutputPort<Map<Integer, String>>();
 
 	// input port
 	public final transient DefaultInputPort<Map<String, Integer>> inport =
@@ -95,21 +95,21 @@ public class TopOccurance extends BaseOperator
 		}
       }
 
-      // output greater than threshhold
+      // output greater than threshold
       numOuts = 1;
       for (Map.Entry<String, Integer> entry : tuple.entrySet())
       {
-      	if (entry.getValue() > threshHold)
+      	if (entry.getValue() > threshold)
       	{
       		Map<Integer, String> out = new HashMap<Integer, String>();
       	    String value = new StringBuilder(entry.getKey()).append("##").append(entry.getValue()).toString();
 		    out.put(numOuts++, value);
-		    gtThreshHold.emit(out);
+		    gtThreshold.emit(out);
 		}
       }
       Map<Integer, String> out = new HashMap<Integer, String>();
 	  out.put(0,  new Integer(numOuts).toString());
-	  gtThreshHold.emit(out);
+	  gtThreshold.emit(out);
      }
 	};
 
@@ -118,19 +118,27 @@ public class TopOccurance extends BaseOperator
 		return n;
 	}
 
+	/**
+	 * Output n top values
+	 * @param n 
+	*/
 	public void setN(int n)
 	{
 		this.n = n;
 	}
 
-	public int getThreshHold()
+	public int getThreshold()
 	{
-		return threshHold;
+		return threshold;
 	}
 
-	public void setThreshHold(int threshHold)
+	/**
+	 * Emit the tuples only if it's value is greater than the threshold.
+	 * @param threshold 
+	*/
+	public void setThreshold(int threshold)
 	{
-		this.threshHold = threshHold;
+		this.threshold = threshold;
 	}
 
 }

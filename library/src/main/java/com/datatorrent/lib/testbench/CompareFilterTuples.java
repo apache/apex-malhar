@@ -33,10 +33,15 @@ import com.datatorrent.api.DefaultOutputPort;
 public class CompareFilterTuples<k> extends BaseOperator
 {
 	// Compare type function
-  private int compareType = 1;
-  public void setCompareType(int type)
+  private Compare compareType = Compare.Equal;
+  public enum Compare { Smaller, Equal, Greater }
+  
+  /**
+   * Compare the incoming value with the Property value.
+   * @param type Compare
+  */
+  public void setCompareType(Compare type)
   {
-  	assert(type == 0 || type == 1 || type == -1);
   	compareType = type;
   }
   
@@ -58,12 +63,9 @@ public class CompareFilterTuples<k> extends BaseOperator
     public void process(Map<k, Integer> map) {
     	for(Map.Entry<k, Integer> entry : map.entrySet())
     	{
-    		switch(compareType)
-    		{
-    			case 0 : if(entry.getValue().intValue() == value) result.put(entry.getKey(), entry.getValue()); break;
-    			case 1 : if(entry.getValue().intValue() > value) result.put(entry.getKey(), entry.getValue()); break;
-    			case -1 : if(entry.getValue().intValue() < value) result.put(entry.getKey(), entry.getValue()); break;
-    		}
+    		if ( compareType == Compare.Equal ) if(entry.getValue().intValue() == value) result.put(entry.getKey(), entry.getValue()); 
+    		if ( compareType == Compare.Greater ) if(entry.getValue().intValue() > value) result.put(entry.getKey(), entry.getValue()); 
+    		if ( compareType == Compare.Smaller ) if(entry.getValue().intValue() < value) result.put(entry.getKey(), entry.getValue()); 
     	}
     }
 	};

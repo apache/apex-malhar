@@ -75,4 +75,13 @@ public class BottomNUniqueMap<K, V> extends AbstractBaseNUniqueOperatorMap<K, V>
   {
     bottom.emit(tuple);
   }
+  
+  /**
+   * @param val Bottom N unique tuples
+   */
+  @Override
+  public void setN(int val)
+  {
+    super.setN(val);
+  }
 }
