@@ -659,5 +659,11 @@
       <version>1.0</version>
       <optional>true</optional>
     </dependency>
+    <dependency>
+      <groupId>org.jruby</groupId>
+      <artifactId>jruby</artifactId>
+      <version>1.7.12</version>
+      <optional>true</optional>
+    </dependency>
   </dependencies>
 </project>

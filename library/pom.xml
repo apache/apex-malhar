@@ -304,11 +304,6 @@
       <version>3.2</version>
     </dependency>
     <dependency>
-      <groupId>org.jruby</groupId>
-      <artifactId>jruby</artifactId>
-      <version>1.7.12</version>
-    </dependency>
-    <dependency>
       <groupId>com.github.tony19</groupId>
       <artifactId>named-regexp</artifactId>
       <version>0.2.3</version>

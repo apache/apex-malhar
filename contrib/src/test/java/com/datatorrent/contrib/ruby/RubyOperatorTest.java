@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.script;
+package com.datatorrent.contrib.ruby;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
