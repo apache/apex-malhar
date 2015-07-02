@@ -292,7 +292,7 @@ public abstract class AbstractDimensionTimeBucketOperator extends BaseOperator
   }
 
   /**
-   * Set the time bucket flags.
+   * The bit mask that represents which time unit to be used for time bucket.
    *
    * @param timeBucketFlags The bit mask that represents which time unit to be used for time bucket
    */

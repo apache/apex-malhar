@@ -80,4 +80,14 @@ public class TopNUnique<K, V> extends AbstractBaseNUniqueOperatorMap<K, V>
   {
     top.emit(tuple);
   }
+  
+  /**
+   * Top N unique tuples per key
+   * @param val
+   */
+  @Override
+  public void setN(int val)
+  {
+    super.setN(val);
+  }
 }

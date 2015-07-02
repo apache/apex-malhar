@@ -28,7 +28,7 @@ import com.datatorrent.api.StreamCodec;
  * <p></p>
  * @displayName Base Key Value
  * @category Algorithmic
- * @tags key value
+ * @tags key value abstract
  * @since 0.3.2
  */
 public class BaseKeyValueOperator<K, V> extends BaseKeyOperator<K>

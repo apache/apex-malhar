@@ -51,7 +51,7 @@ import java.util.Map;
  * Processing tuples on seed port are at 3.5 Million tuples/sec<br>
  * Processing tuples on increment port are at 10 Million tuples/sec<br>
  * <br>
- * @displayName Event Generator
+ * @displayName Event Incrementer
  * @category Testbench
  * @tags increment, hashmap
  * @since 0.3.2
@@ -145,6 +145,10 @@ public class EventIncrementer extends BaseOperator
   double delta = 1;
   int tuple_count = 0;
 
+  /**
+   * The max increment value.
+   * @param i
+   */
   public void setDelta(double i)
   {
     delta = i;

@@ -239,7 +239,11 @@ public class EventGenerator implements InputOperator
   public void teardown()
   {
   }
-
+  
+ /**
+ * Maximum number of Windows for this operation to run. 
+ * @param i
+ */
   public void setMaxCountOfWindows(int i)
   {
     maxCountOfWindows = i;
@@ -250,6 +254,10 @@ public class EventGenerator implements InputOperator
     return keysHelper;
   }
 
+  /**
+   * Comma separated strings which can be used as keys
+   * @param value
+   */
   public void setKeysHelper(String keys)
   {
     LOG.debug("in key setter");
@@ -262,6 +270,10 @@ public class EventGenerator implements InputOperator
     return weightsHelper;
   }
 
+  /**
+   * Comma separated values which are used as weight for the same indexed keys.
+   * @param value
+   */
   public void setWeightsHelper(String weight)
   {
     if (weight.isEmpty()) {
@@ -277,6 +289,10 @@ public class EventGenerator implements InputOperator
     return valuesHelper;
   }
 
+  /**
+   * Comma separated strings which can be used as values
+   * @param value
+   */
   public void setValuesHelper(String value)
   {
     if (value.isEmpty()) {
@@ -297,6 +313,7 @@ public class EventGenerator implements InputOperator
   }
 
   /**
+   * The Rolling Window count for averaging across these many windows
    * @param r the rolling_window_count for averaging across these many windows
    */
   public void setRollingWindowCount(int r)
