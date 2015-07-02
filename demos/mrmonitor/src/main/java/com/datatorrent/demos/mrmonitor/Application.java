@@ -17,12 +17,13 @@ package com.datatorrent.demos.mrmonitor;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.testbench.SeedEventGenerator;
+
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 /**
  * Application
@@ -40,8 +41,8 @@ public class Application implements StreamingApplication
     // Replace this code with the DAG you want to build
 
     SeedEventGenerator seedGen = dag.addOperator("seedGen", SeedEventGenerator.class);
-    seedGen.setSeedstart(1);
-    seedGen.setSeedend(10);
+    seedGen.setSeedStart(1);
+    seedGen.setSeedEnd(10);
     seedGen.addKeyData("x", 0, 10);
     seedGen.addKeyData("y", 0, 100);
 

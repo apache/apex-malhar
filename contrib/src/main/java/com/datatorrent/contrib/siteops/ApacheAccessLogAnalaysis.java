@@ -127,7 +127,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
     dag.getMeta(serverCounter1).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 2);
 
     // format output for redix operator
-    TopOccurance serverTop = dag.addOperator("serverTop", new TopOccurance());
+    TopOccurrence serverTop = dag.addOperator("serverTop", new TopOccurrence());
     serverTop.setN(10);
     dag.addStream("serverTopStream", serverCounter1.outport, serverTop.inport);
     //dag.addStream("redisgt8Stream", serverTop.outport,  consoleOutput(dag, "console")).setInline(true);
@@ -143,9 +143,9 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
     dag.getMeta(ipCounter).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 2);
 
     // Top ip client counter
-    TopOccurance topIpOccur = dag.addOperator("topIpOccur", new TopOccurance());
+    TopOccurrence topIpOccur = dag.addOperator("topIpOccur", new TopOccurrence());
     topIpOccur.setN(10);
-    topIpOccur.setThreshHold(1000);
+    topIpOccur.setThreshold(1000);
     dag.addStream("topIpOccurStream", ipCounter.outport, topIpOccur.inport).setLocality(Locality.CONTAINER_LOCAL);
 
     // output  ip counter
@@ -156,14 +156,14 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
     // output client more than 5 urls in sec
     RedisMapOutputOperator<Integer, String> redisgt5 = dag.addOperator("redisapachelog5", new RedisMapOutputOperator<Integer, String>());
     redisgt5.getStore().setDbIndex(5);
-    dag.addStream("redisgt5Stream", topIpOccur.gtThreshHold, redisgt5.input).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("redisgt5Stream", topIpOccur.gtThreshold, redisgt5.input).setLocality(Locality.CONTAINER_LOCAL);
 
     // get filter status operator
     HttpStatusFilter urlHttpFilter = dag.addOperator("urlStatusCheck", new HttpStatusFilter());
     urlHttpFilter.setFilterStatus("404");
     dag.getMeta(urlHttpFilter).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 2);
     dag.addStream("urlStatusCheckStream", parser.outUrlStatus, urlHttpFilter.inport).setLocality(Locality.CONTAINER_LOCAL);
-    TopOccurance topUrlStatus = dag.addOperator("topUrlStatus", new TopOccurance());
+    TopOccurrence topUrlStatus = dag.addOperator("topUrlStatus", new TopOccurrence());
     topUrlStatus.setN(10);
     dag.addStream("topUrlStatusStream", urlHttpFilter.outport, topUrlStatus.inport).setLocality(Locality.CONTAINER_LOCAL);
     // dag.addStream("testconsole", topUrlStatus.outport,  consoleOutput(dag, "console")).setInline(true);
@@ -185,7 +185,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
     serverHttpFilter.setFilterStatus("404");
     dag.getMeta(serverHttpFilter).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 2);
     dag.addStream("serverHttpFilterStream", parser.outServerStatus, serverHttpFilter.inport).setLocality(Locality.CONTAINER_LOCAL);
-    TopOccurance serverTop404 = dag.addOperator("serverTop404", new TopOccurance());
+    TopOccurrence serverTop404 = dag.addOperator("serverTop404", new TopOccurrence());
     serverTop404.setN(10);
     dag.addStream("serverTop404Stream", serverHttpFilter.outport, serverTop404.inport).setLocality(Locality.CONTAINER_LOCAL);
     RedisMapOutputOperator<Integer, String> redisgt8 = dag.addOperator("redisapachelog8", new RedisMapOutputOperator<Integer, String>());
@@ -196,7 +196,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
     KeyValSum ipDataCollect = dag.addOperator("ipDataCollect", new KeyValSum());
     dag.getMeta(ipDataCollect).getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 2);
     dag.addStream("ipDataCollectStream", parser.outputBytes, ipDataCollect.inport).setLocality(Locality.CONTAINER_LOCAL);
-    TopOccurance topIpData = dag.addOperator("topIpData", new TopOccurance());
+    TopOccurrence topIpData = dag.addOperator("topIpData", new TopOccurrence());
     topIpData.setN(10);
     dag.addStream("topIpDataStream", ipDataCollect.outport, topIpData.inport).setLocality(Locality.CONTAINER_LOCAL);
     //dag.addStream("consoletest", topIpData.outport,  consoleOutput(dag, "console")).setInline(true);
