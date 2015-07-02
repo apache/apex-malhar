@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.script;
+package com.datatorrent.contrib.ruby;
 
 import java.util.Map;
 
@@ -26,6 +26,11 @@ import com.datatorrent.api.Context.OperatorContext;
 /**
  * An implementation of ScriptOperator that executes ruby script on tuples
  * <p>
+ *
+ * WARNING: EXPERIMENTAL USE ONLY!  This operator depends on jruby which has
+ * a transitive dependency on an incompatible version of ASM that breaks 
+ * webservice in stram.
+ *
  * @displayName Ruby Operator
  * @category Scripting
  * @tags script operator, map, string
