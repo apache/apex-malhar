@@ -11,14 +11,6 @@
     <value>1024</value>
   </property>
   <property>
-    <name>dt.application.MyFirstApplication.operator.seedGen.prop.seedstart</name>
-    <value>1</value>
-  </property>
-  <property>
-    <name>dt.application.MyFirstApplication.operator.seedGen.prop.seedend</name>
-    <value>10</value>
-  </property>
-  <property>
     <name>dt.application.MyFirstApplication.operator.console.prop.stringFormat</name>
     <value>hello world: %s</value>
   </property>
