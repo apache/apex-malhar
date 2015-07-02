@@ -22,11 +22,7 @@ import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.lib.io.ApacheGenRandomLogs;
 import com.datatorrent.lib.logs.ApacheVirtualLogParseOperator;
 import com.datatorrent.lib.math.Sum;
-import com.datatorrent.lib.testbench.CountOccurance;
-import com.datatorrent.lib.testbench.HttpStatusFilter;
-import com.datatorrent.lib.testbench.KeyValSum;
-import com.datatorrent.lib.testbench.RedisSumOper;
-import com.datatorrent.lib.testbench.TopOccurance;
+import com.datatorrent.lib.testbench.*;
 import com.datatorrent.lib.util.AbstractDimensionTimeBucketOperator;
 import com.datatorrent.lib.util.DimensionTimeBucketSumOperator;
 
@@ -102,7 +98,7 @@ public class ApacheAccessLogAnalaysis implements StreamingApplication
     dag.addStream("dimension_out", dimensionOperator.out, getRedisOutput("redisapachelog1", dag, 1)).setLocality(Locality.CONTAINER_LOCAL);
 
     // format output for redix operator
-    TopOccurance topOccur = dag.addOperator("topOccur", new TopOccurance());
+    TopOccurrence topOccur = dag.addOperator("topOccur", new TopOccurrence());
     topOccur.setN(10);
     dag.addStream("topOccurStream", urlCounter.outport, topOccur.inport);
 
