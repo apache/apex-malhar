@@ -22,6 +22,7 @@ import org.jruby.embed.ScriptingContainer;
 import org.jruby.javasupport.JavaEmbedUtils.EvalUnit;
 
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.lib.script.ScriptOperator;
 
 /**
  * An implementation of ScriptOperator that executes ruby script on tuples
