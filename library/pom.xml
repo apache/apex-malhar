@@ -188,15 +188,8 @@
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-server</artifactId>
-      <version>${jetty.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-servlet</artifactId>
       <version>${jetty.version}</version>
-      <scope>test</scope>
       <exclusions>
         <exclusion>
           <artifactId>javax.servlet</artifactId>
@@ -247,13 +240,13 @@
       <version>1.7.5</version>
       <scope>provided</scope>
     </dependency>
-    <!-- The following are needed but DT Engine already has them.
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-websocket</artifactId>
       <version>${jetty.version}</version>
       <scope>provided</scope>
     </dependency>
+    <!-- The following are needed but DT Engine already has them.
     <dependency>
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-core-asl</artifactId>
@@ -327,11 +320,9 @@
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-websocket</artifactId>
-      <version>8.1.10.v20130312</version>
-      <scope>test</scope>
-      <type>jar</type>
+      <groupId>it.unimi.dsi</groupId>
+      <artifactId>fastutil</artifactId>
+      <version>6.6.4</version>
     </dependency>
   </dependencies>
 

@@ -1,0 +1,5 @@
+{
+  "values":[{"name":"boolField","type":"boolean"},
+            {"name":"intField","type":"integer"},
+            {"name":"doubleField","type":"double"}]
+}

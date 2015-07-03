@@ -17,13 +17,14 @@ package com.datatorrent.demos.twitter;
 
 
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.twitter.TwitterSampleInput;
 import com.datatorrent.lib.algo.UniqueCounter;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+
 
 /**
  * This application is same as other twitter demo
@@ -39,25 +40,31 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="RollingTopWordsDemo")
+@ApplicationAnnotation(name=TwitterTopWordsApplication.APP_NAME)
 public class TwitterTopWordsApplication implements StreamingApplication
 {
+  public static final String SNAPSHOT_SCHEMA = "twitterWordDataSchema.json";
+  public static final String CONVERSION_SCHEMA = "twitterWordConverterSchema.json";
+  public static final String APP_NAME = "RollingTopWordsDemo";
+  public static final String PROP_USE_APPDATA = "dt.application." + APP_NAME + ".useAppData";
+
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-      TwitterSampleInput twitterFeed = new TwitterSampleInput();
-      twitterFeed = dag.addOperator("TweetSampler", twitterFeed);
+    TwitterSampleInput twitterFeed = new TwitterSampleInput();
+    twitterFeed = dag.addOperator("TweetSampler", twitterFeed);
 
-      TwitterStatusWordExtractor wordExtractor = dag.addOperator("WordExtractor", TwitterStatusWordExtractor.class);
-      UniqueCounter<String> uniqueCounter = dag.addOperator("UniqueWordCounter", new UniqueCounter<String>());
-      WindowedTopCounter<String> topCounts = dag.addOperator("TopCounter", new WindowedTopCounter<String>());
-      topCounts.setSlidingWindowWidth(120, 1);
+    TwitterStatusWordExtractor wordExtractor = dag.addOperator("WordExtractor", TwitterStatusWordExtractor.class);
+    UniqueCounter<String> uniqueCounter = dag.addOperator("UniqueWordCounter", new UniqueCounter<String>());
+    WindowedTopCounter<String> topCounts = dag.addOperator("TopCounter", new WindowedTopCounter<String>());
 
-      dag.addStream("TweetStream", twitterFeed.text, wordExtractor.input);
-      dag.addStream("TwittedWords", wordExtractor.output, uniqueCounter.data);
-      dag.addStream("UniqueWordCounts", uniqueCounter.count, topCounts.input);
+    topCounts.setSlidingWindowWidth(120);
+    topCounts.setDagWindowWidth(1);
 
-      ConsoleOutputOperator consoleOperator = dag.addOperator("topWords", new ConsoleOutputOperator());
-      dag.addStream("TopWords", topCounts.output, consoleOperator.input);
+    dag.addStream("TweetStream", twitterFeed.text, wordExtractor.input);
+    dag.addStream("TwittedWords", wordExtractor.output, uniqueCounter.data);
+    dag.addStream("UniqueWordCounts", uniqueCounter.count, topCounts.input).setLocality(Locality.CONTAINER_LOCAL);
+
+    TwitterTopCounterApplication.consoleOutput(dag, "topWords", topCounts.output, !StringUtils.isEmpty(conf.get(PROP_USE_APPDATA)), SNAPSHOT_SCHEMA, "word");
   }
 }

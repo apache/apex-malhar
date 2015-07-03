@@ -1,0 +1,16 @@
+{
+  "id": "1",
+  "type": "dataQuery",
+  "data": {
+    "fields": ["stringType",
+               "charType",
+               "booleanType",
+               "longType",
+               "integerType",
+               "shortType",
+               "byteType",
+               "floatType",
+               "doubleType"]
+  },
+  "countdown": 10
+}

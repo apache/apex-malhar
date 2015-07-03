@@ -1,0 +1,4 @@
+{
+  "values": [{"name": "word", "type": "string"},
+             {"name": "count", "type": "integer"}]
+}

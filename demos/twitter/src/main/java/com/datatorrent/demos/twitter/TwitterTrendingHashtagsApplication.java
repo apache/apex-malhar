@@ -15,22 +15,15 @@
  */
 package com.datatorrent.demos.twitter;
 
-import java.net.URI;
-
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.contrib.twitter.TwitterSampleInput;
+import com.datatorrent.lib.algo.UniqueCounter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.lib.algo.UniqueCounter;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
-
-import com.datatorrent.contrib.twitter.TwitterSampleInput;
-
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.Operator.InputPort;
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 
 /**
@@ -138,9 +131,14 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
  *
  * @since 1.0.2
  */
-@ApplicationAnnotation(name="TwitterTrendingDemo")
+@ApplicationAnnotation(name=TwitterTrendingHashtagsApplication.APP_NAME)
 public class TwitterTrendingHashtagsApplication implements StreamingApplication
 {
+  public static final String SNAPSHOT_SCHEMA = "twitterHashTagDataSchema.json";
+  public static final String CONVERSION_SCHEMA = "twitterHashTagConverterSchema.json";
+  public static final String APP_NAME = "TwitterTrendingDemo";
+  public static final String PROP_USE_APPDATA = "dt.application." + APP_NAME + ".useAppData";
+
   private final Locality locality = null;
 
   @Override
@@ -150,43 +148,19 @@ public class TwitterTrendingHashtagsApplication implements StreamingApplication
     TwitterSampleInput twitterFeed = new TwitterSampleInput();
     twitterFeed = dag.addOperator("TweetSampler", twitterFeed);
 
-    //  Setup the operator to get the Hashtags extracted from the twitter statuses
-    TwitterStatusHashtagExtractor HashtagExtractor = dag.addOperator("HashtagExtractor", TwitterStatusHashtagExtractor.class);
-
     // Setup a node to count the unique Hashtags within a window.
     UniqueCounter<String> uniqueCounter = dag.addOperator("UniqueHashtagCounter", new UniqueCounter<String>());
 
     // Get the aggregated Hashtag counts and count them over last 5 mins.
     WindowedTopCounter<String> topCounts = dag.addOperator("TopCounter", new WindowedTopCounter<String>());
     topCounts.setTopCount(10);
-    topCounts.setSlidingWindowWidth(600, 1);
+    topCounts.setSlidingWindowWidth(600);
+    topCounts.setDagWindowWidth(1);
 
-    // Feed the statuses from feed into the input of the Hashtag extractor.
-    dag.addStream("TweetStream", twitterFeed.status, HashtagExtractor.input).setLocality(Locality.CONTAINER_LOCAL);
-    //  Start counting the Hashtags coming out of Hashtag extractor
-    dag.addStream("TwittedHashtags", HashtagExtractor.hashtags, uniqueCounter.data).setLocality(locality);
+    dag.addStream("TwittedHashtags", twitterFeed.hashtag, uniqueCounter.data).setLocality(locality);
     // Count unique Hashtags
-    dag.addStream("UniqueHashtagCounts", uniqueCounter.count, topCounts.input).setLocality(locality);
-    // Count top 10
-    dag.addStream("TopHashtags", topCounts.output, consoleOutput(dag, "topHashtags")).setLocality(locality);
+    dag.addStream("UniqueHashtagCounts", uniqueCounter.count, topCounts.input);
 
+    TwitterTopCounterApplication.consoleOutput(dag, "topHashtags", topCounts.output, !StringUtils.isEmpty(conf.get(PROP_USE_APPDATA)), SNAPSHOT_SCHEMA, "hashtag");
   }
-
-  private InputPort<Object> consoleOutput(DAG dag, String operatorName)
-  {
-    String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
-    if (!StringUtils.isEmpty(gatewayAddress)) {
-      URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
-      String topic = "demos.twitter." + operatorName;
-      //LOG.info("WebSocket with gateway at: {}", gatewayAddress);
-      PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator(operatorName, new PubSubWebSocketOutputOperator<Object>());
-      wsOut.setUri(uri);
-      wsOut.setTopic(topic);
-      return wsOut.input;
-    }
-    ConsoleOutputOperator operator = dag.addOperator(operatorName, new ConsoleOutputOperator());
-    operator.setStringFormat(operatorName + ": %s");
-    return operator.input;
-  }
-
 }

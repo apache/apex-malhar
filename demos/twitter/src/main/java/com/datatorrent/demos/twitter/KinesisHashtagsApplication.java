@@ -219,7 +219,8 @@ public class KinesisHashtagsApplication implements StreamingApplication
     // Get the aggregated Hashtag counts and count them over last 5 mins.
     WindowedTopCounter<String> topCounts = dag.addOperator("TopCounter", new WindowedTopCounter<String>());
     topCounts.setTopCount(10);
-    topCounts.setSlidingWindowWidth(600, 1);
+    topCounts.setSlidingWindowWidth(600);
+    topCounts.setDagWindowWidth(1);
 
     dag.addStream("TwittedHashtags", inputOp.outputPort, uniqueCounter.data).setLocality(locality);
 

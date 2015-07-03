@@ -1,0 +1,12 @@
+{
+  "values":[
+  {"name": "stringType", "type": "string"},
+  {"name": "charType", "type": "char"},
+  {"name": "booleanType", "type": "boolean"},
+  {"name": "longType", "type": "long"},
+  {"name": "integerType", "type": "integer"},
+  {"name": "shortType", "type": "short"},
+  {"name": "byteType", "type": "byte"},
+  {"name": "floatType", "type": "float"},
+  {"name": "doubleType", "type": "double"}]
+}

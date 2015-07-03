@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> implements Runnable
 {
+  private static final long serialVersionUID = 201506160829L;
   private static final Logger LOG = LoggerFactory.getLogger(WebSocketInputOperator.class);
   /**
    * Timeout interval for reading from server. 0 or negative indicates no timeout.
@@ -59,6 +60,7 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
   private transient boolean connectionClosed = false;
   private transient boolean shutdown = false;
   private int ioThreadMultiplier = 1;
+  protected boolean skipNull = false;
 
   /**
    * Gets the URI for WebSocket connection
@@ -190,7 +192,9 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
           LOG.debug("Got: " + string);
           try {
             T o = convertMessage(string);
-            outputPort.emit(o);
+            if(!(skipNull && o == null)) {
+              outputPort.emit(o);
+            }
           }
           catch (IOException ex) {
             LOG.error("Got exception: ", ex);
