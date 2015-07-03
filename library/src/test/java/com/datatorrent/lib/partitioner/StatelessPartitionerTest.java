@@ -18,7 +18,6 @@ package com.datatorrent.lib.partitioner;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -29,25 +28,11 @@ import com.datatorrent.api.*;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.Partitioner.Partition;
 import com.datatorrent.api.StringCodec.Object2String;
-import com.datatorrent.api.annotation.ApplicationAnnotation;
 
-import com.datatorrent.lib.stream.DevNull;
 import com.datatorrent.lib.util.TestUtils;
 
 public class StatelessPartitionerTest
 {
-  @ApplicationAnnotation(name="TestApp")
-  public static class DummyApp implements StreamingApplication
-  {
-    @Override
-    public void populateDAG(DAG dag, Configuration conf)
-    {
-      DummyOperator output = dag.addOperator("DummyOutput", DummyOperator.class);
-      DevNull<Integer> sink = dag.addOperator("Sink", new DevNull<Integer>());
-      dag.addStream("OutputToSink", output.output, sink.data);
-    }
-  }
-
   public static class DummyOperator implements Operator
   {
     public final DefaultOutputPort<Integer> output = new DefaultOutputPort<Integer>();
@@ -140,24 +125,6 @@ public class StatelessPartitionerTest
     Object2String<StatelessPartitioner<DummyOperator>> propertyReader = new Object2String<StatelessPartitioner<DummyOperator>>();
     StatelessPartitioner<DummyOperator> partitioner = propertyReader.fromString("com.datatorrent.lib.partitioner.StatelessPartitioner:3");
     Assert.assertEquals(3, partitioner.getPartitionCount());
-  }
-
-  @Test
-  public void launchPartitionTestApp()
-  {
-    Configuration conf = new Configuration(false);
-    conf.set("dt.operator.DummyOutput.attr.PARTITIONER", "com.datatorrent.lib.partitioner.StatelessPartitioner:3");
-
-    LocalMode lma = LocalMode.newInstance();
-
-    try {
-      lma.prepareDAG(new DummyApp(), conf);
-      LocalMode.Controller lc = lma.getController();
-      lc.run(1);
-    }
-    catch (Exception ex) {
-      throw new RuntimeException(ex);
-    }
   }
 
   @Test
