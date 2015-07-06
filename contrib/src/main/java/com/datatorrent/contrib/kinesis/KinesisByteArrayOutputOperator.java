@@ -25,7 +25,7 @@ import com.datatorrent.common.util.Pair;
  * @category Database
  * @tags Kinesis put, output operator, ByteArray
  */
-public class KinesisByteArrayOutputOperator extends AbstractKinesisOutputOperator<byte[], Pair<String, byte[]> >
+public class KinesisByteArrayOutputOperator extends AbstractKinesisOutputOperator<byte[], Pair<String, byte[]>>
 {
 
   @Override
