@@ -19,6 +19,7 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.kinesis.AmazonKinesisClient;
 import com.amazonaws.services.kinesis.model.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +45,11 @@ public class KinesisTestConsumer implements Runnable
 
   private boolean isAlive = true;
   private int receiveCount = 0;
-  // A latch object to notify the waiting thread that it's done consuming the message
-  private CountDownLatch latch;
+  
+  private CountDownLatch doneLatch;
+  
+  protected static final int MAX_TRY_TIMES = 30;
+  
   private void createClient()
   {
     AWSCredentialsProvider credentials = new DefaultAWSCredentialsProviderChain();
@@ -81,63 +85,124 @@ public class KinesisTestConsumer implements Runnable
     return new String(bytes);
   }
 
+
+   
   @Override
   public void run()
   {
-    DescribeStreamRequest describeRequest = new DescribeStreamRequest();
-    describeRequest.setStreamName(streamName);
-
-    DescribeStreamResult describeResponse = client.describeStream(describeRequest);
-    final List<Shard> shards = describeResponse.getStreamDescription().getShards();
-    logger.debug("Inside consumer::run receiveCount= {}", receiveCount);
-    while (isAlive ) {
-      Shard shId = shards.get(0);
-      GetShardIteratorRequest iteratorRequest = new GetShardIteratorRequest();
-      iteratorRequest.setStreamName(streamName);
-      iteratorRequest.setShardId(shId.getShardId());
-
-      iteratorRequest.setShardIteratorType("TRIM_HORIZON");
-      GetShardIteratorResult iteratorResponse = client.getShardIterator(iteratorRequest);
-      String iterator = iteratorResponse.getShardIterator();
-
-      GetRecordsRequest getRequest = new GetRecordsRequest();
-      getRequest.setLimit(1000);
-      getRequest.setShardIterator(iterator);
-      //call "get" operation and get everything in this shard range
-      GetRecordsResult getResponse = client.getRecords(getRequest);
-      //get reference to next iterator for this shard
-      //retrieve records
-      List<Record> records = getResponse.getRecords();
-      if (records == null || records.isEmpty()) {
-        try {
-          Thread.sleep(1000);
-        } catch (InterruptedException e) {
-          throw new RuntimeException(e);
-        }
-      } else {
-        for (Record rc : records) {
-          if (latch != null) {
-            latch.countDown();
-          }
-          if(getData(rc).equals(KinesisOperatorTestBase.END_TUPLE))
-            break;
-          holdingBuffer.add(rc);
-          receiveCount++;
-          logger.debug("Consuming {}, receiveCount= {}", getData(rc), receiveCount);
-        }
-      }
+    String iterator = prepareIterator();
+    
+    while (isAlive ) 
+    {
+      iterator = processNextIterator(iterator);
+      
+      if( doneLatch != null )
+        doneLatch.countDown();
+      
+      //sleep at least 1 second to avoid exceeding the limit on getRecords frequency
+      try
+      {
+        Thread.sleep(1000);
+      }catch( Exception e ){}
     }
     logger.debug("DONE consuming");
   }
 
+  
+  public String prepareIterator()
+  {
+    DescribeStreamRequest describeRequest = new DescribeStreamRequest();
+    describeRequest.setStreamName(streamName);
+
+    List<Shard> shards = null;
+    for( int i=0; i<MAX_TRY_TIMES; ++i )
+    {
+      try
+      {
+        DescribeStreamResult describeResponse = client.describeStream(describeRequest);
+        shards = describeResponse.getStreamDescription().getShards();
+        if( shards.isEmpty() )
+        {
+          logger.warn( "shards is empty" );
+        }
+        else
+          break;
+      }
+      catch( Exception e )
+      {
+        logger.error( "get Stream description exception: ", e );
+      }
+      try
+      {
+        Thread.sleep(1000);
+      }
+      catch( Exception e )
+      {
+      }
+    }
+    
+    Shard shId = shards.get(0);
+    GetShardIteratorRequest iteratorRequest = new GetShardIteratorRequest();
+    iteratorRequest.setStreamName(streamName);
+    iteratorRequest.setShardId(shId.getShardId());
+
+    iteratorRequest.setShardIteratorType("TRIM_HORIZON");
+    GetShardIteratorResult iteratorResponse = client.getShardIterator(iteratorRequest);
+    
+    return iteratorResponse.getShardIterator();
+  }
+  
+  public String processNextIterator( String iterator )
+  {
+    GetRecordsRequest getRequest = new GetRecordsRequest();
+    getRequest.setLimit(1000);
+    
+    getRequest.setShardIterator(iterator);
+    //call "get" operation and get everything in this shard range
+    GetRecordsResult getResponse = client.getRecords(getRequest);
+    
+    iterator = getResponse.getNextShardIterator();
+    
+    List<Record> records = getResponse.getRecords();
+    processResponseRecords( records );
+    
+    return iterator;
+  }
+  
+
+  protected boolean shouldProcessRecord = true;
+  protected void processResponseRecords( List<Record> records )
+  {
+    if( records == null || records.isEmpty() )
+      return;
+    receiveCount += records.size();
+    logger.debug("ReceiveCount= {}", receiveCount);
+    
+    for( Record record : records )
+    {
+      holdingBuffer.add(record);
+      if( shouldProcessRecord )
+      {
+        processRecord( record );
+      }
+    }
+    
+  }
+  
+  protected void processRecord( Record record )
+  {
+    
+  }
+  
   public void close()
   {
     isAlive = false;
     holdingBuffer.clear();
   }
 
-  public void setLatch(CountDownLatch latch)
+  public void setDoneLatch(CountDownLatch produceLatch)
   {
-    this.latch = latch;
+    this.doneLatch = produceLatch;
   }
+
 }

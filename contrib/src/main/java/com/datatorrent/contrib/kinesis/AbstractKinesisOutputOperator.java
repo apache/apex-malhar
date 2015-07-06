@@ -28,6 +28,10 @@ import com.datatorrent.common.util.Pair;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +48,7 @@ import java.util.List;
  */
 public abstract class AbstractKinesisOutputOperator<V, T> implements Operator
 {
+  private static final Logger logger = LoggerFactory.getLogger( AbstractKinesisOutputOperator.class );
   protected String streamName;
   @NotNull
   private String accessKey;
@@ -54,8 +59,21 @@ public abstract class AbstractKinesisOutputOperator<V, T> implements Operator
   protected int sendCount;
   protected boolean isBatchProcessing = true;
 
-  protected abstract byte[] getRecord(V tuple);
+  /**
+   * convert the value to record. the value is value of KeyValue pair.
+   * @see tupleToKeyValue()
+   * @param value
+   * @return
+   */
+  protected abstract byte[] getRecord(V value);
+  
+  /**
+   * convert tuple to pair of key and value. the key will be used as PartitionKey, and the value used as Data
+   * @param tuple
+   * @return
+   */
   protected abstract Pair<String, V> tupleToKeyValue(T tuple);
+  
   List<PutRecordsRequestEntry> putRecordsRequestEntryList = new ArrayList<PutRecordsRequestEntry>();
   // Max size of each record: 50KB, Max size of putRecords: 4.5MB
   // So, default capacity would be 4.5MB/50KB = 92
@@ -122,32 +140,42 @@ public abstract class AbstractKinesisOutputOperator<V, T> implements Operator
     @Override
     public void process(T tuple)
     {
-      // Send out single data
-      try {
-        if(isBatchProcessing)
-        {
-          if(putRecordsRequestEntryList.size() == batchSize)
-          {
-            flushRecords();
-          }
-          addRecord(tuple);
-
-        } else {
-          Pair<String, V> keyValue = tupleToKeyValue(tuple);
-          PutRecordRequest requestRecord = new PutRecordRequest();
-          requestRecord.setStreamName(streamName);
-          requestRecord.setPartitionKey(keyValue.first);
-          requestRecord.setData(ByteBuffer.wrap(getRecord(keyValue.second)));
-
-          client.putRecord(requestRecord);
-        }
-        sendCount++;
-      } catch (AmazonClientException e) {
-        throw new RuntimeException(e);
-      }
+      processTuple( tuple );
     }
+    
   };
 
+  public void processTuple(T tuple)
+  {
+    // Send out single data
+    try {
+      if(isBatchProcessing)
+      {
+        if(putRecordsRequestEntryList.size() == batchSize)
+        {
+          flushRecords();
+          logger.debug( "flushed {} records.", batchSize );
+        }
+        addRecord(tuple);
+
+      } else {
+        Pair<String, V> keyValue = tupleToKeyValue(tuple);
+        PutRecordRequest requestRecord = new PutRecordRequest();
+        requestRecord.setStreamName(streamName);
+        requestRecord.setPartitionKey(keyValue.first);
+        requestRecord.setData(ByteBuffer.wrap(getRecord(keyValue.second)));
+
+        client.putRecord(requestRecord);
+        
+      }
+      sendCount++;
+      logger.debug( "=====put one record. total put records {}.", sendCount );
+    } catch (AmazonClientException e) {
+      throw new RuntimeException(e);
+    }
+  }
+  
+  
   private void addRecord(T tuple)
   {
     try {
@@ -169,7 +197,9 @@ public abstract class AbstractKinesisOutputOperator<V, T> implements Operator
       putRecordsRequest.setRecords(putRecordsRequestEntryList);
       client.putRecords(putRecordsRequest);
       putRecordsRequestEntryList.clear();
+      logger.debug( "Records flushed." );
     } catch (AmazonClientException e) {
+      logger.warn( "PutRecordsRequest exception.", e );
       throw new RuntimeException(e);
     }
   }

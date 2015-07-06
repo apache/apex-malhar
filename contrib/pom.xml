@@ -665,5 +665,12 @@
       <version>1.7.12</version>
       <optional>true</optional>
     </dependency>
+    <dependency>
+      <!-- Kinesis depends on HttpPatch which requires httpclient 4.3.5 -->
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <optional>true</optional>
+      <version>4.3.5</version>
+    </dependency>
   </dependencies>
 </project>
