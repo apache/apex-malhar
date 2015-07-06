@@ -41,12 +41,8 @@ public class KinesisStringOutputOperatorTest extends KinesisOutputOperatorTest< 
   @Override
   protected KinesisStringOutputOperator addTestingOperator(DAG dag)
   {
-    KinesisStringOutputOperator operator = dag.addOperator("KinesisMessageProducer", KinesisStringOutputOperator.class );
-
-    return operator;
+    return dag.addOperator("KinesisMessageProducer", KinesisStringOutputOperator.class );
   }
-
-  
 
   /**
    * Tuple generator for testing.

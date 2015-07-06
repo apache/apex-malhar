@@ -15,13 +15,9 @@
  */
 package com.datatorrent.contrib.kinesis;
 
-import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
 import com.amazonaws.services.kinesis.model.Record;
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -34,12 +30,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultOutputPort;
 
 import com.datatorrent.common.util.Pair;
-import com.datatorrent.contrib.util.FieldInfo;
-import com.datatorrent.contrib.util.FieldValueGenerator;
-import com.datatorrent.contrib.util.FieldValueSerializableGenerator;
-import com.datatorrent.contrib.util.POJOTupleGenerateOperator;
-import com.datatorrent.contrib.util.TestPOJO;
-import com.datatorrent.contrib.util.TupleGenerator;
 
 @SuppressWarnings("rawtypes")
 public class KinesisByteArrayOutputOperatorTest extends KinesisOutputOperatorTest<KinesisByteArrayOutputOperator, POJOTupleGenerateOperator>
@@ -79,6 +69,7 @@ public class KinesisByteArrayOutputOperatorTest extends KinesisOutputOperatorTes
     listener.processNextIterator(iterator);
   }
 
+  @SuppressWarnings("unchecked")
   protected Pair<String, byte[]> getNextTuple(TupleGenerator<TestPOJO> generator)
   {
     TestPOJO obj = generator.getNextTuple();

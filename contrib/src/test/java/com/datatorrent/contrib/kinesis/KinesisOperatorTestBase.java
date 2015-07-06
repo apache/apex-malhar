@@ -40,7 +40,6 @@ public class KinesisOperatorTestBase
   protected transient AmazonKinesisClient client = null;
   protected transient AWSCredentialsProvider credentials = null;
 
-  protected int triedCount = 0;
   private static final Logger logger = LoggerFactory.getLogger(KinesisOperatorTestBase.class);
   
   private void createClient()
