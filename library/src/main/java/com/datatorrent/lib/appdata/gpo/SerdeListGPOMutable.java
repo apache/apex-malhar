@@ -35,7 +35,7 @@ public class SerdeListGPOMutable implements Serde
   }
 
   @Override
-  public byte[] serializeObject(Object object)
+  public synchronized byte[] serializeObject(Object object)
   {
     @SuppressWarnings("unchecked")
     List<GPOMutable> mutables = (List<GPOMutable>) object;
@@ -64,7 +64,7 @@ public class SerdeListGPOMutable implements Serde
   }
 
   @Override
-  public Object deserializeObject(byte[] object, MutableInt offset)
+  public synchronized Object deserializeObject(byte[] object, MutableInt offset)
   {
     int length = GPOUtils.deserializeInt(object, offset);
     int startIndex = offset.intValue();

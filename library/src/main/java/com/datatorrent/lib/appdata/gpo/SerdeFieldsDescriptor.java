@@ -35,7 +35,7 @@ public class SerdeFieldsDescriptor implements Serde
   }
 
   @Override
-  public byte[] serializeObject(Object object)
+  public synchronized byte[] serializeObject(Object object)
   {
     FieldsDescriptor fd = (FieldsDescriptor) object;
 
@@ -54,7 +54,7 @@ public class SerdeFieldsDescriptor implements Serde
   }
 
   @Override
-  public Object deserializeObject(byte[] object, MutableInt offset)
+  public synchronized Object deserializeObject(byte[] object, MutableInt offset)
   {
     Map<String, Type> fieldToType = Maps.newHashMap();
 

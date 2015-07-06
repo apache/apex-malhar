@@ -34,7 +34,7 @@ public class SerdeListString implements Serde
   }
 
   @Override
-  public Object deserializeObject(byte[] object, MutableInt offset)
+  public synchronized Object deserializeObject(byte[] object, MutableInt offset)
   {
     int length = GPOUtils.deserializeInt(object, offset);
     int startIndex = offset.intValue();
@@ -49,7 +49,7 @@ public class SerdeListString implements Serde
   }
 
   @Override
-  public byte[] serializeObject(Object object)
+  public synchronized byte[] serializeObject(Object object)
   {
     @SuppressWarnings("unchecked")
     List<String> strings = (List<String>) object;

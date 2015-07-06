@@ -17,6 +17,14 @@ package com.datatorrent.lib.appdata.gpo;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
+/**
+ * <p>
+ * This is an interface for serializing and deserializing objects within a {@link GPOMutable} object.
+ * </p>
+ * <p>
+ * <b>Note: All the methods in this interface must be thread safe.</b>
+ * </p>
+ */
 public interface Serde
 {
   public byte[] serializeObject(Object object);

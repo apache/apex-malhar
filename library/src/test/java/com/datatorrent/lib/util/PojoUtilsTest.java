@@ -39,6 +39,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
@@ -62,7 +63,6 @@ import com.esotericsoftware.kryo.Kryo;
 
 public class PojoUtilsTest
 {
-
   private final Class<?> fqcn = TestObjAllTypes.class;
   private final Class<TestObjAllTypes.InnerObj> innerObjClass = TestObjAllTypes.InnerObj.class;
   private final TestObjAllTypes testObj = new TestObjAllTypes();
@@ -71,6 +71,9 @@ public class PojoUtilsTest
   @Test
   public void testGetters() throws Exception
   {
+    /* let mvn know that janino is dynamically loaded jar */
+    Assert.assertNotNull(org.codehaus.janino.util.AutoIndentWriter.class);
+
     GetterBoolean<Object> getBoolean = createGetterBoolean(fqcn, "innerObj.boolVal");
     assertEquals(testObj.innerObj.isBoolVal(), getBoolean.get(testObj));
 
@@ -137,7 +140,7 @@ public class PojoUtilsTest
     createSetterByte(innerObjClass, "privateByteVal").set(innerObj, ++byteVal);
     assertEquals(byteVal, innerObj.getPrivateByteVal());
   }
-  
+
   @Test
   public void testSetterChar() throws Exception
   {
@@ -151,7 +154,7 @@ public class PojoUtilsTest
     createSetterChar(innerObjClass, "privateCharVal").set(innerObj, ++charVal);
     assertEquals(charVal, innerObj.getPrivateCharVal());
   }
-  
+
   @Test
   public void testSetterShort() throws Exception
   {
