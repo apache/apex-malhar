@@ -1,0 +1,20 @@
+{"keys":[{"name":"publisher","type":"string","enumValues":["twitter","facebook","yahoo","google","bing","amazon","aol","techcrunch","anandtech","urban dictionary","snap chat","the hunt","friendster","zynga","apple","microsoft","hulu","the new york times","people","wired","car driver","vanity fair","fortune","cosmopolitan","the washington post","autoweek","chicago tribune","cnn","nbc","abc","fox","los angeles times","pandora"]},
+         {"name":"advertiser","type":"string","enumValues":["starbucks","safeway","mcdonalds","macys","taco bell","walmart","khol's","newegg","pandas","jack in the box","target","best buy","frys","whole foods","ford","electronic arts","verizon wireless","at&t","kraft","honda","visa","heineken","sprint","coca cola","all state","ron swanson","dodge","toyota","chrysler","southwest","nestle","navy","discovery channel","gm"]},
+         {"name":"location","type":"string","enumValues":["N","LREC","SKY","AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","ND","OH","OK","OR","PA","RI","SC"]}],
+"timeBuckets":["1m"],
+ "values":
+  [{"name":"impressions","type":"long","aggregators":["SUM"]},
+   {"name":"clicks","type":"long","aggregators":["SUM"]},
+   {"name":"cost","type":"double","aggregators":["SUM"]},
+   {"name":"revenue","type":"double","aggregators":["SUM"]}],
+ "dimensions":
+  [{"combination":[]},
+   {"combination":["location"]},
+   {"combination":["advertiser"]},
+   {"combination":["publisher"]},
+   {"combination":["advertiser","location"]},
+   {"combination":["publisher","location"]},
+   {"combination":["publisher","advertiser"]},
+   {"combination":["publisher","advertiser","location"]}]
+}
+

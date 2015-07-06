@@ -18,6 +18,8 @@
 
   <properties>
     <!-- change this if you desire to use a different version of DataTorrent -->
+    <datatorrent.version>2.2.0-SNAPSHOT</datatorrent.version>
+    <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
     <skipTests>true</skipTests>
   </properties>
 
@@ -193,36 +195,18 @@
   <dependencies>
     <!-- add your dependencies here -->
     <dependency>
+      <groupId>net.sf.trove4j</groupId>
+      <artifactId>trove4j</artifactId>
+      <version>3.0.3</version>
+    </dependency>
+    <dependency>
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
       <version>2.3</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.kafka</groupId>
-      <artifactId>kafka_2.10</artifactId>
-      <version>0.8.1.1</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-log4j12</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-simple</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>log4j</groupId>
-          <artifactId>log4j</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.zookeeper</groupId>
-          <artifactId>zookeeper</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-contrib</artifactId>
+      <groupId>com.datatorrent</groupId>
+      <artifactId>malhar-library</artifactId>
       <version>${datatorrent.version}</version>
       <exclusions>
         <exclusion>
@@ -233,22 +217,61 @@
     </dependency>
     <dependency>
       <groupId>com.datatorrent</groupId>
-      <artifactId>dt-library</artifactId>
-      <version>${datatorrent.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.datatorrent</groupId>
-      <artifactId>dt-contrib</artifactId>
-      <version>${datatorrent.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.datatorrent</groupId>
       <artifactId>malhar-contrib</artifactId>
       <version>${datatorrent.version}</version>
-      <type>test-jar</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <scope>test</scope>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>${datatorrent.version}</version>
+      <classifier>tests</classifier>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>dt-contrib</artifactId>
+      <version>${datatorrent.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>dt-library</artifactId>
+      <version>${datatorrent.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.datatorrent</groupId>
+      <artifactId>dt-engine</artifactId>
+      <version>${datatorrent.version}</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.10</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>it.unimi.dsi</groupId>
+      <artifactId>fastutil</artifactId>
+      <version>6.6.4</version>
+      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>net.sf.supercsv</groupId>
@@ -257,11 +280,9 @@
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-library</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-      <classifier>tests</classifier>
+      <groupId>org.codehaus.janino</groupId>
+      <artifactId>janino</artifactId>
+      <version>2.7.8</version>
     </dependency>
   </dependencies>
 

@@ -1,0 +1,28 @@
+{
+  "keys":[{"name":"channel","type":"string","enumValues":["telemarketing","internet marketing","sales force","wholesalers","distributors"]},
+          {"name":"region","type":"string","enumValues":["N","LREC","SKY","AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID"]},
+          {"name":"customer","type":"string","enumValues":["safeway","toys r us","am pm","kmart","macy's","frys","amazon", "Tim", "Pramod", "Ashwin", "Prerna", "Chetan", "Gaurav", "Andy", "Sasha", "David", "Timmy", "Bob", "Billy", "Ted", "Alex", "Rob Schneider", "Adam Sandler", "Jack Black", "Mathew Perry", "Rachael", "Ross", "Monic", "Pheobe"]},
+          {"name":"product","type":"string","enumValues":["bananas","chocolate","coconut","fish","ferby","barbie","jeans","chair","purse","watch","laptop","monitor","iphone","mastery by robert green"]}],
+ "timeBuckets":["1m", "1h", "1d"],
+ "values":
+  [{"name":"amount","type":"double","aggregators":["SUM"]},
+   {"name":"discount","type":"double","aggregators":["SUM"]},
+   {"name":"tax","type":"double","aggregators":["SUM"]}],
+ "dimensions":
+  [{"combination":[]},
+   {"combination":["channel"]},
+   {"combination":["region"]},
+   {"combination":["customer"]},
+   {"combination":["product"]},
+   {"combination":["channel","region"]},
+   {"combination":["channel","customer"]},
+   {"combination":["channel","product"]},
+   {"combination":["region","customer"]},
+   {"combination":["region","product"]},
+   {"combination":["customer","product"]},
+   {"combination":["channel","region","customer"]},
+   {"combination":["channel","region","product"]},
+   {"combination":["channel","customer","product"]},
+   {"combination":["region","customer","product"]},
+   {"combination":["channel","region","customer","product"]}]
+}

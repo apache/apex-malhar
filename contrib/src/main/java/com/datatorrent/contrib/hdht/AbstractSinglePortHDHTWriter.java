@@ -32,6 +32,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StreamCodec;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.netlet.util.Slice;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -66,6 +67,7 @@ public abstract class AbstractSinglePortHDHTWriter<EVENT> extends HDHTWriter imp
   @Min(1)
   private int partitionCount = 1;
 
+  @InputPortFieldAnnotation(optional=true)
   public final transient DefaultInputPort<EVENT> input = new DefaultInputPort<EVENT>()
   {
     @Override

@@ -1,23 +1,16 @@
-/*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/**
+ * Copyright (c) 2015 DataTorrent, Inc.
+ * All rights reserved.
  */
 package com.datatorrent.demos.dimensions.ads;
 
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.appdata.schemas.TimeBucket;
 import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.datatorrent.lib.statistics.DimensionsComputation.Aggregator;
 
@@ -28,145 +21,183 @@ import com.datatorrent.lib.statistics.DimensionsComputation.Aggregator;
  */
 public class AdInfo implements Serializable
 {
-  /* dimension attributes */
-  int publisherId;
-  int advertiserId;
-  int adUnit;
-  long timestamp;
-  /* metrics */
-  double cost;
-  double revenue;
-  long impressions;
-  long clicks;
+  private static final long serialVersionUID = 201505250652L;
+
+  public String publisher;
+  public int publisherID;
+  public String advertiser;
+  public int advertiserID;
+  public String location;
+  public int locationID;
+  public double cost = 0.0;
+  public double revenue = 0.0;
+  public long impressions = 0;
+  public long clicks = 0;
+  public long time = 0;
 
   public AdInfo()
   {
   }
 
-  public Integer getPublisherId()
+  public AdInfo(String publisher,
+                       String advertiser,
+                       String location,
+                       double cost,
+                       double revenue,
+                       long impressions,
+                       long clicks,
+                       long time)
   {
-    return publisherId;
+    this.publisher = publisher;
+    this.advertiser = advertiser;
+    this.location = location;
+    this.cost = cost;
+    this.revenue = revenue;
+    this.impressions = impressions;
+    this.clicks = clicks;
+    this.time = time;
   }
 
-  public void setPublisherId(Integer publisherId)
+  /**
+   * @return the publisher
+   */
+  public String getPublisher()
   {
-    this.publisherId = publisherId;
+    return publisher;
   }
 
-  public Integer getAdvertiserId()
+  /**
+   * @param publisher the publisher to set
+   */
+  public void setPublisher(String publisher)
   {
-    return advertiserId;
+    this.publisher = publisher;
   }
 
-  public void setAdvertiserId(Integer advertiserId)
+  /**
+   * @return the advertiser
+   */
+  public String getAdvertiser()
   {
-    this.advertiserId = advertiserId;
+    return advertiser;
   }
 
-  public Integer getAdUnit()
+  /**
+   * @param advertiser the advertiser to set
+   */
+  public void setAdvertiser(String advertiser)
   {
-    return adUnit;
+    this.advertiser = advertiser;
   }
 
-  public void setAdUnit(Integer adUnit)
+  /**
+   * @return the location
+   */
+  public String getLocation()
   {
-    this.adUnit = adUnit;
+    return location;
   }
 
-  public long getTimestamp()
+  /**
+   * @param location the location to set
+   */
+  public void setLocation(String location)
   {
-    return timestamp;
+    this.location = location;
   }
 
-  public void setTimestamp(long timestamp)
-  {
-    this.timestamp = timestamp;
-  }
-
+  /**
+   * @return the cost
+   */
   public double getCost()
   {
     return cost;
   }
 
+  /**
+   * @param cost the cost to set
+   */
+  public void setCost(double cost)
+  {
+    this.cost = cost;
+  }
+
+  /**
+   * @return the revenue
+   */
   public double getRevenue()
   {
     return revenue;
   }
 
+  /**
+   * @param revenue the revenue to set
+   */
+  public void setRevenue(double revenue)
+  {
+    this.revenue = revenue;
+  }
+
+  /**
+   * @return the impressions
+   */
   public long getImpressions()
   {
     return impressions;
   }
 
+  /**
+   * @param impressions the impressions to set
+   */
+  public void setImpressions(long impressions)
+  {
+    this.impressions = impressions;
+  }
+
+  /**
+   * @return the clicks
+   */
   public long getClicks()
   {
     return clicks;
   }
 
-  public void setClicks(long clicks) {
+  /**
+   * @param clicks the clicks to set
+   */
+  public void setClicks(long clicks)
+  {
     this.clicks = clicks;
   }
 
-  public void setCost(double cost) {
-    this.cost = cost;
-  }
-
-  public void setRevenue(double revenue) {
-    this.revenue = revenue;
-  }
-
-  public void setImpressions(long impressions) {
-    this.impressions = impressions;
-  }
-
-  @Override
-  public int hashCode()
+  /**
+   * @return the time
+   */
+  public long getTime()
   {
-    int hash = 5;
-    hash = 71 * hash + this.publisherId;
-    hash = 71 * hash + this.advertiserId;
-    hash = 71 * hash + this.adUnit;
-    hash = 71 * hash + (int) (this.timestamp ^ (this.timestamp >>> 32));
-    return hash;
+    return time;
   }
 
-  @Override
-  public boolean equals(Object obj)
+  /**
+   * @param time the time to set
+   */
+  public void setTime(long time)
   {
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    final AdInfo other = (AdInfo) obj;
-    if (this.publisherId != other.publisherId) {
-      return false;
-    }
-    if (this.advertiserId != other.advertiserId) {
-      return false;
-    }
-    if (this.adUnit != other.adUnit) {
-      return false;
-    }
-    return this.timestamp == other.timestamp;
-  }
-
-  @Override
-  public String toString()
-  {
-    return "AdInfo{" + "publisherId=" + publisherId + ", advertiserId=" + advertiserId + ", adUnit=" + adUnit + ", timestamp=" + timestamp + ", cost=" + cost + ", revenue=" + revenue + ", impressions=" + impressions + ", clicks=" + clicks + '}';
+    this.time = time;
   }
 
   public static class AdInfoAggregator implements Aggregator<AdInfo, AdInfoAggregateEvent>
   {
     String dimension;
+    TimeBucket timeBucket;
+    int timeBucketInt;
     TimeUnit time;
     boolean publisherId;
     boolean advertiserId;
     boolean adUnit;
+    int dimensionsDescriptorID;
 
-    public void init(String dimension)
+    public void init(String dimension, int dimensionsDescriptorID)
     {
       String[] attributes = dimension.split(":");
       for (String attribute : attributes) {
@@ -174,14 +205,17 @@ public class AdInfo implements Serializable
         String key = keyval[0];
         if (key.equals("time")) {
           time = TimeUnit.valueOf(keyval[1]);
+          timeBucket = TimeBucket.TIME_UNIT_TO_TIME_BUCKET.get(time);
+          timeBucketInt = timeBucket.ordinal();
+          time = timeBucket.getTimeUnit();
         }
-        else if (key.equals("publisherId")) {
+        else if (key.equals("publisher")) {
           publisherId = keyval.length == 1 || Boolean.parseBoolean(keyval[1]);
         }
-        else if (key.equals("advertiserId")) {
+        else if (key.equals("advertiser")) {
           advertiserId = keyval.length == 1 || Boolean.parseBoolean(keyval[1]);
         }
-        else if (key.equals("adUnit")) {
+        else if (key.equals("location")) {
           adUnit = keyval.length == 1 || Boolean.parseBoolean(keyval[1]);
         }
         else {
@@ -189,6 +223,7 @@ public class AdInfo implements Serializable
         }
       }
 
+      this.dimensionsDescriptorID = dimensionsDescriptorID;
       this.dimension = dimension;
     }
 
@@ -245,20 +280,36 @@ public class AdInfo implements Serializable
     {
       AdInfoAggregateEvent event = new AdInfoAggregateEvent(aggregatorIndex);
       if (time != null) {
-        event.timestamp = TimeUnit.MILLISECONDS.convert(time.convert(src.timestamp, TimeUnit.MILLISECONDS), time);
+        event.time = timeBucket.roundDown(src.time);
+        event.timeBucket = timeBucketInt;
       }
 
       if (publisherId) {
-        event.publisherId = src.publisherId;
+        event.publisher = src.publisher;
+        event.publisherID = src.publisherID;
+      }
+      else {
+        event.publisherID = -1;
       }
 
       if (advertiserId) {
-        event.advertiserId = src.advertiserId;
+        event.advertiser = src.advertiser;
+        event.advertiserID = src.advertiserID;
+      }
+      else {
+        event.advertiserID = -1;
       }
 
       if (adUnit) {
-        event.adUnit = src.adUnit;
+        event.location = src.location;
+        event.locationID = src.locationID;
       }
+      else {
+        event.locationID = -1;
+      }
+
+      event.aggregatorIndex = aggregatorIndex;
+      event.dimensionsDescriptorID = dimensionsDescriptorID;
 
       return event;
     }
@@ -287,19 +338,19 @@ public class AdInfo implements Serializable
       int hash = 5;
 
       if (publisherId) {
-        hash = 71 * hash + event.publisherId;
+        hash = 71 * hash + event.publisherID;
       }
 
       if (advertiserId) {
-        hash = 71 * hash + event.advertiserId;
+        hash = 71 * hash + event.advertiserID;
       }
 
       if (adUnit) {
-        hash = 71 * hash + event.adUnit;
+        hash = 71 * hash + event.locationID;
       }
 
       if (time != null) {
-        long ltime = time.convert(event.timestamp, TimeUnit.MILLISECONDS);
+        long ltime = time.convert(event.time, TimeUnit.MILLISECONDS);
         hash = 71 * hash + (int) (ltime ^ (ltime >>> 32));
       }
 
@@ -321,19 +372,19 @@ public class AdInfo implements Serializable
         return false;
       }
 
-      if (time != null && time.convert(event1.timestamp, TimeUnit.MILLISECONDS) != time.convert(event2.timestamp, TimeUnit.MILLISECONDS)) {
+      if (time != null && time.convert(event1.time, TimeUnit.MILLISECONDS) != time.convert(event2.time, TimeUnit.MILLISECONDS)) {
         return false;
       }
 
-      if (publisherId && event1.publisherId != event2.publisherId) {
+      if (publisherId && event1.publisherID != event2.publisherID) {
         return false;
       }
 
-      if (advertiserId && event1.advertiserId != event2.advertiserId) {
+      if (advertiserId && event1.advertiserID != event2.advertiserID) {
         return false;
       }
 
-      if (adUnit && event1.adUnit != event2.adUnit) {
+      if (adUnit && event1.locationID != event2.locationID) {
         return false;
       }
 
@@ -348,6 +399,8 @@ public class AdInfo implements Serializable
   {
     private static final long serialVersionUID = 1L;
     int aggregatorIndex;
+    public int timeBucket;
+    private int dimensionsDescriptorID;
 
     public AdInfoAggregateEvent()
     {
@@ -364,7 +417,58 @@ public class AdInfo implements Serializable
     {
       return aggregatorIndex;
     }
+
+    public void setAggregatorIndex(int aggregatorIndex)
+    {
+      this.aggregatorIndex = aggregatorIndex;
+    }
+
+    /**
+     * @return the dimensionsDescriptorID
+     */
+    public int getDimensionsDescriptorID()
+    {
+      return dimensionsDescriptorID;
+    }
+
+    /**
+     * @param dimensionsDescriptorID the dimensionsDescriptorID to set
+     */
+    public void setDimensionsDescriptorID(int dimensionsDescriptorID)
+    {
+      this.dimensionsDescriptorID = dimensionsDescriptorID;
+    }
+
+
+    @Override
+    public int hashCode()
+    {
+      int hash = 5;
+      hash = 71 * hash + this.publisherID;
+      hash = 71 * hash + this.advertiserID;
+      hash = 71 * hash + this.locationID;
+      hash = 71 * hash + (int)this.time;
+      hash = 71 * hash + this.timeBucket;
+
+      return hash;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+      if(o == null || !(o instanceof AdInfoAggregateEvent)) {
+        return false;
+      }
+
+      AdInfoAggregateEvent aae = (AdInfoAggregateEvent) o;
+
+      return this.publisherID == aae.publisherID &&
+             this.advertiserID == aae.advertiserID &&
+             this.locationID == aae.locationID &&
+             this.time == aae.time &&
+             this.timeBucket == aae.timeBucket;
+    }
   }
 
-  private static final long serialVersionUID = 201402211825L;
+  private static final Logger LOG = LoggerFactory.getLogger(AdInfoAggregateEvent.class);
 }
