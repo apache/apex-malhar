@@ -43,7 +43,7 @@ public class KinesisTestConsumer implements Runnable
   private final int bufferSize = BUFFER_SIZE_DEFAULT;
   public transient ArrayBlockingQueue<Record> holdingBuffer = new ArrayBlockingQueue<Record>(bufferSize);
 
-  private boolean isAlive = true;
+  private volatile boolean isAlive = true;
   private int receiveCount = 0;
   
   private CountDownLatch doneLatch;
@@ -93,9 +93,6 @@ public class KinesisTestConsumer implements Runnable
     while (isAlive ) 
     {
       iterator = processNextIterator(iterator);
-      
-      if( doneLatch != null )
-        doneLatch.countDown();
       
       //sleep at least 1 second to avoid exceeding the limit on getRecords frequency
       try
@@ -175,6 +172,9 @@ public class KinesisTestConsumer implements Runnable
       {
         processRecord( record );
       }
+      
+      if( doneLatch != null )
+        doneLatch.countDown();
     }
     
   }
