@@ -50,7 +50,7 @@ public class JMSTestBase
     broker = new BrokerService();
     String brokerName = "ActiveMQOutputOperator-broker";
     broker.setBrokerName(brokerName);
-    broker.getPersistenceAdapter().setDirectory(new File("target/activemq-data/" + broker.getBrokerName() + "/KahaDB").getAbsoluteFile());
+    broker.getPersistenceAdapter().setDirectory(new File("target/activemq-data/" + broker.getBrokerName() + '/' + org.apache.activemq.store.kahadb.KahaDBPersistenceAdapter.class.getSimpleName()).getAbsoluteFile());
     broker.addConnector("tcp://localhost:61617?broker.persistent=false");
     broker.getSystemUsage().getStoreUsage().setLimit(1024 * 1024 * 1024);  // 1GB
     broker.getSystemUsage().getTempUsage().setLimit(100 * 1024 * 1024);    // 100MB

@@ -20,6 +20,12 @@
       <artifactId>malhar-library</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>dt-engine</artifactId>
+      <version>${dt.framework.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 </project>
