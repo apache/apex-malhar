@@ -43,7 +43,7 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 public class JDBCLookupCacheBackedOperatorTest
 {
   private static final String INMEM_DB_URL = "jdbc:hsqldb:mem:test;sql.syntax_mys=true";
-  private static final String INMEM_DB_DRIVER = "org.hsqldb.jdbcDriver";
+  private static final String INMEM_DB_DRIVER = org.hsqldb.jdbcDriver.class.getName();
   protected static final String TABLE_NAME = "Test_Lookup_Cache";
 
   protected static TestJDBCLookupCacheBackedOperator lookupCacheBackedOperator = new TestJDBCLookupCacheBackedOperator();

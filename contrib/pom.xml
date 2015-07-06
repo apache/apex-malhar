@@ -181,13 +181,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-library</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-      <type>test-jar</type>
-    </dependency>
-    <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka_2.10</artifactId>
       <version>0.8.1.1</version>
@@ -224,12 +217,6 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <version>5.1.22</version>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
       <groupId>net.sf.uadetector</groupId>
       <artifactId>uadetector-resources</artifactId>
       <version>2014.01</version>
@@ -254,13 +241,6 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>net.sf.jopt-simple</groupId>
-      <artifactId>jopt-simple</artifactId>
-      <version>3.2</version>
-      <optional>true</optional>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>com.101tec</groupId>
       <artifactId>zkclient</artifactId>
       <version>0.3</version>
@@ -277,19 +257,6 @@
       <groupId>com.almworks.sqlite4java</groupId>
       <artifactId>sqlite4java</artifactId>
       <version>0.282</version>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>net.sf.opencsv</groupId>
-      <artifactId>opencsv</artifactId>
-      <version>2.0</version>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>com.almworks.sqlite4java</groupId>
-      <artifactId>libsqlite4java-linux-amd64</artifactId>
-      <version>0.282</version>
-      <type>so</type>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -383,21 +350,7 @@
           <artifactId>jackson-xc</artifactId>
           <groupId>org.codehaus.jackson</groupId>
         </exclusion>
-        <!-- Needed for running local server for tests -->
-        <!--exclusion>
-<artifactId>jetty</artifactId>
-<groupId>org.mortbay.jetty</groupId>
-</exclusion>
-<exclusion>
-<artifactId>jetty-util</artifactId>
-<groupId>org.mortbay.jetty</groupId>
-</exclusion-->
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-compress</artifactId>
-      <version>1.5</version>
     </dependency>
     <dependency>
       <groupId>org.zeromq</groupId>
@@ -439,18 +392,6 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-      <version>2.3.1</version>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache-extras.cassandra-jdbc</groupId>
-      <artifactId>cassandra-jdbc</artifactId>
-      <version>1.2.5</version>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
       <groupId>com.esotericsoftware.kryo</groupId>
       <artifactId>kryo</artifactId>
       <version>2.24.0</version>
@@ -481,11 +422,6 @@
       <artifactId>twitter4j-stream</artifactId>
       <version>2.2.6</version>
       <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>joda-time</groupId>
-      <artifactId>joda-time</artifactId>
-      <version>2.1</version>
     </dependency>
     <dependency>
       <groupId>com.datastax.cassandra</groupId>
@@ -551,18 +487,6 @@
     </dependency>
     <dependency>
       <groupId>org.apache.hive</groupId>
-      <artifactId>hive-jdbc</artifactId>
-      <version>0.13.1</version>
-      <optional>true</optional>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hive</groupId>
       <artifactId>hive-exec</artifactId>
       <version>0.13.1</version>
       <optional>true</optional>
@@ -604,23 +528,11 @@
       <scope>test</scope>
       <type>jar</type>
     </dependency>
-      <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-plus</artifactId>
-      <version>${jetty.version}</version>
-      <optional>true</optional>
-    </dependency>
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-kinesis</artifactId>
       <version>1.9.10</version>
       <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-      <version>2.4.4</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.teknek</groupId>
@@ -629,41 +541,22 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-hdfs</artifactId>
-      <version>2.2.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.derby</groupId>
-      <artifactId>derby</artifactId>
-      <version>10.11.1.1</version>
-      <scope>test</scope>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.rosuda</groupId>
-      <artifactId>jri</artifactId>
-      <version>1.0</version>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
       <groupId>org.rosuda</groupId>
       <artifactId>rengine</artifactId>
       <version>1.0</version>
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.rosuda</groupId>
-      <artifactId>jriengine</artifactId>
-      <version>1.0</version>
+      <groupId>org.jruby</groupId>
+      <artifactId>jruby</artifactId>
+      <version>1.7.4</version>
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.jruby</groupId>
-      <artifactId>jruby</artifactId>
-      <version>1.7.12</version>
-      <optional>true</optional>
+      <groupId>com.datatorrent</groupId>
+      <artifactId>dt-common</artifactId>
+      <version>${dt.framework.version}</version>
+      <type>jar</type>
     </dependency>
   </dependencies>
 </project>

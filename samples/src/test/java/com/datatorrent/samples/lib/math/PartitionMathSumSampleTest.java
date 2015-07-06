@@ -16,7 +16,6 @@
 package com.datatorrent.samples.lib.math;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.samples.lib.math.PartitionMathSumSample;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
