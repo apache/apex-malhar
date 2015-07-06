@@ -158,6 +158,9 @@ public class DeduperPOJOTest
   @BeforeClass
   public static void setup()
   {
+    /* seed janino for mvn dependencies */
+    Assert.assertNotNull(org.codehaus.janino.util.AutoIndentWriter.class);
+
     applicationPath = OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
     ExpirableHdfsBucketStore<Object> bucketStore = new ExpirableHdfsBucketStore<Object>();
     deduper = new DummyDeduper();

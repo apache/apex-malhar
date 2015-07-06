@@ -22,8 +22,8 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 
 import org.eclipse.jetty.plus.jaas.callback.ObjectCallback;
 
-import com.datatorrent.lib.security.SecurityContext;
-import com.datatorrent.lib.security.auth.callback.DefaultCallbackHandler;
+import com.datatorrent.common.security.SecurityContext;
+import com.datatorrent.common.security.auth.callback.DefaultCallbackHandler;
 
 /**
  * A callback handler to use with Jetty login module for gateway authentication
