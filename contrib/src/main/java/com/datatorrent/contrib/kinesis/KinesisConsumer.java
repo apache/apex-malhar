@@ -20,6 +20,7 @@ import com.amazonaws.services.kinesis.model.Shard;
 import com.amazonaws.services.kinesis.model.ShardIteratorType;
 import com.datatorrent.common.util.Pair;
 import com.google.common.collect.Maps;
+
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Pattern.Flag;
+
 import java.io.Closeable;
 import java.io.Serializable;
 import java.util.*;
@@ -304,6 +306,7 @@ public class KinesisConsumer implements Closeable
   /**
    * Counter class which gives the statistic value from the consumer
    */
+  @SuppressWarnings("serial")
   public static class KinesisShardStats implements Serializable
   {
     public ConcurrentHashMap<String, String> partitionStats = new ConcurrentHashMap<String, String>();

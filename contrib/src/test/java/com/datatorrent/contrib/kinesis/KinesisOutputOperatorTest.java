@@ -35,6 +35,7 @@ import com.datatorrent.api.StreamingApplication;
 /**
  *
  */
+@SuppressWarnings("rawtypes")
 public abstract class KinesisOutputOperatorTest< O extends AbstractKinesisOutputOperator, G extends Operator > extends KinesisOperatorTestBase
 {
   private static final Logger logger = LoggerFactory.getLogger(KinesisOutputOperatorTest.class);
@@ -43,7 +44,7 @@ public abstract class KinesisOutputOperatorTest< O extends AbstractKinesisOutput
   protected CountDownLatch doneLatch;
 
   private boolean enableConsumer = true;
-  
+  private Thread listenerThread;
   @Before
   public void beforeTest()
   {
@@ -62,7 +63,7 @@ public abstract class KinesisOutputOperatorTest< O extends AbstractKinesisOutput
    * @throws Exception
    */
   @Test
-  @SuppressWarnings({"SleepWhileInLoop", "empty-statement", "rawtypes"})
+  @SuppressWarnings({"unchecked"})
   public void testKinesisOutputOperator() throws Exception
   {
     // Setup a message listener to receive the message
@@ -75,7 +76,8 @@ public abstract class KinesisOutputOperatorTest< O extends AbstractKinesisOutput
         //initialize the latch to synchronize the threads
         doneLatch = new CountDownLatch(maxTuple);
         listener.setDoneLatch(doneLatch);
-        new Thread(listener).start();
+        listenerThread = new Thread(listener);
+        listenerThread.start();
       }
     }
     // Create DAG for testing.
@@ -106,22 +108,23 @@ public abstract class KinesisOutputOperatorTest< O extends AbstractKinesisOutput
     final LocalMode.Controller lc = lma.getController();
     lc.runAsync();
 
-    int sleepTime = 10000;
+    int waitTime = 300000;
     if( doneLatch != null )
-      doneLatch.await(300, TimeUnit.SECONDS);
+      doneLatch.await(waitTime, TimeUnit.MILLISECONDS);
     else
     {
-      sleepTime = 60000;
+      try
+      {
+        Thread.sleep(waitTime);
+      }
+      catch( Exception e ){}
     }
-
-    try
-    {
-      Thread.sleep(sleepTime);
-    }
-    catch( Exception e ){}
     
     if( listener != null )
       listener.setIsAlive(false);
+    
+    if( listenerThread != null )
+      listenerThread.join( 1000 );
     
     lc.shutdown();
 

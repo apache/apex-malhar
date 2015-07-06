@@ -12,7 +12,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.Pair;
 import com.datatorrent.contrib.util.FieldInfo;
-import com.datatorrent.contrib.util.FieldValueGenerator;
 import com.datatorrent.contrib.util.FieldValueSerializableGenerator;
 import com.datatorrent.contrib.util.POJOTupleGenerateOperator;
 import com.datatorrent.contrib.util.TestPOJO;
