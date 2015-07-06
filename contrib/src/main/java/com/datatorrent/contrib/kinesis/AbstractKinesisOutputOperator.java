@@ -169,7 +169,6 @@ public abstract class AbstractKinesisOutputOperator<V, T> implements Operator
         
       }
       sendCount++;
-      logger.debug( "=====put one record. total put records {}.", sendCount );
     } catch (AmazonClientException e) {
       throw new RuntimeException(e);
     }

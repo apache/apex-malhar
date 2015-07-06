@@ -15,6 +15,11 @@
  */
 package com.datatorrent.contrib.kinesis;
 
+import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
+
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.kinesis.AmazonKinesisClient;
@@ -22,11 +27,6 @@ import com.amazonaws.services.kinesis.model.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * A kinesis consumer for testing
@@ -84,8 +84,6 @@ public class KinesisTestConsumer implements Runnable
     buffer.get(bytes);
     return new String(bytes);
   }
-
-
    
   @Override
   public void run()
@@ -103,7 +101,9 @@ public class KinesisTestConsumer implements Runnable
       try
       {
         Thread.sleep(1000);
-      }catch( Exception e ){}
+      }catch( Exception e ){
+        throw new RuntimeException(e);
+      }
     }
     logger.debug("DONE consuming");
   }

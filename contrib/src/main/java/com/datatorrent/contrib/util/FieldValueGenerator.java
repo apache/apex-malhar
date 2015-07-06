@@ -15,7 +15,6 @@
  */
 package com.datatorrent.contrib.util;
 
-import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,16 +22,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.contrib.util.FieldInfo;
-import com.datatorrent.contrib.util.FieldValueGenerator;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.datatorrent.lib.util.PojoUtils.Setter;
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 
-public class FieldValueGenerator< T extends FieldInfo >
+public class FieldValueGenerator<T extends FieldInfo>
 {
   public static interface FieldValueHandler<T extends FieldInfo>
   {
@@ -43,14 +37,11 @@ public class FieldValueGenerator< T extends FieldInfo >
   private Class<?> clazz;
   private Map<T, Getter<Object,Object>> fieldGetterMap = null;
   private Map<T, Setter<Object,Object>> fieldSetterMap = null;
-  
-  //it's better to same kryo instance for both de/serialize
-  private Kryo _kryo = null;
-  
+
   private FieldValueGenerator(){}
   
   @SuppressWarnings("unchecked")
-  public static < T extends FieldInfo > FieldValueGenerator<T> getFieldValueGenerator(final Class<?> clazz, List<T> fieldInfos)
+  public static <T extends FieldInfo> FieldValueGenerator<T> getFieldValueGenerator(final Class<?> clazz, List<T> fieldInfos)
   {
     FieldValueGenerator<T> fieldValueGenerator = new FieldValueGenerator<T>();
     fieldValueGenerator.clazz = clazz;
@@ -60,34 +51,34 @@ public class FieldValueGenerator< T extends FieldInfo >
       fieldValueGenerator.fieldGetterMap = new HashMap<T,Getter<Object,Object>>();
       for( T fieldInfo : fieldInfos )
       {
-        Getter<Object,Object> getter = PojoUtils.createGetter(clazz, fieldInfo.getColumnExpression(), fieldInfo.getType().getJavaType() );
+        Getter<Object,Object> getter = PojoUtils.createGetter(clazz, fieldInfo.getColumnExpression(), fieldInfo.getType().getJavaType());
         fieldValueGenerator.fieldGetterMap.put( fieldInfo, getter );
       }
       
       fieldValueGenerator.fieldSetterMap = new HashMap<T,Setter<Object,Object>>();
       for( T fieldInfo : fieldInfos )
       {
-        Setter<Object,Object> setter = PojoUtils.createSetter(clazz, fieldInfo.getColumnExpression(), fieldInfo.getType().getJavaType() );
+        Setter<Object,Object> setter = PojoUtils.createSetter(clazz, fieldInfo.getColumnExpression(), fieldInfo.getType().getJavaType());
         fieldValueGenerator.fieldSetterMap.put( fieldInfo, setter );
       }
     }
     
     return fieldValueGenerator;
   }
-  
+
 
   /**
    * get the object which is serialized.
    * this method will convert the object into a map from column name to column value and then serialize it
-   * 
+   *
    * @param obj
    * @return
    */
-  public byte[] serializeObject( Object obj )
+  public Object getFieldValues(Object obj)
   {
-  //if don't have field information, just convert the whole object to byte[]
+    //if don't have field information, just convert the whole object to byte[]
     Object convertObj = obj;
-    
+
     //if fields are specified, convert to map and then convert map to byte[]
     if( fieldGetterMap != null && !fieldGetterMap.isEmpty() )
     {
@@ -103,26 +94,15 @@ public class FieldValueGenerator< T extends FieldInfo >
       }
       convertObj = fieldsValue;
     }
-    
 
-    ByteArrayOutputStream os = new ByteArrayOutputStream();
-    Output output = new Output(os);
-
-    getKryo().writeClassAndObject(output, convertObj);
-    output.flush();
-    //output.toBytes() is empty.
-    return os.toByteArray();
+    return convertObj;
   }
 
-  
-  public Object deserializeObject( byte[] bytes )
+  public Object getObjectFromValues(Object obj)
   {
-    Object obj = getKryo().readClassAndObject( new Input( bytes ) );
-    
-
     if( fieldGetterMap == null || fieldGetterMap.isEmpty() )
       return obj;
-    
+
     // the obj in fact is a map, convert from map to object
     try
     {
@@ -135,7 +115,7 @@ public class FieldValueGenerator< T extends FieldInfo >
         Setter<Object,Object> setter = entry.getValue();
         if( setter != null )
         {
-          setter.set(obj, valueMap.get( fieldInfo.getColumnName() ) );
+          setter.set(obj, valueMap.get( fieldInfo.getColumnName() ));
         }
       }
       return obj;
@@ -146,20 +126,7 @@ public class FieldValueGenerator< T extends FieldInfo >
       return obj;
     }
   }
-  
-  protected Kryo getKryo()
-  {
-    if( _kryo == null )
-    {
-      synchronized( this )
-      {
-        if( _kryo == null )
-          _kryo = new Kryo();
-      }
-    }
-    return _kryo;
-  }
-	
+
 	/**
 	 * use FieldValueHandler handle the value
 	 * @param obj
