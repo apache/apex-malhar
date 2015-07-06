@@ -108,39 +108,30 @@ public class KinesisTestConsumer implements Runnable
     logger.debug("DONE consuming");
   }
 
-  
   public String prepareIterator()
   {
     DescribeStreamRequest describeRequest = new DescribeStreamRequest();
     describeRequest.setStreamName(streamName);
 
     List<Shard> shards = null;
-    for( int i=0; i<MAX_TRY_TIMES; ++i )
-    {
-      try
-      {
+    for (int i = 0; i < MAX_TRY_TIMES; ++i) {
+      try {
         DescribeStreamResult describeResponse = client.describeStream(describeRequest);
         shards = describeResponse.getStreamDescription().getShards();
-        if( shards.isEmpty() )
-        {
-          logger.warn( "shards is empty" );
-        }
-        else
+        if (shards.isEmpty()) {
+          logger.warn("shards is empty");
+        } else
           break;
+      } catch (Exception e) {
+        logger.error("get Stream description exception: ", e);
+        throw new RuntimeException(e);
       }
-      catch( Exception e )
-      {
-        logger.error( "get Stream description exception: ", e );
-      }
-      try
-      {
+      try {
         Thread.sleep(1000);
-      }
-      catch( Exception e )
-      {
+      } catch (Exception e) {
       }
     }
-    
+
     Shard shId = shards.get(0);
     GetShardIteratorRequest iteratorRequest = new GetShardIteratorRequest();
     iteratorRequest.setStreamName(streamName);
@@ -148,27 +139,26 @@ public class KinesisTestConsumer implements Runnable
 
     iteratorRequest.setShardIteratorType("TRIM_HORIZON");
     GetShardIteratorResult iteratorResponse = client.getShardIterator(iteratorRequest);
-    
+
     return iteratorResponse.getShardIterator();
   }
-  
-  public String processNextIterator( String iterator )
+
+  public String processNextIterator(String iterator)
   {
     GetRecordsRequest getRequest = new GetRecordsRequest();
     getRequest.setLimit(1000);
-    
+
     getRequest.setShardIterator(iterator);
-    //call "get" operation and get everything in this shard range
+    // call "get" operation and get everything in this shard range
     GetRecordsResult getResponse = client.getRecords(getRequest);
-    
+
     iterator = getResponse.getNextShardIterator();
-    
+
     List<Record> records = getResponse.getRecords();
-    processResponseRecords( records );
-    
+    processResponseRecords(records);
+
     return iterator;
   }
-  
 
   protected boolean shouldProcessRecord = true;
   protected void processResponseRecords( List<Record> records )
