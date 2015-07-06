@@ -34,7 +34,7 @@ public class SerdeListPrimitive implements Serde
   }
 
   @Override
-  public byte[] serializeObject(Object object)
+  public synchronized byte[] serializeObject(Object object)
   {
     @SuppressWarnings("unchecked")
     List<Object> primitives = (List<Object>) object;
@@ -64,7 +64,7 @@ public class SerdeListPrimitive implements Serde
   }
 
   @Override
-  public Object deserializeObject(byte[] object, MutableInt offset)
+  public synchronized Object deserializeObject(byte[] object, MutableInt offset)
   {
     int length = GPOUtils.deserializeInt(object, offset);
     int startIndex = offset.intValue();
