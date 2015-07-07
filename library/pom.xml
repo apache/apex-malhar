@@ -12,7 +12,7 @@
   <artifactId>dt-library</artifactId>
   <packaging>jar</packaging>
 
-  <name>Operator and Codec Library</name>
+  <name>DTX Operator and Codec Library</name>
 
   <properties>
     <maven.deploy.skip>false</maven.deploy.skip>
