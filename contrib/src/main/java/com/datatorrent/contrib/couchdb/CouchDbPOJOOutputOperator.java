@@ -29,6 +29,7 @@ import javax.validation.constraints.NotNull;
  */
 public class CouchDbPOJOOutputOperator extends AbstractCouchDBOutputOperator<Object>
 {
+  private static final long serialVersionUID = 201506181121L;
   private transient Getter<Object, String> getterDocId;
 
   @NotNull

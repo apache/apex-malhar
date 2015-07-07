@@ -66,6 +66,9 @@ public abstract class AbstractCouchDBInputOperator<T> extends AbstractStoreInput
     if (pageSize == 0) {
       ViewQuery viewQuery = getViewQuery();
       ViewResult result = store.queryStore(viewQuery);
+      if(result.isEmpty()){
+        resetSkipParameter();
+      };
       try {
         for (ViewResult.Row row : result.getRows()) {
           T tuple = getTuple(row);
@@ -120,7 +123,7 @@ public abstract class AbstractCouchDBInputOperator<T> extends AbstractStoreInput
    *
    * @param value a row of ViewResult that should be converted to a tuple.
    * @return emitted tuple.
-   * @throws IOException 
+   * @throws IOException
    */
   public abstract T getTuple(ViewResult.Row value) throws IOException;
 
@@ -133,5 +136,8 @@ public abstract class AbstractCouchDBInputOperator<T> extends AbstractStoreInput
   {
     this.pageSize = pageSize;
   }
+
+  protected abstract void resetSkipParameter();
+
 
 }

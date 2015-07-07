@@ -77,6 +77,8 @@ public class CouchDBOutputOperatorTest
     tuple.setId(testDocumentId);
     tuple.setName("TD2");
     tuple.setType("test2");
+    tuple.setCh('x');
+    tuple.setFl(2.0f);
     tuple.setOutput_type("pojo");
     Address address = new Address();
     address.setCity("chandigarh");
@@ -98,6 +100,9 @@ public class CouchDBOutputOperatorTest
     Assert.assertNotNull("Document saved ", docNode);
     Assert.assertEquals("name of document ", "TD2", docNode.get("name").getTextValue());
     Assert.assertEquals("type of document ", "test2", docNode.get("type").getTextValue());
+    Assert.assertEquals("character ", "x", docNode.get("ch").getTextValue());
+    Assert.assertEquals("float value ", 2.0, docNode.get("fl").getDoubleValue());
+
     Assert.assertEquals("output-type", "pojo", docNode.get("output_type").getTextValue());
     Assert.assertEquals("Housenumber is ",123,docNode.get("address").get("housenumber").getIntValue());
     Assert.assertEquals("City is ","chandigarh",docNode.get("address").get("city").getTextValue());
@@ -111,6 +116,28 @@ public class CouchDBOutputOperatorTest
     private Address address;
     private  String name;
     private String type;
+    private char ch;
+    private float fl;
+
+    public float getFl()
+    {
+      return fl;
+    }
+
+    public void setFl(float fl)
+    {
+      this.fl = fl;
+    }
+
+    public char getCh()
+    {
+      return ch;
+    }
+
+    public void setCh(char ch)
+    {
+      this.ch = ch;
+    }
 
     public TestPOJO()
     {
