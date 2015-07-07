@@ -96,7 +96,7 @@ public class FieldValueGenerator<T extends FieldInfo>
    * @param obj
    * @return a map from columnName to columnValue
    */
-  public Map< String, Object > getFieldsValueAsMap( Object obj )
+  public Map<String, Object> getFieldsValueAsMap( Object obj )
   {
     Map< String, Object > fieldsValue = new HashMap< String, Object>();
     for( Map.Entry< T, Getter<Object,Object>> entry : fieldGetterMap.entrySet() )
