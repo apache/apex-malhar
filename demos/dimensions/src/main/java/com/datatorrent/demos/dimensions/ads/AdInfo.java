@@ -29,11 +29,11 @@ public class AdInfo implements Serializable
   public int advertiserID;
   public String location;
   public int locationID;
-  public double cost = 0.0;
-  public double revenue = 0.0;
-  public long impressions = 0;
-  public long clicks = 0;
-  public long time = 0;
+  public double cost;
+  public double revenue;
+  public long impressions;
+  public long clicks;
+  public long time;
 
   public AdInfo()
   {
