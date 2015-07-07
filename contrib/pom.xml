@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>dt-contrib</artifactId>
-  <name>Contrib Library</name>
+  <name>DTX Contrib Library</name>
   <packaging>jar</packaging>
 
   <properties>
