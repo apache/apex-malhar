@@ -15,6 +15,10 @@
  */
 package com.datatorrent.contrib.memcache;
 
+import java.net.InetSocketAddress;
+
+import net.spy.memcached.AddrUtil;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,7 +35,11 @@ public class MemcacheOperatorTest
   @Before
   public void setup()
   {
-    testFramework = new KeyValueStoreOperatorTest<MemcacheStore>(new MemcacheStore(), new MemcacheStore());
+    MemcacheStore operatorStore = new MemcacheStore();
+    operatorStore.setServerAddresses( AddrUtil.getAddresses("localhost:11211") );
+    MemcacheStore testStore = new MemcacheStore();
+    testStore.setServerAddresses( AddrUtil.getAddresses("localhost:11211") );
+    testFramework = new KeyValueStoreOperatorTest<MemcacheStore>( operatorStore, testStore );
   }
 
   @Test

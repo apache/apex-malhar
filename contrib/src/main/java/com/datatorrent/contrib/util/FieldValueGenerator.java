@@ -48,23 +48,23 @@ public class FieldValueGenerator<T extends FieldInfo>
     return getFieldValueGenerator( clazz, fieldInfos, instance );
   }
   
-  public static < T extends FieldInfo, I extends FieldValueGenerator<T> > I getFieldValueGenerator(final Class<?> clazz, List<T> fieldInfos, I instance )
+  public static < T extends FieldInfo, I extends FieldValueGenerator<T> > I getFieldValueGenerator(final Class<?> clazz, List<T> fieldInfos, I instance)
   {
     instance.clazz = clazz;
-    
+
     if( fieldInfos != null )
     {
       instance.fieldGetterMap = new HashMap<T,Getter<Object,Object>>();
       for( T fieldInfo : fieldInfos )
       {
-        Getter<Object,Object> getter = PojoUtils.createGetter(clazz, fieldInfo.getColumnExpression(), fieldInfo.getType().getJavaType() );
+        Getter<Object,Object> getter = PojoUtils.createGetter(clazz, fieldInfo.getColumnExpression(), fieldInfo.getType().getJavaType());
         instance.fieldGetterMap.put( fieldInfo, getter );
       }
       
       instance.fieldSetterMap = new HashMap<T,Setter<Object,Object>>();
       for( T fieldInfo : fieldInfos )
       {
-        Setter<Object,Object> setter = PojoUtils.createSetter(clazz, fieldInfo.getColumnExpression(), fieldInfo.getType().getJavaType() );
+        Setter<Object,Object> setter = PojoUtils.createSetter(clazz, fieldInfo.getColumnExpression(), fieldInfo.getType().getJavaType());
         instance.fieldSetterMap.put( fieldInfo, setter );
       }
     }
@@ -90,4 +90,24 @@ public class FieldValueGenerator<T extends FieldInfo>
 			}
 		}
 	}
+	
+	 /**
+   * 
+   * @param obj
+   * @return a map from columnName to columnValue
+   */
+  public Map< String, Object > getFieldsValueAsMap( Object obj )
+  {
+    Map< String, Object > fieldsValue = new HashMap< String, Object>();
+    for( Map.Entry< T, Getter<Object,Object>> entry : fieldGetterMap.entrySet() )
+    {
+      Getter<Object,Object> getter = entry.getValue();
+      if( getter != null )
+      {
+        Object value = getter.get(obj);
+        fieldsValue.put(entry.getKey().getColumnName(), value);
+      }
+    }
+    return fieldsValue;
+  }
 }
