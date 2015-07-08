@@ -16,8 +16,9 @@
 package com.datatorrent.contrib.couchbase;
 
 import java.net.URI;
-import java.util.*;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.couchbase.client.CouchbaseClient;
@@ -33,7 +34,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.partitioner.StatelessPartitionerTest.PartitioningContextImpl;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
@@ -48,9 +48,7 @@ public class CouchBaseInputOperatorTest
   private static final Logger logger = LoggerFactory.getLogger(CouchBaseInputOperatorTest.class);
   private static final String APP_ID = "CouchBaseInputOperatorTest";
   private static final String password = "";
-  private static final int OPERATOR_ID = 0;
   protected static ArrayList<String> keyList;
-  private TestInputOperator inputOperator = null;
   protected static CouchbaseClient client = null;
   private final int numNodes = 2;
   private final int numReplicas = 3;
@@ -72,7 +70,7 @@ public class CouchBaseInputOperatorTest
   }
 
   @Test
-  public void TestCouchBaseInputOperator() throws InterruptedException, Exception
+  public void TestCouchBaseInputOperator() throws Exception
   {
     BucketConfiguration bucketConfiguration = new BucketConfiguration();
     CouchbaseConnectionFactoryBuilder cfb = new CouchbaseConnectionFactoryBuilder();
@@ -101,9 +99,8 @@ public class CouchBaseInputOperatorTest
     // couchbaseBucket.getCouchServers();
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
 
-    inputOperator = new TestInputOperator();
+    TestInputOperator inputOperator = new TestInputOperator();
     inputOperator.setStore(store);
     inputOperator.insertEventsInTable(10);
 

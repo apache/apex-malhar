@@ -40,7 +40,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * User needs to specify the design document name and view name against which he wants to query.
  * User should also provide a mapping function to fetch the specific fields from database.The View query is generated using the mapping
  * function on top of the view.User has the option to specify the start key and limit of number of documents he wants to view.
- * He can also specify whether he wants to view results in descending order or not.Also he can specify keys to filter results based on those keys.
+ * He can also specify whether he wants to view results in descending order or not.
  * This implementation uses the emitTuples implementation of {@link AbstractCouchDBInputOperator} to emits the results of the ViewQuery.
  * Example of mapping function:
  * function (doc) {
@@ -190,7 +190,10 @@ public class CouchDBPOJOInputOperator extends AbstractCouchDBInputOperator<Objec
       try {
         type = objectClass.getDeclaredField(columns.get(i)).getType();
       }
-      catch (NoSuchFieldException | SecurityException ex) {
+      catch (NoSuchFieldException ex) {
+        throw new RuntimeException(ex);
+      }
+      catch (SecurityException ex) {
         throw new RuntimeException(ex);
       }
       fieldType.add(type);
@@ -212,7 +215,10 @@ public class CouchDBPOJOInputOperator extends AbstractCouchDBInputOperator<Objec
     try {
       obj = objectClass.newInstance();
     }
-    catch (InstantiationException | IllegalAccessException ex) {
+    catch (InstantiationException ex) {
+      throw new RuntimeException(ex);
+    }
+    catch (IllegalAccessException ex) {
       throw new RuntimeException(ex);
     }
 

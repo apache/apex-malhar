@@ -15,14 +15,15 @@
  */
 package com.datatorrent.contrib.couchbase;
 
-import com.couchbase.client.protocol.views.DesignDocument;
-import com.couchbase.client.protocol.views.ViewDesign;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
+import com.couchbase.client.protocol.views.DesignDocument;
+import com.couchbase.client.protocol.views.ViewDesign;
+
 import org.junit.Assert;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,16 +34,14 @@ import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.DAG;
 
 import com.datatorrent.netlet.util.DTThrowable;
-import org.junit.Test;
 
-public class CouchbasePOJOTest
+public class CouchBasePOJOTest
 {
   private static final Logger logger = LoggerFactory.getLogger(CouchBaseInputOperatorTest.class);
   private static final String APP_ID = "CouchBaseInputOperatorTest";
   private static final String bucket = "default";
   private static final String password = "";
   private static final int OPERATOR_ID = 0;
-  protected static ArrayList<URI> nodes = new ArrayList<URI>();
   protected static ArrayList<String> keyList;
   private static final String uri = "localhost:8091";
   private static final String DESIGN_DOC_ID1 = "dev_test1";

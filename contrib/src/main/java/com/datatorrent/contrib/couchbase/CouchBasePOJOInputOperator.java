@@ -15,15 +15,19 @@
  */
 package com.datatorrent.contrib.couchbase;
 
-import com.couchbase.client.protocol.views.*;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.db.AbstractStoreInputOperator;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
+
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+
+import com.couchbase.client.protocol.views.*;
+
 import org.codehaus.jackson.map.ObjectMapper;
+
+import com.datatorrent.lib.db.AbstractStoreInputOperator;
+
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * <p>
@@ -32,9 +36,8 @@ import org.codehaus.jackson.map.ObjectMapper;
  * Each row is converted to a POJO.User needs to specify the design document name and view name against which he wants to query.
  * User should also provide a mapping function to fetch the specific fields from database.The query is generated using the mapping
  * function on top of the view.User has the option to specify the start key and limit of number of documents he wants to view.
- * He can also specify whether he wants to view results in descending order or not.Also he can specify keys to filter results based on those keys.
- * The start value is continuously updated with the value of the key of the last row from the result of the previous run of the query and skip parameter is set to 1.
- * The skip parameter is reset if there are empty tuples.
+ * He can also specify whether he wants to view results in descending order or not.
+ * The start value is continuously updated with the value of the key of the last row from the result of the previous run of the query.
  * Example:
  * function (doc) {
  * emit(doc._id, [doc.username, doc.first_name, doc.last_name, doc.last_login]);
@@ -59,8 +62,7 @@ public class CouchBasePOJOInputOperator extends AbstractStoreInputOperator<Objec
   @NotNull
   private String viewName;
   private int skip = 0;
-  //Keys for filtering results from viewquery.
-  private ArrayList<String> keys;
+  private transient View view;
   /*
    * POJO class which is generated as output from this operator.
    * Example:
@@ -101,17 +103,6 @@ public class CouchBasePOJOInputOperator extends AbstractStoreInputOperator<Objec
   {
     this.startDocId = startDocId;
   }
-
-  public ArrayList<String> getKeys()
-  {
-    return keys;
-  }
-
-  public void setKeys(ArrayList<String> keys)
-  {
-    this.keys = keys;
-  }
-
 
   /*
    * Name of the design document in which the view to be queried is added.
@@ -175,16 +166,12 @@ public class CouchBasePOJOInputOperator extends AbstractStoreInputOperator<Objec
     catch (ClassNotFoundException ex) {
       throw new RuntimeException(ex);
     }
+    view = store.getInstance().getView(designDocumentName, viewName);
     query = new Query();
     query.setStale(Stale.FALSE);
     query.setIncludeDocs(true);
     query.setLimit(limit);
     query.setDescending(descending);
-    if (keys != null) {
-      for (int i = 0; i < keys.size(); i++) {
-        query.setKey(keys.get(i));
-      }
-    }
   }
 
   @Override
@@ -196,32 +183,25 @@ public class CouchBasePOJOInputOperator extends AbstractStoreInputOperator<Objec
     if (skip == 1) {
       query.setSkip(skip);
     }
-    View view = store.getInstance().getView(designDocumentName, viewName);
 
     ViewResponse result = store.getInstance().query(view, query);
 
     Iterator<ViewRow> iterRow = result.iterator();
-    if (!iterRow.hasNext()) {
-      skip = 0;
-    }
-    else {
-      while (iterRow.hasNext()) {
-        ViewRow row = iterRow.next();
-        Object document = row.getDocument();
-        Object outputObj = null;
-        try {
-          outputObj = objectMapper.readValue(document.toString(), className);
-        }
-        catch (IOException ex) {
-          throw new RuntimeException(ex);
-        }
-        //Update start key if it is specified.
-        if (startkey != null) {
-          startkey = row.getKey();
-          skip = 1;
-        }
-        outputPort.emit(outputObj);
-
+    while (iterRow.hasNext()) {
+      ViewRow row = iterRow.next();
+      Object document = row.getDocument();
+      Object outputObj = null;
+      try {
+        outputObj = objectMapper.readValue(document.toString(), className);
+      }
+      catch (IOException ex) {
+        throw new RuntimeException(ex);
+      }
+      outputPort.emit(outputObj);
+      //Update start key if it is last row
+      if (!iterRow.hasNext()) {
+        startkey = row.getKey();
+        skip = 1;
       }
     }
 
