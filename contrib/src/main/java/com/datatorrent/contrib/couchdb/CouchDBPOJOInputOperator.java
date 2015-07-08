@@ -15,22 +15,21 @@
  */
 package com.datatorrent.contrib.couchdb;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Setter;
-import com.datatorrent.lib.util.PojoUtils.SetterBoolean;
-import com.datatorrent.lib.util.PojoUtils.SetterDouble;
-import com.datatorrent.lib.util.PojoUtils.SetterInt;
-import com.datatorrent.lib.util.PojoUtils.SetterLong;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.validation.constraints.Min;
+
 import javax.validation.constraints.NotNull;
+
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ektorp.ViewQuery;
 import org.ektorp.ViewResult.Row;
+
+import com.datatorrent.lib.util.PojoUtils;
+import com.datatorrent.lib.util.PojoUtils.*;
+
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * <p>
@@ -42,16 +41,14 @@ import org.ektorp.ViewResult.Row;
  * User should also provide a mapping function to fetch the specific fields from database.The View query is generated using the mapping
  * function on top of the view.User has the option to specify the start key and limit of number of documents he wants to view.
  * He can also specify whether he wants to view results in descending order or not.Also he can specify keys to filter results based on those keys.
- * The start value is continuously updated with the value of the key of the last row from the result of the previous run of the query
- * and skip parameter is set to 1.This implementation uses the emitTuples implementation of {@link AbstractCouchDBInputOperator} which emits the complete result
- * of the ViewQuery every window cycle.
+ * This implementation uses the emitTuples implementation of {@link AbstractCouchDBInputOperator} to emits the results of the ViewQuery.
  * Example of mapping function:
  * function (doc) {
  * emit(doc._id, doc);
  * }
  *
  */
-public class CouchDbPOJOInputOperator extends AbstractCouchDBInputOperator<Object>
+public class CouchDBPOJOInputOperator extends AbstractCouchDBInputOperator<Object>
 {
   //List of expressions set by User. Example:setId(),setName(),Address
   @NotNull
@@ -65,18 +62,10 @@ public class CouchDbPOJOInputOperator extends AbstractCouchDBInputOperator<Objec
   @NotNull
   private String viewName;
   private transient ViewQuery query;
-  //User gets the option to specify a start key on the view query.
-  private String startKey;
-  private int skip = 0;
-  //User gets the option to specify the limit of documents
-  @Min(1)
-  private int limit = 1;
   private transient Setter<Object, String> setterDocId;
   private transient List<Object> setterDoc;
   //User gets the option to specify the order of documents.
   private boolean descending;
-  //Keys for filtering results from viewquery.
-  private ArrayList<String> keys;
 
   private final transient ObjectMapper mapper;
   /*
@@ -91,7 +80,7 @@ public class CouchDbPOJOInputOperator extends AbstractCouchDBInputOperator<Objec
 
   private final transient List<Class<?>> fieldType;
 
-  public CouchDbPOJOInputOperator()
+  public CouchDBPOJOInputOperator()
   {
     mapper = new ObjectMapper();
     fieldType = new ArrayList<Class<?>>();
@@ -109,26 +98,6 @@ public class CouchDbPOJOInputOperator extends AbstractCouchDBInputOperator<Objec
   public void setExpressions(List<String> expressions)
   {
     this.expressions = expressions;
-  }
-
-  public String getStartKey()
-  {
-    return startKey;
-  }
-
-  public void setStartKey(String startKey)
-  {
-    this.startKey = startKey;
-  }
-
-  public int getLimit()
-  {
-    return limit;
-  }
-
-  public void setLimit(int limit)
-  {
-    this.limit = limit;
   }
 
   public String getDesignDocumentName()
@@ -202,12 +171,7 @@ public class CouchDbPOJOInputOperator extends AbstractCouchDBInputOperator<Objec
   {
     super.setup(context);
     setterDoc = new ArrayList<Object>();
-    query = new ViewQuery().designDocId(designDocumentName).viewName(viewName).descending(false);
-    query.limit(limit);
-    if(keys!=null)
-    {
-      query.key(keys);
-    }
+    query = new ViewQuery().designDocId(designDocumentName).viewName(viewName).descending(descending);
 
     try {
       // This code will be replaced after integration of creating POJOs on the fly utility.
@@ -280,34 +244,19 @@ public class CouchDbPOJOInputOperator extends AbstractCouchDBInputOperator<Objec
         ((Setter<Object, Object>)setterDoc.get(i)).set(obj, mapper.readValue(val.get(columns.get(i)), type));
       }
     }
-
-    //Update start key and skip parameter in case user specified it.It will ultimately be updated to the value in last row's key.
-    if (startKey != null) {
-      startKey = value.getKey();
-      skip = 1;
-    }
     return obj;
   }
 
   @Override
   public ViewQuery getViewQuery()
   {
-    if (startKey != null) {
-      query.startKey(startKey);
-    }
+    /*
     // The skip option should only be used with small values, as skipping a large range of documents this way is inefficient.
     if (skip == 1) {
       query.skip(skip);
     }
+    */
     return query;
-  }
-
-  @Override
-  protected void resetSkipParameter()
-  {
-    if(skip == 1){
-      skip = 0;
-    }
   }
 
 }

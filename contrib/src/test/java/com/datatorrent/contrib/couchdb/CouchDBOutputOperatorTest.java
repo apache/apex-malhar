@@ -18,13 +18,13 @@ package com.datatorrent.contrib.couchdb;
 import java.net.MalformedURLException;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
+
 import org.codehaus.jackson.JsonNode;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.google.common.collect.Maps;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
@@ -84,7 +84,7 @@ public class CouchDBOutputOperatorTest
     address.setCity("chandigarh");
     address.setHousenumber(123);
     tuple.setAddress(address);
-    CouchDbPOJOOutputOperator dbOutputOper = new CouchDbPOJOOutputOperator();
+    CouchDBPOJOOutputOperator dbOutputOper = new CouchDBPOJOOutputOperator();
     CouchDbStore store = new CouchDbStore();
     store.setDbName(CouchDBTestHelper.TEST_DB);
     dbOutputOper.setStore(store);

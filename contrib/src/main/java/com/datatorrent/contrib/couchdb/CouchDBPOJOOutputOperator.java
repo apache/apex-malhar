@@ -15,9 +15,10 @@
  */
 package com.datatorrent.contrib.couchdb;
 
+import javax.validation.constraints.NotNull;
+
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
-import javax.validation.constraints.NotNull;
 
 /**
  * Implementation of {@link AbstractCouchDBOutputOperator} that saves a POJO in the couch database. <br/>
@@ -27,7 +28,7 @@ import javax.validation.constraints.NotNull;
  * @tags output operator
  * @since 0.3.5
  */
-public class CouchDbPOJOOutputOperator extends AbstractCouchDBOutputOperator<Object>
+public class CouchDBPOJOOutputOperator extends AbstractCouchDBOutputOperator<Object>
 {
   private static final long serialVersionUID = 201506181121L;
   private transient Getter<Object, String> getterDocId;

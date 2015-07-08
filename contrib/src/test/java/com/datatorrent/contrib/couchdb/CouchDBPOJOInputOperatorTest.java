@@ -15,14 +15,16 @@
  */
 package com.datatorrent.contrib.couchdb;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 public class CouchDBPOJOInputOperatorTest
 {
@@ -56,7 +58,7 @@ public class CouchDBPOJOInputOperatorTest
    // Class<String> stringClass = String.class;
     CouchDBTestHelper.insertDocument(test1);
     CouchDBTestHelper.insertDocument(test2);
-    CouchDbPOJOInputOperator operatorTest = new CouchDbPOJOInputOperator();
+    CouchDBPOJOInputOperator operatorTest = new CouchDBPOJOInputOperator();
     CouchDbStore store = new CouchDbStore();
     store.setDbName(CouchDBTestHelper.TEST_DB);
     operatorTest.setStore(store);
