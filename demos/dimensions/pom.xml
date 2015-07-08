@@ -210,6 +210,18 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <!-- HDHT depens on org.apache.hadoop.io.file.tfile package in here -->
+    <dependency>
+      <groupId>com.datatorrent</groupId>
+      <artifactId>malhar-contrib</artifactId>
+      <version>${datatorrent.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
     <dependency>
       <scope>test</scope>
       <groupId>${project.groupId}</groupId>
@@ -256,6 +268,18 @@
       <artifactId>fastutil</artifactId>
       <version>6.6.4</version>
       <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.janino</groupId>
+      <artifactId>commons-compiler</artifactId>
+      <version>2.7.8</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.janino</groupId>
+      <artifactId>janino</artifactId>
+      <version>2.7.8</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

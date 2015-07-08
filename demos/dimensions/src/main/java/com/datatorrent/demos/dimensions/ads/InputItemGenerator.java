@@ -4,6 +4,7 @@
  */
 package com.datatorrent.demos.dimensions.ads;
 
+import com.datatorrent.demos.dimensions.InputGenerator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
@@ -16,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Random;
 
-public class InputItemGenerator implements InputOperator
+public class InputItemGenerator implements InputGenerator<AdInfo>
 {
   private String eventSchemaJSON;
   private transient DimensionalConfigurationSchema schema;
@@ -282,6 +283,12 @@ public class InputItemGenerator implements InputOperator
   public void setBlastCount(int blastCount)
   {
     this.blastCount = blastCount;
+  }
+
+  @Override
+  public OutputPort<AdInfo> getOutputPort()
+  {
+    return outputPort;
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(InputItemGenerator.class);

@@ -7,6 +7,8 @@ package com.datatorrent.demos.dimensions.sales.generic;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.demos.dimensions.InputGenerator;
+import com.datatorrent.demos.dimensions.ads.AdInfo;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
 import com.datatorrent.lib.appdata.schemas.DimensionalSchema;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
@@ -47,7 +49,7 @@ import java.util.Random;
  *
  * @since 2.0.0
  */
-public class JsonSalesGenerator implements InputOperator
+public class JsonSalesGenerator implements InputGenerator<byte[]>
 {
   public static final String KEY_PRODUCT = "product";
   public static final String KEY_CUSTOMER = "customer";
@@ -370,6 +372,12 @@ public class JsonSalesGenerator implements InputOperator
   public void setEventSchemaJSON(String eventSchemaJSON)
   {
     this.eventSchemaJSON = eventSchemaJSON;
+  }
+
+  @Override
+  public OutputPort<byte[]> getOutputPort()
+  {
+    return jsonBytes;
   }
 }
 

@@ -9,6 +9,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
@@ -36,6 +37,8 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
+import com.datatorrent.demos.dimensions.InputGenerator;
+import com.datatorrent.demos.dimensions.ads.AdInfo;
 import com.datatorrent.demos.dimensions.ads.InputItemGenerator;
 
 
@@ -53,6 +56,7 @@ public class AdsDimensionsDemo implements StreamingApplication
   public String appName = APP_NAME;
   public String eventSchemaLocation = EVENT_SCHEMA;
   public List<Object> advertisers;
+  public InputGenerator<AdInfo> inputOperator;
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
@@ -61,18 +65,25 @@ public class AdsDimensionsDemo implements StreamingApplication
 
     //Declare operators
 
-    InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
-    input.advertiserName = advertisers;
+    //Set input properties
+    String eventSchema = SchemaUtils.jarResourceFileToString(eventSchemaLocation);
+
+    if(inputOperator == null) {
+      InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
+      input.advertiserName = advertisers;
+      input.setEventSchemaJSON(eventSchema);
+      inputOperator = input;
+    }
+    else {
+      dag.addOperator("InputGenerator", inputOperator);
+    }
+
     DimensionsComputationFlexibleSingleSchemaPOJO dimensions = dag.addOperator("DimensionsComputation", DimensionsComputationFlexibleSingleSchemaPOJO.class);
     dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 4);
     dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.CHECKPOINT_WINDOW_COUNT, 4);
     AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", AppDataSingleSchemaDimensionStoreHDHT.class);
 
     //Set operator properties
-
-    //Set input properties
-    String eventSchema = SchemaUtils.jarResourceFileToString(eventSchemaLocation);
-    input.setEventSchemaJSON(eventSchema);
 
     Map<String, String> keyToExpression = Maps.newHashMap();
     keyToExpression.put("publisher", "getPublisher()");
@@ -126,7 +137,7 @@ public class AdsDimensionsDemo implements StreamingApplication
 
     dag.setAttribute(store, Context.OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator<MutableLong>());
 
-    dag.addStream("InputStream", input.outputPort, dimensions.input).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("InputStream", inputOperator.getOutputPort(), dimensions.input).setLocality(Locality.CONTAINER_LOCAL);
     dag.addStream("DimensionalData", dimensions.output, store.input);
     dag.addStream("QueryResult", store.queryResult, queryResultPort);
   }
