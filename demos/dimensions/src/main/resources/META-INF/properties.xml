@@ -212,10 +212,6 @@
     <value>SalesQueryDemo</value>
   </property>
   <property>
-    <name>dt.application.SalesDemo.operator.Store.embeddableQuery.topic</name>
-    <value>SalesQueryDemo</value>
-  </property>
-  <property>
     <name>dt.application.SalesDemo.operator.QueryResult.topic</name>
     <value>SalesQueryResultDemo</value>
   </property>

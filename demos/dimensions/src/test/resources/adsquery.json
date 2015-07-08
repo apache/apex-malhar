@@ -1,0 +1,16 @@
+{
+  "id": 1,
+  "type": "dataQuery",
+  "data": {
+    "time": {
+      "from":0,
+      "to":60000,
+      "bucket": "1m"
+    },
+    "incompleteResultOK": true,
+    "keys": {},
+    "fields": ["time", "publisher", "advertiser", "location", "impressions:COUNT", "impressions:SUM", "impressions:AVG", "clicks:COUNT", "clicks:SUM", "clicks:AVG", "cost:COUNT", "cost:SUM", "cost:AVG", "revenue:COUNT", "revenue:SUM", "revenue:AVG"]
+  },
+  "countdown":1,
+  "incompleteResultOK": true
+}

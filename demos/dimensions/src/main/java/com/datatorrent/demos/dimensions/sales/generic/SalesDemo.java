@@ -36,6 +36,8 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
+import com.datatorrent.demos.dimensions.InputGenerator;
+
 @ApplicationAnnotation(name=SalesDemo.APP_NAME)
 public class SalesDemo implements StreamingApplication
 {
@@ -45,6 +47,8 @@ public class SalesDemo implements StreamingApplication
   public static final String EVENT_SCHEMA = "salesGenericEventSchema.json";
   public static final String DIMENSIONAL_SCHEMA = "salesGenericDataSchema.json";
 
+  public InputGenerator<byte[]> inputGenerator;
+
   public SalesDemo()
   {
   }
@@ -52,7 +56,17 @@ public class SalesDemo implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    JsonSalesGenerator input = dag.addOperator("InputGenerator", JsonSalesGenerator.class);
+    String eventSchema = SchemaUtils.jarResourceFileToString(EVENT_SCHEMA);
+
+    if(inputGenerator == null) {
+      JsonSalesGenerator input = dag.addOperator("InputGenerator", JsonSalesGenerator.class);
+      input.setEventSchemaJSON(eventSchema);
+      inputGenerator = input;
+    }
+    else {
+      dag.addOperator("InputGenerator", inputGenerator);
+    }
+
     JsonToMapConverter converter = dag.addOperator("Converter", JsonToMapConverter.class);
     DimensionsComputationFlexibleSingleSchemaMap dimensions =
     dag.addOperator("DimensionsComputation", DimensionsComputationFlexibleSingleSchemaMap.class);
@@ -66,7 +80,6 @@ public class SalesDemo implements StreamingApplication
 
     store.setFileStore(hdsFile);
     dag.setAttribute(store, Context.OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator< MutableLong >());
-    String eventSchema = SchemaUtils.jarResourceFileToString(EVENT_SCHEMA);
     String dimensionalSchema = SchemaUtils.jarResourceFileToString(DIMENSIONAL_SCHEMA);
 
     dimensions.setConfigurationSchemaJSON(eventSchema);
@@ -78,7 +91,6 @@ public class SalesDemo implements StreamingApplication
 
     store.setConfigurationSchemaJSON(eventSchema);
     store.setDimensionalSchemaStubJSON(dimensionalSchema);
-    input.setEventSchemaJSON(eventSchema);
 
     Operator.OutputPort<String> queryPort;
     Operator.InputPort<String> queryResultPort;
@@ -96,7 +108,7 @@ public class SalesDemo implements StreamingApplication
     wsOut.setUri(uri);
     queryResultPort = wsOut.input;
 
-    dag.addStream("InputStream", input.jsonBytes, converter.input);
+    dag.addStream("InputStream", inputGenerator.getOutputPort(), converter.input);
     dag.addStream("ConvertStream", converter.outputMap, dimensions.input);
     dag.addStream("DimensionalData", dimensions.output, store.input);
     dag.addStream("QueryResult", store.queryResult, queryResultPort).setLocality(Locality.CONTAINER_LOCAL);
