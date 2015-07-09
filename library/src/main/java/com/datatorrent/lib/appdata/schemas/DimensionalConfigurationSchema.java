@@ -510,14 +510,12 @@ public class DimensionalConfigurationSchema
             }
           }
 
-          if(!staticAggregatorNames.isEmpty()) {
-            valueToAggregator.put(value, staticAggregatorNames);
-          }
-
-          if(!otfAggregatorNames.isEmpty()) {
-            valueToOTFAggregator.put(value, otfAggregatorNames);
-          }
+          valueToAggregator.put(value, staticAggregatorNames);
+          valueToOTFAggregator.put(value, otfAggregatorNames);
         }
+
+        mergeMaps(valueToAggregator, specificValueToAggregator);
+        mergeMaps(valueToOTFAggregator, specificValueToOTFAggregator);
 
         dimensionsDescriptorIDToValueToAggregator.add(valueToAggregator);
         dimensionsDescriptorIDToValueToOTFAggregator.add(valueToOTFAggregator);
@@ -749,6 +747,7 @@ public class DimensionalConfigurationSchema
     Map<String, Set<String>> allValueToAggregator = Maps.newHashMap();
     Map<String, Set<String>> allValueToOTFAggregator = Maps.newHashMap();
     Map<String, Set<String>> valueToAggregators = Maps.newHashMap();
+    Map<String, Set<String>> valueToOTFAggregators = Maps.newHashMap();
 
     Map<String, Type> aggFieldToType = Maps.newHashMap();
     JSONArray valuesArray = jo.getJSONArray(FIELD_VALUES);
@@ -772,6 +771,7 @@ public class DimensionalConfigurationSchema
 
       aggFieldToType.put(name, typeT);
       Set<String> aggregatorSet = Sets.newHashSet();
+      Set<String> aggregatorOTFSet = Sets.newHashSet();
 
       if(value.has(FIELD_VALUES_AGGREGATIONS)) {
         JSONArray aggregators = value.getJSONArray(FIELD_VALUES_AGGREGATIONS);
@@ -821,6 +821,8 @@ public class DimensionalConfigurationSchema
                                                  " cannot be specified twice for a value");
             }
 
+            aggregatorOTFSet.add(aggregatorName);
+
             //Add child aggregators
             aggregatorNames = allValueToAggregator.get(name);
 
@@ -841,6 +843,7 @@ public class DimensionalConfigurationSchema
 
       if(!aggregatorSet.isEmpty()) {
         valueToAggregators.put(name, aggregatorSet);
+        valueToOTFAggregators.put(name, aggregatorOTFSet);
       }
     }
 
@@ -890,6 +893,13 @@ public class DimensionalConfigurationSchema
         Set<String> aggregators = Sets.newHashSet();
         aggregators.addAll(entry.getValue());
         specificValueToAggregator.put(entry.getKey(), aggregators);
+      }
+
+      for(Map.Entry<String, Set<String>> entry:
+          valueToOTFAggregators.entrySet()) {
+        Set<String> aggregators = Sets.newHashSet();
+        aggregators.addAll(entry.getValue());
+        specificValueToOTFAggregator.put(entry.getKey(), aggregators);
       }
 
       List<String> keyNames = Lists.newArrayList();
@@ -1100,6 +1110,26 @@ public class DimensionalConfigurationSchema
         outputMap.put(aggregatorID,
                       AggregatorUtils.getOutputFieldsDescriptor(inputDescriptor,
                                                                 incrementalAggregator));
+      }
+    }
+  }
+
+  private void mergeMaps(Map<String, Set<String>> destmap, Map<String, Set<String>> srcmap)
+  {
+    for(Map.Entry<String, Set<String>> entry: srcmap.entrySet()) {
+      String key = entry.getKey();
+      Set<String> destset = destmap.get(key);
+      Set<String> srcset = srcmap.get(key);
+
+      if(destset == null)
+      {
+        destset = Sets.newHashSet();
+        destmap.put(key, destset);
+      }
+
+      if(srcset != null)
+      {
+        destset.addAll(srcset);
       }
     }
   }
