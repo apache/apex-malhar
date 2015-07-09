@@ -99,6 +99,32 @@ public class DimensionalTableTest
   }
 
   @Test
+  public void duplicateAppendTest()
+  {
+    DimensionalTable<Integer> table = new DimensionalTable<Integer>(Lists.newArrayList("publisher",
+                                                                                       "advertiser",
+                                                                                       "location"));
+
+    table.appendRow(1, "google", "starbucks", "CA");
+    table.appendRow(2, "google", "starbucks", "CA");
+
+    Assert.assertEquals(1, table.dataColumn.size());
+    Assert.assertEquals(1, table.dimensionColumns.get(0).size());
+
+    final Integer expectedPoint = 2;
+
+    Map<String, String> row = Maps.newHashMap();
+    row.put("publisher", "google");
+    row.put("advertiser", "starbucks");
+    row.put("location", "CA");
+
+    table.appendRow(expectedPoint, row);
+
+    Integer point = table.getDataPoint(row);
+    Assert.assertEquals(expectedPoint, point);
+  }
+
+  @Test
   public void mapAppendTest()
   {
     DimensionalTable<Integer> table = createTestTable();
