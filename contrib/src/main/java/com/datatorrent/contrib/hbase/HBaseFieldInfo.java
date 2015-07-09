@@ -17,7 +17,7 @@ package com.datatorrent.contrib.hbase;
 
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.datatorrent.contrib.util.FieldInfo;
+import com.datatorrent.lib.util.FieldInfo;
 
 public class HBaseFieldInfo extends FieldInfo
 {

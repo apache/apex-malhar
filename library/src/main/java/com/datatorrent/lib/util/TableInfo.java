@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.util;
+package com.datatorrent.lib.util;
 
 import java.util.List;
 
@@ -44,21 +44,21 @@ public class TableInfo< T extends FieldInfo >
     this.rowOrIdExpression = rowOrIdExpression;
   }
 
-	/**
-	 * the field information. each field of the tuple related to on field info.
-	 */
-	public List<T> getFieldsInfo()
-	{
-		return fieldsInfo;
-	}
+  /**
+   * the field information. each field of the tuple related to on field info.
+   */
+  public List<T> getFieldsInfo()
+  {
+    return fieldsInfo;
+  }
 
-	/**
-	 * the field information. each field of the tuple related to on field info.
-	 */
-	public void setFieldsInfo(List<T> fieldsInfo)
-	{
-		this.fieldsInfo = fieldsInfo;
-	}
+  /**
+   * the field information. each field of the tuple related to on field info.
+   */
+  public void setFieldsInfo(List<T> fieldsInfo)
+  {
+    this.fieldsInfo = fieldsInfo;
+  }
   
   
 }
