@@ -89,22 +89,22 @@ public class DimensionalTable<DATA>
   /**
    * This is a map from the header name to its column index.
    */
-  private final Map<String, Integer> dimensionNameToIndex = Maps.newHashMap();
+  protected final Map<String, Integer> dimensionNameToIndex = Maps.newHashMap();
 
   /**
    * This is a column which holds the data payload.
    */
-  private final List<DATA> dataColumn = Lists.newArrayList();
+  protected final List<DATA> dataColumn = Lists.newArrayList();
 
   /**
    * These are the columns which hold each component of the key.
    */
-  private final List<List<Object>> dimensionColumns = Lists.newArrayList();
+  protected final List<List<Object>> dimensionColumns = Lists.newArrayList();
 
   /**
    * A map from a key row to its data payload.
    */
-  private final Map<List<Object>, DATA> dimensionKeysToData = Maps.newHashMap();
+  protected final Map<List<Object>, DATA> dimensionKeysToData = Maps.newHashMap();
 
   /**
    * Constructor for Kryo
@@ -177,8 +177,6 @@ public class DimensionalTable<DATA>
     Preconditions.checkArgument(keys.length == dimensionNameToIndex.size(),
                                 "All the dimension keys should be specified.");
 
-    dataColumn.add(data);
-
     List<Object> keysList = Lists.newArrayList();
 
     for(Object key: keys) {
@@ -186,6 +184,12 @@ public class DimensionalTable<DATA>
     }
 
     DATA prev = dimensionKeysToData.put(keysList, data);
+
+    if(prev != null) {
+      return;
+    }
+
+    dataColumn.add(data);
 
     for(int index = 0;
         index < keys.length;
