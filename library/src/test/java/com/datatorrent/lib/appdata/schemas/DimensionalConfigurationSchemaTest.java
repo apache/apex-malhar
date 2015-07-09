@@ -310,4 +310,31 @@ public class DimensionalConfigurationSchemaTest
 
     Assert.assertEquals(expectedEventSchema, eventSchema);
   }
+
+  @Test
+  public void testOTFAggregatorMap()
+  {
+    DimensionalConfigurationSchema schema = new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaOTF.json"),
+                                                                                            AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
+
+    Set<String> otfAggregator = Sets.newHashSet("AVG");
+    Set<String> valueSet = Sets.newHashSet("impressions", "clicks", "cost", "revenue");
+
+    List<Map<String, FieldsDescriptor>> aggregatorToDescriptor = schema.getDimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor();
+    List<Map<String, Set<String>>> valueToAggregator = schema.getDimensionsDescriptorIDToValueToOTFAggregator();
+
+    for(int ddId = 0;
+        ddId < aggregatorToDescriptor.size();
+        ddId++) {
+      Assert.assertEquals(otfAggregator, aggregatorToDescriptor.get(ddId).keySet());
+      Assert.assertNotNull(aggregatorToDescriptor.get(ddId).get("AVG"));
+
+      Assert.assertEquals(valueSet, valueToAggregator.get(ddId).keySet());
+      Map<String, Set<String>> tempValueToAgg = valueToAggregator.get(ddId);
+
+      for(Map.Entry<String, Set<String>> entry: tempValueToAgg.entrySet()) {
+        Assert.assertEquals(otfAggregator, entry.getValue());
+      }
+    }
+  }
 }
