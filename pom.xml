@@ -17,6 +17,11 @@
   <!-- repository to provide the DataTorrent artifacts -->
   <repositories>
     <repository>
+      <id>ossrh</id>
+      <name>Sonatype Snapshots Repository</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </repository>
+    <repository>
       <id>datatorrent</id>
       <name>DataTorrent Release Repository</name>
       <url>https://www.datatorrent.com/maven/content/repositories/releases/</url>
