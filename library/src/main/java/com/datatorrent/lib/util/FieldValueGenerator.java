@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.util;
+package com.datatorrent.lib.util;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +22,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.datatorrent.lib.util.PojoUtils.Setter;
 
@@ -57,41 +56,42 @@ public class FieldValueGenerator<T extends FieldInfo>
       instance.fieldGetterMap = new HashMap<T,Getter<Object,Object>>();
       for( T fieldInfo : fieldInfos )
       {
-        Getter<Object,Object> getter = PojoUtils.createGetter(clazz, fieldInfo.getColumnExpression(), fieldInfo.getType().getJavaType());
+        @SuppressWarnings("unchecked")
+        Getter<Object,Object> getter = PojoUtils.createGetter(clazz, fieldInfo.getPojoFieldExpression(), fieldInfo.getType().getJavaType());
         instance.fieldGetterMap.put( fieldInfo, getter );
       }
       
       instance.fieldSetterMap = new HashMap<T,Setter<Object,Object>>();
       for( T fieldInfo : fieldInfos )
       {
-        Setter<Object,Object> setter = PojoUtils.createSetter(clazz, fieldInfo.getColumnExpression(), fieldInfo.getType().getJavaType());
+        @SuppressWarnings("unchecked")
+        Setter<Object,Object> setter = PojoUtils.createSetter(clazz, fieldInfo.getPojoFieldExpression(), fieldInfo.getType().getJavaType());
         instance.fieldSetterMap.put( fieldInfo, setter );
       }
     }
     
     return instance;
   }
-	
-	/**
-	 * use FieldValueHandler handle the value
-	 * @param obj
-	 * @param fieldValueHandler
-	 * @return
-	 */
-	public void handleFieldsValue( Object obj,  FieldValueHandler fieldValueHandler )
-	{
-		for( Map.Entry< T, Getter<Object,Object>> entry : fieldGetterMap.entrySet() )
-		{
-			Getter<Object,Object> getter = entry.getValue();
-			if( getter != null )
-			{
-				Object value = getter.get(obj);
-				fieldValueHandler.handleFieldValue(entry.getKey(), value);
-			}
-		}
-	}
-	
-	 /**
+
+  /**
+   * use FieldValueHandler handle the value
+   *
+   * @param obj
+   * @param fieldValueHandler
+   */
+  @SuppressWarnings("unchecked")
+  public void handleFieldsValue(Object obj, FieldValueHandler fieldValueHandler)
+  {
+    for (Map.Entry<T, Getter<Object, Object>> entry : fieldGetterMap.entrySet()) {
+      Getter<Object, Object> getter = entry.getValue();
+      if (getter != null) {
+        Object value = getter.get(obj);
+        fieldValueHandler.handleFieldValue(entry.getKey(), value);
+      }
+    }
+  }
+
+  /**
    * 
    * @param obj
    * @return a map from columnName to columnValue

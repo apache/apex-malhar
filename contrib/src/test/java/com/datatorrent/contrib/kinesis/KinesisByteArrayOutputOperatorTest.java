@@ -30,6 +30,7 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultOutputPort;
 
 import com.datatorrent.common.util.Pair;
+import com.datatorrent.lib.util.FieldInfo;
 
 @SuppressWarnings("rawtypes")
 public class KinesisByteArrayOutputOperatorTest extends KinesisOutputOperatorTest<KinesisByteArrayOutputOperator, POJOTupleGenerateOperator>
