@@ -14,20 +14,6 @@
 
   <profiles>
     <profile>
-      <id>devel</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>dt-engine</artifactId>
-          <version>${project.version}</version>
-          <scope>test</scope>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
       <id>release</id>
       <properties>
         <maven.deploy.skip>false</maven.deploy.skip>
@@ -39,13 +25,6 @@
       <activation>
         <activeByDefault>false</activeByDefault>
       </activation>
-      <dependencies>
-        <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>dt-engine</artifactId>
-          <version>${project.version}</version>
-        </dependency>
-      </dependencies>
       <build>
         <plugins>
           <plugin>
@@ -59,7 +38,7 @@
                 <configuration>
                   <target unless="${obfuscation.skip}">
                     <property name="obf.jar" value="target/dt-flume-${project.version}.jar"/>
-                    <property name="dep1.jar" value="../netlet/target/dt-netlet-${project.version}.jar" />
+                    <property name="dep1.jar" value="../netlet/target/dt-netlet-1.0.1-SNAPSHOT.jar" />
                     <property name="runtime_classpath" refid="maven.runtime.classpath"/>
                     <taskdef name="allatori" classname="com.allatori.ant.ObfuscatorTask" classpath="${env.ALLATORI_LIB}/allatori.jar:${runtime_classpath}"/>
                     <allatori config="${basedir}/allatori-config.xml"/>
@@ -108,7 +87,7 @@
                       <dependency>
                         <includes>
                           <include>com.datatorrent:dt-api:jar:${project.version}</include>
-                          <include>com.datatorrent:dt-netlet:jar:${project.version}</include>
+                          <include>com.datatorrent:dt-netlet:jar:1.0.1-SNAPSHOT</include>
                           <include>com.datatorrent:dt-common:jar:${project.version}</include>
                           <include>com.esotericsoftware.kryo:kryo:jar:2.24.0</include>
                           <include>com.esotericsoftware.minlog:minlog:jar:1.2</include>
@@ -211,12 +190,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.2</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>dt-common</artifactId>
       <version>${project.version}</version>
@@ -267,16 +240,9 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-client</artifactId>
-      <version>2.2.0</version>
-      <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>jackson-core-asl</artifactId>
-          <groupId>org.codehaus.jackson</groupId>
-        </exclusion>
-      </exclusions>
+      <groupId>com.datatorrent</groupId>
+      <artifactId>netlet</artifactId>
+      <version>1.0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.curator</groupId>
