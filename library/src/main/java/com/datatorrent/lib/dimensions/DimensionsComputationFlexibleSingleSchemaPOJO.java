@@ -40,7 +40,7 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
   /**
    * Flag indicating whether or not getters need to be created.
    */
-  private boolean needToCreateGetters = true;
+  private transient boolean needToCreateGetters = true;
   /**
    * This is a map from a key name (as defined in the {@link DimensionalConfigurationSchema}) to the getter
    * expression to use for that key.
