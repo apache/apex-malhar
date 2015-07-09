@@ -318,8 +318,11 @@ public class DimensionalTable<DATA>
           columnIndex < tempKeys.size();
           columnIndex++) {
         Object key = tempKeys.get(columnIndex);
+        Object keyColumn = keyColumns.get(columnIndex).get(rowIndex);
 
-        if(!keyColumns.get(columnIndex).get(rowIndex).equals(key)) {
+        if((key == null && keyColumn != null) ||
+           (key != null && keyColumn == null) ||
+           (key != null && keyColumn != null && !keyColumn.equals(key))) {
           allEqual = false;
           break;
         }
