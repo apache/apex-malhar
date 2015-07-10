@@ -22,7 +22,7 @@ import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.algo.UniqueCounterValue;
 import com.datatorrent.lib.converter.MapToKeyHashValuePairConverter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.partitioner.StatelessPartitioner;
+import com.datatorrent.common.partitioner.StatelessPartitioner;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 import com.datatorrent.api.Context;
