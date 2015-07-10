@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.util;
+package com.datatorrent.lib.util;
 
 import javax.validation.constraints.NotNull;
 
@@ -26,7 +26,7 @@ public class FieldInfo
 
   // Expressions set by user to get field values from input tuple.
   @NotNull
-  private String columnExpression;
+  private String pojoFieldExpression;
 
   private SupportType type;
 
@@ -34,10 +34,10 @@ public class FieldInfo
   {
   }
 
-  public FieldInfo(String columnName, String columnExpression, SupportType type)
+  public FieldInfo(String columnName, String pojoFieldExpression, SupportType type)
   {
     setColumnName(columnName);
-    setColumnExpression(columnExpression);
+    setPojoFieldExpression(pojoFieldExpression);
     setType(type);
   }
 
@@ -58,18 +58,18 @@ public class FieldInfo
    * Java expressions that will generate the column value from the POJO.
    * 
    */
-  public String getColumnExpression()
+  public String getPojoFieldExpression()
   {
-    return columnExpression;
+    return pojoFieldExpression;
   }
 
   /**
    * Java expressions that will generate the column value from the POJO.
    * 
    */
-  public void setColumnExpression(String expression)
+  public void setPojoFieldExpression(String expression)
   {
-    this.columnExpression = expression;
+    this.pojoFieldExpression = expression;
   }
 
   /**

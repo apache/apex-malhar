@@ -18,9 +18,9 @@ package com.datatorrent.contrib.memcache;
 import java.util.List;
 import java.util.Map;
 
-import com.datatorrent.contrib.util.FieldInfo;
-import com.datatorrent.contrib.util.FieldValueGenerator;
-import com.datatorrent.contrib.util.TableInfo;
+import com.datatorrent.lib.util.FieldInfo;
+import com.datatorrent.lib.util.FieldValueGenerator;
+import com.datatorrent.lib.util.TableInfo;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
 

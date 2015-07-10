@@ -27,10 +27,12 @@ import com.esotericsoftware.kryo.io.Output;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.lib.util.FieldInfo;
+import com.datatorrent.lib.util.FieldValueGenerator;
 import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.datatorrent.lib.util.PojoUtils.Setter;
 
-public class FieldValueSerializableGenerator< T extends FieldInfo > extends FieldValueGenerator<T>
+public class FieldValueSerializableGenerator< T extends FieldInfo> extends FieldValueGenerator<T>
 {
   
   public static < T extends FieldInfo > FieldValueSerializableGenerator<T> getFieldValueGenerator(final Class<?> clazz, List<T> fieldInfos)
