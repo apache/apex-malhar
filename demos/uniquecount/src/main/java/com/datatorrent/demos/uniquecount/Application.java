@@ -15,20 +15,23 @@
  */
 package com.datatorrent.demos.uniquecount;
 
+
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+
 import com.datatorrent.lib.algo.UniqueCounter;
-import com.datatorrent.lib.partitioner.StatelessPartitioner;
 import com.datatorrent.lib.algo.UniqueCounterValue;
 import com.datatorrent.lib.converter.MapToKeyHashValuePairConverter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.stream.StreamDuplicater;
 import com.datatorrent.lib.util.KeyHashValPair;
 
-import org.apache.hadoop.conf.Configuration;
+import com.datatorrent.common.partitioner.StatelessPartitioner;
 
 /**
  * Application to demonstrate PartitionableUniqueCount operator. <br>
@@ -55,7 +58,7 @@ public class Application implements StreamingApplication
     UniqueCounter<Integer> uniqCount = dag.addOperator("uniqevalue", new UniqueCounter<Integer>());
 
     MapToKeyHashValuePairConverter<Integer, Integer> converter = dag.addOperator("converter", new MapToKeyHashValuePairConverter());
-    
+
     uniqCount.setCumulative(false);
     dag.setAttribute(uniqCount, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<UniqueCounter<Integer>>(3));
 

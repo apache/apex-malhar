@@ -16,6 +16,7 @@
 package com.datatorrent.lib.io;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,15 +28,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.datatorrent.lib.util.PubSubMessageCodec;
-import com.datatorrent.lib.util.PubSubWebSocketClient;
-
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import java.lang.reflect.Array;
+
+import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.common.util.PubSubMessageCodec;
+import com.datatorrent.common.util.PubSubWebSocketClient;
 
 /**
  * This operator outputs data in a format that can be displayed in DT UI widgets.

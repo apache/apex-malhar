@@ -22,17 +22,19 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
-import org.apache.commons.lang.mutable.Mutable;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerProvider;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
+import org.apache.commons.lang.mutable.Mutable;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.util.NumberAggregate;
+
+import com.datatorrent.common.util.NumberAggregate;
 
 /**
  * Implementation of basic number counters.

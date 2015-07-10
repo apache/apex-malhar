@@ -18,13 +18,14 @@ package com.datatorrent.lib.counters;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.mutable.MutableDouble;
+import com.google.common.collect.Lists;
+
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
+import org.apache.commons.lang.mutable.MutableDouble;
 
-import com.datatorrent.lib.util.NumberAggregate;
+import com.datatorrent.common.util.NumberAggregate;
 
 /**
  * Tests for {@link BasicCounters}

@@ -19,7 +19,8 @@ package com.datatorrent.samples.lib.math;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.lib.partitioner.StatelessPartitioner;
+
+import com.datatorrent.common.partitioner.StatelessPartitioner;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.math.Sum;
 import com.datatorrent.lib.testbench.RandomEventGenerator;

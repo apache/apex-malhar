@@ -20,6 +20,8 @@ import java.util.Collection;
 
 import com.datatorrent.api.annotation.Name;
 
+import com.datatorrent.common.metric.SingleMetricAggregator;
+
 @Name("avg")
 public class AvgAggregator implements SingleMetricAggregator, Serializable
 {

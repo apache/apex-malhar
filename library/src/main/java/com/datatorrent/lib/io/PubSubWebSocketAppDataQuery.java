@@ -15,17 +15,17 @@
  */
 package com.datatorrent.lib.io;
 
+
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.util.PubSubMessage;
-
 import com.datatorrent.api.Context.OperatorContext;
 
 import com.datatorrent.common.experimental.AppData;
+import com.datatorrent.common.util.PubSubMessage;
 
 /**
  * This is an app data pub sub query operator.
