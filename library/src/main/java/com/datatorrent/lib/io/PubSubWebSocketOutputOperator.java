@@ -19,8 +19,8 @@ import java.io.IOException;
 
 import javax.validation.constraints.NotNull;
 
-import com.datatorrent.lib.util.PubSubMessageCodec;
-import com.datatorrent.lib.util.PubSubWebSocketClient;
+import com.datatorrent.common.util.PubSubMessageCodec;
+import com.datatorrent.common.util.PubSubWebSocketClient;
 
 /**
  * This operator writes maps as JSON objects to the given URL.
