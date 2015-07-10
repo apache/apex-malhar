@@ -4,11 +4,11 @@
   <parent>
     <artifactId>malhar-apps</artifactId>
     <groupId>com.datatorrent</groupId>
-    <version>2.2.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <groupId>com.datatorrent</groupId>
-  <version>2.2.0-SNAPSHOT</version>
+  <version>3.0.0-SNAPSHOT</version>
   <artifactId>logstream</artifactId>
   <packaging>jar</packaging>
 
