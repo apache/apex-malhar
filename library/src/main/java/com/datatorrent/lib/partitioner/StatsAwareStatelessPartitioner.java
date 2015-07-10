@@ -22,14 +22,17 @@ import java.util.*;
 
 import javax.validation.constraints.Min;
 
+import com.google.common.collect.Sets;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StatsListener;
+
+import com.datatorrent.common.partitioner.StatelessPartitioner;
 
 /**
  * <p>

@@ -18,18 +18,20 @@ package com.datatorrent.lib.partitioner;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
-
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.Partitioner.Partition;
 import com.datatorrent.api.StringCodec.Object2String;
 
 import com.datatorrent.lib.util.TestUtils;
+
+import com.datatorrent.common.partitioner.StatelessPartitioner;
 
 public class StatelessPartitionerTest
 {
@@ -123,7 +125,7 @@ public class StatelessPartitionerTest
   public void objectPropertyTest()
   {
     Object2String<StatelessPartitioner<DummyOperator>> propertyReader = new Object2String<StatelessPartitioner<DummyOperator>>();
-    StatelessPartitioner<DummyOperator> partitioner = propertyReader.fromString("com.datatorrent.lib.partitioner.StatelessPartitioner:3");
+    StatelessPartitioner<DummyOperator> partitioner = propertyReader.fromString(StatelessPartitioner.class.getName() + ":3");
     Assert.assertEquals(3, partitioner.getPartitionCount());
   }
 

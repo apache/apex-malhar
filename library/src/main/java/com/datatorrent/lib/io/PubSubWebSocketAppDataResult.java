@@ -22,12 +22,10 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.util.PubSubMessage.PubSubMessageType;
-
 import com.datatorrent.api.Context.OperatorContext;
 
 import com.datatorrent.common.experimental.AppData;
-
+import com.datatorrent.common.util.PubSubMessage.PubSubMessageType;
 /**
  * This is an app data pub sub result operator.
  *

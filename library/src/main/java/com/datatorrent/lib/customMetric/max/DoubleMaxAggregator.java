@@ -20,7 +20,7 @@ import java.util.Collection;
 
 import com.datatorrent.api.annotation.Name;
 
-import com.datatorrent.lib.customMetric.SingleMetricAggregator;
+import com.datatorrent.common.metric.SingleMetricAggregator;
 
 @Name("max")
 public class DoubleMaxAggregator implements SingleMetricAggregator, Serializable
