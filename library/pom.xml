@@ -159,6 +159,31 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>2.15</version>
+        <executions>
+          <execution>
+            <id>checkstyle</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <configuration>
+              <includeResources>false</includeResources>
+              <checkstyleRules>
+                <module name="Checker">
+                  <module name="FileTabCharacter">
+                    <property name="eachLine" value="true" />
+                  </module>
+                </module>
+              </checkstyleRules>
+              <maxAllowedViolations>3266</maxAllowedViolations>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
