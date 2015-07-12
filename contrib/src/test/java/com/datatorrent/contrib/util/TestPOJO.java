@@ -22,8 +22,8 @@ import java.util.Map;
 
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.datatorrent.contrib.util.FieldInfo;
-import com.datatorrent.contrib.util.FieldInfo.SupportType;
+import com.datatorrent.lib.util.FieldInfo;
+import com.datatorrent.lib.util.FieldInfo.SupportType;
 
 
 

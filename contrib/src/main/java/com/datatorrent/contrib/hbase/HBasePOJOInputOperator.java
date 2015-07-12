@@ -13,10 +13,10 @@ import org.apache.hadoop.hbase.util.Bytes;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.contrib.util.FieldValueGenerator;
 import com.datatorrent.contrib.util.FieldValueGenerator.ValueConverter;
-import com.datatorrent.contrib.util.TableInfo;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.datatorrent.lib.util.PojoUtils.Setter;
+import com.datatorrent.lib.util.TableInfo;
 
 public class HBasePOJOInputOperator extends HBaseInputOperator<Object>
 {

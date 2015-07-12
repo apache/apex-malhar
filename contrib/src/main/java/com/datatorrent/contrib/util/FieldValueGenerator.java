@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.datatorrent.lib.util.PojoUtils.Setter;
@@ -51,14 +52,14 @@ public class FieldValueGenerator< T extends FieldInfo >
     {
       fieldValueGenerator.fieldInfoMap.put( fieldInfo.getColumnName(), fieldInfo );
       
-    	Getter<Object,Object> getter = PojoUtils.createGetter(clazz, fieldInfo.getColumnExpression(), fieldInfo.getType().getJavaType() );
+    	Getter<Object,Object> getter = PojoUtils.createGetter(clazz, fieldInfo.getPojoFieldExpression(), fieldInfo.getType().getJavaType() );
     	fieldValueGenerator.fieldGetterMap.put( fieldInfo, getter );
     }
     
     
     for( T fieldInfo : fieldInfos )
     {
-      Setter<Object,Object> setter = PojoUtils.createSetter(clazz, fieldInfo.getColumnExpression(), fieldInfo.getType().getJavaType() );
+      Setter<Object,Object> setter = PojoUtils.createSetter(clazz, fieldInfo.getPojoFieldExpression(), fieldInfo.getType().getJavaType() );
       fieldValueGenerator.fieldSetterMap.put( fieldInfo, setter );
     }
   
@@ -71,7 +72,8 @@ public class FieldValueGenerator< T extends FieldInfo >
 	 * @param fieldValueHandler
 	 * @return
 	 */
-	public void handleFieldsValue( Object obj,  FieldValueHandler fieldValueHandler )
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+  public void handleFieldsValue( Object obj,  FieldValueHandler fieldValueHandler )
 	{
 		for( Map.Entry< T, Getter<Object,Object>> entry : fieldGetterMap.entrySet() )
 		{

@@ -17,6 +17,7 @@ public class TupleGenerateCacheOperator<T> extends POJOTupleGenerateOperator<T>
     uuid = java.util.UUID.randomUUID().toString();
   }
   
+  @SuppressWarnings("unchecked")
   protected void tupleEmitted( T tuple )
   {
     List<T> emittedTuples = (List<T>)emittedTuplesMap.get(uuid);
@@ -28,6 +29,7 @@ public class TupleGenerateCacheOperator<T> extends POJOTupleGenerateOperator<T>
     emittedTuples.add(tuple);
   }
   
+  @SuppressWarnings("unchecked")
   public List<T> getTuples()
   {
     return (List<T>)emittedTuplesMap.get(uuid);
