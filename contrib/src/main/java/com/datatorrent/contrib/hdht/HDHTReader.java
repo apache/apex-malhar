@@ -346,6 +346,7 @@ public class HDHTReader implements Operator, HDHT.Reader
     protected BucketMeta(Comparator<Slice> cmp)
     {
       files = new TreeMap<Slice, BucketFileMeta>(cmp);
+      recoveryStartWalPosition = new HDHTWalManager.WalPosition(0,0);
     }
 
     @SuppressWarnings("unused")
