@@ -10,7 +10,7 @@
   </property>
   <property>
     <name>dt.application.MachineDataDemo.operator.Receiver.attr.PARTITIONER</name>
-    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:1</value>
+    <value>com.datatorrent.common.partitioner.StatelessPartitioner:1</value>
   </property>
   <property>
     <name>dt.application.MachineDataDemo.operator.DimensionsGenerator.attr.APPLICATION_WINDOW_COUNT
