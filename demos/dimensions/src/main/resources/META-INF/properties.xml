@@ -239,7 +239,7 @@
   </property>
   <property>
     <name>dt.attr.CONTAINER_JVM_OPTIONS</name>
-    <value>-Xmx6g -server -Dlog4j.debug=true -Xloggc:&lt;LOG_DIR&gt;/gc.log -verbose:gc -XX:+PrintGCDateStamps -Dlog4j.configuration=debug_log4j.properties</value>
+    <value>-Xmx6g -server -Dlog4j.debug=true -Xloggc:&lt;LOG_DIR&gt;/gc.log -verbose:gc -XX:+PrintGCDateStamps</value>
   </property>
   <property>
     <name>dt.attr.APPLICATION_DATA_LINK</name>
