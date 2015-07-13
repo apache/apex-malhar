@@ -150,7 +150,6 @@ public class TwitterTopCounterApplication implements StreamingApplication
   public static final String SNAPSHOT_SCHEMA = "twitterURLDataSchema.json";
   public static final String CONVERSION_SCHEMA = "twitterURLConverterSchema.json";
   public static final String APP_NAME = "TwitterDemo";
-  public static final String PROP_USE_APPDATA = "dt.application." + APP_NAME + ".useAppData";
 
   private final Locality locality = null;
 
@@ -183,13 +182,12 @@ public class TwitterTopCounterApplication implements StreamingApplication
     // Count unique urls
     dag.addStream("UniqueURLCounts", uniqueCounter.count, topCounts.input);
 
-    consoleOutput(dag, "topURLs", topCounts.output, !StringUtils.isEmpty(conf.get(PROP_USE_APPDATA)), SNAPSHOT_SCHEMA, "url");
+    consoleOutput(dag, "topURLs", topCounts.output, SNAPSHOT_SCHEMA, "url");
   }
 
   public static void consoleOutput(DAG dag,
                                    String operatorName,
                                    OutputPort<List<Map<String, Object>>> topCount,
-                                   boolean useAppData,
                                    String schemaFile,
                                    String alias)
   {
@@ -197,34 +195,25 @@ public class TwitterTopCounterApplication implements StreamingApplication
     if (!StringUtils.isEmpty(gatewayAddress)) {
       URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
 
-      if(!useAppData) {
-        String topic = "demos.twitter." + operatorName;
-        PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator(operatorName, new PubSubWebSocketOutputOperator<Object>());
-        wsOut.setUri(uri);
-        wsOut.setTopic(topic);
-        dag.addStream("MapProvider", topCount, wsOut.input);
-      }
-      else {
-        AppDataSnapshotServerMap snapshotServer = dag.addOperator("Snapshot Server", new AppDataSnapshotServerMap());
+      AppDataSnapshotServerMap snapshotServer = dag.addOperator("Snapshot Server", new AppDataSnapshotServerMap());
 
-        Map<String, String> conversionMap = Maps.newHashMap();
-        conversionMap.put(alias, WindowedTopCounter.FIELD_TYPE);
-        String snapshotServerJSON = SchemaUtils.jarResourceFileToString(schemaFile);
+      Map<String, String> conversionMap = Maps.newHashMap();
+      conversionMap.put(alias, WindowedTopCounter.FIELD_TYPE);
+      String snapshotServerJSON = SchemaUtils.jarResourceFileToString(schemaFile);
 
-        snapshotServer.setSnapshotSchemaJSON(snapshotServerJSON);
-        snapshotServer.setTableFieldToMapField(conversionMap);
+      snapshotServer.setSnapshotSchemaJSON(snapshotServerJSON);
+      snapshotServer.setTableFieldToMapField(conversionMap);
 
-        PubSubWebSocketAppDataQuery wsQuery = dag.addOperator("Query", new PubSubWebSocketAppDataQuery());
-        wsQuery.setUri(uri);
-        Operator.OutputPort<String> queryPort = wsQuery.outputPort;
-        PubSubWebSocketAppDataResult wsResult = dag.addOperator("QueryResult", new PubSubWebSocketAppDataResult());
-        wsResult.setUri(uri);
-        Operator.InputPort<String> queryResultPort = wsResult.input;
+      PubSubWebSocketAppDataQuery wsQuery = dag.addOperator("Query", new PubSubWebSocketAppDataQuery());
+      wsQuery.setUri(uri);
+      Operator.OutputPort<String> queryPort = wsQuery.outputPort;
+      PubSubWebSocketAppDataResult wsResult = dag.addOperator("QueryResult", new PubSubWebSocketAppDataResult());
+      wsResult.setUri(uri);
+      Operator.InputPort<String> queryResultPort = wsResult.input;
 
-        dag.addStream("MapProvider", topCount, snapshotServer.input);
-        dag.addStream("Query", queryPort, snapshotServer.query);
-        dag.addStream("Result", snapshotServer.queryResult, queryResultPort);
-      }
+      dag.addStream("MapProvider", topCount, snapshotServer.input);
+      dag.addStream("Query", queryPort, snapshotServer.query);
+      dag.addStream("Result", snapshotServer.queryResult, queryResultPort);
     }
     else {
       ConsoleOutputOperator operator = dag.addOperator(operatorName, new ConsoleOutputOperator());
