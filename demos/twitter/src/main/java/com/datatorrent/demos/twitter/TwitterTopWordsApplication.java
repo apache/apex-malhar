@@ -65,6 +65,6 @@ public class TwitterTopWordsApplication implements StreamingApplication
     dag.addStream("TwittedWords", wordExtractor.output, uniqueCounter.data);
     dag.addStream("UniqueWordCounts", uniqueCounter.count, topCounts.input).setLocality(Locality.CONTAINER_LOCAL);
 
-    TwitterTopCounterApplication.consoleOutput(dag, "topWords", topCounts.output, !StringUtils.isEmpty(conf.get(PROP_USE_APPDATA)), SNAPSHOT_SCHEMA, "word");
+    TwitterTopCounterApplication.consoleOutput(dag, "topWords", topCounts.output, SNAPSHOT_SCHEMA, "word");
   }
 }

@@ -161,6 +161,6 @@ public class TwitterTrendingHashtagsApplication implements StreamingApplication
     // Count unique Hashtags
     dag.addStream("UniqueHashtagCounts", uniqueCounter.count, topCounts.input);
 
-    TwitterTopCounterApplication.consoleOutput(dag, "topHashtags", topCounts.output, !StringUtils.isEmpty(conf.get(PROP_USE_APPDATA)), SNAPSHOT_SCHEMA, "hashtag");
+    TwitterTopCounterApplication.consoleOutput(dag, "topHashtags", topCounts.output, SNAPSHOT_SCHEMA, "hashtag");
   }
 }
