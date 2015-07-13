@@ -2,7 +2,7 @@
 <configuration>
   <property>
     <name>dt.application.MRMonitoringDemo.operator.JobMonitor.attr.PARTITIONER</name>
-    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:1</value>
+    <value>com.datatorrent.common.partitioner.StatelessPartitioner:1</value>
   </property>
   <property>
     <name>dt.application.MRMonitoringDemo.operator.JobMonitor.attr.APPLICATION_WINDOW_COUNT</name>
