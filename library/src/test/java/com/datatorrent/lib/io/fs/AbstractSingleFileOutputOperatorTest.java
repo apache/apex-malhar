@@ -53,7 +53,7 @@ public class AbstractSingleFileOutputOperatorTest
       writer.setOutputFileName(SINGLE_FILE);
 
       writer.setFilePath(getDir());
-
+      writer.setAlwaysWriteToTmp(false);
       writer.setup(testOperatorContext);
     }
   }

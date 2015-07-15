@@ -18,19 +18,18 @@ package com.datatorrent.lib.io.fs;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import javax.annotation.Nonnull;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.cache.*;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +46,7 @@ import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 
@@ -89,7 +89,7 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
  * @since 2.0.0
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
-public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
+public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator implements Operator.CheckpointListener
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFileOutputOperator.class);
 
@@ -212,6 +212,20 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   protected FilterStreamProvider filterStreamProvider;
 
   /**
+   * When true this will write to a filename.tmp instead of filename. This is added because at times when the operator
+   * gets killed the lease of the last file it was writing to is still open in hdfs. So truncating the file during
+   * recovery fails. Ideally this should be false however currently it should remain true otherwise it will lead to
+   * namenode instability and crash.
+   */
+  protected boolean alwaysWriteToTmp = true;
+
+  private final Map<String, String> fileNameToTmpName;
+  private final Map<Long, Set<String>> finalizedFiles;
+  protected final Map<String, MutableInt> finalizedPart;
+
+  protected long currentWindow;
+
+  /**
    * This input port receives incoming tuples.
    */
   public final transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>()
@@ -245,6 +259,9 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     counts = Maps.newHashMap();
     openPart = Maps.newHashMap();
     rotationStates = Maps.newHashMap();
+    fileNameToTmpName = Maps.newHashMap();
+    finalizedFiles = Maps.newTreeMap();
+    finalizedPart = Maps.newHashMap();
   }
 
   /**
@@ -289,14 +306,17 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     RemovalListener<String, FSFilterStreamContext> removalListener = new RemovalListener<String, FSFilterStreamContext>()
     {
       @Override
-      public void onRemoval(RemovalNotification<String, FSFilterStreamContext> notification)
+      public void onRemoval(@Nonnull RemovalNotification<String, FSFilterStreamContext> notification)
       {
         FSFilterStreamContext streamContext = notification.getValue();
         if (streamContext != null) {
           
           //FilterOutputStream filterStream = streamContext.getFilterStream();
           try {
-            LOG.debug("closing {}", notification.getKey());
+            String filename = notification.getKey();
+            String partFileName = getPartFileNamePri(filename);
+
+            LOG.debug("closing {}", partFileName);
             long start = System.currentTimeMillis();
             streamContext.close();
             //filterStream.close();
@@ -313,19 +333,32 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     CacheLoader<String, FSFilterStreamContext> loader = new CacheLoader<String, FSFilterStreamContext>()
     {
       @Override
-      public FSFilterStreamContext load(String filename)
+      public FSFilterStreamContext load(@Nonnull String filename)
       {
         String partFileName = getPartFileNamePri(filename);
-        Path lfilepath = new Path(filePath + Path.SEPARATOR + partFileName);
+        Path originalFilePath = new Path(filePath + Path.SEPARATOR + partFileName);
+
+        Path activeFilePath;
+        if (!alwaysWriteToTmp) {
+          activeFilePath = originalFilePath;
+        } else {
+          //MLHR-1776 : writing to tmp file
+          String tmpFileName = fileNameToTmpName.get(partFileName);
+          if (tmpFileName == null) {
+            tmpFileName = partFileName + '.' + System.currentTimeMillis() + TMP_EXTENSION;
+            fileNameToTmpName.put(partFileName, tmpFileName);
+          }
+          activeFilePath = new Path(filePath + Path.SEPARATOR + tmpFileName);
+        }
 
         FSDataOutputStream fsOutput;
 
         boolean sawThisFileBefore = endOffsets.containsKey(filename);
 
         try {
-          if (fs.exists(lfilepath)) {
+          if (fs.exists(originalFilePath) || (alwaysWriteToTmp && fs.exists(activeFilePath))) {
             if(sawThisFileBefore) {
-              FileStatus fileStatus = fs.getFileStatus(lfilepath);
+              FileStatus fileStatus = fs.getFileStatus(activeFilePath);
               MutableLong endOffset = endOffsets.get(filename);
 
               if (endOffset != null) {
@@ -335,11 +368,11 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
                 endOffsets.put(filename, new MutableLong(fileStatus.getLen()));
               }
 
-              fsOutput = fs.append(lfilepath);
-              LOG.debug("appending to {}", lfilepath);
+              fsOutput = fs.append(activeFilePath);
+              LOG.debug("appending to {}", activeFilePath);
             }
-            //We never saw this file before and we don't want to append
             else {
+              //We never saw this file before and we don't want to append
               //If the file is rolling we need to delete all its parts.
               if(rollingFile) {
                 int part = 0;
@@ -354,23 +387,27 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
                   part = part + 1;
                 }
 
-                fsOutput = fs.create(lfilepath, (short) replication);
+                fsOutput = fs.create(activeFilePath, (short) replication);
               }
-              //Not rolling is easy, just delete the file and create it again.
               else {
-                fs.delete(lfilepath, true);
-                fsOutput = fs.create(lfilepath, (short) replication);
+                //Not rolling is easy, just delete the file and create it again.
+                fs.delete(activeFilePath, true);
+                if(alwaysWriteToTmp){
+                  //we need to delete original file if that exists
+                  if(fs.exists(originalFilePath)){
+                    fs.delete(originalFilePath, true);
+                  }
+                }
+                fsOutput = fs.create(activeFilePath, (short) replication);
               }
             }
           }
           else {
-            fsOutput = fs.create(lfilepath, (short) replication);
-            fs.setPermission(lfilepath, FsPermission.createImmutable(filePermission));
+            fsOutput = fs.create(activeFilePath, (short) replication);
+            fs.setPermission(activeFilePath, FsPermission.createImmutable(filePermission));
           }
 
-          //Get the end offset of the file.
-
-          LOG.info("opened: {}", fs.getFileStatus(lfilepath).getPath());
+          LOG.info("opened {}, active {}", partFileName, activeFilePath);
           return new FSFilterStreamContext(fsOutput);
         }
         catch (IOException e) {
@@ -388,25 +425,34 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
       //Restore the files in case they were corrupted and the operator
       Path writerPath = new Path(filePath);
       if (fs.exists(writerPath)) {
-        for (String seenFileName: endOffsets.keySet()) {
+        for (String seenFileName : endOffsets.keySet()) {
           String seenFileNamePart = getPartFileNamePri(seenFileName);
           LOG.debug("seenFileNamePart: {}", seenFileNamePart);
-          Path seenPartFilePath = new Path(filePath + Path.SEPARATOR + seenFileNamePart);
-          if (fs.exists(seenPartFilePath)) {
-            LOG.debug("file exists {}", seenFileNamePart);
+
+          Path activeFilePath;
+          if (alwaysWriteToTmp) {
+            String tmpFileName = fileNameToTmpName.get(seenFileNamePart);
+            activeFilePath = new Path(filePath + Path.SEPARATOR + tmpFileName);
+          } else {
+            activeFilePath = new Path(filePath + Path.SEPARATOR + seenFileNamePart);
+          }
+
+          if (fs.exists(activeFilePath)) {
+            LOG.debug("path exists {}", activeFilePath);
             long offset = endOffsets.get(seenFileName).longValue();
-            FSDataInputStream inputStream = fs.open(seenPartFilePath);
-            FileStatus status = fs.getFileStatus(seenPartFilePath);
+            FSDataInputStream inputStream = fs.open(activeFilePath);
+            FileStatus status = fs.getFileStatus(activeFilePath);
 
             if (status.getLen() != offset) {
-              LOG.info("file corrupted {} {} {}", seenFileNamePart, offset, status.getLen());
+              LOG.info("path corrupted {} {} {}", activeFilePath, offset, status.getLen());
               byte[] buffer = new byte[COPY_BUFFER_SIZE];
+              String recoveryFileName = seenFileNamePart + '.' + System.currentTimeMillis() + TMP_EXTENSION;
+              Path recoveryFilePath = new Path(filePath + Path.SEPARATOR + recoveryFileName);
+              FSDataOutputStream fsOutput = fs.create(recoveryFilePath, (short) replication);
 
-              Path tmpFilePath = new Path(filePath + Path.SEPARATOR + seenFileNamePart + TMP_EXTENSION);
-              FSDataOutputStream fsOutput = fs.create(tmpFilePath, (short) replication);
               while (inputStream.getPos() < offset) {
                 long remainingBytes = offset - inputStream.getPos();
-                int bytesToWrite = remainingBytes < COPY_BUFFER_SIZE ? (int)remainingBytes : COPY_BUFFER_SIZE;
+                int bytesToWrite = remainingBytes < COPY_BUFFER_SIZE ? (int) remainingBytes : COPY_BUFFER_SIZE;
                 inputStream.read(buffer);
                 fsOutput.write(buffer, 0, bytesToWrite);
               }
@@ -416,39 +462,58 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
               inputStream.close();
 
               FileContext fileContext = FileContext.getFileContext(fs.getUri());
-              LOG.debug("temp file path {}, rolling file path {}", tmpFilePath.toString(), status.getPath().toString());
-              fileContext.rename(tmpFilePath, status.getPath(), Options.Rename.OVERWRITE);
-            }
-            else {
+              LOG.debug("active {} recovery {} ", activeFilePath, recoveryFilePath);
+
+              if (alwaysWriteToTmp) {
+                //recovery file is used as the new tmp file and we cannot delete the old tmp file because when the operator
+                //is restored to an earlier check-pointed window, it will look for an older tmp.
+                fileNameToTmpName.put(seenFileNamePart, recoveryFileName);
+              } else {
+                LOG.debug("recovery path {} actual path {} ", recoveryFilePath, status.getPath());
+                fileContext.rename(recoveryFilePath, status.getPath(), Options.Rename.OVERWRITE);
+              }
+            } else {
               inputStream.close();
             }
           }
         }
       }
 
-      //delete the left over future rolling files produced from the previous crashed instance
-      //of this operator.
       if (rollingFile) {
+        //delete the left over future rolling files produced from the previous crashed instance
+        //of this operator.
         for(String seenFileName: endOffsets.keySet()) {
           try {
             Integer part = openPart.get(seenFileName).getValue() + 1;
-
+            String seenPartFileName;
             while (true) {
-              Path seenPartFilePath = new Path(filePath + Path.SEPARATOR + getPartFileName(seenFileName, part));
-              if (!fs.exists(seenPartFilePath)) {
+              seenPartFileName = getPartFileName(seenFileName, part);
+              Path activePath;
+              if (alwaysWriteToTmp) {
+                String tmpFileName = fileNameToTmpName.get(seenPartFileName);
+                activePath = new Path(filePath + Path.SEPARATOR + tmpFileName);
+              } else {
+                activePath = new Path(filePath + Path.SEPARATOR + seenPartFileName);
+              }
+              if (!fs.exists(activePath)) {
                 break;
               }
 
-              fs.delete(seenPartFilePath, true);
+              fs.delete(activePath, true);
               part = part + 1;
             }
 
-            Path seenPartFilePath = new Path(filePath + Path.SEPARATOR + getPartFileName(seenFileName,
-                                      openPart.get(seenFileName).intValue()));
+            seenPartFileName = getPartFileName(seenFileName, openPart.get(seenFileName).intValue());
+            Path activeFilePath;
+            if (alwaysWriteToTmp) {
+              activeFilePath = new Path(filePath + Path.SEPARATOR + fileNameToTmpName.get(seenPartFileName));
+            } else {
+              activeFilePath = new Path(filePath + Path.SEPARATOR + seenPartFileName);
+            }
 
-            //Handle the case when restoring to a checkpoint where the current rolling file
-            //already has a length greater than max length.
-            if (fs.getFileStatus(seenPartFilePath).getLen() > maxLength) {
+            if (fs.getFileStatus(activeFilePath).getLen() > maxLength) {
+              //Handle the case when restoring to a checkpoint where the current rolling file
+              //already has a length greater than max length.
               LOG.debug("rotating file at setup.");
               rotate(seenFileName);
             }
@@ -475,6 +540,41 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
                             new MutableLong());
     fileCounters.setCounter(Counters.TOTAL_TIME_WRITING_MILLISECONDS,
                             new MutableLong());
+  }
+
+  /**
+   * Requests a file to be finalized. When it is writing to a rolling file, this will
+   * request for finalizing the current open part and all the prev parts which weren't requested yet.
+   *
+   * @param fileName name of the file; part file name in case of rotation.
+   * @throws IOException
+   */
+  protected void requestFinalize(String fileName)
+  {
+    Set<String> filesPerWindow = finalizedFiles.get(currentWindow);
+    if (filesPerWindow == null) {
+      filesPerWindow = Sets.newHashSet();
+      finalizedFiles.put(currentWindow, filesPerWindow);
+    }
+    if (rollingFile) {
+
+      MutableInt part = finalizedPart.get(fileName);
+      if (part == null) {
+        part = new MutableInt();
+        finalizedPart.put(fileName, part);
+      }
+      MutableInt currentOpenPart = openPart.get(fileName);
+
+      for (int x = part.getValue(); x < currentOpenPart.getValue() - 1; x++) {
+        String prevPartNotFinalized = getPartFileName(fileName, x);
+        LOG.debug("request finalize {}", prevPartNotFinalized);
+        filesPerWindow.add(prevPartNotFinalized);
+      }
+      fileName = getPartFileNamePri(fileName);
+      part.setValue(currentOpenPart.getValue());
+    }
+    LOG.debug("request finalize {}", fileName);
+    filesPerWindow.add(fileName);
   }
 
   @Override
@@ -584,7 +684,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
       }
 
       if (rollingFile && currentOffset.longValue() > maxLength) {
-        LOG.debug("Rotating file {} {}", fileName, currentOffset.longValue());
+        LOG.debug("Rotating file {} {} {}", fileName, openPart.get(fileName), currentOffset.longValue());
         rotate(fileName);
       }
 
@@ -615,6 +715,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
                                                 IOException,
                                                 ExecutionException
   {
+    requestFinalize(fileName);
     counts.remove(fileName);
     streamsCache.invalidate(fileName);
     MutableInt mi = openPart.get(fileName);
@@ -622,8 +723,8 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     mi.add(1);
     LOG.debug("Part file index: {}", openPart);
     endOffsets.get(fileName).setValue(0L);
-
-    rotateHook(getPartFileName(fileName, rotatedFileIndex));
+    String partFileName = getPartFileName(fileName, rotatedFileIndex);
+    rotateHook(partFileName);
 
     if (rotationWindows > 0) {
       getRotationState(fileName).rotated = true;
@@ -715,6 +816,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+    currentWindow = windowId;
   }
 
     @Override
@@ -938,6 +1040,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
       return outputStream;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void finalizeContext() throws IOException
     {
@@ -951,6 +1054,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
       }
     }
     
+    @SuppressWarnings("unchecked")
     public void initializeContext() throws IOException
     {
       if (filterStreamProvider != null) {
@@ -982,7 +1086,99 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     }
   }
 
+  @Override
+  public void checkpointed(long l)
+  {
+  }
+
+  @Override
+  public void committed(long l)
+  {
+    if (alwaysWriteToTmp) {
+      Iterator<Map.Entry<Long, Set<String>>> finalizedFilesIter = finalizedFiles.entrySet().iterator();
+      try {
+
+        while (finalizedFilesIter.hasNext()) {
+          Map.Entry<Long, Set<String>> filesPerWindow = finalizedFilesIter.next();
+          if (filesPerWindow.getKey() > l) {
+            break;
+          }
+          for (String file : filesPerWindow.getValue()) {
+            finalizeFile(file);
+          }
+          finalizedFilesIter.remove();
+        }
+      } catch (IOException e) {
+        throw new RuntimeException("failed to commit", e);
+      }
+    }
+  }
+
   /**
+   * Finalizing a file means that the same file will never be open again.
+   *
+   * @param fileName name of the file to finalize
+   */
+  protected void finalizeFile(String fileName) throws IOException
+  {
+    String tmpFileName = fileNameToTmpName.get(fileName);
+    FileContext fileContext = FileContext.getFileContext(fs.getUri());
+    Path srcPath = new Path(filePath + Path.SEPARATOR + tmpFileName);
+    Path destPath = new Path(filePath + Path.SEPARATOR + fileName);
+
+    if (!fs.exists(destPath)) {
+      LOG.debug("rename from tmp {} actual {} ", tmpFileName, fileName);
+      fileContext.rename(srcPath, destPath);
+    } else if (fs.exists(srcPath)) {
+      //if the destination and src both exists that means there was a failure between file rename and clearing the endOffset so
+      //we just delete the tmp file.
+      LOG.debug("deleting tmp {}", tmpFileName);
+      fs.delete(srcPath, true);
+    }
+    endOffsets.remove(fileName);
+    fileNameToTmpName.remove(fileName);
+
+    //when writing to tmp files there can be vagrant tmp files which we have to clean
+    FileStatus[] statuses = fs.listStatus(new Path(filePath));
+    for (FileStatus status : statuses) {
+      String statusName = status.getPath().getName();
+      if (statusName.endsWith(TMP_EXTENSION) && statusName.startsWith(fileName)) {
+        LOG.debug("deleting vagrant file {}", statusName);
+        fs.delete(status.getPath(), true);
+      }
+    }
+  }
+
+  /**
+   * @return true if writing to a tmp file rather than the actual file. false otherwise.
+   */
+  public boolean isAlwaysWriteToTmp()
+  {
+    return alwaysWriteToTmp;
+  }
+
+  /**
+   * This controls if data is always written to a tmp file rather than the actual file. Tmp files are renamed to actual
+   * files when files are finalized.
+   * @param alwaysWriteToTmp true if write to a tmp file; false otherwise.
+   */
+  public void setAlwaysWriteToTmp(boolean alwaysWriteToTmp)
+  {
+    this.alwaysWriteToTmp = alwaysWriteToTmp;
+  }
+
+  @VisibleForTesting
+  protected Map<String, String> getFileNameToTmpName()
+  {
+    return fileNameToTmpName;
+  }
+
+  @VisibleForTesting
+  protected Map<Long, Set<String>> getFinalizedFiles()
+  {
+    return finalizedFiles;
+  }
+/**
    * Return the filter to use. If this method returns a filter the filter is applied to data before the data is stored
    * in the file. If it returns null no filter is applied and data is written as is. Override this method to provide
    * the filter implementation. Multiple filters can be chained together to return a chain filter.
