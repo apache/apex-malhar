@@ -13,6 +13,7 @@
   <name>Demos</name>
 
   <modules>
+    <module>starter-app</module>
     <module>dimensions</module>
   </modules>
 
