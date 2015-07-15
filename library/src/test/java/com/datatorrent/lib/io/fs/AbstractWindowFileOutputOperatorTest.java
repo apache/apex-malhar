@@ -16,7 +16,6 @@
 package com.datatorrent.lib.io.fs;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest.CheckPointWriter;
 import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest.FSTestWatcher;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 import org.junit.*;
@@ -39,6 +38,7 @@ public class AbstractWindowFileOutputOperatorTest
       super.starting(description);
       oper = new WindowFileOutputOperatorString();
       oper.setFilePath(getDir());
+      oper.setAlwaysWriteToTmp(false);
       oper.setup(testOperatorContext);
     }
   }
@@ -63,7 +63,7 @@ public class AbstractWindowFileOutputOperatorTest
     oper.input.process("window 0");
     oper.endWindow();
 
-    CheckPointWriter checkPoint = AbstractFileOutputOperatorTest.checkpoint(oper);
+    AbstractFileOutputOperator checkPoint = AbstractFileOutputOperatorTest.checkpoint(oper);
 
     oper.beginWindow(1);
     oper.input.process("window 1");
@@ -112,7 +112,7 @@ public class AbstractWindowFileOutputOperatorTest
     oper.beginWindow(1);
     oper.input.process("1");
 
-    CheckPointWriter checkPoint = AbstractFileOutputOperatorTest.checkpoint(oper);
+    AbstractFileOutputOperator checkPoint = AbstractFileOutputOperatorTest.checkpoint(oper);
 
     oper.input.process("1");
     oper.teardown();
