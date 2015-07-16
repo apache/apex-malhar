@@ -15,22 +15,20 @@
  */
 package com.datatorrent.demos.twitter;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Put;
 
-import twitter4j.Status;
-
-import com.datatorrent.contrib.hbase.HBaseOutputOperator;
-import com.datatorrent.contrib.hbase.HBaseRowStatePersistence;
-import com.datatorrent.contrib.hbase.HBaseStatePersistenceStrategy;
+import com.datatorrent.contrib.hbase.AbstractHBasePutOutputOperator;
 import com.datatorrent.contrib.twitter.TwitterSampleInput;
+
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+
+import twitter4j.Status;
 
 /**
  * An application which connects to Twitter Sample Input and stores all the
@@ -50,21 +48,16 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 public class TwitterDumpHBaseApplication implements StreamingApplication
 {
 
-  public static class Status2Hbase extends HBaseOutputOperator<Status>{
+  public static class Status2Hbase extends AbstractHBasePutOutputOperator<Status>
+  {
 
     @Override
-    public HBaseStatePersistenceStrategy getPersistenceStrategy()
-    {
-      return new HBaseRowStatePersistence();
-    }
-
-    @Override
-    public void processTuple(Status t) throws IOException
+    public Put operationPut(Status t)
     {
       Put put = new Put(ByteBuffer.allocate(8).putLong(t.getCreatedAt().getTime()).array());
       put.add("cf".getBytes(), "text".getBytes(), t.getText().getBytes());
       put.add("cf".getBytes(), "userid".getBytes(), t.getText().getBytes());
-      getTable().put(put);
+      return put;
     }
 
   }
@@ -79,7 +72,7 @@ public class TwitterDumpHBaseApplication implements StreamingApplication
 
     Status2Hbase hBaseWriter = dag.addOperator("DatabaseWriter", new Status2Hbase());
 
-    dag.addStream("Statuses", twitterStream.status, hBaseWriter.inputPort).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("Statuses", twitterStream.status, hBaseWriter.input).setLocality(Locality.CONTAINER_LOCAL);
   }
 
 }
