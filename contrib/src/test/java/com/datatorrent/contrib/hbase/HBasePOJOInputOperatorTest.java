@@ -17,12 +17,12 @@ import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.contrib.util.FieldInfo.SupportType;
-import com.datatorrent.contrib.util.TableInfo;
 import com.datatorrent.contrib.util.TestPOJO;
 import com.datatorrent.contrib.util.TupleCacheOutputOperator;
 import com.datatorrent.contrib.util.TupleGenerateCacheOperator;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.util.FieldInfo.SupportType;
+import com.datatorrent.lib.util.TableInfo;
 
 public class HBasePOJOInputOperatorTest
 {

@@ -20,12 +20,11 @@ import java.util.List;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import com.datatorrent.lib.util.FieldValueGenerator;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
-
-import com.datatorrent.lib.util.FieldValueGenerator;
-import com.datatorrent.lib.util.FieldValueGenerator.FieldValueHandler;
 import com.datatorrent.lib.util.TableInfo;
+import com.datatorrent.lib.util.FieldValueGenerator.FieldValueHandler;
 
 /**
  * 
