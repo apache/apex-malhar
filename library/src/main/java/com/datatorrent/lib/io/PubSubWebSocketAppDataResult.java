@@ -30,7 +30,7 @@ import com.datatorrent.common.util.PubSubMessage.PubSubMessageType;
  * This is an app data pub sub result operator.
  *
  * @displayName App Data Pub Sub Result
- * @category outut
+ * @category App Data
  * @tags output, appdata, result
  */
 @AppData.AppendQueryIdToTopic(value=true)
