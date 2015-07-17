@@ -25,9 +25,9 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 import com.datatorrent.lib.algo.UniqueCounter;
-import com.datatorrent.lib.algo.UniqueCounterValue;
 import com.datatorrent.lib.converter.MapToKeyHashValuePairConverter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.stream.Counter;
 import com.datatorrent.lib.stream.StreamDuplicater;
 import com.datatorrent.lib.util.KeyHashValPair;
 
@@ -72,8 +72,8 @@ public class Application implements StreamingApplication
     failureOutput.setStringFormat("Failure %d");
 
     // success and failure counters.
-    UniqueCounterValue<Integer> successcounter = dag.addOperator("successcounter", new UniqueCounterValue<Integer>());
-    UniqueCounterValue<Integer> failurecounter = dag.addOperator("failurecounter", new UniqueCounterValue<Integer>());
+    Counter successcounter = dag.addOperator("successcounter", new Counter());
+    Counter failurecounter = dag.addOperator("failurecounter", new Counter());
 
     dag.addStream("datain", randGen.outPort, uniqCount.data);
     dag.addStream("dataverification0", randGen.verificationPort, verifier.in1);
@@ -81,9 +81,9 @@ public class Application implements StreamingApplication
     dag.addStream("split", converter.output, dup.data);
     dag.addStream("consoutput", dup.out1, output.input);
     dag.addStream("dataverification1", dup.out2, verifier.in2);
-    dag.addStream("successc", verifier.successPort, successcounter.data);
-    dag.addStream("failurec", verifier.failurePort, failurecounter.data);
-    dag.addStream("succconsoutput", successcounter.count, successOutput.input);
-    dag.addStream("failconsoutput", failurecounter.count, failureOutput.input);
+    dag.addStream("successc", verifier.successPort, successcounter.input);
+    dag.addStream("failurec", verifier.failurePort, failurecounter.input);
+    dag.addStream("succconsoutput", successcounter.output, successOutput.input);
+    dag.addStream("failconsoutput", failurecounter.output, failureOutput.input);
   }
 }

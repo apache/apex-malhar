@@ -23,6 +23,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.algo.UniqueCounterValue;
 import com.datatorrent.lib.algo.UniqueValueCount;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.stream.Counter;
 import com.datatorrent.lib.stream.StreamDuplicater;
 import com.datatorrent.lib.util.KeyValPair;
 
@@ -50,8 +51,8 @@ public class Application implements StreamingApplication
     ConsoleOutputOperator failureOutput = dag.addOperator("Failure", new ConsoleOutputOperator());
     failureOutput.setStringFormat("Failure %d");
 
-    UniqueCounterValue<Integer> successcounter = dag.addOperator("SuccessCounter", new UniqueCounterValue<Integer>());
-    UniqueCounterValue<Integer> failurecounter = dag.addOperator("FailureCounter", new UniqueCounterValue<Integer>());
+    Counter successcounter = dag.addOperator("SuccessCounter", new Counter());
+    Counter failurecounter = dag.addOperator("FailureCounter", new Counter());
 
     dag.addStream("Events", randGen.outport, valCount.input);
     dag.addStream("Duplicates", valCount.output, dup.data);
