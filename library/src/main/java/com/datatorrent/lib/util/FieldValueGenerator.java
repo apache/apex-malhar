@@ -22,68 +22,66 @@ import java.util.Map;
 import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.datatorrent.lib.util.PojoUtils.Setter;
 
-public class FieldValueGenerator< T extends FieldInfo >
+public class FieldValueGenerator<T extends FieldInfo>
 {
   public static interface FieldValueHandler<T extends FieldInfo>
   {
-    public void handleFieldValue( T fieldInfo, Object value );
+    public void handleFieldValue(T fieldInfo, Object value);
   }
-  
+
   public static interface ValueConverter<T extends FieldInfo>
   {
-    public Object convertValue( T fieldInfo, Object value );
+    public Object convertValue(T fieldInfo, Object value);
   }
-  
-	protected Map<T, Getter<Object,Object>> fieldGetterMap = new HashMap<T,Getter<Object,Object>>();
-	protected Map<T, Setter<Object,Object>> fieldSetterMap = new HashMap<T,Setter<Object,Object>>();
-	
-	protected Map<String, T > fieldInfoMap = new HashMap<String, T >();
-	
-	protected FieldValueGenerator(){}
-	
-	@SuppressWarnings("unchecked")
-  public static < T extends FieldInfo > FieldValueGenerator<T> getFieldValueGenerator(final Class<?> clazz, List<T> fieldInfos)
+
+  protected Map<T, Getter<Object, Object>> fieldGetterMap = new HashMap<T, Getter<Object, Object>>();
+  protected Map<T, Setter<Object, Object>> fieldSetterMap = new HashMap<T, Setter<Object, Object>>();
+
+  protected Map<String, T> fieldInfoMap = new HashMap<String, T>();
+
+  protected FieldValueGenerator()
+  {
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <T extends FieldInfo> FieldValueGenerator<T> getFieldValueGenerator(final Class<?> clazz, List<T> fieldInfos)
   {
     return new FieldValueGenerator<T>(clazz, fieldInfos);
   }
 
   protected FieldValueGenerator(final Class<?> clazz, List<T> fieldInfos)
   {
-    for( T fieldInfo : fieldInfos )
-    {
-      fieldInfoMap.put( fieldInfo.getColumnName(), fieldInfo );
-      
-    	Getter<Object,Object> getter = PojoUtils.createGetter(clazz, fieldInfo.getPojoFieldExpression(), fieldInfo.getType().getJavaType() );
-    	fieldGetterMap.put( fieldInfo, getter );
+    for (T fieldInfo : fieldInfos) {
+      fieldInfoMap.put(fieldInfo.getColumnName(), fieldInfo);
+
+      Getter<Object, Object> getter = PojoUtils.createGetter(clazz, fieldInfo.getPojoFieldExpression(), fieldInfo.getType().getJavaType());
+      fieldGetterMap.put(fieldInfo, getter);
     }
-    
-    
-    for( T fieldInfo : fieldInfos )
-    {
-      Setter<Object,Object> setter = PojoUtils.createSetter(clazz, fieldInfo.getPojoFieldExpression(), fieldInfo.getType().getJavaType() );
-      fieldSetterMap.put( fieldInfo, setter );
+
+
+    for (T fieldInfo : fieldInfos) {
+      Setter<Object, Object> setter = PojoUtils.createSetter(clazz, fieldInfo.getPojoFieldExpression(), fieldInfo.getType().getJavaType());
+      fieldSetterMap.put(fieldInfo, setter);
     }
   }
-	
-	/**
-	 * use FieldValueHandler handle the value
-	 * @param obj
-	 * @param fieldValueHandler
-	 * @return
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-  public void handleFieldsValue( Object obj,  FieldValueHandler fieldValueHandler )
-	{
-		for( Map.Entry< T, Getter<Object,Object>> entry : fieldGetterMap.entrySet() )
-		{
-			Getter<Object,Object> getter = entry.getValue();
-			if( getter != null )
-			{
-				Object value = getter.get(obj);
-				fieldValueHandler.handleFieldValue(entry.getKey(), value);
-			}
-		}
-	}
+
+  /**
+   * use FieldValueHandler handle the value
+   * @param obj
+   * @param fieldValueHandler
+   * @return
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public void handleFieldsValue(Object obj, FieldValueHandler fieldValueHandler)
+  {
+    for (Map.Entry<T, Getter<Object, Object>> entry : fieldGetterMap.entrySet()) {
+      Getter<Object, Object> getter = entry.getValue();
+      if (getter != null) {
+        Object value = getter.get(obj);
+        fieldValueHandler.handleFieldValue(entry.getKey(), value);
+      }
+    }
+  }
 
   public Map<String, Object> getFieldsValueAsMap(Object obj)
   {
@@ -98,10 +96,10 @@ public class FieldValueGenerator< T extends FieldInfo >
     return fieldsValue;
   }
 
-  public void setColumnValue( Object instance, String columnName, Object value, ValueConverter<T> valueConverter )
-	{
-	  T fieldInfo = fieldInfoMap.get(columnName);
-	  Setter<Object,Object> setter = fieldSetterMap.get( fieldInfo );
-	  setter.set(instance, valueConverter == null ? value : valueConverter.convertValue( fieldInfo, value ) );
-	}
+  public void setColumnValue(Object instance, String columnName, Object value, ValueConverter<T> valueConverter)
+  {
+    T fieldInfo = fieldInfoMap.get(columnName);
+    Setter<Object, Object> setter = fieldSetterMap.get(fieldInfo);
+    setter.set(instance, valueConverter == null ? value : valueConverter.convertValue(fieldInfo, value));
+  }
 }
