@@ -16,7 +16,6 @@
 package com.datatorrent.contrib.util;
 
 import java.io.ByteArrayOutputStream;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.lib.util.FieldValueGenerator;
-import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.datatorrent.lib.util.PojoUtils.Setter;
 
 public class FieldValueSerializableGenerator< T extends FieldInfo> extends FieldValueGenerator<T>
@@ -37,16 +35,23 @@ public class FieldValueSerializableGenerator< T extends FieldInfo> extends Field
   
   public static < T extends FieldInfo > FieldValueSerializableGenerator<T> getFieldValueGenerator(final Class<?> clazz, List<T> fieldInfos)
   {
-    return FieldValueGenerator.getFieldValueGenerator(clazz, fieldInfos, new FieldValueSerializableGenerator() );
+    return new FieldValueSerializableGenerator(clazz, fieldInfos);
   }
   
   
   private static final Logger logger = LoggerFactory.getLogger( FieldValueGenerator.class );
   //it's better to same kryo instance for both de/serialize
   private Kryo _kryo = null;
+  private Class<?> clazz;
   
   private FieldValueSerializableGenerator(){}
-  
+
+  public FieldValueSerializableGenerator(Class<?> clazz, List<T> fieldInfos)
+  {
+    super(clazz, fieldInfos);
+    this.clazz = clazz;
+  }
+
   /**
    * get the object which is serialized.
    * this method will convert the object into a map from column name to column value and then serialize it
@@ -62,19 +67,8 @@ public class FieldValueSerializableGenerator< T extends FieldInfo> extends Field
     //if fields are specified, convert to map and then convert map to byte[]
     if( fieldGetterMap != null && !fieldGetterMap.isEmpty() )
     {
-      Map< String, Object > fieldsValue = new HashMap< String, Object>();
-      for( Map.Entry< T, Getter<Object,Object>> entry : fieldGetterMap.entrySet() )
-      {
-        Getter<Object,Object> getter = entry.getValue();
-        if( getter != null )
-        {
-          Object value = getter.get(obj);
-          fieldsValue.put(entry.getKey().getColumnName(), value);
-        }
-      }
-      convertObj = fieldsValue;
+      convertObj = getFieldsValueAsMap(obj);
     }
-    
 
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     Output output = new Output(os);

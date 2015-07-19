@@ -16,13 +16,12 @@
 package com.datatorrent.contrib.memcache;
 
 import java.util.List;
-import java.util.Map;
 
 import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.lib.util.FieldValueGenerator;
-import com.datatorrent.lib.util.TableInfo;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
+import com.datatorrent.lib.util.TableInfo;
 
 /**
  * 
@@ -53,7 +52,7 @@ public class MemcachePOJOOutputOperator extends AbstractMemcacheOutputOperator< 
         fieldValueGenerator = FieldValueGenerator.getFieldValueGenerator(tuple.getClass(), fieldsInfo);
       }
       
-      Map<String, Object> fieldValue = fieldValueGenerator.getFieldsValueAsMap(tuple);
+      value = fieldValueGenerator.getFieldsValueAsMap(tuple);
     }
    
     getStore().put( rowGetter.get(tuple), value);

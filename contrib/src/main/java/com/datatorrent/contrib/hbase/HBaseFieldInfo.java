@@ -72,4 +72,33 @@ public class HBaseFieldInfo extends FieldInfo
 		throw new IllegalArgumentException( "Unsupported type: " + type );
 	}
 	
+	public Object toValue( byte[] bytes )
+	{
+    final SupportType type = getType();
+    switch( type )
+    {
+    case BOOLEAN:
+      return Bytes.toBoolean( bytes );
+      
+    case SHORT:
+      return Bytes.toShort( bytes );
+      
+    case INTEGER:
+      return Bytes.toInt( bytes );
+      
+    case LONG:
+      return Bytes.toLong( bytes );
+      
+    case FLOAT:
+      return Bytes.toFloat( bytes );
+      
+    case DOUBLE:
+      return Bytes.toDouble( bytes );
+      
+    case STRING:
+      return Bytes.toString( bytes );
+    }
+    throw new IllegalArgumentException( "Unsupported type: " + type );
+  }
+	
 }

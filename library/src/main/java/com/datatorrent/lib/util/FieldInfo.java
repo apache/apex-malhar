@@ -56,7 +56,7 @@ public class FieldInfo
 
   /**
    * Java expressions that will generate the column value from the POJO.
-   * 
+   *
    */
   public String getPojoFieldExpression()
   {
@@ -65,7 +65,7 @@ public class FieldInfo
 
   /**
    * Java expressions that will generate the column value from the POJO.
-   * 
+   *
    */
   public void setPojoFieldExpression(String expression)
   {
