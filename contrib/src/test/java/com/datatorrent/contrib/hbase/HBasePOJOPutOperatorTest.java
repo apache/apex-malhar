@@ -47,8 +47,8 @@ import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest
 public class HBasePOJOPutOperatorTest
 {
   private static final Logger logger = LoggerFactory.getLogger(HBasePOJOPutOperatorTest.class);
-  private static final int TEST_SIZE = 15000;
-  private static final int WINDOW_SIZE = 1500;
+  public static final int TEST_SIZE = 15000;
+  public static final int WINDOW_SIZE = 1500;
   
   private HBasePOJOPutOperator operator;
   
@@ -80,6 +80,12 @@ public class HBasePOJOPutOperatorTest
   @Test
   public void testPutInternal() throws Exception
   {
+    writeRecords();
+    readRecordsAndVerify();
+  }
+
+  protected void writeRecords()
+  {
     long windowId = startWindowId;
     try
     {
@@ -97,8 +103,7 @@ public class HBasePOJOPutOperatorTest
       }
 
       Thread.sleep(30000);
-      
-      readRecordsAndVerify( operator );
+
       
     }
     catch (Exception e)
@@ -107,7 +112,7 @@ public class HBasePOJOPutOperatorTest
       Assert.fail(e.getMessage());
     }
   }
-
+  
   protected void createOrDeleteTable(HBaseStore store, boolean isDelete ) throws Exception
   {
     HBaseAdmin admin = null;
@@ -207,7 +212,7 @@ public class HBasePOJOPutOperatorTest
       tupleGenerator.reset();
   }
 
-  protected void readRecordsAndVerify( HBasePOJOPutOperator operator )
+  protected void readRecordsAndVerify()
   {
     int[] rowIds = new int[ TEST_SIZE ];
     for( int i=1; i<=TEST_SIZE; ++i )
@@ -240,7 +245,7 @@ public class HBasePOJOPutOperatorTest
           map.put(columnName, value);
         }
         TestPOJO read = TestPOJO.from(map);
-        read.setRowId(rowId);
+        read.setRowId((long)rowId);
         TestPOJO expected = new TestPOJO( rowId );
         
         Assert.assertTrue( String.format( "expected %s, get %s ", expected.toString(), read.toString() ), expected.completeEquals(read) );
@@ -277,4 +282,8 @@ public class HBasePOJOPutOperatorTest
     }
   }
 
+  public HBasePOJOPutOperator getOperator()
+  {
+    return operator;
+  }
 }
