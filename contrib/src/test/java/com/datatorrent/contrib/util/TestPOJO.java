@@ -15,6 +15,7 @@
  */
 package com.datatorrent.contrib.util;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,8 +25,12 @@ import org.apache.hadoop.hbase.util.Bytes;
 import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.lib.util.FieldInfo.SupportType;
 
-public class TestPOJO
+
+
+public class TestPOJO implements Serializable
 {
+  private static final long serialVersionUID = 2153417121590225192L;
+
   public static List<FieldInfo> getFieldsInfo()
   {
     List<FieldInfo> fieldsInfo = new ArrayList<FieldInfo>();
@@ -51,7 +56,7 @@ public class TestPOJO
     return testPOJO;
   }
   
-  private long rowId = 0;
+  private Long rowId = null;
   private String name;
   private int age;
   private String address;
@@ -103,11 +108,14 @@ public class TestPOJO
   {
     setRowId( Long.valueOf(row) );
   }
-  public void setRowId( long rowId )
+  public void setRowId( Long rowId )
   {
     this.rowId = rowId;
   }
-  
+  public Long getRowId()
+  {
+    return rowId;
+  }
   public String getName()
   {
     return name;
@@ -136,6 +144,17 @@ public class TestPOJO
   public void setAddress(String address)
   {
     this.address = address;
+  }
+  
+  @Override
+  public boolean equals( Object obj )
+  {
+    if( obj == null )
+      return false;
+    if( !( obj instanceof TestPOJO ) )
+      return false;
+    
+    return completeEquals( (TestPOJO)obj );
   }
 
   public boolean outputFieldsEquals( TestPOJO other )

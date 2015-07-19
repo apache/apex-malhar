@@ -21,6 +21,10 @@ import java.lang.reflect.Constructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This is a copy from contrib, should be merged later.
+ * 
+ */
 public class TupleGenerator<T>
 {
   private static final Logger logger = LoggerFactory.getLogger( TupleGenerator.class );
@@ -30,7 +34,16 @@ public class TupleGenerator<T>
   
   private static Class<?>[] paramTypes = new Class<?>[]{ Long.class, long.class, Integer.class, int.class };
   
+  public TupleGenerator()
+  {
+  }
+  
   public TupleGenerator( Class<T> tupleClass )
+  {
+    useTupleClass( tupleClass );
+  }
+  
+  public void useTupleClass( Class<T> tupleClass )
   {
     for( Class<?> paramType : paramTypes )
     {
