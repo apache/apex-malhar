@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>dt-megh</artifactId>
-    <version>3.0.0-RC2</version>
+    <version>3.0.0-RC3</version>
   </parent>
 
   <artifactId>dt-library</artifactId>
@@ -177,13 +177,13 @@
     <dependency>
       <groupId>com.datatorrent</groupId>
       <artifactId>malhar-library</artifactId>
-      <version>3.0.0-RC2</version>
+      <version>3.0.0-RC3</version>
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>com.datatorrent</groupId>
       <artifactId>malhar-library</artifactId>
-      <version>3.0.0-RC2</version>
+      <version>3.0.0-RC3</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
@@ -196,7 +196,7 @@
     <dependency>
       <groupId>com.datatorrent</groupId>
       <artifactId>dt-common</artifactId>
-      <version>3.0.0-RC2</version>
+      <version>3.0.0-RC3</version>
       <type>jar</type>
     </dependency>
     <dependency>
