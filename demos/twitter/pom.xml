@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.datatorrent</groupId>
-  <version>3.0.0-RC2</version>
+  <version>3.0.0-RC3</version>
   <artifactId>twitter-demo</artifactId>
   <packaging>jar</packaging>
 
@@ -13,12 +13,12 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>malhar-demos</artifactId>
-    <version>3.0.0-RC2</version>
+    <version>3.0.0-RC3</version>
   </parent>
 
   <properties>
     <!-- change this if you desire to use a different version of DataTorrent -->
-    <datatorrent.version>3.0.0-RC2</datatorrent.version>
+    <datatorrent.version>3.0.0-RC3</datatorrent.version>
     <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
     <skipTests>true</skipTests>
   </properties>
