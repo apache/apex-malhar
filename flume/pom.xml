@@ -38,9 +38,8 @@
                 <configuration>
                   <target unless="${obfuscation.skip}">
                     <property name="obf.jar" value="target/dt-flume-${project.version}.jar"/>
-                    <property name="dep1.jar" value="../netlet/target/dt-netlet-1.0.1-SNAPSHOT.jar" />
-                    <property name="runtime_classpath" refid="maven.runtime.classpath"/>
-                    <taskdef name="allatori" classname="com.allatori.ant.ObfuscatorTask" classpath="${env.ALLATORI_LIB}/allatori.jar:${runtime_classpath}"/>
+                    <property name="compile_classpath" refid="maven.compile.classpath"/>
+                    <taskdef name="allatori" classname="com.allatori.ant.ObfuscatorTask" classpath="${env.ALLATORI_LIB}/allatori.jar:${compile_classpath}"/>
                     <allatori config="${basedir}/allatori-config.xml"/>
                   </target>
                 </configuration>
