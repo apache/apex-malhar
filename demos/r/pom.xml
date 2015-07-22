@@ -17,8 +17,9 @@
   </parent>
 
   <properties>
-    <!-- change this if you desire to use a different version of DataTorrent -->
     <skipTests>true</skipTests>
+    <maven.deploy.skip>false</maven.deploy.skip>
+    <maven.install.skip>false</maven.install.skip>
   </properties>
 
   <repositories>

@@ -16,6 +16,11 @@
   <name>EchoServer Demo</name>
   <description>A demo server that echos data sent by a network client back to it</description>
 
+  <properties>
+    <maven.deploy.skip>false</maven.deploy.skip>
+    <maven.install.skip>false</maven.install.skip>
+  </properties>
+
   <build>
     <plugins>
       <plugin>

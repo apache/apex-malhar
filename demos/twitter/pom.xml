@@ -17,10 +17,9 @@
   </parent>
 
   <properties>
-    <!-- change this if you desire to use a different version of DataTorrent -->
-    <datatorrent.version>3.0.0-RC4</datatorrent.version>
-    <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
     <skipTests>true</skipTests>
+    <maven.deploy.skip>false</maven.deploy.skip>
+    <maven.install.skip>false</maven.install.skip>
   </properties>
 
   <build>
