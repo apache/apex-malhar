@@ -12,7 +12,7 @@
   </property>
   <property>
     <name>dt.application.AdsDimensionsCustomBenchmark.operator.InputGenerator.attr.PARTITIONER</name>
-    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
+    <value>com.datatorrent.common.partitioner.StatelessPartitioner:8</value>
   </property>
   <property>
     <value>dt.application.AdsDimensionsCustomBenchmark.operator.InputGenerator.attr.MEMORY_MB</value>
@@ -38,7 +38,7 @@
   </property>
   <property>
     <name>dt.application.AdsDimensionsFlexibleBenchmark.operator.InputGenerator.attr.PARTITIONER</name>
-    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
+    <value>com.datatorrent.common.partitioner.StatelessPartitioner:8</value>
   </property>
   <property>
     <value>dt.application.AdsDimensionsFlexibleBenchmark.operator.InputGenerator.attr.MEMORY_MB</value>
@@ -64,7 +64,7 @@
   </property>
   <property>
     <name>dt.application.AdsDimensionsStatsBenchmark.operator.InputGenerator.attr.PARTITIONER</name>
-    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
+    <value>com.datatorrent.common.partitioner.StatelessPartitioner:8</value>
   </property>
   <property>
     <value>dt.application.AdsDimensionsStatsBenchmark.operator.InputGenerator.attr.MEMORY_MB</value>
@@ -107,7 +107,7 @@
   </property>
   <property>
     <name>dt.application.AdsDimensionsDemoGeneric.operator.InputGenerator.attr.PARTITIONER</name>
-    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
+    <value>com.datatorrent.common.partitioner.StatelessPartitioner:8</value>
   </property>
   <property>
     <value>dt.application.AdsDimensionsDemoGeneric.operator.InputGenerator.attr.MEMORY_MB</value>
@@ -146,7 +146,7 @@
   </property>
   <property>
     <name>dt.application.AdsDimensionsDemoGenericManualEntry.operator.InputGenerator.attr.PARTITIONER</name>
-    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
+    <value>com.datatorrent.common.partitioner.StatelessPartitioner:8</value>
   </property>
   <property>
     <value>dt.application.AdsDimensionsDemoGenericManualEntry.operator.InputGenerator.attr.MEMORY_MB</value>
@@ -185,7 +185,7 @@
   </property>
   <property>
     <name>dt.application.AdsDimensionsDemoFast.operator.InputGenerator.attr.PARTITIONER</name>
-    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
+    <value>com.datatorrent.common.partitioner.StatelessPartitioner:8</value>
   </property>
   <property>
     <value>dt.application.AdsDimensionsDemoFast.operator.InputGenerator.attr.MEMORY_MB</value>
@@ -221,7 +221,7 @@
   </property>
   <property>
     <name>dt.application.SalesDemo.operator.DimensionsComputation.attr.PARTITIONER</name>
-    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
+    <value>com.datatorrent.common.partitioner.StatelessPartitioner:8</value>
   </property>
   <property>
     <name>dt.application.SalesDemo.operator.InputGenerator.maxTuplesPerWindow</name>
@@ -239,7 +239,7 @@
   </property>
   <property>
     <name>dt.attr.CONTAINER_JVM_OPTIONS</name>
-    <value>-Xmx6g -server -Dlog4j.debug=true -Xloggc:&lt;LOG_DIR&gt;/gc.log -verbose:gc -XX:+PrintGCDateStamps -Dlog4j.configuration=debug_log4j.properties</value>
+    <value>-Xmx6g -server -Dlog4j.debug=true -Xloggc:&lt;LOG_DIR&gt;/gc.log -verbose:gc -XX:+PrintGCDateStamps</value>
   </property>
   <property>
     <name>dt.attr.APPLICATION_DATA_LINK</name>

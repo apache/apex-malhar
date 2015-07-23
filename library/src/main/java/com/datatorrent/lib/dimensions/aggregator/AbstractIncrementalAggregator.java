@@ -66,16 +66,17 @@ public abstract class AbstractIncrementalAggregator implements IncrementalAggreg
   @Override
   public boolean equals(InputEvent inputEvent1, InputEvent inputEvent2)
   {
-    long timestamp = 0;
+    long timestamp1 = 0;
+    long timestamp2 = 0;
 
     if(context.inputTimestampIndex != -1) {
-      timestamp = inputEvent1.getKeys().getFieldsLong()[context.inputTimestampIndex];
+      timestamp1 = inputEvent1.getKeys().getFieldsLong()[context.inputTimestampIndex];
       inputEvent1.getKeys().getFieldsLong()[context.inputTimestampIndex] =
-      context.dd.getTimeBucket().roundDown(timestamp);
+      context.dd.getTimeBucket().roundDown(timestamp1);
 
-      timestamp = inputEvent2.getKeys().getFieldsLong()[context.inputTimestampIndex];
+      timestamp2 = inputEvent2.getKeys().getFieldsLong()[context.inputTimestampIndex];
       inputEvent2.getKeys().getFieldsLong()[context.inputTimestampIndex] =
-      context.dd.getTimeBucket().roundDown(timestamp);
+      context.dd.getTimeBucket().roundDown(timestamp2);
     }
 
     boolean equals = GPOUtils.subsetEquals(inputEvent2.getKeys(),
@@ -83,8 +84,8 @@ public abstract class AbstractIncrementalAggregator implements IncrementalAggreg
                                            context.indexSubsetKeys);
 
     if(context.inputTimestampIndex != -1) {
-      inputEvent1.getKeys().getFieldsLong()[context.inputTimestampIndex] = timestamp;
-      inputEvent2.getKeys().getFieldsLong()[context.inputTimestampIndex] = timestamp;
+      inputEvent1.getKeys().getFieldsLong()[context.inputTimestampIndex] = timestamp1;
+      inputEvent2.getKeys().getFieldsLong()[context.inputTimestampIndex] = timestamp2;
     }
 
     return equals;
