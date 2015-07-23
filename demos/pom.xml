@@ -31,12 +31,17 @@
     <!-- change this if you desire to use a different version of DataTorrent -->
     <datatorrent.version>2.2.0-SNAPSHOT</datatorrent.version>
     <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
-    <maven.deploy.skip>true</maven.deploy.skip>
-    <maven.install.skip>true</maven.install.skip>
   </properties>
 
-  <build>
-    <pluginManagement>
+  <profiles>
+	<profile>
+    <id>demo-plugin-activation</id>
+    <activation>
+        <file>
+            <exists>${basedir}/src/main</exists>
+        </file>
+    </activation>
+    <build>
       <plugins>
         <plugin>
           <artifactId>maven-eclipse-plugin</artifactId>
@@ -64,8 +69,7 @@
           <executions>
             <execution>
               <id>copy-dependencies</id>
-              <phase>none</phase>
-              <!--phase>prepare-package</phase-->
+              <phase>prepare-package</phase>
               <goals>
                 <goal>copy-dependencies</goal>
               </goals>
@@ -150,8 +154,9 @@
           </executions>
         </plugin>
       </plugins>
-    </pluginManagement>
-  </build>
+	</build>
+	</profile>
+  </profiles>
 
   <dependencies>
     <dependency>
