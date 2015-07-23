@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.mutable.MutableLong;
 
 import com.datatorrent.lib.bucket.AbstractBucket;
+import com.datatorrent.lib.bucket.AbstractBucketManager;
 import com.datatorrent.lib.bucket.BucketManager;
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.api.*;
@@ -176,13 +177,13 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
 
       AbstractBucket<INPUT> bucket = bucketManager.getBucket(bucketKey);
 
-      if (bucket != null && bucket.containsEvent(tuple)) {
+      if (bucket != null && !waitingEvents.containsKey(bucketKey) && bucket.containsEvent(tuple)) {
         counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
         duplicates.emit(tuple);
         return;
       } //ignore event
 
-      if (bucket != null && bucket.isDataOnDiskLoaded()) {
+      if (bucket != null && !waitingEvents.containsKey(bucketKey) && bucket.isDataOnDiskLoaded()) {
         bucketManager.newEvent(bucketKey, tuple);
         output.emit(convert(tuple));
       }
@@ -246,7 +247,12 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
         if (waitingList != null) {
           for (INPUT event : waitingList) {
             if (!bucket.containsEvent(event)) {
-              bucketManager.newEvent(bucket.bucketKey, event);
+              if(bucketManager.getBucketKeyFor(event) < 0){ // This event will be expired after all tuples in this window are finished processing.
+                bucketManager.addEventToBucket(bucket, event); // Temporarily add the event to this bucket, so as to deduplicate within this window.
+              }
+              else{
+                bucketManager.newEvent(bucket.bucketKey, event);
+              }
               output.emit(convert(event));
             }
             else {

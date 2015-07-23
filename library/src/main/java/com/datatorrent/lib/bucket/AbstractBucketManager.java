@@ -194,6 +194,11 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
     }
   }
 
+  public boolean isWriteEventKeysOnly()
+  {
+    return writeEventKeysOnly;
+  }
+
   @Override
   public void setBucketCounters(@Nonnull BasicCounters<MutableLong> bucketCounters)
   {
@@ -373,6 +378,12 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
     if (recordStats) {
       bucketCounters.getCounter(CounterKeys.EVENTS_IN_MEMORY).increment();
     }
+  }
+
+  @Override
+  public void addEventToBucket(AbstractBucket<T> bucket, T event)
+  {
+    bucket.addNewEvent(bucket.getEventKey(event), writeEventKeysOnly ? null : event);
   }
 
   @Override

@@ -122,6 +122,14 @@ public interface BucketManager<T> extends Cloneable
   void newEvent(long bucketKey, T event);
 
   /**
+   * Adds the event to the un-written section of the bucket to the given bucket.
+   *
+   * @param bucket
+   * @param event     new event.
+   */
+  void addEventToBucket(AbstractBucket<T> bucket, T event);
+
+  /**
    * Does end window operations which includes tracking the committed window and
    * persisting all un-written events in the store.
    *
