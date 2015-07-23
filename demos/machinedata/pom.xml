@@ -16,6 +16,11 @@
     <version>2.2.0-SNAPSHOT</version>
   </parent>
 
+  <properties>
+    <maven.deploy.skip>false</maven.deploy.skip>
+    <maven.install.skip>false</maven.install.skip>
+  </properties>
+
   <build>
     <plugins>
       <plugin>
