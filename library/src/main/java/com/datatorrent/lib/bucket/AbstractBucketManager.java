@@ -35,10 +35,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.MinMaxPriorityQueue;
 import com.google.common.collect.Sets;
-
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
@@ -223,6 +223,7 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
   public void run()
   {
     running = true;
+    List<Long> requestedBuckets = Lists.newArrayList();
     try {
       while (running) {
         Long request = eventQueue.poll(1, TimeUnit.SECONDS);
@@ -232,8 +233,10 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
             synchronized (lock) {
               lock.notify();
             }
+            requestedBuckets.clear();
           }
           else {
+            requestedBuckets.add(requestedKey);
             int bucketIdx = (int) (requestedKey % noOfBuckets);
             long numEventsRemoved = 0;
             if (buckets[bucketIdx] != null && buckets[bucketIdx].bucketKey != requestedKey) {
@@ -266,6 +269,10 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
               while (overFlow-- >= 0) {
                 AbstractBucket<T> lruBucket = bucketHeap.poll();
                 if (lruBucket == null) {
+                  break;
+                }
+                // Do not evict buckets loaded in the current window
+                if(requestedBuckets.contains(lruBucket.bucketKey)) {
                   break;
                 }
                 int lruIdx = (int) (lruBucket.bucketKey % noOfBuckets);

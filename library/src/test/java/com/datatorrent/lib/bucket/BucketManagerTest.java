@@ -96,7 +96,19 @@ public class BucketManagerTest
     eventBucketExchanger.exchange(null);
     manager.loadBucketData(bucket2);
     eventBucketExchanger.exchange(null);
-    Assert.assertTrue(manager.getBucket(bucket1) == null);
+//    Assert.assertTrue(manager.getBucket(bucket1) == null); // May not hold
+    Assert.assertNotNull(manager.getBucket(bucket2));
+  }
+
+  @Test
+  public void testBucketEviction2() throws IOException, InterruptedException
+  {
+    manager.loadBucketData(bucket1);
+    eventBucketExchanger.exchange(null);
+    manager.loadBucketData(-2); // Simulate end window
+    manager.loadBucketData(bucket2);
+    eventBucketExchanger.exchange(null);
+    Assert.assertTrue(manager.getBucket(bucket1) == null); // Must hold
     Assert.assertNotNull(manager.getBucket(bucket2));
   }
 
@@ -110,7 +122,26 @@ public class BucketManagerTest
 
     for (int i = 0; i < 100; i++) {
       if (i != 99) {
-        Assert.assertTrue(manager.getBucket(i) == null);
+//        Assert.assertTrue(manager.getBucket(i) == null); // May not hold anymore. Since manager won't evict a bucket loaded in current window
+      }
+      else {
+        Assert.assertNotNull(manager.getBucket(i));
+      }
+    }
+  }
+
+  @Test
+  public void test2BucketEviction2() throws InterruptedException
+  {
+    for (int i = 0; i < 100; i++) {
+      manager.loadBucketData(i);
+      eventBucketExchanger.exchange(null);
+      manager.loadBucketData(-2); // Simulate end window
+    }
+
+    for (int i = 0; i < 100; i++) {
+      if (i != 99) {
+        Assert.assertTrue(manager.getBucket(i) == null); // Must hold
       }
       else {
         Assert.assertNotNull(manager.getBucket(i));
@@ -127,7 +158,7 @@ public class BucketManagerTest
     eventBucketExchanger.exchange(null);
     Assert.assertNotNull(manager.getBucket(bucket2));
     AbstractBucketManager<DummyEvent> clonedManager = manager.clone();
-    Assert.assertNull(clonedManager.getBucket(bucket1));
+//    Assert.assertNull(clonedManager.getBucket(bucket1)); This is no more true. Number of buckets in memory may not be maintained
     Assert.assertNotNull(clonedManager.getBucket(bucket2));
     Assert.assertNotNull(clonedManager.getBucketStore());
     Assert.assertTrue(clonedManager.writeEventKeysOnly==manager.writeEventKeysOnly);
