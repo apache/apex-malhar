@@ -1,0 +1,100 @@
+{"productId":1,"product":"Laptops"}
+{"productId":2,"product":"Printers"}
+{"productId":3,"product":"Routers"}
+{"productId":4,"product":"Laptops"}
+{"productId":5,"product":"Laptops"}
+{"productId":6,"product":"Smart Phones"}
+{"productId":7,"product":"Tablets"}
+{"productId":8,"product":"Smart Phones"}
+{"productId":9,"product":"Routers"}
+{"productId":10,"product":"Tablets"}
+{"productId":11,"product":"Printers"}
+{"productId":12,"product":"Printers"}
+{"productId":13,"product":"Laptops"}
+{"productId":14,"product":"Routers"}
+{"productId":15,"product":"Laptops"}
+{"productId":16,"product":"Printers"}
+{"productId":17,"product":"Smart Phones"}
+{"productId":18,"product":"Tablets"}
+{"productId":19,"product":"Routers"}
+{"productId":20,"product":"Laptops"}
+{"productId":21,"product":"Smart Phones"}
+{"productId":22,"product":"Printers"}
+{"productId":23,"product":"Printers"}
+{"productId":24,"product":"Smart Phones"}
+{"productId":25,"product":"Printers"}
+{"productId":26,"product":"Smart Phones"}
+{"productId":27,"product":"Laptops"}
+{"productId":28,"product":"Smart Phones"}
+{"productId":29,"product":"Smart Phones"}
+{"productId":30,"product":"Tablets"}
+{"productId":31,"product":"Printers"}
+{"productId":32,"product":"Printers"}
+{"productId":33,"product":"Smart Phones"}
+{"productId":34,"product":"Tablets"}
+{"productId":35,"product":"Routers"}
+{"productId":36,"product":"Smart Phones"}
+{"productId":37,"product":"Tablets"}
+{"productId":38,"product":"Tablets"}
+{"productId":39,"product":"Smart Phones"}
+{"productId":40,"product":"Tablets"}
+{"productId":41,"product":"Smart Phones"}
+{"productId":42,"product":"Smart Phones"}
+{"productId":43,"product":"Printers"}
+{"productId":44,"product":"Routers"}
+{"productId":45,"product":"Printers"}
+{"productId":46,"product":"Laptops"}
+{"productId":47,"product":"Routers"}
+{"productId":48,"product":"Laptops"}
+{"productId":49,"product":"Laptops"}
+{"productId":50,"product":"Smart Phones"}
+{"productId":51,"product":"Printers"}
+{"productId":52,"product":"Laptops"}
+{"productId":53,"product":"Tablets"}
+{"productId":54,"product":"Tablets"}
+{"productId":55,"product":"Smart Phones"}
+{"productId":56,"product":"Laptops"}
+{"productId":57,"product":"Tablets"}
+{"productId":58,"product":"Tablets"}
+{"productId":59,"product":"Laptops"}
+{"productId":60,"product":"Printers"}
+{"productId":61,"product":"Tablets"}
+{"productId":62,"product":"Smart Phones"}
+{"productId":63,"product":"Printers"}
+{"productId":64,"product":"Tablets"}
+{"productId":65,"product":"Smart Phones"}
+{"productId":66,"product":"Printers"}
+{"productId":67,"product":"Tablets"}
+{"productId":68,"product":"Laptops"}
+{"productId":69,"product":"Routers"}
+{"productId":70,"product":"Routers"}
+{"productId":71,"product":"Tablets"}
+{"productId":72,"product":"Routers"}
+{"productId":73,"product":"Tablets"}
+{"productId":74,"product":"Printers"}
+{"productId":75,"product":"Routers"}
+{"productId":76,"product":"Tablets"}
+{"productId":77,"product":"Printers"}
+{"productId":78,"product":"Routers"}
+{"productId":79,"product":"Routers"}
+{"productId":80,"product":"Routers"}
+{"productId":81,"product":"Smart Phones"}
+{"productId":82,"product":"Laptops"}
+{"productId":83,"product":"Printers"}
+{"productId":84,"product":"Smart Phones"}
+{"productId":85,"product":"Laptops"}
+{"productId":86,"product":"Smart Phones"}
+{"productId":87,"product":"Printers"}
+{"productId":88,"product":"Routers"}
+{"productId":89,"product":"Smart Phones"}
+{"productId":90,"product":"Routers"}
+{"productId":91,"product":"Tablets"}
+{"productId":92,"product":"Smart Phones"}
+{"productId":93,"product":"Laptops"}
+{"productId":94,"product":"Routers"}
+{"productId":95,"product":"Routers"}
+{"productId":96,"product":"Printers"}
+{"productId":97,"product":"Routers"}
+{"productId":98,"product":"Smart Phones"}
+{"productId":99,"product":"Smart Phones"}
+{"productId":100,"product":"Routers"}

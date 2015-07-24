@@ -231,6 +231,18 @@
     <name>dt.application.SalesDemo.operator.InputGenerator.tuplesPerWindowDeviation</name>
     <value>7000</value>
   </property>
+  <property>
+    <name>dt.application.SalesDemo.operator.Enrichment.filePath</name>
+    <value>./products.txt</value>
+  </property>
+  <property>
+    <name>dt.application.SalesDemo.operator.Enrichment.lookupKey</name>
+    <value>productId</value>
+  </property>
+  <property>
+    <name>dt.application.SalesDemo.operator.Enrichment.backupResource</name>
+    <value>products.txt</value>
+  </property>
 
   <!-- Settings for all the apps -->
   <property>

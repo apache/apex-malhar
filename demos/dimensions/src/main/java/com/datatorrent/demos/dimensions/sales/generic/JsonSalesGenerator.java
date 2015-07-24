@@ -151,7 +151,7 @@ public class JsonSalesGenerator implements InputGenerator<byte[]>
     schema = new DimensionalSchema(new DimensionalConfigurationSchema(eventSchemaJSON,
                                                               AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY));
 
-    maxProductId = schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_PRODUCT).size();
+    maxProductId = 100;
     maxCustomerId = 30;
     maxChannelId = schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_CHANNEL).size();
     maxRegionId = schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_REGION).size();
@@ -224,12 +224,12 @@ public class JsonSalesGenerator implements InputGenerator<byte[]>
 
   SalesEvent generateSalesEvent() throws Exception {
     int regionId = regionalGenerator.next();
-    int productId = randomId(maxProductId) - 1;
+    int productId = randomId(maxProductId);
     int channelId = channelGenerator.next();
 
     SalesEvent salesEvent = new SalesEvent();
     salesEvent.time = System.currentTimeMillis();
-    salesEvent.product = (String) schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_PRODUCT).get(productId);
+    salesEvent.productId = productId;
     salesEvent.channel = (String) schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_CHANNEL).get(channelId);
     salesEvent.region = (String) schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_REGION).get(regionId);
     salesEvent.amount = randomAmount(minAmount, maxAmount);
@@ -388,7 +388,7 @@ class SalesEvent {
 
   /* dimension keys */
   public long time;
-  public String product;
+  public int productId;
   public String customer;
   public String channel;
   public String region;

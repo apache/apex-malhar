@@ -46,7 +46,7 @@ public class AdsDimensionsDemoTest
     conf.addResource("META-INF/properties.xml");
     conf.set("dt.attr.GATEWAY_CONNECT_ADDRESS", gatewayConnectAddress);
     conf.set("dt.application.AdsDimensionsDemoGeneric.operator.InputGenerator.attr.PARTITIONER",
-             "com.datatorrent.lib.partitioner.StatelessPartitioner:1");
+             "com.datatorrent.common.partitioner.StatelessPartitioner:1");
     conf.set("dt.application.AdsDimensionsDemoGeneric.operator.Store.fileStore.basePathPrefix",
              testMeta.getDir());
 

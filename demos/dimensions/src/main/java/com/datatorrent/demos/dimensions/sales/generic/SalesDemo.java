@@ -68,6 +68,7 @@ public class SalesDemo implements StreamingApplication
     }
 
     JsonToMapConverter converter = dag.addOperator("Converter", JsonToMapConverter.class);
+    EnrichmentOperator enrichmentOperator = dag.addOperator("Enrichment", EnrichmentOperator.class);
     DimensionsComputationFlexibleSingleSchemaMap dimensions =
     dag.addOperator("DimensionsComputation", DimensionsComputationFlexibleSingleSchemaMap.class);
     dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 4);
@@ -109,7 +110,8 @@ public class SalesDemo implements StreamingApplication
     queryResultPort = wsOut.input;
 
     dag.addStream("InputStream", inputGenerator.getOutputPort(), converter.input);
-    dag.addStream("ConvertStream", converter.outputMap, dimensions.input);
+    dag.addStream("EnrichmentStream", converter.outputMap, enrichmentOperator.inputPort);
+    dag.addStream("ConvertStream", enrichmentOperator.outputPort, dimensions.input);
     dag.addStream("DimensionalData", dimensions.output, store.input);
     dag.addStream("QueryResult", store.queryResult, queryResultPort).setLocality(Locality.CONTAINER_LOCAL);
   }
