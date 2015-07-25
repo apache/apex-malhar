@@ -25,7 +25,9 @@ import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.validation.ConstraintViolationException;
 
-import com.google.common.collect.Maps;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.google.common.io.LimitInputStream;
 
 import org.junit.Assert;
@@ -36,8 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.mutable.MutableLong;
-import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 
@@ -59,18 +59,24 @@ public class AbstractFileOutputOperatorTest
   private static final String EVEN_FILE = "even.txt";
   private static final String ODD_FILE = "odd.txt";
 
-  @Rule public TestInfo testMeta = new FSTestWatcher();
+  @Rule public FSTestWatcher testMeta = new FSTestWatcher();
 
   public static OperatorContextTestHelper.TestIdOperatorContext testOperatorContext =
                 new OperatorContextTestHelper.TestIdOperatorContext(0);
 
   public static class FSTestWatcher extends TestInfo
   {
+    public boolean writeToTmp = false;
+
     @Override
     protected void starting(Description description)
     {
       super.starting(description);
-      new File(getDir()).mkdir();
+      try {
+        FileUtils.forceMkdir(new File(getDir()));
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     }
 
     @Override
@@ -163,34 +169,6 @@ public class AbstractFileOutputOperatorTest
       return tuple;
     }
   }
-
-  /**
-   * Dummy writer to store checkpointed state
-   */
-  @SuppressWarnings("rawtypes")
-  public static class CheckPointWriter extends AbstractFileOutputOperator
-  {
-    @Override
-    protected FileSystem getFSInstance() throws IOException
-    {
-      return FileSystem.getLocal(new Configuration()).getRaw();
-    }
-
-    @Override
-    protected String getFileName(Object tuple)
-    {
-      //This is a dummy operator for checkpointing
-      throw new UnsupportedOperationException("Not supported.");
-    }
-
-    @Override
-    protected byte[] getBytesForTuple(Object tuple)
-    {
-      //This is a dummy operator for checkpointing
-      throw new UnsupportedOperationException("Not supported.");
-    }
-  }
-
   /**
    * This is a test app to make sure that the operator validation works properly.
    */
@@ -232,69 +210,35 @@ public class AbstractFileOutputOperatorTest
     }
   }
 
-  private void populateFile(String fileName,
-                            String contents)
+  private void populateFile(String fileName, String contents) throws IOException
   {
-    File testFile = new File(testMeta.getDir() +
-                             "/" +
-                             fileName);
+    File testFile = new File(testMeta.getDir() + "/" + fileName);
+    testFile.createNewFile();
 
-    try {
-      testFile.createNewFile();
-    }
-    catch (IOException ex) {
-      throw new RuntimeException(ex);
-    }
-
-    FileWriter fileWriter;
-
-    try {
-      fileWriter = new FileWriter(testFile);
-      fileWriter.write(contents);
-      fileWriter.close();
-    }
-    catch (IOException ex) {
-      DTThrowable.rethrow(ex);
-    }
+    FileWriter fileWriter = new FileWriter(testFile);
+    fileWriter.write(contents);
+    fileWriter.close();
   }
 
   /**
    * This method checkpoints the given writer.
    * @param writer The writer to checkpoint.
-   * @return Checkpointed writer.
+   * @return new writer.
    */
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  public static CheckPointWriter checkpoint(AbstractFileOutputOperator writer)
+  public static AbstractFileOutputOperator checkpoint(AbstractFileOutputOperator writer)
   {
-    CheckPointWriter checkPointWriter = new CheckPointWriter();
-    checkPointWriter.counts = Maps.newHashMap();
+    Kryo kryo = new Kryo();
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    Output loutput = new Output(bos);
+    kryo.writeObject(loutput, writer);
+    loutput.close();
 
-    for(Object keys: writer.counts.keySet()) {
-      checkPointWriter.counts.put(keys,
-                                  new MutableLong(((MutableLong) writer.counts.get(keys)).longValue()));
-    }
+    Input lInput = new Input(bos.toByteArray());
+    @SuppressWarnings("unchecked")
+    AbstractFileOutputOperator checkPointedWriter = kryo.readObject(lInput, writer.getClass());
+    lInput.close();
 
-    checkPointWriter.endOffsets = Maps.newHashMap();
-
-    for(Object keys: writer.endOffsets.keySet()) {
-      checkPointWriter.endOffsets.put(keys, new MutableLong(((MutableLong) writer.endOffsets.get(keys)).longValue()));
-    }
-
-    checkPointWriter.openPart = Maps.newHashMap();
-
-    for(Object keys: writer.openPart.keySet()) {
-      checkPointWriter.openPart.put(keys,
-                                    new MutableInt(((MutableInt) writer.openPart.get(keys)).intValue()));
-    }
-
-    checkPointWriter.filePath = writer.filePath;
-    checkPointWriter.maxOpenFiles = writer.maxOpenFiles;
-    checkPointWriter.replication = writer.replication;
-    checkPointWriter.totalBytesWritten = writer.totalBytesWritten;
-    checkPointWriter.maxLength = writer.maxLength;
-    checkPointWriter.rollingFile = writer.rollingFile;
-
-    return checkPointWriter;
+    return checkPointedWriter;
   }
 
   /**
@@ -303,7 +247,7 @@ public class AbstractFileOutputOperatorTest
    * @param writer The writer to restore state into.
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public static void restoreCheckPoint(CheckPointWriter checkPointWriter,
+  public static void restoreCheckPoint(AbstractFileOutputOperator checkPointWriter,
                                        AbstractFileOutputOperator writer)
   {
     writer.counts = checkPointWriter.counts;
@@ -315,11 +259,11 @@ public class AbstractFileOutputOperatorTest
     writer.totalBytesWritten = checkPointWriter.totalBytesWritten;
     writer.maxLength = checkPointWriter.maxLength;
     writer.rollingFile = checkPointWriter.rollingFile;
+    writer.getFileNameToTmpName().putAll(checkPointWriter.getFileNameToTmpName());
+    writer.getFinalizedFiles().putAll(checkPointWriter.getFinalizedFiles());
   }
 
-  public static void checkOutput(int fileCount,
-                                 String baseFilePath,
-                                 String expectedOutput)
+  public static void checkOutput(int fileCount, String baseFilePath, String expectedOutput)
   {
     if(fileCount >= 0) {
       baseFilePath += "." + fileCount;
@@ -362,7 +306,14 @@ public class AbstractFileOutputOperatorTest
   }
 
   @Test
-  public void testSingleFileCompletedWriteOverwriteInitial()
+  public void testSingleFileCompletedWriteTmp() {
+    testMeta.writeToTmp = true;
+    testSingleFileCompletedWrite();
+  }
+
+
+  @Test
+  public void testSingleFileCompletedWriteOverwriteInitial() throws IOException
   {
     populateFile(SINGLE_FILE,
                  "0\n" +
@@ -385,9 +336,17 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
+  @Test
+  public void testSingleFileCompletedWriteOverwriteInitialTmp() throws IOException
+  {
+    testMeta.writeToTmp = true;
+    testSingleFileCompletedWriteOverwriteInitial();
+  }
+
   private void testSingleFileCompletedWriteHelper(SingleHDFSExactlyOnceWriter writer)
   {
     writer.setFilePath(testMeta.getDir());
+    writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
     writer.setup(testOperatorContext);
 
     writer.beginWindow(0);
@@ -400,6 +359,8 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(3);
     writer.endWindow();
 
+    writer.requestFinalize(SINGLE_FILE);
+    writer.committed(1);
     writer.teardown();
   }
 
@@ -425,7 +386,14 @@ public class AbstractFileOutputOperatorTest
   }
 
   @Test
-  public void testSingleFileFailedWriteOverwriteInitial()
+  public void testSingleFileFailedWriteTmp()
+  {
+    testMeta.writeToTmp = true;
+    testSingleFileFailedWrite();
+  }
+
+  @Test
+  public void testSingleFileFailedWriteOverwriteInitial() throws IOException
   {
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
     populateFile(SINGLE_FILE,
@@ -448,31 +416,39 @@ public class AbstractFileOutputOperatorTest
                 singleFileName,
                 correctContents);
   }
+  @Test
+  public void testSingleFileFailedWriteOverwriteInitiaTmp() throws IOException
+  {
+    testMeta.writeToTmp = true;
+    testSingleFileFailedWriteOverwriteInitial();
+  }
 
   private void testSingleFileFailedWriteHelper(SingleHDFSExactlyOnceWriter writer)
   {
     File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
+    writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
     writer.setup(testOperatorContext);
 
     writer.beginWindow(0);
     writer.input.put(0);
+    writer.requestFinalize(SINGLE_FILE);
     writer.input.put(1);
     writer.endWindow();
 
-    CheckPointWriter checkPointWriter = checkpoint(writer);
+    AbstractFileOutputOperator checkPointWriter = checkpoint(writer);
 
     writer.beginWindow(1);
     writer.input.put(2);
 
     writer.teardown();
 
-    restoreCheckPoint(checkPointWriter,
-                      writer);
+    restoreCheckPoint(checkPointWriter, writer);
     writer.setup(testOperatorContext);
 
     writer.beginWindow(1);
     writer.input.put(4);
+    writer.requestFinalize(SINGLE_FILE);
     writer.input.put(5);
     writer.endWindow();
 
@@ -481,6 +457,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(7);
     writer.endWindow();
 
+    writer.committed(2);
     writer.teardown();
   }
 
@@ -512,6 +489,13 @@ public class AbstractFileOutputOperatorTest
     checkOutput(-1,
                 oddFileName,
                 correctContents);
+  }
+
+  @Test
+  public void testMultiFileCompletedWriteTmp()
+  {
+    testMeta.writeToTmp = true;
+    testMultiFileCompletedWrite();
   }
 
   //@Ignore
@@ -546,9 +530,16 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
+  @Test
+  public void testMultiFileCompletedWriteCache1Tmp()
+  {
+    testMeta.writeToTmp = true;
+    testMultiFileCompletedWriteCache1();
+  }
+
   //@Ignore
   @Test
-  public void testMultiFileCompletedWriteOverwriteInitial()
+  public void testMultiFileCompletedWriteOverwriteInitial() throws IOException
   {
     populateFile(EVEN_FILE,
                  "0\n" +
@@ -586,7 +577,14 @@ public class AbstractFileOutputOperatorTest
   }
 
   @Test
-  public void testMultiFileCompletedWriteOverwriteCache1Initial()
+  public void testMultiFileCompletedWriteOverwriteInitialTmp() throws IOException
+  {
+    testMeta.writeToTmp = true;
+    testMultiFileCompletedWriteOverwriteInitial();
+  }
+
+  @Test
+  public void testMultiFileCompletedWriteOverwriteCache1Initial() throws IOException
   {
     populateFile(EVEN_FILE,
                  "0\n" +
@@ -624,11 +622,19 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
+  @Test
+  public void testMultiFileCompletedWriteOverwriteCache1InitialTmp() throws IOException
+  {
+    testMeta.writeToTmp = true;
+    testMultiFileCompletedWriteOverwriteCache1Initial();
+  }
+
+
   private void testMultiFileCompletedWriteHelperCache1(EvenOddHDFSExactlyOnceWriter writer)
   {
     File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
-
+    writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
     writer.setup(testOperatorContext);
 
     writer.beginWindow(0);
@@ -644,13 +650,17 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(6);
     writer.input.put(7);
     writer.endWindow();
+
+    writer.requestFinalize(EVEN_FILE);
+    writer.requestFinalize(ODD_FILE);
+    writer.committed(1);
   }
 
   private void testMultiFileCompletedWriteHelper(EvenOddHDFSExactlyOnceWriter writer)
   {
     File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
-
+    writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
     writer.setup(testOperatorContext);
 
     writer.beginWindow(0);
@@ -666,6 +676,10 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(6);
     writer.input.put(7);
     writer.endWindow();
+
+    writer.requestFinalize(ODD_FILE);
+    writer.requestFinalize(EVEN_FILE);
+    writer.committed(1);
   }
 
   @Test
@@ -694,8 +708,15 @@ public class AbstractFileOutputOperatorTest
                       "9\n";
 
     checkOutput(-1,
-                oddFileName,
-                correctContents);
+      oddFileName,
+      correctContents);
+  }
+
+  @Test
+  public void testMultiFileFailedWriteTmp()
+  {
+    testMeta.writeToTmp = true;
+    testMultiFileFailedWrite();
   }
 
   @Test
@@ -729,11 +750,18 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
+  @Test
+  public void testMultiFileFailedWriteCache1Tmp()
+  {
+    testMeta.writeToTmp = true;
+    testMultiFileFailedWriteCache1();
+  }
+
   private void testMultiFileFailedWriteHelper(EvenOddHDFSExactlyOnceWriter writer)
   {
     File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
-
+    writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
     writer.setup(testOperatorContext);
 
     writer.beginWindow(0);
@@ -741,13 +769,15 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(1);
     writer.input.put(2);
     writer.input.put(3);
+    writer.requestFinalize(EVEN_FILE);
     writer.endWindow();
 
-    CheckPointWriter checkPointWriter = checkpoint(writer);
+    AbstractFileOutputOperator checkPointWriter = checkpoint(writer);
 
     writer.beginWindow(1);
     writer.input.put(4);
     writer.input.put(5);
+    writer.requestFinalize(ODD_FILE);
     writer.endWindow();
     writer.teardown();
 
@@ -761,6 +791,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(8);
     writer.input.put(9);
     writer.endWindow();
+    writer.committed(2);
   }
 
   @Test
@@ -789,12 +820,19 @@ public class AbstractFileOutputOperatorTest
                       "5\n";
 
     checkOutput(1,
-                singleFileName,
-                correctContents);
+      singleFileName,
+      correctContents);
   }
 
   @Test
-  public void testSingleRollingFileCompletedWriteOverwriteInitial()
+  public void testSingleRollingFileCompletedWriteTmp()
+  {
+    testMeta.writeToTmp = true;
+    testSingleRollingFileCompletedWrite();
+  }
+
+  @Test
+  public void testSingleRollingFileCompletedWriteOverwriteInitial() throws IOException
   {
     populateFile(SINGLE_FILE + ".0",
                  "0\n" +
@@ -839,11 +877,18 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
+  @Test
+  public void testSingleRollingFileCompletedWriteOverwriteInitialTmp() throws IOException
+  {
+    testMeta.writeToTmp = true;
+    testSingleRollingFileCompletedWriteOverwriteInitial();
+  }
+
   private void testSingleRollingFileCompletedWriteHelper(SingleHDFSExactlyOnceWriter writer)
   {
     writer.setFilePath(testMeta.getDir());
     writer.setMaxLength(4);
-
+    writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
     writer.setup(testOperatorContext);
 
     writer.beginWindow(0);
@@ -856,7 +901,9 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(3);
     writer.input.put(4);
     writer.input.put(5);
+    writer.input.put(6);
     writer.endWindow();
+    writer.committed(1);
 
     writer.teardown();
   }
@@ -901,10 +948,18 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
+  @Test
+  public void testSingleRollingFileFailedWriteTmp()
+  {
+    testMeta.writeToTmp = true;
+    testSingleRollingFileFailedWrite();
+  }
+
   private void testSingleRollingFileFailedWriteHelper(SingleHDFSExactlyOnceWriter writer)
   {
     writer.setMaxLength(4);
     writer.setFilePath(testMeta.getDir());
+    writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
     writer.setup(testOperatorContext);
 
     writer.beginWindow(0);
@@ -913,7 +968,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(2);
     writer.endWindow();
 
-    CheckPointWriter checkPointWriter = checkpoint(writer);
+    AbstractFileOutputOperator checkPointWriter = checkpoint(writer);
 
     writer.beginWindow(1);
     writer.input.put(3);
@@ -936,6 +991,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(7);
     writer.input.put(8);
     writer.endWindow();
+    writer.committed(2);
 
     writer.teardown();
   }
@@ -946,7 +1002,7 @@ public class AbstractFileOutputOperatorTest
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
     writer.setFilePath(testMeta.getDir());
     writer.setMaxLength(4);
-
+    writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
     writer.setup(testOperatorContext);
 
     writer.beginWindow(0);
@@ -960,8 +1016,8 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(4);
     writer.endWindow();
 
-    CheckPointWriter checkPointWriter = checkpoint(writer);
-    CheckPointWriter checkPointWriter1 = checkpoint(writer);
+    AbstractFileOutputOperator checkPointWriter = checkpoint(writer);
+    AbstractFileOutputOperator checkPointWriter1 = checkpoint(writer);
 
     LOG.debug("Checkpoint endOffsets={}", checkPointWriter.endOffsets);
 
@@ -986,9 +1042,9 @@ public class AbstractFileOutputOperatorTest
 
     writer.teardown();
 
-    restoreCheckPoint(checkPointWriter1,
-                      writer);
+    restoreCheckPoint(checkPointWriter1, writer);
     writer.setup(testOperatorContext);
+    writer.committed(2);
 
     String singleFilePath = testMeta.getDir() + File.separator + SINGLE_FILE;
 
@@ -1011,13 +1067,26 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
+  @Test
+  public void testSingleRollingFileFailedWrite1Tmp()
+  {
+    testMeta.writeToTmp = true;
+    testSingleRollingFileFailedWrite1();
+  }
+
   //@Ignore
   @Test
   public void testMultiRollingFileCompletedWrite()
   {
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
-
     testMultiRollingFileCompletedWriteHelper(writer);
+  }
+
+  @Test
+  public void testMultiRollingFileCompletedWriteTmp()
+  {
+    testMeta.writeToTmp = true;
+    testMultiRollingFileCompletedWrite();
   }
 
   @Test
@@ -1030,11 +1099,25 @@ public class AbstractFileOutputOperatorTest
   }
 
   @Test
+  public void testMultiRollingFileCompletedWriteCache1Tmp()
+  {
+    testMeta.writeToTmp = true;
+    testMultiRollingFileCompletedWriteCache1();
+  }
+
+  @Test
   public void testMultiRollingFileCompletedWriteOverwrite()
   {
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
 
     testMultiRollingFileCompletedWriteHelper(writer);
+  }
+
+  @Test
+  public void testMultiRollingFileCompletedWriteOverwriteTmp()
+  {
+    testMeta.writeToTmp = true;
+    testMultiRollingFileCompletedWriteOverwrite();
   }
 
   @Test
@@ -1046,9 +1129,17 @@ public class AbstractFileOutputOperatorTest
     testMultiRollingFileCompletedWriteHelperCache1(writer);
   }
 
+  @Test
+  public void testMultiRollingFileCompletedWriteOverwriteCache1Tmp()
+  {
+    testMeta.writeToTmp = true;
+    testMultiRollingFileCompletedWriteOverwriteCache1();
+  }
+
   private void testMultiRollingFileCompletedWriteHelperCache1(EvenOddHDFSExactlyOnceWriter writer)
   {
     writer.setMaxLength(4);
+    writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
     File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
 
@@ -1071,6 +1162,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(6);
     writer.input.put(7);
     writer.endWindow();
+    writer.committed(1);
 
     //Even file
 
@@ -1118,7 +1210,7 @@ public class AbstractFileOutputOperatorTest
     writer.setMaxLength(4);
     File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
-
+    writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
     writer.setup(testOperatorContext);
 
     writer.beginWindow(0);
@@ -1138,6 +1230,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(6);
     writer.input.put(7);
     writer.endWindow();
+    writer.committed(1);
 
     //Even file
 
@@ -1189,12 +1282,26 @@ public class AbstractFileOutputOperatorTest
   }
 
   @Test
+  public void testMultiRollingFileFailedWriteTmp()
+  {
+    testMeta.writeToTmp = true;
+    testMultiRollingFileFailedWrite();
+  }
+
+  @Test
   public void testMultiRollingFileFailedWriteCache1()
   {
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     writer.setMaxOpenFiles(1);
 
     testMultiRollingFileFailedWriteHelperHelper(writer);
+  }
+
+  @Test
+  public void testMultiRollingFileFailedWriteCache1Tmp()
+  {
+    testMeta.writeToTmp = true;
+    testMultiRollingFileFailedWriteCache1();
   }
 
   private void testMultiRollingFileFailedWriteHelperHelper(EvenOddHDFSExactlyOnceWriter writer)
@@ -1247,6 +1354,7 @@ public class AbstractFileOutputOperatorTest
     File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
     writer.setMaxLength(4);
+    writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
 
     writer.setup(testOperatorContext);
 
@@ -1255,7 +1363,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(1);
     writer.endWindow();
 
-    CheckPointWriter checkPointWriter = checkpoint(writer);
+    AbstractFileOutputOperator checkPointWriter = checkpoint(writer);
 
     writer.beginWindow(1);
     writer.input.put(2);
@@ -1284,10 +1392,11 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(6);
     writer.input.put(7);
     writer.endWindow();
+    writer.committed(3);
   }
 
   @Test
-  public void testMultiRollingFileFailedWriteOverwrite()
+  public void testMultiRollingFileFailedWriteOverwrite() throws IOException
   {
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
 
@@ -1295,7 +1404,14 @@ public class AbstractFileOutputOperatorTest
   }
 
   @Test
-  public void testMultiRollingFileFailedWriteOverwriteCache1()
+  public void testMultiRollingFileFailedWriteOverwriteTmp() throws IOException
+  {
+    testMeta.writeToTmp = true;
+    testMultiRollingFileFailedWriteOverwrite();
+  }
+
+  @Test
+  public void testMultiRollingFileFailedWriteOverwriteCache1() throws IOException
   {
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     writer.setMaxOpenFiles(1);
@@ -1324,7 +1440,8 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
 
     correctContents = "8\n" +
-                      "6\n";
+                      "6\n" +
+                      "10\n" ;
     checkOutput(1,
                 evenFileName,
                 correctContents);
@@ -1339,10 +1456,18 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
 
     correctContents = "9\n" +
-                      "7\n";
+                      "7\n" +
+                      "11\n";
     checkOutput(1,
                 oddFileName,
                 correctContents);
+  }
+
+  @Test
+  public void testMultiRollingFileFailedWriteOverwriteCache1Tmp() throws IOException
+  {
+    testMeta.writeToTmp = true;
+    testMultiRollingFileFailedWriteOverwriteCache1();
   }
 
   private void testMultiRollingFileFailedWriteOverwriteHelperCache1(EvenOddHDFSExactlyOnceWriter writer)
@@ -1350,7 +1475,7 @@ public class AbstractFileOutputOperatorTest
     File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
     writer.setMaxLength(4);
-
+    writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
     writer.setup(testOperatorContext);
 
     writer.beginWindow(0);
@@ -1358,7 +1483,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(1);
     writer.endWindow();
 
-    CheckPointWriter checkPointWriter = checkpoint(writer);
+    AbstractFileOutputOperator checkPointWriter = checkpoint(writer);
 
     writer.beginWindow(1);
     writer.input.put(2);
@@ -1381,10 +1506,13 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(9);
     writer.input.put(6);
     writer.input.put(7);
+    writer.input.put(10);
+    writer.input.put(11);
     writer.endWindow();
+    writer.committed(2);
   }
 
-  private void testMultiRollingFileFailedWriteOverwriteHelper(EvenOddHDFSExactlyOnceWriter writer)
+  private void testMultiRollingFileFailedWriteOverwriteHelper(EvenOddHDFSExactlyOnceWriter writer) throws IOException
   {
     String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
     String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
@@ -1399,19 +1527,19 @@ public class AbstractFileOutputOperatorTest
     File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
     writer.setMaxLength(4);
-
+    writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
     writer.setup(testOperatorContext);
 
     writer.beginWindow(0);
-    writer.input.put(0);
-    writer.input.put(1);
+    writer.input.process(0);
+    writer.input.process(1);
     writer.endWindow();
 
-    CheckPointWriter checkPointWriter = checkpoint(writer);
+    AbstractFileOutputOperator checkPointWriter = checkpoint(writer);
 
     writer.beginWindow(1);
-    writer.input.put(2);
-    writer.input.put(3);
+    writer.input.process(2);
+    writer.input.process(3);
     writer.teardown();
 
     restoreCheckPoint(checkPointWriter,
@@ -1419,18 +1547,21 @@ public class AbstractFileOutputOperatorTest
     writer.setup(testOperatorContext);
 
     writer.beginWindow(1);
-    writer.input.put(4);
-    writer.input.put(5);
+    writer.input.process(4);
+    writer.input.process(5);
     writer.endWindow();
 
     writer.beginWindow(2);
-    writer.input.put(6);
-    writer.input.put(7);
-    writer.input.put(8);
-    writer.input.put(9);
-    writer.input.put(6);
-    writer.input.put(7);
+    writer.input.process(6);
+    writer.input.process(7);
+    writer.input.process(8);
+    writer.input.process(9);
+    writer.input.process(6);
+    writer.input.process(7);
+    writer.input.process(10);
+    writer.input.process(11);
     writer.endWindow();
+    writer.committed(2);
 
     //Even file
 
@@ -1443,7 +1574,8 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
 
     correctContents = "8\n" +
-                      "6\n";
+                      "6\n" +
+                      "10\n";
 
     checkOutput(1,
                 evenFileName,
@@ -1460,7 +1592,8 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
 
     correctContents = "9\n" +
-                      "7\n";
+                      "7\n" +
+                      "11\n";
 
     checkOutput(1,
                 oddFileName,
@@ -1511,15 +1644,24 @@ public class AbstractFileOutputOperatorTest
     //Rolling file 3
 
     correctContents = "4\n" +
-                      "5\n";
+                      "5\n" +
+                      "6\n";
 
     checkOutput(3,
                 singleFilePath,
                 correctContents);
   }
 
+  @Test
+  public void singleFileMultiRollingFailureTmp()
+  {
+    testMeta.writeToTmp = true;
+    singleFileMultiRollingFailure();
+  }
+
   private void singleFileMultiRollingFailureHelper(SingleHDFSExactlyOnceWriter writer)
   {
+    writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
     writer.setup(testOperatorContext);
 
     writer.beginWindow(0);
@@ -1532,7 +1674,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(3);
     writer.input.put(4);
 
-    CheckPointWriter checkPointWriter = checkpoint(writer);
+    AbstractFileOutputOperator checkPointWriter = checkpoint(writer);
 
     writer.input.put(3);
     writer.input.put(4);
@@ -1560,7 +1702,9 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(3);
     writer.input.put(4);
     writer.input.put(5);
+    writer.input.put(6);
     writer.endWindow();
+    writer.committed(2);
   }
 
   @Test
@@ -1601,6 +1745,7 @@ public class AbstractFileOutputOperatorTest
     File dir = new File(testMeta.getDir());
     writer.setFilePath(testMeta.getDir());
     writer.setRotationWindows(30);
+    writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
     writer.setup(testOperatorContext);
 
     // Check that rotation doesn't happen prematurely
@@ -1611,6 +1756,7 @@ public class AbstractFileOutputOperatorTest
       }
       writer.endWindow();      
     }
+    writer.committed(29);
     Set<String> fileNames = new TreeSet<String>();
     fileNames.add(ODD_FILE + ".0");
     Collection<File> files = FileUtils.listFiles(dir, null, false);
@@ -1625,6 +1771,7 @@ public class AbstractFileOutputOperatorTest
       }
       writer.endWindow();
     }
+    writer.committed(119);
     files = FileUtils.listFiles(dir, null, false);
     Assert.assertEquals("Number of part files", 7, files.size());
     for (int i = 0; i < 3; ++i) {
@@ -1643,6 +1790,7 @@ public class AbstractFileOutputOperatorTest
       }
       writer.endWindow();
     }
+    writer.committed(179);
     files = FileUtils.listFiles(dir, null, false);
     Assert.assertEquals("Number of part files", 9, files.size());
     for (int i = 3; i < 5; ++i) {
@@ -1650,6 +1798,13 @@ public class AbstractFileOutputOperatorTest
     }
     Assert.assertEquals("Part file names", fileNames, getFileNames(files));
     writer.teardown();
+  }
+
+  @Test
+  public void testPeriodicRotationTmp()
+  {
+    testMeta.writeToTmp = true;
+    testPeriodicRotation();
   }
 
   @Test
@@ -1667,6 +1822,7 @@ public class AbstractFileOutputOperatorTest
     List<Long> oddOffsets = new ArrayList<Long>();
     
     writer.setFilePath(testMeta.getDir());
+    writer.setAlwaysWriteToTmp(false);
     writer.setup(testOperatorContext);
 
     for (int i = 0; i < 10; ++i) {
@@ -1825,6 +1981,7 @@ public class AbstractFileOutputOperatorTest
     List<Long> oddOffsets = new ArrayList<Long>();
 
     writer.setFilePath(testMeta.getDir());
+    writer.setAlwaysWriteToTmp(false);
     writer.setup(testOperatorContext);
 
     for (int i = 0; i < 10; ++i) {
