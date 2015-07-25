@@ -565,7 +565,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
       }
       MutableInt currentOpenPart = openPart.get(fileName);
 
-      for (int x = part.getValue(); x < currentOpenPart.getValue() - 1; x++) {
+      for (int x = part.getValue() + 1; x < currentOpenPart.getValue(); x++) {
         String prevPartNotFinalized = getPartFileName(fileName, x);
         LOG.debug("request finalize {}", prevPartNotFinalized);
         filesPerWindow.add(prevPartNotFinalized);
