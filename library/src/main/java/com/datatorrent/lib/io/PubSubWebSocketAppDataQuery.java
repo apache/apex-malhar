@@ -16,6 +16,9 @@
 package com.datatorrent.lib.io;
 
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -23,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
 
 import com.datatorrent.common.experimental.AppData;
 import com.datatorrent.common.util.PubSubMessage;
@@ -48,9 +52,51 @@ public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<St
   @Override
   public void setup(OperatorContext context)
   {
-    super.setup(context);
-
+    this.uri = uriHelper(context, uri);
     logger.debug("Setting up:\nuri:{}\ntopic:{}",this.getUri(), this.getTopic());
+    super.setup(context);
+  }
+
+  public static URI uriHelper(OperatorContext context, URI uri)
+  {
+    if (uri == null) {
+      if (context.getValue(DAG.GATEWAY_CONNECT_ADDRESS) == null) {
+        throw new IllegalArgumentException("The uri property is not set and the dt.attr.GATEWAY_CONNECT_ADDRESS is not defined");
+      }
+
+      try {
+        uri = new URI("ws://"
+                      + context.getValue(DAG.GATEWAY_CONNECT_ADDRESS)
+                      + "/pubsub");
+      } catch (URISyntaxException ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+
+    return uri;
+  }
+
+  /**
+   * Gets the URI for WebSocket connection.
+   *
+   * @return the URI
+   */
+  @Override
+  public URI getUri()
+  {
+    return uri;
+  }
+
+  /**
+   * The URI for WebSocket connection. If this is not set, the value of the dt.attr.GATEWAY_CONNECT_ADDRESS DAG attribute is used. If neither this
+   * property or dt.attr.GATEWAY_CONNECT_ADDRESS attribute is set, then this operator will fail with an {@link IllegalArgumentException}.
+   *
+   * @param uri
+   */
+  @Override
+  public void setUri(URI uri)
+  {
+    this.uri = uri;
   }
 
   @Override
