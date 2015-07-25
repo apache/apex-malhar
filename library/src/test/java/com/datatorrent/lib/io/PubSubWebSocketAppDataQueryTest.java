@@ -15,23 +15,69 @@
  */
 package com.datatorrent.lib.io;
 
-import java.net.URI;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class PubSubWebSocketAppDataQueryTest
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+
+import com.datatorrent.api.Attribute;
+import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
+
+import com.datatorrent.common.experimental.AppData.ConnectionInfoProvider;
+
+public class PubSubWebSocketAppDataQueryTest extends PubSubWebSocketAppDataOperatorTest
 {
-  @Test
-  public void testGetAppDataURL() throws Exception
+  private static OperatorContext context;
+  private static OperatorContext emptyContext;
+
+  @BeforeClass
+  public static void setupContext() throws Exception
   {
-    URI uri = URI.create("ws://localhost:6666/pubsub");
-    String topic = "test";
-    String correct = "pubsub";
+    Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
+    attributes.put(Context.DAGContext.GATEWAY_CONNECT_ADDRESS, GATEWAY_CONNECT_ADDRESS_STRING);
+    context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
 
-    PubSubWebSocketAppDataQuery pubsub = new PubSubWebSocketAppDataQuery();
-    pubsub.setUri(uri);
-    pubsub.setTopic(topic);
+    attributes = new Attribute.AttributeMap.DefaultAttributeMap();
+    emptyContext = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+  }
 
-    Assert.assertEquals("The url is incorrect.", correct, pubsub.getAppDataURL());
+  @Override
+  public ConnectionInfoProvider getOperator()
+  {
+    return new PubSubWebSocketAppDataQuery();
+  }
+
+  @Test
+  public void testURISet() throws Exception
+  {
+    Assert.assertEquals(URI_ADDRESS, PubSubWebSocketAppDataQuery.uriHelper(emptyContext, URI_ADDRESS));
+  }
+
+  @Test
+  public void testNoURISet() throws Exception
+  {
+    boolean threwException = false;
+
+    try {
+      PubSubWebSocketAppDataQuery.uriHelper(emptyContext, null);
+    } catch (Exception e) {
+      threwException = e instanceof IllegalArgumentException;
+    }
+
+    Assert.assertTrue(threwException);
+  }
+
+  @Test
+  public void testAttrSet() throws Exception
+  {
+    Assert.assertEquals(GATEWAY_CONNECT_ADDRESS, PubSubWebSocketAppDataQuery.uriHelper(context, null));
+  }
+
+  @Test
+  public void testAttrAndURISet() throws Exception
+  {
+    Assert.assertEquals(URI_ADDRESS, PubSubWebSocketAppDataQuery.uriHelper(context, URI_ADDRESS));
   }
 }
