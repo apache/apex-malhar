@@ -17,6 +17,7 @@ package com.datatorrent.lib.algo;
 
 import java.util.Random;
 
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
 import com.datatorrent.api.DefaultInputPort;
@@ -55,7 +56,7 @@ import com.datatorrent.lib.util.BaseKeyOperator;
  * </p>
  *
  * @displayName Sampler
- * @category Algorithmic
+ * @category Stats and Aggregations
  * @tags filter
  *
  * @since 0.3.2
@@ -70,13 +71,13 @@ public class Sampler<K> extends BaseKeyOperator<K>
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     /**
-     * Emits the tuple as per probability of passrate out of totalrate
+     * Emits tuples at a rate corresponding to the given samplingPercentage.
      */
     @Override
     public void process(K tuple)
     {
-      int fval = random.nextInt(totalrate);
-      if (fval >= passrate) {
+      double val = random.nextDouble();
+      if (val > samplingPercentage) {
         return;
       }
       sample.emit(cloneKey(tuple));
@@ -88,49 +89,28 @@ public class Sampler<K> extends BaseKeyOperator<K>
    */
   public final transient DefaultOutputPort<K> sample = new DefaultOutputPort<K>();
 
-  @Min(1)
-  int passrate = 1;
-  @Min(1)
-  int totalrate = 100;
+  @Min(0)
+  @Max(1)
+  private double samplingPercentage = 1.0;
+
   private transient Random random = new Random();
 
   /**
-   * getter function for pass rate
-   * @return passrate
+   * Gets the samplingPercentage.
+   * @return the samplingPercentage
    */
-  @Min(1)
-  public int getPassrate()
+  public double getSamplingPercentage()
   {
-    return passrate;
+    return samplingPercentage;
   }
 
   /**
-   * getter function for total rate
-   * @return totalrate
+   * The percentage of tuples to allow to pass through this operator. This percentage should be
+   * a number between 0 and 1 inclusive.
+   * @param samplingPercentage the samplingPercentage to set
    */
-  @Min(1)
-  public int getTotalrate()
+  public void setSamplingPercentage(double samplingPercentage)
   {
-    return totalrate;
-  }
-
-  /**
-   * Sets pass rate
-   *
-   * @param val passrate is set to val
-   */
-  public void setPassrate(int val)
-  {
-    passrate = val;
-  }
-
-  /**
-   * Sets total rate
-   *
-   * @param val total rate is set to val
-   */
-  public void setTotalrate(int val)
-  {
-    totalrate = val;
+    this.samplingPercentage = samplingPercentage;
   }
 }
