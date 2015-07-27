@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.customMetric.max;
+package com.datatorrent.lib.metric.min;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -22,21 +22,21 @@ import com.datatorrent.api.annotation.Name;
 
 import com.datatorrent.common.metric.SingleMetricAggregator;
 
-@Name("max")
-public class FloatMaxAggregator implements SingleMetricAggregator, Serializable
+@Name("min")
+public class FloatMinAggregator implements SingleMetricAggregator, Serializable
 {
   @Override
   public Object aggregate(Collection<Object> metricValues)
   {
-    Float max = null;
-    for (Object value : metricValues) {
-      float fval = ((Number) value).floatValue();
-      if (max == null || fval > max) {
-        max = fval;
+    Float min = null;
+    for (Object metric : metricValues) {
+      float fval = ((Number) metric).floatValue();
+      if (min == null || fval < min) {
+        min = fval;
       }
     }
-    return max;
+    return min;
   }
 
-  private static final long serialVersionUID = 201504081327L;
+  private static final long serialVersionUID = 201504081322L;
 }
