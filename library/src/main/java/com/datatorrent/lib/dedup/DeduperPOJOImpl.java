@@ -27,7 +27,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of AbstractDeduper which takes in a POJO.
- * @displayName: DeduperPOJOImplementation
+ * @displayName Deduper
+ * @category Rules and Alerts
+ * @tags dedup, pojo
  *
  * @since 2.1.0
  */

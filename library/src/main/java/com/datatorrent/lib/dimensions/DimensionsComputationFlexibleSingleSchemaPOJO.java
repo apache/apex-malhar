@@ -22,9 +22,9 @@ import com.datatorrent.api.Context.OperatorContext;
  * POJOs.
  * </p>
  *
- * @displayName Dimension Computation POJO
- * @category Statistics
- * @tags event, dimension, aggregation, computation, pojo
+ * @displayName Dimension Computation
+ * @category Stats and Aggregations
+ * @tags dimension, aggregation, computation, pojo
  */
 public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimensionsComputationFlexibleSingleSchema<Object>
 {
