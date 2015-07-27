@@ -80,7 +80,7 @@ public class HBaseTransactionalPutOperatorTest {
         }
 
         @Override
-        public void sendCustomMetrics(Collection<String> collection)
+        public void sendMetrics(Collection<String> collection)
         {
         }
       });
@@ -144,7 +144,7 @@ public class HBaseTransactionalPutOperatorTest {
         }
 
         @Override
-        public void sendCustomMetrics(Collection<String> collection)
+        public void sendMetrics(Collection<String> collection)
         {
         }
       });
@@ -212,7 +212,7 @@ public class HBaseTransactionalPutOperatorTest {
         }
 
         @Override
-        public void sendCustomMetrics(Collection<String> collection)
+        public void sendMetrics(Collection<String> collection)
         {
         }
       });

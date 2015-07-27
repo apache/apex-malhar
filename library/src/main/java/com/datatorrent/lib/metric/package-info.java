@@ -13,28 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.customMetric;
-
-import java.io.Serializable;
-import java.util.Collection;
-
-import com.datatorrent.api.annotation.Name;
-
-import com.datatorrent.common.metric.SingleMetricAggregator;
-
-@Name("avg")
-public class AvgAggregator implements SingleMetricAggregator, Serializable
-{
-  @Override
-  public Object aggregate(Collection<Object> metricValues)
-  {
-    double sum = 0;
-
-    for (Object value : metricValues) {
-      sum += ((Number) value).doubleValue();
-    }
-    return sum / metricValues.size();
-  }
-
-  private static final long serialVersionUID = 201504081330L;
-}
+/**
+ * This package contains simple physical metrics aggregators.
+ */
+package com.datatorrent.lib.metric;
