@@ -85,7 +85,7 @@ public class DefaultCallbackHandlerTest
     }
 
     @Override
-    public void sendCustomMetrics(Collection<String> metricNames)
+    public void sendMetrics(Collection<String> metricNames)
     {
     }
   }
