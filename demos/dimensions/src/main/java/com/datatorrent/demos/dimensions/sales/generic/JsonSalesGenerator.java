@@ -44,7 +44,7 @@ import java.util.Random;
  * }
  *
  * @displayName JSON Sales Event Generator
- * @category Input
+ * @category Test Bench
  * @tags input, generator, json
  *
  * @since 2.0.0
