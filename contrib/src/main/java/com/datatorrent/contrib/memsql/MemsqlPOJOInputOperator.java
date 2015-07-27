@@ -38,10 +38,11 @@ import org.slf4j.LoggerFactory;
 /**
  * <p>
  * MemsqlPOJOInputOperator</p>
+ *
  * A Generic implementation of AbstractMemsqlInputOperator which gets field values from memsql database columns and sets in a POJO.
  * User should also provide a query to fetch the rows from database. This query is run continuously to fetch new data and
  * hence should be parameterized. The parameters that can be used are %t for table name, %p for primary key, %s for start value
- * and %l for limit. The start value is continuously updated with the value of a primary key column of the last row from
+ * and %l for batchSize. The start value is continuously updated with the value of a primary key column of the last row from
  * the result of the previous run of the query. The primary key column is also identified by the user using a property.
  *
  * @displayName Memsql Input Operator
@@ -51,7 +52,7 @@ import org.slf4j.LoggerFactory;
 public class MemsqlPOJOInputOperator extends AbstractMemsqlInputOperator<Object>
 {
   @Min(1)
-  private int limit = 10;
+  private int batchSize = 10;
   @Min(0)
   private Number startRow = 0;
   @NotNull
@@ -77,60 +78,73 @@ public class MemsqlPOJOInputOperator extends AbstractMemsqlInputOperator<Object>
   private transient Class<?> objectClass = null;
   private transient Class<?> primaryKeyColumnType;
 
-  /*
-   * Set of columns specified by User in case POJO needs to contain fields specific to these columns only.
-   * User should specify columns in same order as expressions for fields.
-   */
   public List<String> getColumns()
   {
     return columns;
   }
 
+  /**
+   * The columns specified by user in case POJO needs to contain fields specific to these columns only.
+   * User should specify columns in same order as expressions for fields.
+   * @param columns The columns.
+   */
   public void setColumns(List<String> columns)
   {
     this.columns = columns;
   }
 
-  /*
-   * Primary Key Column of table.
-   * Gets the primary key column of Memsql table.
+  /**
+   * Gets the primary key column of the input table.
+   * @return The primary key column of the input table.
    */
   public String getPrimaryKeyColumn()
   {
     return primaryKeyColumn;
   }
 
+  /**
+   * The primary key column of the input table.
+   * @param primaryKeyColumn The primary key column of the input table.
+   */
   public void setPrimaryKeyColumn(String primaryKeyColumn)
   {
     this.primaryKeyColumn = primaryKeyColumn;
   }
 
-  /*
-   * User has the option to specify the start row.
+  /**
+   * The row to start reading from the input table at.
+   * @return The row to start reading from the input table at.
    */
   public Number getStartRow()
   {
     return startRow;
   }
 
+  /**
+   * Sets the row to start reading form the input table at.
+   * @param startRow The row to start reading from the input table at.
+   */
   public void setStartRow(Number startRow)
   {
     this.startRow = startRow;
   }
 
-  public void setLimit(int limit)
+  /**
+   * Sets the batch size.
+   * @param batchSize The batch size.
+   */
+  public void setBatchSize(int batchSize)
   {
-    this.limit = limit;
+    this.batchSize = batchSize;
   }
 
-  /*
+  /**
    * Records are read in batches of this size.
-   * Gets the batch size.
    * @return batchsize
    */
-  public int getLimit()
+  public int getBatchSize()
   {
-    return limit;
+    return batchSize;
   }
 
   /*
@@ -152,43 +166,56 @@ public class MemsqlPOJOInputOperator extends AbstractMemsqlInputOperator<Object>
     this.outputClass = outputClass;
   }
 
-  /*
-   * Parameterized query with parameters such as %t for table name , %p for primary key, %s for start value and %l for limit.
-   * Example of retrieveQuery:
-   * select * from %t where %p > %s limit %l;
+  /**
+   * Gets the query used to extract data from memsql.
+   * @return The query.
    */
   public String getQuery()
   {
     return query;
   }
 
+  /**
+   * Parameterized query with parameters such as %t for table name , %p for primary key, %s for start value and %l for batchSize.
+   * Example of retrieveQuery:
+   * select * from %t where %p > %s batchSize %l;
+   */
   public void setQuery(String query)
   {
     this.query = query.replace("%t", tablename);
   }
 
-  /*
-   * An ArrayList of Java expressions that will yield the memsql column value to be set in output object.
-   * Each expression corresponds to one column in the Memsql table.
+  /**
+   * Gets the getter expressions for extracting data from POJOs.
+   * @return The getter expressions for extracting data from pojos.
    */
   public List<String> getExpressions()
   {
     return expressions;
   }
 
+  /**
+   * An ArrayList of Java expressions that will yield the memsql column value to be set in output object.
+   * Each expression corresponds to one column in the Memsql table.
+   */
   public void setExpressions(List<String> expressions)
   {
     this.expressions = expressions;
   }
 
-  /*
-   * Tablename in memsql.
+  /**
+   * Gets the name of the table that is read from memsql.
+   * @return The name of the table that is read from memsql.
    */
   public String getTablename()
   {
     return tablename;
   }
 
+  /**
+   * The table name in memsql to read data from.
+   * @param tablename The table name.
+   */
   public void setTablename(String tablename)
   {
     this.tablename = tablename;
@@ -246,7 +273,7 @@ public class MemsqlPOJOInputOperator extends AbstractMemsqlInputOperator<Object>
         query = query.replace("%p", primaryKeyColumn);
       }
       if (query.contains("%l")) {
-        query = query.replace("%l", limit + "");
+        query = query.replace("%l", batchSize + "");
       }
 
       statement.close();
@@ -366,10 +393,10 @@ public class MemsqlPOJOInputOperator extends AbstractMemsqlInputOperator<Object>
     return obj;
   }
 
-  /*
+  /**
    * This method replaces the parameters in Query with actual values given by user.
    * Example of retrieveQuery:
-   * select * from %t where %p > %s limit %l;
+   * select * from %t where %p > %s batchSize %l;
    */
   @Override
   public String queryToRetrieveData()

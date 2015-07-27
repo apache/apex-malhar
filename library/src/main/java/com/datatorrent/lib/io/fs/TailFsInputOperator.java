@@ -45,7 +45,7 @@ import com.datatorrent.api.Operator.ActivationListener;
  * </p>
  * @displayName Tail Input
  * @category Input
- * @tags local fs, file, input operator
+ * @tags local fs, file
  * @since 0.9.4
  */
 public class TailFsInputOperator implements InputOperator, ActivationListener<OperatorContext>
@@ -123,6 +123,7 @@ public class TailFsInputOperator implements InputOperator, ActivationListener<Op
   }
 
   /**
+   * Gets whether to tail from the end of the file.
    * @return the end
    */
   public boolean isEnd()
@@ -131,8 +132,8 @@ public class TailFsInputOperator implements InputOperator, ActivationListener<Op
   }
 
   /**
-   * @param end
-   *          the end to set
+   * Whether to tail from the end or start of file.
+   * @param end The end to set.
    */
   public void setEnd(boolean end)
   {

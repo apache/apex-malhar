@@ -52,7 +52,7 @@ import com.datatorrent.lib.util.UnifierHashMap;
  * </p>
  *
  * @displayName Filter Keyval Pairs By Key Generic
- * @category Algorithmic
+ * @category Rules and Alerts
  * @tags filter, key value
  *
  * @since 0.3.2
@@ -113,7 +113,7 @@ public class FilterKeysMap<K,V> extends BaseKeyOperator<K>
   };
 
   /**
-   * getter function for parameter inverse
+   * If true then only matches are emitted. If false then only non matches are emitted.
    * @return inverse
    */
   public boolean getInverse() {
@@ -122,7 +122,7 @@ public class FilterKeysMap<K,V> extends BaseKeyOperator<K>
 
 
   /**
-   * True means match; False means unmatched
+   * Sets the inverse property. If true then only matches are emitted. If false then only non matches are emitted.
    * @param val
    */
   public void setInverse(boolean val) {
@@ -148,6 +148,24 @@ public class FilterKeysMap<K,V> extends BaseKeyOperator<K>
         keys.put(e, null);
       }
     }
+  }
+
+  /**
+   * The keys to filter. The values in the map should be null.
+   * @param keys
+   */
+  public void setKeys(HashMap<K, V> keys)
+  {
+    this.keys = keys;
+  }
+
+  /**
+   * Gets the keys to filter.
+   * @return Returns a map containing the keys.
+   */
+  public HashMap<K, V> getKeys()
+  {
+    return keys;
   }
 
   /*

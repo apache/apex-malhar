@@ -27,7 +27,7 @@ import com.datatorrent.lib.util.BaseUniqueKeyCounter;
 import com.datatorrent.lib.util.UnifierHashMapSumKeys;
 
 /**
- * This operator counts the number of times a key exists in a window.&nbsp;A map from keys to counts is emitted at the end of each window.
+ * This operator counts the number of times a tuple exists in a window.&nbsp;A map from tuples to counts is emitted at the end of each window.
  * <p>
  * Counts the number of times a key exists in a window; Count is emitted at end of window in a single HashMap.
  * </p>
@@ -44,8 +44,8 @@ import com.datatorrent.lib.util.UnifierHashMapSumKeys;
  * <br>
  * </p>
  *
- * @displayName Count Unique Keys
- * @category Algorithmic
+ * @displayName Count Unique Tuples
+ * @category Stats and Aggregations
  * @tags count
  *
  * @since 0.3.2
@@ -108,10 +108,21 @@ public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
     }
   }
 
+  /**
+   * Gets the cumulative mode.
+   * @return The cumulative mode.
+   */
   public boolean isCumulative() {
     return cumulative;
   }
 
+  /**
+   * If enabled then the unique keys is counted and maintained in memory for the life of the operator. If not enabled
+   * keys are counted a per window bases.<br/>
+   * <b>Note:</b> If cumulative mode is enabled and the operator receives many unique keys, then this operator
+   * could eventually run out of memory.
+   * @param cumulative
+   */
   public void setCumulative(boolean cumulative) {
     this.cumulative = cumulative;
   }

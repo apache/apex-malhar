@@ -49,7 +49,7 @@ import com.datatorrent.lib.util.AbstractBaseNNonUniqueOperatorMap;
  * </p>
  *
  * @displayName Bottom N
- * @category Algorithmic
+ * @category Stats and Aggregations
  * @tags filter, rank, key value
  *
  * @since 0.3.3
@@ -91,9 +91,10 @@ public class BottomNMap<K, V> extends AbstractBaseNNonUniqueOperatorMap<K, V>
   {
     bottom.emit(tuple);
   }
-  
+
   /**
-   * @param val Bottom N values to be returned
+   * Bottom N values to be returned.
+   * @param val Bottom N values to be returned.
    */
   @Override
   public void setN(int val)

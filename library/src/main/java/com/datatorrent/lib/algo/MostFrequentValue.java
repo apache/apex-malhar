@@ -21,43 +21,49 @@ import java.util.HashMap;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 import com.datatorrent.lib.util.AbstractBaseFrequentKey;
+import com.datatorrent.lib.util.UnifierArrayHashMapFrequent;
+import com.datatorrent.lib.util.UnifierHashMapFrequent;
 
 /**
  * This operator filters the incoming stream of values by emitting the value or values (if there is a tie)
- * that occurred the fewest number of times within each window to the output port "list".&nbsp;
+ * that occurred the largest number of times within each window to the output port "list".&nbsp;
  * One of the values is emitted to the output port "least" at the end of each window.
  * <p>
- * Occurrences of each tuple is counted and at the end of window any of the least frequent tuple is emitted on output port 'least'
- * All keys with same least frequency value least are emitted on output port 'list'.<br>
+ * Occurrences of each tuple is counted and at the end of window any of the most frequent tuple is emitted on output port least and all least frequent
+ * tuples on output port list
+ * </p>
+ * <p>
  * This module is an end of window module<br>
  * In case of a tie any of the least key would be emitted. The list port would however have all the tied keys
  * <br>
- * <b>StateFull : Yes, </b> tuple are compared across application window(s). <br>
- * <b>Partitions : Yes, </b> least keys are unified on output port. <br>
+ *  <b>StateFull : Yes</b>, Values are compared all over  application window can be > 1. <br>
+ *  <b>Partitions : Yes</b>, Result is unified on output port. <br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects K<br>
- * <b>least</b>: emits HashMap&lt;K,Integer&gt;(1), Where K is the least occurring key in the window.
- *               In case of tie any of the least key would be emitted<br>
+ * <b>most</b>: emits HashMap&lt;K,Integer&gt;(1), Where K is the least occurring key in the window. In case of tie any of the least key would be emitted<br>
  * <b>list</b>: emits ArrayList&lt;HashMap&lt;K,Integer&gt;(1)&gt, Where the list includes all the keys that are least frequent<br>
  * <br>
+ * <b>Properties</b>: None<br>
+ * <br>
+ * <b>Compile time checks</b>: None<br>
+ * <b>Specific run time checks</b>: None<br>
+ * <br>
  * </p>
- *
- * @displayName Emit Least Frequent Value
- * @category Algorithmic
+ * @displayName Emit Most Frequent Value
+ * @category Rules and Alerts
  * @tags filter, count
  *
- * @since 0.3.3
+ * @since 0.3.2
  */
 
 @OperatorAnnotation(partitionable = true)
-public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
+public class MostFrequentValue<K> extends AbstractBaseFrequentKey<K>
 {
   /**
-   * The input port on which tuples are received.
+   * The input port which receives incoming tuples.
    */
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
@@ -70,59 +76,44 @@ public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
       processTuple(tuple);
     }
   };
-
   /**
-   * The output port on which one of the tuples,
-   * which occurred the least number of times,
+   * The output port on which all the tuples,
+   * which occurred the most number of times,
    * is emitted.
    */
-  @OutputPortFieldAnnotation(optional=true)
-  public final transient DefaultOutputPort<HashMap<K, Integer>> least = new DefaultOutputPort<HashMap<K, Integer>>()
+  public final transient DefaultOutputPort<HashMap<K, Integer>> most = new DefaultOutputPort<HashMap<K, Integer>>()
   {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public Unifier<HashMap<K, Integer>> getUnifier()
     {
-      return new LeastFrequentKeyUnifier<K>();
+      UnifierHashMapFrequent ret = new UnifierHashMapFrequent<K>();
+      ret.setLeast(false);
+      return ret;
     }
   };
 
-  /**
-   * The output port on which all the tuples,
-   * which occurred the least number of times,
-   * is emitted.
-   */
-  @OutputPortFieldAnnotation(optional=true)
+
   public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>()
   {
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "ConstantConditions"})
     @Override
     public Unifier<ArrayList<HashMap<K, Integer>>> getUnifier()
     {
-      return new LeastFrequentKeyArrayUnifier<K>();
+      Unifier<ArrayList<HashMap<K, Integer>>> ret = new UnifierArrayHashMapFrequent<K>();
+      ((UnifierHashMapFrequent) ret).setLeast(false);
+      return ret;
     }
   };
 
   /**
-   * Emits tuple on port "least"
+   * Emits tuple on port "most"
    * @param tuple
    */
   @Override
   public void emitTuple(HashMap<K, Integer> tuple)
   {
-    least.emit(tuple);
-  }
-
-  /**
-   * returns val1 < val2
-   * @param val1
-   * @param val2
-   * @return val1 < val2
-   */
-  @Override
-    public boolean compareCount(int val1, int val2)
-  {
-    return val1 < val2;
+    most.emit(tuple);
   }
 
   /**
@@ -133,5 +124,17 @@ public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
   public void emitList(ArrayList<HashMap<K, Integer>> tlist)
   {
     list.emit(tlist);
+  }
+
+  /**
+   * returns val1 < val2
+   * @param val1
+   * @param val2
+   * @return val1 > val2
+   */
+  @Override
+  public boolean compareCount(int val1, int val2)
+  {
+    return val1 > val2;
   }
 }

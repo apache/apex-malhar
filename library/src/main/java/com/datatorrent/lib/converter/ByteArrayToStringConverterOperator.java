@@ -23,6 +23,9 @@ import java.nio.charset.Charset;
 /**
  * This operator converts Byte Array to String. User gets the option of providing character Encoding.
  *
+ * @category Tuple Converters
+ * @tags byte, string
+ *
  * @since 2.1.0
  */
 public class ByteArrayToStringConverterOperator extends BaseOperator

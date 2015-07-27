@@ -53,8 +53,8 @@ import com.datatorrent.lib.util.UnifierSumNumber;
  * <br>
  * </p>
  *
- * @displayName Compare Match and No Match Count   
- * @category Algorithmic
+ * @displayName Compare Match and No Match Count
+ * @category Rules and Alerts
  * @tags count, key value
  *
  * @since 0.3.2

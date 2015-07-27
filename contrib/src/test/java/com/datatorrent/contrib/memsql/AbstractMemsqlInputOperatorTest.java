@@ -181,7 +181,7 @@ public class AbstractMemsqlInputOperatorTest
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
     MemsqlPOJOInputOperator inputOperator = new MemsqlPOJOInputOperator();
     createStore((MemsqlStore)inputOperator.getStore(), true);
-    inputOperator.setLimit(10);
+    inputOperator.setBatchSize(10);
     inputOperator.setTablename(FQ_TABLE);
     inputOperator.setPrimaryKeyColumn(INDEX_COLUMN);
     ArrayList<String> expressions = new ArrayList<String>();
@@ -222,7 +222,7 @@ public class AbstractMemsqlInputOperatorTest
     inputOperator.setQuery("select * from " + FQ_TABLE + " where " + "%p " + ">= " + "%s" + " LIMIT " + "%l" +";");
     inputOperator.setStartRow(1);
 
-    inputOperator.setLimit(10);
+    inputOperator.setBatchSize(10);
     inputOperator.setup(context);
 
     inputOperator.beginWindow(0);

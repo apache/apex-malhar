@@ -45,8 +45,8 @@ import com.datatorrent.lib.util.AbstractBaseSortOperator;
  * </p>
  *
  * @displayName Sort Ascending
- * @category Algorithmic
- * @tags rank
+ * @category Stream Manipulators
+ * @tags rank, sort
  *
  * @since 0.3.3
  */

@@ -26,7 +26,7 @@ import java.io.InputStreamReader;
  * <p></p>
  * @displayName HTTP Lines Input
  * @category Input
- * @tags http, input operator
+ * @tags http
  *
  * @since 0.9.4
  */

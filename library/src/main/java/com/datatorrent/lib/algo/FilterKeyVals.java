@@ -57,7 +57,7 @@ import com.datatorrent.lib.util.BaseKeyOperator;
  * </p>
  *
  * @displayName Filter Keyval Pairs
- * @category Algorithmic
+ * @category Rules and Alerts
  * @tags filter, key value
  *
  * @since 0.3.2
@@ -102,7 +102,7 @@ public class FilterKeyVals<K,V> extends BaseKeyOperator<K>
   private transient HashMap<K,V> entry = new HashMap<K,V>(1);
 
   /**
-   * getter function for parameter inverse
+   * Gets the inverse property.
    * @return inverse
    */
   public boolean getInverse() {
@@ -110,7 +110,7 @@ public class FilterKeyVals<K,V> extends BaseKeyOperator<K>
   }
 
   /**
-   * True means match; False means unmatched
+   * If true then only matches are emitted. If false then only non matches are emitted.
    * @param val
    */
   public void setInverse(boolean val) {

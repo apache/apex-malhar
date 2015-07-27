@@ -48,7 +48,7 @@ import com.datatorrent.api.annotation.Stateless;
  * </p>
  *
  * @displayName Filter Values
- * @category Algorithmic
+ * @category Rules and Alerts
  * @tags filter
  *
  * @since 0.3.2
@@ -58,7 +58,7 @@ import com.datatorrent.api.annotation.Stateless;
 public class FilterValues<T> extends BaseOperator
 {
   /**
-   * The input port on which tuples are recieved.
+   * The input port on which tuples are received.
    */
   public final transient DefaultInputPort<T> data = new DefaultInputPort<T>()
   {
@@ -86,8 +86,7 @@ public class FilterValues<T> extends BaseOperator
   boolean inverse = false;
 
   /**
-   * getter function for parameter inverse
-   *
+   * Gets the inverse property.
    * @return inverse
    */
   public boolean getInverse()
@@ -96,7 +95,7 @@ public class FilterValues<T> extends BaseOperator
   }
 
   /**
-   * True means match; False means unmatched
+   * If true then only matches are emitted. If false then only non matches are emitted.
    * @param val
    */
   public void setInverse(boolean val)
@@ -128,6 +127,25 @@ public class FilterValues<T> extends BaseOperator
         values.put(e, null);
       }
     }
+  }
+
+  /**
+   * Gets the values to be filtered.
+   * @return The values to be filtered.
+   */
+  public HashMap<T, Object> getValues()
+  {
+    return values;
+  }
+
+  /**
+   * A map containing the values to be filtered. The values are set to be the keys in the map, and the
+   * values are set to be null.
+   * @param values The values to be filtered.
+   */
+  public void setValues(HashMap<T, Object> values)
+  {
+    this.values = values;
   }
 
   /**
