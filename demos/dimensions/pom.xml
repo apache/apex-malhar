@@ -17,39 +17,11 @@
   </parent>
 
   <properties>
-    <!-- change this if you desire to use a different version of DataTorrent -->
-    <datatorrent.version>3.0.0-RC4</datatorrent.version>
-    <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
     <skipTests>true</skipTests>
   </properties>
 
   <build>
     <plugins>
-      <plugin>
-        <artifactId>maven-eclipse-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>copy-dependencies</id>
-            <phase>prepare-package</phase>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-      </plugin>
       <!-- Publish tests jar -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -199,17 +171,6 @@
       <artifactId>trove4j</artifactId>
       <version>3.0.3</version>
     </dependency>
-    <dependency>
-      <groupId>com.datatorrent</groupId>
-      <artifactId>malhar-library</artifactId>
-      <version>${datatorrent.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
     <!-- HDHT depens on org.apache.hadoop.io.file.tfile package in here -->
     <dependency>
       <groupId>com.datatorrent</groupId>
@@ -250,18 +211,6 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.datatorrent</groupId>
-      <artifactId>dt-engine</artifactId>
-      <version>${datatorrent.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.10</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>it.unimi.dsi</groupId>
