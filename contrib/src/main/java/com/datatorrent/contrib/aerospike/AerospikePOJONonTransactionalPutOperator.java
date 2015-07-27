@@ -34,9 +34,10 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
  * A generic implementation of {@link AbstractAerospikeNonTransactionalPutOperator} which can
  * take a POJO.
  * </p>
- * @displayName Aerospike Non-Transactional Put
- * @category Database
- * @tags output operator, put, non-transactional, POJO
+ *
+ * @displayName Aerospike Non-Transactional Put Operator
+ * @category Output
+ * @tags database, nosql, pojo, aerospike
  * @since 2.1.0
  */
 public class AerospikePOJONonTransactionalPutOperator extends AbstractAerospikeNonTransactionalPutOperator<Object>

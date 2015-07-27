@@ -28,7 +28,7 @@ import com.datatorrent.lib.appdata.gpo.GPOUtils;
 /**
  * This operator accepts a list of POJOs, and serves the data under the {@link SnapshotSchema}.
  * Each POJO represents a row in the table, and the full list of POJOs represents a table.
- * @displayName App Data Snapshot POJO Server
+ * @displayName App Data Snapshot Server
  * @category App Data
  * @tags appdata, snapshot, pojo
  */

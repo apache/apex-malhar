@@ -47,6 +47,9 @@ import com.datatorrent.api.Context.OperatorContext;
  * emit(doc._id, doc);
  * }
  *
+ * @displayName CouchDb Input Operator
+ * @category Input
+ * @tags database, nosql, pojo, couchdb
  */
 public class CouchDBPOJOInputOperator extends AbstractCouchDBInputOperator<Object>
 {

@@ -36,6 +36,11 @@ import org.slf4j.LoggerFactory;
  * A generic implementation of AbstractMemsqlOutputOperator which can take in a POJO.
  *
  * @since 2.1.0
+ *
+ * @displayName Memsql Output Operator
+ * @category Output
+ * @tags database, sql, pojo, memsql
+ *
  */
 public class MemsqlPOJOOutputOperator extends AbstractMemsqlOutputOperator<Object>
 {
