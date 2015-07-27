@@ -43,9 +43,9 @@ import com.datatorrent.api.Context.OperatorContext;
  * and %l for limit. The start value is continuously updated with the value of a primary key column of the last row from
  * the result of the previous run of the query. The primary key column is also identified by the user using a property.
  *
- * @displayName Cassandra POJO Input Operator
+ * @displayName Cassandra Input Operator
  * @category Input
- * @tags input operator
+ * @tags database, nosql, pojo, cassandra
  */
 public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<Object>
 {

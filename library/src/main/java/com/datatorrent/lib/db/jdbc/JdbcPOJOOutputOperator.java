@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  *
  * @displayName Jdbc Output Operator
  * @category Output
- * @tags output operator,transactional, POJO
+ * @tags database, sql, pojo, jdbc
  * @since 2.1.0
  */
 public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOperator<Object>

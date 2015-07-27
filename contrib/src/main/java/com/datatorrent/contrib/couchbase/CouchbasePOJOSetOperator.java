@@ -25,9 +25,13 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
 
-/*
+/**
  * An implementation of Couchbase Output Operator which takes a POJO,serializes it into key,value
  * pair and then writes to couchbase.
+ *
+ * @displayName Couchbase Output Operator
+ * @category Output
+ * @tags database, nosql, pojo, couchbase
  */
 public class CouchbasePOJOSetOperator extends AbstractCouchBaseSetOperator<Object>
 {

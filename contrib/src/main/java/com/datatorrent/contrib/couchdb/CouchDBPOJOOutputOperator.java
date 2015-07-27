@@ -23,9 +23,9 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
 /**
  * Implementation of {@link AbstractCouchDBOutputOperator} that saves a POJO in the couch database. <br/>
  * <p>
- * @displayName POJO Based CouchDb Output Operator
- * @category Database
- * @tags output operator
+ * @displayName CouchDb Output Operator
+ * @category Output
+ * @tags database, nosql, pojo, couchdb
  * @since 0.3.5
  */
 public class CouchDBPOJOOutputOperator extends AbstractCouchDBOutputOperator<Object>

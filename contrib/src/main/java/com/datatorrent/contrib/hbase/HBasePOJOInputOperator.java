@@ -18,6 +18,11 @@ import com.datatorrent.lib.util.TableInfo;
 
 import com.datatorrent.api.Context.OperatorContext;
 
+/**
+ * @displayName HBase Input Operator
+ * @category Input
+ * @tags database, nosql, pojo, hbase
+ */
 public class HBasePOJOInputOperator extends HBaseInputOperator<Object>
 {
   private TableInfo<HBaseFieldInfo> tableInfo;
@@ -25,12 +30,12 @@ public class HBasePOJOInputOperator extends HBaseInputOperator<Object>
   private String pojoTypeName;
   private String startRow;
   private String lastReadRow;
-  
+
   protected transient Class pojoType;
   private transient Setter<Object, String> rowSetter;
   protected transient FieldValueGenerator<HBaseFieldInfo> fieldValueGenerator;
   protected transient BytesValueConverter valueConverter;
-  
+
   public static class BytesValueConverter implements ValueConverter<HBaseFieldInfo>
   {
     @Override
@@ -39,7 +44,7 @@ public class HBasePOJOInputOperator extends HBaseInputOperator<Object>
       return fieldInfo.toValue( (byte[])value );
     }
   }
-  
+
   @Override
   public void setup(OperatorContext context)
   {
@@ -91,7 +96,7 @@ public class HBasePOJOInputOperator extends HBaseInputOperator<Object>
 
         Object instance = pojoType.newInstance();
         rowSetter.set(instance, readRow);
-        
+
         List<Cell> cells = result.listCells();
 
         for (Cell cell : cells) {
@@ -99,7 +104,7 @@ public class HBasePOJOInputOperator extends HBaseInputOperator<Object>
           byte[] value = CellUtil.cloneValue(cell);
           fieldValueGenerator.setColumnValue( instance, columnName, value, valueConverter );
         }
-        
+
         outputPort.emit(instance);
         lastReadRow = readRow;
       }
@@ -109,7 +114,7 @@ public class HBasePOJOInputOperator extends HBaseInputOperator<Object>
     }
 
   }
-  
+
   protected Scan nextScan()
   {
     if(lastReadRow==null && startRow==null )

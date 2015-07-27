@@ -26,9 +26,9 @@ import javax.validation.constraints.NotNull;
 /**
  * Implementation of {@link MongoDBOutputOperator} that saves a POJO in the mongodb database. <br/>
  * <p>
- * @displayName POJO Based MongoDb Output Operator
- * @category Database
- * @tags output operator
+ * @displayName MongoDb Output Operator
+ * @category Output
+ * @tags database, nosql, pojo, mongodb
  * @since 0.3.5
  */
 public class MongoDBPOJOOutputOperator extends MongoDBOutputOperator<Object>
