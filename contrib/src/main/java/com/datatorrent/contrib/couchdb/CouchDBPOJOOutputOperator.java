@@ -24,8 +24,8 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
  * Implementation of {@link AbstractCouchDBOutputOperator} that saves a POJO in the couch database. <br/>
  * <p>
  * @displayName POJO Based CouchDb Output Operator
- * @category Database
- * @tags output operator
+ * @category Output
+ * @tags couchDb, database, nosql
  * @since 0.3.5
  */
 public class CouchDBPOJOOutputOperator extends AbstractCouchDBOutputOperator<Object>
@@ -36,14 +36,19 @@ public class CouchDBPOJOOutputOperator extends AbstractCouchDBOutputOperator<Obj
   @NotNull
   private String expressionForDocId;
 
-  /*
-   * An Expression to extract value of document Id from input POJO.
+  /**
+   * Gets the getter expression for the document Id.
+   * @return The document Id.
    */
   public String getExpressionForDocId()
   {
     return expressionForDocId;
   }
 
+  /**
+   * An Expression to extract value of document Id from an input POJO.
+   * @param expressionForDocId The getter expression for the document Id.
+   */
   public void setExpressionForDocId(String expressionForDocId)
   {
     this.expressionForDocId = expressionForDocId;

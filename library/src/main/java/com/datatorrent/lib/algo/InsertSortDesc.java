@@ -47,8 +47,8 @@ import java.util.PriorityQueue;
  * <br>
  * </p>
  * @displayName Sort Descending
- * @category Algorithmic
- * @tags rank
+ * @category Stream Manipulators
+ * @tags rank, sort
  *
  * @since 0.3.2
  */

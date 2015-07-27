@@ -63,7 +63,7 @@ import com.datatorrent.lib.io.block.BlockMetadata.FileBlockMetadata;
  *
  * @displayName File Splitter
  * @category Input
- * @tags file, input operator
+ * @tags file
  * @since 2.0.0
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
@@ -835,6 +835,8 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
     }
 
     /**
+     * Gets the regular expression for file names to split.
+     *
      * @return regular expression
      */
     public String getFilePatternRegularExp()
@@ -843,7 +845,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
     }
 
     /**
-     * Sets the regular expression for files.
+     * Only files with names matching the given java regular expression are split.
      *
      * @param filePatternRegexp regular expression
      */
@@ -853,7 +855,8 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
     }
 
     /**
-     * Sets the files to be scanned.
+     * A comma separated list of directories to scan. If the path is not fully qualified the default
+     * file system is used. A fully qualified path can be provided to scan directories in other filesystems.
      *
      * @param files files
      */
@@ -863,6 +866,8 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
     }
 
     /**
+     * Gets the files to be scanned.
+     *
      * @return files to be scanned.
      */
     public String getFiles()
@@ -871,7 +876,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
     }
 
     /**
-     * Sets whether scan will be recursive.
+     * True if recursive; false otherwise.
      *
      * @param recursive true if recursive; false otherwise.
      */
@@ -881,6 +886,8 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
     }
 
     /**
+     * Sets whether scan will be recursive.
+     *
      * @return true if recursive; false otherwise.
      */
     public boolean isRecursive()
@@ -899,7 +906,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
     }
 
     /**
-     * Returns the value of trigger.
+     * The trigger which will initiate scan.
      *
      * @return trigger
      */

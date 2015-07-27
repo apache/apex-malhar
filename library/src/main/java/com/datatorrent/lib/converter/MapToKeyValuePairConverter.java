@@ -25,12 +25,13 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 
 /**
- * 
- * This operator outputs key value pair for each entry in input Map 
- * 
+ *
+ * This operator outputs key value pair for each entry in input Map
+ *
  * @displayName Map to key-value pair converter
- * @category Converter
- * 
+ * @category Tuple Converters
+ * @tags key value
+ *
  */
 public class MapToKeyValuePairConverter<K, V> extends BaseOperator {
 
@@ -41,11 +42,11 @@ public class MapToKeyValuePairConverter<K, V> extends BaseOperator {
   {
     @Override
     public void process(Map<K, V> tuple)
-    { 
+    {
       for(Entry<K, V> entry:tuple.entrySet())
       {
-        output.emit(new KeyValPair<K, V>(entry.getKey(), entry.getValue()));  
-      }      
+        output.emit(new KeyValPair<K, V>(entry.getKey(), entry.getValue()));
+      }
     }
   };
 

@@ -24,7 +24,7 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.util.AbstractBaseNUniqueOperatorMap;
 
 /**
- * This operator orders tuples per key and emits the top N unique tuples per key at the end of the window.
+ * This operator orders tuples per key and emits the top N unique values per key at the end of the window.
  * <p>
  * Orders tuples per key and emits top N unique tuples per key on end of window.
  * </p>
@@ -47,7 +47,7 @@ import com.datatorrent.lib.util.AbstractBaseNUniqueOperatorMap;
  * </p>
  *
  * @displayName Top N Unique Values Per Key
- * @category Algorithmic
+ * @category Stats and Aggregations
  * @tags filter, rank
  *
  * @since 0.3.2
@@ -80,7 +80,7 @@ public class TopNUnique<K, V> extends AbstractBaseNUniqueOperatorMap<K, V>
   {
     top.emit(tuple);
   }
-  
+
   /**
    * Top N unique tuples per key
    * @param val

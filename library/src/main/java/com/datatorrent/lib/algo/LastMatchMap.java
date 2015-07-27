@@ -26,7 +26,7 @@ import com.datatorrent.lib.util.BaseMatchOperator;
 
 /**
  * This operator filters the incoming stream of key value pairs by obtaining the values corresponding to a specified key,
- * and comparing those values to a specified number.&nbsp;The last key value pair, in each window, to satisfy the comparison is emitted.
+ * and comparing those values to a specified value.&nbsp;The last key value pair, in each window, to satisfy the comparison is emitted.
  * <p>
  * A compare function is  operated on a tuple value sub-classed from Number based on the property "key", "value", and "cmp". Every tuple
  * is checked and the last one that passes the condition is send during end of window on port "last". The comparison is done by getting double
@@ -55,7 +55,7 @@ import com.datatorrent.lib.util.BaseMatchOperator;
  * </p>
  *
  * @displayName Emit Last Match (Number)
- * @category Algorithmic
+ * @category Rules and Alerts
  * @tags filter, key value, numeric
  *
  * @since 0.3.2

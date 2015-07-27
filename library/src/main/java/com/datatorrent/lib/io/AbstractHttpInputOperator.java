@@ -56,14 +56,27 @@ public abstract class AbstractHttpInputOperator<T> extends SimpleSinglePortInput
    * The URL of the web service resource for the POST request.
    */
   @NotNull
-  private URI resourceUrl;
+  private URI url;
   private Map<String, String> headers = new HashMap<String, String>();
   private transient Client wsClient;
   private transient WebResource resource;
 
+  /**
+   * The url to read from.
+   * @param u The url to read from.
+   */
   public void setUrl(URI u)
   {
-    resourceUrl = u;
+    url = u;
+  }
+
+  /**
+   * Sets the url to read from.
+   * @return The url to read from.
+   */
+  public URI getUrl()
+  {
+    return url;
   }
 
   public void setHeader(String key, String value)
@@ -77,8 +90,8 @@ public abstract class AbstractHttpInputOperator<T> extends SimpleSinglePortInput
     wsClient = Client.create();
     wsClient.setFollowRedirects(true);
     wsClient.setReadTimeout(readTimeoutMillis);
-    resource = wsClient.resource(resourceUrl.toString()); // side step "not absolute URL" after serialization
-    LOG.info("URL: {}", resourceUrl);
+    resource = wsClient.resource(url.toString()); // side step "not absolute URL" after serialization
+    LOG.info("URL: {}", url);
   }
 
   @Override

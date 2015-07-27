@@ -24,12 +24,13 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 
 /**
- * 
+ *
  * This operator converts Map<K, String> to Map<K, Number> for numeric string values
  *
  * @displayName String to Number value converter for Map
- * @category Converter
- * 
+ * @category Tuple Converters
+ * @tags string
+ *
  */
 public class StringValueToNumberConverterForMap<K> extends BaseOperator {
 

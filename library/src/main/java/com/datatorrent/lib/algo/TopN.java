@@ -48,7 +48,7 @@ import com.datatorrent.lib.util.AbstractBaseNNonUniqueOperatorMap;
  * </p>
  *
  * @displayName Top N Values Per Key
- * @category Algorithmic
+ * @category Stats and Aggregations
  * @tags filter, rank
  *
  * @since 0.3.3
@@ -101,7 +101,7 @@ public class TopN<K, V> extends AbstractBaseNNonUniqueOperatorMap<K,V> implement
       }
     }
   }
-  
+
   /**
    * Top N tuples per key
    * @param val

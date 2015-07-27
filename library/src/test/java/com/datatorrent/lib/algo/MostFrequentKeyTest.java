@@ -26,7 +26,7 @@ import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 /**
  *
- * Functional tests for {@link com.datatorrent.lib.algo.MostFrequentKey}<p>
+ * Functional tests for {@link com.datatorrent.lib.algo.MostFrequentValue}<p>
  *
  */
 public class MostFrequentKeyTest
@@ -38,7 +38,7 @@ public class MostFrequentKeyTest
   @Test
   public void testNodeProcessing() throws Exception
   {
-    MostFrequentKey<String> oper = new MostFrequentKey<String>();
+    MostFrequentValue<String> oper = new MostFrequentValue<String>();
     CountAndLastTupleTestSink matchSink = new CountAndLastTupleTestSink();
     CountAndLastTupleTestSink listSink = new CountAndLastTupleTestSink();
     oper.most.setSink(matchSink);

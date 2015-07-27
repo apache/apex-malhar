@@ -47,7 +47,7 @@ import com.datatorrent.lib.util.BaseKeyOperator;
  * </p>
  *
  * @displayName Emit Distinct
- * @category Algorithmic
+ * @category Rules and Alerts
  * @tags filter, unique
  *
  * @since 0.3.3
