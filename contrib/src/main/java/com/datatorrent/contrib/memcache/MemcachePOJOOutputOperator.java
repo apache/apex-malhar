@@ -17,6 +17,8 @@ package com.datatorrent.contrib.memcache;
 
 import java.util.List;
 
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
+
 import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.lib.util.FieldValueGenerator;
 import com.datatorrent.lib.util.PojoUtils;
@@ -29,6 +31,7 @@ import com.datatorrent.lib.util.TableInfo;
  * @category Output
  * @tags pojo, memcache
  */
+@Evolving
 public class MemcachePOJOOutputOperator extends AbstractMemcacheOutputOperator< Object >
 {
   private static final long serialVersionUID = 5290158463990158290L;

@@ -23,10 +23,10 @@ import javax.validation.constraints.NotNull;
 
 import com.couchbase.client.protocol.views.*;
 
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.datatorrent.lib.db.AbstractStoreInputOperator;
-
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
@@ -47,6 +47,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * @category Input
  * @tags database, nosql, pojo, couchbase
  */
+@Evolving
 public class CouchBasePOJOInputOperator extends AbstractStoreInputOperator<Object, CouchBaseStore>
 {
   private transient Class<?> className = null;

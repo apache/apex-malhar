@@ -16,8 +16,6 @@
 package com.datatorrent.contrib.cassandra;
 
 import com.datastax.driver.core.*;
-import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.exceptions.DriverException;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
@@ -26,9 +24,13 @@ import com.datatorrent.lib.util.PojoUtils.GetterFloat;
 import com.datatorrent.lib.util.PojoUtils.GetterInt;
 import com.datatorrent.lib.util.PojoUtils.GetterLong;
 import com.datatorrent.lib.util.PojoUtils.Getter;
+
 import java.math.BigDecimal;
 import java.util.*;
+
 import javax.validation.constraints.NotNull;
+
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +44,7 @@ import org.slf4j.LoggerFactory;
  * @tags database, nosql, pojo, cassandra
  * @since 2.1.0
  */
+@Evolving
 public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionableOutputOperatorPS<Object>
 {
   private static final long serialVersionUID = 201506181024L;

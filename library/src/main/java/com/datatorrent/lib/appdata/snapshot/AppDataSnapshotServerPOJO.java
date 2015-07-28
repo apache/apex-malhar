@@ -19,8 +19,9 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
-import com.google.common.base.Preconditions;
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
 
+import com.google.common.base.Preconditions;
 import com.datatorrent.lib.appdata.gpo.GPOGetters;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
@@ -32,6 +33,7 @@ import com.datatorrent.lib.appdata.gpo.GPOUtils;
  * @category Output
  * @tags app data, snapshot, pojo
  */
+@Evolving
 public class AppDataSnapshotServerPOJO extends AbstractAppDataSnapshotServer<Object>
 {
   /**

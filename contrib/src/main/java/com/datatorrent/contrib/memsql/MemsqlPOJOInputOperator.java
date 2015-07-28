@@ -24,14 +24,18 @@ import com.datatorrent.lib.util.PojoUtils.SetterFloat;
 import com.datatorrent.lib.util.PojoUtils.SetterInt;
 import com.datatorrent.lib.util.PojoUtils.SetterLong;
 import com.datatorrent.lib.util.PojoUtils.SetterShort;
+
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +53,7 @@ import org.slf4j.LoggerFactory;
  * @category Input
  * @tags database, sql, pojo, memsql
  */
+@Evolving
 public class MemsqlPOJOInputOperator extends AbstractMemsqlInputOperator<Object>
 {
   @Min(1)

@@ -3,6 +3,7 @@ package com.datatorrent.contrib.hbase;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
@@ -15,7 +16,6 @@ import com.datatorrent.lib.util.FieldValueGenerator.ValueConverter;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Setter;
 import com.datatorrent.lib.util.TableInfo;
-
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
@@ -23,6 +23,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * @category Input
  * @tags database, nosql, pojo, hbase
  */
+@Evolving
 public class HBasePOJOInputOperator extends HBaseInputOperator<Object>
 {
   private TableInfo<HBaseFieldInfo> tableInfo;
