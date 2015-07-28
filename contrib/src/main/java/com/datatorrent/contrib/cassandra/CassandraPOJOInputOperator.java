@@ -25,12 +25,12 @@ import com.datastax.driver.core.ColumnDefinitions;
 import com.datastax.driver.core.DataType;
 import com.datastax.driver.core.Row;
 
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.*;
-
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
@@ -47,6 +47,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * @category Input
  * @tags database, nosql, pojo, cassandra
  */
+@Evolving
 public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<Object>
 {
   @NotNull

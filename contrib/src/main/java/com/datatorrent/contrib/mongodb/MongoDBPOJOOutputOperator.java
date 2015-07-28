@@ -18,10 +18,14 @@ package com.datatorrent.contrib.mongodb;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.mongodb.BasicDBObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.validation.constraints.NotNull;
+
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
 
 /**
  * Implementation of {@link MongoDBOutputOperator} that saves a POJO in the mongodb database. <br/>
@@ -31,6 +35,7 @@ import javax.validation.constraints.NotNull;
  * @tags database, nosql, pojo, mongodb
  * @since 0.3.5
  */
+@Evolving
 public class MongoDBPOJOOutputOperator extends MongoDBOutputOperator<Object>
 {
   private final transient ArrayList<Getter<Object, Object>> getterValues;
