@@ -16,13 +16,4 @@
     <version>3.0.0-RC4</version>
   </parent>
 
-  <dependencies>
-    <dependency>
-      <groupId>com.datatorrent</groupId>
-      <artifactId>dt-engine</artifactId>
-      <version>${dt.framework.version}</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
 </project>
