@@ -44,7 +44,7 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
 public abstract class AbstractJdbcInputOperator<T> extends AbstractStoreInputOperator<T, JdbcStore>
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractJdbcInputOperator.class);
-  Statement queryStatement = null;
+  protected transient Statement queryStatement;
   private transient int waitForDataTimeout;
 
   /**
