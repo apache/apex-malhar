@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.customMetric.min;
+package com.datatorrent.lib.metric.min;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -23,20 +23,20 @@ import com.datatorrent.api.annotation.Name;
 import com.datatorrent.common.metric.SingleMetricAggregator;
 
 @Name("min")
-public class LongMinAggregator implements SingleMetricAggregator, Serializable
+public class DoubleMinAggregator implements SingleMetricAggregator, Serializable
 {
   @Override
   public Object aggregate(Collection<Object> metricValues)
   {
-    Long min = null;
+    Double min = null;
     for (Object value : metricValues) {
-      long lval = ((Number) value).longValue();
-      if (min == null || lval < min) {
-        min = lval;
+      double dval = ((Number) value).doubleValue();
+      if (min == null || dval < min) {
+        min = dval;
       }
     }
     return min;
   }
 
-  private static final long serialVersionUID = 201504081319L;
+  private static final long serialVersionUID = 201504081324L;
 }
