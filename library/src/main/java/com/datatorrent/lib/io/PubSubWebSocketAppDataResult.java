@@ -27,11 +27,12 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.common.experimental.AppData;
 import com.datatorrent.common.util.PubSubMessage.PubSubMessageType;
 /**
- * This is an app data pub sub result operator.
+ * This is an app data pub sub result operator. This operator is used to send results to
+ * App Data dashboards produced by App Data store operators.
  *
  * @displayName App Data Pub Sub Result
  * @category App Data
- * @tags output, appdata, result
+ * @tags output, appdata, result, dashboards
  */
 @AppData.AppendQueryIdToTopic(value=true)
 public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<String> implements AppData.ConnectionInfoProvider

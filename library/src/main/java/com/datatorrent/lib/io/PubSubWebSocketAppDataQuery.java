@@ -28,11 +28,12 @@ import com.datatorrent.common.experimental.AppData;
 import com.datatorrent.common.util.PubSubMessage;
 
 /**
- * This is an app data pub sub query operator.
+ * This is an App Data pub sub query operator. This operator is used to receive queries from
+ * App Data dashboards and forward queries to App Data store operators.
  *
  * @displayName App Data Pub Sub Query
  * @category App Data
- * @tags input, appdata, query
+ * @tags input, appdata, query, dashboards
  */
 public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<String> implements AppData.ConnectionInfoProvider
 {
