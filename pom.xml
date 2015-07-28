@@ -4,7 +4,7 @@
 
   <parent>
     <groupId>com.datatorrent</groupId>
-    <artifactId>malhar-all</artifactId>
+    <artifactId>malhar</artifactId>
     <version>3.0.0-RC4</version>
   </parent>
 
@@ -27,17 +27,6 @@
       <url>https://www.datatorrent.com/maven/content/repositories/releases/</url>
     </repository>
   </repositories>
-
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <netbeans.hint.license>malhar-inc</netbeans.hint.license>
-    <maven.deploy.skip>false</maven.deploy.skip>
-    <dt.framework.version>3.0.0-RC4</dt.framework.version>
-    <!-- the following properties match the properties defined in core/pom.xml -->
-    <jackson.version>1.9.2</jackson.version>
-    <jersey.version>1.9</jersey.version>
-    <jetty.version>8.1.10.v20130312</jetty.version>
-  </properties>
 
   <modules>
     <module>library</module>
