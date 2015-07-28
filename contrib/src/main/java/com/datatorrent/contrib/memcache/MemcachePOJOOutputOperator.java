@@ -24,10 +24,10 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.datatorrent.lib.util.TableInfo;
 
 /**
- * 
+ *
  * @displayName Memcache Output Operator
- * @category Database
- * @tags Memcache, output operator, Pojo
+ * @category Output
+ * @tags pojo, memcache
  */
 public class MemcachePOJOOutputOperator extends AbstractMemcacheOutputOperator< Object >
 {
@@ -35,7 +35,7 @@ public class MemcachePOJOOutputOperator extends AbstractMemcacheOutputOperator< 
   private TableInfo<FieldInfo> tableInfo;
   private transient FieldValueGenerator<FieldInfo> fieldValueGenerator;
   private transient Getter<Object, String> rowGetter;
-  
+
   @Override
   public void processTuple(Object tuple)
   {
@@ -51,15 +51,15 @@ public class MemcachePOJOOutputOperator extends AbstractMemcacheOutputOperator< 
       if (fieldValueGenerator == null) {
         fieldValueGenerator = FieldValueGenerator.getFieldValueGenerator(tuple.getClass(), fieldsInfo);
       }
-      
+
       value = fieldValueGenerator.getFieldsValueAsMap(tuple);
     }
-   
+
     getStore().put( rowGetter.get(tuple), value);
   }
 
   /**
-   * 
+   *
    * the information to convert pojo
    */
   public TableInfo<FieldInfo> getTableInfo()
@@ -68,12 +68,12 @@ public class MemcachePOJOOutputOperator extends AbstractMemcacheOutputOperator< 
   }
 
   /**
-   * 
+   *
    * the information to convert pojo
    */
   public void setTableInfo(TableInfo<FieldInfo> tableInfo)
   {
     this.tableInfo = tableInfo;
   }
-  
+
 }

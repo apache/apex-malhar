@@ -27,10 +27,9 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.datatorrent.lib.util.TableInfo;
 
 /**
- * 
- * @displayName HBase Put Output
- * @category Database
- * @tags hbase put, output operator, Pojo
+ * @displayName HBase Output Operator
+ * @category Output
+ * @tags database, nosql, pojo, hbase
  */
 public class HBasePOJOPutOperator extends AbstractHBasePutOutputOperator<Object>
 {
@@ -42,7 +41,7 @@ public class HBasePOJOPutOperator extends AbstractHBasePutOutputOperator<Object>
 
   private transient Getter<Object, String> rowGetter;
   private transient HBaseFieldValueHandler valueHandler = new HBaseFieldValueHandler();
-      
+
   @Override
   public Put operationPut(Object obj)
   {
@@ -77,7 +76,7 @@ public class HBasePOJOPutOperator extends AbstractHBasePutOutputOperator<Object>
     this.tableInfo = tableInfo;
   }
 
-  
+
   public static class HBaseFieldValueHandler implements FieldValueHandler<HBaseFieldInfo>
   {
     public Put put;

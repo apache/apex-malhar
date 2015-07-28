@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  *
  * @displayName Cassandra Output Operator
  * @category Output
- * @tags output operator
+ * @tags database, nosql, pojo, cassandra
  * @since 2.1.0
  */
 public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionableOutputOperatorPS<Object>
