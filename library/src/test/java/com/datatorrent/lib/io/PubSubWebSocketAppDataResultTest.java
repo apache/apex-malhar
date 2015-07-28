@@ -15,23 +15,13 @@
  */
 package com.datatorrent.lib.io;
 
-import java.net.URI;
-import org.junit.Assert;
-import org.junit.Test;
+import com.datatorrent.common.experimental.AppData.ConnectionInfoProvider;
 
-public class PubSubWebSocketAppDataResultTest
+public class PubSubWebSocketAppDataResultTest extends PubSubWebSocketAppDataOperatorTest
 {
-  @Test
-  public void testGetAppDataURL() throws Exception
+  @Override
+  public ConnectionInfoProvider getOperator()
   {
-    URI uri = URI.create("ws://localhost:6666/pubsub");
-    String topic = "test";
-    String correct = "pubsub";
-
-    PubSubWebSocketAppDataResult pubsub = new PubSubWebSocketAppDataResult();
-    pubsub.setUri(uri);
-    pubsub.setTopic(topic);
-
-    Assert.assertEquals("The url is incorrect.", correct, pubsub.getAppDataURL());
+    return new PubSubWebSocketAppDataResult();
   }
 }
