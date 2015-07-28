@@ -15,14 +15,5 @@
   <!-- change these to the appropriate values -->
   <name>EchoServer Demo</name>
   <description>A demo server that echos data sent by a network client back to it</description>
-
-  <dependencies>
-    <dependency>
-      <groupId>com.datatorrent</groupId>
-      <artifactId>dt-engine</artifactId>
-      <version>${dt.framework.version}</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
 </project>
 
