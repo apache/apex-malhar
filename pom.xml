@@ -52,4 +52,14 @@
     <module>samples</module>
     <module>apps</module>
   </modules>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.datatorrent</groupId>
+      <artifactId>dt-engine</artifactId>
+      <version>${dt.framework.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
 </project>
