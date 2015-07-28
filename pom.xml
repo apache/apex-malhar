@@ -8,7 +8,7 @@
     <version>3.0.0-RC4</version>
   </parent>
 
-  <artifactId>malhar-all</artifactId>
+  <artifactId>malhar</artifactId>
   <version>3.0.0-RC4</version>
   <packaging>pom</packaging>
   <name>Malhar Open Source</name>
