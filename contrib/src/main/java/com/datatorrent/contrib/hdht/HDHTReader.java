@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
 import com.datatorrent.common.util.NameableThreadFactory;
+import com.datatorrent.contrib.hdht.tfile.TFileImpl;
 import com.datatorrent.netlet.util.Slice;
 import com.datatorrent.contrib.hdht.HDHTFileAccess.HDSFileReader;
 import com.esotericsoftware.kryo.Kryo;
@@ -89,7 +90,7 @@ public class HDHTReader implements Operator, HDHT.Reader
   protected Comparator<Slice> keyComparator = new DefaultKeyComparator();
   @Valid
   @NotNull
-  protected HDHTFileAccess store;
+  protected HDHTFileAccess store = new TFileImpl.DTFileImpl();
 
   protected BucketMeta loadBucketMeta(long bucketKey)
   {
