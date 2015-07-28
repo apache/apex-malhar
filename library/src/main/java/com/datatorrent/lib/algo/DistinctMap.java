@@ -44,8 +44,8 @@ import com.datatorrent.lib.util.UnifierHashMap;
  * <br>
  * </p>
  *
- * @displayName Emit Distinct Keyval Pairs
- * @category Algorithmic
+ * @displayName Distinct Key Value Merge
+ * @category Stream Manipulators
  * @tags filter, unique, key value
  *
  * @since 0.3.2

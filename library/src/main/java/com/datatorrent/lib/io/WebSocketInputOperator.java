@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * <p></p>
  * @displayName JSON Map Input
  * @category Input
- * @tags http, input operator
+ * @tags http, websocket
  *
  * @since 0.3.2
  */
@@ -93,7 +93,7 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
   }
 
   /**
-   * Sets the IO Thread multiplier for AsyncWebSocket connection
+   * The number of threads to use for the websocket connection.
    *
    * @param ioThreadMultiplier
    */

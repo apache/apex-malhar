@@ -29,12 +29,12 @@ import com.datatorrent.lib.script.ScriptOperator;
  * <p>
  *
  * WARNING: EXPERIMENTAL USE ONLY!  This operator depends on jruby which has
- * a transitive dependency on an incompatible version of ASM that breaks 
+ * a transitive dependency on an incompatible version of ASM that breaks
  * webservice in stram.
  *
  * @displayName Ruby Operator
  * @category Scripting
- * @tags script operator, map, string
+ * @tags script, map, string
  * @since 1.0.4
  */
 public class RubyOperator extends ScriptOperator {

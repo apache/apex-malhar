@@ -29,7 +29,7 @@ import com.sun.jersey.api.client.WebResource;
  * </p>
  * @displayName HTTP GET Map
  * @category Input
- * @tags http, input operator
+ * @tags http
  *
  * @param <K> Type of key in input map tuple
  * @param <V> Type of value in input map tuple

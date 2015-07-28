@@ -50,7 +50,7 @@ import com.datatorrent.lib.util.AbstractBaseNOperatorMap;
  * </p>
  *
  * @displayName First N Keyval Pairs Matching Key
- * @category Algorithmic
+ * @category Rules and Alerts
  * @tags filter, key value
  *
  * @since 0.3.2
@@ -96,7 +96,7 @@ public class FirstN<K,V> extends AbstractBaseNOperatorMap<K, V>
   {
     keycount.clear();
   }
-  
+
   /**
    * First N number of KeyValue pairs for each Key.
    * @param val

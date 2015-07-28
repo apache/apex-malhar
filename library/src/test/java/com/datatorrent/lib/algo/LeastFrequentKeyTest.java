@@ -25,7 +25,7 @@ import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 /**
  *
- * Functional tests for {@link com.datatorrent.lib.algo.LeastFrequentKey}<p>
+ * Functional tests for {@link com.datatorrent.lib.algo.LeastFrequentValue}<p>
  *
  */
 public class LeastFrequentKeyTest
@@ -37,7 +37,7 @@ public class LeastFrequentKeyTest
   @Test
   public void testNodeProcessing() throws Exception
   {
-    LeastFrequentKey<String> oper = new LeastFrequentKey<String>();
+    LeastFrequentValue<String> oper = new LeastFrequentValue<String>();
     CountAndLastTupleTestSink matchSink = new CountAndLastTupleTestSink();
     CountAndLastTupleTestSink listSink = new CountAndLastTupleTestSink();
     oper.least.setSink(matchSink);

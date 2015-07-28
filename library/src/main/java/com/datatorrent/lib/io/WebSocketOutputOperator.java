@@ -40,8 +40,8 @@ import com.datatorrent.api.DefaultInputPort;
  * Reads via WebSocket from given URL as input stream.&nbsp;Incoming data is interpreted as JSONObject and converted to {@link java.util.Map}.
  * <p></p>
  * @displayName JSON Map Output
- * @category Input
- * @tags http, input operator
+ * @category Output
+ * @tags http, websocket
  *
  * @param <T> tuple type
  * @since 0.3.2
@@ -111,7 +111,7 @@ public class WebSocketOutputOperator<T> extends BaseOperator
   }
 
   /**
-   * Sets the IO Thread multiplier for AsyncWebSocket connection
+   * The number of threads to use for the websocket connection.
    *
    * @param ioThreadMultiplier
    */

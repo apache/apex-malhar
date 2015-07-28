@@ -32,11 +32,11 @@ import javax.validation.constraints.NotNull;
  * <b>data</b>: expects String<br>
  * </p>
  * @displayName Base Line Tokenizer
- * @category Algorithmic
+ * @category Stream Manipulator
  * @tags string
  * @since 0.3.2
  */
-public class BaseLineTokenizer extends BaseOperator
+public abstract class BaseLineTokenizer extends BaseOperator
 {
   /**
    * This is the input port, which receives strings.

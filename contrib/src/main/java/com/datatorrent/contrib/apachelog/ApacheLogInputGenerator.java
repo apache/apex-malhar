@@ -29,7 +29,8 @@ import org.slf4j.LoggerFactory;
  * An implementation of input operator and activation listener that simulates the apache logs.
  * <p>
  * @displayName Apache Log Input Generator
- * @tags input operator, log
+ * @category Test Bench
+ * @tags apache log, generator
  * @since 0.9.4
  */
 public class ApacheLogInputGenerator implements InputOperator, Operator.ActivationListener<OperatorContext>
@@ -340,7 +341,7 @@ public class ApacheLogInputGenerator implements InputOperator, Operator.Activati
   {
     this.refererFile = refererFile;
   }
-  
+
   /**
    * Output port that emits a string into DAG.
    */

@@ -26,8 +26,8 @@ import com.datatorrent.common.util.PubSubWebSocketClient;
  * This operator writes maps as JSON objects to the given URL.
  * <p></p>
  * @displayName Pub Sub Web Socket Output
- * @category Input
- * @tags http, input operator
+ * @category Output
+ * @tags http
  *
  * @param <T>
  * @since 0.3.2
@@ -37,11 +37,19 @@ public class PubSubWebSocketOutputOperator<T> extends WebSocketOutputOperator<T>
   private String topic = null;
   private transient PubSubMessageCodec<Object> codec = new PubSubMessageCodec<Object>(mapper);
 
+  /**
+   * The pub sub topic to subscribe to.
+   * @param topic The pub sub topic to subscribe to.
+   */
   public void setTopic(String topic)
   {
     this.topic = topic;
   }
 
+  /**
+   * Gets the pub sub topic to subscribe to.
+   * @return The pub sub topic to subscribe to.
+   */
   @NotNull
   public String getTopic()
   {

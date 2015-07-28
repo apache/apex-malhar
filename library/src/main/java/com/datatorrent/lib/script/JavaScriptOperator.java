@@ -69,7 +69,7 @@ import org.slf4j.LoggerFactory;
  *
  * @displayName Java Script
  * @category Scripting
- * @tags script operator, map, string
+ * @tags script, map, string
  * @since 0.3.2
  */
 public class JavaScriptOperator extends ScriptOperator

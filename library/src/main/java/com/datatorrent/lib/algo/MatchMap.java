@@ -122,4 +122,15 @@ public class MatchMap<K,V extends Number> extends BaseMatchOperator<K, V>
   public void tupleNotMatched(Map<K, V> tuple)
   {
   }
+
+
+  /**
+   * The key in the input tuple whose value will be used for comparison.
+   * @param key The key in the input tuple whose value will be used for comparison.
+   */
+  @Override
+  public void setKey(K key)
+  {
+    super.setKey(key);
+  }
 }

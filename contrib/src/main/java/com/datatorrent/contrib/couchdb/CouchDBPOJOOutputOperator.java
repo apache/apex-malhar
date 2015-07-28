@@ -36,14 +36,19 @@ public class CouchDBPOJOOutputOperator extends AbstractCouchDBOutputOperator<Obj
   @NotNull
   private String expressionForDocId;
 
-  /*
-   * An Expression to extract value of document Id from input POJO.
+  /**
+   * Gets the getter expression for the document Id.
+   * @return The document Id.
    */
   public String getExpressionForDocId()
   {
     return expressionForDocId;
   }
 
+  /**
+   * An Expression to extract value of document Id from an input POJO.
+   * @param expressionForDocId The getter expression for the document Id.
+   */
   public void setExpressionForDocId(String expressionForDocId)
   {
     this.expressionForDocId = expressionForDocId;

@@ -44,7 +44,7 @@ import com.datatorrent.lib.util.AbstractBaseNUniqueOperatorMap;
  * </p>
  *
  * @displayName Bottom N Unique Map
- * @category Algorithmic
+ * @category Stats and Aggregations
  * @tags filter, rank, unique, key value
  *
  * @since 0.3.3
@@ -75,9 +75,10 @@ public class BottomNUniqueMap<K, V> extends AbstractBaseNUniqueOperatorMap<K, V>
   {
     bottom.emit(tuple);
   }
-  
+
   /**
-   * @param val Bottom N unique tuples
+   * Bottom N unique tuples.
+   * @param val Bottom N unique tuples.
    */
   @Override
   public void setN(int val)

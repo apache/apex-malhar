@@ -32,11 +32,10 @@ import com.datatorrent.common.util.BaseOperator;
  * </p>
  * @displayName Asynchronous Input Processing
  * @category Input
- * @tags input operator
  *
  * @since 0.3.2
  */
-public class SimpleSinglePortInputOperator<T> extends BaseOperator implements InputOperator, Operator.ActivationListener<OperatorContext>
+public abstract class SimpleSinglePortInputOperator<T> extends BaseOperator implements InputOperator, Operator.ActivationListener<OperatorContext>
 {
   private transient Thread ioThread;
   private transient boolean isActive = false;
