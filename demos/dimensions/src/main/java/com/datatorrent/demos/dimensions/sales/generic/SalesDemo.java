@@ -85,7 +85,6 @@ public class SalesDemo implements StreamingApplication
 
     dimensions.setConfigurationSchemaJSON(eventSchema);
     Map<String, String> fieldToMapField = Maps.newHashMap();
-    fieldToMapField.put("sales", "amount");
     dimensions.setValueNameAliases(fieldToMapField);
     dimensions.setUnifier(new DimensionsComputationUnifierImpl<InputEvent, Aggregate>());
     dag.getMeta(dimensions).getMeta(dimensions.output).getUnifierMeta().getAttributes().put(OperatorContext.MEMORY_MB, 8092);

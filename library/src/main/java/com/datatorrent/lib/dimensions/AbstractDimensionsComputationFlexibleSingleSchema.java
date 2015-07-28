@@ -288,7 +288,7 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
    * Gets the {@link AggregatorRegistry} for this operator.
    * @return The {@link AggregatorRegistry} for this operator.
    */
-  public AggregatorRegistry getAggregatorRegistry()
+  protected AggregatorRegistry getAggregatorRegistry()
   {
     return aggregatorRegistry;
   }

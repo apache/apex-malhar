@@ -192,7 +192,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
 
     schemaProcessor.endWindow();
     schemaQueueManager.endWindow();
-    
+
     super.endWindow();
   }
 
@@ -263,7 +263,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
    * Returns the {@link AggregatorRegistry} used by this operator.
    * @return The {@link AggregatorRegistry} used by this operator.
    */
-  public AggregatorRegistry getAggregatorRegistry()
+  protected AggregatorRegistry getAggregatorRegistry()
   {
     return aggregatorRegistry;
   }
