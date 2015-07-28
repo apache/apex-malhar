@@ -235,14 +235,6 @@
     <name>dt.application.SalesDemo.operator.Enrichment.filePath</name>
     <value>./products.txt</value>
   </property>
-  <property>
-    <name>dt.application.SalesDemo.operator.Enrichment.lookupKey</name>
-    <value>productId</value>
-  </property>
-  <property>
-    <name>dt.application.SalesDemo.operator.Enrichment.backupResource</name>
-    <value>products.txt</value>
-  </property>
 
   <!-- Settings for all the apps -->
   <property>

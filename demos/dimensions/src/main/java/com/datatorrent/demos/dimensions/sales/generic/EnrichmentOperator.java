@@ -82,10 +82,10 @@ public class EnrichmentOperator extends BaseOperator
    * Location of the mapping file.
    */
   @NotNull
-  private String filePath;
+  private String filePath = "products.txt";
 
   @NotNull
-  private String backupResource;
+  private final String backupResource = "products.txt";
 
   /**
    * Check for new changes in file every scanInterval milliseconds.
@@ -97,7 +97,7 @@ public class EnrichmentOperator extends BaseOperator
    * quick searching.
    */
   @NotNull
-  private String lookupKey;
+  private String lookupKey = "productId";
 
   private String updateKeys;
 
@@ -130,16 +130,6 @@ public class EnrichmentOperator extends BaseOperator
     this.scanInterval = scanInterval;
   }
 
-  public String getLookupKey()
-  {
-    return lookupKey;
-  }
-
-  public void setLookupKey(String lookupKey)
-  {
-    this.lookupKey = lookupKey;
-  }
-
   public String getUpdateKeys()
   {
     return updateKeys;
@@ -148,22 +138,6 @@ public class EnrichmentOperator extends BaseOperator
   public void setUpdateKeys(String updateKeys)
   {
     this.updateKeys = updateKeys;
-  }
-
-  /**
-   * @return the backupResource
-   */
-  public String getBackupResource()
-  {
-    return backupResource;
-  }
-
-  /**
-   * @param backupResource the backupResource to set
-   */
-  public void setBackupResource(String backupResource)
-  {
-    this.backupResource = backupResource;
   }
 
   @Override
