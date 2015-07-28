@@ -38,8 +38,7 @@ public class SamplerTest
     Sampler<String> oper = new Sampler<String>();
     CountTestSink sink = new CountTestSink<String>();
     oper.sample.setSink(sink);
-    oper.setPassrate(10);
-    oper.setTotalrate(100);
+    oper.setSamplingPercentage(.1);
 
     String tuple = "a";
 
