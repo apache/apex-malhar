@@ -28,7 +28,10 @@ import com.datatorrent.lib.util.PojoUtils.GetterShort;
 
 import java.sql.*;
 import java.util.ArrayList;
+
 import javax.validation.constraints.NotNull;
+
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +45,7 @@ import org.slf4j.LoggerFactory;
  * @tags database, sql, pojo, memsql
  *
  */
+@Evolving
 public class MemsqlPOJOOutputOperator extends AbstractMemsqlOutputOperator<Object>
 {
   private static final long serialVersionUID = 20150618346L;

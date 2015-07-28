@@ -17,6 +17,7 @@ package com.datatorrent.contrib.hbase;
 
 import java.util.List;
 
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -31,6 +32,7 @@ import com.datatorrent.lib.util.TableInfo;
  * @category Output
  * @tags database, nosql, pojo, hbase
  */
+@Evolving
 public class HBasePOJOPutOperator extends AbstractHBasePutOutputOperator<Object>
 {
   private static final long serialVersionUID = 3241368443399294019L;

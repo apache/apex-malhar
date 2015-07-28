@@ -21,6 +21,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ektorp.ViewQuery;
@@ -28,7 +29,6 @@ import org.ektorp.ViewResult.Row;
 
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.*;
-
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
@@ -51,6 +51,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * @category Input
  * @tags database, nosql, pojo, couchdb
  */
+@Evolving
 public class CouchDBPOJOInputOperator extends AbstractCouchDBInputOperator<Object>
 {
   //List of expressions set by User. Example:setId(),setName(),Address

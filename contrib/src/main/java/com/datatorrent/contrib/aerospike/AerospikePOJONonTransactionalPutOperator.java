@@ -23,6 +23,7 @@ import javax.validation.constraints.NotNull;
 import com.aerospike.client.Bin;
 import com.aerospike.client.Key;
 
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,7 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
  * @tags database, nosql, pojo, aerospike
  * @since 2.1.0
  */
+@Evolving
 public class AerospikePOJONonTransactionalPutOperator extends AbstractAerospikeNonTransactionalPutOperator<Object>
 {
   private static transient final Logger LOG

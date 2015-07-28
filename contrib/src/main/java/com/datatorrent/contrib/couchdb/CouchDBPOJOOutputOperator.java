@@ -17,6 +17,8 @@ package com.datatorrent.contrib.couchdb;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
+
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
 
@@ -28,6 +30,7 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
  * @tags database, nosql, pojo, couchdb
  * @since 0.3.5
  */
+@Evolving
 public class CouchDBPOJOOutputOperator extends AbstractCouchDBOutputOperator<Object>
 {
   private static final long serialVersionUID = 201506181121L;

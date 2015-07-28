@@ -19,6 +19,7 @@ import java.util.ArrayList;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,7 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
  * @category Output
  * @tags database, nosql, pojo, couchbase
  */
+@Evolving
 public class CouchbasePOJOSetOperator extends AbstractCouchBaseSetOperator<Object>
 {
   private static final Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
