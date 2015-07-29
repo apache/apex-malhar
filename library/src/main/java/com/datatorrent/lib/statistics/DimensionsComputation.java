@@ -41,7 +41,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * <p>An implementation of an operator that computes dimensions of events. </p>
  * <p>
  * @displayName Dimension Computation
- * @category Statistics
+ * @category Stats and Aggregations
  * @tags event, dimension, aggregation, computation
  *
  * @param <EVENT> - Type of the tuple whose attributes are used to define dimensions.

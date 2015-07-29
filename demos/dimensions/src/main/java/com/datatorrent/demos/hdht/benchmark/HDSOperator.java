@@ -15,6 +15,9 @@ import java.util.Arrays;
 /**
  * HDSOperator
  *
+ * @displayName HDHT Operator
+ * @category Output
+ * @tags hdht
  * @since 2.0.0
  */
 public class HDSOperator extends AbstractSinglePortHDHTWriter<MutableKeyValue>

@@ -29,6 +29,9 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.demos.dimensions.ads.AdInfo.AdInfoAggregateEvent;
 import com.datatorrent.demos.dimensions.ads.InputItemGenerator;
 
+/**
+ * @category Test Bench
+ */
 public class AdsConverter implements Operator
 {
   private transient DimensionalConfigurationSchema dimensionsConfigurationSchema;

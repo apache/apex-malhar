@@ -27,7 +27,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * names of keys or values as they're defined in incoming input maps.
  * </p>
  * @displayName Dimension Computation Map
- * @category Statistics
+ * @category Stats and Aggregations
  * @tags event, dimension, aggregation, computation, map
  */
 public class DimensionsComputationFlexibleSingleSchemaMap extends AbstractDimensionsComputationFlexibleSingleSchema<Map<String, Object>>

@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Generator
  *
+ * @category Test Bench
  * @since 2.0.0
  */
 public class Generator extends BaseOperator implements InputOperator

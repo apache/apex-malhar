@@ -29,8 +29,8 @@ import com.datatorrent.api.Context.OperatorContext;
  * link {@link DimensionalSchema} and schemaID.
  *
  * @displayName Simple App Data Dimensions Store
- * @category Store
- * @tags appdata, dimensions, store
+ * @category DT View Integration
+ * @tags app data, dimensions, store
  */
 public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimensionStoreHDHT implements Serializable
 {

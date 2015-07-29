@@ -32,7 +32,7 @@ import java.util.Map;
  *   null =&gt; null
  *
  * @displayName JSON to Map Parser
- * @category Stream
+ * @category Tuple Converters
  * @tags parser, json, demo, converter
  *
  * @since 2.0.0

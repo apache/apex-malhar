@@ -17,6 +17,9 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * @category Test Bench
+ */
 public class InputItemGenerator implements InputGenerator<AdInfo>
 {
   private String eventSchemaJSON;

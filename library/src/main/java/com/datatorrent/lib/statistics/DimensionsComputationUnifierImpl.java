@@ -30,7 +30,7 @@ import com.datatorrent.api.Operator;
  * A {@link Unifier} implementation for {@link DimensionsComputation}.<br/>
  * <p>
  * @displayName Dimension Computation Unifier Implementation
- * @category Statistics
+ * @category Stats and Aggregations
  * @tags event, dimension, aggregation, computation
  * @param <EVENT>
  * @since 0.9.4
@@ -41,7 +41,7 @@ public class DimensionsComputationUnifierImpl<EVENT, AGGREGATE extends Dimension
   private DimensionsComputation.Aggregator<EVENT, AGGREGATE>[] aggregators;
   @NotNull
   private final Map<AGGREGATE, AGGREGATE> aggregates;
-  
+
   /**
    * Output port that emits an aggregate of events.
    */
