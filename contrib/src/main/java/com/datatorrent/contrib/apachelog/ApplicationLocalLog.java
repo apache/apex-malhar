@@ -27,7 +27,7 @@ import org.apache.hadoop.conf.Configuration;
  * An implementation of Streaming Application that reads from a local apache log file on the fly and dumps the parsed data to output.
  * <p>
  * @displayName Application Local Log
- * @category Database
+ * @category Output
  * @tags reader, streaming
  * @since 0.9.4
  */

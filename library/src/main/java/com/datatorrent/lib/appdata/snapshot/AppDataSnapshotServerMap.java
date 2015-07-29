@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
  * This operator accepts a list of Map&lt;String,Object&gt; objects, and serves the data under the {@link SnapshotSchema}.
  * Each Map represents a row in the table, and the full list of maps represents a table.
  * @displayName App Data Snapshot Map Server
- * @category App Data
- * @tags appdata, snapshot, map
+ * @category DT View Integration
+ * @tags app data, snapshot, map
  */
 public class AppDataSnapshotServerMap extends AbstractAppDataSnapshotServer<Map<String, Object>>
 {

@@ -50,8 +50,8 @@ import com.datatorrent.api.Context;
  * Also the {@link #getViewQuery()} method should return the same view stored in CouchDb every time.<br/>
  * </p>
  * @displayName Abstract CouchDB Input
- * @category Database
- * @tags input operator
+ * @category Input
+ * @tags couchdb
  * @param <T> Type of tuples which are generated</T>
  * @since 0.3.5
  */

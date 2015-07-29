@@ -25,10 +25,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * An implementation of AbstractSqlStreamOperator that provides embedded derby sql input operator. 
+ * An implementation of AbstractSqlStreamOperator that provides embedded derby sql input operator.
  * <p>
  * @displayName Derby Sql Stream
- * @category Streamquery
+ * @category Stream Manipulators
  * @tags sql, in-memory, input operator
  * @since 0.3.2
  */

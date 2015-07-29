@@ -26,8 +26,8 @@ import java.util.Map;
  * <p></p>
  *
  * @displayName Redis Number Summation Key Val Pair Output
- * @category Store
- * @tags output operator, key value
+ * @category Output
+ * @tags redis, key value
  *
  * @param <K> The key type
  * @param <V> The value type

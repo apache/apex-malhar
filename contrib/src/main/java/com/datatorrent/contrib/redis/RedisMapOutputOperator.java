@@ -27,8 +27,8 @@ import java.util.Map;
  * </p>
  *
  * @displayName Redis Map Output
- * @category Store
- * @tags output operator, key value
+ * @category Output
+ * @tags redis, key value
  *
  * @param <K> The key type.
  * @param <V> The value type.

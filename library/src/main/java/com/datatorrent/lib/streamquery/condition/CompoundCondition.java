@@ -31,7 +31,7 @@ import javax.validation.constraints.NotNull;
  * <b> logicalOr : </b> OR/AND logical metric flag. <br>
  * <br>
  * @displayName Compound Condition
- * @category Streamquery/Condition
+ * @category Stream Manipulators
  * @tags sql condition, logical
  * @since 0.3.4
  */
@@ -42,18 +42,18 @@ public class CompoundCondition extends Condition
    */
   @NotNull
   private Condition leftCondition;
-  
+
   /**
    * Right validate row condition .
    */
   @NotNull
   private Condition rightCondition;
-  
+
   /**
    * AND/OR metric flag.
    */
   private boolean logicalOr = true;
-  
+
   /**
    * Constructor for logical or metric.
    * @param leftCondition  Left validate row condition, must be non null. <br>
@@ -63,7 +63,7 @@ public class CompoundCondition extends Condition
     this.leftCondition = leftCondition;
     this.rightCondition = rightCondition;
   }
-  
+
   /**
    * Constructor for logical and metric if logical and parameter is true.
    * <br>
@@ -76,7 +76,7 @@ public class CompoundCondition extends Condition
     this.rightCondition = rightCondition;
     logicalOr = !isLogicalAnd;
   }
-  
+
   @Override
   public boolean isValidRow(Map<String, Object> row)
   {

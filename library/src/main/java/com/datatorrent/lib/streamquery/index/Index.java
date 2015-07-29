@@ -23,7 +23,7 @@ import javax.validation.constraints.NotNull;
  * Interface to define sql select statement indexes for column names,aggregate.
  * <p>
  * @displayName Index
- * @category Streamquery/Index
+ * @category Stream Manipulators
  * @tags index
  * @since 0.3.2
  */
@@ -32,5 +32,5 @@ public interface Index
   /**
    * Function can key/value hash map, does metric implemented by sub class.
    */
-	public void filter(@NotNull Map<String,Object> row, @NotNull Map<String, Object> collect);  
+	public void filter(@NotNull Map<String,Object> row, @NotNull Map<String, Object> collect);
 }

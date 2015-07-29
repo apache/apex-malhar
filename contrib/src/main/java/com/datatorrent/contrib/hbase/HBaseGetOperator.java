@@ -31,8 +31,8 @@ import org.apache.hadoop.hbase.client.Result;
  *
  * <br>
  * @displayName HBase Get
- * @category Store
- * @tags input operator, get
+ * @category Input
+ * @tags hbase, get
  * @param <T> The tuple type
  * @since 0.3.2
  */

@@ -45,7 +45,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * <br>
  *
  * @displayName Multi Window Range Key Value
- * @category Multi-Window
+ * @category Stats and Aggregations
  * @tags key value, range, numeric
  * @since 0.3.2
  */

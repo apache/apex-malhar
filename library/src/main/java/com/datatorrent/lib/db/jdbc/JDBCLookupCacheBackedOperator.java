@@ -35,7 +35,7 @@ import com.datatorrent.lib.db.cache.AbstractDBLookupCacheBackedOperator;
  * Subclasses should implement the methods which are required to insert and retrieve data from the database.
  * <p></p>
  * @displayName JDBC Lookup Cache Backed
- * @category Database
+ * @category Input
  * @tags cache, key value
  *
  * @param <T> type of input tuples </T>

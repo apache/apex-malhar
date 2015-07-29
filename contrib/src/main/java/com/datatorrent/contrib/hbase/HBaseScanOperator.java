@@ -33,8 +33,8 @@ import org.apache.hadoop.hbase.client.ResultScanner;
  *
  * <br>
  * @displayName HBase Scan
- * @category Store
- * @tags scan, input operator
+ * @category Output
+ * @tags hbase, scan, input operator
  * @since 0.3.2
  */
 public abstract class HBaseScanOperator<T> extends HBaseInputOperator<T>

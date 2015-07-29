@@ -26,8 +26,7 @@ import com.datatorrent.api.InputOperator;
  * A concrete operator should be created from this skeleton implementation.
  * <p></p>
  * @displayName Abstract Store Input
- * @category Store
- * @tags input operator
+ * @category Input
  *
  * @param <T> The tuple type
  * @param <S> The store type

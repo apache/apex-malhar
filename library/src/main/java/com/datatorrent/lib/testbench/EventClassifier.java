@@ -58,7 +58,7 @@ import java.util.Random;
  * <b>Benchmarks</b>: This node has been benchmarked at over 5 million tuples/second in local/inline mode<br>
  * <p>
  * @displayName Event Classifier
- * @category Testbench
+ * @category Test Bench
  * @tags hashmap,classification
  * @since 0.3.2
  */
@@ -116,7 +116,7 @@ public class EventClassifier extends BaseOperator
     }
     }
   };
-  
+
   /**
    * Output data port that emits a hashmap of &lt;string,double&gt;.
    */

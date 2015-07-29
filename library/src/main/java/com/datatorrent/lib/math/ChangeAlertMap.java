@@ -43,7 +43,7 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * @displayName Change Alert Map
- * @category Math
+ * @category Rules and Alerts
  * @tags change, key value, numeric, percentage, map
  * @since 0.3.2
  */
@@ -51,7 +51,7 @@ public class ChangeAlertMap<K, V extends Number> extends BaseNumberKeyValueOpera
 {
   /**
    * Input data port that takes a map of &lt;key,value&gt;.
-   */ 
+   */
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**
@@ -89,7 +89,7 @@ public class ChangeAlertMap<K, V extends Number> extends BaseNumberKeyValueOpera
 
   // Default "pass through" unifier works as tuple is emitted as pass through
   /**
-   * Output port which emits a hashmap of key, percentage change. 
+   * Output port which emits a hashmap of key, percentage change.
    */
   public final transient DefaultOutputPort<HashMap<K, HashMap<V,Double>>> alert = new DefaultOutputPort<HashMap<K, HashMap<V,Double>>>();
 

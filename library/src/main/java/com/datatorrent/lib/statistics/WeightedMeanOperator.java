@@ -36,7 +36,7 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <b>Partitions : No</b>, no will yeild wrong results. <br>
  * <br>
  * @displayName Weighted Mean
- * @category Statistics
+ * @category Stats and Aggregations
  * @tags numeric, math, calculation, sum, count, mean operator, average
  * @since 0.3.4
  */
@@ -45,13 +45,13 @@ public class WeightedMeanOperator<V extends Number>  extends BaseNumberValueOper
 {
   // aggregate weighted sum
   private double weightedSum;
-  
+
   // aggregate weighted count
   private double weightedCount;
-  
+
   // current input weight
   private double currentWeight;
-  
+
   /**
    * Input data port that takes a number.
    */
@@ -67,7 +67,7 @@ public class WeightedMeanOperator<V extends Number>  extends BaseNumberValueOper
       weightedCount += currentWeight;
     }
   };
-    
+
   /**
    * Input weight port that takes a number.
    */
@@ -82,14 +82,14 @@ public class WeightedMeanOperator<V extends Number>  extends BaseNumberValueOper
       if (tuple.doubleValue() != 0.0) currentWeight = tuple.doubleValue();
     }
   };
-  
+
   /**
    * Output port that emits weighted mean.
    */
   public final transient DefaultOutputPort<V> mean = new DefaultOutputPort<V>();
-  
+
   @Override
-  public void setup(OperatorContext arg0) 
+  public void setup(OperatorContext arg0)
   {
     currentWeight = 1.0;
   }

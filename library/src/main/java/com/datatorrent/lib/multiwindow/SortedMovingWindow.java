@@ -46,7 +46,7 @@ import com.google.common.base.Function;
  * <p></p>
  *
  * @displayName Sorted Moving Window
- * @category Multi-Window
+ * @category Stats and Aggregations
  * @tags sort, list, function, sliding window
  * @since 0.9.2
  */
@@ -56,13 +56,13 @@ public class SortedMovingWindow<T, K> extends AbstractSlidingWindow<T, List<T>>
    * Output port to emit sorted output.
    */
   public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
-  
+
   /**
    * Output port to emit error output.
    */
   @OutputPortFieldAnnotation(error = true)
   public transient DefaultOutputPort<T> errorOutput = new DefaultOutputPort<T>();
-  
+
   private Map<K, PriorityQueue<T>> sortedListInSlidingWin = new HashMap<K, PriorityQueue<T>>();
 
   private List<T> tuplesInCurrentStreamWindow = new LinkedList<T>();
@@ -84,7 +84,7 @@ public class SortedMovingWindow<T, K> extends AbstractSlidingWindow<T, List<T>>
     }
     sortedList.add(tuple);
   }
-  
+
 
   @Override
   public List<T> createWindowState()
@@ -123,7 +123,7 @@ public class SortedMovingWindow<T, K> extends AbstractSlidingWindow<T, List<T>>
           // If the expiring tuple is less than the first element of the sorted list. No more tuples to emit
           break;
         } else {
-          // Emit the element in sorted list if it's less than the expiring tuple 
+          // Emit the element in sorted list if it's less than the expiring tuple
           outputPort.emit(minElemInSortedList);
           // remove the element from the sorted list
           iterator.remove();

@@ -36,7 +36,7 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
  * <b>Partitions : No</b>, no will yeild wrong results. <br>
  * <br>
  * @displayName Mode
- * @category Statistics
+ * @category Stats and Aggregations
  * @tags numeric, integer, count
  * @since 0.3.4
  */
@@ -66,12 +66,12 @@ public class ModeOperator<V extends Comparable<?>> extends BaseOperator
       }
     }
   };
-  
+
   /**
    * Output port that emits most frequent value in incoming data.
    */
   public final transient DefaultOutputPort<V> mode = new DefaultOutputPort<V>();
-  
+
   /**
    * Emit mode value.
    */

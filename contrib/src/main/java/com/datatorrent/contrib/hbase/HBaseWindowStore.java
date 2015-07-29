@@ -34,7 +34,7 @@ import java.io.InterruptedIOException;
  * HBase in case the operator is restarted from an earlier checkpoint. It only tries to minimize the number of
  * duplicates limiting it to the tuples that were processed in the window when the operator shutdown.
  * @displayName HBase Window Store
- * @category Store
+ * @category Output
  * @tags store, transactional
  * @since 1.0.2
  */
@@ -66,7 +66,7 @@ public class HBaseWindowStore extends HBaseStore implements TransactionableStore
 
   /**
    * Get the row name in the table.
-   * 
+   *
    * @return The row name
    */
   public String getRowName() {
@@ -75,7 +75,7 @@ public class HBaseWindowStore extends HBaseStore implements TransactionableStore
 
   /**
    * Set the row name in the table.
-   * 
+   *
    * @param rowName
    *            The row name
    */
@@ -86,7 +86,7 @@ public class HBaseWindowStore extends HBaseStore implements TransactionableStore
 
   /**
    * Get the column family name in the table.
-   * 
+   *
    * @return The column family name
    */
   public String getColumnFamilyName() {
@@ -95,7 +95,7 @@ public class HBaseWindowStore extends HBaseStore implements TransactionableStore
 
   /**
    * Set the column family name in the table.
-   * 
+   *
    * @param columnFamilyName
    *            The column family name
    */

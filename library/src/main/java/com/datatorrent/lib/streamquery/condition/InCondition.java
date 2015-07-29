@@ -29,30 +29,30 @@ import javax.validation.constraints.NotNull;
  * <b> column : </b> Column name for which value is checked in values set. <br>
  * <b> inValues : </b> Set of values in which column value is checked. <br>
  * @displayName In Condition
- * @category Streamquery/Condition
+ * @category Stream Manipulators
  * @tags sql condition
  * @since 0.3.4
  */
 public class InCondition extends Condition
 {
   /**
-   * Column name for which value is checked in values set. 
+   * Column name for which value is checked in values set.
    */
   @NotNull
   private String column;
-  
+
   /**
    * Set of values in which column value is checked.
    */
   private Set<Object> inValues = new HashSet<Object>();
-  
+
   /**
    * @param  column Column name for which value is checked in values set.
    */
   public InCondition(@NotNull String column) {
     this.column = column;
   }
-  
+
   @Override
   public boolean isValidRow(@NotNull Map<String, Object> row)
   {
@@ -75,9 +75,9 @@ public class InCondition extends Condition
   {
     this.column = column;
   }
-  
+
   public void addInValue(Object value) {
     this.inValues.add(value);
   }
-   
+
 }

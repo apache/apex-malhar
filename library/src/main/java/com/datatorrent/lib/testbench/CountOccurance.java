@@ -28,7 +28,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * <p>A base implementation of an operator which does count occurrence.</p>
  * <p>
  * @displayName Count Occurrence
- * @category Testbench
+ * @category Test Bench
  * @tags count
  * @since 0.3.2
  */
@@ -63,22 +63,22 @@ public class CountOccurance<k> extends BaseOperator
 	{
 		collect  = new HashMap<k, Integer>();
 	}
-	
+
 	/**
 	 * Output port that emits a map of integer values.
 	 */
 	public final transient DefaultOutputPort<Map<k, Integer>> outport = new DefaultOutputPort<Map<k, Integer>>();
-        
+
         /**
 	 * Output dimensions port that emits a map of &lt;string,object&gt; values.
 	 */
 	public final transient DefaultOutputPort<Map<String, Object>> dimensionOut = new DefaultOutputPort<Map<String, Object>>();
-	
+
         /**
 	 * Output total port that emits a map of &lt;string,integer&gt; count values.
 	 */
         public final transient DefaultOutputPort<Map<String,Integer>> total = new DefaultOutputPort<Map<String,Integer>>();
-	
+
 	@Override
 	public void endWindow()
 	{

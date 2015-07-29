@@ -20,14 +20,14 @@ import java.util.Map;
 
 
 /**
- * An implementation of condition on column equality. 
+ * An implementation of condition on column equality.
  * <p>
  * A valid row must have all key/value map in column name/value map.
  *
  * <b> Properties : </b> <br>
  *  <b> equalMap : </b> Column equal value map store.
  * @displayName Equal Value Condition
- * @category Streamquery/Condition
+ * @category Stream Manipulators
  * @tags sql condition
  * @since 0.3.4
  */
@@ -77,7 +77,7 @@ public class EqualValueCondition extends Condition
 
   /**
    * check valid join, not implemented
-   * 
+   *
    * @return false
    */
   @Override

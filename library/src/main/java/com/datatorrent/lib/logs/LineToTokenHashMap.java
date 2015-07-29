@@ -45,8 +45,8 @@ import com.datatorrent.lib.util.UnifierHashMap;
  * </p>
  *
  * @displayName Line To Token (HashMap)
- * @category Logs
- * @tags string
+ * @category Tuple Converters
+ * @tags string, hashmap
  *
  * @since 0.3.2
  */

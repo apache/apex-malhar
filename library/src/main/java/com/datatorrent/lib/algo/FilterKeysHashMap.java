@@ -52,7 +52,7 @@ import com.datatorrent.lib.util.BaseKeyOperator;
  * </p>
  *
  * @displayName Filter Keyval Pairs By Key HashMap
- * @category Algorithmic
+ * @category Stream Manipulators
  * @tags filter, key value
  *
  * @since 0.3.2

@@ -31,8 +31,8 @@ import com.datatorrent.common.util.PubSubMessage.PubSubMessageType;
  * App Data dashboards produced by App Data store operators.
  *
  * @displayName App Data Pub Sub Result
- * @category App Data
- * @tags output, appdata, result, dashboards
+ * @category DT View Integration
+ * @tags output, app data, result
  */
 @AppData.AppendQueryIdToTopic(value=true)
 public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<String> implements AppData.ConnectionInfoProvider

@@ -33,7 +33,7 @@ import com.datatorrent.api.Operator.Unifier;
  * <b>output</b>: emits Integer<br>
  * <br>
  * @displayName Counter
- * @category Stream
+ * @category Stream Manipulators
  * @tags integer, object, count
  * @since 0.3.3
  */
@@ -51,7 +51,7 @@ public class Counter implements Operator, Unifier<Integer>
 		}
 
 	};
-        
+
           /**
 	 * Output port that takes emits count in each window.
 	 */

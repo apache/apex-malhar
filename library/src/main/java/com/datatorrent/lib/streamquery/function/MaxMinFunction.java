@@ -32,7 +32,7 @@ import org.apache.commons.lang.StringUtils;
  *   <b> alias  : </b> Alias name for  output value. <br>
  *   <b> isMax : </b> Flag to indicate max/min compute value. <br>
  * @displayName Max Min Function
- * @category Streamquery/Functions
+ * @category Stream Manipulators
  * @tags sql max, sql min
  * @since 0.3.4
  */
@@ -42,7 +42,7 @@ public class MaxMinFunction extends FunctionIndex
    * Flag to indicate max/min compute value, compute max if true.
    */
   private boolean isMax = true;
-  
+
   /**
    * @param column column name for values max/min computation.   <br>
    * @param alias  Alias name for output. <br>

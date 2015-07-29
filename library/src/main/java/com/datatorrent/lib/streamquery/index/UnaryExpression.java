@@ -19,12 +19,12 @@ import javax.validation.constraints.NotNull;
 
 
 /**
- * A base implementation of an index that filters row by unary expression.&nbsp; Subclasses should provide the 
+ * A base implementation of an index that filters row by unary expression.&nbsp; Subclasses should provide the
    implementation of filter/getExpressionName functions.
  * <p>
  * Sub class will implement filter/getExpressionName functions.
  * @displayName Unary Expression
- * @category Streamquery/Index
+ * @category Stream Manipulators
  * @tags unary, alias
  * @since 0.3.4
  */
@@ -35,7 +35,7 @@ abstract public class UnaryExpression  implements Index
    */
   @NotNull
   protected String column;
-  
+
   /**
    *  Alias name for output field.
    */
@@ -45,7 +45,7 @@ abstract public class UnaryExpression  implements Index
    * @param Column name argument for unary expression.
    * @param Alias name for output field.
    */
-  public UnaryExpression(@NotNull String column, String alias) 
+  public UnaryExpression(@NotNull String column, String alias)
   {
     this.column = column;
   }

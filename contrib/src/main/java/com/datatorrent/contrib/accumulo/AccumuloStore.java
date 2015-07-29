@@ -34,11 +34,11 @@ import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.lib.db.Connectable;
 
 /**
- * A {@link Connectable} for accumulo that implements Connectable interface. 
+ * A {@link Connectable} for accumulo that implements Connectable interface.
  * <p>
  * @displayName Accumulo Store
- * @category Store
- * @tags store
+ * @category Output
+ * @tags key value, accumulo
  * @param <T>
  * @since 1.0.4
  */
@@ -65,7 +65,7 @@ public class AccumuloStore implements Connectable {
 
   /**
    * getter for Connector
-   * 
+   *
    * @return Connector
    */
   public Connector getConnector() {
@@ -74,7 +74,7 @@ public class AccumuloStore implements Connectable {
 
   /**
    * getter for TableName
-   * 
+   *
    * @return TableName
    */
   public String getTableName() {
@@ -83,7 +83,7 @@ public class AccumuloStore implements Connectable {
 
   /**
    * setter for TableName
-   * 
+   *
    * @param tableName
    */
   public void setTableName(String tableName) {
@@ -92,7 +92,7 @@ public class AccumuloStore implements Connectable {
 
   /**
    * getter for zookeeper host address
-   * 
+   *
    * @return ZookeeperHost
    */
   public String getZookeeperHost() {
@@ -101,7 +101,7 @@ public class AccumuloStore implements Connectable {
 
   /**
    * setter for zookeeper host address
-   * 
+   *
    * @param zookeeperHost
    */
   public void setZookeeperHost(String zookeeperHost) {
@@ -110,7 +110,7 @@ public class AccumuloStore implements Connectable {
 
   /**
    * getter for instanceName
-   * 
+   *
    * @return instanceName
    */
   public String getInstanceName() {
@@ -119,7 +119,7 @@ public class AccumuloStore implements Connectable {
 
   /**
    * setter for instanceName
-   * 
+   *
    * @param instanceName
    */
   public void setInstanceName(String instanceName) {
@@ -128,7 +128,7 @@ public class AccumuloStore implements Connectable {
 
   /**
    * setter for userName
-   * 
+   *
    * @param userName
    */
   public void setUserName(String userName) {
@@ -137,7 +137,7 @@ public class AccumuloStore implements Connectable {
 
   /**
    * setter for password
-   * 
+   *
    * @param password
    */
   public void setPassword(String password) {
@@ -145,7 +145,7 @@ public class AccumuloStore implements Connectable {
   }
   /**
    * setter for memory limit
-   * 
+   *
    * @param memoryLimit
    */
   public void setMemoryLimit(long memoryLimit) {
@@ -153,7 +153,7 @@ public class AccumuloStore implements Connectable {
   }
   /**
    * setter for number of writer threads
-   * 
+   *
    * @param numThreads
    */
   public void setNumThreads(int numThreads) {
@@ -162,7 +162,7 @@ public class AccumuloStore implements Connectable {
 
   /**
    * getter for BatchWriter
-   * 
+   *
    * @return BatchWriter
    */
   public BatchWriter getBatchwriter() {

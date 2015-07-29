@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An implementation of BaseOperator that is used for logging by counting the tuple and then drops it. 
+ * An implementation of BaseOperator that is used for logging by counting the tuple and then drops it.
  * <p>
  * Increments a count and writes the net number (rate) to console. Useful to benchmark other
  * modules.<br>
@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * Results are written to the log<br>
  * <br>
  * @displayName Dev Null Counter
- * @category Stream
+ * @category Stream Manipulators
  * @tags count
  * @since 0.3.3
  */
@@ -52,7 +52,7 @@ public class DevNullCounter<K> extends BaseOperator
 		/**
 		 * Process each tuple. Expects upstream node to compute number of tuples in
 		 * that window and send it as an int<br>
-		 * 
+		 *
 		 * @param tuple
 		 */
 		@Override
@@ -74,7 +74,7 @@ public class DevNullCounter<K> extends BaseOperator
 
 	/**
 	 * getter function for debug state
-	 * 
+	 *
 	 * @return debug state
 	 */
 	public boolean getDebug()
@@ -84,7 +84,7 @@ public class DevNullCounter<K> extends BaseOperator
 
 	/**
 	 * setter function for debug state
-	 * 
+	 *
 	 * @param i
 	 *          sets debug to i
 	 */
@@ -103,7 +103,7 @@ public class DevNullCounter<K> extends BaseOperator
 
 	/**
 	 * Sets up all the config parameters. Assumes checking is done and has passed
-	 * 
+	 *
 	 * @param context
 	 */
 	@Override

@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Creates a random movement by taking in a seed stream and incrementing this data. 
+ * Creates a random movement by taking in a seed stream and incrementing this data.
  * <p>
  * Takes in a seed stream on port seed and then increments this data on port increment. Data is immediately emitted on output port data.
  * Emits number of tuples on port count<p>
@@ -52,7 +52,7 @@ import java.util.Map;
  * Processing tuples on increment port are at 10 Million tuples/sec<br>
  * <br>
  * @displayName Event Incrementer
- * @category Testbench
+ * @category Test Bench
  * @tags increment, hashmap
  * @since 0.3.2
  */
@@ -86,7 +86,7 @@ public class EventIncrementer extends BaseOperator
       }
     }
   };
-  
+
   /**
    * Input increment port that takes a hashmap of &lt;string,hashmap of &lt;string,number&gt;&gt; which provides small random increments to the seed data.
    */
@@ -124,12 +124,12 @@ public class EventIncrementer extends BaseOperator
       }
     }
   };
-  
+
   /**
    * Output data port that emits a hashmap of &lt;string,string&gt; which is the addition of seed and increment.
    */
   public final transient DefaultOutputPort<HashMap<String, String>> data = new DefaultOutputPort<HashMap<String, String>>();
-  
+
   /**
    * Output count port that emits a hashmap of &lt;string,integer&gt; which contains number of processed tuples per window.
    */

@@ -38,9 +38,9 @@ import com.datatorrent.api.Operator.Unifier;
  * <b> outport : </b> Output hash map(row) port, emits  HashMap&lt;String,Object&gt;<br>
  * <br>
  * <b> Properties : </b> <br>
- * <b> oredrByRules : </b>List of order by rules for tuples.
+ * <b> orderByRules : </b>List of order by rules for tuples.
  * @displayName OrderBy
- * @category Streamquery
+ * @category Stream Manipulators
  * @tags orderby operator
  * @since 0.3.5
  */
@@ -49,13 +49,13 @@ public class OrderByOperator implements Operator, Unifier<Map<String, Object>>
 	/**
 	 * Order by rules.
 	 */
-	ArrayList<OrderByRule<?>>	oredrByRules	= new ArrayList<OrderByRule<?>>();
+	ArrayList<OrderByRule<?>>	orderByRules	= new ArrayList<OrderByRule<?>>();
 
 	/**
 	 * Descending flag.
 	 */
 	private boolean isDescending;
-	
+
 	/**
 	 * collected rows.
 	 */
@@ -66,7 +66,7 @@ public class OrderByOperator implements Operator, Unifier<Map<String, Object>>
 	 */
 	public void addOrderByRule(OrderByRule<?> rule)
 	{
-		oredrByRules.add(rule);
+		orderByRules.add(rule);
 	}
 
 	/**
@@ -100,8 +100,8 @@ public class OrderByOperator implements Operator, Unifier<Map<String, Object>>
   @Override
   public void endWindow()
   {
-    for (int i=0; i < oredrByRules.size(); i++) {
-      rows = oredrByRules.get(i).sort(rows);
+    for (int i=0; i < orderByRules.size(); i++) {
+      rows = orderByRules.get(i).sort(rows);
     }
     if (isDescending) {
       for (int i=0; i < rows.size(); i++)  outport.emit(rows.get(i));
@@ -114,16 +114,16 @@ public class OrderByOperator implements Operator, Unifier<Map<String, Object>>
   public void setup(OperatorContext arg0)
   {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void teardown()
   {
     // TODO Auto-generated method stub
-    
+
   }
-  
+
   /**
    * Input port that takes a map of &lt;string,object&gt;.
    */
@@ -134,7 +134,7 @@ public class OrderByOperator implements Operator, Unifier<Map<String, Object>>
       rows.add(tuple);
     }
   };
-  
+
   /**
    * Output port that emits a map of &lt;string,object&gt;.
    */
@@ -143,11 +143,28 @@ public class OrderByOperator implements Operator, Unifier<Map<String, Object>>
          @Override
          public Unifier<Map<String, Object>> getUnifier() {
            OrderByOperator unifier = new OrderByOperator();
-           for (int i=0; i < oredrByRules.size(); i++) {
-             unifier.addOrderByRule(oredrByRules.get(i));
+           for (int i=0; i < getOrderByRules().size(); i++) {
+             unifier.addOrderByRule(getOrderByRules().get(i));
            }
            unifier.setDescending(isDescending);
            return unifier;
          }
       };
+
+  /**
+   * @return the orderByRules
+   */
+  public ArrayList<OrderByRule<?>> getOrderByRules()
+  {
+    return orderByRules;
+  }
+
+  /**
+   * The order by rules used to order incoming tuples.
+   * @param oredrByRules the orderByRules to set
+   */
+  public void setOrderByRules(ArrayList<OrderByRule<?>> oredrByRules)
+  {
+    this.orderByRules = oredrByRules;
+  }
 }

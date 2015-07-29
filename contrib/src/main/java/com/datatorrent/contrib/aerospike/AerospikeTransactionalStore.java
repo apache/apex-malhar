@@ -29,9 +29,9 @@ import com.datatorrent.lib.db.TransactionableStore;
 
 /**
  * <p>Provides transaction support to the operators by implementing TransactionableStore abstract methods. </p>
- * 
+ *
  * @displayName Aerospike Transactional Store
- * @category Database
+ * @category Output
  * @tags store, transactional
  * @since 1.0.4
  */
@@ -170,10 +170,10 @@ public class AerospikeTransactionalStore extends AerospikeStore implements Trans
 
     IndexTask task;
     try {
-      task = client.createIndex(null, namespace, metaSet, 
+      task = client.createIndex(null, namespace, metaSet,
           "operatorIdIndex", metaTableOperatorIdColumn, IndexType.NUMERIC);
       task.waitTillComplete();
-      task = client.createIndex(null, namespace, metaSet, 
+      task = client.createIndex(null, namespace, metaSet,
           "appIdIndex", metaTableAppIdColumn, IndexType.STRING);
       task.waitTillComplete();
     } catch (AerospikeException ex) {

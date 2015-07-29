@@ -25,8 +25,8 @@ import java.io.IOException;
  * <p>
  * <br>
  * @displayName HBase Input
- * @category Store
- * @tags input operator
+ * @category Input
+ * @tags hbase
  * @param <T> The tuple type
  * @since 0.3.2
  */

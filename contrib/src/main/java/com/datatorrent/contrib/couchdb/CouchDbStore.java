@@ -36,8 +36,8 @@ import com.datatorrent.lib.db.Connectable;
  * <p>
  * Operates in At-most once recovery mode.
  * @displayName CouchDb Store
- * @category Database
- * @tags store
+ * @category Output
+ * @tags couchdb
  * @since 0.3.5
  */
 public class CouchDbStore implements Connectable

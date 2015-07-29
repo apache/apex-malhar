@@ -32,8 +32,8 @@ import com.datatorrent.common.util.PubSubMessage;
  * App Data dashboards and forward queries to App Data store operators.
  *
  * @displayName App Data Pub Sub Query
- * @category App Data
- * @tags input, appdata, query, dashboards
+ * @category DT View Integration
+ * @tags input, app data, query
  */
 public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<String> implements AppData.ConnectionInfoProvider
 {

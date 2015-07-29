@@ -49,7 +49,7 @@ import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
  * @param <T> type of tuple.
  * @displayName FTP Directory Input
  * @category Input
- * @tags ftp, input operator
+ * @tags ftp
  *
  * @since 2.0.0
  */
@@ -170,6 +170,10 @@ public abstract class AbstractFTPInputOperator<T> extends AbstractFileInputOpera
 
   /**
    * An {@link AbstractFTPInputOperator} that splits file into lines and emits them.
+   * 
+   * @displayName FTP String Input
+   * @category Input
+   * @tags ftp
    */
   public static class FTPStringInputOperator extends AbstractFTPInputOperator<String>
   {

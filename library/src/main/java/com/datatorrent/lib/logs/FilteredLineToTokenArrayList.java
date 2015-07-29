@@ -44,8 +44,8 @@ import java.util.HashMap;
  * <br>
  * </p>
  * @displayName Filtered Line To Token ArrayList
- * @category Logs
- * @tags string
+ * @category Tuple Converters
+ * @tags filter, arraylist, string
  *
  * @since 0.3.2
  */

@@ -23,7 +23,7 @@ import javax.validation.constraints.NotNull;
  * <p>An implementation of Column Index that implements filter method based on mid index. </p>
  * <p>
  * @displayName Mid Index
- * @category Streamquery/Index
+ * @category Stream Manipulators
  * @tags index
  * @since 0.3.4
  */
@@ -31,12 +31,12 @@ public class MidIndex extends ColumnIndex
 {
   private int start;
   private int length = 0;
-  
+
   public MidIndex(@NotNull String column, String alias, int start)
   {
     super(column, alias);
     assert(start >= 0);
-    this.start = start;  
+    this.start = start;
   }
 
   @Override
@@ -48,7 +48,7 @@ public class MidIndex extends ColumnIndex
     }
     String name = getColumn();
     if (alias != null) name = alias;
-    
+
     int endIndex = start + length;
     if ((length == 0)||(endIndex > ((String)row.get(column)).length())) {
       collect.put(name, row.get(column));

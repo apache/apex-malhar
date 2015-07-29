@@ -63,7 +63,7 @@ import java.util.Random;
  * This node has been benchmarked at over 20 million tuples/second in local/inline mode<br>
  * </p>
  * @displayName Filtered Event Classifier
- * @category Testbench
+ * @category Test Bench
  * @tags filter
  * @since 0.3.2
  */
