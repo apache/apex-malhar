@@ -1,5 +1,5 @@
 /**
- * 
+ *
  * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,9 +20,9 @@ package com.datatorrent.contrib.kinesis;
 import com.datatorrent.common.util.Pair;
 
 /**
- * 
+ *
  * @displayName Kinesis Put Output
- * @category Database
+ * @category Output
  * @tags Kinesis put, output operator, ByteArray
  */
 public class KinesisByteArrayOutputOperator extends AbstractKinesisOutputOperator<byte[], Pair<String, byte[]>>

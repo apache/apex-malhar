@@ -22,8 +22,8 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  * A concrete operator should be created from this skeleton implementation.
  * <p></p>
  * @displayName Abstract Memcache Output
- * @category Store
- * @tags output operator, key value
+ * @category Output
+ * @tags memcache, key value
  *
  * @param <T> The tuple type.
  * @since 0.9.3

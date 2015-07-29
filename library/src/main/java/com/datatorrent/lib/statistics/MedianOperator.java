@@ -36,7 +36,7 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
  * <b>Partitions : No</b>, no will yield wrong results. <br>
  * <br>+
  * @displayName Median
- * @category Statistics
+ * @category Stats and Aggregations
  * @tags median operator, number
  * @since 0.3.4
  */
@@ -44,7 +44,7 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 public class MedianOperator extends BaseOperator
 {
   private ArrayList<Double> values;
-  
+
   /**
    * Input data port that takes a number.
    */
@@ -59,12 +59,12 @@ public class MedianOperator extends BaseOperator
       values.add(tuple.doubleValue());
     }
   };
-  
+
   /**
    * Output port that emits median of incoming data.
    */
   public final transient DefaultOutputPort<Number> median = new DefaultOutputPort<Number>();
-  
+
   @Override
   public void beginWindow(long arg0)
   {
@@ -79,8 +79,8 @@ public class MedianOperator extends BaseOperator
       median.emit(values.get(0));
       return;
     }
-    
-    // median value 
+
+    // median value
     Collections.sort(values);
     int medianIndex = values.size() / 2;
     if (values.size() %2 == 0) {

@@ -33,9 +33,9 @@ import com.datatorrent.lib.util.KeyValPair;
  * Subclasses must implement the methods used to retrieve data from and put data into the store,
  * they must also implement the methods which handle transactions.
  * <p></p>
- * @displayName Abstract Keyval Store Input
- * @category Store
- * @tags key value, input operator
+ * @displayName Abstract Keyval Store Output
+ * @category Output
+ * @tags key value
  *
  * @since 0.3.2
  */

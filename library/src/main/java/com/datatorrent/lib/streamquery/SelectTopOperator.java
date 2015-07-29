@@ -42,7 +42,7 @@ import com.datatorrent.api.Operator;
  * <b> isPercentage : </b> top values count is percentage flag.
  * <br>
  * @displayName Select Top
- * @category Streamquery
+ * @category Stream Manipulators
  * @tags sql select, sql top operator
  *  @since 0.3.4
  */
@@ -51,7 +51,7 @@ public class SelectTopOperator implements Operator
   private ArrayList<Map<String, Object>> list;
   private int topValue = 1;
   private boolean isPercentage = false;
-  
+
   /**
    * Input port that takes a map of &lt;string,object&gt;.
    */
@@ -62,19 +62,19 @@ public class SelectTopOperator implements Operator
       list.add(tuple);
     }
   };
-  
+
   @Override
   public void setup(OperatorContext context)
   {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void teardown()
   {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override

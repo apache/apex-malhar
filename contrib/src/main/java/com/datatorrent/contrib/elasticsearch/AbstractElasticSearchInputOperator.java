@@ -34,12 +34,12 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * <br>
  * Run time checks:<br>
  * hostName port<br>
- * 
+ *
  * <b>Benchmarks</b>: <br>
- * 
- * @displayName ElasticSearch input
- * @category Store
- * @tags input operator
+ *
+ * @displayName Elastic Search Input
+ * @category Input
+ * @tags elastic search
  *
  * @since 2.1.0
  */
@@ -49,7 +49,7 @@ public abstract class AbstractElasticSearchInputOperator<T, S extends ElasticSea
 
   /**
    * Initializing transient fields such as ElasticSearchConnectable, SearchRequestBuilder
-   * 
+   *
    * @see com.datatorrent.lib.db.AbstractStoreInputOperator#setup(com.datatorrent.api.Context.OperatorContext)
    */
   @Override
@@ -61,7 +61,7 @@ public abstract class AbstractElasticSearchInputOperator<T, S extends ElasticSea
 
   /**
    * Emit one tuple per {@code SearchHit} for given search query
-   * 
+   *
    * @see com.datatorrent.api.InputOperator#emitTuples()
    */
   @Override
@@ -78,7 +78,7 @@ public abstract class AbstractElasticSearchInputOperator<T, S extends ElasticSea
 
   /**
    * Converts SearchHit to Tuple
-   * 
+   *
    * @param hit
    * @return tuple constructed from <code>hit</code>
    */
@@ -88,7 +88,7 @@ public abstract class AbstractElasticSearchInputOperator<T, S extends ElasticSea
    * Set {@link SearchRequestBuilder} properties according to search query requirements. Properties which do not change
    * for each window can be set in {@code setup()}. Properties which may change for each window should be set in this
    * function
-   * 
+   *
    * @return {@link SearchRequestBuilder}
    */
   protected abstract SearchRequestBuilder getSearchRequestBuilder();

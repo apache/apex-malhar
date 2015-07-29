@@ -39,7 +39,7 @@ import com.datatorrent.lib.streamquery.function.FunctionIndex;
  * <b> Properties : </b> <br>
  * <b> functions : </b> Sql function for rows. <br>
  * @displayName Select Function
- * @category Streamquery
+ * @category Stream Manipulators
  * @tags sql top, sql limit, sql select operator
  * @since 0.3.4
  */
@@ -50,7 +50,7 @@ public class SelectFunctionOperator implements Operator
    * array of rows.
    */
   private ArrayList<Map<String, Object>> rows;
-  
+
   /**
    * Aggregate function for rows.
    */

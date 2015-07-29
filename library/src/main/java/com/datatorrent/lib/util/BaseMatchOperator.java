@@ -128,6 +128,19 @@ public class BaseMatchOperator<K, V> extends BaseKeyValueOperator<K, V>
     return ret;
   }
 
+  /**
+   * The comparator function to use.
+   * @param type The comparator function to user.
+   */
+  public void setType(ComparatorFunction type)
+  {
+    this.comparator = type;
+  }
+
+  /**
+   * The comparator function.
+   * @return The comparator function.
+   */
   public ComparatorFunction getType()
   {
     return comparator;

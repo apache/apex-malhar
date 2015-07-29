@@ -39,7 +39,7 @@ public class BaseNumberValueOperator<V extends Number> extends BaseKeyOperator<V
   @NotNull
   protected V_TYPE type = V_TYPE.DOUBLE;
 
-  public V_TYPE getType()
+  public V_TYPE getVType()
   {
     return type;
   }
@@ -47,6 +47,16 @@ public class BaseNumberValueOperator<V extends Number> extends BaseKeyOperator<V
   public void setVType(V_TYPE type)
   {
     this.type = type;
+  }
+
+  /**
+   * Gets the type.
+   * @omitFromUI
+   * @return The type.
+   */
+  public V_TYPE getType()
+  {
+    return type;
   }
 
   /**

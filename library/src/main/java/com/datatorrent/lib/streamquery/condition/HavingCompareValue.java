@@ -31,7 +31,7 @@ import com.datatorrent.lib.streamquery.function.FunctionIndex;
  *  <b> compareValue : </b>  Value to be compared. <br>
  *  <b>  compareType : </b> Type of comparison -1 == lt, 0 == eq, 1 == gt. <br>
  * @displayName Having Compare Value
- * @category Streamquery/Condition
+ * @category Stream Manipulators
  * @tags compare, sql condition
  * @since 0.3.4
  */
@@ -42,12 +42,12 @@ public class HavingCompareValue<T extends Comparable>   extends HavingCondition
    * Value to be compared.
    */
   private T compareValue;
-  
+
   /**
    * Type of comparison -1 == lt, 0 == eq, 1 == gt.
    */
-  private int compareType; 
-  
+  private int compareType;
+
   /**
    * @param aggregateIndex   aggregate index for comparison. <br>
    * @param compareValue     Value to be compared. <br>

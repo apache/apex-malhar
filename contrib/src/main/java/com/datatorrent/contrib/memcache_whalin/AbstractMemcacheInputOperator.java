@@ -22,8 +22,8 @@ import com.datatorrent.lib.db.AbstractKeyValueStoreInputOperator;
  * A concrete operator should be created from this skeleton implementation.
  * <p></p>
  * @displayName Abstract Memcache Input
- * @category Store
- * @tags input operator, key value
+ * @category Input
+ * @tags memcache, key value
  *
  * @param <T> The tuple type.
  * @since 0.9.3

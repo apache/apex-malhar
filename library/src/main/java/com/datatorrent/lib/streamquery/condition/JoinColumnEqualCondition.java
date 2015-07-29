@@ -22,7 +22,7 @@ import javax.validation.constraints.NotNull;
 
 
 /**
- * An implementation of equal join condition class. 
+ * An implementation of equal join condition class.
  * <p>
  * This compares values of given keys in both row data.
  * <br>
@@ -30,7 +30,7 @@ import javax.validation.constraints.NotNull;
  * <b. equalkeys : </b> Keys for which value must be compared. <br>
  * <br>
  * @displayName Join Column Equal Condition
- * @category Streamquery/Condition
+ * @category Stream Manipulators
  * @tags sql condition, equal join
  * @since 0.3.3
  */
@@ -38,18 +38,18 @@ public class JoinColumnEqualCondition  extends Condition
 {
 
   /**
-   * column names to be compared. 
+   * column names to be compared.
    */
   @NotNull
   private String column1;
   @NotNull
   private String column2;
-  
+
   public JoinColumnEqualCondition(@NotNull String column1,@NotNull String column2) {
     this.column1 = column1;
     this.column2 = column2;
   }
-  
+
   /**
    * Must never be called.
    */
@@ -61,7 +61,7 @@ public class JoinColumnEqualCondition  extends Condition
   }
 
   /**
-   * 
+   *
    */
   @Override
   public boolean isValidJoin(Map<String, Object> row1, Map<String, Object> row2)

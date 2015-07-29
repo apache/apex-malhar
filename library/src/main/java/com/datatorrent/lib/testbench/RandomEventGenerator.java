@@ -54,7 +54,7 @@ import javax.validation.constraints.Min;
  * Compile time error checking includes<br>
  * </p>
  * @displayName Random Event Generator
- * @category Testbench
+ * @category Test Bench
  * @tags generate
  * @since 0.3.2
  */
@@ -127,7 +127,7 @@ public class RandomEventGenerator extends BaseOperator implements InputOperator
   }
 
   /**
-   * Maximum number of Windows across which this operator will work. 
+   * Maximum number of Windows across which this operator will work.
    * @param i
   */
   public void setMaxCountOfWindows(int i)

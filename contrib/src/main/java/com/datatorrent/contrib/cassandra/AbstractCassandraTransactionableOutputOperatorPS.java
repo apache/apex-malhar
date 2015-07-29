@@ -41,8 +41,8 @@ import javax.annotation.Nonnull;
  * only when all the updates are executed, the transaction is committed in the end window call.
  * </p>
  * @displayName Abstract Cassandra Transactionable Output With Prepared Statement
- * @category Store
- * @tags output operator, batch, transactionable
+ * @category Output
+ * @tags cassandra, batch, transactionable
  * @param <T>type of tuple</T>
  * @since 1.0.2
  */

@@ -21,9 +21,9 @@ import javax.validation.constraints.NotNull;
 
 /**
  * <p>An implementation of column index that implements filter method using Round Double Index. </p>
- * 
+ *
  * @displayName Round Double Index
- * @category Streamquery/Index
+ * @category Stream Manipulators
  * @tags alias, maths
  * @since 0.3.4
  */

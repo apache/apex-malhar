@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * com.maxmind.geoip.LookupService.class
  * @displayName Geo IP Extractor
- * @category Database
+ * @category Output
  * @tags extraction, geo
  * @since 0.9.4
  */

@@ -26,11 +26,11 @@ import org.apache.hadoop.hbase.client.HTable;
  * <br>
  * The HBase operators extend this class. The base class contains the HBase properties and also sets up
  * the configuration to be used by the HBase operators.<br>
- * 
+ *
  * <br>
  * @displayName HBase Operator Base
- * @category Store
- * @tags base, properties
+ * @category Output
+ * @tags hbase, base, properties
  * @since 0.3.2
  */
 public class HBaseOperatorBase

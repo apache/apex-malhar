@@ -32,7 +32,7 @@ import org.apache.commons.lang.StringUtils;
  *   <b> alias  : </b> Alias name for output. <br>
  *   <b> isFirst : </b> return first value if true.
  * @displayName First Last Function
- * @category Streamquery/Functions
+ * @category Stream Manipulators
  * @tags sql first, sql last
  * @since 0.3.4
  */
@@ -42,7 +42,7 @@ public class FirstLastFunction extends FunctionIndex
    * return first value if true.
    */
   private boolean isFirst;
-  
+
   /**
    * @param column  column name for first/last value.
    * @param  alias   Alias name for output.
@@ -53,7 +53,7 @@ public class FirstLastFunction extends FunctionIndex
     super(column, alias);
     isFirst = !isLast;
   }
-  
+
   /**
    * Get first/last non null value for column.
    */

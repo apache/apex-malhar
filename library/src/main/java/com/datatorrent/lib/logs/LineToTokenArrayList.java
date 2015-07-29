@@ -47,8 +47,8 @@ import com.datatorrent.lib.util.UnifierArrayList;
  * <b>splittokenby</b>: The characters used to split a token into key,val1,val2,.... If not specified the value is set to null. Default is "", i.e. tokens are not split<br>
  * </p>
  * @displayName Line To Token (ArrayList)
- * @category Logs
- * @tags string
+ * @category Tuple Converters
+ * @tags string, arraylist
  *
  * @since 0.3.2
  */

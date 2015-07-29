@@ -16,10 +16,10 @@
 package com.datatorrent.lib.testbench;
 
 /**
- * A sink implementation to collect expected test results. 
+ * A sink implementation to collect expected test results.
  * <p>
  * @displayName Count And Last Tuple Test Sink
- * @category Testbench
+ * @category Test Bench
  * @tags count, sink
  * @since 0.3.2
  */

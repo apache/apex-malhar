@@ -20,7 +20,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.Stateless;
 
 /**
- * An implementation of BaseOperator that terminates a stream and does not affect the tuple. 
+ * An implementation of BaseOperator that terminates a stream and does not affect the tuple.
  * <p>
  * Useful if you want to have a stream for monitoring purpose etc. In future STRAM may simply support a
  * virtual stream and make this operator redundant<br>
@@ -29,7 +29,7 @@ import com.datatorrent.api.annotation.Stateless;
  * <b>data</b>: expects K<br>
  * <br>
  * @displayName Dev Null
- * @category Stream
+ * @category Stream Manipulators
  * @tags debug, terminate
  * @since 0.3.3
  */

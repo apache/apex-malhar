@@ -44,7 +44,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>windowSize i.e. N</b>: Number of windows to keep state on<br>
  * <br>
  * @displayName Abstract Sliding Window Key Value
- * @category Multi-Window
+ * @category Stats and Aggregations
  * @tags sliding window, numeric, key value, average
  * @since 0.3.3
  */

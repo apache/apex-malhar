@@ -26,7 +26,7 @@ import com.datatorrent.api.DefaultOutputPort;
  * <p>Implements Compare Filter Tuples class.</p>
  * <p>
  * @displayName Compare Filter Tuples
- * @category Testbench
+ * @category Test Bench
  * @tags map, compare
  * @since 0.3.2
  */
@@ -35,7 +35,7 @@ public class CompareFilterTuples<k> extends BaseOperator
 	// Compare type function
   private Compare compareType = Compare.Equal;
   public enum Compare { Smaller, Equal, Greater }
-  
+
   /**
    * Compare the incoming value with the Property value.
    * @param type Compare
@@ -44,17 +44,17 @@ public class CompareFilterTuples<k> extends BaseOperator
   {
   	compareType = type;
   }
-  
-  // compare value  
+
+  // compare value
   private int value;
   public void setValue(int value)
   {
   	this.value = value;
   }
-  
+
   // Collected result tuples
   private Map<k, Integer> result;
-  
+
         /**
 	 * Input port that takes a map of integer values.
 	 */
@@ -63,34 +63,34 @@ public class CompareFilterTuples<k> extends BaseOperator
     public void process(Map<k, Integer> map) {
     	for(Map.Entry<k, Integer> entry : map.entrySet())
     	{
-    		if ( compareType == Compare.Equal ) if(entry.getValue().intValue() == value) result.put(entry.getKey(), entry.getValue()); 
-    		if ( compareType == Compare.Greater ) if(entry.getValue().intValue() > value) result.put(entry.getKey(), entry.getValue()); 
-    		if ( compareType == Compare.Smaller ) if(entry.getValue().intValue() < value) result.put(entry.getKey(), entry.getValue()); 
+    		if ( compareType == Compare.Equal ) if(entry.getValue().intValue() == value) result.put(entry.getKey(), entry.getValue());
+    		if ( compareType == Compare.Greater ) if(entry.getValue().intValue() > value) result.put(entry.getKey(), entry.getValue());
+    		if ( compareType == Compare.Smaller ) if(entry.getValue().intValue() < value) result.put(entry.getKey(), entry.getValue());
     	}
     }
 	};
-	
+
 	/**
 	 * Output port that emits a map of integer values.
 	 */
 	public final transient DefaultOutputPort<Map<k, Integer>> outport = new DefaultOutputPort<Map<k, Integer>>();
-        
+
         /**
 	 * Output redis port that emits a map of &lt;integer,string&gt; values.
 	 */
 	public final transient DefaultOutputPort<Map<Integer, String>> redisport = new DefaultOutputPort<Map<Integer, String>>();
-	
+
 	@Override
 	public void beginWindow(long windowId)
 	{
 		result  = new HashMap<k, Integer>();
 	}
-	
+
 	@Override
 	public void endWindow()
 	{
 		outport.emit(result);
-		
+
 		int numOuts = 1;
 		Integer total = 0;
 		for (Map.Entry<k, Integer>  entry : result.entrySet())

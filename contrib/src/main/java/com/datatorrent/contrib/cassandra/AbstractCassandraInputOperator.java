@@ -36,8 +36,8 @@ import com.datatorrent.netlet.util.DTThrowable;
  * </p>
  * @param <T>
  * @displayName Abstract Cassandra Input
- * @category Store
- * @tags input operator
+ * @category Input
+ * @tags cassandra
  * @since 1.0.2
  */
 public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInputOperator<T, CassandraStore> {

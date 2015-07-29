@@ -44,7 +44,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * @displayName Change Alert Key Value
- * @category Math
+ * @category Rules and Alerts
  * @tags change, key value, numeric, percentage
  * @since 0.3.3
  */
@@ -93,7 +93,7 @@ public class ChangeAlertKeyVal<K, V extends Number> extends
 			val.setValue(tval);
 		}
 	};
-	
+
 	/**
 	 * Key,Percent Change output port.
 	 */
@@ -107,7 +107,7 @@ public class ChangeAlertKeyVal<K, V extends Number> extends
 
 	/**
 	 * getter function for threshold value
-	 * 
+	 *
 	 * @return threshold value
 	 */
 	@Min(1)

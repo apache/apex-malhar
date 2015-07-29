@@ -31,17 +31,17 @@ import org.apache.commons.lang.StringUtils;
  *   <b> column : </b> Aggregate over given column values.   <br>
  *   <b> alias  : </b> Alias name for aggregate output. <br>
  * @displayName Average Function
- * @category Streamquery/Functions
+ * @category Stream Manipulators
  * @tags sql average
  * @since 0.3.4
  */
 public class AverageFunction  extends FunctionIndex
 {
   /**
-   * @param column Aggregate over given column values, must be non null. 
+   * @param column Aggregate over given column values, must be non null.
    * @param alias  Alias name for aggregate output.
    */
-  public AverageFunction(@NotNull String column, String alias) 
+  public AverageFunction(@NotNull String column, String alias)
   {
     super(column, alias);
   }

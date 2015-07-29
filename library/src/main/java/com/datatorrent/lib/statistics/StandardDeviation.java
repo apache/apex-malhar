@@ -37,15 +37,15 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * <b>Partitions : No</b>, no will yield wrong results. <br>
  * <br>
  * @displayName Standard Deviation
- * @category Statistics
- * @tags numeric, math, calculation, sum, count 
+ * @category Stats and Aggregations
+ * @tags numeric, math, calculation, sum, count
  * @since 0.3.4
  */
 @OperatorAnnotation(partitionable = false)
 public class StandardDeviation extends BaseOperator
 {
   private ArrayList<Double> values = new ArrayList<Double>();
-  
+
   /**
    * Input data port that takes in a number.
    */
@@ -60,18 +60,18 @@ public class StandardDeviation extends BaseOperator
       values.add(tuple.doubleValue());
     }
   };
-  
+
   /**
    * Variance output port.
    */
   @OutputPortFieldAnnotation(optional=true)
   public final transient DefaultOutputPort<Number> variance = new DefaultOutputPort<Number>();
-  
+
   /**
    * Standard deviation output port.
    */
   public final transient DefaultOutputPort<Number> standardDeviation = new DefaultOutputPort<Number>();
-  
+
   /**
    * End window.
    */
@@ -80,15 +80,15 @@ public class StandardDeviation extends BaseOperator
   {
     // no values.
     if (values.size() == 0) return;
-    
+
     // get mean first.
     double mean = 0.0;
     for (Double value : values) {
       mean += value;
     }
     mean = mean/values.size();
-    
-    // get variance  
+
+    // get variance
     double outVal = 0.0;
     for (Double value : values) {
       outVal += (value-mean)*(value-mean);
@@ -97,10 +97,10 @@ public class StandardDeviation extends BaseOperator
     if (variance.isConnected()) {
       variance.emit(outVal);
     }
-    
+
     // get standard deviation
     standardDeviation.emit(Math.sqrt(outVal));
-    
+
     values = new ArrayList<Double>();
   }
 }

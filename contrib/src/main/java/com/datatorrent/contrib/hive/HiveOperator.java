@@ -43,6 +43,9 @@ import org.apache.hadoop.fs.Path;
  * This is a fault tolerant implementation of HiveOperator which assumes that load operation
  * is an atomic operation in Hive.
  *
+ * @category Output
+ * @tags database, sql, hive
+ *
  * @since 2.1.0
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)

@@ -39,14 +39,14 @@ import java.util.Map;
  * are mapped to corresponding rows,column families and columns using a property
  * file and inserted into hbase Example: input string will be of the form
  * name="xyz", st="patrickhenry" ,ct="fremont", sa="california", the properties will contain
- * properties of form name=row, sa=address.street, ct=address.city, sa=address.state. 
+ * properties of form name=row, sa=address.street, ct=address.city, sa=address.state.
  * With the above mapping a row xyz is created. The value patrickhenry is inserted into
  * columnfamily address and column street of row xyz. Other values are inserted
  * similarly.
- * 
+ *
  * @displayName HBase Name Value Csv Put
- * @category Store
- * @tags output operator, put
+ * @category Output
+ * @tags csv, hbase, put
  * @since 1.0.2
  */
 public class HBaseNameValueCsvPutOperator extends AbstractHBaseWindowPutOutputOperator<String> {
@@ -115,7 +115,7 @@ public class HBaseNameValueCsvPutOperator extends AbstractHBaseWindowPutOutputOp
     } catch (IOException e) {
       logger.error("Cannot read the property string", e);
       DTThrowable.rethrow(e);
-    } 
+    }
     for (String pair : csvLineList) {
       String key = pair.substring(0, pair.indexOf('='));
       String value = pair.substring(pair.indexOf('=') + 1);

@@ -19,11 +19,11 @@ import javax.validation.constraints.NotNull;
 
 
 /**
- * Abstract class to filter row by binary expression index. 
+ * Abstract class to filter row by binary expression index.
  * <p>
  * Sub class will implement filter/getExpressionName functions.
  * @displayName Binary Expression
- * @category Streamquery/Index
+ * @category Stream Manipulators
  * @tags alias
  * @since 0.3.4
  */
@@ -34,13 +34,13 @@ abstract public class BinaryExpression  implements Index
    */
   @NotNull
   protected String left;
-  
+
   /**
    * Right column name argument for expression.
    */
   @NotNull
   protected String right;
-  
+
   /**
    *  Alias name for output field.
    */
@@ -51,7 +51,7 @@ abstract public class BinaryExpression  implements Index
    * @param Right column name argument for expression.
    * @param Alias name for output field.
    */
-  public BinaryExpression(@NotNull String left, @NotNull String right, String alias) 
+  public BinaryExpression(@NotNull String left, @NotNull String right, String alias)
   {
     this.left = left;
     this.right = right;

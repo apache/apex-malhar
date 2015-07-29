@@ -29,7 +29,7 @@ import com.datatorrent.api.DefaultOutputPort;
  * If the value of a pair is greater than the specified threshold then the tuple is emitted.
  * <p></p>
  * @displayName Top Occurrence
- * @category Testbench
+ * @category Test Bench
  * @tags numeric, compare
  * @since 0.3.2
  */
@@ -120,7 +120,7 @@ public class TopOccurrence extends BaseOperator
 
 	/**
 	 * Output n top values
-	 * @param n 
+	 * @param n
 	*/
 	public void setN(int n)
 	{
@@ -134,7 +134,7 @@ public class TopOccurrence extends BaseOperator
 
 	/**
 	 * Emit the tuples only if it's value is greater than the threshold.
-	 * @param threshold 
+	 * @param threshold
 	*/
 	public void setThreshold(int threshold)
 	{

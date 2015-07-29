@@ -38,8 +38,8 @@ import java.util.regex.Pattern;
  * More output ports in this operator.
  * </p>
  * @displayName Apache Virtual Log Parse
- * @category Logs
- * @tags apache
+ * @category Tuple Converters
+ * @tags apache, parse
  *
  * @since 0.3.2
  */

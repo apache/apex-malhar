@@ -21,8 +21,8 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.Stateless;
 
 /**
- * An implementation of BaseOperator that merges two streams with identical schema and emits the tuples to the output port in order. 
- * 
+ * An implementation of BaseOperator that merges two streams with identical schema and emits the tuples to the output port in order.
+ *
  * <p>
  * This is a pass through operator<br>
  * <b>Ports</b>:<br>
@@ -31,7 +31,7 @@ import com.datatorrent.api.annotation.Stateless;
  * <b>out</b>: emits K<br>
  * <br>
  * @displayName Stream Merger
- * @category Stream
+ * @category Stream Manipulators
  * @tags merge
  * @since 0.3.3
  */

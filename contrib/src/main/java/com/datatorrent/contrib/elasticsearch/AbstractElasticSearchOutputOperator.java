@@ -30,8 +30,8 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
 /**
  * This is the base implementation for a non-transactional batch output operator for ElasticSearch.
- * 
- * 
+ *
+ *
  * <br>
  * Ports:<br>
  * <b>Input</b>: Can have one input port <br>
@@ -39,7 +39,7 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  * <br>
  * Properties:<br>
  * <b>batchSize</b>:size for each batch insert, default value is 1000<br>
- * 
+ *
  * Compile time checks:<br>
  * None<br>
  * <br>
@@ -47,13 +47,14 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  * hostName<br>
  * port<br>
  * batchSize <br>
- * 
+ *
  * <b>Benchmarks</b>: <br>
  * </p>
- * 
- * @displayName ElasticSearch Output
- * @category Store
  *
+ * @displayName Elastic Search Output
+ * @category Output
+ * @tags elastic search
+ * 
  * @since 2.1.0
  */
 public abstract class AbstractElasticSearchOutputOperator<T, S extends ElasticSearchConnectable> extends AbstractStoreOutputOperator<T, S>
@@ -65,7 +66,7 @@ public abstract class AbstractElasticSearchOutputOperator<T, S extends ElasticSe
 
   /**
    * Initialize transient fields such as {@code tupleBatch}
-   * 
+   *
    * @see com.datatorrent.lib.db.AbstractStoreOutputOperator#setup(com.datatorrent.api.Context.OperatorContext)
    */
   @Override
@@ -78,7 +79,7 @@ public abstract class AbstractElasticSearchOutputOperator<T, S extends ElasticSe
   /**
    * Adds tuple to the queue.
    * Calls {@link #processBatch()} if queue is full
-   * 
+   *
    * @see com.datatorrent.lib.db.AbstractStoreOutputOperator#processTuple(java.lang.Object)
    */
   public void processTuple(T tuple)
@@ -116,11 +117,11 @@ public abstract class AbstractElasticSearchOutputOperator<T, S extends ElasticSe
       DTThrowable.rethrow(new Exception(bulkResponse.buildFailureMessage()));
     }
   }
-  
+
   /**
    * Create {@link IndexRequestBuilder} for this tuple.
    * It calls {@link #getId(T)}, {@link #getIndexName(T)}, {@link #getType(T)}.
-   * 
+   *
    * @param tuple
    * @return
    */
@@ -144,36 +145,36 @@ public abstract class AbstractElasticSearchOutputOperator<T, S extends ElasticSe
   /**
    * Determine id for the given tuple.<br>
    * If tuples do not have any field mapping to unique id then this function may return null. In this case
-   * ElasticSearch will add auto-generated _id field to the document. 
+   * ElasticSearch will add auto-generated _id field to the document.
    * ElasticSearch will treat every tuple as fresh record.
-   * If user requires {@code ProcessingMode.EXACTLY_ONCE} support; then user must 
+   * If user requires {@code ProcessingMode.EXACTLY_ONCE} support; then user must
    * implement {@link #getId(Object)} and make sure that distinct value is returned for each record.
-   * 
+   *
    * @param tuple
    * @return
    */
   protected abstract String getId(T tuple);
-  
+
   /**
    * Decides indexName under which this tuple gets stored.
-   * Depending on scenario, user may decide index all tuples under same indexName 
+   * Depending on scenario, user may decide index all tuples under same indexName
    * (In this case user can return constant value for indexName).
-   * Or user may have custom logic for deriving indexName   
+   * Or user may have custom logic for deriving indexName
    * @param tuple
    * @return
    */
   protected abstract String getIndexName(T tuple);
-  
+
   /**
    * Decides type for given tuple.
-   * Depending on scenario, user may decide index all tuples under same type 
+   * Depending on scenario, user may decide index all tuples under same type
    * (In this case user can return constant value for type).
-   * Or user may have custom logic for deriving type.   
+   * Or user may have custom logic for deriving type.
    * @param tuple
    * @return
    */
     protected abstract String getType(T tuple);
-    
+
     /**
      * @return the batchSize
      */
@@ -181,7 +182,7 @@ public abstract class AbstractElasticSearchOutputOperator<T, S extends ElasticSe
     {
       return batchSize;
     }
-    
+
     /**
      * @param batchSize the batchSize to set
      */
@@ -189,5 +190,5 @@ public abstract class AbstractElasticSearchOutputOperator<T, S extends ElasticSe
     {
       this.batchSize = batchSize;
     }
-  
+
 }

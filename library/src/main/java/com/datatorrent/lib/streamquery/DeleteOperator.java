@@ -41,7 +41,7 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * <b> columns : </b> Column names/aggregate functions for select. <br>
  * <br>
  * @displayName Delete
- * @category Streamquery
+ * @category Stream Manipulators
  * @tags sql delete operator
  * @since 0.3.3
  */
