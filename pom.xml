@@ -5,11 +5,11 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>malhar</artifactId>
-    <version>3.0.0-RC4</version>
+    <version>3.0.0-RC5</version>
   </parent>
 
   <artifactId>dt-megh</artifactId>
-  <version>3.0.0-RC4</version>
+  <version>3.0.0-RC5</version>
   <packaging>pom</packaging>
   <name>Megh</name>
   <url>https://www.datatorrent.com/</url>
