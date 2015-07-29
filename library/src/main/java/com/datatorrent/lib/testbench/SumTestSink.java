@@ -21,7 +21,7 @@ import com.datatorrent.api.Sink;
  * A sink implementation which collects Number tuples and sums their values.
  * <p></p>
  * @displayName Sum Test Sink
- * @category Testbench
+ * @category Test Bench
  * @tags numeric
  * @since 0.3.2
  */

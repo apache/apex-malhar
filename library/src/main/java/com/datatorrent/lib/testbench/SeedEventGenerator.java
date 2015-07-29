@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
  * Without key: Benchmarked at over 4 million tuples/second in local/in-line mode<br>
  * </p>
  * @displayName Seed Event Generator
- * @category Testbench
+ * @category Test Bench
  * @tags generate
  * @since 0.3.2
  */

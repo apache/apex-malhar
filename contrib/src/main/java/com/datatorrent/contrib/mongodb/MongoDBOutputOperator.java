@@ -73,8 +73,8 @@ import org.slf4j.LoggerFactory;
  * <br>
  * </p>
  * @displayName MongoDB Output
- * @category Database
- * @tags output operator
+ * @category Output
+ * @tags mongodb
  * @since 0.3.2
  */
 public abstract class MongoDBOutputOperator<T> extends MongoDBConnectable implements Operator

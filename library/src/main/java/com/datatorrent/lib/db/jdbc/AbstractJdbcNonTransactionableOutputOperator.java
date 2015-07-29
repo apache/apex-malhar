@@ -28,8 +28,8 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  * Subclasses should implement the method which provides the insertion command.
  * <p></p>
  * @displayName Abstract JDBC Non Transactionable Output
- * @category Database
- * @tags output operator
+ * @category Output
+ * @tags jdbc
  *
  * @param <T> The kind of tuples that are being processed
  * @since 1.0.4

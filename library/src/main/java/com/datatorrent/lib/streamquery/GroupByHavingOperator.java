@@ -55,7 +55,7 @@ import com.datatorrent.lib.streamquery.index.ColumnIndex;
  * <b> havingConditions : </b> Having filter conditions for aggregate(s). <br>
  * <br>
  * @displayName GroupBy Having Operator
- * @category Streamquery
+ * @category Stream Manipulators
  * @tags sql, groupby operator, condition, index
  * @since 0.3.4
  */

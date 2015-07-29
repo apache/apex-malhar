@@ -19,7 +19,7 @@ package com.datatorrent.lib.testbench;
  * A sink implementation to count expected test results.
  * <p>
  * @displayName Count Test Sink
- * @category Testbench
+ * @category Test Bench
  * @tags count, sink
  * @since 0.3.2
  */

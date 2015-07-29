@@ -43,8 +43,8 @@ import org.slf4j.LoggerFactory;
  * <br>
  * </p>
  * @displayName MongoDB Array List Output
- * @category Database
- * @tags output operator
+ * @category Output
+ * @tags mongodb
  *
  * @since 0.3.2
  */

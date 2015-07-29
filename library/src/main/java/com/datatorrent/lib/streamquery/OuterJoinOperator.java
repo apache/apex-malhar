@@ -25,7 +25,7 @@ package com.datatorrent.lib.streamquery;
  * <b> isLeftJoin : </b> Left join flag. <br>
  * <b> isFullJoin : </b> Full join flag. <br>
  * @displayName Outer Join
- * @category Streamquery
+ * @category Stream Manipulators
  * @tags sql, outer join operator
  * @since 0.3.4
  */

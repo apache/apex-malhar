@@ -64,24 +64,24 @@ import com.datatorrent.api.InputOperator;
  * String schema does about 26 Million tuples/sec in throughput<br>
  * HashMap schema does about 10 Million tuples/sec in throughput<br>
  * @displayName Event Generator
- * @category Testbench
+ * @category Test Bench
  * @tags input operator, generator
  * @since 0.3.2
  */
 public class EventGenerator implements InputOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
-  
+
   /**
    * Output string port that emits string data.
    */
   public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>();
-  
+
   /**
    * Output hash data port that emits a hashmap of &lt;string,double&gt;.
    */
   public final transient DefaultOutputPort<HashMap<String, Double>> hash_data = new DefaultOutputPort<HashMap<String, Double>>();
-  
+
   /**
    * Output count port that emits a hashmap of &lt;string,number&gt; which contains per window count of throughput.
    */
@@ -239,9 +239,9 @@ public class EventGenerator implements InputOperator
   public void teardown()
   {
   }
-  
+
  /**
- * Maximum number of Windows for this operation to run. 
+ * Maximum number of Windows for this operation to run.
  * @param i
  */
   public void setMaxCountOfWindows(int i)

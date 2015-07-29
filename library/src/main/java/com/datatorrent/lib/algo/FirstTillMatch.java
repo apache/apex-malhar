@@ -54,7 +54,7 @@ import com.datatorrent.lib.util.BaseMatchOperator;
  * </p>
  *
  * @displayName Emit Keyval Pairs Until Match (Number)
- * @category Algorithmic
+ * @category Rules and Alerts
  * @tags filter, key value, numeric
  *
  * @since 0.3.2

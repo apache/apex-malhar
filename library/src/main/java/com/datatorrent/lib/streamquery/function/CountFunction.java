@@ -32,14 +32,14 @@ import org.apache.commons.lang.StringUtils;
  *   <b> column : </b> column name for values count.   <br>
  *   <b> alias  : </b> Alias name for aggregate output. <br>
  * @displayName Count Function
- * @category Streamquery/Functions
+ * @category Stream Manipulators
  * @tags sql count
  * @since 0.3.4
  */
 public class CountFunction extends FunctionIndex
 {
   /**
-   * @param column column for values count, must be non null. 
+   * @param column column for values count, must be non null.
    * @param alias  Alias name for aggregate output.
    */
   public CountFunction(@NotNull String column, String alias)

@@ -23,11 +23,11 @@ import javax.validation.constraints.NotNull;
 import com.datatorrent.lib.streamquery.function.FunctionIndex;
 
 /**
- *  A base class for Group,Having operator with aggregate index constraint.&nsbsp; Subclasses should provide the 
+ *  A base class for Group,Having operator with aggregate index constraint.&nsbsp; Subclasses should provide the
     implementation to check if aggregate is valid.
  * <p>
  * @displayName Having Condition
- * @category Streamquery/Condition
+ * @category Stream Manipulators
  * @tags sql condition, index, group
  * @since 0.3.4
  */
@@ -37,14 +37,14 @@ public abstract class HavingCondition
    * Aggregate index to be validated.
    */
   protected FunctionIndex  aggregateIndex = null;
-  
+
   /**
    * @param aggregateIndex  Aggregate index to be validated.
    */
   public HavingCondition(FunctionIndex  aggregateIndex) {
     this.aggregateIndex = aggregateIndex;
   }
-  
+
   /**
    *  Check if aggregate is valid.
    */

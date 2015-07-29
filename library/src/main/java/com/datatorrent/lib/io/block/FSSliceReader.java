@@ -24,6 +24,9 @@ import com.datatorrent.netlet.util.Slice;
 /**
  * An {@link AbstractFSBlockReader} which emits fixed-size byte-arrays wrapped in {@link Slice}.<br/>
  *
+ * @category Input
+ * @tags fs
+ * 
  * @since 2.1.0
  */
 @StatsListener.DataQueueSize

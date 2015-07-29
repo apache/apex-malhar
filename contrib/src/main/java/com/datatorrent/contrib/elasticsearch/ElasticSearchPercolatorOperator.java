@@ -28,7 +28,9 @@ import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * Percolate operator for ElasticSearch
- * 
+ *
+ * @category Output
+ * @tags elastic search
  * @since 2.1.0
  */
 public class ElasticSearchPercolatorOperator extends BaseOperator
@@ -36,7 +38,7 @@ public class ElasticSearchPercolatorOperator extends BaseOperator
   @NotNull
   public String hostName;
   public int port;
-  
+
   @NotNull
   public String indexName;
   @NotNull
@@ -49,7 +51,7 @@ public class ElasticSearchPercolatorOperator extends BaseOperator
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.datatorrent.api.DefaultInputPort#process(java.lang.Object)
      */
     @Override
@@ -70,7 +72,7 @@ public class ElasticSearchPercolatorOperator extends BaseOperator
       DTThrowable.rethrow(e);
     }
   }
-  
+
   /* (non-Javadoc)
    * @see com.datatorrent.common.util.BaseOperator#teardown()
    */

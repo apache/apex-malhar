@@ -32,7 +32,7 @@ import javax.validation.constraints.NotNull;
  * <b>data</b>: expects String<br>
  * </p>
  * @displayName Base Line Tokenizer
- * @category Stream Manipulator
+ * @category Stream Manipulators
  * @tags string
  * @since 0.3.2
  */

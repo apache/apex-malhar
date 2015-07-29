@@ -30,7 +30,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
- * An implementation of BaseOperator that takes a json byte stream and emits a HashMap of key values. 
+ * An implementation of BaseOperator that takes a json byte stream and emits a HashMap of key values.
  * <p>
  * This is a pass through operator<br>
  * <br>
@@ -43,7 +43,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  * &nbsp&nbsp eg: key: "agentinfo.os.name", value: "Ubuntu" <br>
  * <br>
  * @displayName JSON Byte Array
- * @category Stream
+ * @category Tuple Converters
  * @tags json, byte array
  * @since 0.9.4
  */

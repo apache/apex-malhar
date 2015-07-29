@@ -43,8 +43,8 @@ import com.datatorrent.netlet.util.DTThrowable;
  * <br>
  * This class offers non-transactional put where tuples are put as they come in.
  * @displayName Abstract HBase Put Output
- * @category Store
- * @tags output operator, put
+ * @category Output
+ * @tags hbase, put
  * @param <T>
  *            The tuple type
  * @since 1.0.2
@@ -54,7 +54,7 @@ public abstract class AbstractHBasePutOutputOperator<T> extends AbstractStoreOut
   public static final int DEFAULT_BATCH_SIZE = 1000;
   private int batchSize = DEFAULT_BATCH_SIZE;
   protected int unCommittedSize = 0;
-  
+
   public AbstractHBasePutOutputOperator() {
     store = new HBaseStore();
   }
@@ -98,7 +98,7 @@ public abstract class AbstractHBasePutOutputOperator<T> extends AbstractStoreOut
       DTThrowable.rethrow(e);
     }
   }
-  
+
   public abstract Put operationPut(T t);
 
   /**
@@ -118,5 +118,5 @@ public abstract class AbstractHBasePutOutputOperator<T> extends AbstractStoreOut
     this.batchSize = batchSize;
   }
 
-  
+
 }

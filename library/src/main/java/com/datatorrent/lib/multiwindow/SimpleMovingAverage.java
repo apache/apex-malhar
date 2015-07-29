@@ -39,7 +39,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>windowSize</b>: Number of windows to keep state on<br>
  * <br>
  * @displayName Simple Moving Average
- * @category Multi-Window
+ * @category Stats and Aggregations
  * @tags key value, numeric, average
  * @since 0.3.3
  */
@@ -72,7 +72,7 @@ public class SimpleMovingAverage<K, V extends Number> extends
 	/**
 	 * Create the list if key doesn't exist. Add value to buffer and increment
 	 * counter.
-	 * 
+	 *
 	 * @param tuple
 	 */
 	@Override
@@ -95,7 +95,7 @@ public class SimpleMovingAverage<K, V extends Number> extends
 
 	/**
 	 * Calculate average and emit in appropriate port.
-	 * 
+	 *
 	 * @param key
 	 * @param obj
 	 */

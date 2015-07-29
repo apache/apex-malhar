@@ -24,7 +24,7 @@ import javax.validation.constraints.NotNull;
  * <p>An implementation of an index that overrides filter method on basis on columns. </p>
  * <p>
  * @displayName Column Index
- * @category Streamquery/Index
+ * @category Stream Manipulators
  * @tags alias
  * @since 0.3.4
  */
@@ -39,7 +39,7 @@ public class ColumnIndex implements Index
   public ColumnIndex()
   {
   }
-  
+
   public ColumnIndex(@NotNull String column, String alias)
   {
     this.setColumn(column);

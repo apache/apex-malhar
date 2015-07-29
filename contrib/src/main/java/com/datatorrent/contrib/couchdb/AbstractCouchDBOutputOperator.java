@@ -24,7 +24,7 @@ import java.util.Map;
  * An {@link AbstractStoreOutputOperator} saving tuples in the CouchDb.
  * Sub-classes provide the implementation of parsing document id from the tuple and converting tuple to a map.
  * @displayName Abstract CouchDB Output
- * @category Database
+ * @category Output
  * @tags output operator
  * @param <T> type of tuple </T>
  * @since 0.3.5

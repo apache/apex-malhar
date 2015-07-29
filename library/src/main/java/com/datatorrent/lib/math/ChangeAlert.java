@@ -44,7 +44,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>Specific run time checks</b>: None<br>
  * <br>
  * @displayName Change Alert
- * @category Math
+ * @category Rules and Alerts
  * @tags change, key value, numeric, percentage
  * @since 0.3.3
  */
@@ -80,13 +80,13 @@ public class ChangeAlert<V extends Number> extends BaseNumberValueOperator<V>
 			baseValue = tval;
 		}
 	};
-	
-	
+
+
 	/**
 	 * Output port which emits a key value pair.
 	 */
 	public final transient DefaultOutputPort<KeyValPair<V, Double>> alert = new DefaultOutputPort<KeyValPair<V, Double>>();
-	
+
 	/**
 	 * baseValue is a state full field. It is retained across windows
 	 */
@@ -96,7 +96,7 @@ public class ChangeAlert<V extends Number> extends BaseNumberValueOperator<V>
 
 	/**
 	 * getter function for threshold value
-	 * 
+	 *
 	 * @return threshold value
 	 */
 	@Min(1)

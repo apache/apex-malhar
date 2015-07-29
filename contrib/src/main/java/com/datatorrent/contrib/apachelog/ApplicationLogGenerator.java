@@ -28,7 +28,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * <p>
  * @displayName Application Log Generator
- * @category Database
+ * @category Output
  * @tags streaming
  * @since 0.9.4
  */

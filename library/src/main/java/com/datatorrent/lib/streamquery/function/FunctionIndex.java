@@ -21,54 +21,54 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- * A base class for select aggregate function implementation.&nbsp; Subclasses should provide the 
-   implementation for aggregate compute functions. 
+ * A base class for select aggregate function implementation.&nbsp; Subclasses should provide the
+   implementation for aggregate compute functions.
  * <p>
  * <br>
  * <b>Properties : </b> <br>
  * <b>column : </b> Column name for aggregation.
  * <b>alias : </b> Output value alias name.
  * @displayName Function Index
- * @category Streamquery/Functions
+ * @category Stream Manipulators
  * @tags sql aggregate
  * @since 0.3.4
  */
-abstract public class FunctionIndex 
+abstract public class FunctionIndex
 {
   /**
    * Column name.
    */
   @NotNull
   protected String column;
-  
+
   /**
    * Alias name.
    */
   protected String alias;
-  
+
   /**
    * @param column Column name for aggregation.
    * @param alias Output value alias name.
    */
-  public FunctionIndex(@NotNull String column, String alias) 
+  public FunctionIndex(@NotNull String column, String alias)
   {
     this.column = column;
     this.alias = alias;
   }
-  
+
   /**
    * Aggregate compute function, implementation in sub class.
    * @param rows Tuple list over application window.
    * @return aggregate result object.
    */
   abstract public Object compute(@NotNull ArrayList<Map<String, Object>> rows) throws Exception;
-  
+
   /**
    * Get aggregate output value name.
    * @return name string.
    */
   abstract protected String aggregateName();
-  
+
   /**
    * Apply compute function to given rows and store result in collect by output value name.
    * @param  rows Tuple list over application window.

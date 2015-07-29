@@ -33,9 +33,9 @@ import com.datatorrent.api.DefaultInputPort;
  * <b>S</b> is the state object kept in the sliding window <br>
  * <b>windowSize</b>: Number of streaming window in this sliding window<br>
  * <br>
- * 
+ *
  * @displayName Abstract Sliding Window
- * @category Multi-Window
+ * @category Stats and Aggregations
  * @tags sliding window, state
  * @since 0.3.3
  */
@@ -54,14 +54,14 @@ public abstract class AbstractSlidingWindow<T, S> extends BaseOperator
 	};
 
 	protected ArrayList<S> states = null;
-	
+
 	protected S lastExpiredWindowState = null;
-	
+
 	protected int currentCursor = -1;
 
 	@Min(2)
 	int windowSize = 2;
-	
+
 	/**
 	 * getter function for n (number of previous window states
 	 *
@@ -86,7 +86,7 @@ public abstract class AbstractSlidingWindow<T, S> extends BaseOperator
 	abstract protected void processDataTuple(T tuple);
 
 	/**
-	 * Implement this method to create the state object needs to be kept in the sliding window 
+	 * Implement this method to create the state object needs to be kept in the sliding window
 	 *
 	 * @return the state of current streaming window
 	 */
@@ -95,9 +95,9 @@ public abstract class AbstractSlidingWindow<T, S> extends BaseOperator
 	/**
 	 * Get the Streaming window state in it's coming the order start from 0
 	 *
-	 * @param i 
-	 *   0 the state of the first coming streaming window 
-	 *   -1 the state of the last expired streaming window 
+	 * @param i
+	 *   0 the state of the first coming streaming window
+	 *   -1 the state of the last expired streaming window
 	 * @return State of the streaming window
 	 * @throws ArrayIndexOutOfBoundsException if i >= sliding window size
 	 */
@@ -125,11 +125,11 @@ public abstract class AbstractSlidingWindow<T, S> extends BaseOperator
 	{
 	  // move currentCursor 1 position
 		currentCursor = (currentCursor + 1) % windowSize;
-		// expire the state at the first position which is the state of the streaming window moving out of the current application window 
+		// expire the state at the first position which is the state of the streaming window moving out of the current application window
 		lastExpiredWindowState = states.get(currentCursor);
-		
+
 		states.set(currentCursor, createWindowState());
-		
+
 	}
 
 	/**

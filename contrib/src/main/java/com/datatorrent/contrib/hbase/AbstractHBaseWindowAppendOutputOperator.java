@@ -54,8 +54,8 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperato
  * It supports atleast once and atmost once processing modes.
  * Exactly once is not supported
  * @displayName Abstract HBase Window Append Output
- * @category Store
- * @tags output operator, append, transactionable, batch
+ * @category Output
+ * @tags hbase, append, transactionable, batch
  * @param <T>
  *            The tuple type
  * @since 1.0.2
@@ -110,7 +110,7 @@ public abstract class AbstractHBaseWindowAppendOutputOperator<T> extends Abstrac
    * Return the HBase Append metric to store the tuple. The implementor should
    * return a HBase Append metric that specifies where and what to store for
    * the tuple in the table.
-   * 
+   *
    * @param t
    *            The tuple
    * @return The HBase Append metric

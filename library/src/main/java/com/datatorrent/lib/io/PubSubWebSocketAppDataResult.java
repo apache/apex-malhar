@@ -31,8 +31,8 @@ import java.net.URI;
  * This is an app data pub sub result operator.
  *
  * @displayName App Data Pub Sub Result
- * @category App Data
- * @tags output, appdata, result
+ * @category DT View Integration
+ * @tags output, app data, result
  */
 @AppData.AppendQueryIdToTopic(value=true)
 public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<String> implements AppData.ConnectionInfoProvider

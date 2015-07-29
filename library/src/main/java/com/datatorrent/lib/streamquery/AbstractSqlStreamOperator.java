@@ -25,13 +25,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * A base implementation of a BaseOperator that is a sql stream operator.&nbsp;  Subclasses should provide the 
-   implementation of how to process the tuples. 
+ * A base implementation of a BaseOperator that is a sql stream operator.&nbsp;  Subclasses should provide the
+   implementation of how to process the tuples.
  * <p>
- * Abstract sql db input operator. 
+ * Abstract sql db input operator.
  * <p>
  * @displayName Abstract Sql Stream
- * @category Streamquery
+ * @category Stream Manipulators
  * @tags sql operator
  * @since 0.3.2
  */
@@ -76,7 +76,7 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
   protected String statement;
   protected ArrayList<InputSchema> inputSchemas = new ArrayList<InputSchema>(5);
   protected transient ArrayList<Object> bindings;
-  
+
   /**
    * Input bindings port that takes an arraylist of objects.
    */
@@ -90,7 +90,7 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
     }
 
   };
-  
+
   /**
    * Input port in1 that takes a hashmap of &lt;string,object&gt;.
    */
@@ -103,7 +103,7 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
     }
 
   };
-  
+
   /**
    * Input port in2 that takes a hashmap of &lt;string,object&gt;.
    */
@@ -117,7 +117,7 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
     }
 
   };
-  
+
   /**
    * Input port in3 that takes a hashmap of &lt;string,object&gt;.
    */
@@ -131,7 +131,7 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
     }
 
   };
-  
+
   /**
    * Input port in4 that takes a hashmap of &lt;string,object&gt;.
    */
@@ -145,7 +145,7 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
     }
 
   };
-  
+
   /**
    * Input port in5 that takes a hashmap of &lt;string,object&gt;.
    */
@@ -159,7 +159,7 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
     }
 
   };
-  
+
   /**
    * Output result port that emits a hashmap of &lt;string,object&gt;.
    */

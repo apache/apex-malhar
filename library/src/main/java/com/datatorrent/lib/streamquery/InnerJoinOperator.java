@@ -47,7 +47,7 @@ import com.datatorrent.lib.streamquery.index.Index;
  *  <b> table2Columns : </b> Columns to be selected from table2. <br>
  *  <br>
  * @displayName Inner join
- * @category Streamquery
+ * @category Stream Manipulators
  * @tags sql, inner join operator
  *
  * @since 0.3.3
@@ -98,7 +98,7 @@ public class InnerJoinOperator implements Operator
       }
 		}
 	};
-	
+
 	/**
 	 * Input port 2 that takes a map of &lt;string,object&gt;.
 	 */
@@ -115,13 +115,13 @@ public class InnerJoinOperator implements Operator
       }
 		}
 	};
-	
+
 	/**
 	 * Output port that emits a map of &lt;string,object&gt;.
 	 */
-	public final transient DefaultOutputPort<Map<String, Object>> outport =  
+	public final transient DefaultOutputPort<Map<String, Object>> outport =
 			new DefaultOutputPort<Map<String, Object>>();
-	
+
 	@Override
   public void setup(OperatorContext arg0)
   {
@@ -155,6 +155,7 @@ public class InnerJoinOperator implements Operator
   }
 
   /**
+   * Pick the supported condition. Currently only equal join is supported.
    * @param set joinCondition
    */
   public void setJoinCondition(Condition joinCondition)

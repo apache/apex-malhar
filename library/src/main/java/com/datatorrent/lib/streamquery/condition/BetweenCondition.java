@@ -28,7 +28,7 @@ import javax.validation.constraints.NotNull;
  * <b> rightValue : </b> right range od column value. <br>
  * <br>
  * @displayName Between Condition
- * @category Streamquery/Condition
+ * @category Stream Manipulators
  * @tags sql condition
  * @since 0.3.4
  */
@@ -37,33 +37,33 @@ public class BetweenCondition  extends Condition
   /**
    * Column name to be checked.
    */
-  @NotNull  
+  @NotNull
   private String column;
-  
+
   /**
    * Left range value.
    */
   @NotNull
   private Object leftValue;
-  
+
   /**
    * Right range value.
    */
   @NotNull
   private Object rightValue;
-  
+
   /**
    * @param  column  Name of column, must be non null. <br>
    * @param  leftValue  Left range for value, mut be non null. <br>
    * @param  rightValue  right range for value, mut be non null. <br>
    */
-  public BetweenCondition(@NotNull String column, @NotNull  Object leftValue, @NotNull Object rightValue) 
+  public BetweenCondition(@NotNull String column, @NotNull  Object leftValue, @NotNull Object rightValue)
   {
     this.column = column;
     this.leftValue = leftValue;
     this.rightValue = rightValue;
   }
-  
+
   /**
    * Validate given row.
    */
@@ -80,7 +80,7 @@ public class BetweenCondition  extends Condition
   }
 
   /**
-   * Must not be called. 
+   * Must not be called.
    */
   @Override
   public boolean isValidJoin(@NotNull Map<String, Object> row1, Map<String, Object> row2)

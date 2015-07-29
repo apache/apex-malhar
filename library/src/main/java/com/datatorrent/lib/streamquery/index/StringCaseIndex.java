@@ -21,15 +21,15 @@ import javax.validation.constraints.NotNull;
 
 /**
  * <p>An implementation of Column Index that implements filter method using case of a string index. </p>
- * 
+ *
  * @displayName String Case Index
- * @category Streamquery/Index
+ * @category Stream Manipulators
  * @tags alias
  * @since 0.3.4
  */
 public class StringCaseIndex extends  ColumnIndex
 {
-  private boolean toUpperCase = true; 
+  private boolean toUpperCase = true;
   public StringCaseIndex(@NotNull String column, String alias, boolean toLowerCase)
   {
     super(column, alias);
@@ -43,7 +43,7 @@ public class StringCaseIndex extends  ColumnIndex
     if (!(row.get(column) instanceof String)) {
       assert(false);
     }
-    
+
     String name = getColumn();
     if (alias != null) name = alias;
     if (toUpperCase) {

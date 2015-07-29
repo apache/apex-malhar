@@ -40,22 +40,22 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * <b> columns : </b> Column names/aggregate functions for select. <br>
  * <br>
  * @displayName Update
- * @category Streamquery
+ * @category Stream Manipulators
  * @tags sql update operator, sql condition
  * @since 0.3.3
  */
 public class UpdateOperator extends BaseOperator
-{ 
+{
   /**
    * Update value map.
    */
   Map<String, Object> updates = new HashMap<String, Object>();
-  
+
 	/**
 	 *  condition.
 	 */
 	private Condition condition = null;
-	
+
 	/**
 	 * set condition.
 	 */
@@ -63,7 +63,7 @@ public class UpdateOperator extends BaseOperator
 	{
 		this.condition = condition;
 	}
-	
+
   /**
    * Input port that takes a map of &lt;string,object&gt;.
    */
@@ -87,16 +87,16 @@ public class UpdateOperator extends BaseOperator
       outport.emit(result);
     }
   };
-  
+
   /**
    * Output port that emits a map of &lt;string,object&gt;.
    */
   public final transient DefaultOutputPort<Map<String, Object>> outport =  new DefaultOutputPort<Map<String, Object>>();
-  
+
   /**
    * Add update value.
    */
-  public void addUpdate(String name, Object value) 
+  public void addUpdate(String name, Object value)
   {
     updates.put(name, value);
   }

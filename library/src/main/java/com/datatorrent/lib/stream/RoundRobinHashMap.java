@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 /**
  * <p>
- * An implementation of BaseKeyValueOperator that creates a HashMap tuple from incoming tuples. 
+ * An implementation of BaseKeyValueOperator that creates a HashMap tuple from incoming tuples.
  * <p>
  * If keys[] are set, then each incoming tuple is the value of the key (in-order) till all keys get a value.
  * Once all keys are assigned values, the tuple (HashMap) is emitted, the
@@ -40,7 +40,7 @@ import java.util.HashMap;
  * <b>Properties</b>:<br>
  * <b>keys[]</b>: Set of keys to insert in the output tuple</b>
  * @displayName Round Robin HashMap
- * @category Stream
+ * @category Tuple Converters
  * @tags key value, hashmap
  * @since 0.3.3
  */
@@ -91,7 +91,7 @@ public class RoundRobinHashMap<K, V> extends BaseKeyValueOperator<K, V>
 
 	/**
 	 * Keys for round robin asspociation, set by application.
-	 * 
+	 *
 	 * @param keys
 	 */
 	public void setKeys(K[] keys)

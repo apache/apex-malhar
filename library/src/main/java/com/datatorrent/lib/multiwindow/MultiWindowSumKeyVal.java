@@ -43,7 +43,7 @@ import javax.validation.constraints.Min;
  * window.<br>
  * <br>
  * @displayName Multi Window Sum Key Value
- * @category Multi-Window
+ * @category Stats and Aggregations
  * @tags key value, sum, numeric
  * @since 0.3.3
  */

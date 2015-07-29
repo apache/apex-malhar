@@ -21,10 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A sink implementation to collect expected test results. 
+ * A sink implementation to collect expected test results.
  * <p>
  * @displayName Collector Test Sink
- * @category Testbench
+ * @category Test Bench
  * @tags sink
  * @since 0.3.2
  */

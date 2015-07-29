@@ -27,23 +27,23 @@ import org.apache.hadoop.security.UserGroupInformation;
 
 import com.datatorrent.lib.db.Connectable;
 /**
- * A {@link Connectable} that uses HBase to connect to stores and implements Connectable interface. 
+ * A {@link Connectable} that uses HBase to connect to stores and implements Connectable interface.
  * <p>
  * @displayName HBase Store
- * @category Store
- * @tags store
+ * @category Output
+ * @tags store, hbase
  * @since 1.0.2
  */
 public class HBaseStore implements Connectable {
 
   public static final String USER_NAME_SPECIFIER = "%USER_NAME%";
-  
+
   private static final Logger logger = LoggerFactory.getLogger(HBaseStore.class);
-  
+
   private String zookeeperQuorum;
   private int zookeeperClientPort;
   protected String tableName;
-  
+
   protected String principal;
   protected String keytabPath;
   // Default interval 30 min
@@ -55,7 +55,7 @@ public class HBaseStore implements Connectable {
 
   /**
    * Get the zookeeper quorum location.
-   * 
+   *
    * @return The zookeeper quorum location
    */
   public String getZookeeperQuorum() {
@@ -64,7 +64,7 @@ public class HBaseStore implements Connectable {
 
   /**
    * Set the zookeeper quorum location.
-   * 
+   *
    * @param zookeeperQuorum
    *            The zookeeper quorum location
    */
@@ -74,7 +74,7 @@ public class HBaseStore implements Connectable {
 
   /**
    * Get the zookeeper client port.
-   * 
+   *
    * @return The zookeeper client port
    */
   public int getZookeeperClientPort() {
@@ -83,7 +83,7 @@ public class HBaseStore implements Connectable {
 
   /**
    * Set the zookeeper client port.
-   * 
+   *
    * @param zookeeperClientPort
    *            The zookeeper client port
    */
@@ -93,7 +93,7 @@ public class HBaseStore implements Connectable {
 
   /**
    * Get the HBase table name.
-   * 
+   *
    * @return The HBase table name
    */
   public String getTableName() {
@@ -102,7 +102,7 @@ public class HBaseStore implements Connectable {
 
   /**
    * Set the HBase table name.
-   * 
+   *
    * @param tableName
    *            The HBase table name
    */
@@ -175,7 +175,7 @@ public class HBaseStore implements Connectable {
 
   /**
    * Get the HBase table .
-   * 
+   *
    * @return The HBase table
    * @omitFromUI
    */
@@ -183,10 +183,10 @@ public class HBaseStore implements Connectable {
     return table;
   }
 
-  
+
   /**
    * Get the configuration.
-   * 
+   *
    * @return The configuration
    */
   public Configuration getConfiguration() {
@@ -195,7 +195,7 @@ public class HBaseStore implements Connectable {
 
   /**
    * Set the configuration.
-   * 
+   *
    * @param configuration
    *            The configuration
    */
@@ -250,11 +250,11 @@ public class HBaseStore implements Connectable {
     table.setAutoFlushTo(false);
 
   }
-  
+
   private String evaluateProperty(String property) throws IOException
   {
     if (property.contains(USER_NAME_SPECIFIER)) {
-     property = property.replaceAll(USER_NAME_SPECIFIER, UserGroupInformation.getLoginUser().getShortUserName()); 
+     property = property.replaceAll(USER_NAME_SPECIFIER, UserGroupInformation.getLoginUser().getShortUserName());
     }
     return property;
   }

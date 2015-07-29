@@ -29,7 +29,7 @@ import javax.validation.constraints.NotNull;
  *<b> column : < /b> Column to be matched with regular expression. <br>
  *<b> pattern : </b> Regular expression pattern.<br>
  * @displayName Like Condition
- * @category Streamquery/Condition
+ * @category Stream Manipulators
  * @tags sql, like condition, regular expression
  * @since 0.3.4
  */
@@ -40,13 +40,13 @@ public class LikeCondition extends Condition
    */
   @NotNull
   private String column;
-  
+
   /**
    * Regular expression pattern.
    */
   @NotNull
   private Pattern pattern;
-  
+
   /**
    * @param column Column to be matched with regular expression, must be non-null.
    * @param pattern Regular expression pattern, must be non-null.
@@ -55,9 +55,9 @@ public class LikeCondition extends Condition
     setColumn(column);
     setPattern(pattern);
   }
-  
+
   /**
-   * For valid row column value string must match regular expression.  
+   * For valid row column value string must match regular expression.
    * @return row valid status.
    */
   @Override
@@ -70,7 +70,7 @@ public class LikeCondition extends Condition
   }
 
   /**
-   * Must not be called. 
+   * Must not be called.
    */
   @Override
   public boolean isValidJoin(Map<String, Object> row1, Map<String, Object> row2)

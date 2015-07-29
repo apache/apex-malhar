@@ -20,11 +20,11 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- * A base class for select condition for selecting or filtering the rows.&nbsp; Subclasses should provide the 
+ * A base class for select condition for selecting or filtering the rows.&nbsp; Subclasses should provide the
    implementation to filter valid rows and valid joins.
  * <p>
  * @displayName Condition
- * @category Streamquery/Condition
+ * @category Stream Manipulators
  * @tags sql condition, filter
  * @since 0.3.3
  */
@@ -35,7 +35,7 @@ abstract public class Condition
 	 * @return row validation status.
 	 */
   abstract public boolean isValidRow(@NotNull Map<String, Object> row);
-  
+
   /**
    * Filter valid rows only.
    */

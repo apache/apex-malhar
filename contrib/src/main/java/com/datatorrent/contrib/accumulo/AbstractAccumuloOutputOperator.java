@@ -47,8 +47,8 @@ import com.google.common.collect.Lists;
  * duplicates limiting it to the tuples that were processed in the window when
  * the operator shutdown.
  * @displayName Abstract Accumulo Output
- * @category Store
- * @tags output operator
+ * @category Output
+ * @tags accumulo, key value
  * @param <T>
  *            The tuple type
  * @since 1.0.4
@@ -94,12 +94,12 @@ public abstract class AbstractAccumuloOutputOperator<T> extends AbstractAggregat
     tuples.clear();
   }
   /**
-   * 
+   *
    * @param t
    * @return Mutation
    */
   public abstract Mutation operationMutation(T t);
-  
+
   @Override
   public void setup(OperatorContext context)
   {

@@ -38,16 +38,16 @@ import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.lib.db.TransactionableStore;
 
 /**
- * Provides transactional support by implementing TransactionableStore abstract methods. 
- * 
+ * Provides transactional support by implementing TransactionableStore abstract methods.
+ *
  * <p>
  * Not intended for true transactional
  * properties. It does not guarantee exactly once property.It only skips tuple
  * processed in previous windows
- * 
+ *
  * @displayName Accumulo Window Store
- * @category Store
- * @tags store
+ * @category Output
+ * @tags accumulo, key value
  * @since 1.0.4
  */
 public class AccumuloWindowStore extends AccumuloStore implements TransactionableStore {
@@ -154,7 +154,7 @@ public class AccumuloWindowStore extends AccumuloStore implements Transactionabl
     Mutation mutation = new Mutation(rowBytes);
     mutation.put(columnFamilyBytes, lastWindowColumnBytes, WindowIdBytes);
     try {
-      batchwriter.addMutation(mutation);	
+      batchwriter.addMutation(mutation);
       batchwriter.flush();
     } catch (MutationsRejectedException e) {
       logger.error("error getting committed window id", e);
@@ -168,7 +168,7 @@ public class AccumuloWindowStore extends AccumuloStore implements Transactionabl
 
   }
 
-  public static byte[] toBytes(long l) 
+  public static byte[] toBytes(long l)
   {
     ByteArrayOutputStream baos=new ByteArrayOutputStream(Long.SIZE/8);
     DataOutputStream dos=new DataOutputStream(baos);
@@ -176,7 +176,7 @@ public class AccumuloWindowStore extends AccumuloStore implements Transactionabl
     try {
       dos.writeLong(l);
       result=baos.toByteArray();
-      dos.close();   
+      dos.close();
     } catch (IOException e) {
       logger.error("error converting to byte array");
       DTThrowable.rethrow(e);

@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  * <b>Benchmarks</b>: This node has been benchmarked at over 5 million tuples/second in local/inline mode<br>
  * @displayName Event Classifier Number To HashDouble
- * @category Testbench
+ * @category Test Bench
  * @tags number, classifier
  * @since 0.3.2
  */
@@ -79,7 +79,7 @@ public class EventClassifierNumberToHashDouble<K extends Number> extends BaseOpe
       }
     }
   };
-  
+
   /**
    * Output data port that emits a hashmap of &lt;string,double&gt;.
    */

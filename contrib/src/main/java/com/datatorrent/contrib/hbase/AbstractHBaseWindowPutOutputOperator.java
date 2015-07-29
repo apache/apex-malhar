@@ -54,8 +54,8 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperato
  * It supports atleast once and atmost once processing modes.
  * Exactly once is not supported
  * @displayName Abstract HBase Window Put Output
- * @category Store
- * @tags output operator, put, transactionable, batch
+ * @category Output
+ * @tags hbase, put, transactionable, batch
  * @param <T>
  *            The tuple type
  * @since 1.0.2

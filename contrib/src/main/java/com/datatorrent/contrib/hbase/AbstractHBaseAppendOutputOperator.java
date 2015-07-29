@@ -38,8 +38,8 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  * This class offers non-transactional append where the columns are append as
  * the tuples come in without waiting for the end window
  * @displayName Abstract HBase Append Output
- * @category Store
- * @tags output operator
+ * @category Output
+ * @tags hbase
  * @param <T>
  *            The tuple type
  * @since 1.0.2
@@ -69,7 +69,7 @@ extends AbstractStoreOutputOperator<T, HBaseStore> {
    * Return the HBase Append metric to store the tuple. The implementor should
    * return a HBase Append metric that specifies where and what to store for
    * the tuple in the table.
-   * 
+   *
    * @param t
    *            The tuple
    * @return The HBase Append metric

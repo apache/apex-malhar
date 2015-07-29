@@ -36,8 +36,8 @@ import com.datatorrent.lib.db.AbstractBatchTransactionableStoreOutputOperator;
  * only when all the updates are executed, the transaction is committed in the end window call.
  * </p>
  * @displayName Abstract Aerospike Transactional Put
- * @category Database
- * @tags output operator, put, transactional
+ * @category Output
+ * @tags put, transactional
  * @param <T>type of tuple
  * @since 1.0.4
  */
@@ -53,7 +53,7 @@ public abstract class AbstractAerospikeTransactionalPutOperator<T> extends Abstr
   /**
    * Any concrete class needs to implement this method which using the input tuple, adds the
    * modified bins to bins list and returns the key for that updated record.
-   * 
+   *
    * @param tuple Tuple coming in from input port
    * @param bins list of bins that would be updated for this tuple
    * @return key for the row to be updated in the database

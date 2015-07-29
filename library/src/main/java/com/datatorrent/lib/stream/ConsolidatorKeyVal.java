@@ -40,7 +40,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>Input(s) : </b> 5 max input ports, 3 are optional. <br>
  * <br>
  * @displayName Consolidator Key Value
- * @category Stream
+ * @category Stream Manipulators
  * @tags arraylist, key value
  * @since 0.3.3
  */
@@ -66,7 +66,7 @@ public class ConsolidatorKeyVal<K, V1, V2, V3, V4, V5> implements Operator
 	 * <p>
 	 * Class operates on <K,V> pair, stores value in given number position in
 	 * list. <br>
-	 * 
+	 *
 	 * @param <V>
 	 *          value type.
 	 */
@@ -80,7 +80,7 @@ public class ConsolidatorKeyVal<K, V1, V2, V3, V4, V5> implements Operator
 
 		/**
 		 * Constructor
-		 * 
+		 *
 		 * @param oper
 		 *          Connected operator.
 		 * @param num
@@ -145,7 +145,7 @@ public class ConsolidatorKeyVal<K, V1, V2, V3, V4, V5> implements Operator
 
 	/**
 	 * Get array list object for given key
-	 * 
+	 *
 	 * @param k  key
 	 * @return array list for key.
 	 */

@@ -44,7 +44,7 @@ import com.datatorrent.lib.streamquery.index.Index;
  * <b> columns : </b> Column names/aggregate functions for select. <br>
  * <br>
  * @displayName Select
- * @category Streamquery
+ * @category Stream Manipulators
  * @tags sql select operator, index, sql condition
  * @since 0.3.3
  */
