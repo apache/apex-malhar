@@ -45,6 +45,9 @@ import com.datatorrent.netlet.util.DTThrowable;
  * <br>
  * <br>
  *
+ * @displayName R Min
+ * @category Scripting
+ * @tags script, r
  * @since 2.1.0
  **/
 
