@@ -78,6 +78,10 @@
     <name>dt.application.TwitterDemo.operator.QueryResult.numRetries</name>
     <value>2147483647</value>
   </property>
+  <property>
+    <name>dt.application.TwitterDemo.operator.UniqueURLCounter.attr.APPLICATION_WINDOW_COUNT</name>
+    <value>60</value>
+  </property>
 
   <!-- TwitterTrendingDemo -->
 
