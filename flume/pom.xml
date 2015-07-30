@@ -86,7 +86,7 @@
                       <dependency>
                         <includes>
                           <include>com.datatorrent:dt-api:jar:${project.version}</include>
-                          <include>com.datatorrent:dt-netlet:jar:1.0.1-SNAPSHOT</include>
+                          <include>com.datatorrent:dt-netlet:jar:1.1.0</include>
                           <include>com.datatorrent:dt-common:jar:${project.version}</include>
                           <include>com.esotericsoftware.kryo:kryo:jar:2.24.0</include>
                           <include>com.esotericsoftware.minlog:minlog:jar:1.2</include>
@@ -241,7 +241,7 @@
     <dependency>
       <groupId>com.datatorrent</groupId>
       <artifactId>netlet</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
+      <version>1.1.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.curator</groupId>

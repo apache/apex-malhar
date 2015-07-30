@@ -49,7 +49,7 @@ public class DimensionsComputationUnifierImpl<EVENT, AGGREGATE extends Dimension
 
   public DimensionsComputationUnifierImpl()
   {
-    /** for kryo serialization */
+    /* for kryo serialization */
     aggregators = null;
     aggregates = Maps.newHashMap();
   }
@@ -77,6 +77,7 @@ public class DimensionsComputationUnifierImpl<EVENT, AGGREGATE extends Dimension
     }
   }
 
+  @Override
   public void endWindow()
   {
     for (AGGREGATE value : aggregates.values()) {
@@ -84,4 +85,5 @@ public class DimensionsComputationUnifierImpl<EVENT, AGGREGATE extends Dimension
     }
     aggregates.clear();
   }
+
 }
