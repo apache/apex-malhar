@@ -19,6 +19,7 @@ import java.util.Map;
 
 /**
  * This interface represents schemas such as: {@link DimensionalSchema} and {@link SnapShotSchema}.
+ * @since 3.0.0
  */
 public interface Schema
 {

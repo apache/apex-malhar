@@ -87,7 +87,8 @@ public abstract class WebSocketServerInputOperator implements InputOperator
 
   /**
    * @return the port
-   */
+   * @since 3.0.0
+ */
   public int getPort()
   {
     return port;

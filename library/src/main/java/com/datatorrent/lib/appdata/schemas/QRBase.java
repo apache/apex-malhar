@@ -33,6 +33,7 @@ import com.google.common.base.Preconditions;
  * </ul>
  *
  * This base class holds the basic setters and getters for manipulating and storing these query properies.
+ * @since 3.0.0
  */
 public abstract class QRBase extends Message
 {

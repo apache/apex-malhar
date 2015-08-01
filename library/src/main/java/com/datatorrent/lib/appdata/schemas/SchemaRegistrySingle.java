@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This schema registry holds a single schema. It is intended to be used in operators
  * which serve a single schema.
+ * @since 3.0.0
  */
 public class SchemaRegistrySingle implements SchemaRegistry, Serializable
 {

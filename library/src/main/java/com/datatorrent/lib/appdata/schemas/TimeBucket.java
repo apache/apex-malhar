@@ -42,6 +42,7 @@ import com.google.common.collect.Maps;
  * <li>q - quarter</li>
  * <li>y - year</li>
  * </ul>
+ * @since 3.0.0
  */
 public enum TimeBucket
 {

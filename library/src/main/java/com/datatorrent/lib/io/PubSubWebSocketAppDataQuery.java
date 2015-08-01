@@ -34,6 +34,7 @@ import com.datatorrent.common.util.PubSubMessage;
  * @displayName App Data Pub Sub Query
  * @category DT View Integration
  * @tags input, app data, query
+ * @since 3.0.0
  */
 public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<String> implements AppData.ConnectionInfoProvider
 {

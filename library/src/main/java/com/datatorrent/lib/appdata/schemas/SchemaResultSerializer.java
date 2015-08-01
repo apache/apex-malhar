@@ -25,6 +25,7 @@ import com.datatorrent.lib.appdata.query.serde.CustomMessageSerializer;
 
 /**
  * This is the serializer class for {@link SchemaResult} objects.
+ * @since 3.0.0
  */
 public class SchemaResultSerializer implements CustomMessageSerializer
 {

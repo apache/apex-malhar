@@ -33,6 +33,7 @@ import com.datatorrent.common.util.PubSubMessage.PubSubMessageType;
  * @displayName App Data Pub Sub Result
  * @category DT View Integration
  * @tags output, app data, result
+ * @since 3.0.0
  */
 @AppData.AppendQueryIdToTopic(value=true)
 public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<String> implements AppData.ConnectionInfoProvider

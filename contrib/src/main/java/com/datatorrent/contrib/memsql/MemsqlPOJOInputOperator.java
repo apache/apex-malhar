@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
  * @displayName Memsql Input Operator
  * @category Input
  * @tags database, sql, pojo, memsql
+ * @since 3.0.0
  */
 @Evolving
 public class MemsqlPOJOInputOperator extends AbstractMemsqlInputOperator<Object>

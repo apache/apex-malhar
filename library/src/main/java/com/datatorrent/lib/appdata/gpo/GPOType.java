@@ -35,6 +35,7 @@ import static com.datatorrent.lib.appdata.gpo.GPOUtils.*;
 
 /**
  * This is a helper class that reduces the need for switch statements in may utility method in {@link GPOUtils}.
+ * @since 3.0.0
  */
 abstract class GPOType
 {

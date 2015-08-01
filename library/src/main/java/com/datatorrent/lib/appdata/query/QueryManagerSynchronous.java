@@ -32,6 +32,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * @param <META_QUERY> The type of any query meta data.
  * @param <QUEUE_CONTEXT> The type of any context information used by the queue.
  * @param <RESULT> The type of the result returned by the {@link QueryExecutor}.
+ * @since 3.0.0
  */
 public class QueryManagerSynchronous<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> implements Component<OperatorContext>
 {

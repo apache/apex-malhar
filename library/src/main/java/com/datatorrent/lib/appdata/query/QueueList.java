@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 /**
  * This is a doubly linked list to be used for queueing queries.
  * @param <T> The type of the data used for queueing
+ * @since 3.0.0
  */
 public class QueueList<T>
 {

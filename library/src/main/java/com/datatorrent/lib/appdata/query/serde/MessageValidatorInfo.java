@@ -24,6 +24,7 @@ import java.lang.annotation.Target;
 /**
  * This annotation specifies the validator used for a Message and should be placed on the {@link Message}
  * class.
+ * @since 3.0.0
  */
 @Documented
 @Target(ElementType.TYPE)

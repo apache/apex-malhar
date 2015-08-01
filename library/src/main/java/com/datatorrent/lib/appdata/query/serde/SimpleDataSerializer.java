@@ -24,6 +24,7 @@ import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 
 /**
  * This is a simple message serializer, which serializes messages using Jackson.
+ * @since 3.0.0
  */
 public class SimpleDataSerializer implements CustomMessageSerializer
 {

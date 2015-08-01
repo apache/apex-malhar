@@ -30,6 +30,7 @@ import com.datatorrent.lib.appdata.schemas.Type;
  * Each field has a primitive value stored in a primitive array and a name.
  * Fields of a particular primitive type are stored in the same array. The order of fields
  * in the array is the same as the lexicographic ordering of the field names.
+ * @since 3.0.0
  */
 public class GPOMutable implements Serializable
 {

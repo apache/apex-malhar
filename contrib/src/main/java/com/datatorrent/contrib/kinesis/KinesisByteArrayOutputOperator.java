@@ -24,6 +24,7 @@ import com.datatorrent.common.util.Pair;
  * @displayName Kinesis Put Output
  * @category Output
  * @tags Kinesis put, output operator, ByteArray
+ * @since 3.0.0
  */
 public class KinesisByteArrayOutputOperator extends AbstractKinesisOutputOperator<byte[], Pair<String, byte[]>>
 {

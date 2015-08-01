@@ -25,6 +25,7 @@ import com.datatorrent.lib.appdata.schemas.Message;
 
 /**
  * This is a simple Message deserializer which deserializes messages using Jackson.
+ * @since 3.0.0
  */
 public class SimpleDataDeserializer implements CustomMessageDeserializer
 {

@@ -24,6 +24,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
  * <p>
  * <b>Note: All the methods in this interface must be thread safe.</b>
  * </p>
+ * @since 3.0.0
  */
 public interface Serde
 {

@@ -28,6 +28,7 @@ import com.google.common.collect.Maps;
 
 /**
  * This enum is used to represent data types throughout AppData Framework.
+ * @since 3.0.0
  */
 public enum Type implements Serializable
 {

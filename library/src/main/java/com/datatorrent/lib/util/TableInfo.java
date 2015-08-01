@@ -30,7 +30,8 @@ public class TableInfo< T extends FieldInfo >
 
   /**
    * expression for Row or Id
-   */
+   * @since 3.0.0
+ */
   public String getRowOrIdExpression()
   {
     return rowOrIdExpression;

@@ -42,6 +42,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  * <br/>
  * As can be seen above, the snapshot schema defines the name of each field which is served as well as
  * its type.
+ * @since 3.0.0
  */
 public class SnapshotSchema implements Schema
 {

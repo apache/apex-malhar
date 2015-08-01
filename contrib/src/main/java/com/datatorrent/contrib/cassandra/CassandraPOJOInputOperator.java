@@ -46,6 +46,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * @displayName Cassandra Input Operator
  * @category Input
  * @tags database, nosql, pojo, cassandra
+ * @since 3.0.0
  */
 @Evolving
 public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<Object>

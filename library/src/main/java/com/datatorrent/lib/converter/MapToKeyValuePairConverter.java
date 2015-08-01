@@ -32,6 +32,7 @@ import com.datatorrent.api.DefaultOutputPort;
  * @category Tuple Converters
  * @tags key value
  *
+ * @since 3.0.0
  */
 public class MapToKeyValuePairConverter<K, V> extends BaseOperator {
 

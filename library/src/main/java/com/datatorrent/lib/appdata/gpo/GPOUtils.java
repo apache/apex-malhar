@@ -51,6 +51,7 @@ import com.datatorrent.lib.util.PojoUtils.GetterShort;
 /**
  * This class holds utility methods for serializing and deserializing {@link GPOMutable} objects to/from bytes and JSON.
  * There are also utility methods for converting POJOs into GPOMutable objects.
+ * @since 3.0.0
  */
 public class GPOUtils
 {

@@ -17,6 +17,7 @@ package com.datatorrent.lib.appdata.schemas;
 
 /**
  * This is an enum type which contains entries for each unique JSONType.
+ * @since 3.0.0
  */
 public enum JSONType
 {

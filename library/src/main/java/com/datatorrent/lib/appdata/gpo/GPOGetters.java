@@ -28,6 +28,7 @@ import com.datatorrent.lib.util.PojoUtils.GetterShort;
 /**
  * This is a helper class which is intended to be used for operators
  * which need to take POJOs as input and convert them into GPOMutable objects.
+ * @since 3.0.0
  */
 public class GPOGetters {
   /**

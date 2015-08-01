@@ -22,6 +22,7 @@ import com.datatorrent.lib.appdata.schemas.Message;
 /**
  * This is an interface for a message deserializer. Classes implementing this interface should have a public
  * no-arg constructor.
+ * @since 3.0.0
  */
 public interface CustomMessageDeserializer
 {

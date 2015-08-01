@@ -38,6 +38,7 @@ import org.apache.commons.io.IOUtils;
 
 /**
  * This class holds utility methods for processing JSON.
+ * @since 3.0.0
  */
 public class SchemaUtils
 {

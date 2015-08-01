@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
  * @displayName App Data Snapshot Map Server
  * @category DT View Integration
  * @tags app data, snapshot, map
+ * @since 3.0.0
  */
 public class AppDataSnapshotServerMap extends AbstractAppDataSnapshotServer<Map<String, Object>>
 {

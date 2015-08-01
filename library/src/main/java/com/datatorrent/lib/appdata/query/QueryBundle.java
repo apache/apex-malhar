@@ -21,6 +21,7 @@ package com.datatorrent.lib.appdata.query;
  * @param <QUERY_TYPE> The type of the query.
  * @param <META_QUERY> The type of any meta data to be included with the query.
  * @param <QUEUE_CONTEXT> The context associated with the query when it was enqueued.
+ * @since 3.0.0
  */
 public class QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>
 {

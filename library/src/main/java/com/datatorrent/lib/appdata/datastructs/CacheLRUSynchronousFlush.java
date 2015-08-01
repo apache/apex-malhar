@@ -31,6 +31,7 @@ import com.google.common.collect.Sets;
  * This is an LRU cache.
  * @param <KEY> The type of keys in the cache.
  * @param <VALUE> The type of values in the cache.
+ * @since 3.0.0
  */
 public class CacheLRUSynchronousFlush<KEY, VALUE>
 {

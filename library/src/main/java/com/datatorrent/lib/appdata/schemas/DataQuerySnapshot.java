@@ -27,6 +27,7 @@ import com.datatorrent.lib.appdata.query.serde.MessageValidatorInfo;
 
 /**
  * This object represents queries issued against the {@link SnapshotSchema}.
+ * @since 3.0.0
  */
 @MessageType(type=DataQuerySnapshot.TYPE)
 @MessageDeserializerInfo(clazz=DataQuerySnapshotDeserializer.class)

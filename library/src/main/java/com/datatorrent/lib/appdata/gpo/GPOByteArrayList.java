@@ -26,6 +26,7 @@ import java.util.Iterator;
 /**
  * This is a helper class which stores primitive bytes in an array list. This is useful
  * for serialization and deserialization.
+ * @since 3.0.0
  */
 public class GPOByteArrayList extends ByteArrayList
 {

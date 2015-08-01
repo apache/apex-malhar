@@ -30,6 +30,7 @@ import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 
 /**
  * This class is used to serialize {@link DataResultSnapshot} objects.
+ * @since 3.0.0
  */
 public class DataResultSnapshotSerializer implements CustomMessageSerializer
 {
