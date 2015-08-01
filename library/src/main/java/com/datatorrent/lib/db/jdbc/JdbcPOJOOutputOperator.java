@@ -15,25 +15,33 @@
  */
 package com.datatorrent.lib.db.jdbc;
 
+import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+
+import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
-import com.datatorrent.lib.util.PojoUtils.GetterChar;
 import com.datatorrent.lib.util.PojoUtils.GetterDouble;
 import com.datatorrent.lib.util.PojoUtils.GetterFloat;
 import com.datatorrent.lib.util.PojoUtils.GetterInt;
 import com.datatorrent.lib.util.PojoUtils.GetterLong;
 import com.datatorrent.lib.util.PojoUtils.GetterShort;
 
+import java.math.BigDecimal;
 import java.sql.*;
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 /**
  * <p>
@@ -46,32 +54,197 @@ import org.slf4j.LoggerFactory;
  * @since 2.1.0
  */
 @Evolving
-public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOperator<Object>
+public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOperator<Object> implements Operator.ActivationListener<OperatorContext>
 {
   @NotNull
-  private ArrayList<String> dataColumns;
-  //These are extracted from table metadata
-  private ArrayList<Integer> columnDataTypes;
+  private List<FieldInfo> fieldInfos;
 
-  /*
-   * An arraylist of data column names to be set in database.
-   * Gets column names.
-   */
-  public ArrayList<String> getDataColumns()
-  {
-    return dataColumns;
-  }
-
-  public void setDataColumns(ArrayList<String> dataColumns)
-  {
-    this.dataColumns = dataColumns;
-  }
+  private List<Integer> columnDataTypes;
 
   @NotNull
   private String tablename;
 
+  private final transient List<JdbcPOJOInputOperator.ActiveFieldInfo> columnFieldGetters;
+
+  private String insertStatement;
+
+  private transient Class<?> pojoClass;
+
+  @InputPortFieldAnnotation(optional = true, schemaRequired = true)
+  public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
+  {
+    @Override
+    public void setup(Context.PortContext context)
+    {
+      pojoClass = context.getValue(Context.PortContext.TUPLE_CLASS);
+    }
+
+    @Override
+    public void process(Object t)
+    {
+      JdbcPOJOOutputOperator.super.input.process(t);
+    }
+
+  };
+
+  @Override
+  public void setup(OperatorContext context)
+  {
+    StringBuilder columns = new StringBuilder();
+    StringBuilder values = new StringBuilder();
+    for (int i = 0; i < fieldInfos.size(); i++) {
+      columns.append(fieldInfos.get(i).getColumnName());
+      values.append("?");
+      if (i < fieldInfos.size() - 1) {
+        columns.append(",");
+        values.append(",");
+      }
+    }
+    insertStatement = "INSERT INTO "
+            + tablename
+            + " (" + columns.toString() + ")"
+            + " VALUES (" + values.toString() + ")";
+    LOG.debug("insert statement is {}", insertStatement);
+
+    super.setup(context);
+
+    if (columnDataTypes == null) {
+      try {
+        populateColumnDataTypes(columns.toString());
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    for (FieldInfo fi : fieldInfos) {
+      columnFieldGetters.add(new JdbcPOJOInputOperator.ActiveFieldInfo(fi));
+    }
+  }
+
+  protected void populateColumnDataTypes(String columns) throws SQLException
+  {
+    columnDataTypes = Lists.newArrayList();
+    try (Statement st = store.getConnection().createStatement()) {
+      ResultSet rs = st.executeQuery("select " + columns + " from " + tablename);
+
+      ResultSetMetaData rsMetaData = rs.getMetaData();
+      LOG.debug("resultSet MetaData column count {}", rsMetaData.getColumnCount());
+
+      for (int i = 1; i <= rsMetaData.getColumnCount(); i++) {
+        int type = rsMetaData.getColumnType(i);
+        columnDataTypes.add(type);
+        LOG.debug("column name {} type {}", rsMetaData.getColumnName(i), type);
+      }
+    }
+  }
+
+  public JdbcPOJOOutputOperator()
+  {
+    super();
+    columnFieldGetters = Lists.newArrayList();
+  }
+
+  @Override
+  protected String getUpdateCommand()
+  {
+    LOG.debug("insert statement is {}", insertStatement);
+    return insertStatement;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  protected void setStatementParameters(PreparedStatement statement, Object tuple) throws SQLException
+  {
+    final int size = columnDataTypes.size();
+    for (int i = 0; i < size; i++) {
+      final int type = columnDataTypes.get(i);
+      JdbcPOJOInputOperator.ActiveFieldInfo activeFieldInfo = columnFieldGetters.get(i);
+      switch (type) {
+        case (Types.CHAR):
+        case (Types.VARCHAR):
+          statement.setString(i + 1, ((Getter<Object, String>) activeFieldInfo.setterOrGetter).get(tuple));
+          break;
+
+        case (Types.BOOLEAN):
+          statement.setBoolean(i + 1, ((GetterBoolean<Object>) activeFieldInfo.setterOrGetter).get(tuple));
+          break;
+
+        case (Types.TINYINT):
+          statement.setByte(i + 1, ((PojoUtils.GetterByte<Object>) activeFieldInfo.setterOrGetter).get(tuple));
+          break;
+
+        case (Types.SMALLINT):
+          statement.setShort(i + 1, ((GetterShort<Object>) activeFieldInfo.setterOrGetter).get(tuple));
+          break;
+
+        case (Types.INTEGER):
+          statement.setInt(i + 1, ((GetterInt<Object>) activeFieldInfo.setterOrGetter).get(tuple));
+          break;
+
+        case (Types.BIGINT):
+          statement.setLong(i + 1, ((GetterLong<Object>) activeFieldInfo.setterOrGetter).get(tuple));
+          break;
+
+        case (Types.FLOAT):
+          statement.setFloat(i + 1, ((GetterFloat<Object>) activeFieldInfo.setterOrGetter).get(tuple));
+          break;
+
+        case (Types.DOUBLE):
+          statement.setDouble(i + 1, ((GetterDouble<Object>) activeFieldInfo.setterOrGetter).get(tuple));
+          break;
+
+        case Types.DECIMAL:
+          statement.setBigDecimal(i + 1, ((Getter<Object, BigDecimal>) activeFieldInfo.setterOrGetter).get(tuple));
+          break;
+
+        case Types.TIMESTAMP:
+          statement.setTimestamp(i + 1, new Timestamp(((GetterLong<Object>) activeFieldInfo.setterOrGetter).get(tuple)));
+          break;
+
+        case Types.TIME:
+          statement.setTime(i + 1, new Time(((GetterLong<Object>) activeFieldInfo.setterOrGetter).get(tuple)));
+          break;
+
+        case Types.DATE:
+          statement.setDate(i + 1, new Date(((GetterLong<Object>) activeFieldInfo.setterOrGetter).get(tuple)));
+          break;
+
+        default:
+          handleUnknownDataType(type, tuple, activeFieldInfo);
+          break;
+      }
+    }
+  }
+
+  @SuppressWarnings("UnusedParameters")
+  protected void handleUnknownDataType(int type, Object tuple, JdbcPOJOInputOperator.ActiveFieldInfo activeFieldInfo)
+  {
+    throw new RuntimeException("unsupported data type " + type);
+  }
+
+  /**
+   * A list of {@link FieldInfo}s where each item maps a column name to a pojo field name.
+   */
+  public List<FieldInfo> getFieldInfos()
+  {
+    return fieldInfos;
+  }
+
+  /**
+   * Sets the {@link FieldInfo}s. A {@link FieldInfo} maps a store column to a pojo field name.<br/>
+   * The value from fieldInfo.column is assigned to fieldInfo.pojoFieldExpression.
+   *
+   * @description $[].columnName name of the database column name
+   * @description $[].pojoFieldExpression pojo field name or expression
+   * @useSchema $[].pojoFieldExpression input.fields[].name
+   */
+  public void setFieldInfos(List<FieldInfo> fieldInfos)
+  {
+    this.fieldInfos = fieldInfos;
+  }
+
   /*
-   * Gets the Tablename in database.
+   * Gets the name of the table in database.
    */
   public String getTablename()
   {
@@ -83,192 +256,76 @@ public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOpe
     this.tablename = tablename;
   }
 
-  /*
-   * An ArrayList of Java expressions that will yield the field value from the POJO.
-   * Each expression corresponds to one column in the database table.
-   */
-  public ArrayList<String> getExpressions()
-  {
-    return expressions;
-  }
-
-  public void setExpressions(ArrayList<String> expressions)
-  {
-    this.expressions = expressions;
-  }
-
-  @NotNull
-  private ArrayList<String> expressions;
-  private transient ArrayList<Object> getters;
-  private String insertStatement;
-
-  @Override
-  public void setup(OperatorContext context)
-  {
-    StringBuilder columns = new StringBuilder("");
-    StringBuilder values = new StringBuilder("");
-    for (int i = 0; i < dataColumns.size(); i++) {
-      columns.append(dataColumns.get(i));
-      values.append("?");
-      if (i < dataColumns.size() - 1) {
-        columns.append(",");
-        values.append(",");
-      }
-    }
-    insertStatement = "INSERT INTO "
-            + tablename
-            + " (" + columns.toString() + ")"
-            + " VALUES (" + values.toString() + ")";
-    LOG.debug("insert statement is {}", insertStatement);
-    super.setup(context);
-    Connection conn = store.getConnection();
-    LOG.debug("Got Connection.");
-    try {
-      Statement st = conn.createStatement();
-      ResultSet rs = st.executeQuery("select * from " + tablename);
-
-      ResultSetMetaData rsMetaData = rs.getMetaData();
-
-      int numberOfColumns = 0;
-
-      numberOfColumns = rsMetaData.getColumnCount();
-
-      LOG.debug("resultSet MetaData column Count=" + numberOfColumns);
-
-      for (int i = 1; i <= numberOfColumns; i++) {
-        // get the designated column's SQL type.
-        int type = rsMetaData.getColumnType(i);
-        LOG.debug("column name {}", rsMetaData.getColumnTypeName(i));
-        columnDataTypes.add(type);
-        LOG.debug("sql column type is " + type);
-      }
-    }
-    catch (SQLException ex) {
-      throw new RuntimeException(ex);
-    }
-
-  }
-
-  public JdbcPOJOOutputOperator()
-  {
-    super();
-    columnDataTypes = new ArrayList<Integer>();
-    getters = new ArrayList<Object>();
-  }
-
-  @Override
-  public void processTuple(Object tuple)
-  {
-    if (getters.isEmpty()) {
-      processFirstTuple(tuple);
-    }
-    super.processTuple(tuple);
-  }
-
-  public void processFirstTuple(Object tuple)
-  {
-    final Class<?> fqcn = tuple.getClass();
-    final int size = columnDataTypes.size();
-    for (int i = 0; i < size; i++) {
-      final int type = columnDataTypes.get(i);
-      final String getterExpression = expressions.get(i);
-      final Object getter;
-      switch (type) {
-        case Types.CHAR:
-          getter = PojoUtils.createGetterChar(fqcn, getterExpression);
-          break;
-        case Types.VARCHAR:
-          getter = PojoUtils.createGetter(fqcn, getterExpression, String.class);
-          break;
-        case Types.BOOLEAN:
-        case Types.TINYINT:
-          getter = PojoUtils.createGetterBoolean(fqcn, getterExpression);
-          break;
-        case Types.SMALLINT:
-          getter = PojoUtils.createGetterShort(fqcn, getterExpression);
-          break;
-        case Types.INTEGER:
-          getter = PojoUtils.createGetterInt(fqcn, getterExpression);
-          break;
-        case Types.BIGINT:
-          getter = PojoUtils.createGetterLong(fqcn, getterExpression);
-          break;
-        case Types.FLOAT:
-          getter = PojoUtils.createGetterFloat(fqcn, getterExpression);
-          break;
-        case Types.DOUBLE:
-          getter = PojoUtils.createGetterDouble(fqcn, getterExpression);
-          break;
-        default:
-          /*
-           Types.DECIMAL
-           Types.DATE
-           Types.TIME
-           Types.ARRAY
-           Types.OTHER
-           */
-          getter = PojoUtils.createGetter(fqcn, getterExpression, Object.class);
-          break;
-      }
-      getters.add(getter);
-    }
-
-  }
-
-  @Override
-  protected String getUpdateCommand()
-  {
-    LOG.debug("insertstatement is {}", insertStatement);
-    return insertStatement;
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  protected void setStatementParameters(PreparedStatement statement, Object tuple) throws SQLException
-  {
-    final int size = columnDataTypes.size();
-    for (int i = 0; i < size; i++) {
-      final int type = columnDataTypes.get(i);
-      switch (type) {
-        case (Types.CHAR):
-          statement.setString(i + 1, ((Getter<Object, String>)getters.get(i)).get(tuple));
-          break;
-        case (Types.VARCHAR):
-          statement.setString(i + 1, ((Getter<Object, String>)getters.get(i)).get(tuple));
-          break;
-        case (Types.BOOLEAN):
-        case (Types.TINYINT):
-          statement.setBoolean(i + 1, ((GetterBoolean<Object>)getters.get(i)).get(tuple));
-          break;
-        case (Types.SMALLINT):
-          statement.setShort(i + 1, ((GetterShort<Object>)getters.get(i)).get(tuple));
-          break;
-        case (Types.INTEGER):
-          statement.setInt(i + 1, ((GetterInt<Object>)getters.get(i)).get(tuple));
-          break;
-        case (Types.BIGINT):
-          statement.setLong(i + 1, ((GetterLong<Object>)getters.get(i)).get(tuple));
-          break;
-        case (Types.FLOAT):
-          statement.setFloat(i + 1, ((GetterFloat<Object>)getters.get(i)).get(tuple));
-          break;
-        case (Types.DOUBLE):
-          statement.setDouble(i + 1, ((GetterDouble<Object>)getters.get(i)).get(tuple));
-          break;
-        default:
-          /*
-           Types.DECIMAL
-           Types.DATE
-           Types.TIME
-           Types.ARRAY
-           Types.OTHER
-           */
-          statement.setObject(i + 1, ((Getter<Object, Object>)getters.get(i)).get(tuple));
-          break;
-      }
-    }
-  }
-
   private static final Logger LOG = LoggerFactory.getLogger(JdbcPOJOOutputOperator.class);
 
+  @Override
+  public void activate(OperatorContext context)
+  {
+    final int size = columnDataTypes.size();
+    for (int i = 0; i < size; i++) {
+      final int type = columnDataTypes.get(i);
+      JdbcPOJOInputOperator.ActiveFieldInfo activeFieldInfo = columnFieldGetters.get(i);
+      switch (type) {
+        case (Types.CHAR):
+        case (Types.VARCHAR):
+          activeFieldInfo.setterOrGetter = PojoUtils.createGetter(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression(),
+            String.class);
+          break;
+
+        case (Types.BOOLEAN):
+          activeFieldInfo.setterOrGetter = PojoUtils.createGetterBoolean(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          break;
+
+        case (Types.TINYINT):
+          activeFieldInfo.setterOrGetter = PojoUtils.createGetterByte(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          break;
+
+        case (Types.SMALLINT):
+          activeFieldInfo.setterOrGetter = PojoUtils.createGetterShort(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          break;
+
+        case (Types.INTEGER):
+          activeFieldInfo.setterOrGetter = PojoUtils.createGetterInt(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          break;
+
+        case (Types.BIGINT):
+          activeFieldInfo.setterOrGetter = PojoUtils.createGetterLong(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          break;
+
+        case (Types.FLOAT):
+          activeFieldInfo.setterOrGetter = PojoUtils.createGetterFloat(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          break;
+
+        case (Types.DOUBLE):
+          activeFieldInfo.setterOrGetter = PojoUtils.createGetterDouble(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          break;
+
+        case Types.DECIMAL:
+          activeFieldInfo.setterOrGetter = PojoUtils.createGetter(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression(),
+            BigDecimal.class);
+          break;
+
+        case Types.TIMESTAMP:
+          activeFieldInfo.setterOrGetter = PojoUtils.createGetterLong(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          break;
+
+        case Types.TIME:
+          activeFieldInfo.setterOrGetter = PojoUtils.createGetterLong(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          break;
+
+        case Types.DATE:
+          activeFieldInfo.setterOrGetter = PojoUtils.createGetterLong(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          break;
+
+        default:
+          handleUnknownDataType(type, null, activeFieldInfo);
+          break;
+      }
+    }
+  }
+
+  @Override
+  public void deactivate()
+  {
+  }
 }
