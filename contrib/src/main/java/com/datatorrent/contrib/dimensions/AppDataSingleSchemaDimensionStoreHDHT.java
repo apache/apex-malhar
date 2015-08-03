@@ -22,6 +22,7 @@ import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 
 /**
  * This is a dimensions store which stores data corresponding to one {@link DimensionalSchema} into an HDHT bucket.
@@ -32,6 +33,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * @category DT View Integration
  * @tags app data, dimensions, store
  */
+@OperatorAnnotation(checkpointableWithinAppWindow = false)
 public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimensionStoreHDHT implements Serializable
 {
   private static final long serialVersionUID = 201505130939L;
