@@ -28,6 +28,7 @@ import javax.validation.constraints.NotNull;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.google.common.base.Function;
+import org.apache.commons.lang.ClassUtils;
 
 /**
  *
@@ -114,7 +115,7 @@ public class SortedMovingWindow<T, K> extends AbstractSlidingWindow<T, List<T>>
             k = ((Comparable<T>) expiredTuple).compareTo(minElemInSortedList);
           } else {
             errorOutput.emit(expiredTuple);
-            throw new IllegalArgumentException("Operator \"" + getName() + "\" encounters an invalid tuple " + expiredTuple + "\nNeither the tuple is comparable Nor Comparator is specified!");
+            throw new IllegalArgumentException("Operator \"" + ClassUtils.getShortClassName(this.getClass()) + "\" encounters an invalid tuple " + expiredTuple + "\nNeither the tuple is comparable Nor Comparator is specified!");
           }
         } else {
           k = comparator.compare(expiredTuple, minElemInSortedList);

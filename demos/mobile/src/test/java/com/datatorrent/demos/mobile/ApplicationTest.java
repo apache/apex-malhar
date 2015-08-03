@@ -67,12 +67,10 @@ public class ApplicationTest
     URI uri = URI.create("ws://localhost:" + connector[0].getLocalPort() + "/pubsub");
 
     PubSubWebSocketOutputOperator<Object> outputOperator = new PubSubWebSocketOutputOperator<Object>();
-    outputOperator.setName("testOutputOperator");
     outputOperator.setUri(uri);
     outputOperator.setTopic(conf.get("dt.application.MobileDemo.operator.QueryLocation.topic"));
 
     PubSubWebSocketInputOperator<Map<String, String>> inputOperator = new PubSubWebSocketInputOperator<Map<String, String>>();
-    inputOperator.setName("testInputOperator");
     inputOperator.setUri(uri);
     inputOperator.setTopic(conf.get("dt.application.MobileDemo.operator.LocationResults.topic"));
 

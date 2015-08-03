@@ -51,12 +51,10 @@ public class PubSubWebSocketOperatorTest
     URI uri = URI.create("ws://localhost:" + connector[0].getLocalPort() + "/pubsub");
 
     PubSubWebSocketOutputOperator<Object> outputOperator = new PubSubWebSocketOutputOperator<Object>();
-    outputOperator.setName("testOutputOperator");
     outputOperator.setUri(uri);
     outputOperator.setTopic("testTopic");
 
     PubSubWebSocketInputOperator<Object> inputOperator = new PubSubWebSocketInputOperator<Object>();
-    inputOperator.setName("testInputOperator");
     inputOperator.setUri(uri);
     inputOperator.setTopic("testTopic");
 

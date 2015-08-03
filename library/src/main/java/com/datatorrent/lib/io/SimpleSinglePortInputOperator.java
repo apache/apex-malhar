@@ -21,6 +21,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.common.util.BaseOperator;
+import org.apache.commons.lang3.ClassUtils;
 
 /**
  * This an input operator which passes data from an asynchronous data source to a port processing thread.
@@ -60,7 +61,7 @@ public abstract class SimpleSinglePortInputOperator<T> extends BaseOperator impl
   {
     isActive = true;
     if (this instanceof Runnable) {
-      ioThread = new Thread((Runnable)this, "io-" + this.getName());
+      ioThread = new Thread((Runnable)this, "io-" + ClassUtils.getShortClassName(this.getClass()));
       ioThread.start();
     }
   }
