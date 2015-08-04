@@ -30,6 +30,7 @@ import com.datatorrent.lib.util.TableInfo;
  * @displayName Memcache Output Operator
  * @category Output
  * @tags pojo, memcache
+ * @since 3.0.0
  */
 @Evolving
 public class MemcachePOJOOutputOperator extends AbstractMemcacheOutputOperator< Object >

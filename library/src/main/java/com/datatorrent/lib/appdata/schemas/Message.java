@@ -32,6 +32,7 @@ import com.google.common.base.Preconditions;
  * <br/>
  * As can be seen above, the common element of an AppData message is a message type, which is what
  * this class encapsulates.
+ * @since 3.0.0
  */
 public abstract class Message
 {

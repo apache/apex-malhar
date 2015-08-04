@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
  * This is a somewhat vacuous class for managing field names for AppData schemas and queries.
  * Its function is to maintain a set of field names with no null values. It also maintains a list
  * of field names to increase iteration speed.
+ * @since 3.0.0
  */
 public class Fields implements Serializable
 {

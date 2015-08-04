@@ -27,6 +27,7 @@ import com.datatorrent.lib.appdata.schemas.SnapshotSchema;
 
 /**
  * This class is a validator for {@link DataQuerySnapshot} objects.
+ * @since 3.0.0
  */
 public class DataQuerySnapshotValidator implements CustomMessageValidator
 {

@@ -36,6 +36,7 @@ import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 
 /**
  * This class is a deserializer for {@link DataQuerySnapshot} objects.
+ * @since 3.0.0
  */
 public class DataQuerySnapshotDeserializer implements CustomMessageDeserializer
 {

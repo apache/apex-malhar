@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 
 /**
  * This is a base class which represents the basic functionality of all AppData queries.
+ * @since 3.0.0
  */
 public abstract class Query extends QRBase
 {

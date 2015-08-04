@@ -33,6 +33,7 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
  * @displayName Couchbase Output Operator
  * @category Output
  * @tags database, nosql, pojo, couchbase
+ * @since 3.0.0
  */
 @Evolving
 public class CouchbasePOJOSetOperator extends AbstractCouchBaseSetOperator<Object>

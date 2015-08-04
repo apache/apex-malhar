@@ -41,6 +41,7 @@ import com.datatorrent.lib.appdata.gpo.SerdeObjectPayloadFix;
  * to map field names to values in order to respond to queries, it also serves as a schema which is
  * used in the serialization of {@link GPOMutable} objects in order to ensure consistent serialization
  * and deserialization of data.
+ * @since 3.0.0
  */
 public class FieldsDescriptor implements Serializable
 {

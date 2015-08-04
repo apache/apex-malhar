@@ -26,6 +26,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * which a query is queued that is known when the query is queued. This queue context information could
  * be updated by the queue manager throughout the lifetime of the query to control things like how long
  * the query has been queued for.
+ * @since 3.0.0
  */
 public interface QueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> extends Component<OperatorContext>
 {

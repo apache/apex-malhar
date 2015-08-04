@@ -30,6 +30,7 @@ import java.text.DecimalFormat;
  * formatted a certain way and all float fields could potentially be formatted in another way. In the
  * future the result formatter will support formatting data uniquely for each individual field.
  * </p>
+ * @since 3.0.0
  */
 public class ResultFormatter implements Serializable
 {

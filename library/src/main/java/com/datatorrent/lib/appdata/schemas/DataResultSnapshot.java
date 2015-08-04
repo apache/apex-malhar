@@ -26,6 +26,7 @@ import com.datatorrent.lib.appdata.query.serde.MessageType;
 
 /**
  * This class represents the result sent in response to a {@link DataQuerySnapshot}.
+ * @since 3.0.0
  */
 @MessageType(type=DataResultSnapshot.TYPE)
 @MessageSerializerInfo(clazz=DataResultSnapshotSerializer.class)

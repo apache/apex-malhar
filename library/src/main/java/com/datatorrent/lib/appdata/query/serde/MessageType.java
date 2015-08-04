@@ -23,6 +23,7 @@ import java.lang.annotation.Target;
 
 /**
  * This is the annotation that specifies message types and should be placed on a {@link Message} class.
+ * @since 3.0.0
  */
 @Documented
 @Target(ElementType.TYPE)

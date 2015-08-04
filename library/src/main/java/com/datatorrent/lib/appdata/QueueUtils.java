@@ -19,7 +19,8 @@ public class QueueUtils
 {
   /**
    * This class should not be instantiated.
-   */
+   * @since 3.0.0
+ */
   private QueueUtils()
   {
     //Do nothing

@@ -29,6 +29,7 @@ import com.datatorrent.lib.appdata.schemas.Query;
  * the same query id as an existing query in the queue, the existing query is replaced with the new query.
  * @param <QUERY> The type of queries kept in the queue.
  * @param <META_QUERY> The type of query meta data kept in the queue.
+ * @since 3.0.0
  */
 public class AppDataWindowEndQueueManager<QUERY extends Query, META_QUERY> extends WindowEndQueueManager<QUERY, META_QUERY>
 {

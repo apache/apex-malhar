@@ -28,6 +28,7 @@ import com.datatorrent.lib.appdata.query.serde.SimpleDataValidator;
 
 /**
  * This class represents a schema query.
+ * @since 3.0.0
  */
 @MessageType(type=SchemaQuery.TYPE)
 @MessageDeserializerInfo(clazz=SchemaQueryDeserializer.class)

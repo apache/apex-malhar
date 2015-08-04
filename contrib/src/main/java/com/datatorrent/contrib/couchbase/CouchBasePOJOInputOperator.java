@@ -46,6 +46,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * @displayName Couchbase Input Operator
  * @category Input
  * @tags database, nosql, pojo, couchbase
+ * @since 3.0.0
  */
 @Evolving
 public class CouchBasePOJOInputOperator extends AbstractStoreInputOperator<Object, CouchBaseStore>

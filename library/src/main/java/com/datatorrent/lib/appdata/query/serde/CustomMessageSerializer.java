@@ -21,6 +21,7 @@ import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 /**
  * This interface defines a Message serializer, which will be used to convert a result to JSON. Classes
  * implementing this interface should have a public no-arg constructor.
+ * @since 3.0.0
  */
 public interface CustomMessageSerializer
 {

@@ -43,7 +43,8 @@ public class FieldInfo
 
   /**
    * the column name which keep this field.
-   */
+   * @since 3.0.0
+ */
   public String getColumnName()
   {
     return columnName;

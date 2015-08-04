@@ -20,6 +20,7 @@ import com.datatorrent.lib.appdata.schemas.Message;
 /**
  * This interface defines a validator which validates the state of deserialized messages. Classes
  * implementing this interface should have a public no-arg constructor.
+ * @since 3.0.0
  */
 public interface CustomMessageValidator
 {

@@ -70,7 +70,8 @@ public class FieldValueGenerator<T extends FieldInfo>
    * @param obj
    * @param fieldValueHandler
    * @return
-   */
+   * @since 3.0.0
+ */
   @SuppressWarnings({"rawtypes", "unchecked"})
   public void handleFieldsValue(Object obj, FieldValueHandler fieldValueHandler)
   {

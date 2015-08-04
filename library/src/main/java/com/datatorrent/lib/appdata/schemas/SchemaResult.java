@@ -25,6 +25,7 @@ import com.datatorrent.lib.appdata.query.serde.MessageType;
 /**
  * This class represents a schema result, which will be serialized into JSON and sent
  * as a result to a {@link SchemaQuery}.
+ * @since 3.0.0
  */
 @MessageType(type=SchemaResult.TYPE)
 @MessageSerializerInfo(clazz=SchemaResultSerializer.class)

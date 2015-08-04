@@ -81,6 +81,7 @@ import org.slf4j.LoggerFactory;
  * is a matching key, otherwise nothing is returned.
  *
  * @param <DATA> The type of the data payload.
+ * @since 3.0.0
  */
 public class DimensionalTable<DATA>
 {

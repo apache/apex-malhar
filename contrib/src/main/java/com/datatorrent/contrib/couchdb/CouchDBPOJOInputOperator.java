@@ -50,6 +50,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * @displayName CouchDb Input Operator
  * @category Input
  * @tags database, nosql, pojo, couchdb
+ * @since 3.0.0
  */
 @Evolving
 public class CouchDBPOJOInputOperator extends AbstractCouchDBInputOperator<Object>

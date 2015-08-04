@@ -50,6 +50,7 @@ import com.datatorrent.lib.appdata.schemas.Message;
  *  }
  * </code>
  * </pre>
+ * @since 3.0.0
  */
 public class MessageDeserializerFactory
 {

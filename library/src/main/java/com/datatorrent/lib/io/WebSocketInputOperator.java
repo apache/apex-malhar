@@ -51,8 +51,8 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
    * Timeout interval for reading from server. 0 or negative indicates no timeout.
    */
   public int readTimeoutMillis = 0;
-  //Do not make this @NotNull since null is a valid value for some child classes
-  protected URI uri;
+  @NotNull
+  private URI uri;
   private transient AsyncHttpClient client;
   private transient final JsonFactory jsonFactory = new JsonFactory();
   protected transient final ObjectMapper mapper = new ObjectMapper(jsonFactory);

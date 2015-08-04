@@ -25,6 +25,7 @@ import com.datatorrent.lib.appdata.datastructs.DimensionalTable;
 /**
  * This class is a schema registry which can hold multiple schemas. It is intended to be
  * used in operators that serve multiple schemas.
+ * @since 3.0.0
  */
 public class SchemaRegistryMultiple implements SchemaRegistry, Serializable
 {

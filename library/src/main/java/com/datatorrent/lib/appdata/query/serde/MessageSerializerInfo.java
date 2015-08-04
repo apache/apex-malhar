@@ -23,6 +23,7 @@ import java.lang.annotation.Target;
 
 /**
  * This annotation is used to specify a serializer for a {@link Message} class.
+ * @since 3.0.0
  */
 @Documented
 @Target(ElementType.TYPE)

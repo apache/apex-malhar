@@ -23,6 +23,7 @@ import java.lang.annotation.Target;
 
 /**
  * This annotation is placed on a {@link Message} class and is used to specify the deserializer for that class.
+ * @since 3.0.0
  */
 @Documented
 @Target(ElementType.TYPE)

@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 /**
  * This class holds some boilerplate for setting and getting queries from result objects. All
  * query result objects should extend this class.
+ * @since 3.0.0
  */
 public abstract class Result extends QRBase
 {
