@@ -53,7 +53,7 @@ public class MemsqlInputBenchmarkTest
 
     AbstractMemsqlOutputOperatorTest.memsqlInitializeDatabase(memsqlStore);
 
-    MemsqlOutputOperator outputOperator = new MemsqlOutputOperator();
+    MemsqlPOJOOutputOperator outputOperator = new MemsqlPOJOOutputOperator();
     outputOperator.getStore().setDatabaseUrl(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.dbUrl"));
     outputOperator.getStore().setConnectionProperties(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.connectionProperties"));
     outputOperator.setBatchSize(BATCH_SIZE);

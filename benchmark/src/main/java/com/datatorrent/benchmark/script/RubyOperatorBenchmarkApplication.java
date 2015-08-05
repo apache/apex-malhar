@@ -22,7 +22,7 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.benchmark.RandomMapOutput;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.script.RubyOperator;
+import com.datatorrent.contrib.ruby.RubyOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 import org.apache.hadoop.conf.Configuration;
