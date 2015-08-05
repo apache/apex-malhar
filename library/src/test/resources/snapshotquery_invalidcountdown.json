@@ -1,0 +1,13 @@
+{
+  "id":1,
+  "type": "dataQuery",
+  "countdown":-10,
+  "data": {
+    "schemaKeys": {
+      "publisher":"google",
+      "advertiser":"microsoft",
+      "location":"CA"
+    },
+    "fields": ["url", "count"]
+  }
+}
