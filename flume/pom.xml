@@ -191,7 +191,7 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>dt-common</artifactId>
-      <version>${project.version}</version>
+      <version>${dt.framework.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.flume</groupId>
@@ -236,7 +236,7 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>dt-api</artifactId>
-      <version>${project.version}</version>
+      <version>${dt.framework.version}</version>
     </dependency>
     <dependency>
       <groupId>com.datatorrent</groupId>

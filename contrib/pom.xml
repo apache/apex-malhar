@@ -267,7 +267,7 @@
     <dependency>
       <groupId>com.datatorrent</groupId>
       <artifactId>dt-common</artifactId>
-      <version>${project.version}</version>
+      <version>${dt.framework.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
