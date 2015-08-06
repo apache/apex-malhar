@@ -19,8 +19,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -100,18 +100,10 @@ public class SchemaUtils
                                        Fields fields)
   {
     @SuppressWarnings("unchecked")
-    Iterator<String> keyIterator = jo.keys();
     Set<String> fieldSet = fields.getFields();
+    Set<String> jsonKeys = getSetOfJSONKeys(jo);
 
-    while(keyIterator.hasNext()) {
-      String key = keyIterator.next();
-
-      if(!fieldSet.contains(key)) {
-        return false;
-      }
-    }
-
-    return true;
+    return jsonKeys.containsAll(fieldSet);
   }
 
   /**
@@ -124,34 +116,38 @@ public class SchemaUtils
                                       Fields fields)
   {
     @SuppressWarnings("unchecked")
-    Iterator<String> keyIterator = jo.keys();
     Set<String> fieldSet = fields.getFields();
+    Set<String> jsonKeys = getSetOfJSONKeys(jo);
 
-    while(keyIterator.hasNext()) {
-      String key = keyIterator.next();
+    if (!jsonKeys.containsAll(fieldSet)) {
 
-      if(!fieldSet.contains(key)) {
-        throw new IllegalArgumentException("The key " + key +
-                                           " is not valid.");
-      }
+      throw new IllegalArgumentException("The given set of keys "
+                                         + fieldSet
+                                         + " doesn't equal the set of keys in the json "
+                                         + jsonKeys);
     }
   }
 
   /**
    * This is a utility method to check that the given JSONObject has the given keys.
    * @param jo The {@link JSONObject} to check.
-   * @param fieldsList The keys in the {@link JSONObject} to check.
+   * @param fieldsCollection The keys in the {@link JSONObject} to check.
    * @return True if the given {@link JSONObject} contains all the given keys. False otherwise.
    */
   public static boolean checkValidKeys(JSONObject jo,
-                                       List<Fields> fieldsList)
+                                       Collection<Fields> fieldsCollection)
   {
-    for(Fields fields: fieldsList) {
-      if(checkValidKeys(jo, fields)) {
+    for (Fields fields: fieldsCollection) {
+      LOG.debug("Checking keys: {}", fields);
+      if (checkValidKeys(jo, fields)) {
         return true;
       }
     }
 
+    LOG.error("The first level of keys in the provided JSON {} do not match any of the " +
+              "valid keysets {}",
+              getSetOfJSONKeys(jo),
+              fieldsCollection);
     return false;
   }
 
@@ -159,31 +155,37 @@ public class SchemaUtils
    * This is a utility method to check that the given JSONObject has the given keys.
    * It throws an {@link IllegalArgumentException} if it doesn't contain all the given keys.
    * @param jo The {@link JSONObject} to check.
-   * @param fieldsList The keys in the {@link JSONObject} to check.
+   * @param fieldsCollection The keys in the {@link JSONObject} to check.
    * @return True if the given {@link JSONObject} contains all the given keys. False otherwise.
    */
   public static boolean checkValidKeysEx(JSONObject jo,
-                                         List<Fields> fieldsList)
+                                         Collection<Fields> fieldsCollection)
   {
-    for(Fields fields: fieldsList) {
-      if(checkValidKeys(jo, fields)) {
+    for (Fields fields: fieldsCollection) {
+      if (checkValidKeys(jo, fields)) {
         return true;
       }
     }
 
-    Set<String> keys = Sets.newHashSet();
-    @SuppressWarnings("unchecked")
-    Iterator<String> keyIterator = jo.keys();
-
-    while(keyIterator.hasNext()) {
-      String key = keyIterator.next();
-      keys.add(key);
-    }
+    Set<String> keys = getSetOfJSONKeys(jo);
 
     throw new IllegalArgumentException("The given json object has an invalid set of keys: " +
                                        keys +
                                        "\nOne of the following key combinations was expected:\n" +
-                                       fieldsList);
+                                       fieldsCollection);
+  }
+
+  public static Set<String> getSetOfJSONKeys(JSONObject jo)
+  {
+    @SuppressWarnings("unchecked")
+    Iterator<String> keyIterator = jo.keys();
+    Set<String> keySet = Sets.newHashSet();
+
+    while (keyIterator.hasNext()) {
+      keySet.add(keyIterator.next());
+    }
+
+    return keySet;
   }
 
   public static Map<String, String> convertFieldToType(Map<String, Type> fieldToType)

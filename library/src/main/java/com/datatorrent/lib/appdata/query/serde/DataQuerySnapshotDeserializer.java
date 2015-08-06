@@ -30,8 +30,6 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.appdata.schemas.DataQuerySnapshot;
 import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.Message;
-import com.datatorrent.lib.appdata.schemas.QRBase;
-import com.datatorrent.lib.appdata.schemas.Query;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 
 /**
@@ -40,6 +38,41 @@ import com.datatorrent.lib.appdata.schemas.SchemaUtils;
  */
 public class DataQuerySnapshotDeserializer implements CustomMessageDeserializer
 {
+  public static final Set<Fields> FIRST_LEVEL_FIELD_COMBINATIONS;
+  public static final Set<Fields> DATA_FIELD_COMBINATIONS;
+
+  static {
+    Set<Fields> firstLevelFieldCombinations = Sets.newHashSet();
+    firstLevelFieldCombinations.add(new Fields(Sets.newHashSet(DataQuerySnapshot.FIELD_ID,
+                                                               DataQuerySnapshot.FIELD_TYPE,
+                                                               DataQuerySnapshot.FIELD_COUNTDOWN,
+                                                               DataQuerySnapshot.FIELD_DATA,
+                                                               DataQuerySnapshot.FIELD_INCOMPLETE_RESULTS_OK)));
+    firstLevelFieldCombinations.add(new Fields(Sets.newHashSet(DataQuerySnapshot.FIELD_ID,
+                                                               DataQuerySnapshot.FIELD_TYPE,
+                                                               DataQuerySnapshot.FIELD_DATA,
+                                                               DataQuerySnapshot.FIELD_INCOMPLETE_RESULTS_OK)));
+    firstLevelFieldCombinations.add(new Fields(Sets.newHashSet(DataQuerySnapshot.FIELD_ID,
+                                                               DataQuerySnapshot.FIELD_TYPE,
+                                                               DataQuerySnapshot.FIELD_COUNTDOWN,
+                                                               DataQuerySnapshot.FIELD_DATA)));
+    firstLevelFieldCombinations.add(new Fields(Sets.newHashSet(DataQuerySnapshot.FIELD_ID,
+                                                               DataQuerySnapshot.FIELD_TYPE,
+                                                               DataQuerySnapshot.FIELD_DATA)));
+    firstLevelFieldCombinations.add(new Fields(Sets.newHashSet(DataQuerySnapshot.FIELD_ID,
+                                                               DataQuerySnapshot.FIELD_TYPE)));
+
+    FIRST_LEVEL_FIELD_COMBINATIONS = firstLevelFieldCombinations;
+
+    Set<Fields> dataFieldCombinations = Sets.newHashSet();
+    dataFieldCombinations.add(new Fields(Sets.newHashSet(DataQuerySnapshot.FIELD_SCHEMA_KEYS,
+                                                         DataQuerySnapshot.FIELD_FIELDS)));
+    dataFieldCombinations.add(new Fields(Sets.newHashSet(DataQuerySnapshot.FIELD_SCHEMA_KEYS)));
+    dataFieldCombinations.add(new Fields(Sets.newHashSet(DataQuerySnapshot.FIELD_FIELDS)));
+
+    DATA_FIELD_COMBINATIONS = dataFieldCombinations;
+  }
+
   /**
    * Constructor used to instantiate deserializer in {@link MessageDeserializerFactory}.
    */
@@ -57,7 +90,11 @@ public class DataQuerySnapshotDeserializer implements CustomMessageDeserializer
                                context);
     }
     catch(Exception ex) {
-      throw new IOException(ex);
+      if (ex instanceof IOException) {
+        throw (IOException) ex;
+      } else {
+        throw new IOException(ex);
+      }
     }
   }
 
@@ -74,9 +111,14 @@ public class DataQuerySnapshotDeserializer implements CustomMessageDeserializer
   {
     JSONObject jo = new JSONObject(json);
 
+    //Validate fields
+    if (!SchemaUtils.checkValidKeys(jo, FIRST_LEVEL_FIELD_COMBINATIONS)) {
+      throw new IOException("Invalid keys");
+    }
+
     //// Query id stuff
-    String id = jo.getString(QRBase.FIELD_ID);
-    String type = jo.getString(Message.FIELD_TYPE);
+    String id = jo.getString(DataQuerySnapshot.FIELD_ID);
+    String type = jo.getString(DataQuerySnapshot.FIELD_TYPE);
 
     if(!type.equals(DataQuerySnapshot.TYPE)) {
       LOG.error("Found type {} in the query json, but expected type {}.", type, DataQuerySnapshot.TYPE);
@@ -85,10 +127,10 @@ public class DataQuerySnapshotDeserializer implements CustomMessageDeserializer
 
     /// Countdown
     long countdown = -1L;
-    boolean hasCountdown = jo.has(QRBase.FIELD_COUNTDOWN);
+    boolean hasCountdown = jo.has(DataQuerySnapshot.FIELD_COUNTDOWN);
 
     if(hasCountdown) {
-      countdown = jo.getLong(QRBase.FIELD_COUNTDOWN);
+      countdown = jo.getLong(DataQuerySnapshot.FIELD_COUNTDOWN);
     }
 
     ////Data
@@ -98,8 +140,13 @@ public class DataQuerySnapshotDeserializer implements CustomMessageDeserializer
     if(jo.has(DataQuerySnapshot.FIELD_DATA)) {
       JSONObject data = jo.getJSONObject(DataQuerySnapshot.FIELD_DATA);
 
-      if(data.has(Query.FIELD_SCHEMA_KEYS)) {
-        schemaKeys = SchemaUtils.extractMap(data.getJSONObject(Query.FIELD_SCHEMA_KEYS));
+      if (!SchemaUtils.checkValidKeys(data, DATA_FIELD_COMBINATIONS)) {
+        LOG.error("Error validating {} field", DataQuerySnapshot.FIELD_DATA);
+        throw new IOException("Invalid keys");
+      }
+
+      if (data.has(DataQuerySnapshot.FIELD_SCHEMA_KEYS)) {
+        schemaKeys = SchemaUtils.extractMap(data.getJSONObject(DataQuerySnapshot.FIELD_SCHEMA_KEYS));
       }
 
       if(data.has(DataQuerySnapshot.FIELD_FIELDS)) {

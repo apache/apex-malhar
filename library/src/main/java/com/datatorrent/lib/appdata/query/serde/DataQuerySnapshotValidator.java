@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.appdata.schemas.DataQuerySnapshot;
+import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.Message;
 import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
 import com.datatorrent.lib.appdata.schemas.SnapshotSchema;
@@ -51,6 +52,10 @@ public class DataQuerySnapshotValidator implements CustomMessageValidator
                 fields,
                 gdqt.getFields().getFields());
       return false;
+    }
+
+    if (gdqt.getFields().getFields().isEmpty()) {
+      gdqt.setFields(new Fields(fields));
     }
 
     return true;

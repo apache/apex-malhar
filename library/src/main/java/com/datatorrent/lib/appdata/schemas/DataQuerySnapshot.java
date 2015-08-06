@@ -51,6 +51,10 @@ public class DataQuerySnapshot extends Query
    * The JSON string for the schemaKeys in the query.
    */
   public static final String SCHEMA_KEYS = "schemaKeys";
+  /**
+   * The JSON string for the incompleteResultOK field in the query.
+   */
+  public static final String FIELD_INCOMPLETE_RESULTS_OK = "incompleteResultOK";
 
   /**
    * The fields requested to be returned in the query.
@@ -132,7 +136,7 @@ public class DataQuerySnapshot extends Query
    * Sets the fields of the query.
    * @param fields The fields of the query.
    */
-  private void setFields(Fields fields)
+  public final void setFields(Fields fields)
   {
     Preconditions.checkNotNull(fields);
     this.fields = fields;
