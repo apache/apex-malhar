@@ -179,6 +179,11 @@ public class WindowedTopCounter<T> extends BaseOperator
     topCount = count;
   }
 
+  public int getTopCount()
+  {
+    return topCount;
+  }
+
   /**
    * @return the windows
    */
