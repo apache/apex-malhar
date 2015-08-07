@@ -100,6 +100,7 @@ public class FieldInfo
 
   /**
    * the Java type of the column
+   * @omitFromUI
    */
   public void setType(SupportType type)
   {
