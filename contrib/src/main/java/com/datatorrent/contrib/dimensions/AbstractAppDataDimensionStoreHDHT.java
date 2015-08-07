@@ -84,11 +84,34 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
    * This is the factory used to serialize results.
    */
   protected transient MessageSerializerFactory resultSerializerFactory;
+  
+  /**
+   * Optional unifier for query result port.
+   */
+  private Unifier<String> queryResultUnifier;
+  
+  public void setQueryResultUnifier(Unifier<String> queryResultUnifier)
+  {
+    this.queryResultUnifier = queryResultUnifier;
+  }
+  
   /**
    * This is the output port that serialized query results are emitted from.
    */
   @AppData.ResultPort
-  public final transient DefaultOutputPort<String> queryResult = new DefaultOutputPort<String>();
+  public final transient DefaultOutputPort<String> queryResult = new DefaultOutputPort<String>()
+  {
+    @Override
+    public Unifier<String> getUnifier()
+    {
+      if (AbstractAppDataDimensionStoreHDHT.this.queryResultUnifier == null) {
+        return super.getUnifier();
+      } else {
+        return queryResultUnifier;
+      }
+    }
+  };
+  
   /**
    * This is the input port from which queries are received.
    */
