@@ -19,16 +19,23 @@ package com.datatorrent.lib.io;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import javax.validation.constraints.Min;
+
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.lib.appdata.StoreUtils.BufferingOutputPortFlusher;
+import com.datatorrent.lib.appdata.query.WindowBoundedService;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultOutputPort;
 
 import com.datatorrent.common.experimental.AppData;
+import com.datatorrent.common.experimental.AppData.EmbeddableQueryInfoProvider;
 import com.datatorrent.common.util.PubSubMessage;
 
 /**
@@ -40,11 +47,18 @@ import com.datatorrent.common.util.PubSubMessage;
  * @tags input, app data, query
  * @since 3.0.0
  */
-public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<String> implements AppData.ConnectionInfoProvider
+public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<String> implements AppData.ConnectionInfoProvider, EmbeddableQueryInfoProvider<String>
 {
   private static final Logger logger = LoggerFactory.getLogger(PubSubWebSocketAppDataQuery.class);
 
   private static final long serialVersionUID = 201506121124L;
+  public static final long DEFAULT_EXECUTE_INTERVAL_MILLIS = 10;
+
+  private boolean useEmitThread;
+  @Min(0)
+  private long executeIntervalMillis = DEFAULT_EXECUTE_INTERVAL_MILLIS;
+
+  private transient WindowBoundedService windowBoundedService;
 
   public PubSubWebSocketAppDataQuery()
   {
@@ -57,6 +71,42 @@ public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<St
     this.uri = uriHelper(context, uri);
     logger.debug("Setting up:\nuri:{}\ntopic:{}",this.getUri(), this.getTopic());
     super.setup(context);
+
+    if (useEmitThread) {
+      windowBoundedService = new WindowBoundedService(executeIntervalMillis,
+                                                      new BufferingOutputPortFlusher<>(this.outputPort));
+      windowBoundedService.setup(context);
+    }
+  }
+
+  @Override
+  public void beginWindow(long windowId)
+  {
+    super.beginWindow(windowId);
+    
+    if (windowBoundedService != null) {
+      windowBoundedService.beginWindow(windowId);
+    }
+  }
+
+  @Override
+  public void endWindow()
+  {
+    if (windowBoundedService != null) {
+      windowBoundedService.endWindow();
+    }
+
+    super.endWindow();
+  }
+
+  @Override
+  public void teardown()
+  {
+    if (windowBoundedService != null) {
+      windowBoundedService.teardown();
+    }
+
+    super.teardown();
   }
 
   public static URI uriHelper(OperatorContext context, URI uri)
@@ -138,5 +188,35 @@ public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<St
   public String getAppDataURL()
   {
     return "pubsub";
+  }
+
+  @Override
+  public DefaultOutputPort<String> getOutputPort()
+  {
+    return outputPort;
+  }
+
+  @Override
+  public void enableEmbeddedMode()
+  {
+    useEmitThread = true;
+  }
+
+  /**
+   * Get the number of milliseconds between calls to execute.
+   * @return The number of milliseconds between calls to execute.
+   */
+  public long getExecuteIntervalMillis()
+  {
+    return executeIntervalMillis;
+  }
+
+  /**
+   * The number of milliseconds between calls to execute.
+   * @param executeIntervalMillis The number of milliseconds between calls to execute.
+   */
+  public void setExecuteIntervalMillis(long executeIntervalMillis)
+  {
+    this.executeIntervalMillis = executeIntervalMillis;
   }
 }
