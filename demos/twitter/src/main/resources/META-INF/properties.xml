@@ -90,6 +90,10 @@
     <value>TwitterHashtagQueryDemo</value>
   </property>
   <property>
+    <name>dt.application.TwitterTrendingDemo.operator.SnapshotServer.embeddableQueryInfoProvider.topic</name>
+    <value>TwitterHashtagQueryDemo</value>
+  </property>
+  <property>
     <name>dt.application.TwitterTrendingDemo.operator.QueryResult.topic</name>
     <value>TwitterHashtagQueryResultDemo</value>
   </property>

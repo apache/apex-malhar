@@ -28,7 +28,7 @@
   </modules>
 
   <properties>
-    <datatorrent.version>3.0.0</datatorrent.version>
+    <datatorrent.version>3.1.0-SNAPSHOT</datatorrent.version>
     <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
     <semver.plugin.skip>true</semver.plugin.skip>
   </properties>

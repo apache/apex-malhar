@@ -195,7 +195,7 @@ public class TwitterTopCounterApplication implements StreamingApplication
     if (!StringUtils.isEmpty(gatewayAddress)) {
       URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
 
-      AppDataSnapshotServerMap snapshotServer = dag.addOperator("Snapshot Server", new AppDataSnapshotServerMap());
+      AppDataSnapshotServerMap snapshotServer = dag.addOperator("SnapshotServer", new AppDataSnapshotServerMap());
 
       Map<String, String> conversionMap = Maps.newHashMap();
       conversionMap.put(alias, WindowedTopCounter.FIELD_TYPE);
@@ -204,15 +204,15 @@ public class TwitterTopCounterApplication implements StreamingApplication
       snapshotServer.setSnapshotSchemaJSON(snapshotServerJSON);
       snapshotServer.setTableFieldToMapField(conversionMap);
 
-      PubSubWebSocketAppDataQuery wsQuery = dag.addOperator("Query", new PubSubWebSocketAppDataQuery());
+      PubSubWebSocketAppDataQuery wsQuery = new PubSubWebSocketAppDataQuery();
       wsQuery.setUri(uri);
-      Operator.OutputPort<String> queryPort = wsQuery.outputPort;
+      snapshotServer.setEmbeddableQueryInfoProvider(wsQuery);
+
       PubSubWebSocketAppDataResult wsResult = dag.addOperator("QueryResult", new PubSubWebSocketAppDataResult());
       wsResult.setUri(uri);
       Operator.InputPort<String> queryResultPort = wsResult.input;
 
       dag.addStream("MapProvider", topCount, snapshotServer.input);
-      dag.addStream("Query", queryPort, snapshotServer.query);
       dag.addStream("Result", snapshotServer.queryResult, queryResultPort);
     }
     else {
