@@ -111,6 +111,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
     currentWindowRecoveryState = new HashMap<Long, byte[]>();
     pendingAck = new HashSet<Long>();
     recoveredTags = new HashSet<Long>();
+    idempotentStorageManager = new IdempotentStorageManager.NoopIdempotentStorageManager();
   }
 
   
