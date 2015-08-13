@@ -60,7 +60,10 @@ public abstract class AbstractSinglePortRabbitMQOutputOperator<T> extends Abstra
     @Override
     public void process(T tuple)
     {
-      processTuple(tuple); // This is an abstract call
+      if(!skipProcessingTuple)
+      {
+        processTuple(tuple); // This is an abstract call
+      }
     }
   };
 }
