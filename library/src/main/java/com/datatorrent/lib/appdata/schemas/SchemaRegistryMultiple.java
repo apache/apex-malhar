@@ -15,8 +15,11 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
+import com.google.common.base.Preconditions;
 import java.io.Serializable;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +38,7 @@ public class SchemaRegistryMultiple implements SchemaRegistry, Serializable
    * The dimensional table which holds the mapping from schema keys to schemas.
    */
   private DimensionalTable<Schema> table;
+  private Comparator<Schema> schemaComparator;
 
   /**
    * Constructor for serialization.
@@ -53,20 +57,36 @@ public class SchemaRegistryMultiple implements SchemaRegistry, Serializable
     table = new DimensionalTable<Schema>(schemaKeys);
   }
 
+  /**
+   * The names of all the schema keys for all schemas in this registry.
+   * @param schemaKeys The names of all the schema keys for all schemas in this registry.
+   * @param schemaComparator The comparator used to order the schemas returned in the {@link SchemaResult} produced
+   * by {@link SchemaRegistryMultiple#getSchemaResult(com.datatorrent.lib.appdata.schemas.SchemaQuery)}
+   */
+  public SchemaRegistryMultiple(List<String> schemaKeys,
+                                Comparator<Schema> schemaComparator)
+  {
+    this(schemaKeys);
+    this.schemaComparator = Preconditions.checkNotNull(schemaComparator);
+  }
+
   @Override
   public SchemaResult getSchemaResult(SchemaQuery schemaQuery)
   {
     Map<String, String> schemaKeys = schemaQuery.getSchemaKeys();
     List<Schema> data = null;
 
-    if(schemaKeys == null) {
+    if (schemaKeys == null) {
       data = table.getAllDataPoints();
-    }
-    else {
+    } else {
       data = table.getDataPoints(schemaKeys);
     }
 
-    if(data.isEmpty()) {
+    if (schemaComparator != null) {
+      Collections.sort(data, schemaComparator);
+    }
+
+    if (data.isEmpty()) {
       return null;
     }
 
