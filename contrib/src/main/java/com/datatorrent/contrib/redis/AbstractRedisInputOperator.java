@@ -35,7 +35,8 @@ import com.datatorrent.lib.io.IdempotentStorageManager;
  * @category Input
  * @tags redis, key value
  *
- * @param <T> The tuple type.
+ * @param <T>
+ *          The tuple type.
  * @since 0.9.3
  */
 public abstract class AbstractRedisInputOperator<T> extends AbstractStoreInputOperator<T, RedisStore> implements CheckpointListener
@@ -47,6 +48,7 @@ public abstract class AbstractRedisInputOperator<T> extends AbstractStoreInputOp
   private transient Integer backupOffset;
   private int scanCount;
   private transient boolean replay;
+  private transient boolean skipOffsetRecovery = true;
 
   @NotNull
   private IdempotentStorageManager idempotentStorageManager;
@@ -92,31 +94,25 @@ public abstract class AbstractRedisInputOperator<T> extends AbstractStoreInputOp
   private void replay(long windowId)
   {
     try {
-      if (checkIfWindowExistsInIdempotencyManager(windowId - 1)) {
+      // For first recovered window, offset is already part of recovery state.
+      // So skip reading from idempotency manager
+      if (!skipOffsetRecovery) {
         // Begin offset for this window is recovery offset stored for the last
         // window
         RecoveryState recoveryStateForLastWindow = (RecoveryState) getIdempotentStorageManager().load(context.getId(), windowId - 1);
         recoveryState.scanOffsetAtBeginWindow = recoveryStateForLastWindow.scanOffsetAtBeginWindow;
       }
-
+      skipOffsetRecovery = false;
       RecoveryState recoveryStateForCurrentWindow = (RecoveryState) getIdempotentStorageManager().load(context.getId(), windowId);
       recoveryState.numberOfScanCallsInWindow = recoveryStateForCurrentWindow.numberOfScanCallsInWindow;
       if (recoveryState.scanOffsetAtBeginWindow != null) {
         scanOffset = recoveryState.scanOffsetAtBeginWindow;
       }
       replay = true;
+
     } catch (IOException e) {
       DTThrowable.rethrow(e);
     }
-  }
-
-  private boolean checkIfWindowExistsInIdempotencyManager(long windowId) throws IOException
-  {
-    long[] windowsIds = getIdempotentStorageManager().getWindowIds(context.getId());
-    if(windowsIds.length == 0 || windowId < windowsIds[0] || windowId > windowsIds[windowsIds.length - 1]) {
-      return false;
-    }
-    return true ;
   }
 
   private void scanKeysFromOffset()
@@ -157,11 +153,14 @@ public abstract class AbstractRedisInputOperator<T> extends AbstractStoreInputOp
     scanComplete = false;
     scanParameters = new ScanParams();
     scanParameters.count(scanCount);
+    
     // For the 1st window after checkpoint, windowID - 1 would not have recovery
     // offset stored in idempotentStorageManager
     // But recoveryOffset is non-transient, so will be recovered with
     // checkPointing
+    // Offset recovery from idempotency storage can be skipped in this case
     scanOffset = recoveryState.scanOffsetAtBeginWindow;
+    skipOffsetRecovery = true;
   }
 
   @Override
