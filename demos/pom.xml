@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>malhar-demos</artifactId>
-    <version>3.0.0</version>
+    <version>3.2.0-SNAPSHOT</version>
     <relativePath></relativePath>
   </parent>
 
@@ -16,7 +16,7 @@
 
   <properties>
     <apex.version>${dt.framework.version}</apex.version>
-    <malhar.version>3.0.0</malhar.version>
+    <malhar.version>3.2.0-SNAPSHOT</malhar.version>
   </properties>
 
   <modules>

@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>malhar</artifactId>
-    <version>3.0.0</version>
+    <version>3.1.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>dt-megh</artifactId>
@@ -17,8 +17,8 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <semver.plugin.skip>false</semver.plugin.skip>
-    <apex.version>3.0.0</apex.version>
-    <malhar.version>3.0.0</malhar.version>
+    <apex.version>3.2.0-SNAPSHOT</apex.version>
+    <malhar.version>3.2.0-SNAPSHOT</malhar.version>
   </properties>
 
   <profiles>
