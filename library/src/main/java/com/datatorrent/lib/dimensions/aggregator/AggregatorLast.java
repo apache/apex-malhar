@@ -4,6 +4,7 @@
  */
 package com.datatorrent.lib.dimensions.aggregator;
 
+import com.datatorrent.api.annotation.Name;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
@@ -21,6 +22,7 @@ import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
  * one is picked arbitrarily to be the last.
  * </p>
  */
+@Name("LAST")
 public class AggregatorLast extends AbstractIncrementalAggregator
 {
   private static final long serialVersionUID = 20154301647L;

@@ -4,6 +4,7 @@
  */
 package com.datatorrent.lib.dimensions.aggregator;
 
+import com.datatorrent.api.annotation.Name;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
@@ -14,6 +15,7 @@ import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 /**
  * This {@link IncrementalAggregator} takes the max of the fields provided in the {@link InputEvent}.
  */
+@Name("MAX")
 public class AggregatorMax extends AbstractIncrementalAggregator
 {
   private static final long serialVersionUID = 201503120332L;
