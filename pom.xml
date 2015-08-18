@@ -43,7 +43,59 @@
     <jackson.version>1.9.2</jackson.version>
     <jersey.version>1.9</jersey.version>
     <jetty.version>8.1.10.v20130312</jetty.version>
+    <semver.plugin.skip>false</semver.plugin.skip>
   </properties>
+
+  <profiles>
+    <profile>
+      <activation>
+        <file>
+          <exists>src</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.github.siom79.japicmp</groupId>
+            <artifactId>japicmp-maven-plugin</artifactId>
+            <version>0.5.1</version>
+            <configuration>
+              <oldVersion>
+                <dependency>
+                  <groupId>com.datatorrent</groupId>
+                  <artifactId>${project.artifactId}</artifactId>
+                  <version>3.0.0</version>
+                </dependency>
+              </oldVersion>
+              <newVersion>
+                <file>
+                  <path>${project.build.directory}/${project.artifactId}-${project.version}.jar</path>
+                </file>
+              </newVersion>
+              <parameter>
+                <onlyModified>true</onlyModified>
+                <accessModifier>protected</accessModifier>
+                <breakBuildOnModifications>false</breakBuildOnModifications>
+                <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
+                <onlyBinaryIncompatible>false</onlyBinaryIncompatible>
+                <includeSynthetic>false</includeSynthetic>
+                <ignoreMissingClasses>true</ignoreMissingClasses>
+              </parameter>
+              <skip>${semver.plugin.skip}</skip>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>verify</phase>
+                <goals>
+                  <goal>cmp</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <modules>
     <module>library</module>

@@ -15,6 +15,7 @@
   <properties>
     <maven.deploy.skip>false</maven.deploy.skip>
     <skipTests>false</skipTests>
+    <semver.plugin.skip>true</semver.plugin.skip>
   </properties>
 
   <name>Logstream Application</name>
