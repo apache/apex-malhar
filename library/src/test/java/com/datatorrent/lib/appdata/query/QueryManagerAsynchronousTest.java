@@ -54,7 +54,6 @@ public class QueryManagerAsynchronousTest
         Thread.sleep(200);
       }
       catch(InterruptedException ex) {
-        throw new RuntimeException(ex);
       }
       Thread.interrupted();
     }
