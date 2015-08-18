@@ -186,6 +186,21 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.datatorrent</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>${malhar.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.datatorrent</groupId>
+      <artifactId>malhar-contrib</artifactId>
+      <version>${malhar.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.datatorrent</groupId>
+      <artifactId>dt-api</artifactId>
+      <version>${apex.version}</version>
+    </dependency>
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>malhar-library</artifactId>
       <version>${project.version}</version>
