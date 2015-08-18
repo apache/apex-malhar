@@ -16,6 +16,7 @@
 package com.datatorrent.contrib.redis;
 
 import java.util.Map;
+
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
@@ -41,5 +42,12 @@ public class RedisMapAsValueInputOperator extends AbstractRedisInputOperator<Key
       }
     }
     keys.clear();
+  }
+
+  @Override
+  public KeyValPair<String, Map<String, String>> convertToTuple(Map<Object, Object> o)
+  {
+    // Do nothing for the override, Emit already handled in processTuples
+    return null;
   }
 }

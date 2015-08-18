@@ -201,4 +201,11 @@ public class RedisPOJOInputOperator extends AbstractRedisInputOperator<KeyValPai
   {
     this.dataColumns = dataColumns;
   }
+
+  @Override
+  public KeyValPair<String, Object> convertToTuple(Map<Object, Object> o)
+  {
+    // Do nothing for the override, Scan already done in processTuples
+    return null;
+  }
 }

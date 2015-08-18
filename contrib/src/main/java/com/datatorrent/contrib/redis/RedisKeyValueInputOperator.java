@@ -18,6 +18,8 @@ package com.datatorrent.contrib.redis;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
@@ -51,5 +53,12 @@ public class RedisKeyValueInputOperator extends AbstractRedisInputOperator<KeyVa
       keys.clear();
       keysObjectList.clear();
     }
+  }
+
+  @Override
+  public KeyValPair<String, String> convertToTuple(Map<Object, Object> o)
+  {
+    // Do nothing for the override, Scan already done in processTuples
+    return null;
   }
 }
