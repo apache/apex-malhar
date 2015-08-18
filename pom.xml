@@ -14,6 +14,64 @@
   <name>Megh</name>
   <url>https://www.datatorrent.com/</url>
 
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <semver.plugin.skip>false</semver.plugin.skip>
+    <apex.version>3.0.0</apex.version>
+    <malhar.version>3.0.0</malhar.version>
+  </properties>
+
+  <profiles>
+    <profile>
+      <activation>
+        <file>
+          <exists>src</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.github.siom79.japicmp</groupId>
+            <artifactId>japicmp-maven-plugin</artifactId>
+            <version>0.5.1</version>
+            <configuration>
+              <oldVersion>
+                <dependency>
+                  <groupId>com.datatorrent</groupId>
+                  <artifactId>${project.artifactId}</artifactId>
+                  <version>3.0.0</version>
+                </dependency>
+              </oldVersion>
+              <newVersion>
+                <file>
+                  <path>${project.build.directory}/${project.artifactId}-${project.version}.jar</path>
+                </file>
+              </newVersion>
+              <parameter>
+                <onlyModified>true</onlyModified>
+                <accessModifier>protected</accessModifier>
+                <breakBuildOnModifications>false</breakBuildOnModifications>
+                <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
+                <onlyBinaryIncompatible>false</onlyBinaryIncompatible>
+                <includeSynthetic>false</includeSynthetic>
+                <ignoreMissingClasses>true</ignoreMissingClasses>
+              </parameter>
+              <skip>${semver.plugin.skip}</skip>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>verify</phase>
+                <goals>
+                  <goal>cmp</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
   <!-- repository to provide the DataTorrent artifacts -->
   <repositories>
     <repository>
