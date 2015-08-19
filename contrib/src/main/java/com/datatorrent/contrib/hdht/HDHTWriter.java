@@ -388,7 +388,6 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
 
     // clear pending changes
     ioStats.dataKeysWritten += bucket.frozenWriteCache.size();
-    bucket.frozenWriteCache.clear();
     // switch to new version
     this.metaCache.put(bucket.bucketKey, bucketMetaCopy);
 
@@ -397,6 +396,8 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
       store.delete(bucket.bucketKey, fileName);
     }
     invalidateReader(bucket.bucketKey, filesToDelete);
+    // clearing cache after invalidating readers
+    bucket.frozenWriteCache.clear();
 
     // cleanup WAL files which are not needed anymore.
     bucket.wal.cleanup(bucketMetaCopy.recoveryStartWalPosition.fileId);
