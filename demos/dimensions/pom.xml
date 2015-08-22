@@ -174,7 +174,7 @@
     <dependency>
       <groupId>com.datatorrent</groupId>
       <artifactId>malhar-contrib</artifactId>
-      <version>${datatorrent.version}</version>
+      <version>${malhar.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -186,13 +186,13 @@
       <scope>test</scope>
       <groupId>${project.groupId}</groupId>
       <artifactId>malhar-library</artifactId>
-      <version>${datatorrent.version}</version>
+      <version>${malhar.version}</version>
       <classifier>tests</classifier>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>dt-contrib</artifactId>
-      <version>${datatorrent.version}</version>
+      <version>${project.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
@@ -203,7 +203,7 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>dt-library</artifactId>
-      <version>${datatorrent.version}</version>
+      <version>${project.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>

@@ -20,12 +20,12 @@
     <dependency>
       <groupId>com.datatorrent</groupId>
       <artifactId>malhar-library</artifactId>
-      <version>${datatorrent.version}</version>
+      <version>${malhar.version}</version>
     </dependency>
     <dependency>
       <groupId>com.datatorrent</groupId>
       <artifactId>dt-library</artifactId>
-      <version>${datatorrent.version}</version>
+      <version>${project.version}</version>
     </dependency>
 
   </dependencies>
