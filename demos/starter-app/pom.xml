@@ -5,11 +5,10 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>dt-demos</artifactId>
-    <version>3.0.0</version>
+    <version>3.2.0-SNAPSHOT</version>
   </parent>
  
   <groupId>com.datatorrent</groupId>
-  <version>3.0.0</version>
   <artifactId>starter-app</artifactId>
   <packaging>jar</packaging>
 

@@ -9,6 +9,7 @@
   </parent>
 
   <artifactId>dt-demos</artifactId>
+  <version>3.2.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Demos</name>
 
