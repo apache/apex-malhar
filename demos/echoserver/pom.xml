@@ -8,7 +8,6 @@
   </parent>
   
   <groupId>com.datatorrent</groupId>
-  <version>3.1.0-SNAPSHOT</version>
   <artifactId>echoserver</artifactId>
   <packaging>jar</packaging>
 
