@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   
   <groupId>com.datatorrent</groupId>
-  <version>3.1.0-SNAPSHOT</version>
+  <version>3.2.0-SNAPSHOT</version>
   <artifactId>frauddetect-demo</artifactId>
   <packaging>jar</packaging>
 
@@ -13,7 +13,7 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>malhar-demos</artifactId>
-    <version>3.1.0-SNAPSHOT</version>
+    <version>3.2.0-SNAPSHOT</version>
   </parent>
 
   <properties>
