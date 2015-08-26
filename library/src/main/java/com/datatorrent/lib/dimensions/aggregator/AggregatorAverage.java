@@ -4,6 +4,7 @@
  */
 package com.datatorrent.lib.dimensions.aggregator;
 
+import com.datatorrent.api.annotation.Name;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
@@ -16,6 +17,7 @@ import java.util.List;
 /**
  * This is the average {@link OTFAggregator}.
  */
+@Name("AVG")
 public class AggregatorAverage implements OTFAggregator
 {
   private static final long serialVersionUID = 20154301644L;

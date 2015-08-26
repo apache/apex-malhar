@@ -4,6 +4,8 @@
  */
 package com.datatorrent.lib.dimensions.aggregator;
 
+import com.datatorrent.api.annotation.Name;
+
 import java.util.Collections;
 import java.util.Map;
 
@@ -20,6 +22,7 @@ import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 /**
  * This {@link IncrementalAggregator} performs a count of the number of times an input is encountered.
  */
+@Name("COUNT")
 public class AggregatorCount extends AbstractIncrementalAggregator
 {
   private static final long serialVersionUID = 20154301645L;

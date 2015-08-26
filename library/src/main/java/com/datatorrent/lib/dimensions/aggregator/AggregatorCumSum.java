@@ -4,6 +4,8 @@
  */
 package com.datatorrent.lib.dimensions.aggregator;
 
+import com.datatorrent.api.annotation.Name;
+
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +23,7 @@ import com.datatorrent.lib.appdata.schemas.Type;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 
+@Name("CUM_SUM")
 public class AggregatorCumSum extends AggregatorSum
 {
   private static final long serialVersionUID = 201506280518L;
