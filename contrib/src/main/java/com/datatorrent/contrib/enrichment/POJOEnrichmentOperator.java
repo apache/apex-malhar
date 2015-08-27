@@ -43,8 +43,9 @@ import org.slf4j.LoggerFactory;
  * @category Database
  * @tags enrichment, lookup
  *
- * @since 2.1.0
+ * @since 3.1.0
  */
+@Deprecated
 public class POJOEnrichmentOperator extends AbstractEnrichmentOperator<Object, Object> {
 
   private transient static final Logger logger = LoggerFactory.getLogger(POJOEnrichmentOperator.class);

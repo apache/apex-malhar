@@ -28,7 +28,7 @@ import java.util.Map;
  * @category Database
  * @tags enrichment, lookup
  *
- * @since 2.1.0
+ * @since 3.1.0
  */
 public class MapEnrichmentOperator extends AbstractEnrichmentOperator<Map<String, Object>, Map<String, Object>>
 {
