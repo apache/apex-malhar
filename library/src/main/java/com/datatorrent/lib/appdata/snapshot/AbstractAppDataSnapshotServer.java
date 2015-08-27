@@ -158,7 +158,9 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
   @Override
   final public void activate(OperatorContext ctx)
   {
-    embeddableQueryInfoProvider.activate(ctx);
+    if (embeddableQueryInfoProvider != null) {
+      embeddableQueryInfoProvider.activate(ctx);
+    }
   }
 
   @SuppressWarnings("unchecked")
