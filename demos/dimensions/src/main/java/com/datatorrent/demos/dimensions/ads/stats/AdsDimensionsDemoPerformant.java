@@ -107,23 +107,10 @@ public class AdsDimensionsDemoPerformant implements StreamingApplication
     store.getResultFormatter().setContinuousFormatString("#.00");
     store.setConfigurationSchemaJSON(eventSchema);
 
-    //Set pubsub properties
-    Operator.OutputPort<String> queryPort;
-    Operator.InputPort<String> queryResultPort;
-
-    String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
-    URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
-    //LOG.info("WebSocket with gateway at: {}", gatewayAddress);
     PubSubWebSocketAppDataQuery wsIn = new PubSubWebSocketAppDataQuery();
-    wsIn.setUri(uri);
-    queryPort = wsIn.outputPort;
-
-    dag.addOperator("Query", wsIn);
-    dag.addStream("Query", queryPort, store.query).setLocality(Locality.CONTAINER_LOCAL);
+    store.setEmbeddableQueryInfoProvider(wsIn);
 
     PubSubWebSocketAppDataResult wsOut = dag.addOperator("QueryResult", new PubSubWebSocketAppDataResult());
-    wsOut.setUri(uri);
-    queryResultPort = wsOut.input;
 
     //Set remaining dag options
 
@@ -132,7 +119,7 @@ public class AdsDimensionsDemoPerformant implements StreamingApplication
     dag.addStream("InputStream", input.outputPort, dimensions.data).setLocality(Locality.CONTAINER_LOCAL);
     dag.addStream("DimensionalData", dimensions.output, adsConverter.inputPort);
     dag.addStream("Converter", adsConverter.outputPort, store.input);
-    dag.addStream("QueryResult", store.queryResult, queryResultPort);
+    dag.addStream("QueryResult", store.queryResult, wsOut.input);
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(AdsDimensionsDemoPerformant.class);

@@ -90,7 +90,7 @@
     <value>AdsDimensionsDemo/Store</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemoGeneric.operator.Query.topic</name>
+    <name>dt.application.AdsDimensionsDemoGeneric.operator.Store.embeddableQueryInfoProvider.topic</name>
     <value>AdsQueryGenericDemo</value>
   </property>
   <property>
@@ -129,7 +129,7 @@
     <value>AdsDimensionsDemoGenericManualEntry/Store</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemoGenericManualEntry.operator.Query.topic</name>
+    <name>dt.application.AdsDimensionsDemoGenericManualEntry.operator.embeddableQueryInfoProvider.topic</name>
     <value>AdsQueryGenericManualEntryDemo</value>
   </property>
   <property>
@@ -168,7 +168,7 @@
     <value>AdsDimensionsDemoPerformant/Store</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemoFast.operator.Query.topic</name>
+    <name>dt.application.AdsDimensionsDemoFast.operator.Store.embeddableQueryInfoProvider.topic</name>
     <value>AdsQueryDemo</value>
   </property>
   <property>
@@ -208,7 +208,7 @@
     <value>SalesDemo/Store</value>
   </property>
   <property>
-    <name>dt.application.SalesDemo.operator.Query.topic</name>
+    <name>dt.application.SalesDemo.operator.Store.embeddableQueryInfoProvider.topic</name>
     <value>SalesQueryDemo</value>
   </property>
   <property>
