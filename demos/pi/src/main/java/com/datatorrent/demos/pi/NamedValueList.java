@@ -42,42 +42,41 @@ public class NamedValueList<T> extends BaseOperator
   @NotNull
   private String valueName;
 
-	private List<Map<String, T>> valueList;
+  private List<Map<String, T>> valueList;
 
-	public final transient DefaultInputPort<T> inPort = new DefaultInputPort<T>() {
+  public final transient DefaultInputPort<T> inPort = new DefaultInputPort<T>() {
     @Override
     public void process(T val) {
       valueList.get(0).put(valueName, val);
       outPort.emit(valueList);
     }
-	};
+  };
 
-	public final transient DefaultOutputPort<List<Map<String, T>>> outPort = new DefaultOutputPort<>();
+  public final transient DefaultOutputPort<List<Map<String, T>>> outPort = new DefaultOutputPort<>();
 
-	@Override
-	public void setup(OperatorContext context)
-	{
-		valueList = new ArrayList<Map<String, T>>();
+  @Override
+  public void setup(OperatorContext context)
+  {
+    valueList = new ArrayList<Map<String, T>>();
     HashMap<String, T> map = new HashMap<>();
     map.put(valueName, null);
     valueList.add(map);
-	}
+  }
 
-	@Override
-	public void teardown()
-	{
-	}
+  @Override
+  public void teardown()
+  {
+  }
 
-	@Override
-	public void beginWindow(long windowId)
-	{
-	}
+  @Override
+  public void beginWindow(long windowId)
+  {
+  }
 
-
-	@Override
-	public void endWindow()
-	{
-	}
+  @Override
+  public void endWindow()
+  {
+  }
 
   public String getValueName() {
     return valueName;
