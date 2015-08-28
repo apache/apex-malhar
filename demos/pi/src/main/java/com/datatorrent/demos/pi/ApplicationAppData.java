@@ -15,20 +15,29 @@
  */
 package com.datatorrent.demos.pi;
 
-import org.apache.hadoop.conf.Configuration;
+import java.net.URI;
 
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.testbench.RandomEventGenerator;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.lib.appdata.schemas.SchemaUtils;
+import com.datatorrent.lib.appdata.snapshot.AppDataSnapshotServerMap;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
+import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
+import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 /**
  * Monte Carlo PI estimation demo : <br>
  * This application computes value of PI using Monte Carlo pi estimation
  * formula.
+ * <p>
+ * Very similar to PiDemo but data is also written to an App Data operator for visualization.
  * <p>
  * Running Java Test or Main app in IDE:
  *
@@ -72,9 +81,11 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="PiDemo")
-public class Application implements StreamingApplication
+@ApplicationAnnotation(name="PiDemoAppData")
+public class ApplicationAppData implements StreamingApplication
 {
+  public static final String SNAPSHOT_SCHEMA = "PiDemoDataSchema.json";
+
   private final Locality locality = null;
 
   @Override
@@ -82,9 +93,40 @@ public class Application implements StreamingApplication
   {
     RandomEventGenerator rand = dag.addOperator("rand", new RandomEventGenerator());
     PiCalculateOperator calc = dag.addOperator("picalc", new PiCalculateOperator());
-    ConsoleOutputOperator console = dag.addOperator("console", new ConsoleOutputOperator());
+
+
     dag.addStream("rand_calc", rand.integer_data, calc.input).setLocality(locality);
-    dag.addStream("rand_console",calc.output, console.input).setLocality(locality);
+
+    String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
+
+    if (StringUtils.isEmpty(gatewayAddress)) {
+      throw new RuntimeException("Error: No GATEWAY_CONNECT_ADDRESS");
+    }
+
+    URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
+
+    AppDataSnapshotServerMap snapshotServer
+      = dag.addOperator("Snapshot Server", new AppDataSnapshotServerMap());
+
+    String snapshotServerJSON = SchemaUtils.jarResourceFileToString(SNAPSHOT_SCHEMA);
+
+    snapshotServer.setSnapshotSchemaJSON(snapshotServerJSON);
+
+    PubSubWebSocketAppDataQuery wsQuery = dag.addOperator("Query", new PubSubWebSocketAppDataQuery());
+    PubSubWebSocketAppDataResult wsResult = dag.addOperator("QueryResult", new PubSubWebSocketAppDataResult());
+
+    wsQuery.setUri(uri);
+    wsResult.setUri(uri);
+    Operator.OutputPort<String> queryPort = wsQuery.outputPort;
+    Operator.InputPort<String> queryResultPort = wsResult.input;
+
+    NamedValueList<Object> adaptor = dag.addOperator("adaptor", new NamedValueList<Object>());
+    ConsoleOutputOperator console = dag.addOperator("console", new ConsoleOutputOperator());
+
+    dag.addStream("PiValues", calc.output, adaptor.inPort, console.input).setLocality(locality);;
+    dag.addStream("NamedPiValues", adaptor.outPort, snapshotServer.input);
+    dag.addStream("Query", queryPort, snapshotServer.query);
+    dag.addStream("Result", snapshotServer.queryResult, queryResultPort);
   }
 
 }

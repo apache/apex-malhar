@@ -35,12 +35,30 @@
     <name>dt.application.PiDemo.operator.adaptor.valueName</name>
     <value>piValue</value>
   </property>
+
+  <!-- PiDemoAppData  -->
   <property>
-    <name>dt.application.PiDemo.operator.Query.topic</name>
+    <name>dt.application.PiDemoAppData.operator.rand.minvalue</name>
+    <value>0</value>
+  </property>
+  <property>
+    <name>dt.application.PiDemoAppData.operator.rand.maxvalue</name>
+    <value>30000</value>
+  </property>
+  <property>
+    <name>dt.application.PiDemoAppData.operator.picalc.base</name>
+    <value>900000000</value>
+  </property>
+  <property>
+    <name>dt.application.PiDemoAppData.operator.adaptor.valueName</name>
+    <value>piValue</value>
+  </property>
+  <property>
+    <name>dt.application.PiDemoAppData.operator.Query.topic</name>
     <value>PiDemoQuery</value>
   </property>
   <property>
-    <name>dt.application.PiDemo.operator.QueryResult.topic</name>
+    <name>dt.application.PiDemoAppData.operator.QueryResult.topic</name>
     <value>PiDemoQueryResult</value>
   </property>
 
