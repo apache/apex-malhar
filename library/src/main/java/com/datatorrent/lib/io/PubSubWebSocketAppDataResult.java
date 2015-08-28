@@ -48,7 +48,7 @@ public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<
   @Override
   public void setup(OperatorContext context)
   {
-    this.uri = PubSubWebSocketAppDataQuery.uriHelper(context, uri);
+    setUri(PubSubWebSocketAppDataQuery.uriHelper(context, getUri()));
     logger.debug("Setting up:\nuri:{}\ntopic:{}",this.getUri(), this.getTopic());
     super.setup(context);
   }
@@ -67,7 +67,7 @@ public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<
   @Override
   public URI getUri()
   {
-    return uri;
+    return super.getUri();
   }
 
   /**
@@ -79,7 +79,7 @@ public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<
   @Override
   public void setUri(URI uri)
   {
-    this.uri = uri;
+    super.setUri(uri);
   }
 
   @Override

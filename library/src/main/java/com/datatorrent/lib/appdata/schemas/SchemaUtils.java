@@ -21,6 +21,7 @@ import java.io.StringWriter;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -137,6 +138,13 @@ public class SchemaUtils
   public static boolean checkValidKeys(JSONObject jo,
                                        Collection<Fields> fieldsCollection)
   {
+    return checkValidKeysHelper(jo,
+                                fieldsCollection);
+  }
+
+  private static boolean checkValidKeysHelper(JSONObject jo,
+                                              Collection<Fields> fieldsCollection)
+  {
     for (Fields fields: fieldsCollection) {
       LOG.debug("Checking keys: {}", fields);
       if (checkValidKeys(jo, fields)) {
@@ -151,6 +159,12 @@ public class SchemaUtils
     return false;
   }
 
+  public static boolean checkValidKeys(JSONObject jo, List<Fields> fieldsCollection)
+  {
+    return checkValidKeysHelper(jo,
+                                fieldsCollection);
+  }
+
   /**
    * This is a utility method to check that the given JSONObject has the given keys.
    * It throws an {@link IllegalArgumentException} if it doesn't contain all the given keys.
@@ -160,6 +174,13 @@ public class SchemaUtils
    */
   public static boolean checkValidKeysEx(JSONObject jo,
                                          Collection<Fields> fieldsCollection)
+  {
+    return checkValidKeysExHelper(jo,
+                                  fieldsCollection);
+  }
+
+  public static boolean checkValidKeysExHelper(JSONObject jo,
+                                               Collection<Fields> fieldsCollection)
   {
     for (Fields fields: fieldsCollection) {
       if (checkValidKeys(jo, fields)) {
@@ -173,6 +194,12 @@ public class SchemaUtils
                                        keys +
                                        "\nOne of the following key combinations was expected:\n" +
                                        fieldsCollection);
+  }
+
+  public static boolean checkValidKeysEx(JSONObject jo, List<Fields> fieldsCollection)
+  {
+    return checkValidKeysExHelper(jo,
+                                  fieldsCollection);
   }
 
   public static Set<String> getSetOfJSONKeys(JSONObject jo)

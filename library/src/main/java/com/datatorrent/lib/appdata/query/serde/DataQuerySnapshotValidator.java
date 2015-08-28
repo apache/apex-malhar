@@ -55,7 +55,7 @@ public class DataQuerySnapshotValidator implements CustomMessageValidator
     }
 
     if (gdqt.getFields().getFields().isEmpty()) {
-      gdqt.setFields(new Fields(fields));
+      gdqt.setFieldsVal(new Fields(fields));
     }
 
     return true;

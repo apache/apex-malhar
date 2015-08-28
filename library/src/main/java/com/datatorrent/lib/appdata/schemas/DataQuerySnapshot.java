@@ -136,10 +136,15 @@ public class DataQuerySnapshot extends Query
    * Sets the fields of the query.
    * @param fields The fields of the query.
    */
-  public final void setFields(Fields fields)
+  private void setFields(Fields fields)
   {
     Preconditions.checkNotNull(fields);
     this.fields = fields;
+  }
+
+  public void setFieldsVal(Fields fields)
+  {
+    setFields(fields);
   }
 
   /**
