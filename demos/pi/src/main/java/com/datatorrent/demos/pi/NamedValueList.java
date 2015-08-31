@@ -15,8 +15,7 @@
  */
 package com.datatorrent.demos.pi;
 
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +34,6 @@ import com.datatorrent.api.Context.OperatorContext;
  * <p>
  * @displayNamed Value
  * @tags count
- * @since 3.2.0
  */
 public class NamedValueList<T> extends BaseOperator
 {
@@ -43,11 +41,12 @@ public class NamedValueList<T> extends BaseOperator
   private String valueName;
 
   private List<Map<String, T>> valueList;
+  private Map<String, T> valueMap;
 
   public final transient DefaultInputPort<T> inPort = new DefaultInputPort<T>() {
     @Override
     public void process(T val) {
-      valueList.get(0).put(valueName, val);
+      valueMap.put(valueName, val);
       outPort.emit(valueList);
     }
   };
@@ -57,10 +56,9 @@ public class NamedValueList<T> extends BaseOperator
   @Override
   public void setup(OperatorContext context)
   {
-    valueList = new ArrayList<Map<String, T>>();
-    HashMap<String, T> map = new HashMap<>();
-    map.put(valueName, null);
-    valueList.add(map);
+    valueMap = new HashMap<>();
+    valueMap.put(valueName, null);
+    valueList = Collections.singletonList(valueMap);
   }
 
   @Override
