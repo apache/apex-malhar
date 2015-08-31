@@ -100,6 +100,8 @@ public class NetworkManager implements Runnable
       channelConfiguration.connectionInfo = connectionInfo;
       channels.put(connectionInfo, channelConfiguration);
       channelConfigurations.put(channel, channelConfiguration);
+    } else {
+      channel = channelConfiguration.channel;
     }
     ChannelAction channelAction = new ChannelAction();
     channelAction.channelConfiguration = channelConfiguration;
