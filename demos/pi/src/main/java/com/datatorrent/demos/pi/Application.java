@@ -30,7 +30,6 @@ import com.datatorrent.lib.appdata.snapshot.AppDataSnapshotServerMap;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
-import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 
