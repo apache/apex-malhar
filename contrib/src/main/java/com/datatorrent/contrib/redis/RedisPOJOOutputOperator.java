@@ -42,6 +42,7 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
  * @displayName Redis POJO Output Operator
  * @category Store
  * @tags output operator, key value
+ * @since 3.1.0
  *
  */
 public class RedisPOJOOutputOperator extends AbstractRedisAggregateOutputOperator<KeyValPair<String, Object>>

@@ -28,6 +28,11 @@ import com.datatorrent.lib.appdata.schemas.Query;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 
+/**
+ * @since 3.1.0
+ */
+
+
 public class SchemaQueryDeserializer implements CustomMessageDeserializer
 {
   @Override
