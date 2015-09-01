@@ -46,6 +46,8 @@ import com.datatorrent.netlet.util.Slice;
  * <b>Note:</b> This {@link QueryExecutor} will work with {@link DimensionStoreHDHT}
  * operators that serve data for single or multiple schemas.
  * </p>
+ * @since 3.1.0
+ *
  */
 public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimensional, QueryMeta, MutableLong, Result> {
   /**

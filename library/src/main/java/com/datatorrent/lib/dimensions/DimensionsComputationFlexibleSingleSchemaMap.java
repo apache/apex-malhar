@@ -29,6 +29,8 @@ import com.datatorrent.api.Context.OperatorContext;
  * @displayName Dimension Computation Map
  * @category Stats and Aggregations
  * @tags event, dimension, aggregation, computation, map
+ * @since 3.1.0
+ *  
  */
 public class DimensionsComputationFlexibleSingleSchemaMap extends AbstractDimensionsComputationFlexibleSingleSchema<Map<String, Object>>
 {

@@ -21,6 +21,8 @@ import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 
 /**
  * This {@link IncrementalAggregator} performs a count of the number of times an input is encountered.
+ * @since 3.1.0
+ *
  */
 @Name("COUNT")
 public class AggregatorCount extends AbstractIncrementalAggregator

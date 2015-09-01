@@ -15,6 +15,8 @@ import com.datatorrent.lib.appdata.schemas.Type;
 
 /**
  * This class contains utility methods which are useful for aggregators.
+ * @since 3.1.0
+ *
  */
 public final class AggregatorUtils
 {

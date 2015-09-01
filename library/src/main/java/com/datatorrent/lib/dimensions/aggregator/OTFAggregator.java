@@ -32,6 +32,7 @@ import com.datatorrent.lib.appdata.schemas.Type;
  * This interface extends {@link Serializable} because On The Fly aggregators may be set
  * as properties on some operators and operator properties are required to be java serializable.
  * </p>
+ * @since 3.1.0
  */
 public interface OTFAggregator extends Serializable
 {

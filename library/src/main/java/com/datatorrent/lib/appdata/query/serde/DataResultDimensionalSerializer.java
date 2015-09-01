@@ -24,7 +24,9 @@ import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 
 /**
  * This class is used to serialize {@link DataResultDimensional} objects.
+ * @since 3.1.0
  */
+
 public class DataResultDimensionalSerializer implements CustomMessageSerializer
 {
   public static final String ALL = "ALL";

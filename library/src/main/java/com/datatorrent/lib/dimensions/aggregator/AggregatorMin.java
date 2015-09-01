@@ -14,6 +14,8 @@ import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 
 /**
  * This {@link IncrementalAggregator} takes the min of the fields provided in the {@link InputEvent}.
+ * @since 3.1.0
+ *
  */
 @Name("MIN")
 public class AggregatorMin extends AbstractIncrementalAggregator

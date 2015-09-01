@@ -19,6 +19,8 @@ import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 
 /**
  * This is a base class for {@link IncrementalAggregator}s which provides common functionality.
+ * @since 3.1.0
+ *
  */
 public abstract class AbstractIncrementalAggregator implements IncrementalAggregator
 {

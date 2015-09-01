@@ -17,6 +17,8 @@ import com.google.common.collect.Sets;
  * This is a helper class used internally for processing queries issued against the {@link DimensionalSchema}.
  * It maintains information about which fields do not have any aggregations (time would be an example of such a field).
  * And it also maintains what aggregations aggregatable fields have applied to them.
+ * @since 3.1.0
+ *
  */
 public class FieldsAggregatable
 {

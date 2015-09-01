@@ -20,6 +20,7 @@ import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 
 /**
  * This class represents a data query for the {@link DimensionalSchema}.
+ * @since 3.1.0
  */
 @MessageType(type=DataQueryDimensional.TYPE)
 @MessageDeserializerInfo(clazz=DataQueryDimensionalDeserializer.class)

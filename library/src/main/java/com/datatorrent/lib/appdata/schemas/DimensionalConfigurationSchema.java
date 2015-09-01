@@ -92,6 +92,7 @@ import com.datatorrent.lib.dimensions.aggregator.OTFAggregator;
  * aboved because the field descriptors in this map take into account changes in data types after aggregate values get aggregated. For example
  * if an average aggregation is applied to integers, then the output will be a float.</li>
  * </ul>
+ * @since 3.1.0
  */
 public class DimensionalConfigurationSchema
 {

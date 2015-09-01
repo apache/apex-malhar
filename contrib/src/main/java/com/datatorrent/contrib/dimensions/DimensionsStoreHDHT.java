@@ -45,6 +45,8 @@ import com.datatorrent.netlet.util.Slice;
  * This operator is a base class for dimension store operators. This operator assumes that an
  * upstream {@link DimensionsComputationFlexibleSingleSchema} operator is producing {@link Aggregate}
  * objects which are provided to it as input.
+ * @since 3.1.0
+ *
  */
 @OperatorAnnotation(checkpointableWithinAppWindow=false)
 public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<Aggregate>

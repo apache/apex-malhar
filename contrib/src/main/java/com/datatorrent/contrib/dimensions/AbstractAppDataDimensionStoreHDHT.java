@@ -44,6 +44,8 @@ import com.datatorrent.common.experimental.AppData.EmbeddableQueryInfoProvider;
 /**
  * This is a base class for App Data enabled Dimensions Stores. This class holds all the template code required
  * for processing AppData queries.
+ * @since 3.1.0
+ *
  */
 public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements IdleTimeHandler, AppData.Store<String>
 {

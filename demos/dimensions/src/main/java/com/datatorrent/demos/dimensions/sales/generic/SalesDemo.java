@@ -38,6 +38,10 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 import com.datatorrent.demos.dimensions.InputGenerator;
 
+/**
+ * @since 3.1.0
+ */
+
 @ApplicationAnnotation(name=SalesDemo.APP_NAME)
 public class SalesDemo implements StreamingApplication
 {

@@ -47,6 +47,7 @@ import com.datatorrent.api.Sink;
  *  <li>Aggregations are emitted by the operator as {@link Aggregate}s.</li>
  * </ol>
  * @param <EVENT> The type of the input events on which to perform dimensions computation.
+ * @since 3.1.0
  */
 public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> implements Operator
 {

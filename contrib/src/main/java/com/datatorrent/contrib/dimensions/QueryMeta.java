@@ -14,6 +14,8 @@ import com.datatorrent.contrib.hdht.HDHTReader.HDSQuery;
 /**
  * This class is used to hold meta data required to process data queries. This class is
  * utilized by the {@link DimensionsQueryExecutor} and {@link DimensionsQueueManager} classes.
+ * @since 3.1.0
+ *
  */
 public class QueryMeta
 {

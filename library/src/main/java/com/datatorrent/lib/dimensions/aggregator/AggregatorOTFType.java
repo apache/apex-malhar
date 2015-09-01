@@ -13,6 +13,7 @@ import com.google.common.collect.Maps;
 /**
  * This is a convenience enum to store all the information about default {@link OTFAggregator}s
  * in one place.
+ * @since 3.1.0
  */
 public enum AggregatorOTFType
 {

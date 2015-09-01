@@ -25,6 +25,8 @@ import com.datatorrent.api.Context.OperatorContext;
  * @displayName Dimension Computation
  * @category Stats and Aggregations
  * @tags dimension, aggregation, computation, pojo
+ * @since 3.1.0
+ *
  */
 public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimensionsComputationFlexibleSingleSchema<Object>
 {

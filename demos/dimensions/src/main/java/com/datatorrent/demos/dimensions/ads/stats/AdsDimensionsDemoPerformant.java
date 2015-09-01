@@ -39,6 +39,10 @@ import com.datatorrent.demos.dimensions.ads.AdInfo;
 import com.datatorrent.demos.dimensions.ads.AdInfo.AdInfoAggregator;
 import com.datatorrent.demos.dimensions.ads.InputItemGenerator;
 
+/**
+ * @since 3.1.0
+ */
+
 @ApplicationAnnotation(name=AdsDimensionsDemoPerformant.APP_NAME)
 public class AdsDimensionsDemoPerformant implements StreamingApplication
 {

@@ -19,6 +19,7 @@ import static com.datatorrent.lib.dimensions.aggregator.AbstractIncrementalAggre
 
 /**
  * This {@link IncrementalAggregator} performs a sum operation over the fields in the given {@link InputEvent}.
+ * @since 3.1.0
  */
 @Name("SUM")
 public class AggregatorSum extends AbstractIncrementalAggregator

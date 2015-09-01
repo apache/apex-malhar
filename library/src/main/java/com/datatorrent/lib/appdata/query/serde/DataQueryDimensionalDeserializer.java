@@ -36,6 +36,7 @@ import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 
 /**
  * This class is a deserializer for {@link DataQueryDimensional} objects.
+ * @since 3.1.0
  */
 public class DataQueryDimensionalDeserializer implements CustomMessageDeserializer
 {

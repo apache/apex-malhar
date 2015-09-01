@@ -24,6 +24,8 @@ import com.datatorrent.lib.statistics.DimensionsComputation.Aggregator;
  * of those fields will be included in the {@link InputEvent} passed to the sum aggregator. And the {DimensionsEventregate} event produced by the
  * sum aggregator will contain two fields, one for cost and one for revenue.
  * </p>
+ * @since 3.1.0
+ *
  *
  */
 public interface IncrementalAggregator extends Aggregator<InputEvent, Aggregate>

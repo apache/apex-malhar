@@ -13,6 +13,11 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @since 3.1.0
+ */
+
+
 public enum AggregatorIncrementalType
 {
   SUM(new AggregatorSum()),

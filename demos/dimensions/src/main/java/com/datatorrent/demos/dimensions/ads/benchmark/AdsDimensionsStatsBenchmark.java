@@ -21,6 +21,10 @@ import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.datatorrent.lib.statistics.DimensionsComputationUnifierImpl;
 import com.datatorrent.lib.stream.DevNull;
 
+/**
+ * @since 3.1.0
+ */
+
 @ApplicationAnnotation(name="AdsDimensionsStatsBenchmark")
 public class AdsDimensionsStatsBenchmark implements StreamingApplication
 {

@@ -16,6 +16,7 @@ import com.datatorrent.lib.appdata.query.serde.MessageType;
 
 /**
  * This class represents the result sent in response to a {@link DataQueryDimensional}
+ * @since 3.1.0
  */
 @MessageType(type=DataResultDimensional.TYPE)
 @MessageSerializerInfo(clazz=DataResultDimensionalSerializer.class)

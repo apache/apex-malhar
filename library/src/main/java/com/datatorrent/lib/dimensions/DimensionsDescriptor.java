@@ -50,6 +50,8 @@ import com.datatorrent.lib.appdata.schemas.Type;
  * to look up the correct dimensionsDescriptorID. This lookup to retrieve a dimensionsDescriptorID is necessary because a
  * dimensionsDescriptorID is used for storage in order to prevent key conflicts.
  * </p>
+ * @since 3.1.0
+ *
  */
 public class DimensionsDescriptor implements Serializable
 {

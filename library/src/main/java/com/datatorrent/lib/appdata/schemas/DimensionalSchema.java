@@ -42,6 +42,7 @@ import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
  *     "to":382390859384
  *   }
  * }
+ * @since 3.1.0
  */
 public class DimensionalSchema implements Schema
 {

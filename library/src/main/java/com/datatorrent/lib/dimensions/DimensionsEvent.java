@@ -23,6 +23,8 @@ import com.datatorrent.lib.statistics.DimensionsComputation;
  * an event belongs to, and consequently determines what input values should be aggregated together. The aggregates
  * are the actual data payload of the event which are to be aggregated.
  * </p>
+ * @since 3.1.0
+ *
  */
 public class DimensionsEvent implements Serializable
 {

@@ -32,6 +32,8 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
  * @displayName Simple App Data Dimensions Store
  * @category DT View Integration
  * @tags app data, dimensions, store
+ * @since 3.1.0
+ *
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
 public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimensionStoreHDHT implements Serializable

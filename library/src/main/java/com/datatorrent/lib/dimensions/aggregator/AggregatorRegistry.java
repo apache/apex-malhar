@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
  * provide mappings from aggregator IDs to aggregators. These mappings are necessary in order to correctly process schemas, App Data queries,
  * and store aggregated data.
  * </p>
+ * @since 3.1.0
  */
 public class AggregatorRegistry implements Serializable
 {

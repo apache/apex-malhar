@@ -25,6 +25,10 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 import com.datatorrent.demos.dimensions.ads.InputItemGenerator;
 
+/**
+ * @since 3.1.0
+ */
+
 @ApplicationAnnotation(name="AdsDimensionsGenericBenchmark")
 public class AdsDimensionsGenericBenchmark implements StreamingApplication
 {
