@@ -31,7 +31,9 @@ import com.datatorrent.lib.util.KeyValPair;
  * @category Store
  * @tags input operator, key value
  *
+ * @since 3.1.0
  */
+
 public class RedisKeyValueInputOperator extends AbstractRedisInputOperator<KeyValPair<String, String>>
 {
   private List<Object> keysObjectList = new ArrayList<Object>();

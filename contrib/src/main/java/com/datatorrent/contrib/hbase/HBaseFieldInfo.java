@@ -19,6 +19,10 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import com.datatorrent.lib.util.FieldInfo;
 
+/**
+ * @since 3.1.0
+ */
+
 public class HBaseFieldInfo extends FieldInfo
 {
 	private String familyName;

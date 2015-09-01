@@ -27,6 +27,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * @displayName Redis Input Operator for Map
  * @category Store
  * @tags input operator, key value
+ * @since 3.1.0
  *
  */
 

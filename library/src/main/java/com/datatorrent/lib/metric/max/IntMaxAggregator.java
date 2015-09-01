@@ -22,6 +22,10 @@ import com.datatorrent.api.annotation.Name;
 
 import com.datatorrent.common.metric.SingleMetricAggregator;
 
+/**
+ * @since 3.1.0
+ */
+
 @Name("max")
 public class IntMaxAggregator implements SingleMetricAggregator, Serializable
 {

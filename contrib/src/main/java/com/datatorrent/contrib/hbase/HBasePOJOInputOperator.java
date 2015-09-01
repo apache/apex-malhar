@@ -22,6 +22,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * @displayName HBase Input Operator
  * @category Input
  * @tags database, nosql, pojo, hbase
+ * @since 3.1.0
  */
 @Evolving
 public class HBasePOJOInputOperator extends HBaseInputOperator<Object>

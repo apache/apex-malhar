@@ -39,6 +39,10 @@ import com.datatorrent.api.Operator.IdleTimeHandler;
 
 import com.datatorrent.common.util.NameableThreadFactory;
 
+/**
+ * @since 3.1.0
+ */
+
 public class QueryManagerAsynchronous<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT extends Result> implements Component<OperatorContext>, IdleTimeHandler
 {
   private DefaultOutputPort<String> resultPort = null;

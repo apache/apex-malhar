@@ -47,7 +47,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @displayName Redis POJO Input Operator
  * @category Store
  * @tags output operator, key value
- *
+ * @since 3.1.0
  */
 @Evolving
 public class RedisPOJOInputOperator extends AbstractRedisInputOperator<KeyValPair<String, Object>>
