@@ -17,10 +17,13 @@ package com.datatorrent.lib.appdata.schemas;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * This enum represents a TimeBucket that is supported by AppData
@@ -28,6 +31,7 @@ import com.google.common.collect.Maps;
  * <br/>
  * The currently supported buckets are:
  * <ul>
+ * <li>s - second</li>
  * <li>m - minute</li>
  * <li>h - hour</li>
  * <li>d - day</li>
@@ -51,23 +55,28 @@ public enum TimeBucket
   /**
    * No time bucketing.
    */
-  ALL("all", null),
+  ALL("all", null, null),
   /**
    * Second time bucketing.
    */
-  SECOND("1s", TimeUnit.SECONDS),
+  SECOND("1s", TimeUnit.SECONDS, "s"),
   /**
    * Minute time bucketing.
    */
-  MINUTE("1m", TimeUnit.MINUTES),
+  MINUTE("1m", TimeUnit.MINUTES, "m"),
   /**
    * Hour time bucketing.
    */
-  HOUR("1h", TimeUnit.HOURS),
+  HOUR("1h", TimeUnit.HOURS, "h"),
   /**
    * Day time bucketing.
    */
-  DAY("1d", TimeUnit.DAYS);
+  DAY("1d", TimeUnit.DAYS, "d");
+
+  public static final String TIME_BUCKET_NAME_REGEX = "1[a-zA-Z]+";
+  public static final Pattern TIME_BUCKET_NAME_PATTERN = Pattern.compile(TIME_BUCKET_NAME_REGEX);
+  public static final Set<String> SUFFIXES;
+  public static final Map<String, TimeBucket> SUFFIX_TO_TIME_BUCKET;
 
   /**
    * A map from the test/name of the bucket to the {@link TimeBucket}.
@@ -91,8 +100,20 @@ public enum TimeBucket
 
     BUCKET_TO_TYPE = Collections.unmodifiableMap(bucketToType);
     TIME_UNIT_TO_TIME_BUCKET = Collections.unmodifiableMap(timeUnitToTimeBucket);
+
+    Set<String> suffixes = Sets.newHashSet();
+    Map<String, TimeBucket> suffixToTimeBucket = Maps.newHashMap();
+
+    for (TimeBucket timeBucket: TimeBucket.values()) {
+      suffixes.add(timeBucket.getSuffix());
+      suffixToTimeBucket.put(timeBucket.getSuffix(), timeBucket);
+    }
+
+    SUFFIXES = Sets.newHashSet(suffixes);
+    SUFFIX_TO_TIME_BUCKET = Maps.newHashMap(suffixToTimeBucket);
   }
 
+  private final String suffix;
   private String text;
   private TimeUnit timeUnit;
 
@@ -100,11 +121,13 @@ public enum TimeBucket
    * Create a time bucket with the given corresponding text and {@link TimeUnit}
    * @param text The text or name corresponding to the TimeBucket.
    * @param timeUnit The {@link TimeUnit} that the TimeBucket represents.
+   * @param suffix The suffix used to denote this {@link TimeBucket}
    */
-  TimeBucket(String text, TimeUnit timeUnit)
+  TimeBucket(String text, TimeUnit timeUnit, String suffix)
   {
     setText(text);
     setTimeUnit(timeUnit);
+    this.suffix = suffix;
   }
 
   /**
@@ -124,6 +147,15 @@ public enum TimeBucket
   private void setTimeUnit(TimeUnit timeUnit)
   {
     this.timeUnit = timeUnit;
+  }
+
+  /**
+   * This method gets the suffix for the {@link TimeBucket}.
+   * @return The suffix for this {@link TimeBucket}.
+   */
+  public String getSuffix()
+  {
+    return this.suffix;
   }
 
   /**
@@ -185,5 +217,12 @@ public enum TimeBucket
     Preconditions.checkArgument(bucket != null,
                                 name + " is not a valid bucket type.");
     return bucket;
+  }
+
+  public static TimeBucket getTimeBucketForSuffixEx(String suffix)
+  {
+    Preconditions.checkNotNull(suffix);
+    Preconditions.checkArgument(SUFFIXES.contains(suffix));
+    return SUFFIX_TO_TIME_BUCKET.get(suffix);
   }
 }
