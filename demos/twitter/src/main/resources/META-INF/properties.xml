@@ -52,7 +52,7 @@
     <value>CONTAINER_LOCAL</value>
   </property>
   <property>
-    <name>dt.application.RollingTopWordsDemo.operator.Query.topic</name>
+    <name>dt.application.RollingTopWordsDemo.operator.SnapshotServer.embeddableQueryInfoProvider.topic</name>
     <value>TwitterWordsQuery</value>
   </property>
   <property>
@@ -67,7 +67,7 @@
   <!-- TwitterDemo -->
 
   <property>
-    <name>dt.application.TwitterDemo.operator.Query.topic</name>
+    <name>dt.application.TwitterDemo.operator.SnapshotServer.embeddableQueryInfoProvider.topic</name>
     <value>TwitterURLQuery</value>
   </property>
   <property>
@@ -85,10 +85,6 @@
 
   <!-- TwitterTrendingDemo -->
 
-  <property>
-    <name>dt.application.TwitterTrendingDemo.operator.Query.topic</name>
-    <value>TwitterHashtagQueryDemo</value>
-  </property>
   <property>
     <name>dt.application.TwitterTrendingDemo.operator.SnapshotServer.embeddableQueryInfoProvider.topic</name>
     <value>TwitterHashtagQueryDemo</value>
