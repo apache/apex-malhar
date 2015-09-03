@@ -153,6 +153,7 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
         try {
           sleep(1000);
           if (connectionClosed && !WebSocketInputOperator.this.shutdown) {
+            connection.close();
             WebSocketInputOperator.this.activate(null);
           }
         }
@@ -183,6 +184,11 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
         }
 
       }));
+
+      if (client != null) {
+        client.closeAsynchronously();
+      }
+
       client = new AsyncHttpClient(config);
       connection = client.prepareGet(uri.toString()).execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(new WebSocketTextListener()
       {
