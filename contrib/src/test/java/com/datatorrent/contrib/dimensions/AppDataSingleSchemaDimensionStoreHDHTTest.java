@@ -7,7 +7,10 @@ package com.datatorrent.contrib.dimensions;
 import java.io.File;
 import java.io.IOException;
 
+import java.util.Map;
+
 import com.esotericsoftware.kryo.Kryo;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import org.junit.Assert;
@@ -26,6 +29,7 @@ import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.appdata.schemas.TimeBucket;
+import com.datatorrent.lib.appdata.schemas.Type;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputationFlexibleSingleSchema;
 import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
@@ -42,7 +46,13 @@ import com.datatorrent.netlet.util.Slice;
 public class AppDataSingleSchemaDimensionStoreHDHTTest
 {
   @Rule
-  public TestInfo testMeta = new FSTestWatcher() {
+  public TestInfo testMeta = new StoreFSTestWatcher();
+
+  public static class StoreFSTestWatcher extends FSTestWatcher {
+    public StoreFSTestWatcher()
+    {
+    }
+
     @Override
     protected void starting(Description descriptor)
     {
@@ -69,7 +79,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
       Thread.interrupted();
       super.finished(description);
     }
-  };
+  }
 
   @Rule
   public TestWatcher interruptClear = new InterruptClear();
@@ -559,13 +569,13 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
     store.teardown();
   }
 
-  private Aggregate createEvent(DimensionalConfigurationSchema eventSchema,
-                                     String publisher,
-                                     String advertiser,
-                                     long timestamp,
-                                     TimeBucket timeBucket,
-                                     long impressions,
-                                     double cost)
+  public static Aggregate createEvent(DimensionalConfigurationSchema eventSchema,
+                                      String publisher,
+                                      String advertiser,
+                                      long timestamp,
+                                      TimeBucket timeBucket,
+                                      long impressions,
+                                      double cost)
   {
     int schemaID = AbstractDimensionsComputationFlexibleSingleSchema.DEFAULT_SCHEMA_ID;
     int dimensionDescriptorID = 0;
@@ -573,7 +583,6 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
 
     FieldsDescriptor fdKey = eventSchema.getDimensionsDescriptorIDToKeyDescriptor().get(dimensionDescriptorID);
     FieldsDescriptor fdValue = eventSchema.getDimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor().get(dimensionDescriptorID).get(aggregatorID);
-    DimensionsDescriptor dd = eventSchema.getDimensionsDescriptorIDToDimensionsDescriptor().get(dimensionDescriptorID);
 
     GPOMutable key = new GPOMutable(fdKey);
 
@@ -597,13 +606,31 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
                               value);
   }
 
-  private Aggregate createEvent1(DimensionalConfigurationSchema eventSchema,
-                                 String publisher,
-                                 String advertiser,
-                                 long timestamp,
-                                 TimeBucket timeBucket,
-                                 long impressions,
-                                 double cost)
+  public static GPOMutable createQueryKey(DimensionalConfigurationSchema eventSchema,
+                                          String publisher,
+                                          String advertiser)
+  {
+    FieldsDescriptor fdKey = eventSchema.getDimensionsDescriptorIDToKeyDescriptor().get(0);
+
+    Map<String, Type> fieldToType = Maps.newHashMap();
+    fieldToType.put("publisher", fdKey.getType("publisher"));
+    fieldToType.put("advertiser", fdKey.getType("advertiser"));
+
+    GPOMutable key = new GPOMutable(new FieldsDescriptor(fieldToType));
+
+    key.setField("publisher", publisher);
+    key.setField("advertiser", advertiser);
+
+    return key;
+  }
+
+  public static Aggregate createEvent1(DimensionalConfigurationSchema eventSchema,
+                                       String publisher,
+                                       String advertiser,
+                                       long timestamp,
+                                       TimeBucket timeBucket,
+                                       long impressions,
+                                       double cost)
   {
     int schemaID = AbstractDimensionsComputationFlexibleSingleSchema.DEFAULT_SCHEMA_ID;
     int dimensionDescriptorID = 1;

@@ -111,9 +111,15 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
 
     boolean hasTime = data.has(DataQueryDimensional.FIELD_TIME);
 
+    int slidingAggregateSize = 1;
+
     if(hasTime) {
       //// Time
       JSONObject time = data.getJSONObject(DataQueryDimensional.FIELD_TIME);
+
+      if (time.has(DataQueryDimensional.FIELD_SLIDING_AGGREGATE_SIZE)) {
+        slidingAggregateSize = time.getInt(DataQueryDimensional.FIELD_SLIDING_AGGREGATE_SIZE);
+      }
 
       if(time.has(DataQueryDimensional.FIELD_FROM)
          ^ time.has(DataQueryDimensional.FIELD_TO)) {
@@ -237,65 +243,66 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
                                                             fieldToAggregator);
     FieldsDescriptor keyFieldsDescriptor = gsd.getDimensionalConfigurationSchema().getKeyDescriptor().getSubset(new Fields(keySet));
     GPOMutable gpoIm = new GPOMutable(GPOUtils.deserialize(keyFieldsDescriptor, keys));
+    DataQueryDimensional resultQuery;
 
-    if(!hasTime) {
-      return new DataQueryDimensional(id,
-                                      type,
-                                      gpoIm,
-                                      queryFields,
-                                      incompleteResultOK,
-                                      schemaKeys);
-    }
-    else {
-      if(oneTime) {
-        if(hasFromTo) {
-          return new DataQueryDimensional(id,
-                                          type,
-                                          from,
-                                          to,
-                                          bucket,
-                                          gpoIm,
-                                          queryFields,
-                                          incompleteResultOK,
-                                          schemaKeys);
+    if (!hasTime) {
+      resultQuery = new DataQueryDimensional(id,
+                                             type,
+                                             gpoIm,
+                                             queryFields,
+                                             incompleteResultOK,
+                                             schemaKeys);
+    } else {
+      if (oneTime) {
+        if (hasFromTo) {
+          resultQuery = new DataQueryDimensional(id,
+                                                 type,
+                                                 from,
+                                                 to,
+                                                 bucket,
+                                                 gpoIm,
+                                                 queryFields,
+                                                 incompleteResultOK,
+                                                 schemaKeys);
+        } else {
+          resultQuery = new DataQueryDimensional(id,
+                                                 type,
+                                                 latestNumBuckets,
+                                                 bucket,
+                                                 gpoIm,
+                                                 queryFields,
+                                                 incompleteResultOK,
+                                                 schemaKeys);
         }
-        else {
-          return new DataQueryDimensional(id,
-                                          type,
-                                          latestNumBuckets,
-                                          bucket,
-                                          gpoIm,
-                                          queryFields,
-                                          incompleteResultOK,
-                                          schemaKeys);
-        }
-      }
-      else {
-        if(hasFromTo) {
-          return new DataQueryDimensional(id,
-                                          type,
-                                          from,
-                                          to,
-                                          bucket,
-                                          gpoIm,
-                                          queryFields,
-                                          countdown,
-                                          incompleteResultOK,
-                                          schemaKeys);
-        }
-        else {
-          return new DataQueryDimensional(id,
-                                          type,
-                                          latestNumBuckets,
-                                          bucket,
-                                          gpoIm,
-                                          queryFields,
-                                          countdown,
-                                          incompleteResultOK,
-                                          schemaKeys);
+      } else {
+        if (hasFromTo) {
+          resultQuery = new DataQueryDimensional(id,
+                                                 type,
+                                                 from,
+                                                 to,
+                                                 bucket,
+                                                 gpoIm,
+                                                 queryFields,
+                                                 countdown,
+                                                 incompleteResultOK,
+                                                 schemaKeys);
+        } else {
+          resultQuery = new DataQueryDimensional(id,
+                                                 type,
+                                                 latestNumBuckets,
+                                                 bucket,
+                                                 gpoIm,
+                                                 queryFields,
+                                                 countdown,
+                                                 incompleteResultOK,
+                                                 schemaKeys);
         }
       }
     }
+
+    resultQuery.setSlidingAggregateSize(slidingAggregateSize);
+
+    return resultQuery;
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(DataQueryDimensionalDeserializer.class);

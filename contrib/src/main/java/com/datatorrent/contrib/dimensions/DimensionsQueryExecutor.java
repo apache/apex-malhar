@@ -14,6 +14,7 @@ import javax.validation.constraints.NotNull;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,9 @@ import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.Result;
 import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
 import com.datatorrent.lib.dimensions.DimensionsEvent;
+import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
+import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
 import com.datatorrent.lib.dimensions.aggregator.OTFAggregator;
 
 import com.datatorrent.contrib.hdht.HDHTReader.HDSQuery;
@@ -78,6 +81,8 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
     //Each index corresponds to a time bucket
     //Each map is a map from aggregator name to the value for that aggregator
 
+    //list of query result event keys
+    List<Map<String, EventKey>> keysEventKeys = Lists.newArrayList();
     //list of query result keys each
     List<Map<String, GPOMutable>> keys = Lists.newArrayList();
     //list of query result aggregates
@@ -100,7 +105,8 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
       Map<String, HDSQuery> aggregatorToQuery = queries.get(index);
       Map<String, EventKey> aggregatorToEventKey = eventKeys.get(index);
 
-      //allocating map to hold results for this time buckt
+      //allocating map to hold results for this time bucket
+      Map<String, EventKey> aggregatorEventKeys = Maps.newHashMap();
       Map<String, GPOMutable> aggregatorKeys = Maps.newHashMap();
       Map<String, GPOMutable> aggregatorResults = Maps.newHashMap();
 
@@ -117,9 +123,10 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
 
         if(gae != null) {
           //Result was in the cache
-          LOG.debug("Retrieved from cache.");
+          LOG.debug("Retrieved from cache. {} {}", aggregatorName, gae.getEventKey());
 
           //Add result keys and aggregates to result maps
+          aggregatorEventKeys.put(aggregatorName, gae.getEventKey());
           aggregatorKeys.put(aggregatorName, gae.getKeys());
           aggregatorResults.put(aggregatorName, gae.getAggregates());
         }
@@ -136,6 +143,7 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
             gae = operator.fromKeyValueGAE(keySlice, value);
 
             //Add result keys and aggregates to result maps
+            aggregatorEventKeys.put(aggregatorName, gae.getEventKey());
             aggregatorKeys.put(aggregatorName, gae.getKeys());
             aggregatorResults.put(aggregatorName, gae.getAggregates());
           }
@@ -144,6 +152,7 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
             gae = operator.getCodec().fromKeyValue(hdsQuery.key, hdsQuery.result);
 
             LOG.debug("Retrieved from hds");
+            aggregatorEventKeys.put(aggregatorName, gae.getEventKey());
             aggregatorKeys.put(aggregatorName, gae.getKeys());
             aggregatorResults.put(aggregatorName, gae.getAggregates());
           }
@@ -162,6 +171,7 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
 
       if(!aggregatorResults.isEmpty()) {
         //Add results to the result lists
+        keysEventKeys.add(aggregatorEventKeys);
         keys.add(aggregatorKeys);
         results.add(aggregatorResults);
       }
@@ -178,7 +188,71 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
       return null;
     }
 
-    return pruneResults(keys, results, query, configurationSchema, queueContext);
+    List<Map<String, GPOMutable>> rolledKeys = Lists.newArrayList();
+    List<Map<String, GPOMutable>> rolledResults = Lists.newArrayList();
+
+    applyRolling(keysEventKeys,
+                 keys,
+                 results,
+                 rolledKeys,
+                 rolledResults,
+                 configurationSchema,
+                 query);
+
+    return pruneResults(rolledKeys, rolledResults, query, configurationSchema, queueContext);
+  }
+
+  private void applyRolling(List<Map<String, EventKey>> keysEventKeys,
+                            List<Map<String, GPOMutable>> keys,
+                            List<Map<String, GPOMutable>> results,
+                            List<Map<String, GPOMutable>> rolledKeys,
+                            List<Map<String, GPOMutable>> rolledResults,
+                            DimensionalConfigurationSchema configurationSchema,
+                            DataQueryDimensional query)
+  {
+    for (int offset = 0; offset < keys.size() - (query.getSlidingAggregateSize() - 1); offset++) {
+      int index = offset + (query.getSlidingAggregateSize() - 1);
+      Map<String, EventKey> bucketKeysEventKeys = keysEventKeys.get(index);
+      Map<String, GPOMutable> bucketKeys = keys.get(index);
+
+      Set<String> aggregators = Sets.newHashSet(bucketKeys.keySet());
+      for (int rollingIndex = 0; rollingIndex < query.getSlidingAggregateSize(); rollingIndex++) {
+        //Get aggregators for rolling bucket
+        Map<String, GPOMutable> key = keys.get(offset + rollingIndex);
+        aggregators.retainAll(key.keySet());
+      }
+
+      Set<String> unNeededAggregators = Sets.newHashSet(bucketKeys.keySet());
+      unNeededAggregators.removeAll(aggregators);
+
+      for (String unNeededAggregator : unNeededAggregators) {
+        bucketKeys.remove(unNeededAggregator);
+      }
+
+      Map<String, GPOMutable> result = Maps.newHashMap();
+
+      if (!aggregators.isEmpty()) {
+        for (int rollingIndex = 0; rollingIndex < query.getSlidingAggregateSize(); rollingIndex++) {
+          Map<String, GPOMutable> currentResult = results.get(offset + rollingIndex);
+          for (String aggregator : aggregators) {
+            IncrementalAggregator incrementalAggregator = configurationSchema.getAggregatorRegistry().getNameToIncrementalAggregator().get(aggregator);
+            GPOMutable aggregate = result.get(aggregator);
+            GPOMutable currentAggregate = currentResult.get(aggregator);
+            EventKey currentEventKey = bucketKeysEventKeys.get(aggregator);
+
+            if (aggregate == null) {
+              result.put(aggregator, currentAggregate);
+            } else {
+              incrementalAggregator.aggregate(new Aggregate(currentEventKey, aggregate),
+                                              new Aggregate(currentEventKey, currentAggregate));
+            }
+          }
+        }
+      }
+
+      rolledKeys.add(bucketKeys);
+      rolledResults.add(result);
+    }
   }
 
   /**

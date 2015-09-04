@@ -634,9 +634,9 @@ public class DimensionalConfigurationSchema
 
   /**
    * This is a helper method which initializes the {@link DimensionalConfigurationSchema} with the given
-   * json values.
+   * JSON values.
    * @param json The json with which to initialize the {@link DimensionalConfigurationSchema}.
-   * @throws Exception
+   * @throws JSONException
    */
   private void initialize(String json) throws JSONException
   {
