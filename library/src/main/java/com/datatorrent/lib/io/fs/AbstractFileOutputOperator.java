@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
 import javax.validation.constraints.Min;
@@ -31,6 +32,7 @@ import com.google.common.cache.*;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -226,6 +228,17 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   protected long currentWindow;
 
   /**
+   * The stream is expired (closed and evicted from cache) after the specified duration has passed since it was last
+   * accessed by a read or write.
+   * <p/>
+   * https://code.google.com/p/guava-libraries/wiki/CachesExplained <br/>
+   * Caches built with CacheBuilder do not perform cleanup and evict values "automatically," or instantly after a value expires, or anything of the sort.
+   * Instead, it performs small amounts of maintenance during write operations, or during occasional read operations if writes are rare.<br/>
+   * This isn't the most effective way but adds a little bit of optimization.
+   */
+  private Long expireStreamAfterAcessMillis;
+
+  /**
    * This input port receives incoming tuples.
    */
   public final transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>()
@@ -286,6 +299,9 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   public void setup(Context.OperatorContext context)
   {
     LOG.debug("setup initiated");
+    if (expireStreamAfterAcessMillis == null) {
+      expireStreamAfterAcessMillis = (long)(context.getValue(OperatorContext.SPIN_MILLIS) * context.getValue(Context.DAGContext.CHECKPOINT_WINDOW_COUNT));
+    }
     rollingFile = (maxLength < Long.MAX_VALUE) || (rotationWindows > 0);
 
     //Getting required file system instance.
@@ -416,13 +432,13 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
       }
     };
 
-    streamsCache = CacheBuilder.newBuilder().maximumSize(maxOpenFiles).removalListener(removalListener).build(loader);
+    streamsCache = CacheBuilder.newBuilder().maximumSize(maxOpenFiles).expireAfterAccess(expireStreamAfterAcessMillis, TimeUnit.MILLISECONDS).removalListener(removalListener).build(loader);
 
     try {
       LOG.debug("File system class: {}", fs.getClass());
       LOG.debug("end-offsets {}", endOffsets);
 
-      //Restore the files in case they were corrupted and the operator
+      //Restore the files in case they were corrupted and the operator was re-deployed.
       Path writerPath = new Path(filePath);
       if (fs.exists(writerPath)) {
         for (String seenFileName : endOffsets.keySet()) {
@@ -473,6 +489,13 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
                 fileContext.rename(recoveryFilePath, status.getPath(), Options.Rename.OVERWRITE);
               }
             } else {
+              if (alwaysWriteToTmp) {
+                String currentTmp = seenFileNamePart + '.' + System.currentTimeMillis() + TMP_EXTENSION;
+                FSDataOutputStream outputStream = fs.create(new Path(filePath + Path.SEPARATOR + currentTmp));
+                IOUtils.copy(inputStream, outputStream);
+                outputStream.close();
+                fileNameToTmpName.put(seenFileNamePart, currentTmp);
+              }
               inputStream.close();
             }
           }
@@ -1188,6 +1211,23 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   {
     return finalizedFiles;
   }
+
+  public Long getExpireStreamAfterAccessMillis()
+  {
+    return expireStreamAfterAcessMillis;
+  }
+
+  /**
+   * Sets the duration after which the stream is expired (closed and removed from the cache) since it was last accessed
+   * by a read or write.
+   *
+   * @param millis time in millis.
+   */
+  public void setExpireStreamAfterAccessMillis(Long millis)
+  {
+    this.expireStreamAfterAcessMillis = millis;
+  }
+
 /**
    * Return the filter to use. If this method returns a filter the filter is applied to data before the data is stored
    * in the file. If it returns null no filter is applied and data is written as is. Override this method to provide
