@@ -1809,6 +1809,44 @@ public class AbstractFileOutputOperatorTest
   }
 
   @Test
+  public void testPeriodicRotationWithEviction() throws InterruptedException
+  {
+    EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
+    File dir = new File(testMeta.getDir());
+    writer.setFilePath(testMeta.getDir());
+    writer.setRotationWindows(30);
+    writer.setAlwaysWriteToTmp(true);
+    writer.setExpireStreamAfterAccessMillis(1L);
+    writer.setup(testMeta.testOperatorContext);
+
+    // Check that rotation for even.txt.0 happens
+    for (int i = 0; i < 30; ++i) {
+      writer.beginWindow(i);
+      if (i == 0) {
+        writer.input.put(i);
+      }
+      Thread.sleep(100L);
+      writer.endWindow();
+    }
+    writer.committed(29);
+    Set<String> fileNames = new TreeSet<>();
+    fileNames.add(EVEN_FILE + ".0");
+    Collection<File> files = FileUtils.listFiles(dir, null, false);
+    Assert.assertEquals("Number of part files", 1, files.size());
+    Assert.assertEquals("Part file names", fileNames, getFileNames(files));
+
+    // Check that rotation doesn't happen for files that don't have data during the rotation period
+    for (int i = 30; i < 120; ++i) {
+      writer.beginWindow(i);
+      writer.endWindow();
+    }
+    writer.committed(119);
+    files = FileUtils.listFiles(dir, null, false);
+    Assert.assertEquals("Number of part files", 1, files.size());
+    Assert.assertEquals("Part file names", fileNames, getFileNames(files));
+  }
+
+  @Test
   public void testCompression() throws IOException
   {
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
