@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.*;
 
-import javax.validation.constraints.NotNull;
-
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfigBean;
 import com.ning.http.client.websocket.WebSocket;
@@ -32,6 +30,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.commons.lang3.ClassUtils;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
@@ -49,7 +48,7 @@ import com.datatorrent.api.DefaultInputPort;
 public class WebSocketOutputOperator<T> extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(WebSocketOutputOperator.class);
-  @NotNull
+  //Do not make this @NotNull since null is a valid value for some child classes
   private URI uri;
   private transient AsyncHttpClient client;
   private transient final JsonFactory jsonFactory = new JsonFactory();
@@ -193,7 +192,7 @@ public class WebSocketOutputOperator<T> extends BaseOperator
       public Thread newThread(Runnable r)
       {
         Thread t = new Thread(r);
-        t.setName(WebSocketOutputOperator.this.getName() + "-AsyncHttpClient-" + count++);
+        t.setName(ClassUtils.getShortClassName(this.getClass()) + "-AsyncHttpClient-" + count++);
         return t;
       }
 

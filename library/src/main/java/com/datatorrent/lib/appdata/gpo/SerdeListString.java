@@ -24,6 +24,10 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
+/**
+ * @since 3.1.0
+ */
+
 public class SerdeListString implements Serde
 {
   public static final SerdeListString INSTANCE = new SerdeListString();

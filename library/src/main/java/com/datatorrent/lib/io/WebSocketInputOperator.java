@@ -28,6 +28,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotNull;
+import org.apache.commons.lang3.ClassUtils;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -51,7 +52,7 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
    * Timeout interval for reading from server. 0 or negative indicates no timeout.
    */
   public int readTimeoutMillis = 0;
-  @NotNull
+  //Do not make this @NotNull since null is a valid value for some child classes
   private URI uri;
   private transient AsyncHttpClient client;
   private transient final JsonFactory jsonFactory = new JsonFactory();
@@ -178,7 +179,7 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
         public Thread newThread(Runnable r)
         {
           Thread t = new Thread(r);
-          t.setName(WebSocketInputOperator.this.getName() + "-AsyncHttpClient-" + count++);
+          t.setName(ClassUtils.getShortClassName(this.getClass()) + "-AsyncHttpClient-" + count++);
           return t;
         }
 

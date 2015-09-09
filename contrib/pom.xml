@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>malhar</artifactId>
-    <version>3.0.0</version>
+    <version>3.1.0</version>
   </parent>
 
   <artifactId>malhar-contrib</artifactId>
@@ -180,6 +180,12 @@
   </build>
 
   <dependencies>
+    <dependency>
+      <groupId>org.codehaus.janino</groupId>
+      <artifactId>janino</artifactId>
+      <version>2.7.8</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka_2.10</artifactId>
@@ -382,7 +388,7 @@
     <dependency>
       <groupId>redis.clients</groupId>
       <artifactId>jedis</artifactId>
-      <version>2.2.1</version>
+      <version>2.5.1</version>
       <optional>true</optional>
     </dependency>
     <dependency>

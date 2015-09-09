@@ -26,6 +26,7 @@ import com.datatorrent.api.Context.OperatorContext;
 
 import com.datatorrent.common.experimental.AppData;
 import com.datatorrent.common.util.PubSubMessage.PubSubMessageType;
+import java.net.URI;
 /**
  * This is an app data pub sub result operator. This operator is used to send results to
  * App Data dashboards produced by App Data store operators.
@@ -47,14 +48,38 @@ public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<
   @Override
   public void setup(OperatorContext context)
   {
+    setUri(PubSubWebSocketAppDataQuery.uriHelper(context, getUri()));
+    logger.debug("Setting up:\nuri:{}\ntopic:{}",this.getUri(), this.getTopic());
     super.setup(context);
-    logger.debug("Setting up: ");
   }
 
   @Override
   public String getAppDataURL()
   {
     return "pubsub";
+  }
+
+  /**
+   * Gets the URI for WebSocket connection.
+   *
+   * @return the URI
+   */
+  @Override
+  public URI getUri()
+  {
+    return super.getUri();
+  }
+
+  /**
+   * The URI for WebSocket connection. If this is not set, the value of the dt.attr.GATEWAY_CONNECT_ADDRESS DAG attribute is used. If neither this
+   * property or dt.attr.GATEWAY_CONNECT_ADDRESS attribute is set, then this operator will fail with an {@link IllegalArgumentException}.
+   *
+   * @param uri
+   */
+  @Override
+  public void setUri(URI uri)
+  {
+    super.setUri(uri);
   }
 
   @Override

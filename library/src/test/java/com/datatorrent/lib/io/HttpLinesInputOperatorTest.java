@@ -80,7 +80,6 @@ public class HttpLinesInputOperatorTest
 
     final HttpLinesInputOperator operator = new HttpLinesInputOperator();
     CollectorTestSink<String> sink = TestUtils.setSink(operator.outputPort, new CollectorTestSink<String>());
-    operator.setName("testHttpInputNode");
     operator.setUrl(new URI(url));
 
     operator.setup(null);

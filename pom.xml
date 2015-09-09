@@ -5,11 +5,11 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>dt-framework</artifactId>
-    <version>3.0.0</version>
+    <version>3.1.0</version>
   </parent>
 
   <artifactId>malhar</artifactId>
-  <version>3.0.0</version>
+  <version>3.1.0</version>
   <packaging>pom</packaging>
   <name>Malhar Open Source</name>
   <url>https://www.datatorrent.com/</url>
@@ -31,19 +31,71 @@
   </repositories>
 
   <prerequisites>
-    <maven>3.0.0</maven>
+    <maven>3.1.0</maven>
   </prerequisites>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <netbeans.hint.license>malhar-inc</netbeans.hint.license>
     <maven.deploy.skip>false</maven.deploy.skip>
-    <dt.framework.version>3.0.0</dt.framework.version>
+    <dt.framework.version>3.1.0</dt.framework.version>
     <!-- the following properties match the properties defined in core/pom.xml -->
     <jackson.version>1.9.2</jackson.version>
     <jersey.version>1.9</jersey.version>
     <jetty.version>8.1.10.v20130312</jetty.version>
+    <semver.plugin.skip>false</semver.plugin.skip>
   </properties>
+
+  <profiles>
+    <profile>
+      <activation>
+        <file>
+          <exists>src</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.github.siom79.japicmp</groupId>
+            <artifactId>japicmp-maven-plugin</artifactId>
+            <version>0.5.3</version>
+            <configuration>
+              <oldVersion>
+                <dependency>
+                  <groupId>com.datatorrent</groupId>
+                  <artifactId>${project.artifactId}</artifactId>
+                  <version>3.1.0</version>
+                </dependency>
+              </oldVersion>
+              <newVersion>
+                <file>
+                  <path>${project.build.directory}/${project.artifactId}-${project.version}.jar</path>
+                </file>
+              </newVersion>
+              <parameter>
+                <onlyModified>true</onlyModified>
+                <accessModifier>protected</accessModifier>
+                <breakBuildOnModifications>false</breakBuildOnModifications>
+                <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
+                <onlyBinaryIncompatible>false</onlyBinaryIncompatible>
+                <includeSynthetic>false</includeSynthetic>
+                <ignoreMissingClasses>true</ignoreMissingClasses>
+              </parameter>
+              <skip>${semver.plugin.skip}</skip>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>verify</phase>
+                <goals>
+                  <goal>cmp</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <modules>
     <module>library</module>

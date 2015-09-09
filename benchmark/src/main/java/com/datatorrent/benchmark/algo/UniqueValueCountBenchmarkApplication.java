@@ -19,10 +19,11 @@ package com.datatorrent.benchmark.algo;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.lib.algo.UniqueCounter;
-import com.datatorrent.lib.algo.UniqueCounterValue;
 import com.datatorrent.lib.converter.MapToKeyHashValuePairConverter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.common.partitioner.StatelessPartitioner;
+
+import com.datatorrent.lib.stream.Counter;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 import com.datatorrent.api.Context;
@@ -65,12 +66,12 @@ public class UniqueValueCountBenchmarkApplication implements StreamingApplicatio
     dag.setInputPortAttribute(uniqCount.data, Context.PortContext.PARTITION_PARALLEL, true);
     uniqCount.setCumulative(false);
 
-    UniqueCounterValue counter = dag.addOperator("count", new UniqueCounterValue());
+    Counter counter = dag.addOperator("count", new Counter());
     ConsoleOutputOperator output = dag.addOperator("output", new ConsoleOutputOperator());
 
     dag.addStream("datain", randGen.integer_data, uniqCount.data);
     dag.addStream("convert", uniqCount.count, converter.input).setLocality(Locality.THREAD_LOCAL);
-    dag.addStream("consoutput", converter.output, counter.data);
-    dag.addStream("final", counter.count, output.input);
+    dag.addStream("consoutput", converter.output, counter.input);
+    dag.addStream("final", counter.output, output.input);
   }
 }

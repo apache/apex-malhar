@@ -19,7 +19,7 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.contrib.memsql.MemsqlOutputOperator;
+import com.datatorrent.contrib.memsql.MemsqlPOJOOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
@@ -86,8 +86,8 @@ public class MemsqlOutputBenchmark implements StreamingApplication
     randomEventGenerator.setTuplesBlast(TUPLE_BLAST);
 
     LOG.debug("Before making output operator");
-    MemsqlOutputOperator memsqlOutputOperator = dag.addOperator("memsqlOutputOperator",
-                                                                new MemsqlOutputOperator());
+    MemsqlPOJOOutputOperator memsqlOutputOperator = dag.addOperator("memsqlOutputOperator",
+                                                                new MemsqlPOJOOutputOperator());
     LOG.debug("After making output operator");
 
     memsqlOutputOperator.setBatchSize(DEFAULT_BATCH_SIZE);

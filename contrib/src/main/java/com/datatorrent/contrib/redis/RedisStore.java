@@ -23,6 +23,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.ScanParams;
+import redis.clients.jedis.ScanResult;
 import redis.clients.jedis.Transaction;
 
 import com.datatorrent.lib.db.TransactionableKeyValueStore;
@@ -181,6 +183,26 @@ public class RedisStore implements TransactionableKeyValueStore
     return jedis.get(key.toString());
   }
 
+  public String getType(String key)
+  {
+    return jedis.type(key);
+  }
+
+  /**
+   * Gets the stored Map for given the key, when the value data type is a map, stored with hmset  
+   *
+   * @param key
+   * @return hashmap stored for the key.
+   */
+  public Map<String, String> getMap(Object key)
+  {
+    if (isInTransaction()) {
+      throw new RuntimeException("Cannot call get when in redis transaction");
+    }
+    return jedis.hgetAll(key.toString());
+  }
+
+
   /**
    * Gets all the values given the keys.
    * Note that it does NOT work with hash values or list values
@@ -253,6 +275,11 @@ public class RedisStore implements TransactionableKeyValueStore
     else {
       jedis.del(key.toString());
     }
+  }
+
+  public ScanResult<String> ScanKeys(Integer offset, ScanParams params)
+  {
+    return jedis.scan(offset.toString(), params);
   }
 
   /**

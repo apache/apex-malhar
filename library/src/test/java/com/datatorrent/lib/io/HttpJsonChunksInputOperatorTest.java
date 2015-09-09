@@ -92,7 +92,6 @@ public class HttpJsonChunksInputOperatorTest
     CollectorTestSink sink = new CollectorTestSink();
 
     operator.outputPort.setSink(sink);
-    operator.setName("testHttpInputNode");
     operator.setUrl(new URI(url));
 
     operator.setup(null);
