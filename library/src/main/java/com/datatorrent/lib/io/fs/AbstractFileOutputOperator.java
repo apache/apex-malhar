@@ -868,9 +868,9 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
       if (++rotationCount == rotationWindows) {
         rotationCount = 0;
         // Rotate the files
-        Iterator<String> iterator = streamsCache.asMap().keySet().iterator();
+        Iterator<Map.Entry<String, MutableInt>> iterator = openPart.entrySet().iterator();
         while (iterator.hasNext()) {
-          String filename = iterator.next();
+          String filename = iterator.next().getKey();
           // Rotate the file if the following conditions are met
           // 1. The file is not already rotated during this period for other reasons such as max length is reached
           //     or rotate was explicitly called externally
