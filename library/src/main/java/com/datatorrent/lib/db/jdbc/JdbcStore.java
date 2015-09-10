@@ -44,7 +44,7 @@ public class JdbcStore implements Connectable
   private String databaseUrl;
   @NotNull
   private String databaseDriver;
-  private final Properties connectionProperties;
+  private Properties connectionProperties;
   protected transient Connection connection = null;
 
   /*
@@ -115,10 +115,10 @@ public class JdbcStore implements Connectable
   }
 
   /**
-   * Connection Properties for JDBC Connection.
-   * Sets the properties on the jdbc connection.
+   * Sets the connection properties on JDBC connection. Connection properties are provided as a string.
+   *
    * @param connectionProps Comma separated list of properties. Property key and value are separated by colon.
-   *                             eg. user:xyz,password:ijk
+   *                        eg. user:xyz,password:ijk
    */
   public void setConnectionProperties(String connectionProps)
   {
@@ -131,8 +131,17 @@ public class JdbcStore implements Connectable
   }
 
   /**
-   * Connection Properties for JDBC Connection.
-   * Gets the properties on the jdbc connection.
+   * Sets the connection properties on JDBC connection.
+   *
+   * @param connectionProperties connection properties.
+   */
+  public void setConnectionProperties(Properties connectionProperties)
+  {
+    this.connectionProperties = connectionProperties;
+  }
+
+  /**
+   * Get the connection properties of JDBC connection.
    */
   public Properties getConnectionProperties()
   {

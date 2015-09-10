@@ -80,6 +80,9 @@
                 <onlyBinaryIncompatible>false</onlyBinaryIncompatible>
                 <includeSynthetic>false</includeSynthetic>
                 <ignoreMissingClasses>true</ignoreMissingClasses>
+                <excludes>
+                  <exclude>*POJO*</exclude>
+                </excludes>
               </parameter>
               <skip>${semver.plugin.skip}</skip>
             </configuration>
