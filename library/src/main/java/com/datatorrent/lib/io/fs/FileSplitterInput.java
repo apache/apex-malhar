@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,10 @@ package com.datatorrent.lib.io.fs;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -26,11 +29,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -50,13 +51,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import com.datatorrent.api.*;
+import com.datatorrent.api.Context;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 
-import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.io.IdempotentStorageManager;
-import com.datatorrent.lib.io.block.BlockMetadata.FileBlockMetadata;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * Input operator that scans a directory for files and splits a file into blocks.<br/>
@@ -65,115 +66,47 @@ import com.datatorrent.lib.io.block.BlockMetadata.FileBlockMetadata;
  * The file system/directory space should be different for different partitions of file splitter.
  * The scanning of
  *
- * @deprecated use {@link FileSplitterInput}
  * @displayName File Splitter
  * @category Input
  * @tags file
  * @since 2.0.0
  */
-@Deprecated
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
-public class FileSplitter implements InputOperator, Operator.CheckpointListener
+public class FileSplitterInput extends AbstractFileSplitter<FileSplitterInput.TimeBasedDirectoryScanner> implements InputOperator,
+  Operator.CheckpointListener
 {
-  protected Long blockSize;
-  private int sequenceNo;
-
-  /**
-   * This is a threshold on the no. of blocks emitted per window. A lot of blocks emitted
-   * per window can overwhelm the downstream operators. This setting helps to control that.
-   */
-  @Min(1)
-  protected int blocksThreshold;
-
-  protected transient long blockCount;
-
-  protected Iterator<FileBlockMetadata> blockMetadataIterator;
-
-  @NotNull
-  protected TimeBasedDirectoryScanner scanner;
-
   @NotNull
   protected IdempotentStorageManager idempotentStorageManager;
 
   @NotNull
   protected final transient LinkedList<FileInfo> currentWindowRecoveryState;
 
-  protected transient FileSystem fs;
-  protected transient int operatorId;
-  protected transient Context.OperatorContext context;
-  protected transient long currentWindowId;
-
-  protected final BasicCounters<MutableLong> fileCounters;
-
-  public final transient DefaultOutputPort<FileMetadata> filesMetadataOutput = new DefaultOutputPort<FileMetadata>();
-  public final transient DefaultOutputPort<FileBlockMetadata> blocksMetadataOutput = new DefaultOutputPort<FileBlockMetadata>();
-
-  public FileSplitter()
+  public FileSplitterInput()
   {
+    super();
     currentWindowRecoveryState = Lists.newLinkedList();
-    fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
-    idempotentStorageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
     scanner = new TimeBasedDirectoryScanner();
-    blocksThreshold = Integer.MAX_VALUE;
+    idempotentStorageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
   }
 
   @Override
   public void setup(Context.OperatorContext context)
   {
     Preconditions.checkArgument(!scanner.files.isEmpty(), "empty files");
-    Preconditions.checkArgument(blockSize == null || blockSize > 0, "invalid block size");
-
-    operatorId = context.getId();
-    this.context = context;
-
-    fileCounters.setCounter(Counters.PROCESSED_FILES, new MutableLong());
+    super.setup(context);
     idempotentStorageManager.setup(context);
-
-    try {
-      fs = scanner.getFSInstance();
-    }
-    catch (IOException e) {
-      throw new RuntimeException("creating fs", e);
-    }
-
-    if (blockSize == null) {
-      blockSize = fs.getDefaultBlockSize(new Path(scanner.files.iterator().next()));
-    }
 
     if (context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID) < idempotentStorageManager.getLargestRecoveryWindow()) {
       blockMetadataIterator = null;
-    }
-    else {
-      //don't setup scanner while recovery
-      scanner.setup(context);
-    }
-  }
-
-  @SuppressWarnings("ThrowFromFinallyBlock")
-  @Override
-  public void teardown()
-  {
-    try {
-      scanner.teardown();
-    }
-    catch (Throwable t) {
-      DTThrowable.rethrow(t);
-    }
-    finally {
-      try {
-        fs.close();
-      }
-      catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+    } else {
+      scanner.startScanning();
     }
   }
 
   @Override
   public void beginWindow(long windowId)
   {
-    blockCount = 0;
-    currentWindowId = windowId;
+    super.beginWindow(windowId);
     if (windowId <= idempotentStorageManager.getLargestRecoveryWindow()) {
       replay(windowId);
     }
@@ -195,28 +128,31 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
       for (FileInfo info : recoveredData) {
         if (info.directoryPath != null) {
           scanner.lastModifiedTimes.put(info.directoryPath, info.modifiedTime);
-        }
-        else { //no directory
+        } else { //no directory
           scanner.lastModifiedTimes.put(info.relativeFilePath, info.modifiedTime);
         }
-
         FileMetadata fileMetadata = buildFileMetadata(info);
         fileCounters.getCounter(Counters.PROCESSED_FILES).increment();
         filesMetadataOutput.emit(fileMetadata);
-        blockMetadataIterator = new BlockMetadataIterator(this, fileMetadata, blockSize);
+        blockMetadataIterator = new BlockMetadataIterator((AbstractFileSplitter) this, fileMetadata, blockSize);
 
         if (!emitBlockMetadata()) {
           break;
         }
       }
-
-      if (windowId == idempotentStorageManager.getLargestRecoveryWindow()) {
-        scanner.setup(context);
-      }
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException("replay", e);
     }
+    if (windowId == idempotentStorageManager.getLargestRecoveryWindow()) {
+      scanner.startScanning();
+    }
+  }
+
+  @Override
+  protected boolean process(FileInfo fileInfo)
+  {
+    currentWindowRecoveryState.add(fileInfo);
+    return super.process(fileInfo);
   }
 
   @Override
@@ -236,25 +172,8 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
 
     FileInfo fileInfo;
     while (blockCount < blocksThreshold && (fileInfo = scanner.pollFile()) != null) {
-
-      currentWindowRecoveryState.add(fileInfo);
-      try {
-        FileMetadata fileMetadata = buildFileMetadata(fileInfo);
-        filesMetadataOutput.emit(fileMetadata);
-        fileCounters.getCounter(Counters.PROCESSED_FILES).increment();
-        if (!fileMetadata.isDirectory()) {
-          blockMetadataIterator = new BlockMetadataIterator(this, fileMetadata, blockSize);
-          if (!emitBlockMetadata()) {
-            //block threshold reached
-            break;
-          }
-        }
-        if (fileInfo.lastFileOfScan) {
-          break;
-        }
-      }
-      catch (IOException e) {
-        throw new RuntimeException("creating metadata", e);
+      if (!process(fileInfo)) {
+        break;
       }
     }
   }
@@ -265,123 +184,24 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
     if (currentWindowId > idempotentStorageManager.getLargestRecoveryWindow()) {
       try {
         idempotentStorageManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         throw new RuntimeException("saving recovery", e);
       }
     }
     currentWindowRecoveryState.clear();
-    context.setCounters(fileCounters);
+    super.endWindow();
   }
 
-  /**
-   * @return true if all the blocks were emitted; false otherwise
-   */
-  protected boolean emitBlockMetadata()
+  @Override
+  protected long getDefaultBlockSize()
   {
-    while (blockMetadataIterator.hasNext()) {
-      if (blockCount++ < blocksThreshold) {
-        this.blocksMetadataOutput.emit(blockMetadataIterator.next());
-      }
-      else {
-        return false;
-      }
-    }
-    blockMetadataIterator = null;
-    return true;
+    return scanner.fs.getDefaultBlockSize(new Path(scanner.files.iterator().next()));
   }
 
-  /**
-   * Can be overridden for creating block metadata of a type that extends {@link FileBlockMetadata}
-   */
-  protected FileBlockMetadata createBlockMetadata(long pos, long lengthOfFileInBlock, int blockNumber,
-                                                  FileMetadata fileMetadata, boolean isLast)
+  @Override
+  protected FileStatus getFileStatus(Path path) throws IOException
   {
-    return new FileBlockMetadata(fileMetadata.getFilePath(), fileMetadata.getBlockIds()[blockNumber - 1], pos,
-      lengthOfFileInBlock, isLast, blockNumber == 1 ? -1 : fileMetadata.getBlockIds()[blockNumber - 2]);
-
-  }
-
-  /**
-   * Creates file-metadata and populates no. of blocks in the metadata.
-   *
-   * @param fileInfo file information
-   * @return file-metadata
-   * @throws IOException
-   */
-  protected FileMetadata buildFileMetadata(FileInfo fileInfo) throws IOException
-  {
-    String filePathStr = fileInfo.getFilePath();
-    LOG.debug("file {}", filePathStr);
-    FileMetadata fileMetadata = new FileMetadata(filePathStr);
-    Path path = new Path(filePathStr);
-
-    fileMetadata.setFileName(path.getName());
-
-    FileStatus status = fs.getFileStatus(path);
-    fileMetadata.setDirectory(status.isDirectory());
-    fileMetadata.setFileLength(status.getLen());
-
-    if (!status.isDirectory()) {
-      int noOfBlocks = (int) ((status.getLen() / blockSize) + (((status.getLen() % blockSize) == 0) ? 0 : 1));
-      if (fileMetadata.getDataOffset() >= status.getLen()) {
-        noOfBlocks = 0;
-      }
-      fileMetadata.setNumberOfBlocks(noOfBlocks);
-      populateBlockIds(fileMetadata);
-    }
-    return fileMetadata;
-  }
-
-  protected void populateBlockIds(FileMetadata fileMetadata)
-  {
-    // block ids are 32 bits of operatorId | 32 bits of sequence number
-    long[] blockIds = new long[fileMetadata.getNumberOfBlocks()];
-    long longLeftSide = ((long) operatorId) << 32;
-    for (int i = 0; i < fileMetadata.getNumberOfBlocks(); i++) {
-      blockIds[i] = longLeftSide | sequenceNo++ & 0xFFFFFFFFL;
-    }
-    fileMetadata.setBlockIds(blockIds);
-  }
-
-  public void setBlockSize(Long blockSize)
-  {
-    this.blockSize = blockSize;
-  }
-
-  public Long getBlockSize()
-  {
-    return blockSize;
-  }
-
-  public void setBlocksThreshold(int threshold)
-  {
-    this.blocksThreshold = threshold;
-  }
-
-  public int getBlocksThreshold()
-  {
-    return blocksThreshold;
-  }
-
-  public void setScanner(TimeBasedDirectoryScanner scanner)
-  {
-    this.scanner = scanner;
-  }
-
-  public TimeBasedDirectoryScanner getScanner()
-  {
-    return this.scanner;
-  }
-
-  public void setIdempotentStorageManager(IdempotentStorageManager idempotentStorageManager)
-  {
-    this.idempotentStorageManager = idempotentStorageManager;
-  }
-
-  public IdempotentStorageManager getIdempotentStorageManager()
-  {
-    return this.idempotentStorageManager;
+    return scanner.fs.getFileStatus(path);
   }
 
   @Override
@@ -394,241 +214,22 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
   {
     try {
       idempotentStorageManager.deleteUpTo(operatorId, l);
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
-  /**
-   * An {@link Iterator} for Block-Metadatas of a file.
-   * @deprecated use {@link FileSplitterInput.BlockMetadataIterator}
-   */
-  @Deprecated
-  public static class BlockMetadataIterator implements Iterator<FileBlockMetadata>
+  public void setIdempotentStorageManager(IdempotentStorageManager idempotentStorageManager)
   {
-    private final FileMetadata fileMetadata;
-    private final long blockSize;
-
-    private long pos;
-    private int blockNumber;
-
-    private final FileSplitter splitter;
-
-    protected BlockMetadataIterator()
-    {
-      //for kryo
-      fileMetadata = null;
-      blockSize = -1;
-      splitter = null;
-    }
-
-    public BlockMetadataIterator(FileSplitter splitter, FileMetadata fileMetadata, long blockSize)
-    {
-      this.splitter = splitter;
-      this.fileMetadata = fileMetadata;
-      this.blockSize = blockSize;
-      this.pos = fileMetadata.getDataOffset();
-      this.blockNumber = 0;
-    }
-
-    @Override
-    public boolean hasNext()
-    {
-      return pos < fileMetadata.getFileLength();
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public FileBlockMetadata next()
-    {
-      long length;
-      while ((length = blockSize * ++blockNumber) <= pos) {
-      }
-      boolean isLast = length >= fileMetadata.getFileLength();
-      long lengthOfFileInBlock = isLast ? fileMetadata.getFileLength() : length;
-      FileBlockMetadata fileBlock = splitter.createBlockMetadata(pos, lengthOfFileInBlock, blockNumber, fileMetadata, isLast);
-      pos = lengthOfFileInBlock;
-      return fileBlock;
-    }
-
-    @Override
-    public void remove()
-    {
-      throw new UnsupportedOperationException("remove not supported");
-    }
+    this.idempotentStorageManager = idempotentStorageManager;
   }
 
-  /**
-   * Represents the file metadata - file path, name, no. of blocks, etc.
-   * @deprecated use {@link FileSplitterInput.FileMetadata}
-   */
-  @Deprecated
-  public static class FileMetadata
+  public IdempotentStorageManager getIdempotentStorageManager()
   {
-    @NotNull
-    private String filePath;
-    private String fileName;
-    private int numberOfBlocks;
-    private long dataOffset;
-    private long fileLength;
-    private long discoverTime;
-    private long[] blockIds;
-    private boolean isDirectory;
-
-    @SuppressWarnings("unused")
-    protected FileMetadata()
-    {
-      //for kryo
-      filePath = null;
-      discoverTime = System.currentTimeMillis();
-    }
-
-    /**
-     * Constructs file metadata
-     *
-     * @param filePath file path
-     */
-    public FileMetadata(@NotNull String filePath)
-    {
-      this.filePath = filePath;
-      discoverTime = System.currentTimeMillis();
-    }
-
-    /**
-     * Returns the total number of blocks.
-     */
-    public int getNumberOfBlocks()
-    {
-      return numberOfBlocks;
-    }
-
-    /**
-     * Sets the total number of blocks.
-     */
-    public void setNumberOfBlocks(int numberOfBlocks)
-    {
-      this.numberOfBlocks = numberOfBlocks;
-    }
-
-    /**
-     * Returns the file name.
-     */
-    public String getFileName()
-    {
-      return fileName;
-    }
-
-    /**
-     * Sets the file name.
-     */
-    public void setFileName(String fileName)
-    {
-      this.fileName = fileName;
-    }
-
-    /**
-     * Sets the file path.
-     */
-    public void setFilePath(String filePath)
-    {
-      this.filePath = filePath;
-    }
-
-    /**
-     * Returns the file path.
-     */
-    public String getFilePath()
-    {
-      return filePath;
-    }
-
-    /**
-     * Returns the data offset.
-     */
-    public long getDataOffset()
-    {
-      return dataOffset;
-    }
-
-    /**
-     * Sets the data offset.
-     */
-    public void setDataOffset(long offset)
-    {
-      this.dataOffset = offset;
-    }
-
-    /**
-     * Returns the file length.
-     */
-    public long getFileLength()
-    {
-      return fileLength;
-    }
-
-    /**
-     * Sets the file length.
-     */
-    public void setFileLength(long fileLength)
-    {
-      this.fileLength = fileLength;
-    }
-
-    /**
-     * Returns the file discover time.
-     */
-    public long getDiscoverTime()
-    {
-      return discoverTime;
-    }
-
-    /**
-     * Sets the discover time.
-     */
-    public void setDiscoverTime(long discoverTime)
-    {
-      this.discoverTime = discoverTime;
-    }
-
-    /**
-     * Returns the block ids associated with the file.
-     */
-    public long[] getBlockIds()
-    {
-      return blockIds;
-    }
-
-    /**
-     * Sets the blocks ids of the file.
-     */
-    public void setBlockIds(long[] blockIds)
-    {
-      this.blockIds = blockIds;
-    }
-
-    /**
-     * Sets whether the file metadata is a directory.
-     */
-    public void setDirectory(boolean isDirectory)
-    {
-      this.isDirectory = isDirectory;
-    }
-
-    /**
-     * @return true if it is a directory; false otherwise.
-     */
-    public boolean isDirectory()
-    {
-      return isDirectory;
-    }
+    return this.idempotentStorageManager;
   }
 
-  /**
-   * @deprecated use {@link FileSplitterInput.TimeBasedDirectoryScanner}
-   */
-  @Deprecated
-  public static class TimeBasedDirectoryScanner implements Component<Context.OperatorContext>, Runnable
+  public static class TimeBasedDirectoryScanner implements Runnable, AbstractFileSplitter.Scanner
   {
     private static long DEF_SCAN_INTERVAL_MILLIS = 5000;
 
@@ -668,8 +269,8 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
       scanIntervalMillis = DEF_SCAN_INTERVAL_MILLIS;
       files = Sets.newLinkedHashSet();
       scanService = Executors.newSingleThreadExecutor();
-      discoveredFiles = new LinkedBlockingDeque<FileInfo>();
-      atomicThrowable = new AtomicReference<Throwable>();
+      discoveredFiles = new LinkedBlockingDeque<>();
+      atomicThrowable = new AtomicReference<>();
       ignoredFiles = Sets.newHashSet();
       lock = new Lock();
     }
@@ -683,10 +284,13 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
       }
       try {
         fs = getFSInstance();
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         throw new RuntimeException("opening fs", e);
       }
+    }
+
+    public void startScanning()
+    {
       scanService.submit(this);
     }
 
@@ -697,8 +301,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
       scanService.shutdownNow();
       try {
         fs.close();
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         throw new RuntimeException("closing fs", e);
       }
     }
@@ -722,13 +325,11 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
               }
               scanComplete();
             }
-          }
-          else {
+          } else {
             Thread.sleep(sleepMillis);
           }
         }
-      }
-      catch (Throwable throwable) {
+      } catch (Throwable throwable) {
         LOG.error("service", throwable);
         running = false;
         atomicThrowable.set(throwable);
@@ -790,29 +391,25 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
             LOG.debug("found {}", childPathStr);
 
             FileInfo info;
-            if(rootPath == null) {
-             info =parentStatus.isDirectory() ?
+            if (rootPath == null) {
+              info = parentStatus.isDirectory() ?
                 new FileInfo(parentPathStr, childPath.getName(), parentStatus.getModificationTime()) :
                 new FileInfo(null, childPathStr, parentStatus.getModificationTime());
-            }
-            else {
+            } else {
               URI relativeChildURI = rootPath.toUri().relativize(childPath.toUri());
               info = new FileInfo(rootPath.toUri().getPath(), relativeChildURI.getPath(),
                 parentStatus.getModificationTime());
             }
 
             discoveredFiles.add(info);
-          }
-          else {
+          } else {
             // don't look at it again
             ignoredFiles.add(childPathStr);
           }
         }
-      }
-      catch (FileNotFoundException fnf) {
+      } catch (FileNotFoundException fnf) {
         LOG.warn("Failed to list directory {}", filePath, fnf);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         throw new RuntimeException("listing files", e);
       }
     }
@@ -971,69 +568,5 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
     }
   }
 
-  /**
-   * A class that represents the file discovered by time-based scanner.
-   * @deprecated use {@link FileSplitterInput.FileInfo}
-   */
-  @Deprecated
-  protected static class FileInfo
-  {
-    protected final String directoryPath;
-    protected final String relativeFilePath;
-    protected final long modifiedTime;
-    protected transient boolean lastFileOfScan;
-
-    private FileInfo()
-    {
-      directoryPath = null;
-      relativeFilePath = null;
-      modifiedTime = -1;
-    }
-
-    protected FileInfo(@Nullable String directoryPath, @NotNull String relativeFilePath, long modifiedTime)
-    {
-      this.directoryPath = directoryPath;
-      this.relativeFilePath = relativeFilePath;
-      this.modifiedTime = modifiedTime;
-    }
-
-    /**
-     * @return directory path
-     */
-    public String getDirectoryPath()
-    {
-      return directoryPath;
-    }
-
-    /**
-     * @return path relative to directory
-     */
-    public String getRelativeFilePath()
-    {
-      return relativeFilePath;
-    }
-
-    /**
-     * @return full path of the file
-     */
-    public String getFilePath()
-    {
-      if (directoryPath == null) {
-        return relativeFilePath;
-      }
-      return new Path(directoryPath, relativeFilePath).toUri().getPath();
-    }
-
-    public boolean isLastFileOfScan()
-    {
-      return lastFileOfScan;
-    }
-  }
-
-  public static enum Counters
-  {
-    PROCESSED_FILES
-  }
-
-  private static final Logger LOG = LoggerFactory.getLogger(FileSplitter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(FileSplitterInput.class);
 }
