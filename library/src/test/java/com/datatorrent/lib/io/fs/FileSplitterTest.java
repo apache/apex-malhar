@@ -65,6 +65,7 @@ public class FileSplitterTest
 
   public static class TestMeta extends TestWatcher
   {
+    public String baseDirectory = null;
     public String dataDirectory = null;
 
     FileSplitter fileSplitter;
@@ -81,7 +82,8 @@ public class FileSplitterTest
 
       String methodName = description.getMethodName();
       String className = description.getClassName();
-      this.dataDirectory = "target/" + className + "/" + methodName;
+      this.baseDirectory = "target/" + className + "/" + methodName;
+      this.dataDirectory = baseDirectory + "/" + "data";
 
       try {
         FileContext.getLocalFSFileContext().delete(new Path(new File(dataDirectory).getAbsolutePath()), true);
@@ -109,7 +111,7 @@ public class FileSplitterTest
       fileSplitter.setIdempotentStorageManager(new IdempotentStorageManager.NoopIdempotentStorageManager());
 
       Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
-      attributes.put(Context.DAGContext.APPLICATION_PATH, dataDirectory);
+      attributes.put(Context.DAGContext.APPLICATION_PATH, baseDirectory);
 
       context = new OperatorContextTestHelper.TestIdOperatorContext(0, attributes);
       fileSplitter.setup(context);
@@ -234,6 +236,56 @@ public class FileSplitterTest
   }
 
   @Test
+  public void testTimeScanMultiLevelDir() throws InterruptedException, IOException
+  {
+    testMeta.fileSplitter.scanner.regex = null;
+    testFileMetadata();
+    testMeta.fileMetadataSink.clear();
+    testMeta.blockMetadataSink.clear();
+
+    Thread.sleep(1000);
+    //added a new relativeFilePath
+    File f123 = new File(testMeta.dataDirectory + "/dir1/dir2", "file123" + ".txt");
+    HashSet<String> lines = Sets.newHashSet();
+    for (int line = 0; line < 2; line++) {
+      lines.add("f123" + "l" + line);
+    }
+    FileUtils.write(f123, StringUtils.join(lines, '\n'));
+    Thread.sleep(1000);
+
+    //window 2
+    testMeta.fileSplitter.beginWindow(2);
+    testMeta.exchanger.exchange(null);
+    testMeta.fileSplitter.emitTuples();
+    testMeta.fileSplitter.endWindow();
+
+    Assert.assertEquals("window 2: files", 3, testMeta.fileMetadataSink.collectedTuples.size());
+    Assert.assertEquals("window 2: blocks", 1, testMeta.blockMetadataSink.collectedTuples.size());
+
+    testMeta.fileMetadataSink.clear();
+    testMeta.blockMetadataSink.clear();
+
+    Thread.sleep(1000);
+    //added a new relativeFilePath
+    File f4 = new File(testMeta.dataDirectory + "/dir1/dir2", "file4" + ".txt");
+    lines = Sets.newHashSet();
+    for (int line = 0; line < 2; line++) {
+      lines.add("f4" + "l" + line);
+    }
+    FileUtils.write(f4, StringUtils.join(lines, '\n'));
+    Thread.sleep(1000);
+
+    //window 3
+    testMeta.fileSplitter.beginWindow(3);
+    testMeta.exchanger.exchange(null);
+    testMeta.fileSplitter.emitTuples();
+    testMeta.fileSplitter.endWindow();
+
+    Assert.assertEquals("window 2: files", 1, testMeta.fileMetadataSink.collectedTuples.size());
+    Assert.assertEquals("window 2: blocks", 1, testMeta.blockMetadataSink.collectedTuples.size());
+  }
+
+  @Test
   public void testTrigger() throws InterruptedException, IOException, TimeoutException
   {
     testMeta.fileSplitter.scanner.setScanIntervalMillis(60 * 1000);
@@ -339,7 +391,7 @@ public class FileSplitterTest
   public void testRecoveryOfPartialFile() throws InterruptedException
   {
     IdempotentStorageManager.FSIdempotentStorageManager fsIdempotentStorageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
-    fsIdempotentStorageManager.setRecoveryPath(testMeta.dataDirectory + '/' + "recovery");
+    fsIdempotentStorageManager.setRecoveryPath(testMeta.baseDirectory + '/' + "recovery");
     testMeta.fileSplitter.setIdempotentStorageManager(fsIdempotentStorageManager);
     testMeta.fileSplitter.setBlockSize(2L);
     testMeta.fileSplitter.setBlocksThreshold(2);
@@ -435,6 +487,25 @@ public class FileSplitterTest
     Assert.assertEquals("File metadata count", 1, testMeta.fileMetadataSink.collectedTuples.size());
     Assert.assertEquals("File metadata", new File(testMeta.dataDirectory + "/file1.txt").getAbsolutePath(),
       testMeta.fileMetadataSink.collectedTuples.get(0).getFilePath());
+  }
+
+  @Test
+  public void testEmptyDirectory() throws InterruptedException, IOException
+  {
+    testMeta.fileSplitter.teardown();
+    FileUtils.cleanDirectory(new File(testMeta.dataDirectory));
+    testMeta.fileSplitter.scanner = new MockScanner(testMeta);
+    testMeta.fileSplitter.scanner.regex = null;
+    testMeta.fileSplitter.scanner.setFiles(testMeta.dataDirectory);
+
+    testMeta.fileSplitter.setup(testMeta.context);
+    testMeta.fileSplitter.beginWindow(1);
+    testMeta.exchanger.exchange(null);
+
+    testMeta.fileSplitter.emitTuples();
+    testMeta.fileSplitter.endWindow();
+    Assert.assertEquals("File metadata count", 1, testMeta.fileMetadataSink.collectedTuples.size());
+    Assert.assertEquals("File metadata", new File(testMeta.dataDirectory).getPath(), testMeta.fileMetadataSink.collectedTuples.get(0).getFilePath());
   }
 
   private static class MockScanner extends FileSplitter.TimeBasedDirectoryScanner

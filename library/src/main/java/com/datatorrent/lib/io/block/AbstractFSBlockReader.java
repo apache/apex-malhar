@@ -56,7 +56,9 @@ public abstract class AbstractFSBlockReader<R> extends AbstractBlockReader<R, Bl
   {
     super.teardown();
     try {
-      fs.close();
+      if (fs != null) {
+        fs.close();
+      }
     }
     catch (IOException e) {
       throw new RuntimeException(e);

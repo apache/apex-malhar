@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -45,14 +46,13 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
 import com.datatorrent.api.*;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-
 import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.io.block.BlockMetadata.FileBlockMetadata;
+import com.datatorrent.lib.io.block.FileReaderUtils;
 
 /**
  * Input operator that scans a directory for files and splits a file into blocks.<br/>
@@ -634,22 +634,23 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
     private String filePatternRegularExp;
 
     protected transient long lastScanMillis;
+    protected long noOfDiscoveredFilesInThisScan;
     protected transient FileSystem fs;
     protected final transient LinkedBlockingDeque<FileInfo> discoveredFiles;
     protected final transient ExecutorService scanService;
     protected final transient AtomicReference<Throwable> atomicThrowable;
 
-    private transient volatile boolean running;
+    protected transient volatile boolean running;
     protected final transient HashSet<String> ignoredFiles;
     protected transient Pattern regex;
     protected transient long sleepMillis;
 
     public TimeBasedDirectoryScanner()
     {
-      lastModifiedTimes = Maps.newHashMap();
+      lastModifiedTimes = Maps.newConcurrentMap();
       recursive = true;
       scanIntervalMillis = DEF_SCAN_INTERVAL_MILLIS;
-      files = Sets.newLinkedHashSet();
+      files = new ConcurrentSkipListSet<String>();
       scanService = Executors.newSingleThreadExecutor();
       discoveredFiles = new LinkedBlockingDeque<FileInfo>();
       atomicThrowable = new AtomicReference<Throwable>();
@@ -690,6 +691,10 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
       return FileSystem.newInstance(new Path(files.iterator().next()).toUri(), new Configuration());
     }
 
+    protected Path createPathObject(String aFile)
+    {
+      return new Path(aFile);
+    }
     @Override
     public void run()
     {
@@ -698,8 +703,9 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
         while (running) {
           if (trigger || (System.currentTimeMillis() - scanIntervalMillis >= lastScanMillis)) {
             trigger = false;
+            noOfDiscoveredFilesInThisScan = 0;
             for (String afile : files) {
-              scan(new Path(afile), null);
+              scan(createPathObject(afile), null);
             }
             scanComplete();
           }
@@ -736,52 +742,29 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
         String parentPathStr = filePath.toUri().getPath();
 
         LOG.debug("scan {}", parentPathStr);
-        Long oldModificationTime = lastModifiedTimes.get(parentPathStr);
-        lastModifiedTimes.put(parentPathStr, parentStatus.getModificationTime());
-
-        if (skipFile(filePath, parentStatus.getModificationTime(), oldModificationTime)) {
-          return;
-        }
-
-        LOG.debug("scan {}", filePath.toUri().getPath());
 
         FileStatus[] childStatuses = fs.listStatus(filePath);
+        if (childStatuses.length == 0 && lastModifiedTimes.get(parentPathStr) == null) { // empty input directory copy as is
+          FileInfo info = new FileInfo(null, filePath.toString(), parentStatus.getModificationTime());
+          discoveredFiles.add(info);
+          ++noOfDiscoveredFilesInThisScan;
+          lastModifiedTimes.put(parentPathStr, parentStatus.getModificationTime());
+          return;
+        }
 
         for (FileStatus status : childStatuses) {
           Path childPath = status.getPath();
           String childPathStr = childPath.toUri().getPath();
 
-          if (skipFile(childPath, status.getModificationTime(), oldModificationTime)) {
-            continue;
+          if (status.isSymlink()) {
+            ignoredFiles.add(childPathStr);
           }
-
-          if (status.isDirectory()) {
-            if (recursive) {
-              scan(childPath, rootPath == null ? parentStatus.getPath() : rootPath);
-            }
-            //a directory is treated like any other discovered file.
+          else if (status.isDirectory() && recursive) {
+            addToDiscoveredFiles(rootPath, childPath, parentPathStr, parentStatus, status, childPathStr);
+            scan(childPath, rootPath == null ? parentStatus.getPath() : rootPath);
           }
-
-          if (ignoredFiles.contains(childPathStr)) {
-            continue;
-          }
-
-          if (acceptFile(childPathStr)) {
-            LOG.debug("found {}", childPathStr);
-
-            FileInfo info;
-            if(rootPath == null) {
-             info =parentStatus.isDirectory() ?
-                new FileInfo(parentPathStr, childPath.getName(), parentStatus.getModificationTime()) :
-                new FileInfo(null, childPathStr, parentStatus.getModificationTime());
-            }
-            else {
-              URI relativeChildURI = rootPath.toUri().relativize(childPath.toUri());
-              info = new FileInfo(rootPath.toUri().getPath(), relativeChildURI.getPath(),
-                parentStatus.getModificationTime());
-            }
-
-            discoveredFiles.add(info);
+          else if (acceptFile(childPathStr)) {
+            addToDiscoveredFiles(rootPath, childPath, parentPathStr, parentStatus, status, childPathStr);
           }
           else {
             // don't look at it again
@@ -795,6 +778,42 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
       catch (IOException e) {
         throw new RuntimeException("listing files", e);
       }
+    }
+
+    private void addToDiscoveredFiles(Path rootPath, Path childPath, String parentPathStr, FileStatus parentStatus, FileStatus status, String childPathStr) throws IOException
+    {
+      // Directory by now is scanned forcibly. Now check for whether file/directory needs to be added to
+      // discoveredFiles.
+      Long oldModificationTime = lastModifiedTimes.get(childPathStr);
+      lastModifiedTimes.put(childPathStr, status.getModificationTime());
+
+      if (skipFile(childPath, status.getModificationTime(), oldModificationTime) || // Skip dir or file if no timestamp modification
+          (status.isDirectory() && (oldModificationTime != null))) { // If timestamp modified but if its a directory and
+                                                                     // already present in map, then skip.
+        return;
+      }
+
+      if (ignoredFiles.contains(childPathStr)) {
+        return;
+      }
+
+      FileInfo info;
+      if (rootPath == null) {
+        info = parentStatus.isDirectory() ? new FileInfo(parentPathStr, childPath.getName(), parentStatus.getModificationTime()) : new FileInfo(null, childPathStr, parentStatus.getModificationTime());
+      }
+      else {
+        URI relativeChildURI = rootPath.toUri().relativize(childPath.toUri());
+        info = new FileInfo(rootPath.toUri().getPath(), relativeChildURI.getPath(), parentStatus.getModificationTime());
+      }
+
+      discoveredFiles.add(info);
+      ++noOfDiscoveredFilesInThisScan;
+      LOG.debug("Discovered path is : {}", childPathStr);
+    }
+
+    public long getNoOfDiscoveredFilesInThisScan()
+    {
+      return noOfDiscoveredFilesInThisScan;
     }
 
     /**
@@ -820,8 +839,9 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
      */
     protected boolean acceptFile(String filePathStr)
     {
+      String fileName = new Path(filePathStr).getName();
       if (regex != null) {
-        Matcher matcher = regex.matcher(filePathStr);
+        Matcher matcher = regex.matcher(fileName);
         if (!matcher.matches()) {
           return false;
         }
@@ -852,6 +872,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
     public void setFilePatternRegularExp(String filePatternRegexp)
     {
       this.filePatternRegularExp = filePatternRegexp;
+      this.regex = Pattern.compile(filePatternRegularExp);
     }
 
     /**
@@ -862,7 +883,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
      */
     public void setFiles(String files)
     {
-      Iterables.addAll(this.files, Splitter.on(",").omitEmptyStrings().split(files));
+      Iterables.addAll(this.files, Splitter.on(",").omitEmptyStrings().split(FileReaderUtils.convertSchemeToLowerCase(files)));
     }
 
     /**

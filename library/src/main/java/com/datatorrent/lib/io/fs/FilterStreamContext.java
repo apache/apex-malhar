@@ -43,7 +43,7 @@ public interface FilterStreamContext<F extends FilterOutputStream>
    */
   public static abstract class BaseFilterStreamContext<F extends FilterOutputStream> implements FilterStreamContext<F>
   {
-    protected F filterStream;
+    protected transient F filterStream;
 
     @Override
     public F getFilterStream()
