@@ -4,7 +4,7 @@
   
     
   <groupId>com.datatorrent</groupId>
-  <version>3.1.1-RC1</version>
+  <version>3.1.1-RC2</version>
   <artifactId>wordcount-demo</artifactId>
   <packaging>jar</packaging>
 
@@ -14,7 +14,7 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>malhar-demos</artifactId>
-    <version>3.1.1-RC1</version>
+    <version>3.1.1-RC2</version>
   </parent>
 
   <properties>
