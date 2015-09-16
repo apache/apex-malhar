@@ -176,6 +176,29 @@
          </execution>
        </executions>
      </plugin>
+     <plugin>
+       <artifactId>maven-enforcer-plugin</artifactId>
+       <version>1.4.1</version>
+       <executions>
+         <execution>
+           <id>enforce-tools</id>
+           <goals>
+             <goal>enforce</goal>
+           </goals>
+           <configuration>
+             <rules>
+               <requireReleaseDeps>
+                 <message>Snapshots are not allowed</message>
+                 <onlyWhenRelease>true</onlyWhenRelease>
+                 <excludes>
+                   <exclude>org.couchbase.mock:CouchbaseMock</exclude>
+                 </excludes>
+               </requireReleaseDeps>
+             </rules>
+           </configuration>
+         </execution>
+       </executions>
+     </plugin>
     </plugins>
   </build>
 
