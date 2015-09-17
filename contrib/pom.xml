@@ -176,6 +176,20 @@
          </execution>
        </executions>
      </plugin>
+     <plugin>
+       <artifactId>maven-enforcer-plugin</artifactId>
+       <configuration>
+         <rules>
+           <requireReleaseDeps>
+             <message>Snapshots dependencies are not allowed for release build.</message>
+             <onlyWhenRelease>true</onlyWhenRelease>
+             <excludes>
+               <exclude>org.couchbase.mock:CouchbaseMock</exclude>
+             </excludes>
+           </requireReleaseDeps>
+         </rules>
+       </configuration>
+     </plugin>
     </plugins>
   </build>
 
@@ -528,6 +542,7 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <!-- Please update maven-enforcer-plugin configuration when this dependency is removed or updated -->
       <groupId>org.couchbase.mock</groupId>
       <artifactId>CouchbaseMock</artifactId>
       <version>0.8-SNAPSHOT</version>
