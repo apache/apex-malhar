@@ -37,7 +37,9 @@ import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
 
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 
+import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 import com.datatorrent.netlet.util.Slice;
 
@@ -119,6 +121,9 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
    */
   @VisibleForTesting
   protected transient final Map<Long, Long> futureBuckets = Maps.newHashMap();
+
+  @OutputPortFieldAnnotation(optional=true)
+  public final transient DefaultOutputPort<Aggregate> updates = new DefaultOutputPort<>();
 
   private transient final GPOByteArrayList bal = new GPOByteArrayList();
   private transient final GPOByteArrayList tempBal = new GPOByteArrayList();
@@ -491,6 +496,8 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
       putGAE(entry.getValue());
     }
 
+    emitUpdates();
+
     if(cacheWindowCount == cacheWindowDuration) {
       //clear the cache if the cache window duration is reached.
       cache.clear();
@@ -498,6 +505,19 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     }
 
     super.endWindow();
+  }
+
+  /**
+   * This method is called in {@link #endWindow} and emits updated aggregates. Override
+   * this method if you want to control whether or not updates are emitted.
+   */
+  protected void emitUpdates()
+  {
+    if (updates.isConnected()) {
+      for(Map.Entry<EventKey, Aggregate> entry: cache.entrySet()) {
+        updates.emit(entry.getValue());
+      }
+    }
   }
 
   @Override
