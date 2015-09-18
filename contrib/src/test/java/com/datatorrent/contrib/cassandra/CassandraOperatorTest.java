@@ -17,13 +17,19 @@ package com.datatorrent.contrib.cassandra;
 
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.exceptions.DriverException;
+import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Attribute.AttributeMap;
+import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
+
+import com.datatorrent.lib.helper.TestPortContext;
+import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.google.common.collect.Lists;
 import java.util.*;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -62,6 +68,7 @@ public class CassandraOperatorTest
   @BeforeClass
   public static void setup()
   {
+    @SuppressWarnings("UnusedDeclaration") Class<?> clazz = org.codehaus.janino.CompilerFactory.class;
     try {
       cluster = Cluster.builder()
               .addContactPoint(NODE).build();
@@ -100,8 +107,6 @@ public class CassandraOperatorTest
 
   private static class TestOutputOperator extends CassandraPOJOOutputOperator
   {
-    private static final long serialVersionUID = 201506181038L;
-
     public long getNumOfEventsInStore()
     {
       String countQuery = "SELECT count(*) from " + TABLE_NAME + ";";
@@ -117,65 +122,52 @@ public class CassandraOperatorTest
     {
       String recordsQuery = "SELECT * from " + TABLE_NAME + ";";
       ResultSet resultSetRecords = session.execute(recordsQuery);
-      int count = 0;
       for (Row row: resultSetRecords) {
-        LOG.debug("Boolean value is {}", row.getBool("test"));
-        Assert.assertEquals(true, row.getBool("test"));
-        LOG.debug("lastname returned is {}", row.getString("lastname"));
-        Assert.assertEquals("abclast", row.getString("lastname"));
-        LOG.debug("Double value returned is {}", row.getDouble("doubleValue"));
-        Assert.assertEquals("Double value is", 2.0, row.getDouble("doubleValue"), 2);
-        LOG.debug("Float value returned is {}", row.getFloat("floatValue"));
-        LOG.debug("age returned is {}", row.getInt("age"));
-        LOG.debug("set returned is {} ", row.getSet("set1", Integer.class));
-        LOG.debug("list returned is {}", row.getList("list1", Integer.class));
-        LOG.debug("map returned is {}", row.getMap("map1", String.class, Integer.class));
-        LOG.debug("date returned is {}", row.getDate("last_visited"));
-        Assert.assertNotEquals(new Date(System.currentTimeMillis()), row.getDate("last_visited"));
-        if (count == 0) {
-          Assert.assertEquals(2, row.getInt("age"));
-          Assert.assertEquals(2.0, row.getFloat("floatValue"), 2);
+        int age = row.getInt("age");
+        Assert.assertEquals("check boolean", true, row.getBool("test"));
+        Assert.assertEquals("check last name", "abclast", row.getString("lastname"));
+        Assert.assertEquals("check double", 2.0, row.getDouble("doubleValue"), 2);
+        LOG.debug("age returned is {}", age);
+        Assert.assertNotEquals("check date", new Date(System.currentTimeMillis()), row.getDate("last_visited"));
+        if (age == 2) {
+          Assert.assertEquals("check float", 2.0, row.getFloat("floatValue"), 2);
           Set<Integer> set = new HashSet<Integer>();
           List<Integer> list = new ArrayList<Integer>();
           Map<String, Integer> map = new HashMap<String, Integer>();
           set.add(2);
           list.add(2);
           map.put("key2", 2);
-          Assert.assertEquals(set, row.getSet("set1", Integer.class));
-          Assert.assertEquals(map, row.getMap("map1", String.class, Integer.class));
-          Assert.assertEquals(list, row.getList("list1", Integer.class));
+
+          Assert.assertEquals("check set", set, row.getSet("set1", Integer.class));
+          Assert.assertEquals("check map", map, row.getMap("map1", String.class, Integer.class));
+          Assert.assertEquals("check list", list, row.getList("list1", Integer.class));
         }
-        if (count == 1) {
-          Assert.assertEquals(0, row.getInt("age"));
-          Assert.assertEquals(0.0, row.getFloat("floatValue"), 2);
+        if (age == 0) {
+          Assert.assertEquals("check float", 0.0, row.getFloat("floatValue"), 2);
           Set<Integer> set = new HashSet<Integer>();
           List<Integer> list = new ArrayList<Integer>();
           Map<String, Integer> map = new HashMap<String, Integer>();
           set.add(0);
           list.add(0);
           map.put("key0", 0);
-          Assert.assertEquals(set, row.getSet("set1", Integer.class));
-          Assert.assertEquals(map, row.getMap("map1", String.class, Integer.class));
-          Assert.assertEquals(list, row.getList("list1", Integer.class));
+          Assert.assertEquals("check set", set, row.getSet("set1", Integer.class));
+          Assert.assertEquals("check map", map, row.getMap("map1", String.class, Integer.class));
+          Assert.assertEquals("check list", list, row.getList("list1", Integer.class));
         }
-        if (count == 2) {
-          Assert.assertEquals(1, row.getInt("age"));
-          Assert.assertEquals(1.0, row.getFloat("floatValue"), 2);
+        if (age == 1) {
+          Assert.assertEquals("check float", 1.0, row.getFloat("floatValue"), 2);
           Set<Integer> set = new HashSet<Integer>();
           List<Integer> list = new ArrayList<Integer>();
           Map<String, Integer> map = new HashMap<String, Integer>();
           set.add(1);
           list.add(1);
           map.put("key1", 1);
-          Assert.assertEquals(set, row.getSet("set1", Integer.class));
-          Assert.assertEquals(map, row.getMap("map1", String.class, Integer.class));
-          Assert.assertEquals(list, row.getList("list1", Integer.class));
+          Assert.assertEquals("check set", set, row.getSet("set1", Integer.class));
+          Assert.assertEquals("check map", map, row.getMap("map1", String.class, Integer.class));
+          Assert.assertEquals("check list", list, row.getList("list1", Integer.class));
         }
-        count++;
       }
-
     }
-
   }
 
   private static class TestInputOperator extends CassandraPOJOInputOperator
@@ -237,33 +229,28 @@ public class CassandraOperatorTest
     TestOutputOperator outputOperator = new TestOutputOperator();
 
     outputOperator.setTablename(TABLE_NAME);
-    ArrayList<String> columns = new ArrayList<String>();
-    columns.add("id");
-    columns.add("age");
-    columns.add("doubleValue");
-    columns.add("floatValue");
-    columns.add("last_visited");
-    columns.add("lastname");
-    columns.add("list1");
-    columns.add("map1");
-    columns.add("set1");
-    columns.add("test");
-    outputOperator.setColumns(columns);
-    ArrayList<String> expressions = new ArrayList<String>();
-    expressions.add("id");
-    expressions.add("age");
-    expressions.add("doubleValue");
-    expressions.add("floatValue");
-    expressions.add("last_visited");
-    expressions.add("lastname");
-    expressions.add("list1");
-    expressions.add("map1");
-    expressions.add("set1");
-    expressions.add("test");
-    outputOperator.setExpressions(expressions);
-    outputOperator.setStore(transactionalStore);
+    List<FieldInfo> fieldInfos = Lists.newArrayList();
+    fieldInfos.add(new FieldInfo("id", "id", null));
+    fieldInfos.add(new FieldInfo("age", "age", null));
+    fieldInfos.add(new FieldInfo("doubleValue", "doubleValue", null));
+    fieldInfos.add(new FieldInfo("floatValue", "floatValue", null));
+    fieldInfos.add(new FieldInfo("last_visited", "last_visited", null));
+    fieldInfos.add(new FieldInfo("lastname", "lastname", null));
+    fieldInfos.add(new FieldInfo("list1", "list1", null));
+    fieldInfos.add(new FieldInfo("map1", "map1", null));
+    fieldInfos.add(new FieldInfo("set1", "set1", null));
+    fieldInfos.add(new FieldInfo("test", "test", null));
 
+    outputOperator.setStore(transactionalStore);
+    outputOperator.setFieldInfos(fieldInfos);
     outputOperator.setup(context);
+
+    Attribute.AttributeMap.DefaultAttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();
+    portAttributes.put(Context.PortContext.TUPLE_CLASS, TestPojo.class);
+    TestPortContext tpc = new TestPortContext(portAttributes);
+
+    outputOperator.input.setup(tpc);
+    outputOperator.activate(context);
 
     List<TestPojo> events = Lists.newArrayList();
     for (int i = 0; i < 3; i++) {
@@ -277,7 +264,7 @@ public class CassandraOperatorTest
     }
 
     outputOperator.beginWindow(0);
-    for (TestPojo event: events) {
+    for (TestPojo event : events) {
       outputOperator.input.process(event);
     }
     outputOperator.endWindow();
@@ -290,7 +277,7 @@ public class CassandraOperatorTest
    * This test can be run on cassandra server installed on node17.
    */
   @Test
-  public void TestCassandraInputOperator()
+  public void testCassandraInputOperator()
   {
     String query1 = "SELECT * FROM " + KEYSPACE + "." + "%t;";
     CassandraStore store = new CassandraStore();
@@ -303,25 +290,28 @@ public class CassandraOperatorTest
 
     TestInputOperator inputOperator = new TestInputOperator();
     inputOperator.setStore(store);
-    inputOperator.setOutputClass("com.datatorrent.contrib.cassandra.TestInputPojo");
     inputOperator.setTablename(TABLE_NAME_INPUT);
     inputOperator.setQuery(query1);
-    ArrayList<String> columns = new ArrayList<String>();
-    columns.add("id");
-    columns.add("age");
-    columns.add("lastname");
-
-    inputOperator.setColumns(columns);
-    ArrayList<String> expressions = new ArrayList<String>();
-    expressions.add("id");
-    expressions.add("age");
-    expressions.add("lastname");
-    inputOperator.setExpressions(expressions);
-    inputOperator.insertEventsInTable(30);
     inputOperator.setPrimaryKeyColumn("id");
-    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+
+    List<FieldInfo> fieldInfos = Lists.newArrayList();
+    fieldInfos.add(new FieldInfo("id", "id", null));
+    fieldInfos.add(new FieldInfo("age", "age", null));
+    fieldInfos.add(new FieldInfo("lastname", "lastname", null));
+    inputOperator.setFieldInfos(fieldInfos);
+
+    inputOperator.insertEventsInTable(30);
+    CollectorTestSink<Object> sink = new CollectorTestSink<>();
     inputOperator.outputPort.setSink(sink);
+
+    Attribute.AttributeMap.DefaultAttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();
+    portAttributes.put(Context.PortContext.TUPLE_CLASS, TestInputPojo.class);
+    TestPortContext tpc = new TestPortContext(portAttributes);
+
     inputOperator.setup(context);
+    inputOperator.outputPort.setup(tpc);
+    inputOperator.activate(context);
+
     inputOperator.beginWindow(0);
     inputOperator.emitTuples();
     inputOperator.endWindow();
@@ -336,8 +326,14 @@ public class CassandraOperatorTest
     }
 
     sink.clear();
+    inputOperator.columnDataTypes.clear();
+
     String query2 = "SELECT * FROM " + KEYSPACE + "." + "%t where token(%p) > %v;";
     inputOperator.setQuery(query2);
+    inputOperator.setup(context);
+    inputOperator.outputPort.setup(tpc);
+    inputOperator.activate(context);
+
     inputOperator.setStartRow(10);
     inputOperator.beginWindow(1);
     inputOperator.emitTuples();
@@ -345,15 +341,20 @@ public class CassandraOperatorTest
     Assert.assertEquals("rows from db", 14, sink.collectedTuples.size());
 
     sink.clear();
+    inputOperator.columnDataTypes.clear();
+
     String query3 = "SELECT * FROM " + KEYSPACE + "." + "%t where token(%p) > %v LIMIT %l;";
     inputOperator.setQuery(query3);
+    inputOperator.setup(context);
+    inputOperator.outputPort.setup(tpc);
+    inputOperator.activate(context);
+
     inputOperator.setStartRow(1);
     inputOperator.setLimit(10);
     inputOperator.beginWindow(2);
     inputOperator.emitTuples();
     inputOperator.endWindow();
     Assert.assertEquals("rows from db", 10, sink.collectedTuples.size());
-
   }
 
   public static class TestPojo

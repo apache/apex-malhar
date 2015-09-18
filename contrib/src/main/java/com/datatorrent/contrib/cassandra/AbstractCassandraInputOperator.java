@@ -99,14 +99,14 @@ public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInp
   public void emitTuples()
   {
     String query = queryToRetrieveData();
-    logger.debug(String.format("select statement: %s", query));
+    logger.debug("select statement: {}", query);
 
     try {
       ResultSet result = store.getSession().execute(query);
       if (!result.isExhausted()) {
         for (Row row : result) {
           T tuple = getTuple(row);
-          outputPort.emit(tuple);
+          emit(tuple);
         }
       } else {
         // No rows available wait for some time before retrying so as to not continuously slam the database
@@ -117,5 +117,10 @@ public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInp
       store.disconnect();
       DTThrowable.rethrow(ex);
     }
+  }
+
+  protected void emit(T tuple)
+  {
+    outputPort.emit(tuple);
   }
 }
