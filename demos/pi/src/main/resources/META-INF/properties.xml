@@ -35,14 +35,6 @@
     <name>dt.application.PiDemo.operator.adaptor.valueName</name>
     <value>piValue</value>
   </property>
-  <property>
-    <name>dt.application.PiDemo.operator.Query.topic</name>
-    <value>PiDemoQuery</value>
-  </property>
-  <property>
-    <name>dt.application.PiDemo.operator.QueryResult.topic</name>
-    <value>PiDemoQueryResult</value>
-  </property>
 
   <!-- PiDemoAppData  -->
   <property>
