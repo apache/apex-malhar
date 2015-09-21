@@ -1,0 +1,17 @@
+{
+  "id": 1,
+  "type": "dataQuery",
+  "data": {
+    "time": {
+      "latestNumBuckets": 10,
+      "bucket": "1m",
+      "from":"1442698142862",
+      "to":"1442698742862"
+    },
+    "incompleteResultOK": true,
+    "keys": {},
+    "fields": ["time", "channel", "region", "product", "tax:SUM", "sales:SUM", "discount:SUM"]
+  },
+  "countdown": 299,
+  "incompleteResultOK": true
+}
