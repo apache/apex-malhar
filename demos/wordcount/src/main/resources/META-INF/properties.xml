@@ -1,12 +1,78 @@
 <configuration>
-	<property>
-		<name>dt.application.WordCountDemo.operator.wordinput.fileName</name>
-		<value>samplefile.txt</value>
-	</property>
-	<property>
-		<name>dt.application.WordCountDemo.stream.wordinput.count.locality</name>
-		<value>CONTAINER_LOCAL</value>
-		<description>Specify container locality for the viewtuplecount stream
-		</description>
-	</property>
+  <!-- TopNWordsWithQueries -->
+
+  <!-- for debugging -->
+  <!--
+  <property>
+    <name>dt.attr.CONTAINER_JVM_OPTIONS</name>
+    <value>-Dlog4j.configuration=my_log4j.properties</value>
+  </property>
+  -->
+
+  <!-- monitored input directory -->
+  <property>
+    <name>dt.application.TopNWordsWithQueries.operator.lineReader.directory</name>
+    <value>/tmp/test/input-dir</value>
+  </property>
+
+  <!-- regular expression for word separator -->
+  <property>
+    <name>dt.application.TopNWordsWithQueries.operator.wordReader.nonWordStr</name>
+    <value>[\p{Punct}\s]+</value>
+  </property>
+
+  <!-- output directory for word counts -->
+  <property>
+    <name>dt.application.TopNWordsWithQueries.operator.wcWriter.filePath</name>
+    <value>/tmp/test/output-dir</value>
+  </property>
+
+  <!-- Top N value -->
+  <property>
+    <name>dt.application.TopNWordsWithQueries.operator.fileWordCount.topN</name>
+    <value>10</value>
+  </property>
+
+  <!-- topic for queries (current file) -->
+  <property>
+    <name>dt.application.TopNWordsWithQueries.operator.snapshotServerFile.embeddableQueryInfoProvider.topic</name>
+    <value>TopNWordsQueryFile</value>
+  </property>
+
+  <!-- topic for query results (current file)  -->
+  <property>
+    <name>dt.application.TopNWordsWithQueries.operator.wsResultFile.topic</name>
+    <value>TopNWordsQueryFileResult</value>
+  </property>
+
+  <!-- topic for queries (global) -->
+  <property>
+    <name>dt.application.TopNWordsWithQueries.operator.snapshotServerGlobal.embeddableQueryInfoProvider.topic</name>
+    <value>TopNWordsQueryGlobal</value>
+  </property>
+
+  <!-- topic for query results (global)  -->
+  <property>
+    <name>dt.application.TopNWordsWithQueries.operator.wsResultGlobal.topic</name>
+    <value>TopNWordsQueryGlobalResult</value>
+  </property>
+
+  <!-- retry count -->
+  <property>
+    <name>dt.application.TwitterDemo.operator.wsResult.numRetries</name>
+    <value>2147483647</value>
+  </property>
+
+
+  <!-- WordCountDemo -->
+  <property>
+    <name>dt.application.WordCountDemo.operator.wordinput.fileName</name>
+    <value>samplefile.txt</value>
+  </property>
+  <property>
+    <name>dt.application.WordCountDemo.stream.wordinput.count.locality</name>
+    <value>CONTAINER_LOCAL</value>
+    <description>Specify container locality for the viewtuplecount stream
+    </description>
+  </property>
 </configuration>
