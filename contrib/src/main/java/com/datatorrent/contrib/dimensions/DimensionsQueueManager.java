@@ -155,9 +155,9 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
         //If the query has from and to times
 
         //The from time in the query
-        startTime = query.getTimeBucket().roundDown(query.getFrom());
+        startTime = query.getCustomTimeBucket().roundDown(query.getFrom());
         //the to time in the query
-        endTime = query.getTimeBucket().roundDown(query.getTo());
+        endTime = query.getCustomTimeBucket().roundDown(query.getTo());
       }
       else {
         //the query has lastnumbuckets
@@ -170,17 +170,18 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
           time = operator.getMaxTimestamp();
         }
 
-        endTime = query.getTimeBucket().roundDown(time);
-        startTime = endTime - query.getTimeBucket().getTimeUnit().toMillis(query.getLatestNumBuckets() - 1);
+        endTime = query.getCustomTimeBucket().roundDown(time);
+        startTime = endTime - query.getCustomTimeBucket().toMillis(query.getLatestNumBuckets() - 1);
       }
 
-      long startTimeDelta = (query.getSlidingAggregateSize() - 1) * query.getTimeBucket().getTimeUnit().toMillis(1);
+      long startTimeDelta = (query.getSlidingAggregateSize() - 1) * query.getCustomTimeBucket().getNumMillis();
       startTime -= startTimeDelta;
 
-      gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, query.getTimeBucket().ordinal());
+      int timeBucketId = configurationSchema.getCustomTimeBucketRegistry().getTimeBucketId(query.getCustomTimeBucket());
+      gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, timeBucketId);
 
       //loop through each time to query
-      for(long timestamp = startTime; timestamp <= endTime; timestamp += query.getTimeBucket().getTimeUnit().toMillis(1)) {
+      for(long timestamp = startTime; timestamp <= endTime; timestamp += query.getCustomTimeBucket().getNumMillis()) {
         Map<String, HDSQuery> aggregatorToQueryMap = Maps.newHashMap();
         Map<String, EventKey> aggregatorToEventKeyMap = Maps.newHashMap();
 
@@ -190,7 +191,7 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
           //create event key for this query
           EventKey eventKey = entry.getValue();
           gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME, timestamp);
-          gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, query.getTimeBucket().ordinal());
+          gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, timeBucketId);
           EventKey queryEventKey = new EventKey(eventKey);
 
           issueHDSQuery(queryEventKey,

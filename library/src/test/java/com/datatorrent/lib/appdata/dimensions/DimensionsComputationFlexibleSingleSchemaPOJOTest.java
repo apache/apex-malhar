@@ -6,9 +6,11 @@ package com.datatorrent.lib.appdata.dimensions;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -211,6 +213,35 @@ public class DimensionsComputationFlexibleSingleSchemaPOJOTest
     dcss.endWindow();
 
     Assert.assertEquals(6, sink.collectedTuples.size());
+  }
+
+  @Test
+  public void customTimeBucketsTest()
+  {
+    AdInfo ai = createTestAdInfoEvent1();
+
+    DimensionsComputationFlexibleSingleSchemaPOJO dcss = createDimensionsComputationOperator("adsGenericEventSchemaCustomTimeBucketsSimple.json");
+
+    CollectorTestSink<Aggregate> sink = new CollectorTestSink<Aggregate>();
+    TestUtils.setSink(dcss.output, sink);
+
+    dcss.setup(null);
+    dcss.beginWindow(0L);
+    dcss.input.put(ai);
+    dcss.endWindow();
+
+    Assert.assertEquals(5, sink.collectedTuples.size());
+
+    Set<Integer> expectedTimeBucketIDs = Sets.newHashSet(2, 3, 4, 256, 257);
+
+    Set<Integer> timeBucketIDs = Sets.newHashSet();
+
+    for (Aggregate aggregate : sink.collectedTuples) {
+      int timeBucketID = aggregate.getKeys().getFieldInt(DimensionsDescriptor.DIMENSION_TIME_BUCKET);
+      timeBucketIDs.add(timeBucketID);
+    }
+
+    Assert.assertEquals(expectedTimeBucketIDs, timeBucketIDs);
   }
 
   public static DimensionsComputationFlexibleSingleSchemaPOJO createDimensionsComputationOperator(String eventSchema)

@@ -46,8 +46,6 @@ public class DimensionalSchemaTest
     DimensionalConfigurationSchema des =
     new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaNoEnums.json"),
     AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
-
-
   }
 
   @Test

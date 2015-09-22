@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
+import com.datatorrent.lib.appdata.schemas.CustomTimeBucket;
 import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
 import com.datatorrent.lib.appdata.schemas.DimensionalSchema;
@@ -31,7 +32,6 @@ import com.datatorrent.lib.appdata.schemas.QRBase;
 import com.datatorrent.lib.appdata.schemas.Query;
 import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
-import com.datatorrent.lib.appdata.schemas.TimeBucket;
 import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 
 /**
@@ -107,7 +107,7 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
     int latestNumBuckets = -1;
     long from = 0;
     long to = 0;
-    TimeBucket bucket = null;
+    CustomTimeBucket bucket = null;
 
     boolean hasTime = data.has(DataQueryDimensional.FIELD_TIME);
 
@@ -139,15 +139,10 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
 
       if(time.has(DataQueryDimensional.FIELD_BUCKET)) {
         String timeBucketString = time.getString(DataQueryDimensional.FIELD_BUCKET);
-        bucket = TimeBucket.BUCKET_TO_TYPE.get(timeBucketString);
-
-        if(bucket == null) {
-          LOG.error("{} is not a valid time bucket", timeBucketString);
-          bucket = gsd.getDimensionalConfigurationSchema().getTimeBuckets().get(0);
-        }
+        bucket = new CustomTimeBucket(timeBucketString);
       }
       else {
-        bucket = gsd.getDimensionalConfigurationSchema().getTimeBuckets().get(0);
+        bucket = gsd.getDimensionalConfigurationSchema().getCustomTimeBuckets().get(0);
       }
     }
 

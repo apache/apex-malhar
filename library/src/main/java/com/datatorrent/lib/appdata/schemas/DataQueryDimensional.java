@@ -88,6 +88,7 @@ public class DataQueryDimensional extends Query
    * The timeBucket to retrieve data from.
    */
   private TimeBucket timeBucket;
+  private CustomTimeBucket customTimeBucket;
   /**
    * The dimensional keys.
    */
@@ -145,10 +146,29 @@ public class DataQueryDimensional extends Query
     initialize();
   }
 
+  @Deprecated
   public DataQueryDimensional(String id,
                               String type,
                               int latestNumBuckets,
                               TimeBucket timeBucket,
+                              GPOMutable keys,
+                              FieldsAggregatable fieldsAggregatable,
+                              boolean incompleteResultOK)
+  {
+    this(id,
+         type,
+         latestNumBuckets,
+         new CustomTimeBucket(timeBucket),
+         keys,
+         fieldsAggregatable,
+         incompleteResultOK,
+         null);
+  }
+
+  public DataQueryDimensional(String id,
+                              String type,
+                              int latestNumBuckets,
+                              CustomTimeBucket timeBucket,
                               GPOMutable keys,
                               FieldsAggregatable fieldsAggregatable,
                               boolean incompleteResultOK)
@@ -163,6 +183,7 @@ public class DataQueryDimensional extends Query
          null);
   }
 
+  @Deprecated
   public DataQueryDimensional(String id,
                               String type,
                               int latestNumBuckets,
@@ -172,9 +193,28 @@ public class DataQueryDimensional extends Query
                               boolean incompleteResultOK,
                               Map<String, String> schemaKeys)
   {
+    this(id,
+         type,
+         latestNumBuckets,
+         new CustomTimeBucket(timeBucket),
+         keys,
+         fieldsAggregatable,
+         incompleteResultOK,
+         schemaKeys);
+  }
+
+  public DataQueryDimensional(String id,
+                              String type,
+                              int latestNumBuckets,
+                              CustomTimeBucket timeBucket,
+                              GPOMutable keys,
+                              FieldsAggregatable fieldsAggregatable,
+                              boolean incompleteResultOK,
+                              Map<String, String> schemaKeys)
+  {
     super(id, type, schemaKeys);
     setLatestNumBuckets(latestNumBuckets);
-    setTimeBucket(timeBucket);
+    setCustomTimeBucket(timeBucket);
     setKeys(keys);
     setFieldsAggregatable(fieldsAggregatable);
     setIncompleteResultOK(incompleteResultOK);
@@ -184,14 +224,35 @@ public class DataQueryDimensional extends Query
     initialize();
   }
 
+  @Deprecated
   public DataQueryDimensional(String id,
-                          String type,
-                          long from,
-                          long to,
-                          TimeBucket timeBucket,
-                          GPOMutable keys,
-                          FieldsAggregatable fieldsAggregatable,
-                          boolean incompleteResultOK)
+                              String type,
+                              long from,
+                              long to,
+                              TimeBucket timeBucket,
+                              GPOMutable keys,
+                              FieldsAggregatable fieldsAggregatable,
+                              boolean incompleteResultOK)
+  {
+    this(id,
+         type,
+         from,
+         to,
+         new CustomTimeBucket(timeBucket),
+         keys,
+         fieldsAggregatable,
+         incompleteResultOK);
+  }
+
+
+  public DataQueryDimensional(String id,
+                              String type,
+                              long from,
+                              long to,
+                              CustomTimeBucket timeBucket,
+                              GPOMutable keys,
+                              FieldsAggregatable fieldsAggregatable,
+                              boolean incompleteResultOK)
   {
     this(id,
          type,
@@ -204,11 +265,33 @@ public class DataQueryDimensional extends Query
          null);
   }
 
+  @Deprecated
+  public DataQueryDimensional(String id,
+                       String type,
+                       long from,
+                       long to,
+                       TimeBucket timeBucket,
+                       GPOMutable keys,
+                       FieldsAggregatable fieldsAggregatable,
+                       boolean incompleteResultOK,
+                       Map<String, String> schemaKeys)
+  {
+    this(id,
+         type,
+         from,
+         to,
+         new CustomTimeBucket(timeBucket),
+         keys,
+         fieldsAggregatable,
+         incompleteResultOK,
+         schemaKeys);
+  }
+
   public DataQueryDimensional(String id,
                               String type,
                               long from,
                               long to,
-                              TimeBucket timeBucket,
+                              CustomTimeBucket timeBucket,
                               GPOMutable keys,
                               FieldsAggregatable fieldsAggregatable,
                               boolean incompleteResultOK,
@@ -217,7 +300,7 @@ public class DataQueryDimensional extends Query
     super(id, type, schemaKeys);
     setFrom(from);
     setTo(to);
-    setTimeBucket(timeBucket);
+    setCustomTimeBucket(timeBucket);
     setKeys(keys);
     setFieldsAggregatable(fieldsAggregatable);
     setIncompleteResultOK(incompleteResultOK);
@@ -227,11 +310,33 @@ public class DataQueryDimensional extends Query
     initialize();
   }
 
+  @Deprecated
   public DataQueryDimensional(String id,
                               String type,
                               long from,
                               long to,
                               TimeBucket timeBucket,
+                              GPOMutable keys,
+                              FieldsAggregatable fieldsAggregatable,
+                              long countdown,
+                              boolean incompleteResultOK)
+  {
+    this(id,
+         type,
+         from,
+         to,
+         new CustomTimeBucket(timeBucket),
+         keys,
+         fieldsAggregatable,
+         countdown,
+         incompleteResultOK);
+  }
+
+  public DataQueryDimensional(String id,
+                              String type,
+                              long from,
+                              long to,
+                              CustomTimeBucket timeBucket,
                               GPOMutable keys,
                               FieldsAggregatable fieldsAggregatable,
                               long countdown,
@@ -249,6 +354,7 @@ public class DataQueryDimensional extends Query
          null);
   }
 
+  @Deprecated
   public DataQueryDimensional(String id,
                               String type,
                               long from,
@@ -260,10 +366,34 @@ public class DataQueryDimensional extends Query
                               boolean incompleteResultOK,
                               Map<String, String> schemaKeys)
   {
+    this(id,
+         type,
+         from,
+         to,
+         new CustomTimeBucket(timeBucket),
+         keys,
+         fieldsAggregatable,
+         countdown,
+         incompleteResultOK,
+         schemaKeys);
+  }
+
+
+  public DataQueryDimensional(String id,
+                              String type,
+                              long from,
+                              long to,
+                              CustomTimeBucket timeBucket,
+                              GPOMutable keys,
+                              FieldsAggregatable fieldsAggregatable,
+                              long countdown,
+                              boolean incompleteResultOK,
+                              Map<String, String> schemaKeys)
+  {
     super(id, type, countdown, schemaKeys);
     setFrom(from);
     setTo(to);
-    setTimeBucket(timeBucket);
+    setCustomTimeBucket(timeBucket);
     setKeys(keys);
     setFieldsAggregatable(fieldsAggregatable);
     setIncompleteResultOK(incompleteResultOK);
@@ -273,6 +403,7 @@ public class DataQueryDimensional extends Query
     initialize();
   }
 
+  @Deprecated
   public DataQueryDimensional(String id,
                               String type,
                               int latestNumBuckets,
@@ -282,9 +413,28 @@ public class DataQueryDimensional extends Query
                               long countdown,
                               boolean incompleteResultOK)
   {
+    this(id,
+         type,
+         latestNumBuckets,
+         new CustomTimeBucket(timeBucket),
+         keys,
+         fieldsAggregatable,
+         countdown,
+         incompleteResultOK);
+  }
+
+  public DataQueryDimensional(String id,
+                              String type,
+                              int latestNumBuckets,
+                              CustomTimeBucket timeBucket,
+                              GPOMutable keys,
+                              FieldsAggregatable fieldsAggregatable,
+                              long countdown,
+                              boolean incompleteResultOK)
+  {
     super(id, type, countdown);
     setLatestNumBuckets(latestNumBuckets);
-    setTimeBucket(timeBucket);
+    setCustomTimeBucket(timeBucket);
     setKeys(keys);
     setFieldsAggregatable(fieldsAggregatable);
     setIncompleteResultOK(incompleteResultOK);
@@ -294,6 +444,8 @@ public class DataQueryDimensional extends Query
     initialize();
   }
 
+
+  @Deprecated
   public DataQueryDimensional(String id,
                               String type,
                               int latestNumBuckets,
@@ -304,9 +456,30 @@ public class DataQueryDimensional extends Query
                               boolean incompleteResultOK,
                               Map<String, String> schemaKeys)
   {
+    this(id,
+         type,
+         latestNumBuckets,
+         new CustomTimeBucket(timeBucket),
+         keys,
+         fieldsAggregatable,
+         countdown,
+         incompleteResultOK,
+         schemaKeys);
+  }
+
+  public DataQueryDimensional(String id,
+                              String type,
+                              int latestNumBuckets,
+                              CustomTimeBucket timeBucket,
+                              GPOMutable keys,
+                              FieldsAggregatable fieldsAggregatable,
+                              long countdown,
+                              boolean incompleteResultOK,
+                              Map<String, String> schemaKeys)
+  {
     super(id, type, countdown, schemaKeys);
     setLatestNumBuckets(latestNumBuckets);
-    setTimeBucket(timeBucket);
+    setCustomTimeBucket(timeBucket);
     setKeys(keys);
     setFieldsAggregatable(fieldsAggregatable);
     setIncompleteResultOK(incompleteResultOK);
@@ -322,7 +495,7 @@ public class DataQueryDimensional extends Query
     keyFieldSet.addAll(keys.getFieldDescriptor().getFields().getFields());
 
     keyFields = new Fields(keyFieldSet);
-    dimensionsDescriptor = new DimensionsDescriptor(timeBucket, keyFields);
+    dimensionsDescriptor = new DimensionsDescriptor(customTimeBucket, keyFields);
   }
 
   public Fields getKeyFields()
@@ -389,14 +562,20 @@ public class DataQueryDimensional extends Query
     return to;
   }
 
-  private void setTimeBucket(TimeBucket timeBucket)
+  private void setCustomTimeBucket(CustomTimeBucket customTimeBucket)
   {
-    this.timeBucket = Preconditions.checkNotNull(timeBucket);
+    this.customTimeBucket = Preconditions.checkNotNull(customTimeBucket);
+    this.timeBucket = customTimeBucket.getTimeBucket();
   }
 
   public TimeBucket getTimeBucket()
   {
     return timeBucket;
+  }
+
+  public CustomTimeBucket getCustomTimeBucket()
+  {
+    return customTimeBucket;
   }
 
   private void setKeys(GPOMutable keys)
@@ -482,7 +661,7 @@ public class DataQueryDimensional extends Query
     hash = 59 * hash + ((int) from);
     hash = 59 * hash + ((int) to);
     hash = 59 * hash + this.latestNumBuckets;
-    hash = 59 * hash + (this.timeBucket != null ? this.timeBucket.hashCode() : 0);
+    hash = 59 * hash + (this.customTimeBucket != null ? this.customTimeBucket.hashCode() : 0);
     hash = 59 * hash + (this.keys != null ? this.keys.hashCode() : 0);
     hash = 59 * hash + (this.incompleteResultOK ? 1 : 0);
     hash = 59 * hash + (this.hasTime ? 1 : 0);
@@ -511,7 +690,7 @@ public class DataQueryDimensional extends Query
     if(this.latestNumBuckets != other.latestNumBuckets) {
       return false;
     }
-    if(this.timeBucket != other.timeBucket) {
+    if(this.customTimeBucket.equals(other.customTimeBucket)) {
       return false;
     }
     if(this.keys != other.keys && (this.keys == null || !this.keys.equals(other.keys))) {

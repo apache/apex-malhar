@@ -2,7 +2,7 @@
   "keys":[{"name":"channel","type":"string","enumValues":["Mobile","Online","Store"]},
           {"name":"region","type":"string","enumValues":["Atlanta","Boston","Chicago","Cleveland","Dallas","Minneapolis","New York","Philadelphia","San Francisco","St. Louis"]},
           {"name":"product","type":"string","enumValues":["Laptops","Printers","Routers","Smart Phones","Tablets"]}],
- "timeBuckets":["1m", "1h", "1d"],
+ "timeBuckets":["1m", "1h", "1d", "5m"],
  "values":
   [{"name":"sales","type":"double","aggregators":["SUM"]},
    {"name":"discount","type":"double","aggregators":["SUM"]},

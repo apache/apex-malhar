@@ -76,7 +76,6 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
         throw new RuntimeException(ex);
       }
 
-      Thread.interrupted();
       super.finished(description);
     }
   }
@@ -95,6 +94,11 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
     @Override
     protected void finished(Description description)
     {
+      try {
+        Thread.sleep(200);
+      } catch (InterruptedException ex) {
+      }
+
       Thread.interrupted();
     }
   }

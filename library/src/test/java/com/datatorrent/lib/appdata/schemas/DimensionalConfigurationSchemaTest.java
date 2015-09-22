@@ -12,6 +12,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import org.codehaus.jettison.json.JSONArray;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema.DimensionsCombination;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema.Key;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema.Value;
+import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorIncrementalType;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
 
@@ -335,6 +337,53 @@ public class DimensionalConfigurationSchemaTest
       for(Map.Entry<String, Set<String>> entry: tempValueToAgg.entrySet()) {
         Assert.assertEquals(otfAggregator, entry.getValue());
       }
+    }
+  }
+
+  @Test
+  public void testCustomTimeBuckets()
+  {
+    DimensionalConfigurationSchema schema = new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaCustomTimeBuckets.json"), AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
+
+    Assert.assertEquals(3, schema.getTimeBuckets().size());
+
+    Assert.assertEquals(5, schema.getCustomTimeBuckets().size());
+    List<CustomTimeBucket> customTimeBuckets = Lists.newArrayList(new CustomTimeBucket(TimeBucket.MINUTE),
+                                                                  new CustomTimeBucket(TimeBucket.HOUR),
+                                                                  new CustomTimeBucket(TimeBucket.DAY),
+                                                                  new CustomTimeBucket(TimeBucket.MINUTE, 5),
+                                                                  new CustomTimeBucket(TimeBucket.HOUR, 3));
+    Assert.assertEquals(customTimeBuckets,
+                        schema.getCustomTimeBuckets());
+
+    Assert.assertEquals(40, schema.getDimensionsDescriptorIDToKeyDescriptor().size());
+
+    JSONArray timeBucketsArray = new JSONArray();
+    timeBucketsArray.put("1m").put("1h").put("1d").put("5m").put("3h");
+    Assert.assertEquals(timeBucketsArray.toString(), schema.getBucketsString());
+
+    CustomTimeBucket customTimeBucket = schema.getCustomTimeBucketRegistry().getTimeBucket(TimeBucket.MINUTE.ordinal());
+    Assert.assertTrue(customTimeBucket.isUnit());
+    Assert.assertEquals(TimeBucket.MINUTE, customTimeBucket.getTimeBucket());
+
+    customTimeBucket = schema.getCustomTimeBucketRegistry().getTimeBucket(TimeBucket.HOUR.ordinal());
+    Assert.assertTrue(customTimeBucket.isUnit());
+    Assert.assertEquals(TimeBucket.HOUR, customTimeBucket.getTimeBucket());
+
+    customTimeBucket = schema.getCustomTimeBucketRegistry().getTimeBucket(TimeBucket.DAY.ordinal());
+    Assert.assertTrue(customTimeBucket.isUnit());
+    Assert.assertEquals(TimeBucket.DAY, customTimeBucket.getTimeBucket());
+
+    int id5m = schema.getCustomTimeBucketRegistry().getTimeBucketId(new CustomTimeBucket(TimeBucket.MINUTE, 5));
+    int id3h = schema.getCustomTimeBucketRegistry().getTimeBucketId(new CustomTimeBucket(TimeBucket.HOUR, 3));
+
+    Assert.assertEquals(256, id5m);
+    Assert.assertEquals(257, id3h);
+
+    for (int ddID = 0; ddID < schema.getDimensionsDescriptorIDToDimensionsDescriptor().size(); ddID++) {
+      DimensionsDescriptor dd = schema.getDimensionsDescriptorIDToDimensionsDescriptor().get(ddID);
+
+      Assert.assertEquals(customTimeBuckets.get(ddID % 5), dd.getCustomTimeBucket());
     }
   }
 }

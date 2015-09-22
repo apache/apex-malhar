@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
-import com.datatorrent.lib.appdata.schemas.TimeBucket;
+import com.datatorrent.lib.appdata.schemas.CustomTimeBucket;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputationFlexibleSingleSchema.DimensionsConversionContext;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
@@ -59,7 +59,7 @@ public abstract class AbstractIncrementalAggregator implements IncrementalAggreg
     if(this.context.inputTimestampIndex != -1
        && this.context.outputTimebucketIndex != -1) {
       hashCode ^= inputEvent.getKeys().getFieldsLong()[this.context.inputTimestampIndex];
-      hashCode ^= this.context.dd.getTimeBucket().roundDown(inputEvent.getKeys().getFieldsLong()[this.context.inputTimestampIndex]);
+      hashCode ^= this.context.dd.getCustomTimeBucket().roundDown(inputEvent.getKeys().getFieldsLong()[this.context.inputTimestampIndex]);
     }
 
     return hashCode;
@@ -74,11 +74,11 @@ public abstract class AbstractIncrementalAggregator implements IncrementalAggreg
     if(context.inputTimestampIndex != -1) {
       timestamp1 = inputEvent1.getKeys().getFieldsLong()[context.inputTimestampIndex];
       inputEvent1.getKeys().getFieldsLong()[context.inputTimestampIndex] =
-      context.dd.getTimeBucket().roundDown(timestamp1);
+      context.dd.getCustomTimeBucket().roundDown(timestamp1);
 
       timestamp2 = inputEvent2.getKeys().getFieldsLong()[context.inputTimestampIndex];
       inputEvent2.getKeys().getFieldsLong()[context.inputTimestampIndex] =
-      context.dd.getTimeBucket().roundDown(timestamp2);
+      context.dd.getCustomTimeBucket().roundDown(timestamp2);
     }
 
     boolean equals = GPOUtils.subsetEquals(inputEvent2.getKeys(),
@@ -133,9 +133,9 @@ public abstract class AbstractIncrementalAggregator implements IncrementalAggreg
     GPOUtils.indirectCopy(keys, inputEvent.getKeys(), context.indexSubsetKeys);
 
     if(context.outputTimebucketIndex >= 0) {
-      TimeBucket timeBucket = context.dd.getTimeBucket();
+      CustomTimeBucket timeBucket = context.dd.getCustomTimeBucket();
 
-      keys.getFieldsInteger()[context.outputTimebucketIndex] = timeBucket.ordinal();
+      keys.getFieldsInteger()[context.outputTimebucketIndex] = context.customTimeBucketRegistry.getTimeBucketId(timeBucket);
       keys.getFieldsLong()[context.outputTimestampIndex] =
       timeBucket.roundDown(inputEvent.getKeys().getFieldsLong()[context.inputTimestampIndex]);
     }
