@@ -176,9 +176,12 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   protected boolean processFileInfo(FileInfo fileInfo)
   {
     ScannedFileInfo scannedFileInfo = (ScannedFileInfo)fileInfo;
+    if (scannedFileInfo ==  TimeBasedDirectoryScanner.DELIMITER) {
+      return false;
+    }
     currentWindowRecoveryState.add(scannedFileInfo);
     updateReferenceTimes(scannedFileInfo);
-    return super.processFileInfo(fileInfo) && !scannedFileInfo.lastFileOfScan;
+    return super.processFileInfo(fileInfo);
   }
 
   protected void updateReferenceTimes(ScannedFileInfo fileInfo)
@@ -255,6 +258,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   public static class TimeBasedDirectoryScanner implements Runnable, Component<Context.OperatorContext>
   {
     private static long DEF_SCAN_INTERVAL_MILLIS = 5000;
+    private static ScannedFileInfo DELIMITER = new ScannedFileInfo();
 
     private boolean recursive;
 
@@ -281,6 +285,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
     protected transient Map<String, Long> referenceTimes;
 
     private transient ScannedFileInfo lastScannedInfo;
+    private transient int numDiscoveredPerIteration;
 
     public TimeBasedDirectoryScanner()
     {
@@ -339,10 +344,12 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
           if ((trigger || (System.currentTimeMillis() - scanIntervalMillis >= lastScanMillis)) &&
             (lastScannedInfo == null || referenceTimes.get(lastScannedInfo.getFilePath()) != null)) {
             trigger = false;
+            lastScannedInfo = null;
+            numDiscoveredPerIteration = 0;
             for (String afile : files) {
               scan(new Path(afile), null);
             }
-            scanComplete();
+            scanIterationComplete();
           } else {
             Thread.sleep(sleepMillis);
           }
@@ -358,13 +365,11 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
     /**
      * Operations that need to be done once a scan is complete.
      */
-    protected void scanComplete()
+    protected void scanIterationComplete()
     {
-      LOG.debug("scan complete {}", lastScanMillis);
-      ScannedFileInfo fileInfo = discoveredFiles.peekLast();
-      if (fileInfo != null) {
-        fileInfo.lastFileOfScan = true;
-        lastScannedInfo = fileInfo;
+      LOG.debug("scan complete {} {}", lastScanMillis, numDiscoveredPerIteration);
+      if (numDiscoveredPerIteration > 0) {
+        discoveredFiles.add(DELIMITER);
       }
       lastScanMillis = System.currentTimeMillis();
     }
@@ -398,7 +403,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
           }
           if (acceptFile(childPathStr)) {
             LOG.debug("found {}", childPathStr);
-            discoveredFiles.add(info);
+            processDiscoveredFile(info);
           } else {
             // don't look at it again
             ignoredFiles.add(childPathStr);
@@ -409,6 +414,13 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
       } catch (IOException e) {
         throw new RuntimeException("listing files", e);
       }
+    }
+
+    protected void processDiscoveredFile(ScannedFileInfo info)
+    {
+      numDiscoveredPerIteration++;
+      lastScannedInfo = info;
+      discoveredFiles.add(info);
     }
 
     protected ScannedFileInfo createScannedFileInfo(Path parentPath, FileStatus parentStatus, Path childPath, @SuppressWarnings("UnusedParameters") FileStatus childStatus, Path rootPath)
@@ -460,6 +472,11 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
     public FileInfo pollFile()
     {
       return discoveredFiles.poll();
+    }
+
+    protected int getNumDiscoveredPerIteration()
+    {
+      return numDiscoveredPerIteration;
     }
 
     /**
@@ -570,9 +587,8 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   public static class ScannedFileInfo extends AbstractFileSplitter.FileInfo
   {
     protected final long modifiedTime;
-    private transient boolean lastFileOfScan;
 
-    private ScannedFileInfo()
+    protected ScannedFileInfo()
     {
       super();
       modifiedTime = -1;
@@ -582,11 +598,6 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
     {
       super(directoryPath, relativeFilePath);
       this.modifiedTime = modifiedTime;
-    }
-
-    protected boolean isLastFileOfScan()
-    {
-      return lastFileOfScan;
     }
   }
 

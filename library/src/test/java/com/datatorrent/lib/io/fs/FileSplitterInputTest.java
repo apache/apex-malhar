@@ -471,14 +471,12 @@ public class FileSplitterInputTest
     }
 
     @Override
-    protected void scanComplete()
+    protected void scanIterationComplete()
     {
-      super.scanComplete();
-      if (discoveredFiles.size() > 0 && discoveredFiles.getLast().isLastFileOfScan()) {
+      if (getNumDiscoveredPerIteration() > 0) {
         semaphore.release();
-        LOG.debug("discovered {}", discoveredFiles.size());
       }
-
+      super.scanIterationComplete();
     }
   }
 
