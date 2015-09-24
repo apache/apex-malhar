@@ -30,6 +30,8 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Sink;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the base class for a generic single schema dimensions computation operator. A single
@@ -214,7 +216,7 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
         conversionContext.schemaID = schemaID;
         conversionContext.dimensionsDescriptorID = dimensionsDescriptorID;
         conversionContext.aggregatorID = aggID;
-
+        conversionContext.customTimeBucketRegistry = configurationSchema.getCustomTimeBucketRegistry();
         conversionContext.dd = dd;
         conversionContext.keyDescriptor = keyFieldsDescriptor;
         conversionContext.aggregateDescriptor = map.get(aggID);
@@ -363,6 +365,7 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
   {
     private static final long serialVersionUID = 201506151157L;
 
+    public CustomTimeBucketRegistry customTimeBucketRegistry;
     /**
      * The schema ID for {@link Aggregate}s emitted by the {@link IncrementalAggegator}s holding this context.
      */
@@ -421,4 +424,6 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
       //Do nothing.
     }
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractDimensionsComputationFlexibleSingleSchema.class);
 }

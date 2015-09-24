@@ -12,6 +12,9 @@ import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.datatorrent.lib.appdata.schemas.CustomTimeBucket;
+import com.datatorrent.lib.appdata.schemas.Fields;
+import com.datatorrent.lib.appdata.schemas.TimeBucket;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 
@@ -68,5 +71,17 @@ public class DimensionsDescriptorTest
 
     Assert.assertEquals("The fields should match.", fields, ad.getFields().getFields());
     Assert.assertEquals("The timeunit should be DAYS.", TimeUnit.DAYS, ad.getTimeBucket().getTimeUnit());
+  }
+
+  @Test
+  public void equalsAndHashCodeTest()
+  {
+    DimensionsDescriptor ddA = new DimensionsDescriptor(new CustomTimeBucket(TimeBucket.MINUTE, 5L),
+                                                        new Fields(Sets.newHashSet("a", "b")));
+
+    DimensionsDescriptor ddB = new DimensionsDescriptor(new CustomTimeBucket(TimeBucket.MINUTE, 5L),
+                                                        new Fields(Sets.newHashSet("a", "b")));
+
+    Assert.assertTrue(ddB.equals(ddA));
   }
 }

@@ -1,0 +1,10 @@
+{"keys":[{"name":"publisher","type":"string"},
+         {"name":"advertiser","type":"string"}],
+ "timeBuckets":["1m","5m"],
+ "values":
+  [{"name":"impressions","type":"long","aggregators":["SUM","CUM_SUM"]},
+   {"name":"cost","type":"double","aggregators":["SUM","CUM_SUM"]}],
+ "dimensions":
+  [{"combination":["publisher","advertiser"]},
+   {"combination":["publisher"]}]
+}
