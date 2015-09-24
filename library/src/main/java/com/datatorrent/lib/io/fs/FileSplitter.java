@@ -59,14 +59,15 @@ import com.datatorrent.lib.io.block.BlockMetadata.FileBlockMetadata;
  * The operator emits block metadata and file metadata.<br/>
  *
  * The file system/directory space should be different for different partitions of file splitter.
- * The scanning of
  *
+ * @deprecated  use {@link FileSplitterInput}. This splitter has issues with recovery and fixing that breaks backward compatibility.
  * @displayName File Splitter
  * @category Input
  * @tags file
  * @since 2.0.0
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
+@Deprecated
 public class FileSplitter implements InputOperator, Operator.CheckpointListener
 {
   protected Long blockSize;
@@ -454,6 +455,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
   /**
    * Represents the file metadata - file path, name, no. of blocks, etc.
    */
+  @Deprecated
   public static class FileMetadata
   {
     @NotNull
@@ -614,6 +616,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
     }
   }
 
+  @Deprecated
   public static class TimeBasedDirectoryScanner implements Component<Context.OperatorContext>, Runnable
   {
     private static long DEF_SCAN_INTERVAL_MILLIS = 5000;
@@ -939,6 +942,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
   /**
    * A class that represents the file discovered by time-based scanner.
    */
+  @Deprecated
   protected static class FileInfo
   {
     protected final String directoryPath;
