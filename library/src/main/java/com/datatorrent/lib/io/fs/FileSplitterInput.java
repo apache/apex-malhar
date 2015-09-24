@@ -176,9 +176,6 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   protected boolean processFileInfo(FileInfo fileInfo)
   {
     ScannedFileInfo scannedFileInfo = (ScannedFileInfo)fileInfo;
-    if (scannedFileInfo ==  TimeBasedDirectoryScanner.DELIMITER) {
-      return false;
-    }
     currentWindowRecoveryState.add(scannedFileInfo);
     updateReferenceTimes(scannedFileInfo);
     return super.processFileInfo(fileInfo);
@@ -258,7 +255,6 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   public static class TimeBasedDirectoryScanner implements Runnable, Component<Context.OperatorContext>
   {
     private static long DEF_SCAN_INTERVAL_MILLIS = 5000;
-    private static ScannedFileInfo DELIMITER = new ScannedFileInfo();
 
     private boolean recursive;
 
@@ -368,9 +364,6 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
     protected void scanIterationComplete()
     {
       LOG.debug("scan complete {} {}", lastScanMillis, numDiscoveredPerIteration);
-      if (numDiscoveredPerIteration > 0) {
-        discoveredFiles.add(DELIMITER);
-      }
       lastScanMillis = System.currentTimeMillis();
     }
 
