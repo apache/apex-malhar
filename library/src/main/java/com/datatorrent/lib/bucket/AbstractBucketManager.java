@@ -224,6 +224,8 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
   {
     running = true;
     List<Long> requestedBuckets = Lists.newArrayList();
+    // Evicted Buckets Map: Bucket Index -> Bucket Key.
+    Map<Integer, Long> evictedBuckets = Maps.newHashMap();
     try {
       while (running) {
         Long request = eventQueue.poll(1, TimeUnit.SECONDS);
@@ -256,6 +258,13 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
               }
               logger.debug("deleted bucket {} {}", oldBucket.bucketKey, bucketIdx);
             }
+            else if(buckets[bucketIdx] == null) // May be due to eviction or due to operator crash
+            {
+              if(evictedBuckets.containsKey(bucketIdx) && evictedBuckets.get(bucketIdx) < requestedKey){
+                bucketStore.deleteBucket(bucketIdx);
+                logger.debug("deleted bucket positions for idx {}", bucketIdx);
+              }
+            }
 
             Map<Object, T> bucketDataInStore = bucketStore.fetchBucket(bucketIdx);
 
@@ -286,6 +295,7 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
                 }
                 evictionCandidates.remove(lruIdx);
                 buckets[lruIdx] = null;
+                evictedBuckets.put(lruIdx, lruBucket.bucketKey);
                 listener.bucketOffLoaded(lruBucket.bucketKey);
                 if (recordStats) {
                   bucketCounters.getCounter(CounterKeys.EVICTED_BUCKETS).increment();
@@ -300,6 +310,7 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
             if (bucket == null || bucket.bucketKey != requestedKey) {
               bucket = createBucket(requestedKey);
               buckets[bucketIdx] = bucket;
+              evictedBuckets.remove(bucketIdx);
             }
             bucket.setWrittenEvents(bucketDataInStore);
             evictionCandidates.add(bucketIdx);

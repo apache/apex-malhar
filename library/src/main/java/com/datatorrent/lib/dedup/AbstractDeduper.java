@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.dedup;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
@@ -40,6 +41,9 @@ import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.netlet.util.DTThrowable;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 
 /**
  * This is the base implementation of an deduper.&nbsp;
@@ -323,8 +327,15 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
 
     for (int i = 0; i < finalCapacity; i++) {
       try {
+        Kryo kryo = new Kryo();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        Output output = new Output(bos);
+        kryo.writeObject(output, this);
+        output.close();
+        Input lInput = new Input(bos.toByteArray());
+
         @SuppressWarnings("unchecked")
-        AbstractDeduper<INPUT, OUTPUT> deduper = this.getClass().newInstance();
+        AbstractDeduper<INPUT, OUTPUT> deduper = (AbstractDeduper<INPUT, OUTPUT>) kryo.readObject(lInput, this.getClass());
         DefaultPartition<AbstractDeduper<INPUT, OUTPUT>> partition = new DefaultPartition<AbstractDeduper<INPUT, OUTPUT>>(deduper);
         newPartitions.add(partition);
       }
