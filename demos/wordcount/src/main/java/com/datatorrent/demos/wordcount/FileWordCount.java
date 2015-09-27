@@ -198,11 +198,6 @@ public class FileWordCount extends BaseOperator
     LOG.info("FileWordCount: endWindow for {}, wordMapFile.size = {}, topN = {}",
              fileName, wordMapFile.size(), topN);
 
-    // have some words; need the file name to emit topN
-    if (null == fileName) {    // should never happen
-      throw new RuntimeException("No fileName at endWindow");
-    }
-
     // get topN list for this file and, if we have EOF, emit to fileOutput port
 
     // get topN global list and emit to global output port
@@ -215,8 +210,12 @@ public class FileWordCount extends BaseOperator
     LOG.info("FileWordCount: resultPerFile.size = {}", resultPerFile.size());
     outputPerFile.emit(resultPerFile);
 
-    if (eof) {
-      // got EOF, so compute final topN list from wordMapFile into fileFinalList and emit it
+    if (eof) {                     // got EOF earlier
+      if (null == fileName) {      // need file name to emit topN pairs to file writer
+        throw new RuntimeException("EOF but no fileName at endWindow");
+      }
+
+      // so compute final topN list from wordMapFile into fileFinalList and emit it
       getTopNList(wordMapFile);
       resultFileFinal.put(fileName, fileFinalList);
       fileOutput.emit(resultFileFinal);
