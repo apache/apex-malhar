@@ -1158,4 +1158,50 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
       return result;
     }
   }
+
+  /**
+   * This is an implementation of the {@link AbstractFileInputOperator} that outputs the lines in a file.&nbsp;
+   * Each line is emitted as a separate tuple.&nbsp; It is emitted as a String.
+   * <p>
+   * The directory path where to scan and read files from should be specified using the {@link #directory} property.
+   * </p>
+   * @displayName File Line Input
+   * @category Input
+   * @tags fs, file, line, lines, input operator
+   *
+   */
+  public static class FileLineInputOperator extends AbstractFileInputOperator<String>
+  {
+    public transient final DefaultOutputPort<String> output = new DefaultOutputPort<String>();
+
+    protected transient BufferedReader br;
+
+    @Override
+    protected InputStream openFile(Path path) throws IOException
+    {
+      InputStream is = super.openFile(path);
+      br = new BufferedReader(new InputStreamReader(is));
+      return is;
+    }
+
+    @Override
+    protected void closeFile(InputStream is) throws IOException
+    {
+      super.closeFile(is);
+      br.close();
+      br = null;
+    }
+
+    @Override
+    protected String readEntity() throws IOException
+    {
+      return br.readLine();
+    }
+
+    @Override
+    protected void emit(String tuple)
+    {
+      output.emit(tuple);
+    }
+  }
 }
