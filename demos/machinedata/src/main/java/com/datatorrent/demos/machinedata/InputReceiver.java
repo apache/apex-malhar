@@ -41,7 +41,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(InputReceiver.class);
 
-  public transient DefaultOutputPort<MachineInfo> outputInline = new DefaultOutputPort<MachineInfo>();
+  public transient DefaultOutputPort<MachineInfo> outputInline = new DefaultOutputPort<>();
   private final Random randomGen = new Random();
 
   private int customerMin = 1;
@@ -60,31 +60,27 @@ public class InputReceiver extends BaseOperator implements InputOperator
   private int deviceIdMin = 1;
   private int deviceIdMax = 50;
 
-  // private int tupleBlastSize = 50;
   private int tupleBlastSize = 1001;
-  private int operatorId;
-  private long windowId = 1;
-  private static DateFormat minuteDateFormat = new SimpleDateFormat("HHmm");
-  private static DateFormat dayDateFormat = new SimpleDateFormat("d");
+
+  private static final DateFormat minuteDateFormat = new SimpleDateFormat("HHmm");
+  private static final DateFormat dayDateFormat = new SimpleDateFormat("d");
 
   static {
     TimeZone tz = TimeZone.getTimeZone("GMT");
     minuteDateFormat.setTimeZone(tz);
     dayDateFormat.setTimeZone(tz);
-  
+
   }
   @Override
   public void setup(Context.OperatorContext context)
   {
     super.setup(context);
-    operatorId = context.getId();
   }
 
   @Override
   public void beginWindow(long windowId)
   {
     super.beginWindow(windowId);
-    this.windowId = windowId;
   }
 
   @Override
@@ -224,7 +220,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method returns the minimum value for customer
-   * 
+   *
    * @return
    */
   public int getCustomerMin()
@@ -234,9 +230,8 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method is used to set the minimum value for customer
-   * 
-   * @param customerMin
-   *          the minimum customer value
+   *
+   * @param customerMin the minimum customer value
    */
   public void setCustomerMin(int customerMin)
   {
@@ -245,7 +240,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method returns the max value for customer
-   * 
+   *
    * @return
    */
   public int getCustomerMax()
@@ -255,9 +250,8 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method is used to set the max value for customer
-   * 
-   * @param customerMax
-   *          the max customer value
+   *
+   * @param customerMax the max customer value
    */
   public void setCustomerMax(int customerMax)
   {
@@ -266,7 +260,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method returns the minimum value for product
-   * 
+   *
    * @return
    */
   public int getProductMin()
@@ -276,9 +270,8 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method is used to set the minimum value for product
-   * 
-   * @param productMin
-   *          the minimum product value
+   *
+   * @param productMin the minimum product value
    */
   public void setProductMin(int productMin)
   {
@@ -287,7 +280,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method returns the max value for product
-   * 
+   *
    * @return
    */
   public int getProductMax()
@@ -297,9 +290,8 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method is used to set the max value for product
-   * 
-   * @param productMax
-   *          the max product value
+   *
+   * @param productMax the max product value
    */
   public void setProductMax(int productMax)
   {
@@ -308,7 +300,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method returns the minimum value for OS
-   * 
+   *
    * @return
    */
   public int getOsMin()
@@ -318,9 +310,8 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method is used to set the minimum value for OS
-   * 
-   * @param osMin
-   *          the min OS value
+   *
+   * @param osMin the min OS value
    */
   public void setOsMin(int osMin)
   {
@@ -329,7 +320,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method returns the max value for OS
-   * 
+   *
    * @return
    */
   public int getOsMax()
@@ -339,9 +330,8 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method is used to set the max value for OS
-   * 
-   * @param osMax
-   *          the max OS value
+   *
+   * @param osMax the max OS value
    */
   public void setOsMax(int osMax)
   {
@@ -350,7 +340,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method returns the minimum value for software1
-   * 
+   *
    * @return
    */
   public int getSoftware1Min()
@@ -360,9 +350,8 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method is used to set the minimum value for software1
-   * 
-   * @param software1Min
-   *          the minimum software1 value
+   *
+   * @param software1Min the minimum software1 value
    */
   public void setSoftware1Min(int software1Min)
   {
@@ -371,7 +360,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method returns the max value for software1
-   * 
+   *
    * @return
    */
   public int getSoftware1Max()
@@ -381,9 +370,8 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method is used to set the max value for software1
-   * 
-   * @param software1Max
-   *          the max software1 value
+   *
+   * @param software1Max the max software1 value
    */
   public void setSoftware1Max(int software1Max)
   {
@@ -392,7 +380,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method returns the minimum value for software2
-   * 
+   *
    * @return
    */
   public int getSoftware2Min()
@@ -402,9 +390,8 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method is used to set the minimum value for software2
-   * 
-   * @param software2Min
-   *          the minimum software2 value
+   *
+   * @param software2Min the minimum software2 value
    */
   public void setSoftware2Min(int software2Min)
   {
@@ -413,7 +400,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method returns the max value for software2
-   * 
+   *
    * @return
    */
   public int getSoftware2Max()
@@ -423,9 +410,8 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method is used to set the max value for software2
-   * 
-   * @param software2Max
-   *          the max software2 value
+   *
+   * @param software2Max the max software2 value
    */
   public void setSoftware2Max(int software2Max)
   {
@@ -434,7 +420,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method returns the minimum value for software3
-   * 
+   *
    * @return
    */
   public int getSoftware3Min()
@@ -444,9 +430,8 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method is used to set the minimum value for software3
-   * 
-   * @param software3Min
-   *          the minimum software3 value
+   *
+   * @param software3Min the minimum software3 value
    */
   public void setSoftware3Min(int software3Min)
   {
@@ -455,7 +440,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method returns the max value for software3
-   * 
+   *
    * @return
    */
   public int getSoftware3Max()
@@ -465,9 +450,8 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method is used to set the max value for software3
-   * 
-   * @param software3Max
-   *          the max software3 value
+   *
+   * @param software3Max the max software3 value
    */
   public void setSoftware3Max(int software3Max)
   {
@@ -476,7 +460,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method returns the minimum value for deviceId
-   * 
+   *
    * @return
    */
   public int getDeviceIdMin()
@@ -486,9 +470,8 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method is used to set the minimum value for deviceId
-   * 
-   * @param deviceIdMin
-   *          the minimum deviceId value
+   *
+   * @param deviceIdMin the minimum deviceId value
    */
   public void setDeviceIdMin(int deviceIdMin)
   {
@@ -497,7 +480,7 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method returns the max value for deviceId
-   * 
+   *
    * @return
    */
   public int getDeviceIdMax()
@@ -507,12 +490,27 @@ public class InputReceiver extends BaseOperator implements InputOperator
 
   /**
    * This method is used to set the max value for deviceId
-   * 
-   * @param deviceIdMax
-   *          the max deviceId value
+   *
+   * @param deviceIdMax the max deviceId value
    */
   public void setDeviceIdMax(int deviceIdMax)
   {
     this.deviceIdMax = deviceIdMax;
+  }
+
+  /**
+   * @return the tupleBlastSize
+   */
+  public int getTupleBlastSize()
+  {
+    return tupleBlastSize;
+  }
+
+  /**
+   * @param tupleBlastSize the tupleBlastSize to set
+   */
+  public void setTupleBlastSize(int tupleBlastSize)
+  {
+    this.tupleBlastSize = tupleBlastSize;
   }
 }

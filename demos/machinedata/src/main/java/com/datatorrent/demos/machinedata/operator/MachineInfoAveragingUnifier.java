@@ -35,8 +35,8 @@ import com.datatorrent.lib.util.KeyHashValPair;
 public class MachineInfoAveragingUnifier implements Unifier<KeyHashValPair<MachineKey, AverageData>>
 {
 
-  private Map<MachineKey, AverageData> sums = new HashMap<MachineKey, AverageData>();
-  public final transient DefaultOutputPort<KeyHashValPair<MachineKey, AverageData>> outputPort = new DefaultOutputPort<KeyHashValPair<MachineKey, AverageData>>();
+  private Map<MachineKey, AverageData> sums = new HashMap<>();
+  public final transient DefaultOutputPort<KeyHashValPair<MachineKey, AverageData>> outputPort = new DefaultOutputPort<>();
 
   @Override
   public void beginWindow(long arg0)
@@ -49,7 +49,7 @@ public class MachineInfoAveragingUnifier implements Unifier<KeyHashValPair<Machi
   public void endWindow()
   {
     for (Map.Entry<MachineKey, AverageData> entry : sums.entrySet()) {
-      outputPort.emit(new KeyHashValPair<MachineKey, AverageData>(entry.getKey(), entry.getValue()));
+      outputPort.emit(new KeyHashValPair<>(entry.getKey(), entry.getValue()));
     }
     sums.clear();
 

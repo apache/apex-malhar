@@ -40,7 +40,7 @@ public class Combinatorics<T> {
     public Combinatorics(T[] values) {
         this.values = values;
         this.size = -1;
-        this.result = new ArrayList<T>();
+        this.result = new ArrayList<>();
     }
 
     /**
@@ -52,7 +52,7 @@ public class Combinatorics<T> {
     public Combinatorics(T[] values, int size) {
         this.values = values;
         this.size = size;
-        this.result = new ArrayList<T>();
+        this.result = new ArrayList<>();
     }
 
     public Map<Integer, List<T>> generate() {
@@ -76,11 +76,9 @@ public class Combinatorics<T> {
         if (depth == tmp.length) {
             for (int j = 0; j < depth; j++) {
                 result.add(values[tmp[j]]);
-//                System.out.print(values[tmp[j]] + " ");
             }
             resultMap.put(++resultMapSize, result);
-//            System.out.println(resultMapSize);
-            result = new ArrayList<T>();
+            result = new ArrayList<>();
             return;
         }
         for (int i = start; i < values.length; i++) {

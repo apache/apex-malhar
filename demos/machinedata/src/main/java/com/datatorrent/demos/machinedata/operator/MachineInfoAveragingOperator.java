@@ -50,16 +50,13 @@ public class MachineInfoAveragingOperator extends BaseOperator
   public static final String HDD = "hdd";
   public static final String DAY = "day";
 
-  private transient Map<MachineKey, AverageData> dataMap = new HashMap<MachineKey, AverageData>();
+  private final transient Map<MachineKey, AverageData> dataMap = new HashMap<>();
 
-  public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<String, String>>> outputPort = new DefaultOutputPort<KeyValPair<MachineKey, Map<String, String>>>();
+  public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<String, String>>> outputPort = new DefaultOutputPort<>();
 
-  public transient DefaultOutputPort<String> smtpAlert = new DefaultOutputPort<String>();
+  public transient DefaultOutputPort<String> smtpAlert = new DefaultOutputPort<>();
 
   private int threshold = 95;
-
-  private boolean genAlert;
-  //private transient DateFormat dateFormat = new SimpleDateFormat();
 
   /**
    * Buffer all the tuples as is till end window gets called
@@ -122,8 +119,8 @@ public class MachineInfoAveragingOperator extends BaseOperator
       average = averageResultMap.getRam() / count;
       averageResult.put(RAM, average + "");
       emitAlert(average, RAM, key);
-      averageResult.put(DAY, key.getDay().toString());
-      outputPort.emit(new KeyValPair<MachineKey, Map<String, String>>(key, averageResult));
+      averageResult.put(DAY, key.getDay());
+      outputPort.emit(new KeyValPair<>(key, averageResult));
     }
     dataMap.clear();
   }

@@ -38,10 +38,11 @@ public class MachineInfoAveragingPrerequisitesOperator extends BaseOperator
 {
 
   // Aggregate sum of all values seen for a key.
-  private Map<MachineKey, AverageData> sums = new HashMap<MachineKey, AverageData>();
+  private Map<MachineKey, AverageData> sums = new HashMap<>();
 
   public final transient DefaultOutputPort<KeyHashValPair<MachineKey, AverageData>> outputPort = new DefaultOutputPort<KeyHashValPair<MachineKey, AverageData>>()
   {
+    @Override
     public Unifier<KeyHashValPair<MachineKey, AverageData>> getUnifier()
     {
       MachineInfoAveragingUnifier unifier = new MachineInfoAveragingUnifier();
@@ -78,7 +79,7 @@ public class MachineInfoAveragingPrerequisitesOperator extends BaseOperator
 
     for (Map.Entry<MachineKey, AverageData> entry : sums.entrySet()) {
       if (outputPort.isConnected()) {
-        outputPort.emit(new KeyHashValPair<MachineKey, AverageData>(entry.getKey(), entry.getValue()));
+        outputPort.emit(new KeyHashValPair<>(entry.getKey(), entry.getValue()));
       }
     }
     sums.clear();
