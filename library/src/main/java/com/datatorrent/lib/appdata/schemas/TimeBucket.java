@@ -16,6 +16,7 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -224,5 +225,20 @@ public enum TimeBucket
     Preconditions.checkNotNull(suffix);
     Preconditions.checkArgument(SUFFIXES.contains(suffix));
     return SUFFIX_TO_TIME_BUCKET.get(suffix);
+  }
+
+  public static class TimeBucketComparator implements Comparator<TimeBucket>
+  {
+    public static final TimeBucketComparator INSTANCE = new TimeBucketComparator();
+
+    private TimeBucketComparator()
+    {
+    }
+
+    @Override
+    public int compare(TimeBucket timeBucketA, TimeBucket timeBucketB)
+    {
+      return timeBucketA.getTimeUnit().compareTo(timeBucketB.getTimeUnit());
+    }
   }
 }
