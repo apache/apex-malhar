@@ -59,4 +59,22 @@ public class CustomTimeBucketTest
 
     Assert.assertEquals(expected, customTimeBucket.roundDown(val));
   }
+
+  @Test
+  public void compareTest()
+  {
+    CustomTimeBucket bigger = new CustomTimeBucket("180m");
+    CustomTimeBucket smaller = new CustomTimeBucket("2h");
+
+    Assert.assertTrue(bigger.compareTo(bigger) == 0);
+    Assert.assertTrue(smaller.compareTo(smaller) == 0);
+
+    Assert.assertTrue(bigger.compareTo(smaller) > 0);
+    Assert.assertTrue(smaller.compareTo(bigger) < 0);
+
+    smaller = new CustomTimeBucket("91m");
+
+    Assert.assertTrue(bigger.compareTo(smaller) > 0);
+    Assert.assertTrue(smaller.compareTo(bigger) < 0);
+  }
 }

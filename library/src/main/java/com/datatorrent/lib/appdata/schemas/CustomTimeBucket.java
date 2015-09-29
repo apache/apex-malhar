@@ -26,7 +26,7 @@ import com.google.common.base.Preconditions;
 /**
  * This represents a {@link TimeBucket} which can be a multiple of a time unit.
  */
-public class CustomTimeBucket implements Serializable
+public class CustomTimeBucket implements Serializable, Comparable<CustomTimeBucket>
 {
   private static final long serialVersionUID = 201509221545L;
 
@@ -189,4 +189,15 @@ public class CustomTimeBucket implements Serializable
     return true;
   }
 
+  @Override
+  public int compareTo(CustomTimeBucket other)
+  {
+    if (this.numMillis < other.numMillis) {
+      return -1;
+    } else if (this.numMillis == other.numMillis) {
+      return 0;
+    }
+
+    return 1;
+  }
 }
