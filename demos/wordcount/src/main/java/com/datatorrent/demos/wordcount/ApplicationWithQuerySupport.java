@@ -16,8 +16,6 @@
 package com.datatorrent.demos.wordcount;
 
 import java.net.URI;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -27,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator;
 
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
@@ -35,7 +32,6 @@ import com.datatorrent.lib.appdata.snapshot.AppDataSnapshotServerMap;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.stream.DevNull;
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -44,11 +40,7 @@ public class ApplicationWithQuerySupport implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationWithQuerySupport.class);
 
-  public static final String
-    SNAPSHOT_SCHEMA   = "WordDataSchema.json",
-    APP_NAME          = "TopNWordsWithQueries";
-
-  private final Locality locality = null;
+  public static final String SNAPSHOT_SCHEMA = "WordDataSchema.json";
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
@@ -84,9 +76,8 @@ public class ApplicationWithQuerySupport implements StreamingApplication
       snapshotServerFile.setSnapshotSchemaJSON(snapshotServerJSON);
       snapshotServerGlobal.setSnapshotSchemaJSON(snapshotServerJSON);
 
-      PubSubWebSocketAppDataQuery
-        wsQueryFile = new PubSubWebSocketAppDataQuery(),
-        wsQueryGlobal = new PubSubWebSocketAppDataQuery();
+      PubSubWebSocketAppDataQuery wsQueryFile = new PubSubWebSocketAppDataQuery();
+      PubSubWebSocketAppDataQuery wsQueryGlobal = new PubSubWebSocketAppDataQuery();
       wsQueryFile.setUri(uri);
       wsQueryGlobal.setUri(uri);
 
