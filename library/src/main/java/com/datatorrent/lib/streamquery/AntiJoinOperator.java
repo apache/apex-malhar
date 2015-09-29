@@ -93,7 +93,7 @@ public class AntiJoinOperator implements Operator
           table1.remove(tuple);
         }
       }
-	}
+    }
   };
 
   /**
@@ -101,7 +101,6 @@ public class AntiJoinOperator implements Operator
    */
   public final transient DefaultInputPort<Map<String, Object>> inport2
           = new DefaultInputPort<Map<String, Object>>() {
-
     @Override
     public void process(Map<String, Object> tuple) {
       table2.add(tuple);
