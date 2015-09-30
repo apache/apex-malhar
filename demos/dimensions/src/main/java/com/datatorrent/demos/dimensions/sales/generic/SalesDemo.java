@@ -4,8 +4,6 @@
  */
 package com.datatorrent.demos.dimensions.sales.generic;
 
-import java.net.URI;
-
 import java.util.Map;
 
 import com.google.common.collect.Maps;
@@ -32,7 +30,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 

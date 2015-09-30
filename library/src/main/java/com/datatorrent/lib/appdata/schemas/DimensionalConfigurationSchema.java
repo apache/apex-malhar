@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -164,6 +165,7 @@ public class DimensionalConfigurationSchema
    * The JSON key string for the dimensions section of the schema.
    */
   public static final String FIELD_DIMENSIONS = "dimensions";
+  public static final String FIELD_DIMENSIONS_ALL_COMBINATIONS = "ALL_COMBINATIONS";
   /**
    * The JSON key string for the combination subsection of the schema.
    */
@@ -398,8 +400,7 @@ public class DimensionalConfigurationSchema
 
     customTimeBucketRegistry = new CustomTimeBucketRegistry(STARTING_TIMEBUCKET_ID);
 
-    for (int timeBucketIndex = 0; timeBucketIndex < timeBuckets.size(); timeBucketIndex++) {
-      TimeBucket timeBucket = timeBuckets.get(timeBucketIndex);
+    for (TimeBucket timeBucket : timeBuckets) {
       CustomTimeBucket customTimeBucket = new CustomTimeBucket(timeBucket);
       customTimeBuckets.add(customTimeBucket);
       customTimeBucketRegistry.register(customTimeBucket, timeBucket.ordinal());
@@ -902,7 +903,43 @@ public class DimensionalConfigurationSchema
     JSONArray dimensionsArray;
 
     if(jo.has(FIELD_DIMENSIONS)) {
-      dimensionsArray = jo.getJSONArray(FIELD_DIMENSIONS);
+      Object dimensionsVal = jo.get(FIELD_DIMENSIONS);
+
+      if (dimensionsVal instanceof String) {
+        if (!((String)dimensionsVal).equals(FIELD_DIMENSIONS_ALL_COMBINATIONS)) {
+          throw new IllegalArgumentException(dimensionsVal + " is an invalid value for " + FIELD_DIMENSIONS);
+        }
+
+        dimensionsArray = new JSONArray();
+
+        LOG.debug("Combinations size {}", fieldToType.keySet().size());
+        Set<Set<String>> combinations = buildCombinations(fieldToType.keySet());
+        LOG.debug("Combinations size {}", combinations.size());
+        List<DimensionsDescriptor> dimensionDescriptors = Lists.newArrayList();
+
+        for (Set<String> combination : combinations) {
+          dimensionDescriptors.add(new DimensionsDescriptor(new Fields(combination)));
+        }
+
+        Collections.sort(dimensionDescriptors);
+        LOG.debug("Dimensions descriptor size {}", dimensionDescriptors.size());
+
+        for (DimensionsDescriptor dimensionsDescriptor : dimensionDescriptors) {
+          JSONObject combination = new JSONObject();
+          JSONArray combinationKeys = new JSONArray();
+
+          for (String field : dimensionsDescriptor.getFields().getFields()) {
+            combinationKeys.put(field);
+          }
+
+          combination.put(FIELD_DIMENSIONS_COMBINATIONS, combinationKeys);
+          dimensionsArray.put(combination);
+        }
+      } else if (dimensionsVal instanceof JSONArray) {
+        dimensionsArray = jo.getJSONArray(FIELD_DIMENSIONS);
+      } else {
+        throw new IllegalArgumentException("The value for " + FIELD_DIMENSIONS + " must be a string or an array.");
+      }
     }
     else {
       dimensionsArray = new JSONArray();
@@ -1083,9 +1120,7 @@ public class DimensionalConfigurationSchema
                                            combinationFields.toString());
       }
 
-      for(int timeBucketCounter = 0;
-          timeBucketCounter < customTimeBuckets.size();
-          timeBucketCounter++) {
+      for(CustomTimeBucket customTimeBucket: customTimeBuckets) {
         dimensionsDescriptorIDToValueToAggregator.add(specificValueToAggregator);
         dimensionsDescriptorIDToValueToOTFAggregator.add(specificValueToOTFAggregator);
       }
@@ -1116,6 +1151,31 @@ public class DimensionalConfigurationSchema
     buildDimensionsDescriptorIDAggregatorIDMaps();
   }
 
+  private Set<Set<String>> buildCombinations(Set<String> fields)
+  {
+    if (fields.isEmpty()) {
+      Set<Set<String>> combinations = Sets.newHashSet();
+      Set<String> combination = Sets.newHashSet();
+      combinations.add(combination);
+      return combinations;
+    }
+
+    fields = Sets.newHashSet(fields);
+    String item = fields.iterator().next();
+    fields.remove(item);
+
+    Set<Set<String>> combinations = buildCombinations(fields);
+    Set<Set<String>> newCombinations = Sets.newHashSet(combinations);
+
+    for (Set<String> combination : combinations) {
+      Set<String> newCombination = Sets.newHashSet(combination);
+      newCombination.add(item);
+      newCombinations.add(newCombination);
+    }
+
+    return newCombinations;
+  }
+
   private void buildDimensionsDescriptorIDAggregatorIDMaps()
   {
     dimensionsDescriptorIDToAggregatorIDs = Lists.newArrayList();
@@ -1126,8 +1186,8 @@ public class DimensionalConfigurationSchema
         index < dimensionsDescriptorIDToAggregatorToAggregateDescriptor.size();
         index++) {
       IntArrayList aggIDList = new IntArrayList();
-      Int2ObjectMap<FieldsDescriptor> inputMap = new Int2ObjectOpenHashMap<FieldsDescriptor>();
-      Int2ObjectMap<FieldsDescriptor> outputMap = new Int2ObjectOpenHashMap<FieldsDescriptor>();
+      Int2ObjectMap<FieldsDescriptor> inputMap = new Int2ObjectOpenHashMap<>();
+      Int2ObjectMap<FieldsDescriptor> outputMap = new Int2ObjectOpenHashMap<>();
 
       dimensionsDescriptorIDToAggregatorIDs.add(aggIDList);
       dimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor.add(inputMap);
@@ -1458,10 +1518,7 @@ public class DimensionalConfigurationSchema
     if(this.customTimeBuckets != other.customTimeBuckets && (this.customTimeBuckets == null || !this.customTimeBuckets.equals(other.customTimeBuckets))) {
       return false;
     }
-    if(this.schemaAllValueToAggregatorToType != other.schemaAllValueToAggregatorToType && (this.schemaAllValueToAggregatorToType == null || !this.schemaAllValueToAggregatorToType.equals(other.schemaAllValueToAggregatorToType))) {
-      return false;
-    }
-    return true;
+    return !(this.schemaAllValueToAggregatorToType != other.schemaAllValueToAggregatorToType && (this.schemaAllValueToAggregatorToType == null || !this.schemaAllValueToAggregatorToType.equals(other.schemaAllValueToAggregatorToType)));
   }
 
   /**

@@ -22,6 +22,7 @@
   <modules>
     <module>starter-app</module>
     <module>dimensions</module>
+    <module>machinedata</module>
   </modules>
 
 </project>

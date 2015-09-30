@@ -6,6 +6,8 @@ package com.datatorrent.contrib.dimensions;
 
 import java.io.Serializable;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,6 +18,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 import com.datatorrent.lib.appdata.schemas.*;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputationFlexibleSingleSchema;
 import com.datatorrent.lib.dimensions.DimensionsDescriptor;
@@ -124,6 +127,11 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   }
 
   @Override
+  public int getPartitionGAE(Aggregate inputEvent) {
+    return inputEvent.getDimensionDescriptorID();
+  }
+
+  @Override
   public void setup(OperatorContext context)
   {
     super.setup(context);
@@ -150,6 +158,27 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
         }
       }
     }
+  }
+
+  @Override
+  public Collection<Partition<AbstractSinglePortHDHTWriter<Aggregate>>> definePartitions(Collection<Partition<AbstractSinglePortHDHTWriter<Aggregate>>> partitions, PartitioningContext context)
+  {
+    Collection<Partition<AbstractSinglePortHDHTWriter<Aggregate>>> newPartitions = super.definePartitions(partitions, context);
+
+    if (newPartitions.size() == partitions.size()) {
+      return newPartitions;
+    }
+
+    Iterator<Partition<AbstractSinglePortHDHTWriter<Aggregate>>> iterator = newPartitions.iterator();
+
+    long bucket = ((AppDataSingleSchemaDimensionStoreHDHT)iterator.next().getPartitionedInstance()).getBucketID();
+    long last = bucket + newPartitions.size();
+
+    for (; ++bucket < last;) {
+      ((AppDataSingleSchemaDimensionStoreHDHT)iterator.next().getPartitionedInstance()).setBucketID(bucket);
+    }
+   
+    return newPartitions;
   }
 
   @Override
