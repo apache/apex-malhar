@@ -21,7 +21,7 @@ import org.apache.commons.collections.CollectionUtils;
  *
  * @displayName JDBCLoader
  * @tags Loader
- * @since 2.1.0
+ * @since 3.1.0
  */
 public class JDBCLoader extends JdbcStore implements EnrichmentBackup
 {
