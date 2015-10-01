@@ -7,6 +7,7 @@ package com.datatorrent.lib.dimensions;
 import java.io.Serializable;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -57,7 +58,7 @@ import com.datatorrent.lib.appdata.schemas.Type;
  * @since 3.1.0
  *
  */
-public class DimensionsDescriptor implements Serializable
+public class DimensionsDescriptor implements Serializable, Comparable<DimensionsDescriptor>
 {
   private static final long serialVersionUID = 201506251237L;
 
@@ -157,6 +158,15 @@ public class DimensionsDescriptor implements Serializable
                               Fields fields)
   {
     setCustomTimeBucket(timeBucket);
+    setFields(fields);
+  }
+
+  /**
+   * Creates a dimensions descriptor (dimensions combination) with the given key fields.
+   * @param fields The key fields included in this dimensions combination.
+   */
+  public DimensionsDescriptor(Fields fields)
+  {
     setFields(fields);
   }
 
@@ -332,6 +342,52 @@ public class DimensionsDescriptor implements Serializable
   public String toString()
   {
     return "DimensionsDescriptor{" + "timeBucket=" + customTimeBucket + ", fields=" + fields + '}';
+  }
+
+  @Override
+  public int compareTo(DimensionsDescriptor other)
+  {
+    if (this == other) {
+      return 0;
+    }
+
+    List<String> thisFieldList = this.getFields().getFieldsList();
+    List<String> otherFieldList = other.getFields().getFieldsList();
+
+    if (thisFieldList != otherFieldList) {
+      int compare = thisFieldList.size() - otherFieldList.size();
+
+      if (compare != 0) {
+        return compare;
+      }
+
+      Collections.sort(thisFieldList);
+      Collections.sort(otherFieldList);
+
+      for (int index = 0; index < thisFieldList.size(); index++) {
+        String thisField = thisFieldList.get(index);
+        String otherField = otherFieldList.get(index);
+
+        int fieldCompare = thisField.compareTo(otherField);
+
+        if (fieldCompare != 0) {
+          return fieldCompare;
+        }
+      }
+    }
+
+    CustomTimeBucket thisBucket = this.getCustomTimeBucket();
+    CustomTimeBucket otherBucket = other.getCustomTimeBucket();
+
+    if (thisBucket == null && otherBucket == null) {
+      return 0;
+    } else if (thisBucket != null && otherBucket == null) {
+      return 1;
+    } else if (thisBucket == null && otherBucket != null) {
+      return -1;
+    } else {
+      return thisBucket.compareTo(otherBucket);
+    }
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(DimensionsDescriptor.class);

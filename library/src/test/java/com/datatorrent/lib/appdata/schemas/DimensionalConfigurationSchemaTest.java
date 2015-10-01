@@ -4,6 +4,8 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -386,4 +388,36 @@ public class DimensionalConfigurationSchemaTest
       Assert.assertEquals(customTimeBuckets.get(ddID % 5), dd.getCustomTimeBucket());
     }
   }
+
+  @Test
+  public void testAllCombinationsGeneration()
+  {
+    DimensionalConfigurationSchema schema = new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSimpleAllCombinations.json"), AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
+
+    Set<DimensionsDescriptor> dimensionsDescriptors = Sets.newHashSet();
+    dimensionsDescriptors.add(new DimensionsDescriptor(TimeBucket.MINUTE, new Fields(new HashSet<String>())));
+    dimensionsDescriptors.add(new DimensionsDescriptor(TimeBucket.MINUTE, new Fields(Sets.newHashSet("publisher"))));
+    dimensionsDescriptors.add(new DimensionsDescriptor(TimeBucket.MINUTE, new Fields(Sets.newHashSet("advertiser"))));
+    dimensionsDescriptors.add(new DimensionsDescriptor(TimeBucket.MINUTE, new Fields(Sets.newHashSet("location"))));
+    dimensionsDescriptors.add(new DimensionsDescriptor(TimeBucket.MINUTE, new Fields(Sets.newHashSet("publisher", "advertiser"))));
+    dimensionsDescriptors.add(new DimensionsDescriptor(TimeBucket.MINUTE, new Fields(Sets.newHashSet("publisher", "location"))));
+    dimensionsDescriptors.add(new DimensionsDescriptor(TimeBucket.MINUTE, new Fields(Sets.newHashSet("advertiser", "location"))));
+    dimensionsDescriptors.add(new DimensionsDescriptor(TimeBucket.MINUTE, new Fields(Sets.newHashSet("publisher", "advertiser", "location"))));
+
+    Set<DimensionsDescriptor> actualDimensionsDescriptors = Sets.newHashSet();
+
+    for (DimensionsDescriptor dimensionsDescriptor : schema.getDimensionsDescriptorToID().keySet()) {
+      actualDimensionsDescriptors.add(dimensionsDescriptor);
+    }
+
+    List<DimensionsDescriptor> ddList = Lists.newArrayList(dimensionsDescriptors);
+    List<DimensionsDescriptor> ddActualList = Lists.newArrayList(actualDimensionsDescriptors);
+
+    Collections.sort(ddList);
+    Collections.sort(ddActualList);
+
+    Assert.assertEquals(dimensionsDescriptors, actualDimensionsDescriptors);
+  }
+
+  private static final Logger LOG = LoggerFactory.getLogger(DimensionalConfigurationSchemaTest.class);
 }
