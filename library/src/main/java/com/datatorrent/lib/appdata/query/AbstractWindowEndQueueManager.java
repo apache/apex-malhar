@@ -93,12 +93,14 @@ public abstract class AbstractWindowEndQueueManager<QUERY_TYPE, META_QUERY, QUEU
 
     QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>> node = new QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>>(queryQueueable);
 
-    if(addingFilter(queryQueueable)) {
-      queryQueue.enqueue(node);
-      numLeft.getAndIncrement();
-      semaphore.release();
+    synchronized (numLeft) {
+      if (addingFilter(queryQueueable)) {
+        queryQueue.enqueue(node);
+        numLeft.getAndIncrement();
+        semaphore.release();
 
-      addedNode(node);
+        addedNode(node);
+      }
     }
 
     return true;
@@ -239,6 +241,12 @@ public abstract class AbstractWindowEndQueueManager<QUERY_TYPE, META_QUERY, QUEU
     }
 
     return qq;
+  }
+
+  //Dirty hack TODO fix QueueManager interface
+  public boolean isEmptyAndBlocked()
+  {
+    return numLeft.get() == 0 && semaphore.availablePermits() == 0;
   }
 
   private void acquire()
