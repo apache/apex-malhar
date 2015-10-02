@@ -47,6 +47,7 @@ public class QueryManagerAsynchronous<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RES
 {
   private DefaultOutputPort<String> resultPort = null;
 
+  //TODO I believe this semaphore is no longer necessary and can just be straight up deleted.
   private transient final Semaphore inWindowSemaphore = new Semaphore(0);
   private final ConcurrentLinkedQueue<String> queue = new ConcurrentLinkedQueue<String>();
   private QueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queueManager;
@@ -123,11 +124,10 @@ public class QueryManagerAsynchronous<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RES
   {
     queueManager.haltEnqueue();
 
-    while(queueManager.getNumLeft() > 0) {
-      if(queue.isEmpty()) {
+    while (!isProcessingDone()) {
+      if (queue.isEmpty()) {
         Thread.yield();
-      }
-      else {
+      } else {
         emptyQueue();
       }
     }
@@ -140,6 +140,16 @@ public class QueryManagerAsynchronous<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RES
     catch(InterruptedException ex) {
       throw new RuntimeException(ex);
     }
+  }
+
+  //Dirty hack TODO fix QueManager interface
+  private boolean isProcessingDone()
+  {
+    if (queueManager instanceof AbstractWindowEndQueueManager) {
+      return ((AbstractWindowEndQueueManager) queueManager).isEmptyAndBlocked();
+    }
+
+    return queueManager.getNumLeft() == 0;
   }
 
   private void emptyQueue()
@@ -201,8 +211,7 @@ public class QueryManagerAsynchronous<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RES
 
         try {
           inWindowSemaphore.acquire();
-        }
-        catch(InterruptedException ex) {
+        } catch (InterruptedException ex) {
           throw new RuntimeException(ex);
         }
 
@@ -210,7 +219,7 @@ public class QueryManagerAsynchronous<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RES
         Result result = queryExecutor.executeQuery(queryBundle.getQuery(),
                                                    queryBundle.getMetaQuery(),
                                                    queryBundle.getQueueContext());
-        if(result != null) {
+        if (result != null) {
           String serializedMessage = messageSerializerFactory.serialize(result);
           queue.add(serializedMessage);
         }
