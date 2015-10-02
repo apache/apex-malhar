@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>malhar</artifactId>
-    <version>3.1.1-RC3</version>
+    <version>3.1.1-RC4</version>
   </parent>
 
   <artifactId>malhar-demos</artifactId>
@@ -28,7 +28,7 @@
   </modules>
 
   <properties>
-    <datatorrent.version>3.1.1-RC3</datatorrent.version>
+    <datatorrent.version>3.1.1-RC4</datatorrent.version>
     <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
     <semver.plugin.skip>true</semver.plugin.skip>
   </properties>

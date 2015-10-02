@@ -4,7 +4,7 @@
   <parent>
     <artifactId>malhar</artifactId>
     <groupId>com.datatorrent</groupId>
-    <version>3.1.1-RC3</version>
+    <version>3.1.1-RC4</version>
   </parent>
 
   <groupId>com.datatorrent</groupId>
@@ -501,13 +501,13 @@
     <dependency>
       <groupId>com.datatorrent</groupId>
       <artifactId>dt-engine</artifactId>
-      <version>3.1.1-RC3</version>
+      <version>3.1.1-RC4</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.datatorrent</groupId>
       <artifactId>dt-api</artifactId>
-      <version>3.1.1-RC3</version>
+      <version>3.1.1-RC4</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
