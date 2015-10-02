@@ -89,7 +89,7 @@ Web interface for the following demos is available:
 - Ads Dimensions
 - Fraud
 
-Web apps run on Node.js. Please see [webapps](https://github.com/DataTorrent/Malhar/tree/master/webapps) for more information.
+Web apps run on Node.js. Please see [webapps](https://github.com/apache/incubator-apex-malhar/tree/master/web/demos) for more information.
 
 Issue tracking
 --------------------
