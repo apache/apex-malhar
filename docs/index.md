@@ -89,7 +89,7 @@ DataTorrent RTS, built on Apache Apex, provides a high-performing, fault-toleran
 
 
 <div id="docs-jumbotron" class="jumbotron">
-  <a href="./demos/" class="jumbotron-section">
+  <a href="../demos/" class="jumbotron-section">
     <img src="images/welcome/dt_assemble.svg">
     <h2>Run Demos</h2>
     <p>Experience the power of DataTorrent RTS quickly. Import, launch, manage and visualize applications in minutes.</p>
@@ -97,7 +97,7 @@ DataTorrent RTS, built on Apache Apex, provides a high-performing, fault-toleran
 
   <div class="jumbotron-section-space"></div>
 
-  <a href="./rts/" class="jumbotron-section">
+  <a href="../rts/" class="jumbotron-section">
     <img src="images/welcome/dt_visualize.svg">
     <h2>Discover RTS</h2>
     <p>Learn about the architecture and the rich feature set of the DataTorrent RTS platform and applications.</p>
@@ -105,7 +105,7 @@ DataTorrent RTS, built on Apache Apex, provides a high-performing, fault-toleran
 
   <div class="jumbotron-section-space"></div>
 
-  <a href="./create/" class="jumbotron-section">
+  <a href="../create/" class="jumbotron-section">
     <img src="images/welcome/dt_toolbox.svg">
     <h2>Create Apps</h2>
     <p>Tutorials and code samples to rapidly create DataTorrent applications using Java or dtAssemble.</p>
