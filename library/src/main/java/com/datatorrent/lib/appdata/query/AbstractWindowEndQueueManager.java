@@ -246,7 +246,7 @@ public abstract class AbstractWindowEndQueueManager<QUERY_TYPE, META_QUERY, QUEU
   //Dirty hack TODO fix QueueManager interface
   public boolean isEmptyAndBlocked()
   {
-    return numLeft.get() == 0 && semaphore.availablePermits() == 0;
+    return numLeft.get() == 0 && semaphore.availablePermits() == 0 && semaphore.hasQueuedThreads();
   }
 
   private void acquire()
