@@ -22,6 +22,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
+
 import org.junit.*;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
@@ -42,10 +43,7 @@ import com.datatorrent.lib.util.TestUtils;
  */
 public class FileSplitterBaseTest
 {
-  @ClassRule
-  public static FileSplitterInputTest.TestClassMeta classTestMeta = new FileSplitterInputTest.TestClassMeta();
-
-  static class BastTestMeta extends TestWatcher
+  class BastTestMeta extends TestWatcher
   {
     public String dataDirectory;
 

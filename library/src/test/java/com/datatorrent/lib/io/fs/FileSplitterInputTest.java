@@ -27,6 +27,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.Path;
+
 import org.junit.*;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
@@ -52,20 +53,6 @@ import com.datatorrent.lib.util.TestUtils;
  */
 public class FileSplitterInputTest
 {
-
-  public static class TestClassMeta extends TestWatcher
-  {
-    @Override
-    protected void finished(Description description)
-    {
-      try {
-        FileContext.getLocalFSFileContext().delete(new Path(new File("target/" + description.getClassName()).getAbsolutePath()), true);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
-  }
-
   static Set<String> createData(String dataDirectory) throws IOException
   {
     Set<String> filePaths = Sets.newHashSet();
@@ -86,7 +73,7 @@ public class FileSplitterInputTest
 
   public static class TestMeta extends TestWatcher
   {
-    public String dataDirectory;
+    String dataDirectory;
 
     FileSplitterInput fileSplitterInput;
     CollectorTestSink<FileSplitterInput.FileMetadata> fileMetadataSink;
@@ -133,11 +120,9 @@ public class FileSplitterInputTest
     protected void finished(Description description)
     {
       this.fileSplitterInput.teardown();
+      FileUtils.deleteQuietly(new File("target/" + description.getClassName() + "/" + description.getMethodName()));
     }
   }
-
-  @ClassRule
-  public static TestClassMeta classTestMeta = new TestClassMeta();
 
   @Rule
   public TestMeta testMeta = new TestMeta();
@@ -363,7 +348,7 @@ public class FileSplitterInputTest
 
     testMeta.fileSplitterInput.beginWindow(1);
 
-    testMeta.scanner.semaphore.acquire();
+    ((MockScanner)testMeta.fileSplitterInput.getScanner()).semaphore.acquire();
     testMeta.fileSplitterInput.emitTuples();
     testMeta.fileSplitterInput.endWindow();
 
