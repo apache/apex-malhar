@@ -15,11 +15,6 @@
  */
 package com.datatorrent.lib.algo;
 
-/*
- *  Copyright (c) 2012-2013 DataTorrent, Inc.
- *  All Rights Reserved.
- */
-
 import java.util.HashMap;
 import java.util.Map;
 

@@ -15,10 +15,6 @@
  */
 package com.datatorrent.lib.math;
 
-/**
- * Copyright (c) 2012-2013 DataTorrent, Inc. All rights reserved.
- */
-
 import org.junit.Assert;
 import org.junit.Test;
 
