@@ -4,11 +4,11 @@
   <parent>
     <artifactId>malhar-apps</artifactId>
     <groupId>com.datatorrent</groupId>
-    <version>3.1.1-RC4</version>
+    <version>3.1.1-RC5</version>
   </parent>
 
   <groupId>com.datatorrent</groupId>
-  <version>3.1.1-RC4</version>
+  <version>3.1.1-RC5</version>
   <artifactId>logstream</artifactId>
   <packaging>jar</packaging>
 
