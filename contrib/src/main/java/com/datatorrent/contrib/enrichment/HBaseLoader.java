@@ -22,7 +22,7 @@ import org.apache.hadoop.hbase.util.Bytes;
  *
  * @displayName HBaseLoader
  * @tags Loader
- * @since 3.1.0
+ * @since 2.1.0
  */
 public class HBaseLoader extends HBaseStore implements EnrichmentBackup
 {

@@ -29,7 +29,7 @@ import java.util.List;
  * @tags Enrichment
  * @param <INPUT> Type of tuples which are received by this operator</T>
  * @param <OUTPUT> Type of tuples which are emitted by this operator</T>
- * @since 3.1.0
+ * @since 2.1.0
  */
 public abstract class AbstractEnrichmentOperator<INPUT, OUTPUT> extends BaseOperator
 {
