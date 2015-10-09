@@ -54,12 +54,20 @@ public abstract class AbstractIncrementalAggregator implements IncrementalAggreg
   @Override
   public int computeHashCode(InputEvent inputEvent)
   {
+    long timestamp = -1L;
+    boolean hasTime = this.context.inputTimestampIndex != -1
+                      && this.context.outputTimebucketIndex != -1;
+
+    if (hasTime) {
+      timestamp = inputEvent.getKeys().getFieldsLong()[this.context.inputTimestampIndex];
+      inputEvent.getKeys().getFieldsLong()[this.context.inputTimestampIndex]
+        = this.context.dd.getCustomTimeBucket().roundDown(timestamp);
+    }
+
     int hashCode = GPOUtils.indirectHashcode(inputEvent.getKeys(), context.indexSubsetKeys);
 
-    if(this.context.inputTimestampIndex != -1
-       && this.context.outputTimebucketIndex != -1) {
-      hashCode ^= inputEvent.getKeys().getFieldsLong()[this.context.inputTimestampIndex];
-      hashCode ^= this.context.dd.getCustomTimeBucket().roundDown(inputEvent.getKeys().getFieldsLong()[this.context.inputTimestampIndex]);
+    if (hasTime) {
+      inputEvent.getKeys().getFieldsLong()[this.context.inputTimestampIndex] = timestamp;
     }
 
     return hashCode;

@@ -14,7 +14,7 @@
   </property>
   <property>
     <name>dt.application.MachineDataDemo.operator.Store.partitionCount</name>
-    <value>2</value>
+    <value>8</value>
   </property>
   <property>
     <name>dt.application.MachineDataDemo.operator.QueryResult.topic</name>
@@ -29,20 +29,44 @@
     <value>true</value>
   </property>
   <property>
-    <name>dt.application.MachineDataDemo.operator.Receiver.attr.PARTITIONER</name>
-    <value>com.datatorrent.common.partitioner.StatelessPartitioner:2</value>
-  </property>
-  <property>
     <name>dt.application.MachineDataDemo.operator.Receiver.attr.MEMORY_MB</name>
-    <value>16384</value>
+    <value>2048</value>
   </property>
   <property>
     <name>dt.application.MachineDataDemo.operator.Receiver.tuplesPerWindow</name>
-    <value>100000</value>
+    <value>200000</value>
   </property>
   <property>
     <name>dt.application.MachineDataDemo.operator.DimensionsComputation.attr.MEMORY_MB</name>
-    <value>16384</value>
+    <value>2048</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataDemo.operator.Receiver.attr.PARTITIONER</name>
+    <value>com.datatorrent.common.partitioner.StatelessPartitioner:200</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataDemo.operator.DimensionsComputation.port.output.attr.UNIFIER_LIMIT</name>
+    <value>5</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataDemo.port.*.attr.QUEUE_CAPACITY</name>
+    <value>16000</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataDemo.operator.DimensionsComputation.attr.APPLICATION_WINDOW_COUNT</name>
+    <value>2</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataDemo.operator.DimensionsComputation.attr.CHECKPOINT_WINDOW_COUNT</name>
+    <value>2</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataDemo.operator.Receiver.attr.SPIN_MILLIS</name>
+    <value>0</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataDemo.attr.STREAMING_WINDOW_SIZE_MILLIS</name>
+    <value>2000</value>
   </property>
 </configuration>
 
