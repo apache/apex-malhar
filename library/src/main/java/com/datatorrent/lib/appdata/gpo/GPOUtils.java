@@ -1751,7 +1751,7 @@ public class GPOUtils
   public static int indirectHashcode(GPOMutable gpo,
                                      IndexSubset indexSubset)
   {
-    int hashCode = 0;
+    int hashCode = 7;
 
     {
       String[] stringArray = gpo.getFieldsString();
@@ -1763,7 +1763,7 @@ public class GPOUtils
           if(srcIndex[index] == -1) {
             continue;
           }
-          hashCode ^= stringArray[srcIndex[index]].hashCode();
+          hashCode = 23 * hashCode + stringArray[srcIndex[index]].hashCode();
         }
       }
     }
@@ -1778,7 +1778,7 @@ public class GPOUtils
           if(srcIndex[index] == -1) {
             continue;
           }
-          hashCode ^= booleanArray[srcIndex[index]] ? 1: 0;
+          hashCode = 23 * hashCode + (booleanArray[srcIndex[index]] ? 1: 0);
         }
       }
     }
@@ -1793,7 +1793,7 @@ public class GPOUtils
           if(srcIndex[index] == -1) {
             continue;
           }
-          hashCode ^= Character.getNumericValue(charArray[srcIndex[index]]);
+          hashCode = 23 * hashCode + Character.getNumericValue(charArray[srcIndex[index]]);
         }
       }
     }
@@ -1808,7 +1808,7 @@ public class GPOUtils
           if(srcIndex[index] == -1) {
             continue;
           }
-          hashCode ^= byteArray[srcIndex[index]];
+          hashCode = 23 * hashCode + byteArray[srcIndex[index]];
         }
       }
     }
@@ -1823,7 +1823,7 @@ public class GPOUtils
           if(srcIndex[index] == -1) {
             continue;
           }
-          hashCode ^= shortArray[srcIndex[index]];
+          hashCode = 23 * hashCode + shortArray[srcIndex[index]];
         }
       }
     }
@@ -1838,7 +1838,7 @@ public class GPOUtils
           if(srcIndex[index] == -1) {
             continue;
           }
-          hashCode ^= integerArray[srcIndex[index]];
+          hashCode = 23 * hashCode + integerArray[srcIndex[index]];
         }
       }
     }
@@ -1853,7 +1853,9 @@ public class GPOUtils
           if(srcIndex[index] == -1) {
             continue;
           }
-          hashCode ^= longArray[srcIndex[index]];
+          long element = longArray[srcIndex[index]];
+          int elementHash = (int) (element ^ (element >>> 32));
+          hashCode = 23 * hashCode + elementHash;
         }
       }
     }
@@ -1868,7 +1870,7 @@ public class GPOUtils
           if(srcIndex[index] == -1) {
             continue;
           }
-          hashCode ^= Float.floatToIntBits(floatArray[srcIndex[index]]);
+          hashCode = 23 * hashCode + Float.floatToIntBits(floatArray[srcIndex[index]]);
         }
       }
     }
@@ -1883,7 +1885,9 @@ public class GPOUtils
           if(srcIndex[index] == -1) {
             continue;
           }
-          hashCode ^= Double.doubleToLongBits(doubleArray[srcIndex[index]]);
+          long element = Double.doubleToLongBits(doubleArray[srcIndex[index]]);
+          int elementHash = (int) (element ^ (element >>> 32));
+          hashCode = 23 * hashCode + elementHash;
         }
       }
     }
@@ -1898,7 +1902,8 @@ public class GPOUtils
           if(srcIndex[index] == -1) {
             continue;
           }
-          hashCode ^= objectArray[srcIndex[index]].hashCode();
+
+          hashCode = 23 * hashCode + objectArray[srcIndex[index]].hashCode();
         }
       }
     }
