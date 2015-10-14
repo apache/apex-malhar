@@ -22,25 +22,25 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   
-  <groupId>com.datatorrent</groupId>
-  <version>3.2.0-SNAPSHOT</version>
+  <groupId>org.apache.apex</groupId>
+  <version>3.2.0-incubating-SNAPSHOT</version>
   <artifactId>machinedata-demo</artifactId>
   <packaging>jar</packaging>
 
-  <name>Datatorrent MachineData Demo</name>
+  <name>Apache Apex Malhar MachineData Demo</name>
   <description></description>
 
   <parent>
-    <groupId>com.datatorrent</groupId>
+    <groupId>org.apache.apex</groupId>
     <artifactId>malhar-demos</artifactId>
-    <version>3.2.0-SNAPSHOT</version>
+    <version>3.2.0-incubating-SNAPSHOT</version>
   </parent>
 
   <dependencies>
     <dependency>
-      <groupId>com.datatorrent</groupId>
+      <groupId>org.apache.apex</groupId>
       <artifactId>malhar-contrib</artifactId>
-      <version>${datatorrent.version}</version>
+      <version>${apex.core.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>

@@ -23,13 +23,13 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.datatorrent</groupId>
-    <artifactId>dt-framework</artifactId>
-    <version>3.2.0-SNAPSHOT</version>
+    <groupId>org.apache.apex</groupId>
+    <artifactId>apex</artifactId>
+    <version>3.2.0-incubating-SNAPSHOT</version>
   </parent>
 
   <artifactId>malhar</artifactId>
-  <version>3.2.0-SNAPSHOT</version>
+  <version>3.2.0-incubating-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Apache Apex Malhar</name>
   <url>http://apex.apache.org</url>
@@ -41,15 +41,6 @@
     </license>
   </licenses>
 
-  <!-- repository to provide the DataTorrent artifacts -->
-  <repositories>
-    <repository>
-      <id>datatorrent</id>
-      <name>DataTorrent Release Repository</name>
-      <url>https://www.datatorrent.com/maven/content/repositories/releases/</url>
-    </repository>
-  </repositories>
-
   <prerequisites>
     <maven>3.0.5</maven>
   </prerequisites>
@@ -57,11 +48,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.deploy.skip>false</maven.deploy.skip>
-    <dt.framework.version>3.2.0-SNAPSHOT</dt.framework.version>
-    <!-- the following properties match the properties defined in core/pom.xml -->
-    <jackson.version>1.9.2</jackson.version>
-    <jersey.version>1.9</jersey.version>
-    <jetty.version>8.1.10.v20130312</jetty.version>
+    <apex.core.version>3.2.0-incubating-SNAPSHOT</apex.core.version>
     <semver.plugin.skip>false</semver.plugin.skip>
   </properties>
 
@@ -72,11 +59,6 @@
         <artifactId>license-maven-plugin</artifactId>
         <configuration>
           <excludes combine.children="append">
-            <exclude>DISCLAIMER</exclude>
-            <exclude>LICENSE</exclude>
-            <exclude>NOTICE</exclude>
-            <exclude>**/node_modules/**</exclude>
-            <exclude>**/web/**/.*</exclude>
             <exclude>src/test/resources/**/sample_logs/**</exclude>
             <exclude>src/test/resources/*.csv</exclude>
             <exclude>src/main/resources/com/datatorrent/apps/logstream/**</exclude>
@@ -93,8 +75,6 @@
         <artifactId>apache-rat-plugin</artifactId>
         <configuration>
           <excludes combine.children="append">
-            <exclude>**/node_modules/**</exclude>
-            <exclude>**/web/**/.*</exclude>
             <exclude>src/test/resources/**/sample_logs/**</exclude>
             <exclude>src/test/resources/*.csv</exclude>
             <exclude>src/main/resources/com/datatorrent/apps/logstream/**</exclude>
@@ -102,7 +82,6 @@
             <exclude>src/test/resources/com/datatorrent/contrib/romesyndication/*.rss</exclude>
             <exclude>src/main/resources/**/*.txt</exclude>
             <exclude>**/*.json</exclude>
-            <exclude>web/**/robots.txt</exclude>
             <exclude>**/*.md</exclude>
           </excludes>
         </configuration>
@@ -162,6 +141,12 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>all-modules</id>
+      <modules>
+        <module>benchmark</module>
+      </modules>
+    </profile>
   </profiles>
 
   <modules>
@@ -174,9 +159,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.datatorrent</groupId>
-      <artifactId>dt-engine</artifactId>
-      <version>${dt.framework.version}</version>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>apex-engine</artifactId>
+      <version>${apex.core.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
