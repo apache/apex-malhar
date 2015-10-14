@@ -28,6 +28,7 @@ import org.codehaus.jackson.map.ObjectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.api.Context;
@@ -73,9 +74,11 @@ public class JsonParser extends Parser<String>
   public Object convert(String tuple)
   {
     try {
-      return reader.readValue(tuple);
+      if (!StringUtils.isEmpty(tuple)) {
+        return reader.readValue(tuple);
+      }
     } catch (JsonProcessingException e) {
-      logger.debug("Error while converting tuple {} {}",tuple,e.getMessage());
+      logger.debug("Error while converting tuple {} {}", tuple, e.getMessage());
     } catch (IOException e) {
       DTThrowable.rethrow(e);
     }
