@@ -22,18 +22,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.datatorrent</groupId>
-  <version>3.2.0-SNAPSHOT</version>
+  <groupId>org.apache.apex</groupId>
+  <version>3.2.0-incubating-SNAPSHOT</version>
   <artifactId>pi-demo</artifactId>
   <packaging>jar</packaging>
 
-  <name>DataTorrent Pi Demo</name>
+  <name>Apache Apex Malhar Pi Demo</name>
   <description>DataTorrent demo applications that calculate the value of Pi. This is a starting point to understand how DataTorrent works.</description>
 
   <parent>
-    <groupId>com.datatorrent</groupId>
+    <groupId>org.apache.apex</groupId>
     <artifactId>malhar-demos</artifactId>
-    <version>3.2.0-SNAPSHOT</version>
+    <version>3.2.0-incubating-SNAPSHOT</version>
   </parent>
 
   <dependencies>

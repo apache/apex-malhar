@@ -23,14 +23,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.datatorrent</groupId>
+    <groupId>org.apache.apex</groupId>
     <artifactId>malhar</artifactId>
-    <version>3.2.0-SNAPSHOT</version>
+    <version>3.2.0-incubating-SNAPSHOT</version>
   </parent>
 
   <artifactId>malhar-demos</artifactId>
   <packaging>pom</packaging>
-  <name>Demos</name>
+  <name>Apache Apex Malhar Demos</name>
 
   <modules>
     <module>machinedata</module>
@@ -48,9 +48,10 @@
   </modules>
 
   <properties>
-    <datatorrent.version>3.2.0-SNAPSHOT</datatorrent.version>
+    <apex.core.version>3.2.0-incubating-SNAPSHOT</apex.core.version>
     <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
     <semver.plugin.skip>true</semver.plugin.skip>
+    <maven.deploy.skip>true</maven.deploy.skip>
   </properties>
 
   <profiles>
@@ -121,7 +122,7 @@
                 <archive>
                   <manifestEntries>
                     <Class-Path>${datatorrent.apppackage.classpath}</Class-Path>
-                    <DT-Engine-Version>${datatorrent.version}</DT-Engine-Version>
+                    <DT-Engine-Version>${apex.core.version}</DT-Engine-Version>
                     <DT-App-Package-Name>${project.artifactId}</DT-App-Package-Name>
                     <DT-App-Package-Version>${project.version}</DT-App-Package-Version>
                     <DT-App-Package-Display-Name>${project.name}</DT-App-Package-Display-Name>
@@ -180,9 +181,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.datatorrent</groupId>
-      <artifactId>dt-common</artifactId>
-      <version>${datatorrent.version}</version>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>apex-common</artifactId>
+      <version>${apex.core.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -192,7 +193,7 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.datatorrent</groupId>
+      <groupId>org.apache.apex</groupId>
       <artifactId>malhar-library</artifactId>
       <version>${project.version}</version>
       <exclusions>
@@ -203,7 +204,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.datatorrent</groupId>
+      <groupId>org.apache.apex</groupId>
       <artifactId>malhar-library</artifactId>
       <version>${project.version}</version>
       <classifier>tests</classifier>

@@ -22,16 +22,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   
-  <groupId>com.datatorrent</groupId>
+  <groupId>org.apache.apex</groupId>
   <version>3.0.0</version>
   <artifactId>distributedistinct</artifactId>
   <packaging>jar</packaging>
 
-  <name>DataTorrent Distributed Distinct Demo</name>
+  <name>Apache Apex Malhar Distributed Distinct Demo</name>
   <description></description>
 
   <parent>
-    <groupId>com.datatorrent</groupId>
+    <groupId>org.apache.apex</groupId>
     <artifactId>malhar-demos</artifactId>
     <version>3.0.0</version>
   </parent>

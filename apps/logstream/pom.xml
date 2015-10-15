@@ -23,11 +23,11 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>malhar-apps</artifactId>
-    <groupId>com.datatorrent</groupId>
-    <version>3.2.0-SNAPSHOT</version>
+    <groupId>org.apache.apex</groupId>
+    <version>3.2.0-incubating-SNAPSHOT</version>
   </parent>
 
-  <groupId>com.datatorrent</groupId>
+  <groupId>org.apache.apex</groupId>
   <artifactId>logstream</artifactId>
   <packaging>jar</packaging>
 
@@ -37,7 +37,7 @@
     <semver.plugin.skip>true</semver.plugin.skip>
   </properties>
 
-  <name>Logstream Application</name>
+  <name>Apache Apex Malhar Logstream Application</name>
 
   <build>
     <plugins>
@@ -71,7 +71,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.datatorrent</groupId>
+      <groupId>org.apache.apex</groupId>
       <artifactId>malhar-contrib</artifactId>
       <version>${project.version}</version>
     </dependency>

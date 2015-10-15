@@ -23,45 +23,26 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>malhar</artifactId>
-    <groupId>com.datatorrent</groupId>
-    <version>3.2.0-SNAPSHOT</version>
+    <groupId>org.apache.apex</groupId>
+    <version>3.2.0-incubating-SNAPSHOT</version>
   </parent>
 
-  <groupId>com.datatorrent</groupId>
+  <groupId>org.apache.apex</groupId>
   <artifactId>malhar-benchmark</artifactId>
   <packaging>jar</packaging>
 
   <!-- change these to the appropriate values -->
-  <name>Benchmark</name>
+  <name>Apache Apex Malhar Benchmark</name>
   <description>Benchmark applications package</description>
 
   <properties>
     <!-- change this if you desire to use a different version of DataTorrent -->
-    <datatorrent.version>${project.version}</datatorrent.version>
+    <apex.core.version>${project.version}</apex.core.version>
     <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
     <maven.deploy.skip>false</maven.deploy.skip>
     <skipTests>true</skipTests>
+    <semver.plugin.skip>true</semver.plugin.skip>
   </properties>
-
-  <!-- repository to provide the DataTorrent artifacts -->
-  <repositories>
-    <repository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>Datatorrent-Releases</id>
-      <name>DataTorrent Release Repository</name>
-      <url>https://www.datatorrent.com/maven/content/repositories/releases/</url>
-    </repository>
-    <repository>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <id>DataTorrent-Snapshots</id>
-      <name>DataTorrent Early Access Program Snapshot Repository</name>
-      <url>https://www.datatorrent.com/maven/content/repositories/snapshots/</url>
-    </repository>
-  </repositories>
 
   <build>
     <plugins>
@@ -125,7 +106,7 @@
               <archive>
                 <manifestEntries>
                   <Class-Path>${datatorrent.apppackage.classpath}</Class-Path>
-                  <DT-Engine-Version>${datatorrent.version}</DT-Engine-Version>
+                  <DT-Engine-Version>${apex.core.version}</DT-Engine-Version>
                   <DT-App-Package-Name>${project.artifactId}</DT-App-Package-Name>
                   <DT-App-Package-Version>${project.version}</DT-App-Package-Version>
                   <DT-App-Package-Display-Name>${project.name}</DT-App-Package-Display-Name>
@@ -519,15 +500,15 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.datatorrent</groupId>
-      <artifactId>dt-engine</artifactId>
-      <version>3.0.0</version>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>apex-engine</artifactId>
+      <version>${apex.core.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.datatorrent</groupId>
-      <artifactId>dt-api</artifactId>
-      <version>3.0.0</version>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>apex-api</artifactId>
+      <version>${apex.core.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
