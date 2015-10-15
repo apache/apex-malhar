@@ -145,6 +145,8 @@
       <id>all-modules</id>
       <modules>
         <module>benchmark</module>
+        <module>apps</module>
+        <module>samples</module>
       </modules>
     </profile>
   </profiles>
@@ -153,8 +155,6 @@
     <module>library</module>
     <module>contrib</module>
     <module>demos</module>
-    <module>samples</module>
-    <module>apps</module>
   </modules>
 
   <dependencies>

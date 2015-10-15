@@ -37,12 +37,19 @@
   </modules>
 
   <properties>
-    <!-- change this if you desire to use a different version of DataTorrent -->
     <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
     <maven.deploy.skip>true</maven.deploy.skip>
     <maven.install.skip>true</maven.install.skip>
   </properties>
 
+  <profiles>
+    <profile>
+      <id>apps-plugin-activation</id>
+      <activation>
+        <file>
+          <exists>${basedir}/src/main</exists>
+        </file>
+      </activation>
   <build>
     <pluginManagement>
       <plugins>
@@ -160,4 +167,6 @@
       </plugins>
     </pluginManagement>
   </build>
+    </profile>
+  </profiles>
 </project>
