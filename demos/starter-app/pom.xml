@@ -18,7 +18,7 @@
   <dependencies>
     <!-- add your dependencies here -->
     <dependency>
-      <groupId>com.datatorrent</groupId>
+      <groupId>org.apache.apex</groupId>
       <artifactId>malhar-library</artifactId>
       <version>${malhar.version}</version>
     </dependency>

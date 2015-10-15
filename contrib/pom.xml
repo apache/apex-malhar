@@ -186,24 +186,24 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.datatorrent</groupId>
+      <groupId>org.apache.apex</groupId>
       <artifactId>malhar-library</artifactId>
       <version>${malhar.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.datatorrent</groupId>
+      <groupId>org.apache.apex</groupId>
       <artifactId>malhar-contrib</artifactId>
       <version>${malhar.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.datatorrent</groupId>
-      <artifactId>dt-api</artifactId>
-      <version>${apex.version}</version>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>apex-api</artifactId>
+      <version>${apex.core.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.apache.apex</groupId>
       <artifactId>malhar-library</artifactId>
-      <version>${project.version}</version>
+      <version>${malhar.version}</version>
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
@@ -274,15 +274,15 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>com.datatorrent</groupId>
+      <groupId>org.apache.apex</groupId>
       <artifactId>malhar-contrib</artifactId>
-      <version>${project.version}</version>
+      <version>${malhar.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>com.datatorrent</groupId>
-      <artifactId>dt-common</artifactId>
-      <version>${dt.framework.version}</version>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>apex-common</artifactId>
+      <version>${apex.core.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>

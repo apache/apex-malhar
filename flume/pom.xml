@@ -85,9 +85,9 @@
                       <artifact></artifact>
                       <dependency>
                         <includes>
-                          <include>com.datatorrent:dt-api:jar:${project.version}</include>
-                          <include>com.datatorrent:dt-netlet:jar:1.1.0</include>
-                          <include>com.datatorrent:dt-common:jar:${project.version}</include>
+                          <include>org.apache.apex:apex-api:jar:${apex.core.version}</include>
+                          <include>com.datatorrent:dt-netlet:jar:1.2.0</include>
+                          <include>org.apache.apex:apex-common:jar:${apex.core.version}</include>
                           <include>com.esotericsoftware.kryo:kryo:jar:2.24.0</include>
                           <include>com.esotericsoftware.minlog:minlog:jar:1.2</include>
                           <include>org.objenesis:objenesis:jar:2.1</include>
@@ -189,9 +189,9 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>dt-common</artifactId>
-      <version>${dt.framework.version}</version>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>apex-common</artifactId>
+      <version>${apex.core.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.flume</groupId>
@@ -234,14 +234,14 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>dt-api</artifactId>
-      <version>${dt.framework.version}</version>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>apex-api</artifactId>
+      <version>${apex.core.version}</version>
     </dependency>
     <dependency>
       <groupId>com.datatorrent</groupId>
       <artifactId>netlet</artifactId>
-      <version>1.1.0</version>
+      <version>1.2.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.curator</groupId>

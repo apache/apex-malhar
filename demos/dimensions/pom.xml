@@ -173,7 +173,7 @@
     </dependency>
     <!-- HDHT depens on org.apache.hadoop.io.file.tfile package in here -->
     <dependency>
-      <groupId>com.datatorrent</groupId>
+      <groupId>org.apache.apex</groupId>
       <artifactId>malhar-contrib</artifactId>
       <version>${malhar.version}</version>
       <exclusions>
@@ -185,7 +185,7 @@
     </dependency>
     <dependency>
       <scope>test</scope>
-      <groupId>${project.groupId}</groupId>
+      <groupId>org.apache.apex</groupId>
       <artifactId>malhar-library</artifactId>
       <version>${malhar.version}</version>
       <classifier>tests</classifier>

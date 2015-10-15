@@ -164,9 +164,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.datatorrent</groupId>
-      <artifactId>dt-api</artifactId>
-      <version>${apex.version}</version>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>apex-api</artifactId>
+      <version>${apex.core.version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -180,13 +180,13 @@
       <version>3.0.3</version>
     </dependency>
     <dependency>
-      <groupId>com.datatorrent</groupId>
+      <groupId>org.apache.apex</groupId>
       <artifactId>malhar-library</artifactId>
       <version>${malhar.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>com.datatorrent</groupId>
+      <groupId>org.apache.apex</groupId>
       <artifactId>malhar-library</artifactId>
       <version>${malhar.version}</version>
       <type>test-jar</type>
@@ -199,9 +199,9 @@
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>com.datatorrent</groupId>
-      <artifactId>dt-common</artifactId>
-      <version>${apex.version}</version>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>apex-common</artifactId>
+      <version>${apex.core.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
