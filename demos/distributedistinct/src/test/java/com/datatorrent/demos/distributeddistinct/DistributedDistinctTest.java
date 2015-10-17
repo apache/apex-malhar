@@ -192,8 +192,8 @@ public class DistributedDistinctTest
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
     attributes.put(OperatorContext.ACTIVATION_WINDOW_ID, 0L);
     valueCounter.setTableName(TABLE_NAME);
-    valueCounter.getStore().setDbDriver(INMEM_DB_DRIVER);
-    valueCounter.getStore().setDbUrl(INMEM_DB_URL);
+    valueCounter.getStore().setDatabaseDriver(INMEM_DB_DRIVER);
+    valueCounter.getStore().setDatabaseUrl(INMEM_DB_URL);
     TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributes);
     valueCounter.setup(context);
   }

@@ -30,6 +30,7 @@ import org.junit.Test;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.demos.distributeddistinct.IntegerUniqueValueCountAppender;
 
 import com.datatorrent.lib.algo.UniqueValueCount;
@@ -41,7 +42,7 @@ public class StatefulUniqueCountTest
   public static final String INMEM_DB_URL = "jdbc:hsqldb:mem:test;sql.syntax_mys=true";
   public static final String INMEM_DB_DRIVER = "org.hsqldb.jdbc.JDBCDriver";
   public static final String TABLE_NAME = "Test_Lookup_Cache";
-  
+
   static class KeyGen implements InputOperator
   {
 
@@ -193,7 +194,7 @@ public class StatefulUniqueCountTest
       dag.addStream("ResultsOut", uniqueOut, verifyTable.input);
     }
   }
-  
+
   @BeforeClass
   public static void setup(){
     try {

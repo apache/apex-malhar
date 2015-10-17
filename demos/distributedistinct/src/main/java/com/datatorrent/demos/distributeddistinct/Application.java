@@ -23,7 +23,6 @@ import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.algo.UniqueCounterValue;
 import com.datatorrent.lib.algo.UniqueValueCount;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.stream.Counter;
@@ -61,10 +60,10 @@ public class Application implements StreamingApplication
     dag.addStream("Duplicates", valCount.output, dup.data);
     dag.addStream("Unverified", dup.out1, verifier.recIn);
     dag.addStream("EventCount", randGen.verport, verifier.trueIn);
-    dag.addStream("Verified", verifier.successPort, successcounter.data);
-    dag.addStream("Failed", verifier.failurePort, failurecounter.data);
-    dag.addStream("SuccessCount", successcounter.count, successOutput.input);
-    dag.addStream("FailedCount", failurecounter.count, failureOutput.input);
+    dag.addStream("Verified", verifier.successPort, successcounter.input);
+    dag.addStream("Failed", verifier.failurePort, failurecounter.input);
+    dag.addStream("SuccessCount", successcounter.output, successOutput.input);
+    dag.addStream("FailedCount", failurecounter.output, failureOutput.input);
     dag.addStream("Output", dup.out2, consOut.input);
   }
 }

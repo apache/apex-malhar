@@ -32,21 +32,6 @@
   <packaging>pom</packaging>
   <name>Apache Apex Malhar Demos</name>
 
-  <modules>
-    <module>machinedata</module>
-    <module>pi</module>
-    <module>twitter</module>
-    <module>yahoofinance</module>
-    <module>frauddetect</module>
-    <module>mobile</module>
-    <module>wordcount</module>
-    <module>mrmonitor</module>
-    <module>mroperator</module>
-    <module>uniquecount</module>
-    <module>r</module>
-    <module>echoserver</module>
-  </modules>
-
   <properties>
     <apex.core.version>3.2.0-incubating-SNAPSHOT</apex.core.version>
     <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
@@ -177,7 +162,28 @@
       </plugins>
 	</build>
 	</profile>
+    <profile>
+      <id>all-modules</id>
+      <modules>
+        <module>distributedistinct</module>
+      </modules>
+    </profile>
   </profiles>
+
+  <modules>
+    <module>machinedata</module>
+    <module>pi</module>
+    <module>twitter</module>
+    <module>yahoofinance</module>
+    <module>frauddetect</module>
+    <module>mobile</module>
+    <module>wordcount</module>
+    <module>mrmonitor</module>
+    <module>mroperator</module>
+    <module>uniquecount</module>
+    <module>r</module>
+    <module>echoserver</module>
+  </modules>
 
   <dependencies>
     <dependency>

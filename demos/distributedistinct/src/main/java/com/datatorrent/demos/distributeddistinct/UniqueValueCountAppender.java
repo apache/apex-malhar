@@ -42,7 +42,6 @@ import com.datatorrent.lib.db.jdbc.JDBCLookupCacheBackedOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
-
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
@@ -91,7 +90,7 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
   public void setup(Context.OperatorContext context)
   {
     super.setup(context);
-    LOGGER.debug("store properties {} {}", store.getDbDriver(), store.getDbUrl());
+    LOGGER.debug("store properties {} {}", store.getDatabaseDriver(), store.getDatabaseUrl());
     LOGGER.debug("table name {}", tableName);
     windowID = context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID);
     try {
@@ -197,19 +196,9 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
    * rollback, each partition will only clear the data that it is responsible for.
    */
   @Override
-  public Collection<com.datatorrent.api.Partitioner.Partition<UniqueValueCountAppender<V>>> definePartitions(Collection<com.datatorrent.api.Partitioner.Partition<UniqueValueCountAppender<V>>> partitions, int incrementalCapacity)
+  public Collection<com.datatorrent.api.Partitioner.Partition<UniqueValueCountAppender<V>>> definePartitions(Collection<com.datatorrent.api.Partitioner.Partition<UniqueValueCountAppender<V>>> partitions, PartitioningContext context)
   {
-    final int finalCapacity;
-
-    //In the case of parallel partitioning
-    if(incrementalCapacity != 0) {
-      finalCapacity = incrementalCapacity;
-    }
-    //Do normal partitioning
-    else {
-      finalCapacity = partitionCount;
-    }
-
+    final int finalCapacity = DefaultPartition.getRequiredPartitionCount(context, this.partitionCount);
     UniqueValueCountAppender<V> anOldOperator = partitions.iterator().next().getPartitionedInstance();
     partitions.clear();
 
