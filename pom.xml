@@ -59,9 +59,9 @@
         <artifactId>license-maven-plugin</artifactId>
         <configuration>
           <excludes combine.children="append">
-            <exclude>src/test/resources/**/sample_logs/**</exclude>
+            <exclude>**/src/test/resources/**/sample_logs/**</exclude>
             <exclude>src/test/resources/*.csv</exclude>
-            <exclude>src/main/resources/com/datatorrent/apps/logstream/**</exclude>
+            <exclude>**/src/main/resources/com/datatorrent/apps/logstream/**</exclude>
             <exclude>src/main/c/zmq_push/Makefile</exclude>
             <exclude>src/test/resources/com/datatorrent/contrib/romesyndication/*.rss</exclude>
           </excludes>
@@ -75,9 +75,9 @@
         <artifactId>apache-rat-plugin</artifactId>
         <configuration>
           <excludes combine.children="append">
-            <exclude>src/test/resources/**/sample_logs/**</exclude>
+            <exclude>**/src/test/resources/**/sample_logs/**</exclude>
             <exclude>src/test/resources/*.csv</exclude>
-            <exclude>src/main/resources/com/datatorrent/apps/logstream/**</exclude>
+            <exclude>**/src/main/resources/com/datatorrent/apps/logstream/**</exclude>
             <exclude>src/main/c/zmq_push/Makefile</exclude>
             <exclude>src/test/resources/com/datatorrent/contrib/romesyndication/*.rss</exclude>
             <exclude>src/main/resources/**/*.txt</exclude>
