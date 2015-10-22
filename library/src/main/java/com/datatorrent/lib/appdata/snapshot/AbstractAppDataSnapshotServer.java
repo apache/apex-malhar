@@ -21,6 +21,7 @@ package com.datatorrent.lib.appdata.snapshot;
 import java.io.IOException;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.validation.constraints.NotNull;
 
@@ -92,9 +93,10 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
    */
   private List<GPOMutable> currentData = Lists.newArrayList();
   private EmbeddableQueryInfoProvider<String> embeddableQueryInfoProvider;
+  private final transient ConcurrentLinkedQueue<SchemaResult> schemaQueue = new ConcurrentLinkedQueue<>();
 
   @AppData.ResultPort
-  public final transient DefaultOutputPort<String> queryResult = new DefaultOutputPort<String>();
+  public final transient DefaultOutputPort<String> queryResult = new DefaultOutputPort<>();
 
   @AppData.QueryPort
   @InputPortFieldAnnotation(optional=true)
@@ -118,9 +120,8 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
         SchemaResult schemaResult = schemaRegistry.getSchemaResult((SchemaQuery)query);
 
         if (schemaResult != null) {
-          String schemaResultJSON = resultSerializerFactory.serialize(schemaResult);
-          LOG.debug("emitting {}", schemaResultJSON);
-          queryResult.emit(schemaResultJSON);
+          LOG.debug("queueing {}", schemaResult);
+          schemaQueue.add(schemaResult);
         }
       } else if (query instanceof DataQuerySnapshot) {
         queryProcessor.enqueue((DataQuerySnapshot)query, null, null);
@@ -208,12 +209,22 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
     }
 
     {
-      Result result = null;
+      Result result;
 
       while((result = queryProcessor.process()) != null) {
         String resultJSON = resultSerializerFactory.serialize(result);
         LOG.debug("emitting {}", resultJSON);
         queryResult.emit(resultJSON);
+      }
+    }
+
+    {
+      SchemaResult schemaResult;
+
+      while ((schemaResult = schemaQueue.poll()) != null) {
+        String schemaResultJSON = resultSerializerFactory.serialize(schemaResult);
+        LOG.debug("emitting {}", schemaResultJSON);
+        queryResult.emit(schemaResultJSON);
       }
     }
 
