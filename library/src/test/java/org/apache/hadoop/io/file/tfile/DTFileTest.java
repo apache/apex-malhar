@@ -70,7 +70,7 @@ public class DTFileTest
 
     conf.setInt("tfile.fs.input.buffer.size", tconf.fsInputBufferSize);
     conf.setInt("tfile.fs.output.buffer.size", tconf.fsOutputBufferSize);
-    path = new Path("tmp/dtfile");
+    path = new Path("target/tmp/dtfile");
     fs = path.getFileSystem(conf);
     timer = new NanoTimer(false);
     rng = new Random();

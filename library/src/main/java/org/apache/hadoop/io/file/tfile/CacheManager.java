@@ -47,18 +47,22 @@ public class CacheManager
 
   public static final float DEFAULT_HEAP_MEMORY_PERCENTAGE = 0.25f;
 
-  private static Cache<String, BlockReader> singleCache;
+  private static Cache<String, BlockReader> SINGLE_CACHE;
 
-  private static boolean enableStats = false;
+  private static boolean ENABLE_STATS = false;
 
-  public static final Cache<String, BlockReader> buildCache(CacheBuilder builder) {
-    if (singleCache != null) {
-      singleCache.cleanUp();
+  @SuppressWarnings("unchecked")
+  public static synchronized Cache<String, BlockReader> buildCache(CacheBuilder builder)
+  {
+    if (SINGLE_CACHE != null) {
+      SINGLE_CACHE.cleanUp();
     }
-    if (enableStats)
-      builder.recordStats();
-    singleCache = builder.build();
-    return singleCache;
+    if (ENABLE_STATS) {
+      //todo: when we upgrade to a newer guava version we can use this
+      //SINGLE_CACHE.recordStats();
+    }
+    SINGLE_CACHE = builder.build();
+    return SINGLE_CACHE;
   }
 
   /**
@@ -68,7 +72,8 @@ public class CacheManager
    * @param maximunSize
    * @return The cache.
    */
-  public static final Cache<String, BlockReader> createCache(int concurrencyLevel,int initialCapacity, int maximunSize){
+  public static Cache<String, BlockReader> createCache(int concurrencyLevel, int initialCapacity, int maximunSize)
+  {
     CacheBuilder builder = CacheBuilder.newBuilder().
         concurrencyLevel(concurrencyLevel).
         initialCapacity(initialCapacity).
@@ -85,8 +90,8 @@ public class CacheManager
    * @param maximumMemory
    * @return The cache.
    */
-  public static final Cache<String, BlockReader> createCache(int concurrencyLevel,int initialCapacity, long maximumMemory){
-
+  public static final Cache<String, BlockReader> createCache(int concurrencyLevel, int initialCapacity, long maximumMemory)
+  {
     CacheBuilder builder = CacheBuilder.newBuilder().
         concurrencyLevel(concurrencyLevel).
         initialCapacity(initialCapacity).
@@ -102,7 +107,8 @@ public class CacheManager
    * @param heapMemPercentage
    * @return The cache.
    */
-  public static final Cache<String, BlockReader> createCache(int concurrencyLevel,int initialCapacity, float heapMemPercentage){
+  public static Cache<String, BlockReader> createCache(int concurrencyLevel, int initialCapacity, float heapMemPercentage)
+  {
     CacheBuilder builder = CacheBuilder.newBuilder().
         concurrencyLevel(concurrencyLevel).
         initialCapacity(initialCapacity).
@@ -110,41 +116,45 @@ public class CacheManager
     return buildCache(builder);
   }
 
-  public static final void createDefaultCache(){
-
-    long availableMemory = (long) (ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax() * DEFAULT_HEAP_MEMORY_PERCENTAGE);
+  public static void createDefaultCache()
+  {
+    long availableMemory = (long)(ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax() * DEFAULT_HEAP_MEMORY_PERCENTAGE);
     CacheBuilder<String, BlockReader> builder = CacheBuilder.newBuilder().maximumWeight(availableMemory).weigher(new KVWeigher());
 
-    singleCache = buildCache(builder);
+    SINGLE_CACHE = buildCache(builder);
   }
 
-  public static final void put(String key, BlockReader blk){
-    if (singleCache == null) {
+  public static void put(String key, BlockReader blk)
+  {
+    if (SINGLE_CACHE == null) {
       createDefaultCache();
     }
-    singleCache.put(key, blk);
+    SINGLE_CACHE.put(key, blk);
   }
 
-  public static final BlockReader get(String key){
-    if (singleCache == null) {
+  public static BlockReader get(String key)
+  {
+    if (SINGLE_CACHE == null) {
       return null;
     }
-    return singleCache.getIfPresent(key);
+    return SINGLE_CACHE.getIfPresent(key);
   }
 
-  public static final void invalidateKeys(Collection<String> keys)
+  public static void invalidateKeys(Collection<String> keys)
   {
-    if (singleCache != null)
-      singleCache.invalidateAll(keys);
+    if (SINGLE_CACHE != null)
+      SINGLE_CACHE.invalidateAll(keys);
   }
 
-  public static final long getCacheSize() {
-    if (singleCache != null)
-      return singleCache.size();
+  public static long getCacheSize()
+  {
+    if (SINGLE_CACHE != null)
+      return SINGLE_CACHE.size();
     return 0;
   }
 
-  public static final class KVWeigher implements Weigher<String, BlockReader> {
+  public static class KVWeigher implements Weigher<String, BlockReader>
+  {
 
     @Override
     public int weigh(String key, BlockReader value)
@@ -157,12 +167,18 @@ public class CacheManager
   }
 
   @VisibleForTesting
-  protected static Cache<String, BlockReader> getCache() {
-    return singleCache;
+  protected static Cache<String, BlockReader> getCache()
+  {
+    return SINGLE_CACHE;
   }
 
-  public static final void setEnableStats(boolean enable) {
-    enableStats = enable;
+  /**
+   * This is not working right now.
+   * @param enable enable stats
+   */
+  public static void setEnableStats(boolean enable)
+  {
+    ENABLE_STATS = enable;
   }
 
   public static void main(String[] args)
