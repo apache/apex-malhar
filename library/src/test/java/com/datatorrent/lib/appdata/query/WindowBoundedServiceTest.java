@@ -64,33 +64,6 @@ public class WindowBoundedServiceTest
     Assert.assertTrue(counterRunnable.getCounter() > 0);
   }
 
-  @Test
-  public void exceptionTest() throws Exception
-  {
-    WindowBoundedService wbs = new WindowBoundedService(1,
-                                                        new ExceptionRunnable());
-
-    wbs.setup(null);
-    wbs.beginWindow(0);
-
-    boolean caughtException = false;
-
-    try {
-      Thread.sleep(500);
-    } catch (InterruptedException e) {
-      caughtException = true;
-    }
-
-    try {
-      wbs.endWindow();
-    } catch(Exception e) {
-      caughtException = true;
-    }
-
-    wbs.teardown();
-    Assert.assertEquals(true, caughtException);
-  }
-
   public static class CounterRunnable implements Runnable
   {
     private int counter = 0;

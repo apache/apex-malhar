@@ -137,6 +137,15 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
     catch (Exception ex) {
       LOG.error("Error joining monitor", ex);
     }
+
+    if (connection != null) {
+      connection.close();
+    }
+
+    if (client != null) {
+      client.close();
+    }
+
     super.teardown();
   }
 

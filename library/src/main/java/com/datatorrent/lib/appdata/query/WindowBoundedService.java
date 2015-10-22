@@ -22,7 +22,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
-
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Preconditions;
 
@@ -59,6 +59,7 @@ public class WindowBoundedService implements Component<OperatorContext>
   protected transient ExecutorService executorThread;
 
   private final transient Semaphore mutex = new Semaphore(0);
+  private volatile boolean terminated = false;
 
   public WindowBoundedService(Runnable runnable)
   {
@@ -78,8 +79,8 @@ public class WindowBoundedService implements Component<OperatorContext>
   @Override
   public void setup(OperatorContext context)
   {
-    executorThread = Executors.newSingleThreadScheduledExecutor(new NameableThreadFactory("Query Executor Thread"));
-    executorThread.submit(new AsynchExecutorThread(Thread.currentThread()));
+    executorThread = Executors.newSingleThreadExecutor(new NameableThreadFactory("Query Executor Thread"));
+    executorThread.submit(new AsynchExecutorThread());
   }
 
   public void beginWindow(long windowId)
@@ -99,17 +100,31 @@ public class WindowBoundedService implements Component<OperatorContext>
   @Override
   public void teardown()
   {
-    executorThread.shutdownNow();
+    LOG.info("Shutting down");
+    terminated = true;
+    mutex.release();
+
+    executorThread.shutdown();
+    
+    try {
+      executorThread.awaitTermination(10000L + executeIntervalMillis, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException ex) {
+      //Do nothing
+    }
   }
 
   public class AsynchExecutorThread implements Callable<Void>
   {
-    private final Thread mainThread;
     private long lastExecuteTime = 0;
 
+    public AsynchExecutorThread()
+    {
+    }
+
+    @Deprecated
     public AsynchExecutorThread(Thread mainThread)
     {
-      this.mainThread = mainThread;
+      //Do nothing
     }
 
     @Override
@@ -121,7 +136,6 @@ public class WindowBoundedService implements Component<OperatorContext>
       } catch (Exception e) {
         LOG.error("Exception thrown while processing:", e);
         mutex.release();
-        mainThread.interrupt();
       }
 
       return null;
@@ -133,12 +147,25 @@ public class WindowBoundedService implements Component<OperatorContext>
       while (true) {
         long currentTime = System.currentTimeMillis();
         long diff = currentTime - lastExecuteTime;
+
         if (diff > executeIntervalMillis) {
           lastExecuteTime = currentTime;
           mutex.acquireUninterruptibly();
+
+          if (terminated) {
+            LOG.info("Terminated");
+            return;
+          }
+
           runnable.run();
           mutex.release();
         } else {
+
+          if (terminated) {
+            LOG.info("Terminated");
+            return;
+          }
+
           Thread.sleep(executeIntervalMillis - diff);
         }
       }
