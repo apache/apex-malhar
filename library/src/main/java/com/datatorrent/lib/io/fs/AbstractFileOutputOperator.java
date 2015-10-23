@@ -210,8 +210,8 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   private int rotationCount;
 
   /**
-   * If a filter stream provider is set it is used to obtain the filter that will be applied to data before it is 
-   * stored in the file. If it null no filter is applied and data is written as is. Multiple filters can be chained 
+   * If a filter stream provider is set it is used to obtain the filter that will be applied to data before it is
+   * stored in the file. If it null no filter is applied and data is written as is. Multiple filters can be chained
    * together by using a filter stream chain provider.
    */
   protected FilterStreamProvider filterStreamProvider;
@@ -329,7 +329,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
       {
         FSFilterStreamContext streamContext = notification.getValue();
         if (streamContext != null) {
-          
+
           //FilterOutputStream filterStream = streamContext.getFilterStream();
           try {
             String filename = notification.getKey();
@@ -938,8 +938,8 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   }
 
   /**
-   * Sets the maximum length of a an output file in bytes. By default this is null,
-   * if this is not null then the output operator is in rolling mode.
+   * Sets the maximum length of a an output file in bytes. By default this is Long.MAX_VALUE,
+   * if this is not Long.MAX_VALUE then the output operator is in rolling mode.
    * @param maxLength The maximum length of an output file in bytes, when in rolling mode.
    */
   public void setMaxLength(long maxLength)
@@ -1014,7 +1014,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   }
 
   /**
-   * Get the filter stream provider 
+   * Get the filter stream provider
    * @return The filter stream provider.
    */
   public FilterStreamProvider getFilterStreamProvider()
@@ -1023,7 +1023,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   }
 
   /**
-   * Set the filter stream provider. When a non-null provider is specified it will be used to supply the filter that 
+   * Set the filter stream provider. When a non-null provider is specified it will be used to supply the filter that
    * will be  applied to data before it is stored in the file.
    * @param filterStreamProvider The filter stream provider
    */
@@ -1049,15 +1049,15 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
 
   private class FSFilterStreamContext implements FilterStreamContext<FilterOutputStream>
   {
-    
+
     private FSDataOutputStream outputStream;
-    
+
     private FilterStreamContext filterContext;
     private NonCloseableFilterOutputStream outputWrapper;
-    
+
     public FSFilterStreamContext(FSDataOutputStream outputStream) throws IOException
     {
-      this.outputStream = outputStream;     
+      this.outputStream = outputStream;
       outputWrapper = new NonCloseableFilterOutputStream(outputStream);
       //resetFilter();
       initializeContext();
@@ -1085,7 +1085,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
         filterStreamProvider.reclaimFilterStreamContext(filterContext);
       }
     }
-    
+
     @SuppressWarnings("unchecked")
     public void initializeContext() throws IOException
     {
@@ -1093,7 +1093,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
         filterContext = filterStreamProvider.getFilterStreamContext(outputWrapper);
       }
     }
-    
+
     public void close() throws IOException
     {
       //finalizeContext();
@@ -1102,10 +1102,10 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
       }
       outputStream.close();
     }
-    
+
   }
-  
-  private static class NonCloseableFilterOutputStream extends FilterOutputStream 
+
+  private static class NonCloseableFilterOutputStream extends FilterOutputStream
   {
     public NonCloseableFilterOutputStream(OutputStream out)
     {
