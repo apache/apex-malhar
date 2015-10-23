@@ -15,6 +15,7 @@
 
   <properties>
     <semver.plugin.skip>true</semver.plugin.skip>
+    <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
   </properties>
 
   <profiles>
