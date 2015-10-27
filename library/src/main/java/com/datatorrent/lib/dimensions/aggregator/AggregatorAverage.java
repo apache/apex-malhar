@@ -47,7 +47,7 @@ public class AggregatorAverage implements OTFAggregator
   /**
    * Constructor for singleton pattern.
    */
-  private AggregatorAverage()
+  protected AggregatorAverage()
   {
     //Do nothing
   }

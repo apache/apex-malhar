@@ -47,10 +47,10 @@ public class Application implements StreamingApplication
     InputReceiver randomGen = dag.addOperator("Receiver", InputReceiver.class);
     randomGen.setEventSchema(eventSchema);
 
-    DimensionsComputationFlexibleSingleSchemaPOJO dimensions = dag.addOperator("DimensionsComputation", DimensionsComputationFlexibleSingleSchemaPOJO.class);
+    DimensionsComputationFlexibleSingleSchemaPOJO dimensions = dag.addOperator("DimensionsComputation", getDimensions());
     dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 6);
     dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.CHECKPOINT_WINDOW_COUNT, 6);
-    AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", AppDataSingleSchemaDimensionStoreHDHT.class);
+    AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", getStore());
     store.setCacheWindowDuration(120);
     @SuppressWarnings("unchecked")
     PassThroughOperator unifier = dag.addOperator("Unifier", PassThroughOperator.class);
@@ -98,6 +98,16 @@ public class Application implements StreamingApplication
     dag.addStream("DimensionalData", dimensions.output, unifier.input);
     dag.addStream("Unifier", unifier.output, store.input);
     dag.addStream("QueryResult", store.queryResult, wsOut.input);
+  }
+
+  public DimensionsComputationFlexibleSingleSchemaPOJO getDimensions()
+  {
+    return new DimensionsComputationFlexibleSingleSchemaPOJO();
+  }
+
+  public AppDataSingleSchemaDimensionStoreHDHT getStore()
+  {
+    return new AppDataSingleSchemaDimensionStoreHDHT();
   }
 
   public static class PassThroughOperator extends BaseOperator

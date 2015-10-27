@@ -434,6 +434,11 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     FieldsDescriptor valueFieldsDescriptor = getValueDescriptor(schemaID, ddID, aggregatorID);
 
     gae.getKeys().setFieldDescriptor(keyFieldsDescriptor);
+
+    if(valueFieldsDescriptor == null) {
+      LOG.info("ids for failure {} {} {}", schemaID, ddID, aggregatorID);
+    }
+
     gae.getAggregates().setFieldDescriptor(valueFieldsDescriptor);
 
     //Skip data for buckets with greater committed window Ids

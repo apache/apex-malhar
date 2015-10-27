@@ -620,8 +620,9 @@ public class DimensionsEvent implements Serializable
     protected int aggregatorIndex;
     private GPOMutable metaData;
 
-    private Aggregate()
+    public Aggregate()
     {
+      //for kryo and for extending classes
     }
 
     /**

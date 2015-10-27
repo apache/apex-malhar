@@ -93,7 +93,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
        gae.getKeys().getFieldDescriptor().getFields().getFields().contains(DimensionsDescriptor.DIMENSION_TIME)) {
 
       long timestamp = gae.getEventKey().getKey().getFieldLong(DimensionsDescriptor.DIMENSION_TIME);
-      dimensionalSchema.setFrom(timestamp);
 
       if (getMinTimestamp() == null || timestamp < getMinTimestamp()) {
         setMinTimestamp(timestamp);
@@ -177,7 +176,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
     for (; ++bucket < last;) {
       ((AppDataSingleSchemaDimensionStoreHDHT)iterator.next().getPartitionedInstance()).setBucketID(bucket);
     }
-   
+
     return newPartitions;
   }
 

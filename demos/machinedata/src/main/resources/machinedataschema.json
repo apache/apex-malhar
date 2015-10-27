@@ -55,8 +55,8 @@
                                                            "Device ID 50"]}],
  "timeBuckets":["1m"],
  "values":
-  [{"name":"CPU Usage (%)","type":"integer","aggregators":["AVG"]},
-   {"name":"RAM Usage (%)","type":"integer","aggregators":["AVG"]},
-   {"name":"HDD Usage (%)","type":"integer","aggregators":["AVG"]}],
+  [{"name":"CPU Usage (%)","type":"long","aggregators":["AVG"]},
+   {"name":"RAM Usage (%)","type":"long","aggregators":["AVG"]},
+   {"name":"HDD Usage (%)","type":"long","aggregators":["AVG"]}],
  "dimensions":"ALL_COMBINATIONS"
 }
