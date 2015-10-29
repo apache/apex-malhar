@@ -32,8 +32,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import kafka.message.Message;
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Pattern.Flag;
@@ -41,12 +39,15 @@ import javax.validation.constraints.Pattern.Flag;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.datatorrent.api.Context;
 import com.esotericsoftware.kryo.serializers.FieldSerializer.Bind;
 import com.esotericsoftware.kryo.serializers.JavaSerializer;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
+
+import com.datatorrent.api.Context;
+
+import kafka.message.Message;
 
 /**
  * Base Kafka Consumer class used by kafka input operator
@@ -342,7 +343,20 @@ public abstract class KafkaConsumer implements Closeable
       this.msg = msg;
       this.offSet = offset;
     }
+    public KafkaPartition getKafkaPart()
+    {
+      return kafkaPart;
+    }
 
+    public Message getMsg()
+    {
+      return msg;
+    }
+
+    public long getOffSet()
+    {
+      return offSet;
+    }
   }
 
   public static class KafkaMeterStatsUtil {
