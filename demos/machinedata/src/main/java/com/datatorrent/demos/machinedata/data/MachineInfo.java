@@ -4,6 +4,8 @@
  */
 package com.datatorrent.demos.machinedata.data;
 
+import com.datatorrent.demos.machinedata.data.MachineKey.KeySelector;
+
 /**
  * This class stores the cpu% usage, ram% usage, hdd% usage and key information about a particular machine
  * <p>
@@ -15,9 +17,9 @@ package com.datatorrent.demos.machinedata.data;
 public class MachineInfo
 {
   private MachineKey machineKey;
-  private int cpu;
-  private int ram;
-  private int hdd;
+  private long cpu;
+  private long ram;
+  private long hdd;
 
   /**
    * This default constructor
@@ -44,7 +46,7 @@ public class MachineInfo
    * @param ram the RAM% usage
    * @param hdd the HDD% usage
    */
-  public MachineInfo(MachineKey machineKey, int cpu, int ram, int hdd)
+  public MachineInfo(MachineKey machineKey, long cpu, long ram, long hdd)
   {
     this.machineKey = machineKey;
     this.cpu = cpu;
@@ -77,7 +79,7 @@ public class MachineInfo
    *
    * @return
    */
-  public int getCpu()
+  public long getCpu()
   {
     return cpu;
   }
@@ -87,7 +89,7 @@ public class MachineInfo
    *
    * @param cpu the CPU% usage
    */
-  public void setCpu(int cpu)
+  public void setCpu(long cpu)
   {
     this.cpu = cpu;
   }
@@ -97,7 +99,7 @@ public class MachineInfo
    *
    * @return
    */
-  public int getRam()
+  public long getRam()
   {
     return ram;
   }
@@ -107,7 +109,7 @@ public class MachineInfo
    *
    * @param ram the RAM% usage
    */
-  public void setRam(int ram)
+  public void setRam(long ram)
   {
     this.ram = ram;
   }
@@ -117,7 +119,7 @@ public class MachineInfo
    *
    * @return
    */
-  public int getHdd()
+  public long getHdd()
   {
     return hdd;
   }
@@ -127,9 +129,13 @@ public class MachineInfo
    *
    * @param hdd the HDD% usage
    */
-  public void setHdd(int hdd)
+  public void setHdd(long hdd)
   {
     this.hdd = hdd;
   }
 
+  public boolean equalsWithKey(MachineInfo other, KeySelector ks)
+  {
+    return this.getMachineKey().equalsWithKey(other.getMachineKey(), ks);
+  }
 }

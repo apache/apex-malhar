@@ -4,6 +4,8 @@
  */
 package com.datatorrent.demos.machinedata.data;
 
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -266,8 +268,39 @@ public class MachineKey
     hash = 67 * hash + Objects.hashCode(this.software1);
     hash = 67 * hash + Objects.hashCode(this.software2);
     hash = 67 * hash + Objects.hashCode(this.deviceId);
-    hash = 67 * hash + Objects.hashCode(this.timeKey);
+    hash = 67 * hash + (int) timestamp;
     hash = 67 * hash + Objects.hashCode(this.day);
+    return hash;
+  }
+
+  public int hashCode(KeySelector ks)
+  {
+    int hash = 7;
+
+    if (ks.useCustomer) {
+      hash = hash * 67 + Objects.hashCode(this.customer);
+    }
+
+    if (ks.useProduct) {
+      hash = hash * 67 + Objects.hashCode(this.product);
+    }
+
+    if (ks.useOs) {
+      hash = hash * 67 + Objects.hashCode(this.os);
+    }
+
+    if (ks.useSoftware1) {
+      hash = hash * 67 + Objects.hashCode(this.software1);
+    }
+
+    if (ks.useSoftware2) {
+      hash = hash * 67 + Objects.hashCode(this.software2);
+    }
+
+    if (ks.useDeviceId) {
+      hash = hash * 67 + Objects.hashCode(this.deviceId);
+    }
+
     return hash;
   }
 
@@ -299,7 +332,7 @@ public class MachineKey
     if (!Objects.equals(this.deviceId, other.deviceId)) {
       return false;
     }
-    if (!Objects.equals(this.timeKey, other.timeKey)) {
+    if (this.timestamp != other.timestamp) {
       return false;
     }
     if (!Objects.equals(this.day, other.day)) {
@@ -331,5 +364,60 @@ public class MachineKey
       sb.append("|6:").append(deviceId);
     }
     return sb.toString();
+  }
+
+  public boolean equalsWithKey(MachineKey other, KeySelector ks)
+  {
+    if (ks.useCustomer && !Objects.equals(this.customer, other.customer)) {
+      return false;
+    }
+
+    if (ks.useProduct && !Objects.equals(this.product, other.product)) {
+      return false;
+    }
+
+    if (ks.useOs && !Objects.equals(this.os, other.os)) {
+      return false;
+    }
+
+    if (ks.useSoftware1 && !Objects.equals(this.software1, other.software1)) {
+      return false;
+    }
+
+    if (ks.useSoftware2 && !Objects.equals(this.software2, other.software2)) {
+      return false;
+    }
+
+    if (ks.useDeviceId && !Objects.equals(this.deviceId, other.deviceId)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  public static class KeySelector implements Serializable
+  {
+    private static final long serialVersionUID = 201510251009L;
+
+    public boolean useCustomer;
+    public boolean useProduct;
+    public boolean useOs;
+    public boolean useSoftware1;
+    public boolean useSoftware2;
+    public boolean useDeviceId;
+
+    public KeySelector()
+    {
+    }
+
+    public KeySelector(Collection<String> fields)
+    {
+      useCustomer = fields.contains(MachineHardCodedAggregate.CUSTOMER_ID);
+      useProduct = fields.contains(MachineHardCodedAggregate.PRODUCT_ID);
+      useOs = fields.contains(MachineHardCodedAggregate.PRODUCT_OS);
+      useSoftware1 = fields.contains(MachineHardCodedAggregate.SOFTWARE_1_VER);
+      useSoftware2 = fields.contains(MachineHardCodedAggregate.SOFTWARE_2_VER);
+      useDeviceId = fields.contains(MachineHardCodedAggregate.DEVICE_ID);
+    }
   }
 }
