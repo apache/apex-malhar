@@ -62,7 +62,7 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
   protected transient final ObjectMapper mapper = new ObjectMapper(jsonFactory);
   protected transient WebSocket connection;
   private transient boolean connectionClosed = false;
-  private transient boolean shutdown = false;
+  private transient volatile boolean shutdown = false;
   private int ioThreadMultiplier = 1;
   protected boolean skipNull = false;
 
