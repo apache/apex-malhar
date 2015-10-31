@@ -33,7 +33,6 @@
   <name>Apache Apex Malhar Demos</name>
 
   <properties>
-    <apex.core.version>3.2.0-incubating-SNAPSHOT</apex.core.version>
     <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
     <semver.plugin.skip>true</semver.plugin.skip>
     <maven.deploy.skip>true</maven.deploy.skip>

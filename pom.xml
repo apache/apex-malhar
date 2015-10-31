@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.apache.apex</groupId>
     <artifactId>apex</artifactId>
-    <version>3.2.0-incubating-SNAPSHOT</version>
+    <version>3.2.0-incubating</version>
   </parent>
 
   <artifactId>malhar</artifactId>
@@ -48,7 +48,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.deploy.skip>false</maven.deploy.skip>
-    <apex.core.version>3.2.0-incubating-SNAPSHOT</apex.core.version>
+    <apex.core.version>3.2.0-incubating</apex.core.version>
     <semver.plugin.skip>false</semver.plugin.skip>
   </properties>
 

@@ -36,8 +36,6 @@
   <description>Benchmark applications package</description>
 
   <properties>
-    <!-- change this if you desire to use a different version of DataTorrent -->
-    <apex.core.version>${project.version}</apex.core.version>
     <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
     <maven.deploy.skip>false</maven.deploy.skip>
     <skipTests>true</skipTests>
