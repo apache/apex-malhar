@@ -1883,6 +1883,58 @@ public class AbstractFileOutputOperatorTest
     checkCompressedFile(oddFile, oddOffsets, 1, 5, 1000, null, null);
   }
 
+  @Test
+  public void testRecoveryOfOpenFiles()
+  {
+    EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
+    writer.setMaxLength(4);
+    File meta = new File(testMeta.getDir());
+    writer.setFilePath(meta.getAbsolutePath());
+    writer.setAlwaysWriteToTmp(true);
+    writer.setup(testMeta.testOperatorContext);
+
+    writer.beginWindow(0);
+    writer.input.put(0);
+    writer.input.put(1);
+    writer.input.put(2);
+    writer.input.put(3);
+    writer.endWindow();
+
+    //failure and restored
+    writer.setup(testMeta.testOperatorContext);
+    writer.input.put(4);
+    writer.input.put(5);
+    writer.endWindow();
+
+    writer.beginWindow(1);
+    writer.input.put(6);
+    writer.input.put(7);
+    writer.input.put(8);
+    writer.input.put(9);
+    writer.input.put(6);
+    writer.input.put(7);
+    writer.endWindow();
+
+    writer.committed(1);
+
+    //Part 0 checks
+    String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
+    String correctContents = "0\n" + "2\n" + "4\n";
+    checkOutput(0, evenFileName, correctContents);
+
+    String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
+    correctContents = "1\n" + "3\n" + "5\n";
+    checkOutput(0, oddFileName, correctContents);
+
+
+    //Part 1 checks
+    correctContents = "6\n" + "8\n" + "6\n";
+    checkOutput(1, evenFileName, correctContents);
+
+    correctContents = "7\n" + "9\n" + "7\n";
+    checkOutput(1, oddFileName, correctContents);
+  }
+
   private void checkCompressedFile(File file, List<Long> offsets, int startVal, int totalWindows, int totalRecords, SecretKey secretKey, byte[] iv) throws IOException
   {
     FileInputStream fis;
