@@ -351,50 +351,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
           }
 
           if (fs.exists(activeFilePath)) {
-            LOG.debug("path exists {}", activeFilePath);
-            long offset = endOffsets.get(seenFileName).longValue();
-            FSDataInputStream inputStream = fs.open(activeFilePath);
-            FileStatus status = fs.getFileStatus(activeFilePath);
-
-            if (status.getLen() != offset) {
-              LOG.info("path corrupted {} {} {}", activeFilePath, offset, status.getLen());
-              byte[] buffer = new byte[COPY_BUFFER_SIZE];
-              String recoveryFileName = seenFileNamePart + '.' + System.currentTimeMillis() + TMP_EXTENSION;
-              Path recoveryFilePath = new Path(filePath + Path.SEPARATOR + recoveryFileName);
-              FSDataOutputStream fsOutput = openStream(recoveryFilePath, false);
-
-              while (inputStream.getPos() < offset) {
-                long remainingBytes = offset - inputStream.getPos();
-                int bytesToWrite = remainingBytes < COPY_BUFFER_SIZE ? (int) remainingBytes : COPY_BUFFER_SIZE;
-                inputStream.read(buffer);
-                fsOutput.write(buffer, 0, bytesToWrite);
-              }
-
-              flush(fsOutput);
-              fsOutput.close();
-              inputStream.close();
-
-              FileContext fileContext = FileContext.getFileContext(fs.getUri());
-              LOG.debug("active {} recovery {} ", activeFilePath, recoveryFilePath);
-
-              if (alwaysWriteToTmp) {
-                //recovery file is used as the new tmp file and we cannot delete the old tmp file because when the operator
-                //is restored to an earlier check-pointed window, it will look for an older tmp.
-                fileNameToTmpName.put(seenFileNamePart, recoveryFileName);
-              } else {
-                LOG.debug("recovery path {} actual path {} ", recoveryFilePath, status.getPath());
-                fileContext.rename(recoveryFilePath, status.getPath(), Options.Rename.OVERWRITE);
-              }
-            } else {
-              if (alwaysWriteToTmp && filesWithOpenStreams.contains(seenFileName)) {
-                String currentTmp = seenFileNamePart + '.' + System.currentTimeMillis() + TMP_EXTENSION;
-                FSDataOutputStream outputStream = openStream(new Path(filePath + Path.SEPARATOR + currentTmp), false);
-                IOUtils.copy(inputStream, outputStream);
-                outputStream.close();
-                fileNameToTmpName.put(seenFileNamePart, currentTmp);
-              }
-              inputStream.close();
-            }
+            recoverFile(seenFileName, seenFileNamePart, activeFilePath);
           }
         }
       }
@@ -448,10 +405,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
           }
         }
       }
-
       LOG.debug("setup completed");
-      LOG.debug("end-offsets {}", endOffsets);
-
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -460,6 +414,68 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
 
     fileCounters.setCounter(Counters.TOTAL_BYTES_WRITTEN, new MutableLong());
     fileCounters.setCounter(Counters.TOTAL_TIME_WRITING_MILLISECONDS, new MutableLong());
+  }
+
+  /**
+   * Recovers a file which exists on the disk. If the length of the file is not same as the
+   * length which the operator remembers then the file is truncated. <br/>
+   * When always writing to a temporary file, then a file is restored even when the length is same as what the
+   * operator remembers however this is done only for files which had open streams that weren't closed before
+   * failure.
+   *
+   * @param filename     name of the actual file.
+   * @param partFileName name of the part file. When not rolling this is same as filename; otherwise this is the
+   *                     latest open part file name.
+   * @param filepath     path of the file. When always writing to temp file, this is the path of the temp file; otherwise
+   *                     path of the actual file.
+   * @throws IOException
+   */
+  private void recoverFile(String filename, String partFileName, Path filepath) throws IOException
+  {
+    LOG.debug("path exists {}", filepath);
+    long offset = endOffsets.get(filename).longValue();
+    FSDataInputStream inputStream = fs.open(filepath);
+    FileStatus status = fs.getFileStatus(filepath);
+
+    if (status.getLen() != offset) {
+      LOG.info("path corrupted {} {} {}", filepath, offset, status.getLen());
+      byte[] buffer = new byte[COPY_BUFFER_SIZE];
+      String recoveryFileName = partFileName + '.' + System.currentTimeMillis() + TMP_EXTENSION;
+      Path recoveryFilePath = new Path(filePath + Path.SEPARATOR + recoveryFileName);
+      FSDataOutputStream fsOutput = openStream(recoveryFilePath, false);
+
+      while (inputStream.getPos() < offset) {
+        long remainingBytes = offset - inputStream.getPos();
+        int bytesToWrite = remainingBytes < COPY_BUFFER_SIZE ? (int)remainingBytes : COPY_BUFFER_SIZE;
+        inputStream.read(buffer);
+        fsOutput.write(buffer, 0, bytesToWrite);
+      }
+
+      flush(fsOutput);
+      fsOutput.close();
+      inputStream.close();
+
+      FileContext fileContext = FileContext.getFileContext(fs.getUri());
+      LOG.debug("active {} recovery {} ", filepath, recoveryFilePath);
+
+      if (alwaysWriteToTmp) {
+        //recovery file is used as the new tmp file and we cannot delete the old tmp file because when the operator
+        //is restored to an earlier check-pointed window, it will look for an older tmp.
+        fileNameToTmpName.put(partFileName, recoveryFileName);
+      } else {
+        LOG.debug("recovery path {} actual path {} ", recoveryFilePath, status.getPath());
+        fileContext.rename(recoveryFilePath, status.getPath(), Options.Rename.OVERWRITE);
+      }
+    } else {
+      if (alwaysWriteToTmp && filesWithOpenStreams.contains(filename)) {
+        String currentTmp = partFileName + '.' + System.currentTimeMillis() + TMP_EXTENSION;
+        FSDataOutputStream outputStream = openStream(new Path(filePath + Path.SEPARATOR + currentTmp), false);
+        IOUtils.copy(inputStream, outputStream);
+        streamsCache.put(filename, new FSFilterStreamContext(outputStream));
+        fileNameToTmpName.put(partFileName, currentTmp);
+      }
+      inputStream.close();
+    }
   }
 
   /**
@@ -656,7 +672,6 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
       fileName = getPartFileNamePri(fileName);
       part.setValue(currentOpenPart.getValue());
     }
-    LOG.debug("request finalize {}", fileName);
     filesPerWindow.add(fileName);
   }
 
@@ -1215,7 +1230,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
         //a tmp file has tmp extension always preceded by timestamp
         String actualFileName = statusName.substring(0, statusName.lastIndexOf('.', statusName.lastIndexOf('.') - 1));
         if (fileName.equals(actualFileName)) {
-          LOG.debug("deleting vagrant file {}", statusName);
+          LOG.debug("deleting stray file {}", statusName);
           fs.delete(status.getPath(), true);
         }
       }
