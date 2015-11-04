@@ -21,7 +21,11 @@ package com.datatorrent.lib.io.fs;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -29,31 +33,43 @@ import javax.annotation.Nonnull;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Strings;
-import com.google.common.cache.*;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.AbstractFileSystem;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileContext;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocalFileSystem;
+import org.apache.hadoop.fs.Options;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.RawLocalFileSystem;
 import org.apache.hadoop.fs.permission.FsPermission;
 
-import com.datatorrent.lib.counters.BasicCounters;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.lib.counters.BasicCounters;
 
 /**
  * This base implementation for a fault tolerant HDFS output operator,
@@ -179,6 +195,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
    * The file system used to write to.
    */
   protected transient FileSystem fs;
+  protected transient FileContext fileContext;
 
   protected short filePermission = 0777;
 
@@ -455,7 +472,6 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
       fsOutput.close();
       inputStream.close();
 
-      FileContext fileContext = FileContext.getFileContext(fs.getUri());
       LOG.debug("active {} recovery {} ", filepath, recoveryFilePath);
 
       if (alwaysWriteToTmp) {
@@ -464,7 +480,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
         fileNameToTmpName.put(partFileName, recoveryFileName);
       } else {
         LOG.debug("recovery path {} actual path {} ", recoveryFilePath, status.getPath());
-        fileContext.rename(recoveryFilePath, status.getPath(), Options.Rename.OVERWRITE);
+        rename(recoveryFilePath, status.getPath());
       }
     } else {
       if (alwaysWriteToTmp && filesWithOpenStreams.contains(filename)) {
@@ -639,6 +655,22 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   protected void closeStream(FSFilterStreamContext streamContext) throws IOException
   {
     streamContext.close();
+  }
+
+  /**
+   * Renames source path to destination atomically. This relies on the FileContext api. If
+   * the underlying filesystem doesn't have an {@link AbstractFileSystem} then this should be overridden.
+   *
+   * @param source      source path
+   * @param destination destination path
+   * @throws IOException
+   */
+  protected void rename(Path source, Path destination) throws IOException
+  {
+    if (fileContext == null) {
+      fileContext = FileContext.getFileContext(fs.getUri());
+    }
+    fileContext.rename(source, destination, Options.Rename.OVERWRITE);
   }
 
   /**
@@ -1206,13 +1238,12 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   protected void finalizeFile(String fileName) throws IOException
   {
     String tmpFileName = fileNameToTmpName.get(fileName);
-    FileContext fileContext = FileContext.getFileContext(fs.getUri());
     Path srcPath = new Path(filePath + Path.SEPARATOR + tmpFileName);
     Path destPath = new Path(filePath + Path.SEPARATOR + fileName);
 
     if (!fs.exists(destPath)) {
       LOG.debug("rename from tmp {} actual {} ", tmpFileName, fileName);
-      fileContext.rename(srcPath, destPath);
+      rename(srcPath, destPath);
     } else if (fs.exists(srcPath)) {
       //if the destination and src both exists that means there was a failure between file rename and clearing the endOffset so
       //we just delete the tmp file.
