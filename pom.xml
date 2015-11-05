@@ -142,6 +142,19 @@
       </build>
     </profile>
     <profile>
+      <id>skip-source-release-attach</id>
+      <activation>
+        <file>
+          <exists>${basedir}/NOTICE</exists>
+        </file>
+      </activation>
+      <properties>
+        <remoteresources.skip>true</remoteresources.skip>
+        <!-- do not push source archives to the repo - see MPOM-90 -->
+        <assembly.attach>false</assembly.attach>
+      </properties>
+    </profile>
+    <profile>
       <id>all-modules</id>
       <modules>
         <module>benchmark</module>
