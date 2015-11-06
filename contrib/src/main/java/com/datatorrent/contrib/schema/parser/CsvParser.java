@@ -59,6 +59,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @displayName CsvParser
  * @category Parsers
  * @tags csv pojo parser
+ * @since 3.2.0
  */
 @InterfaceStability.Evolving
 public class CsvParser extends Parser<String>

@@ -42,6 +42,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @displayName JsonFormatter
  * @category Formatter
  * @tags pojo json formatter
+ * @since 3.2.0
  */
 @InterfaceStability.Evolving
 public class JsonFormatter extends Formatter<String>

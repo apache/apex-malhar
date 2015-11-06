@@ -28,6 +28,8 @@ import com.google.common.base.Preconditions;
 
 /**
  * This represents a {@link TimeBucket} which can be a multiple of a time unit.
+ *
+ * @since 3.2.0
  */
 public class CustomTimeBucket implements Serializable, Comparable<CustomTimeBucket>
 {

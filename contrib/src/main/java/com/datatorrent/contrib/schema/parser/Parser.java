@@ -44,6 +44,7 @@ import com.datatorrent.contrib.converter.Converter;
  * @displayName Parser
  * @tags parser converter
  * @param <INPUT>
+ * @since 3.2.0
  */
 @InterfaceStability.Evolving
 public abstract class Parser<INPUT> extends BaseOperator implements Converter<INPUT, Object>,

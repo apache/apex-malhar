@@ -54,6 +54,8 @@ import com.datatorrent.common.util.BaseOperator;
  * to a different snapshot server.
  *
  * Since the EOF is received by a single operator, this operator cannot be partitionable
+ *
+ * @since 3.2.0
  */
 public class FileWordCount extends BaseOperator
 {

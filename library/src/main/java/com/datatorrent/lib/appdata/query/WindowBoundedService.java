@@ -43,6 +43,8 @@ import com.datatorrent.netlet.util.DTThrowable;
  * <br/><br/>
  * <b>Note:</b> This service cannot be used in operators which allow checkpointing within an
  * application window.
+ *
+ * @since 3.2.0
  */
 public class WindowBoundedService implements Component<OperatorContext>
 {

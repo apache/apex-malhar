@@ -41,6 +41,8 @@ import com.datatorrent.lib.io.block.BlockMetadata;
 
 /**
  * An abstract File Splitter.
+ *
+ * @since 3.2.0
  */
 public abstract class AbstractFileSplitter extends BaseOperator
 {
