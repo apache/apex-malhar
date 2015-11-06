@@ -17,7 +17,7 @@
  * under the License.
  */
 <!--
- --  Copyright (c) 2012-2013 DataTorrent, Inc.
+ --  Copyright (c) 2012-2013 Malhar, Inc.
  --  All Rights Reserved.
  -->
     
@@ -25,7 +25,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Data Torrent : Ads Demo </title>
+<title>Data Torrent : Machine Generated Data Demo </title>
 
 <link rel="stylesheet" type="text/css" href="malhar.css">
 
@@ -45,8 +45,7 @@ function DrawAggrCharts()
 {
   // get refresh url 
   lookback = aggrLookBack; 
-  var url = DataUrl();  
-  //document.getElementById('chart_div').innerHTML = url;
+  var url = DataUrl();        
 
   // fetch data, draw charts
   try
@@ -54,14 +53,16 @@ function DrawAggrCharts()
     var connect = new XMLHttpRequest();
     connect.onreadystatechange = function() {
       if(connect.readyState==4 && connect.status==200) {
+
+console.log(url);
         aggrData = connect.response;
         var pts = JSON.parse(aggrData);
-        aggrDataPoints  = new Array();
+        aggrDataPoints = new Array();
         for(var i=0; i <  pts.length; i++) aggrDataPoints.push(pts[i]);
-        DrawCostChart();
-        DrawRevenueChart();
-        DrawClicksChart();
-        DrawImpressionsChart();
+        DrawCPUChart();
+        DrawRAMChart();
+        DrawHDDChart();
+        //DrawImpressionsChart();
         delete aggrData;
       }
     }
@@ -77,6 +78,7 @@ function DrawContCharts()
   // get refresh url 
   lookback = contLookBack; 
   var url = DataUrl();    
+  //document.getElementById('chart_div').innerHTML = url;
 
   // fetch data, draw charts
   try
@@ -85,8 +87,8 @@ function DrawContCharts()
     connect.onreadystatechange = function() {
       if(connect.readyState==4 && connect.status==200) {
         contData = connect.response;   
-        var newPts = JSON.parse(contData);  
-        contDataPoints  = new Array();
+        var newPts = JSON.parse(contData); 
+        contDataPoints = new Array();
         for(var i=0; i <  newPts.length; i++) contDataPoints.push(newPts[i]);
         DrawCtrChart() ;
         DrawMarginChart();
@@ -107,9 +109,12 @@ window.onload = function() {
   InitializeGlobal();   
 
   // Inituialize form fields  
-  if (params['publisher']) document.getElementById('publisher').value = params['publisher'];
-  if (params['advertiser']) document.getElementById('advertiser').value = params['advertiser'];
-  if (params['adunit']) document.getElementById('adunit').value = params['adunit'];
+  if (params['customer']) document.getElementById('customer').value = params['customer'];
+  if (params['product']) document.getElementById('product').value = params['product'];
+  if (params['os']) document.getElementById('os').value = params['os'];
+  if (params['software1']) document.getElementById('software1').value = params['software1'];
+  if (params['software2']) document.getElementById('software2').value = params['software2'];
+  if (params['software3']) document.getElementById('software3').value = params['software3'];
   if (params['refresh'])
   {
     document.getElementById('refresh').value = params['refresh'];   
@@ -123,12 +128,11 @@ window.onload = function() {
     document.getElementById('lookback').value = 6;
   }
        
-
   // draw charts 
   DrawAggrCharts();
-  DrawContCharts();
+  //DrawContCharts();
   setInterval(DrawAggrCharts, 30000);
-  setInterval(DrawContCharts, contRefresh * 1000);
+  //setInterval(DrawContCharts, contRefresh * 1000);
 };
 
 </script>
@@ -139,11 +143,10 @@ window.onload = function() {
     <div id="header">
         <ul class="dashboard-modes">
             <li>
-                <a href="#" class="active">Ads Dimensions Demo</a>
+                <a href="#" class="active">Machine Generated Data Demo </a>
             </li>
         </ul>
 
-        <div id="logo"><img src="main_banner.png"/></div>
     </div>
 	
 	<div id="main">
@@ -153,36 +156,66 @@ window.onload = function() {
                 <h2 class="title">View Real Time Data Charts</h2> 
                 <form method="GET" action="index.php">
                     
-                    <label for="publisher">Publisher ID:</label>
-                    <select name="publisher" id="publisher" style="width:200px;">
+                    <label for="customer">Customer ID:</label>
+                    <select name="customer" id="customer" style="width:200px;">
                   		<option value="">ALL</option>
                 		<?php
-                   			for ($i = 0; $i < 50; $i++) {
-                  				print "<option value=\"$i\">Publisher $i</option>\n";
+                   			for ($i = 1; $i <= 5; $i++) {
+                  				print "<option value=\"$i\">Customer $i</option>\n";
                 			}
                 		?>
              		</select>
              		
-            		<label for="">Advertiser ID:</label>
-            		<select name="advertiser" id="advertiser" style="width:200px;">
+            		<label for="">Product ID:</label>
+            		<select name="product" id="product" style="width:200px;">
               		    <option value="">ALL</option>
                 		<?php
-                			for ($i = 0; $i < 100; $i++) {
-                  				print "<option value=\"$i\">Advertiser $i</option>\n";
+                			for ($i = 4; $i <= 6; $i++) {
+                  				print "<option value=\"$i\">Product $i</option>\n";
                 			}
                 		?>
             		</select>
         		
-        		    <label for="">Ad Unit:</label>
-            		<select name="adunit" id="adunit" style="width:200px;">
+        		    <label for="">Product OS:</label>
+            		<select name="os" id="os" style="width:200px;">
               		    <option value="">ALL</option>
         		        <?php
-                			for ($i = 0; $i < 5; $i++) {
-                  				print "<option value=\"$i\">Adunit $i</option>\n";
+                			for ($i = 10; $i <= 12; $i++) {
+                  				print "<option value=\"$i\">OS $i</option>\n";
                 			}
         	            ?>
             		</select>
             		
+                    <label for="software1">Software1 Ver:</label>
+                    <select name="software1" id="software1" style="width:200px;">
+                  		<option value="">ALL</option>
+                		<?php
+                   			for ($i = 10; $i <= 12; $i++) {
+                  				print "<option value=\"$i\">Software1 Version $i</option>\n";
+                			}
+                		?>
+             		</select>
+
+                    <label for="software2">Software2 Ver:</label>
+                    <select name="software2" id="software2" style="width:200px;">
+                  		<option value="">ALL</option>
+                		<?php
+                   			for ($i = 12; $i <= 14; $i++) {
+                  				print "<option value=\"$i\">Software2 Version $i</option>\n";
+                			}
+                		?>
+             		</select>
+
+                    <label for="software3">Software3 Ver:</label>
+                    <select name="software3" id="software3" style="width:200px;">
+                  		<option value="">ALL</option>
+                		<?php
+                   			for ($i = 4; $i <= 6; $i++) {
+                  				print "<option value=\"$i\">Software3 Version $i</option>\n";
+                			}
+                		?>
+             		</select>
+
             		<label for="">Refresh Interval:</label>
             		<div class="input-append">
                         <input type="text" name="refresh" id="refresh" class="input-small"/>
@@ -217,19 +250,19 @@ window.onload = function() {
                  </tr>
                  <tr>
         	     <td><div id="chart2_div" ></div></td>	
-        	     <td><div id="chart3_div" ></div></td>	
+        	     <td><div id="chart3_div" ></div></td>
                  </tr>
                  <tr>
         	   <td><div id="chart4_div" ></div></td>	
         	    <td><div id="chart5_div" ></div></td>	
                  </tr>
         	 </tr></tbody></table> -->
-	<div class="chart-ctnr" id="chart_div"></div>
+    	<div class="chart-ctnr" id="chart_div"></div>
         <div class="chart-ctnr" id="chart1_div" ></div>	
         <div class="chart-ctnr" id="chart2_div" ></div>	
-        <div class="chart-ctnr" id="chart3_div" ></div>	
+<!--        <div class="chart-ctnr" id="chart3_div" ></div>
         <div class="chart-ctnr" id="chart4_div" ></div>	
-        <div class="chart-ctnr" id="chart5_div" ></div>
+        <div class="chart-ctnr" id="chart5_div" ></div> -->
         </div>		
 </body>
 </html>
