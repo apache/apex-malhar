@@ -738,10 +738,17 @@ public class DimensionalConfigurationSchema
     timeBuckets = Lists.newArrayList();
     customTimeBuckets = Lists.newArrayList();
 
-    JSONArray timeBucketsJSON = jo.getJSONArray(FIELD_TIME_BUCKETS);
+    JSONArray timeBucketsJSON;
 
-    if(timeBucketsJSON.length() == 0) {
-      throw new IllegalArgumentException("A time bucket must be specified.");
+    if (!jo.has(FIELD_TIME_BUCKETS)) {
+      timeBucketsJSON = new JSONArray();
+      timeBucketsJSON.put(TimeBucket.ALL.getText());
+    } else {
+      timeBucketsJSON = jo.getJSONArray(FIELD_TIME_BUCKETS);
+
+      if (timeBucketsJSON.length() == 0) {
+        throw new IllegalArgumentException("A time bucket must be specified.");
+      }
     }
 
     customTimeBucketRegistry = new CustomTimeBucketRegistry(STARTING_TIMEBUCKET_ID);
@@ -756,7 +763,7 @@ public class DimensionalConfigurationSchema
         throw new IllegalArgumentException("The bucket " + customTimeBucket.getText() + " was defined twice.");
       }
 
-      if (customTimeBucket.isUnit()) {
+      if (customTimeBucket.isUnit() || customTimeBucket.getTimeBucket() == TimeBucket.ALL) {
         timeBuckets.add(customTimeBucket.getTimeBucket());
         customTimeBucketRegistry.register(customTimeBucket, customTimeBucket.getTimeBucket().ordinal());
       } else {

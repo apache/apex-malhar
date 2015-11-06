@@ -32,6 +32,7 @@ import com.datatorrent.lib.appdata.schemas.QRBase;
 import com.datatorrent.lib.appdata.schemas.Query;
 import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
+import com.datatorrent.lib.appdata.schemas.TimeBucket;
 import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 
 /**
@@ -144,6 +145,8 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
       else {
         bucket = gsd.getDimensionalConfigurationSchema().getCustomTimeBuckets().get(0);
       }
+    } else {
+      bucket = new CustomTimeBucket(TimeBucket.ALL);
     }
 
     //// Keys

@@ -63,10 +63,10 @@
     <name>dt.application.AdsDimensionsDemoGeneric.operator.Store.fileStore.basePathPrefix</name>
     <value>AdsDimensionsDemo/Store</value>
   </property>
-  <!--<property>
+  <property>
     <name>dt.application.AdsDimensionsDemoGeneric.operator.Store.embeddableQueryInfoProvider.topic</name>
     <value>AdsQueryGenericDemo</value>
-  </property>-->
+  </property>
   <property>
     <name>dt.application.AdsDimensionsDemoGeneric.operator.QueryResult.topic</name>
     <value>AdsQueryGenericResultDemo</value>
@@ -90,6 +90,45 @@
   <property>
     <name>dt.application.AdsDimensionsDemoGeneric.operator.DimensionsComputation.attr.MEMORY_MB</name>
     <value>16384</value>
+  </property>
+
+  <!-- Settings for AdsDimensionsDemoGeneric -->
+
+  <property>
+    <name>dt.application.AdsDimensionsDemoNoTime.operator.InputGenerator.numTuplesPerWindow</name>
+    <value>2500</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoNoTime.operator.Store.fileStore.basePathPrefix</name>
+    <value>AdsDimensionsDemo/Store</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoNoTime.operator.Store.embeddableQueryInfoProvider.topic</name>
+    <value>AdsQueryGenericDemoNoTime</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoNoTime.operator.QueryResult.topic</name>
+    <value>AdsQueryGenericResultDemoNoTime</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoNoTime.operator.QueryResult.numRetries</name>
+    <value>2147483647</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoNoTime.operator.DimensionsComputation.port.input.attr.PARTITION_PARALLEL</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoNoTime.operator.InputGenerator.attr.PARTITIONER</name>
+    <value>com.datatorrent.common.partitioner.StatelessPartitioner:8</value>
+  </property>
+  <property>
+    <value>dt.application.AdsDimensionsDemoNoTime.operator.InputGenerator.attr.MEMORY_MB</value>
+    <name>16384</name>
+  </property>
+  <property>
+    <value>dt.application.AdsDimensionsDemoNoTime.operator.DimensionsComputation.attr.MEMORY_MB</value>
+    <name>16384</name>
   </property>
 
   <!-- Settings for AdsDimensionsDemoGeneric -->
