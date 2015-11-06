@@ -38,6 +38,7 @@ import com.thoughtworks.xstream.io.xml.XppDriver;
  * @displayName XmlParser
  * @category Formatter
  * @tags xml pojo formatter
+ * @since 3.2.0
  */
 @InterfaceStability.Evolving
 public class XmlFormatter extends Formatter<String>

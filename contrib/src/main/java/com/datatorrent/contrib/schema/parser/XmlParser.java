@@ -41,6 +41,7 @@ import com.datatorrent.api.Context;
  * @displayName XmlParser
  * @category Parsers
  * @tags xml pojo parser
+ * @since 3.2.0
  */
 @InterfaceStability.Evolving
 public class XmlParser extends Parser<String>

@@ -27,6 +27,7 @@ import org.apache.hadoop.classification.InterfaceStability;
  * 
  * @param <INPUT>
  * @param <OUTPUT>
+ * @since 3.2.0
  */
 @InterfaceStability.Evolving
 public interface Converter<INPUT, OUTPUT>

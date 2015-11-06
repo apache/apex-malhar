@@ -53,6 +53,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @displayName CsvFormatter
  * @category Formatter
  * @tags pojo csv formatter
+ * @since 3.2.0
  */
 @InterfaceStability.Evolving
 public class CsvFormatter extends Formatter<String>

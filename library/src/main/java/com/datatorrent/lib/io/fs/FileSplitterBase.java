@@ -36,6 +36,8 @@ import com.datatorrent.api.Operator;
 
 /**
  * A file splitter that receives its input from an upstream operator.
+ *
+ * @since 3.2.0
  */
 public class FileSplitterBase extends AbstractFileSplitter implements Operator.IdleTimeHandler
 {

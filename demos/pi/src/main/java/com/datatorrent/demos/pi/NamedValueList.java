@@ -37,6 +37,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * <p>
  * @displayNamed Value
  * @tags count
+ * @since 3.2.0
  */
 public class NamedValueList<T> extends BaseOperator
 {

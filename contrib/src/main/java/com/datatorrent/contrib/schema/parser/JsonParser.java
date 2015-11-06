@@ -42,6 +42,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @displayName JsonParser
  * @category Parsers
  * @tags json pojo parser
+ * @since 3.2.0
  */
 @InterfaceStability.Evolving
 public class JsonParser extends Parser<String>
