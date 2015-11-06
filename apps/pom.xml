@@ -29,7 +29,7 @@
   </parent>
 
   <artifactId>malhar-apps</artifactId>
-  <name>Apache Apex Malhar Apps</name>
+  <name>Apache Apex Malhar (incubating) Apps</name>
   <packaging>pom</packaging>
 
   <modules>

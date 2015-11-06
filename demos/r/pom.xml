@@ -25,7 +25,7 @@
   <artifactId>r-demo</artifactId>
   <packaging>jar</packaging>
 
- <name>Apache Apex Malhar R Demo</name>
+ <name>Apache Apex Malhar (incubating) R Demo</name>
   <description>DataTorrent demo applications for using R.</description>
 
   <parent>

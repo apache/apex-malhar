@@ -25,7 +25,7 @@
   <artifactId>mrmonitor</artifactId>
   <packaging>jar</packaging>
 
-  <name>Apache Apex Malhar MR Monitoring Demo</name>
+  <name>Apache Apex Malhar (incubating) MR Monitoring Demo</name>
   <description></description>
 
   <parent>

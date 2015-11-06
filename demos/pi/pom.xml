@@ -25,7 +25,7 @@
   <artifactId>pi-demo</artifactId>
   <packaging>jar</packaging>
 
-  <name>Apache Apex Malhar Pi Demo</name>
+  <name>Apache Apex Malhar (incubating) Pi Demo</name>
   <description>DataTorrent demo applications that calculate the value of Pi. This is a starting point to understand how DataTorrent works.</description>
 
   <parent>

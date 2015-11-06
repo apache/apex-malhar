@@ -37,7 +37,7 @@
     <semver.plugin.skip>true</semver.plugin.skip>
   </properties>
 
-  <name>Apache Apex Malhar Logstream Application</name>
+  <name>Apache Apex Malhar (incubating) Logstream Application</name>
 
   <build>
     <plugins>

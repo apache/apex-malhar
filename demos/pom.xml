@@ -30,7 +30,7 @@
 
   <artifactId>malhar-demos</artifactId>
   <packaging>pom</packaging>
-  <name>Apache Apex Malhar Demos</name>
+  <name>Apache Apex Malhar (incubating) Demos</name>
 
   <properties>
     <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>

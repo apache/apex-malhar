@@ -32,7 +32,7 @@
   <artifactId>malhar-samples</artifactId>
   <packaging>jar</packaging>
 
-  <name>Apache Apex Malhar Samples</name>
+  <name>Apache Apex Malhar (incubating) Samples</name>
 
   <dependencies>
     <dependency>
