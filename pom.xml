@@ -56,6 +56,23 @@
                 <onlyBinaryIncompatible>false</onlyBinaryIncompatible>
                 <includeSynthetic>false</includeSynthetic>
                 <ignoreMissingClasses>true</ignoreMissingClasses>
+                <excludes>
+                  <exclude>com.datatorrent.lib.appdata.schemas.DataResultDimensional#getQuery()</exclude>
+                  <exclude>com.datatorrent.lib.bucket.AbstractBucketManager#clone()</exclude>
+                  <exclude>com.datatorrent.lib.bucket.AbstractTimeBasedBucketManager#clone()</exclude>
+                  <exclude>com.datatorrent.lib.bucket.AbstractTimeBasedBucketManager#cloneWithProperties()</exclude>
+                  <exclude>com.datatorrent.lib.bucket.BucketManagerImpl#cloneWithProperties()</exclude>
+                  <exclude>com.datatorrent.lib.bucket.BucketManagerImpl#createBucket(long)</exclude>
+                  <exclude>com.datatorrent.lib.bucket.HdfsBucketStore#clone()</exclude>
+                  <exclude>com.datatorrent.lib.bucket.NonOperationalBucketStore#clone()</exclude>
+                  <exclude>com.datatorrent.lib.statistics.DimensionsComputation.ExternalizableSerializer#read(com.esotericsoftware.kryo.Kryo,com.esotericsoftware.kryo.io.Input, java.lang.Class)</exclude>
+                  <exclude>com.datatorrent.lib.bucket.TimeBasedBucketManagerPOJOImpl#createBucket(long)</exclude>
+                  <exclude>com.datatorrent.lib.dedup.DeduperPOJOImpl#getBucketManager()</exclude>
+                  <exclude>com.datatorrent.lib.bucket.ExpirableHdfsBucketStore#clone()</exclude>
+                  <exclude>com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl#createBucket(long)</exclude>
+                  <exclude>com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl#getInputStream(long,java.lang.String)</exclude>
+                  <exclude>com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl#getOutputStream(long,java.lang.String)</exclude>
+                </excludes>
               </parameter>
               <skip>${semver.plugin.skip}</skip>
             </configuration>
