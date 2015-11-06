@@ -32,7 +32,7 @@
   <artifactId>malhar-library</artifactId>
   <packaging>jar</packaging>
 
-  <name>Apache Apex Malhar Library</name>
+  <name>Apache Apex Malhar (incubating) Library</name>
 
   <properties>
     <maven.deploy.skip>false</maven.deploy.skip>

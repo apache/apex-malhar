@@ -25,7 +25,7 @@
   <artifactId>distributedistinct</artifactId>
   <packaging>jar</packaging>
 
-  <name>Apache Apex Malhar Distributed Distinct Demo</name>
+  <name>Apache Apex Malhar (incubating) Distributed Distinct Demo</name>
   <description></description>
 
   <parent>

@@ -32,7 +32,7 @@
   <packaging>jar</packaging>
 
   <!-- change these to the appropriate values -->
-  <name>Apache Apex Malhar EchoServer Demo</name>
+  <name>Apache Apex Malhar (incubating) EchoServer Demo</name>
   <description>A demo server that echos data sent by a network client back to it</description>
 </project>
 

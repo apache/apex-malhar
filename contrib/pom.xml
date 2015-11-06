@@ -29,7 +29,7 @@
   </parent>
 
   <artifactId>malhar-contrib</artifactId>
-  <name>Apache Apex Malhar Contrib Library</name>
+  <name>Apache Apex Malhar (incubating) Contrib Library</name>
   <packaging>jar</packaging>
 
   <properties>
