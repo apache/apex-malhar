@@ -154,6 +154,9 @@ public class DTFileTest
     FSDataInputStream fsdis = fs.open(path);
 
     CacheManager.setEnableStats(true);
+    if (CacheManager.getCache() != null) {
+      CacheManager.getCache().invalidateAll();
+    }
     Assert.assertEquals("Cache Contains no block", CacheManager.getCacheSize(), 0);
 
     DTFile.Reader reader = new DTFile.Reader(fsdis, fs.getFileStatus(path).getLen(), conf);
