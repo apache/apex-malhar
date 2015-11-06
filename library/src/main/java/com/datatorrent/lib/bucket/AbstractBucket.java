@@ -17,6 +17,7 @@ package com.datatorrent.lib.bucket;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -225,4 +226,16 @@ public abstract class AbstractBucket<T>
    */
   protected abstract Object getEventKey(T event);
 
+  /**
+   * Returns the keys of all written events in the bucket
+   *
+   * @return Set of keys for written events
+   */
+  public Set<Object> getWrittenEventKeys()
+  {
+    if (writtenEvents != null) {
+      return writtenEvents.keySet();
+    }
+    return null;
+  }
 }

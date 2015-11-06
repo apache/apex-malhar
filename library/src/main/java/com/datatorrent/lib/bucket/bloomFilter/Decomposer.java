@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2015 DataTorrent, Inc.
+ * All rights reserved.
+ */
 package com.datatorrent.lib.bucket.bloomFilter;
 
 import java.nio.charset.Charset;
@@ -18,29 +22,29 @@ public interface Decomposer<T>
    * @param object
    *          the object to be decomposed
    */
-  public byte[] decompose(T object);
-}
+  byte[] decompose(T object);
 
-class DefaultDecomposer<T> implements Decomposer<T>
-{
-  /**
-   * The default platform encoding
-   */
-  private static final Charset DEFAULT_CHARSET = Charset.defaultCharset();
-
-  /**
-   * Decompose the object
-   */
-  @Override
-  public byte[] decompose(T object)
+  public class DefaultDecomposer<T> implements Decomposer<T>
   {
-    if (object == null) {
-      return null;
-    }
-    if (object instanceof String) {
-      return (((String)object).getBytes(DEFAULT_CHARSET));
-    }
-    return (object.toString().getBytes(DEFAULT_CHARSET));
-  }
+    /**
+     * The default platform encoding
+     */
+    private static final Charset DEFAULT_CHARSET = Charset.defaultCharset();
 
+    /**
+     * Decompose the object
+     */
+    @Override
+    public byte[] decompose(T object)
+    {
+      if (object == null) {
+        return null;
+      }
+      if (object instanceof String) {
+        return (((String)object).getBytes(DEFAULT_CHARSET));
+      }
+      return (object.toString().getBytes(DEFAULT_CHARSET));
+    }
+
+  }
 }

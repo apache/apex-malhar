@@ -1,11 +1,16 @@
+/**
+ * Copyright (c) 2015 DataTorrent, Inc.
+ * All rights reserved.
+ */
 package com.datatorrent.lib.bucket.bloomFilter;
-
-import com.esotericsoftware.kryo.serializers.FieldSerializer.Bind;
-import com.esotericsoftware.kryo.serializers.JavaSerializer;
 
 import java.io.Serializable;
 import java.util.BitSet;
 import java.util.Collection;
+
+import com.esotericsoftware.kryo.serializers.FieldSerializer.Bind;
+import com.esotericsoftware.kryo.serializers.JavaSerializer;
+import com.sangupta.murmur.Murmur3;
 
 /**
  * A Bloom Filter implementation
@@ -23,11 +28,10 @@ public class BloomFilter<T> implements Serializable
   private int numberOfAddedElements; // number of elements actually added to the Bloom filter
   private int numberOfHashes; // number of hash functions
   protected transient HashFunction hasher = new HashFunction();
-  protected transient Decomposer<T> customDecomposer = new DefaultDecomposer<T>();
+  protected transient Decomposer<T> customDecomposer = new Decomposer.DefaultDecomposer<T>();
 
   /**
-   * Set the attributes to the empty Bloom filter. The total length of the Bloom
-   * filter will be c*n.
+   * Set the attributes to the empty Bloom filter. The total length of the Bloom filter will be c*n.
    *
    * @param c
    *          is the number of bits used per element.
@@ -63,8 +67,7 @@ public class BloomFilter<T> implements Serializable
   }
 
   /**
-   * Constructs an empty Bloom filter with a given decomposer and false positive
-   * probability..
+   * Constructs an empty Bloom filter with a given decomposer and false positive probability..
    *
    * @param expectedNumberOfElements
    *          is the expected number of elements the filter will contain.
@@ -86,8 +89,7 @@ public class BloomFilter<T> implements Serializable
   }
 
   /**
-   * Generate integer array based on the hash function till the number of
-   * hashes.
+   * Generate integer array based on the hash function till the number of hashes.
    *
    * @param data
    *          specifies input data.
@@ -111,8 +113,8 @@ public class BloomFilter<T> implements Serializable
   }
 
   /**
-   * Calculates the expected probability of false positives based on the number
-   * of expected filter elements and the size of the Bloom filter.
+   * Calculates the expected probability of false positives based on the number of expected filter elements and the size
+   * of the Bloom filter.
    *
    * @return expected probability of false positives.
    */
@@ -122,8 +124,7 @@ public class BloomFilter<T> implements Serializable
   }
 
   /**
-   * Calculate the probability of a false positive given the specified number of
-   * inserted elements.
+   * Calculate the probability of a false positive given the specified number of inserted elements.
    *
    * @param numberOfElements
    *          number of inserted elements.
@@ -136,9 +137,8 @@ public class BloomFilter<T> implements Serializable
   }
 
   /**
-   * Get the current probability of a false positive. The probability is
-   * calculated from the size of the Bloom filter and the current number of
-   * elements added to it.
+   * Get the current probability of a false positive. The probability is calculated from the size of the Bloom filter
+   * and the current number of elements added to it.
    *
    * @return probability of false positives.
    */
@@ -150,8 +150,8 @@ public class BloomFilter<T> implements Serializable
   /**
    * Returns the value chosen for numberOfHashes.<br />
    * <br />
-   * numberOfHashes is the optimal number of hash functions based on the size of
-   * the Bloom filter and the expected number of inserted elements.
+   * numberOfHashes is the optimal number of hash functions based on the size of the Bloom filter and the expected
+   * number of inserted elements.
    *
    * @return optimal numberOfHashes.
    */
@@ -170,8 +170,8 @@ public class BloomFilter<T> implements Serializable
   }
 
   /**
-   * Adds an object to the Bloom filter. The output from the object's toString()
-   * method is used as input to the hash functions.
+   * Adds an object to the Bloom filter. The output from the object's toString() method is used as input to the hash
+   * functions.
    *
    * @param tuple
    *          is an element to register in the Bloom filter.
@@ -197,9 +197,8 @@ public class BloomFilter<T> implements Serializable
   }
 
   /**
-   * Returns true if the element could have been inserted into the Bloom filter.
-   * Use getFalsePositiveProbability() to calculate the probability of this
-   * being correct.
+   * Returns true if the element could have been inserted into the Bloom filter. Use getFalsePositiveProbability() to
+   * calculate the probability of this being correct.
    *
    * @param element
    *          element to check.
@@ -211,9 +210,8 @@ public class BloomFilter<T> implements Serializable
   }
 
   /**
-   * Returns true if the array of bytes could have been inserted into the Bloom
-   * filter. Use getFalsePositiveProbability() to calculate the probability of
-   * this being correct.
+   * Returns true if the array of bytes could have been inserted into the Bloom filter. Use
+   * getFalsePositiveProbability() to calculate the probability of this being correct.
    *
    * @param bytes
    *          array of bytes to check.
@@ -231,14 +229,12 @@ public class BloomFilter<T> implements Serializable
   }
 
   /**
-   * Returns true if all the elements of a Collection could have been inserted
-   * into the Bloom filter. Use getFalsePositiveProbability() to calculate the
-   * probability of this being correct.
+   * Returns true if all the elements of a Collection could have been inserted into the Bloom filter. Use
+   * getFalsePositiveProbability() to calculate the probability of this being correct.
    *
    * @param c
    *          elements to check.
-   * @return true if all the elements in c could have been inserted into the
-   *         Bloom filter.
+   * @return true if all the elements in c could have been inserted into the Bloom filter.
    */
   public boolean containsAll(Collection<? extends T> c)
   {
@@ -291,8 +287,7 @@ public class BloomFilter<T> implements Serializable
   }
 
   /**
-   * Returns the number of bits in the Bloom filter. Use count() to retrieve the
-   * number of inserted elements.
+   * Returns the number of bits in the Bloom filter. Use count() to retrieve the number of inserted elements.
    *
    * @return the size of the bitset used by the Bloom filter.
    */
@@ -302,8 +297,7 @@ public class BloomFilter<T> implements Serializable
   }
 
   /**
-   * Returns the number of elements added to the Bloom filter after it was
-   * constructed or after clear() was called.
+   * Returns the number of elements added to the Bloom filter after it was constructed or after clear() was called.
    *
    * @return number of elements added to the Bloom filter.
    */
@@ -313,8 +307,8 @@ public class BloomFilter<T> implements Serializable
   }
 
   /**
-   * Returns the expected number of elements to be inserted into the filter.
-   * This value is the same value as the one passed to the constructor.
+   * Returns the expected number of elements to be inserted into the filter. This value is the same value as the one
+   * passed to the constructor.
    *
    * @return expected number of elements.
    */
@@ -324,9 +318,8 @@ public class BloomFilter<T> implements Serializable
   }
 
   /**
-   * Get expected number of bits per element when the Bloom filter is full. This
-   * value is set by the constructor when the Bloom filter is created. See also
-   * getBitsPerElement().
+   * Get expected number of bits per element when the Bloom filter is full. This value is set by the constructor when
+   * the Bloom filter is created. See also getBitsPerElement().
    *
    * @return expected number of bits per element.
    */
@@ -336,9 +329,8 @@ public class BloomFilter<T> implements Serializable
   }
 
   /**
-   * Get actual number of bits per element based on the number of elements that
-   * have currently been inserted and the length of the Bloom filter. See also
-   * getExpectedBitsPerElement().
+   * Get actual number of bits per element based on the number of elements that have currently been inserted and the
+   * length of the Bloom filter. See also getExpectedBitsPerElement().
    *
    * @return number of bits per element.
    */
@@ -368,5 +360,23 @@ public class BloomFilter<T> implements Serializable
   public void setCustomDecomposer(Decomposer<T> customDecomposer)
   {
     this.customDecomposer = customDecomposer;
+  }
+
+  class HashFunction
+  {
+    private static final long SEED = 0x7f3a21eaL;
+
+    /**
+     * Return the hash of the bytes as long.
+     *
+     * @param bytes
+     *          the bytes to be hashed
+     *
+     * @return the generated hash value
+     */
+    public long hash(byte[] bytes)
+    {
+      return Murmur3.hash_x64_128(bytes, 0, SEED)[0];
+    }
   }
 }

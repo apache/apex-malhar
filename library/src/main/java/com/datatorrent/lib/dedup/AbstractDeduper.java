@@ -31,6 +31,7 @@ import com.google.common.collect.Sets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.apache.commons.lang.mutable.MutableLong;
 
 import com.datatorrent.lib.bucket.AbstractBucket;
@@ -41,6 +42,7 @@ import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.netlet.util.DTThrowable;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -94,7 +96,6 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
     {
       processTuple(tuple);
     }
-
   };
   /**
    * The output port on which deduped events are emitted.
@@ -121,6 +122,16 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
   private transient long currentWindow;
   @Min(1)
   private int partitionCount = 1;
+
+  // Deduper Auto Metrics
+  @AutoMetric
+  protected long uniqueEvents;
+  @AutoMetric
+  protected long duplicateEvents;
+  @AutoMetric
+  protected long expiredEvents;
+  @AutoMetric
+  protected long errorEvents;
 
   public AbstractDeduper()
   {
@@ -169,48 +180,130 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
   public void beginWindow(long l)
   {
     currentWindow = l;
+
+    // Reset Dedup Metrics
+    uniqueEvents = 0;
+    duplicateEvents = 0;
+    expiredEvents = 0;
+    errorEvents = 0;
+
+    // Reset Bucket Metrics
+    ((AbstractBucketManager<INPUT>)bucketManager).setBucketsInMemory(0);
+    ((AbstractBucketManager<INPUT>)bucketManager).setDeletedBuckets(0);
+    ((AbstractBucketManager<INPUT>)bucketManager).setEventsInMemory(0);
+    ((AbstractBucketManager<INPUT>)bucketManager).setEvictedBuckets(0);
+    ((AbstractBucketManager<INPUT>)bucketManager).setEventsCommittedLastWindow(0);
+    ((AbstractBucketManager<INPUT>)bucketManager).setStartOfBuckets(0);
+    ((AbstractBucketManager<INPUT>)bucketManager).setEndOfBuckets(0);
   }
 
-  // This method can be overriden in implementation of Deduper.
+  /**
+   * Processes an incoming tuple
+   *
+   * @param tuple
+   */
   protected void processTuple(INPUT tuple)
   {
     long bucketKey = bucketManager.getBucketKeyFor(tuple);
-      if (bucketKey < 0) {
-        return;
-      } //ignore event
+    if (bucketKey < 0) {
+      processInvalid(tuple, bucketKey);
+      return;
+    } //ignore event
 
-      AbstractBucket<INPUT> bucket = bucketManager.getBucket(bucketKey);
+    AbstractBucket<INPUT> bucket = bucketManager.getBucket(bucketKey);
+    processValid(tuple, bucket, bucketKey);
+  }
 
-      if (bucket != null && !waitingEvents.containsKey(bucketKey) && bucket.containsEvent(tuple)) {
-        counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
-        duplicates.emit(tuple);
-        return;
-      } //ignore event
+  /**
+   * Processes invalid tuples.
+   *
+   * @param tuple
+   * @param bucketKey
+   */
+  protected void processInvalid(INPUT tuple, long bucketKey)
+  {
+  }
 
-      if (bucket != null && !waitingEvents.containsKey(bucketKey) && bucket.isDataOnDiskLoaded()) {
-        bucketManager.newEvent(bucketKey, tuple);
-        output.emit(convert(tuple));
-      }
-      else {
-        /**
-         * The bucket on disk is not loaded. So we load the bucket from the disk.
-         * Before that we check if there is a pending request to load the bucket and in that case we
-         * put the event in a waiting list.
-         */
-        boolean doLoadFromDisk = false;
-        List<INPUT> waitingList = waitingEvents.get(bucketKey);
-        if (waitingList == null) {
-          waitingList = Lists.newArrayList();
-          waitingEvents.put(bucketKey, waitingList);
-          doLoadFromDisk = true;
-        }
-        waitingList.add(tuple);
+  /**
+   * Processes a valid (non-expired) tuple. This tuple may be a unique or a duplicate. In case a decision cannot be made
+   * due to unavailability of buckets in memory, the tuple waits until the bucket is loaded.
+   *
+   * @param tuple
+   *          The tuple to be processed
+   * @param bucket
+   *          The in-memory bucket in which the tuple belongs
+   * @param bucketKey
+   *          The bucket key of the bucket
+   */
+  protected void processValid(INPUT tuple, AbstractBucket<INPUT> bucket, long bucketKey)
+  {
+    if (bucket != null && !waitingEvents.containsKey(bucketKey) && bucket.containsEvent(tuple)
+        && bucket.isDataOnDiskLoaded()) {
+      processDuplicate(tuple, bucket);
+    } else if (bucket != null && !waitingEvents.containsKey(bucketKey) && bucket.isDataOnDiskLoaded()) {
+      bucketManager.newEvent(bucketKey, tuple);
+      processUnique(tuple, bucket);
+    } else {
+      processWaitingEvent(tuple, bucket, bucketKey);
+    }
+  }
 
-        if (doLoadFromDisk) {
-          //Trigger the storage manager to load bucketData for this bucket key. This is a non-blocking call.
-          bucketManager.loadBucketData(bucketKey);
-        }
-      }
+  /**
+   * Processes the duplicate tuple.
+   *
+   * @param tuple
+   *          The tuple which is a duplicate
+   * @param bucket
+   *          The bucket to which the tuple belongs
+   */
+  protected void processDuplicate(INPUT tuple, AbstractBucket<INPUT> bucket)
+  {
+    counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
+    duplicateEvents++;
+    duplicates.emit(tuple);
+  }
+
+  /**
+   * Processes the unique tuple.
+   *
+   * @param tuple
+   *          The tuple which is a unique
+   * @param bucket
+   *          The bucket to which the tuple belongs
+   */
+  protected void processUnique(INPUT tuple, AbstractBucket<INPUT> bucket)
+  {
+    uniqueEvents++;
+    output.emit(convert(tuple));
+  }
+
+  /**
+   * Processes a tuple which needs to wait for its bucket to be loaded. Triggers load of the corresponding bucket and
+   * adds the tuple in a waiting queue {@link #waitingEvents} The bucket is loaded from the disk. Before that we check
+   * if there is a pending request to load the bucket and in that case we put the event in a waiting list.
+   *
+   * @param tuple
+   *          The tuple which needs to wait
+   * @param bucket
+   *          The bucket to which the tuple belongs
+   * @param bucketKey
+   *          The key of the bucket
+   */
+  protected void processWaitingEvent(INPUT tuple, AbstractBucket<INPUT> bucket, long bucketKey)
+  {
+    boolean doLoadFromDisk = false;
+    List<INPUT> waitingList = waitingEvents.get(bucketKey);
+    if (waitingList == null) {
+      waitingList = Lists.newArrayList();
+      waitingEvents.put(bucketKey, waitingList);
+      doLoadFromDisk = true;
+    }
+    waitingList.add(tuple);
+
+    if (doLoadFromDisk) {
+      //Trigger the storage manager to load bucketData for this bucket key. This is a non-blocking call.
+      bucketManager.loadBucketData(bucketKey);
+    }
   }
 
   @Override
@@ -231,7 +324,9 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
   @Override
   public void handleIdleTime()
   {
-    if (fetchedBuckets.isEmpty()) {
+    if (!fetchedBuckets.isEmpty()) {
+      processAuxiliary();
+    } else {
       /* nothing to do here, so sleep for a while to avoid busy loop */
       try {
         Thread.sleep(sleepTimeMillis);
@@ -240,7 +335,15 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
         throw new RuntimeException(ie);
       }
     }
-    else {
+  }
+
+  /**
+   * Does any auxiliary processing in the idle time of the operator. This processes waiting tuples which have their
+   * buckets loaded in memory and can be processed.
+   */
+  protected void processAuxiliary()
+  {
+    if (!fetchedBuckets.isEmpty()) {
       /**
        * Remove all the events from waiting list whose buckets are loaded.
        * Process these events again.
@@ -251,17 +354,16 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
         if (waitingList != null) {
           for (INPUT event : waitingList) {
             if (!bucket.containsEvent(event)) {
-              if(bucketManager.getBucketKeyFor(event) < 0){ // This event will be expired after all tuples in this window are finished processing.
-                bucketManager.addEventToBucket(bucket, event); // Temporarily add the event to this bucket, so as to deduplicate within this window.
-              }
-              else{
+              if (bucketManager.getBucketKeyFor(event) < 0) {
+                // This event will be expired after all tuples in this window are finished processing.
+                // Temporarily add the event to this bucket, so as to deduplicate within this window.
+                bucketManager.addEventToBucket(bucket, event);
+              } else {
                 bucketManager.newEvent(bucket.bucketKey, event);
               }
-              output.emit(convert(event));
-            }
-            else {
-              counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
-              duplicates.emit(event);
+              processUnique(event, bucket);
+            } else {
+              processDuplicate(event, bucket);
             }
           }
         }
@@ -283,6 +385,14 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
    */
   @Override
   public void bucketOffLoaded(long bucketKey)
+  {
+  }
+
+  /**
+   * {@inheritDoc}}
+   */
+  @Override
+  public void bucketDeleted(long bucketKey)
   {
   }
 
@@ -458,6 +568,16 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
     return "Deduper{" + "partitionKeys=" + partitionKeys + ", partitionMask=" + partitionMask + '}';
   }
 
+  public OperatorContext getContext()
+  {
+    return context;
+  }
+
+  public long getCurrentWindow()
+  {
+    return currentWindow;
+  }
+
   public static enum CounterKeys
   {
     DUPLICATE_EVENTS
@@ -492,6 +612,43 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
 
     private static final long serialVersionUID = 201404082336L;
     protected static transient final Logger logger = LoggerFactory.getLogger(CountersListener.class);
+  }
+
+  // Bucket Manager Metrics
+  @AutoMetric
+  public long getDeletedBuckets()
+  {
+    return ((AbstractBucketManager<INPUT>)bucketManager).getDeletedBuckets();
+  }
+
+  @AutoMetric
+  public long getEvictedBuckets()
+  {
+    return ((AbstractBucketManager<INPUT>)bucketManager).getEvictedBuckets();
+  }
+
+  @AutoMetric
+  public long getEventsInMemory()
+  {
+    return ((AbstractBucketManager<INPUT>)bucketManager).getEventsInMemory();
+  }
+
+  @AutoMetric
+  public long getEventsCommittedLastWindow()
+  {
+    return ((AbstractBucketManager<INPUT>)bucketManager).getEventsCommittedLastWindow();
+  }
+
+  @AutoMetric
+  public long getEndOfBuckets()
+  {
+    return ((AbstractBucketManager<INPUT>)bucketManager).getEndOfBuckets();
+  }
+
+  @AutoMetric
+  public long getStartOfBuckets()
+  {
+    return ((AbstractBucketManager<INPUT>)bucketManager).getStartOfBuckets();
   }
 
   private final static Logger logger = LoggerFactory.getLogger(AbstractDeduper.class);

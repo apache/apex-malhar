@@ -252,6 +252,7 @@ public class HdfsBucketStore<T> implements BucketStore<T>
 
   /**
    * {@inheritDoc}
+   *
    * @throws java.io.IOException
    */
   @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
@@ -265,25 +266,26 @@ public class HdfsBucketStore<T> implements BucketStore<T>
         synchronized (indices) {
           boolean elementRemoved = indices.remove(bucketIdx);
           if (indices.isEmpty() && elementRemoved) {
-            Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + window);
-            FileSystem fs = FileSystem.newInstance(dataFilePath.toUri(), configuration);
-            try {
-              if (fs.exists(dataFilePath)) {
-                logger.debug("start delete {}", window);
-                fs.delete(dataFilePath, true);
-                logger.debug("end delete {}", window);
-              }
-              windowToBuckets.removeAll(window);
-              windowToTimestamp.remove(window);
-            }
-            finally {
-              fs.close();
-            }
+            deleteFile(window.toString());
+            windowToBuckets.removeAll(window);
+            windowToTimestamp.remove(window);
           }
         }
       }
     }
     bucketPositions[bucketIdx] = null;
+  }
+
+  protected void deleteFile(String fileName) throws IOException
+  {
+    Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + fileName);
+    try (FileSystem fs = FileSystem.newInstance(dataFilePath.toUri(), configuration)) {
+      if (fs.exists(dataFilePath)) {
+        logger.debug("start delete {}", fileName);
+        fs.delete(dataFilePath, true);
+        logger.debug("end delete {}", fileName);
+      }
+    }
   }
 
   /**
