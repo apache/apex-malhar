@@ -21,16 +21,12 @@ package com.datatorrent.lib.appdata.schemas;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -40,12 +36,19 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.commons.io.IOUtils;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 /**
  * This class holds utility methods for processing JSON.
  * @since 3.0.0
  */
 public class SchemaUtils
 {
+  public static final String FIELD_TAGS = "tags";
+
   /**
    * This constructor should not be used.
    */
@@ -488,6 +491,38 @@ public class SchemaUtils
     }
 
     return jo;
+  }
+
+  /**
+   * This is a helper method which converts the given {@link JSONArray} to a {@link List} of Strings.
+   *
+   * @param jsonStringArray The {@link JSONArray} to convert.
+   * @return The converted {@link List} of Strings.
+   */
+  public static List<String> getStringsFromJSONArray(JSONArray jsonStringArray) throws JSONException
+  {
+    List<String> stringArray = Lists.newArrayListWithCapacity(jsonStringArray.length());
+
+    for (int stringIndex = 0; stringIndex < jsonStringArray.length(); stringIndex++) {
+      stringArray.add(jsonStringArray.getString(stringIndex));
+    }
+
+    return stringArray;
+  }
+
+  /**
+   * This is a helper method which retrieves the schema tags from the {@link JSONObject} if they are present.
+   *
+   * @param jo The {@link JSONObject} to retrieve schema tags from.
+   * @return A list containing the retrieved schema tags. The list is empty if there are no schema tags present.
+   */
+  public static List<String> getTags(JSONObject jo) throws JSONException
+  {
+    if (jo.has(FIELD_TAGS)) {
+      return getStringsFromJSONArray(jo.getJSONArray(FIELD_TAGS));
+    } else {
+      return Collections.emptyList();
+    }
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(SchemaUtils.class);
