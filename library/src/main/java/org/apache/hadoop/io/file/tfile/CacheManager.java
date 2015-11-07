@@ -55,8 +55,10 @@ public class CacheManager
     if (singleCache != null) {
       singleCache.cleanUp();
     }
-    if (enableStats)
-      builder.recordStats();
+    if (enableStats) {
+      //todo: when we upgrade to a newer guava version we can use this
+      // builder.recordStats();
+    }
     singleCache = builder.build();
     return singleCache;
   }

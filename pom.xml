@@ -126,6 +126,7 @@
                 <ignoreMissingClasses>true</ignoreMissingClasses>
                 <excludes>
                   <exclude>*POJO*</exclude>
+                  <exclude>org.apache.hadoop.io.file.tfile.*</exclude>
                 </excludes>
               </parameter>
               <skip>${semver.plugin.skip}</skip>
