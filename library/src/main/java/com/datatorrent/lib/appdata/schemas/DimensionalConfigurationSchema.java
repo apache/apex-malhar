@@ -162,6 +162,11 @@ public class DimensionalConfigurationSchema
    */
   public static final String FIELD_VALUES_AGGREGATIONS = "aggregators";
   /**
+   * The JSON key string used to identify the tags.
+   */
+  //TODO To be removed when Malhar Library 3.3 becomes a dependency.
+  private static final String FIELD_TAGS = "tags";
+  /**
    * The JSON key string for the dimensions section of the schema.
    */
   public static final String FIELD_DIMENSIONS = "dimensions";
@@ -272,6 +277,18 @@ public class DimensionalConfigurationSchema
    * of the {@link DimensionalConfigurationSchema} not the aggregations defined in the additionalValuesSection.
    */
   private Map<String, Map<String, Type>> schemaAllValueToAggregatorToType;
+  /**
+   * A map from keys to the schema tags defined for each key.
+   */
+  private Map<String, List<String>> keyToTags;
+  /**
+   * A map from values to the schema tags defined for each value.
+   */
+  private Map<String, List<String>> valueToTags;
+  /**
+   * The schema tags defined for each schema.
+   */
+  private List<String> tags;
 
   private CustomTimeBucketRegistry customTimeBucketRegistry;
 
@@ -394,6 +411,20 @@ public class DimensionalConfigurationSchema
                           List<TimeBucket> timeBuckets,
                           List<DimensionsCombination> dimensionsCombinations)
   {
+    tags = Lists.newArrayList();
+
+    keyToTags = Maps.newHashMap();
+
+    for (Key key: keys) {
+      keyToTags.put(key.getName(), new ArrayList<String>());
+    }
+
+    valueToTags = Maps.newHashMap();
+
+    for (Value value : values) {
+      valueToTags.put(value.getName(), new ArrayList<String>());
+    }
+
     //time buckets
     this.timeBuckets = timeBuckets;
     this.customTimeBuckets = new ArrayList<>();
@@ -662,6 +693,8 @@ public class DimensionalConfigurationSchema
   {
     JSONObject jo = new JSONObject(json);
 
+    tags = getTags(jo);
+
     //Keys
 
     keysToEnumValuesList = Maps.newHashMap();
@@ -675,6 +708,7 @@ public class DimensionalConfigurationSchema
     }
 
     keysString = keysArray.toString();
+    keyToTags = Maps.newHashMap();
 
     Map<String, Type> fieldToType = Maps.newHashMap();
 
@@ -687,6 +721,10 @@ public class DimensionalConfigurationSchema
 
       String keyName = tempKeyDescriptor.getString(FIELD_KEYS_NAME);
       String typeName = tempKeyDescriptor.getString(FIELD_KEYS_TYPE);
+      List<String> keyTags = getTags(tempKeyDescriptor);
+
+      keyToTags.put(keyName, keyTags);
+
       Type type = Type.getTypeEx(typeName);
 
       fieldToType.put(keyName, type);
@@ -789,6 +827,7 @@ public class DimensionalConfigurationSchema
     Map<String, Type> aggFieldToType = Maps.newHashMap();
     JSONArray valuesArray = jo.getJSONArray(FIELD_VALUES);
     schemaAllValueToAggregatorToType = Maps.newHashMap();
+    valueToTags = Maps.newHashMap();
 
     for(int valueIndex = 0;
         valueIndex < valuesArray.length();
@@ -796,6 +835,10 @@ public class DimensionalConfigurationSchema
       JSONObject value = valuesArray.getJSONObject(valueIndex);
       String name = value.getString(FIELD_VALUES_NAME);
       String type = value.getString(FIELD_VALUES_TYPE);
+      List<String> valueTags = getTags(value);
+
+      valueToTags.put(name, valueTags);
+
       Type typeT = Type.NAME_TO_TYPE.get(type);
 
       if(aggFieldToType.containsKey(name)) {
@@ -1149,6 +1192,41 @@ public class DimensionalConfigurationSchema
     //Build id maps
 
     buildDimensionsDescriptorIDAggregatorIDMaps();
+  }
+
+
+  /**
+   * This is a helper method which converts the given {@link JSONArray} to a {@link List} of Strings.
+   *
+   * @param jsonStringArray The {@link JSONArray} to convert.
+   * @return The converted {@link List} of Strings.
+   */
+  //TODO To be removed when Malhar Library 3.3 becomes a dependency.
+  private List<String> getStringsFromJSONArray(JSONArray jsonStringArray) throws JSONException
+  {
+    List<String> stringArray = Lists.newArrayListWithCapacity(jsonStringArray.length());
+
+    for (int stringIndex = 0; stringIndex < jsonStringArray.length(); stringIndex++) {
+      stringArray.add(jsonStringArray.getString(stringIndex));
+    }
+
+    return stringArray;
+  }
+
+  /**
+   * This is a helper method which retrieves the schema tags from the {@link JSONObject} if they are present.
+   *
+   * @param jo The {@link JSONObject} to retrieve schema tags from.
+   * @return A list containing the retrieved schema tags. The list is empty if there are no schema tags present.
+   */
+  //TODO To be removed when Malhar Library 3.3 becomes a dependency.
+  private List<String> getTags(JSONObject jo) throws JSONException
+  {
+    if (jo.has(FIELD_TAGS)) {
+      return getStringsFromJSONArray(jo.getJSONArray(FIELD_TAGS));
+    } else {
+      return Lists.newArrayList();
+    }
   }
 
   private Set<Set<String>> buildCombinations(Set<String> fields)
@@ -1535,6 +1613,30 @@ public class DimensionalConfigurationSchema
   public void setKeyDescriptorWithTime(FieldsDescriptor keyDescriptorWithTime)
   {
     this.keyDescriptorWithTime = keyDescriptorWithTime;
+  }
+
+  /**
+   * @return the keyToTags
+   */
+  public Map<String, List<String>> getKeyToTags()
+  {
+    return keyToTags;
+  }
+
+  /**
+   * @return the valueToTags
+   */
+  public Map<String, List<String>> getValueToTags()
+  {
+    return valueToTags;
+  }
+
+  /**
+   * @return the tags
+   */
+  public List<String> getTags()
+  {
+    return tags;
   }
 
   /**
