@@ -65,7 +65,7 @@
                   <exclude>com.datatorrent.lib.bucket.BucketManagerImpl#createBucket(long)</exclude>
                   <exclude>com.datatorrent.lib.bucket.HdfsBucketStore#clone()</exclude>
                   <exclude>com.datatorrent.lib.bucket.NonOperationalBucketStore#clone()</exclude>
-                  <exclude>com.datatorrent.lib.statistics.DimensionsComputation.ExternalizableSerializer#read(com.esotericsoftware.kryo.Kryo,com.esotericsoftware.kryo.io.Input, java.lang.Class)</exclude>
+                  <exclude>*ExternalizableSerializer#read(com.esotericsoftware.kryo.Kryo,com.esotericsoftware.kryo.io.Input, java.lang.Class)</exclude>
                   <exclude>com.datatorrent.lib.bucket.TimeBasedBucketManagerPOJOImpl#createBucket(long)</exclude>
                   <exclude>com.datatorrent.lib.dedup.DeduperPOJOImpl#getBucketManager()</exclude>
                   <exclude>com.datatorrent.lib.bucket.ExpirableHdfsBucketStore#clone()</exclude>
