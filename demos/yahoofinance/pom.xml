@@ -26,7 +26,7 @@
   <packaging>jar</packaging>
 
   <name>Apache Apex Malhar (incubating) Yahoo! Finance Demo</name>
-  <description>DataTorrent demo applications that get Yahoo finance feed and calculate minute price range, minute volume and simple moving average.</description>
+  <description>Apex demo applications that get Yahoo finance feed and calculate minute price range, minute volume and simple moving average.</description>
 
   <parent>
     <groupId>org.apache.apex</groupId>

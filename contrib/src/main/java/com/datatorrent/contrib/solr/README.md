@@ -2,9 +2,9 @@ Solr:
 ====
 Solr is a search platform from apache Lucene.  Its major features include powerful full-text search, hit highlighting, faceted search, near real-time indexing, dynamic clustering, database integration, rich document (e.g., Word, PDF) handling, and geospatial search. Solr is highly reliable, scalable and fault tolerant, providing distributed indexing, replication and load-balanced querying, automated failover and recovery and more.
 
-Solr with DataTorrent:
+Solr with Apex:
 =====================
-Solr search platform can be intergrated with datatorrent for variety of purposes for use cases ranging from simple keyword search to ranking, scoring, classification etc.
+Solr search platform can be intergrated with Apex for variety of purposes for use cases ranging from simple keyword search to ranking, scoring, classification etc.
 
 Solr InputOperator:
 ==================

@@ -26,7 +26,7 @@
   <packaging>jar</packaging>
 
   <name>Apache Apex Malhar (incubating) Pi Demo</name>
-  <description>DataTorrent demo applications that calculate the value of Pi. This is a starting point to understand how DataTorrent works.</description>
+  <description>Apex demo applications that calculate the value of Pi. This is a starting point to understand how Apex works.</description>
 
   <parent>
     <groupId>org.apache.apex</groupId>
