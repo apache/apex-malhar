@@ -17,6 +17,6 @@
  * under the License.
  */
 /**
- * DataTorrent performance demonstration application.
+ * Apex malhar performance demonstration application.
  */
 package com.datatorrent.benchmark;

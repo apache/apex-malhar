@@ -26,7 +26,7 @@
   <packaging>jar</packaging>
 
   <name>Apache Apex Malhar (incubating) Fraud Detect Demo</name>
-  <description>DataTorrent demo applications that demonstrates real-time pattern detection in the incoming data and alerting. The demo processes streaming credit card transactions and looks for fraudulent transactions.</description>
+  <description>Apex demo application that demonstrates real-time pattern detection in the incoming data and alerting. The demo processes streaming credit card transactions and looks for fraudulent transactions.</description>
 
   <parent>
     <groupId>org.apache.apex</groupId>

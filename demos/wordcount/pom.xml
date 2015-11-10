@@ -26,7 +26,7 @@
   <packaging>jar</packaging>
 
   <name>Apache Apex Malhar (incubating) Wordcount Demo</name>
-  <description>A very simple application that demonstrates DataTorrent Platform’s streaming window feature.</description>
+  <description>A very simple application that demonstrates Apex Platform’s streaming window feature.</description>
 
   <parent>
     <groupId>org.apache.apex</groupId>

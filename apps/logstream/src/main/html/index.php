@@ -16,10 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-<!--
- --  Copyright (c) 2012-2013 DataTorrent, Inc.
- --  All Rights Reserved.
- -->
 
 <!-- ## Siteops is deprecated, please use logstream instead ## -->
     
@@ -27,7 +23,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Data Torrent : Site Operations Demo </title>
+<title>Site Operations Demo </title>
 
 <link rel="stylesheet" type="text/css" href="malhar.css">
 
@@ -39,7 +35,6 @@ google.load('visualization', '1', {'packages':['table']});
 
 </script>
 
-<!-- DataTorrent charting utils -->
 <script type="text/javascript" src="global.js"></script>
 <script type="text/javascript" src="DrawPageViewTimeChart.js"></script>
 <script type="text/javascript" src="TopUrlChart.js"></script>

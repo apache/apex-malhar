@@ -16,16 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-<!--
- --  Copyright (c) 2012-2013 Malhar, Inc.
- --  All Rights Reserved.
- -->
-    
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Data Torrent : Machine Generated Data Demo </title>
+<title>Machine Generated Data Demo </title>
 
 <link rel="stylesheet" type="text/css" href="malhar.css">
 
