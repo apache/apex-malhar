@@ -72,6 +72,7 @@
                   <exclude>com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl#createBucket(long)</exclude>
                   <exclude>com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl#getInputStream(long,java.lang.String)</exclude>
                   <exclude>com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl#getOutputStream(long,java.lang.String)</exclude>
+                  <exclude>*#B(java.lang.String)</exclude>
                 </excludes>
               </parameter>
               <skip>${semver.plugin.skip}</skip>

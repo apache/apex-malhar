@@ -4,6 +4,13 @@
       <field access="protected+"/>
       <method access="protected+"/>
     </class>
+    <class template="class * instanceof java.io.Serializable">
+      <field template="static final long serialVersionUID"/>
+      <method template="void writeObject(java.io.ObjectOutputStream)"/>
+      <method template="void readObject(java.io.ObjectInputStream)"/>
+      <method template="java.lang.Object writeReplace()"/>
+      <method template="java.lang.Object readResolve()"/>
+    </class>
   </keep-names>
   <!-- If serializing inner classes with Kryo disable synthetize-fields -->
   <property name="synthetize-fields" value="disable"/>
