@@ -15,7 +15,7 @@
 "GET /favicon.ico HTTP/1.1" ; 96333 ; 404
 "GET /favicon.ico HTTP/1.1" ; 96333 ; 404
 "GET /favicon.ico HTTP/1.1" ; 96333 ; 404
-"GET /report-ny-schools-most-racially-segregated-150513204.html HTTP/1.1" ; 230896 ; 200
+"GET /prehistoric-stonehenge-monument-golan-heights-fuels-mystery-134540136.html HTTP/1.1" ; 1206016 ; 200
 "GET /us/ HTTP/1.1" ; 252221 ; 200
 "GET /us/ HTTP/1.1" ; 252221 ; 200
 "GET /us/ HTTP/1.1" ; 252221 ; 200
@@ -26,6 +26,6 @@
 "GET /health/ HTTP/1.1" ; 293594 ; 200
 "GET /science/ HTTP/1.1" ; 289550 ; 200
 "GET /tech/ HTTP/1.1" ; 541847 ; 200
-"GET /conventional-wisdom-wrong-obamacare-isnt-dooming-democrats-november-135247067.html HTTP/1.1" ; 239890 ; 200
-"GET /air-pollution-linked-1-8-deaths-worldwide-214423778.html HTTP/1.1" ; 213053 ; 200
+"GET /tech/s/amazon-flies-high-internet-cloud-225815332.html" ; 608308 ; 200
+"GET /video/university-wants-room-more-california-212718987.html HTTP/1.1" ; 985503 ; 200
 "GET /march-madness ; 13495 ; 302
