@@ -28,7 +28,7 @@ The project uses Maven for the build. Run
 mvn install
 ```
 
-The code depends on the Apex API. The API releases are available in the DataTorrent maven repository and the Malhar pom.xml is configured with it. Individual modules such as library can be built independently by changing directory to the module and running maven there.
+The code depends on the Apex API, which is available in the Maven Central Repository.  Individual modules such as library can be built independently by changing directory to the module and running maven there.
 
 Multiple [demo applications](demos/src/main/java/com/datatorrent/demos) are provided to showcase the Apex platform and application development process. 
 
