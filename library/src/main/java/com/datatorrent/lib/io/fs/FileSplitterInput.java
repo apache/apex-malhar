@@ -21,7 +21,11 @@ package com.datatorrent.lib.io.fs;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -34,12 +38,13 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -55,7 +60,6 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
-
 import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -104,7 +108,8 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
     super.setup(context);
 
     long largestRecoveryWindow = idempotentStorageManager.getLargestRecoveryWindow();
-    if (largestRecoveryWindow == Stateless.WINDOW_ID || context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID) > largestRecoveryWindow) {
+    if (largestRecoveryWindow == Stateless.WINDOW_ID || context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID) >
+        largestRecoveryWindow) {
       scanner.startScanning(Collections.unmodifiableMap(referenceTimes));
     }
   }
@@ -122,7 +127,8 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   {
     try {
       @SuppressWarnings("unchecked")
-      LinkedList<ScannedFileInfo> recoveredData = (LinkedList<ScannedFileInfo>)idempotentStorageManager.load(operatorId, windowId);
+      LinkedList<ScannedFileInfo> recoveredData = (LinkedList<ScannedFileInfo>)idempotentStorageManager
+          .load(operatorId, windowId);
       if (recoveredData == null) {
         //This could happen when there are multiple physical instances and one of them is ahead in processing windows.
         return;
@@ -340,8 +346,8 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
       running = true;
       try {
         while (running) {
-          if ((trigger || (System.currentTimeMillis() - scanIntervalMillis >= lastScanMillis)) &&
-            (lastScannedInfo == null || referenceTimes.get(lastScannedInfo.getFilePath()) != null)) {
+          if ((trigger || (System.currentTimeMillis() - scanIntervalMillis >= lastScanMillis)) && (
+              lastScannedInfo == null || referenceTimes.get(lastScannedInfo.getFilePath()) != null)) {
             trigger = false;
             lastScannedInfo = null;
             numDiscoveredPerIteration = 0;
@@ -419,7 +425,8 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
       discoveredFiles.add(info);
     }
 
-    protected ScannedFileInfo createScannedFileInfo(Path parentPath, FileStatus parentStatus, Path childPath, @SuppressWarnings("UnusedParameters") FileStatus childStatus, Path rootPath)
+    protected ScannedFileInfo createScannedFileInfo(Path parentPath, FileStatus parentStatus, Path childPath,
+        @SuppressWarnings("UnusedParameters") FileStatus childStatus, Path rootPath)
     {
       ScannedFileInfo info;
       if (rootPath == null) {
@@ -428,7 +435,8 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
           new ScannedFileInfo(null, childPath.toUri().getPath(), parentStatus.getModificationTime());
       } else {
         URI relativeChildURI = rootPath.toUri().relativize(childPath.toUri());
-        info = new ScannedFileInfo(rootPath.toUri().getPath(), relativeChildURI.getPath(), parentStatus.getModificationTime());
+        info = new ScannedFileInfo(rootPath.toUri().getPath(), relativeChildURI.getPath(),
+            parentStatus.getModificationTime());
       }
       return info;
     }
@@ -443,7 +451,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
      * @throws IOException
      */
     protected static boolean skipFile(@SuppressWarnings("unused") @NotNull Path path, @NotNull Long modificationTime,
-                                      Long lastModificationTime) throws IOException
+        Long lastModificationTime) throws IOException
     {
       return (!(lastModificationTime == null || modificationTime > lastModificationTime));
     }
