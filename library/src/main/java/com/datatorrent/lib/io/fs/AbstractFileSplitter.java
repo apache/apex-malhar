@@ -25,17 +25,17 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.Path;
 
 import com.google.common.base.Preconditions;
 
 import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
-
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.io.block.BlockMetadata;
 
@@ -68,7 +68,8 @@ public abstract class AbstractFileSplitter extends BaseOperator
   protected int filesProcessed;
 
   public final transient DefaultOutputPort<FileMetadata> filesMetadataOutput = new DefaultOutputPort<>();
-  public final transient DefaultOutputPort<BlockMetadata.FileBlockMetadata> blocksMetadataOutput = new DefaultOutputPort<>();
+  public final transient DefaultOutputPort<BlockMetadata.FileBlockMetadata> blocksMetadataOutput =
+      new DefaultOutputPort<>();
 
   public AbstractFileSplitter()
   {
@@ -162,10 +163,10 @@ public abstract class AbstractFileSplitter extends BaseOperator
    * @param blockNumber         block number
    * @param fileMetadata        file metadata
    * @param isLast              last block of the file
-   * @return
+   * @return block file metadata
    */
   protected BlockMetadata.FileBlockMetadata buildBlockMetadata(long pos, long lengthOfFileInBlock, int blockNumber,
-                                                               FileMetadata fileMetadata, boolean isLast)
+      FileMetadata fileMetadata, boolean isLast)
   {
     BlockMetadata.FileBlockMetadata fileBlockMetadata = createBlockMetadata(fileMetadata);
     fileBlockMetadata.setBlockId(fileMetadata.getBlockIds()[blockNumber - 1]);
@@ -317,7 +318,8 @@ public abstract class AbstractFileSplitter extends BaseOperator
       }
       boolean isLast = length >= fileMetadata.getFileLength();
       long lengthOfFileInBlock = isLast ? fileMetadata.getFileLength() : length;
-      BlockMetadata.FileBlockMetadata fileBlock = splitter.buildBlockMetadata(pos, lengthOfFileInBlock, blockNumber, fileMetadata, isLast);
+      BlockMetadata.FileBlockMetadata fileBlock = splitter
+          .buildBlockMetadata(pos, lengthOfFileInBlock, blockNumber, fileMetadata, isLast);
       pos = lengthOfFileInBlock;
       return fileBlock;
     }
