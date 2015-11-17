@@ -20,6 +20,7 @@ package com.datatorrent.lib.appdata.snapshot;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.validation.constraints.NotNull;
@@ -79,25 +80,25 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
   /**
    * The {@link MessageSerializerFactory} for the operator.
    */
-  private transient MessageSerializerFactory resultSerializerFactory;
+  protected transient MessageSerializerFactory resultSerializerFactory;
   /**
    * The {@link SchemaRegistry} for the operator.
    */
-  private transient SchemaRegistry schemaRegistry;
+  protected transient SchemaRegistry schemaRegistry;
   /**
    * The schema for the operator.
    */
   protected transient SnapshotSchema schema;
 
   @NotNull
-  private ResultFormatter resultFormatter = new ResultFormatter();
-  private String snapshotSchemaJSON;
+  protected ResultFormatter resultFormatter = new ResultFormatter();
+  protected String snapshotSchemaJSON;
   /**
    * The current data to be served by the operator.
    */
   protected List<GPOMutable> currentData = Lists.newArrayList();
-  private EmbeddableQueryInfoProvider<String> embeddableQueryInfoProvider;
-  private final transient ConcurrentLinkedQueue<SchemaResult> schemaQueue = new ConcurrentLinkedQueue<>();
+  protected EmbeddableQueryInfoProvider<String> embeddableQueryInfoProvider;
+  protected final transient ConcurrentLinkedQueue<SchemaResult> schemaQueue = new ConcurrentLinkedQueue<>();
 
   @AppData.ResultPort
   public final transient DefaultOutputPort<String> queryResult = new DefaultOutputPort<>();
@@ -106,6 +107,8 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
    * The queryExecutor execute the query and return the result.
    */
   protected QueryExecutor<Query, Void, MutableLong, Result> queryExecutor;
+   
+  private Set<String> tags;
   
   @AppData.QueryPort
   @InputPortFieldAnnotation(optional=true)
@@ -195,7 +198,8 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
   @Override
   public void setup(OperatorContext context)
   {
-    schema = new SnapshotSchema(snapshotSchemaJSON);
+    setupSchema();
+    
     schemaRegistry = new SchemaRegistrySingle(schema);
     //Setup for query processing
     setupQueryProcessor();
@@ -214,7 +218,14 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
       embeddableQueryInfoProvider.setup(context);
     }
   }
-  
+
+  protected void setupSchema()
+  {
+    schema = new SnapshotSchema(snapshotSchemaJSON);
+    if (tags != null && !tags.isEmpty())
+      schema.setTags(tags);
+  }
+
   protected void setupQueryProcessor()
   {
     queryProcessor = QueryManagerSynchronous.newInstance(queryExecutor == null ? new SnapshotComputer() : queryExecutor, 
@@ -357,5 +368,16 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
   {
     return currentData;
   }
+
+  public Set<String> getTags()
+  {
+    return tags;
+  }
+
+  public void setTags(Set<String> tags)
+  {
+    this.tags = tags;
+  }
+  
   
 }
