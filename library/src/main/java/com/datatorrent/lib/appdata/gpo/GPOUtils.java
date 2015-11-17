@@ -20,21 +20,21 @@ package com.datatorrent.lib.appdata.gpo;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
-
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 import org.apache.commons.lang3.mutable.MutableInt;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
@@ -123,6 +123,55 @@ public class GPOUtils
   }
 
   /**
+   * This method deserializes the fields in the given {@link FieldsDescriptor} into a map.
+   * @param fieldsDescriptor The {@link FieldsDescriptor} to fetch fields from.
+   * @param dpou The {@link JSONObject} which contains the fields whose values need to be fetched.
+   * @return A {@link Map} whose keys are field names, and whose values are possible values for those fields.
+   */
+  public static Map<String, Set<Object>> deserializeToMap(FieldsDescriptor fieldsDescriptor,
+                                                          JSONObject dpou)
+  {
+    Map<String, Set<Object>> keyToValues = Maps.newHashMap();
+
+    for (String key : fieldsDescriptor.getFields().getFields()) {
+      if (!dpou.has(key)) {
+        throw new IllegalArgumentException("The given key " + key + " is not contained in the given JSON");
+      }
+
+      Set<Object> keyValues;
+      Object keyValue;
+
+      try {
+        keyValue = dpou.get(key);
+      } catch (JSONException ex) {
+        throw new IllegalStateException("This should never happen", ex);
+      }
+
+      if (keyValue instanceof JSONArray) {
+
+        JSONArray ja = (JSONArray) keyValue;
+        keyValues = Sets.newHashSetWithExpectedSize(ja.length());
+
+        Type type = fieldsDescriptor.getType(key);
+
+        for (int index = 0; index < ja.length(); index++) {
+          keyValues.add(getFieldFromJSON(type, ja, index));
+        }
+
+      } else if (keyValue instanceof JSONObject) {
+        throw new UnsupportedOperationException("Cannot extract objects from JSONObjects");
+      } else {
+        keyValues = Sets.newHashSetWithExpectedSize(1);
+        keyValues.add(getFieldFromJSON(fieldsDescriptor, key, dpou));
+      }
+
+      keyToValues.put(key, keyValues);
+    }
+
+    return keyToValues;
+  }
+
+  /**
    * This is a helper method for deserialization of a GPOMutable from JSON. It allows you to select a field from
    * a JSONObject in a json array and set it on the provided GPOMutable object. The format of the JSONArray should
    * be the following:
@@ -178,125 +227,79 @@ public class GPOUtils
    */
   public static void setFieldFromJSON(GPOMutable gpo, String field, JSONObject jo)
   {
-    Type type = gpo.getFieldDescriptor().getType(field);
+    Object val = getFieldFromJSON(gpo.getFieldDescriptor(), field, jo);
+    gpo.setFieldGeneric(field, val);
+  }
 
-    if(type == Type.BOOLEAN) {
-      Boolean val;
+  /**
+   * This method gets the given field from the given {@link JSONObject} and converts the field to an object
+   * of the type specified in the given {@link FieldsDescriptor}.
+   * @param fd The {@link FieldsDescriptor} describing the type of each field.
+   * @param field The field to retrieve from the given {@link JSONObject}.
+   * @param jo The {@link JSONObject} to retrieve a field from.
+   * @return The value of the given field converted to an object of the correct type.
+   */
+  public static Object getFieldFromJSON(FieldsDescriptor fd, String field, JSONObject jo)
+  {
+    Type type = fd.getType(field);
+    int intVal = 0;
 
+    if(numericTypeIntOrSmaller(type)) {
       try {
-        val = jo.getBoolean(field);
+        intVal = jo.getInt(field);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The key "
+                                           + field
+                                           + " does not have a valid "
+                                           + type
+                                           + " value.", ex);
       }
-      catch(JSONException ex) {
+
+      if (type != Type.INTEGER && !insideRange(type, intVal)) {
+        throw new IllegalArgumentException("The key "
+                                           + field
+                                           + " has a value "
+                                           + intVal
+                                           + " which is out of range for a "
+                                           + type
+                                           + ".");
+      }
+    }
+
+    if (type == Type.BOOLEAN) {
+      try {
+        return jo.getBoolean(field);
+      } catch (JSONException ex) {
         throw new IllegalArgumentException("The key " + field + " does not have a valid bool value.", ex);
       }
-
-      gpo.setFieldGeneric(field, val);
-    }
-    else if(type == Type.BYTE) {
-      int val;
-
+    } else if (type == Type.BYTE) {
+      return ((byte) intVal);
+    } else if (type == Type.SHORT) {
+      return ((short) intVal);
+    } else if (type == Type.INTEGER) {
+      return intVal;
+    } else if (type == Type.LONG) {
       try {
-        val = jo.getInt(field);
-      }
-      catch(JSONException ex) {
-        throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " does not have a valid byte value.", ex);
-      }
-
-      if(val < (int)Byte.MIN_VALUE) {
-        throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " has a value "
-                                           + val
-                                           + " which is too small to fit into a byte.");
-      }
-
-      if(val > (int)Byte.MAX_VALUE) {
-        throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " has a value "
-                                           + val
-                                           + " which is too larg to fit into a byte.");
-      }
-
-      gpo.setField(field, (byte)val);
-    }
-    else if(type == Type.SHORT) {
-      int val;
-
-      try {
-        val = jo.getInt(field);
-      }
-      catch(JSONException ex) {
-        throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " does not have a valid short value.",
-                                           ex);
-      }
-
-      if(val < (int)Short.MIN_VALUE) {
-        throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " has a value "
-                                           + val
-                                           + " which is too small to fit into a short.");
-      }
-
-      if(val > (int)Short.MAX_VALUE) {
-        throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " has a value "
-                                           + val
-                                           + " which is too large to fit into a short.");
-      }
-
-      gpo.setField(field, (short)val);
-    }
-    else if(type == Type.INTEGER) {
-      int val;
-
-      try {
-        val = jo.getInt(field);
-      }
-      catch(JSONException ex) {
-        throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " does not have a valid int value.",
-                                           ex);
-      }
-
-      gpo.setField(field, val);
-    }
-    else if(type == Type.LONG) {
-      long val;
-
-      try {
-        val = jo.getLong(field);
-      }
-      catch(JSONException ex) {
+        return jo.getLong(field);
+      } catch (JSONException ex) {
         throw new IllegalArgumentException("The key "
                                            + field
                                            + " does not have a valid long value.",
                                            ex);
       }
-
-      gpo.setField(field, val);
-    }
-    else if(type == Type.CHAR) {
+    } else if (type == Type.CHAR) {
       String val;
 
       try {
         val = jo.getString(field);
-      }
-      catch(JSONException ex) {
+      } catch (JSONException ex) {
         throw new IllegalArgumentException("The key "
                                            + field
                                            + " does not have a valid character value.",
                                            ex);
       }
 
-      if(val.length() != 1) {
+      if (val.length() != 1) {
         throw new IllegalArgumentException("The key "
                                            + field
                                            + " has a value "
@@ -304,52 +307,144 @@ public class GPOUtils
                                            + " that is not one character long.");
       }
 
-      gpo.setField(field, val.charAt(0));
-    }
-    else if(type == Type.STRING) {
-      String val;
-
+      return val.charAt(0);
+    } else if (type == Type.STRING) {
       try {
-        val = jo.getString(field);
-      }
-      catch(JSONException ex) {
+        return jo.getString(field);
+      } catch (JSONException ex) {
         throw new IllegalArgumentException("The key "
                                            + field
                                            + " does not have a valid string value.",
                                            ex);
       }
-
-      gpo.setField(field, val);
-    }
-    else if(type == Type.DOUBLE) {
-      Double val;
-
+    } else if (type == Type.DOUBLE) {
       try {
-        val = jo.getDouble(field);
-      }
-      catch(JSONException ex) {
+        return jo.getDouble(field);
+      } catch (JSONException ex) {
         throw new IllegalArgumentException("The key "
                                            + field
                                            + " does not have a valid double value.",
                                            ex);
       }
-
-      gpo.setFieldGeneric(field, val);
-    }
-    else if(type == Type.FLOAT) {
-      Float val;
-
+    } else if (type == Type.FLOAT) {
       try {
-        val = (float)jo.getDouble(field);
-      }
-      catch(JSONException ex) {
+        return (float)jo.getDouble(field);
+      } catch (JSONException ex) {
         throw new IllegalArgumentException("The key "
                                            + field
                                            + " does not have a valid double value.",
                                            ex);
       }
+    } else {
+      throw new UnsupportedOperationException("The type " + type + " is not supported.");
+    }
+  }
 
-      gpo.setFieldGeneric(field, val);
+  /**
+   * This method gets an object of the given {@link Type} from the given {@link JSONArray} at the
+   * given index.
+   * @param type The {@link Type} of the object to retrieve from the {@link JSONArray}.
+   * @param ja The {@link JSONArray} to retrieve objects from.
+   * @param index The index of the object in the {@link JSONArray} to retrieve.
+   * @return The object retrieved from the {@link JSONArray}.
+   */
+  public static Object getFieldFromJSON(Type type, JSONArray ja, int index)
+  {
+    int intVal = 0;
+
+    if(numericTypeIntOrSmaller(type)) {
+      try {
+        intVal = ja.getInt(index);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The index "
+                                           + index
+                                           + " does not have a valid "
+                                           + type
+                                           + " value.", ex);
+      }
+
+      if (type != Type.INTEGER && !insideRange(type, intVal)) {
+        throw new IllegalArgumentException("The index "
+                                           + index
+                                           + " has a value "
+                                           + intVal
+                                           + " which is out of range for a "
+                                           + type
+                                           + ".");
+      }
+    }
+
+    if (type == Type.BOOLEAN) {
+      try {
+        return ja.getBoolean(index);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The index " + index + " does not have a valid bool value.", ex);
+      }
+    } else if (type == Type.BYTE) {
+      return ((byte) intVal);
+    } else if (type == Type.SHORT) {
+      return ((short) intVal);
+    } else if (type == Type.INTEGER) {
+      return intVal;
+    } else if (type == Type.LONG) {
+      try {
+        return ja.getLong(index);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The index "
+                                           + index
+                                           + " does not have a valid long value.",
+                                           ex);
+      }
+    } else if (type == Type.CHAR) {
+      String val;
+
+      try {
+        val = ja.getString(index);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The index "
+                                           + index
+                                           + " does not have a valid character value.",
+                                           ex);
+      }
+
+      if (val.length() != 1) {
+        throw new IllegalArgumentException("The index "
+                                           + index
+                                           + " has a value "
+                                           + val
+                                           + " that is not one character long.");
+      }
+
+      return val.charAt(0);
+    } else if (type == Type.STRING) {
+      try {
+        return ja.getString(index);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The index "
+                                           + index
+                                           + " does not have a valid string value.",
+                                           ex);
+      }
+    } else if (type == Type.DOUBLE) {
+      try {
+        return ja.getDouble(index);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The index "
+                                           + index
+                                           + " does not have a valid double value.",
+                                           ex);
+      }
+    } else if (type == Type.FLOAT) {
+      try {
+        return (float) ja.getDouble(index);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The index "
+                                           + index
+                                           + " does not have a valid double value.",
+                                           ex);
+      }
+    } else {
+      throw new UnsupportedOperationException("The type " + type + " is not supported.");
     }
   }
 
@@ -2689,5 +2784,34 @@ public class GPOUtils
     }
 
     return values;
+  }
+
+  /**
+   * Determines if the given value is within the range of the specified type.
+   * @param type The type to determine the range of. Valid types can be byte or short.
+   * @param val The value to check the range of.
+   * @return True if the given int value is within the range of the specified type, false otherwise.
+   */
+  public static boolean insideRange(Type type, int val) {
+    switch(type) {
+      case BYTE: {
+        return !(val < (int)Byte.MIN_VALUE || val > (int)Byte.MAX_VALUE);
+      }
+      case SHORT: {
+        return !(val < (int)Short.MIN_VALUE || val > (int)Short.MAX_VALUE);
+      }
+      default:
+        throw new UnsupportedOperationException("This operation is not supported for the type " + type);
+    }
+  }
+
+  /**
+   * Returns true if the given type is of type byte, short, or integer.
+   * @param type The type to check.
+   * @return True if the given type is of type byte, short or integer.
+   */
+  public static boolean numericTypeIntOrSmaller(Type type)
+  {
+    return type == Type.BYTE || type == Type.SHORT || type == Type.INTEGER;
   }
 }
