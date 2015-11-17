@@ -54,7 +54,7 @@ public interface BlockMetadata
    */
   long getPreviousBlockId();
 
-  public abstract class AbstractBlockMetadata implements BlockMetadata
+  abstract class AbstractBlockMetadata implements BlockMetadata
   {
     private long offset;
     private long length;
@@ -198,7 +198,7 @@ public interface BlockMetadata
   /**
    * A block of file which contains file path adn other block properties.
    */
-  public static class FileBlockMetadata extends AbstractBlockMetadata
+  class FileBlockMetadata extends AbstractBlockMetadata
   {
     private final String filePath;
 
@@ -208,7 +208,8 @@ public interface BlockMetadata
       filePath = null;
     }
 
-    public FileBlockMetadata(String filePath, long blockId, long offset, long length, boolean isLastBlock, long previousBlockId)
+    public FileBlockMetadata(String filePath, long blockId, long offset, long length, boolean isLastBlock,
+        long previousBlockId)
     {
       super(blockId, offset, length, isLastBlock, previousBlockId);
       this.filePath = filePath;

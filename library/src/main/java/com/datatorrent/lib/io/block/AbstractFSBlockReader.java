@@ -36,7 +36,8 @@ import com.datatorrent.api.StatsListener;
  * @since 2.1.0
  */
 @StatsListener.DataQueueSize
-public abstract class AbstractFSBlockReader<R> extends AbstractBlockReader<R, BlockMetadata.FileBlockMetadata, FSDataInputStream>
+public abstract class AbstractFSBlockReader<R>
+    extends AbstractBlockReader<R, BlockMetadata.FileBlockMetadata, FSDataInputStream>
 {
   protected transient FileSystem fs;
   protected transient Configuration configuration;
@@ -48,8 +49,7 @@ public abstract class AbstractFSBlockReader<R> extends AbstractBlockReader<R, Bl
     configuration = new Configuration();
     try {
       fs = getFSInstance();
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException("creating fs", e);
     }
   }
@@ -60,8 +60,7 @@ public abstract class AbstractFSBlockReader<R> extends AbstractBlockReader<R, Bl
     super.teardown();
     try {
       fs.close();
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
@@ -88,27 +87,28 @@ public abstract class AbstractFSBlockReader<R> extends AbstractBlockReader<R, Bl
    *
    * @param <R> type of records
    */
-  public static abstract class AbstractFSLineReader<R> extends AbstractFSBlockReader<R>
+  public abstract static class AbstractFSLineReader<R> extends AbstractFSBlockReader<R>
   {
 
     public AbstractFSLineReader()
     {
       super();
-      this.readerContext = new ReaderContext.LineReaderContext<FSDataInputStream>();
+      this.readerContext = new ReaderContext.LineReaderContext<>();
     }
   }
 
   /**
-   * An {@link AbstractFSBlockReader} which reads lines from the block using {@link ReaderContext.ReadAheadLineReaderContext}
+   * An {@link AbstractFSBlockReader} which reads lines from the block using
+   * {@link ReaderContext.ReadAheadLineReaderContext}
    *
-   * @param <R>
+   * @param <R> type of record.
    */
-  public static abstract class AbstractFSReadAheadLineReader<R> extends AbstractFSBlockReader<R>
+  public abstract static class AbstractFSReadAheadLineReader<R> extends AbstractFSBlockReader<R>
   {
     public AbstractFSReadAheadLineReader()
     {
       super();
-      this.readerContext = new ReaderContext.ReadAheadLineReaderContext<FSDataInputStream>();
+      this.readerContext = new ReaderContext.ReadAheadLineReaderContext<>();
     }
   }
 }

@@ -23,20 +23,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import org.apache.commons.io.FileUtils;
+
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-
-import com.datatorrent.netlet.util.Slice;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.netlet.util.Slice;
 
 /**
  * Tests for {@link FSSliceReader}.
@@ -63,8 +63,7 @@ public class FSSliceReaderTest
       output = "target/" + description.getClassName() + "/" + description.getMethodName();
       try {
         FileUtils.forceMkdir(new File(output));
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         throw new RuntimeException(e);
       }
       dataFile = new File("src/test/resources/reader_test_data.csv");
@@ -77,10 +76,10 @@ public class FSSliceReaderTest
 
       blockReader.setup(readerContext);
 
-      messageSink = new CollectorTestSink<Object>();
+      messageSink = new CollectorTestSink<>();
       blockReader.messages.setSink(messageSink);
 
-      blockMetadataSink = new CollectorTestSink<Object>();
+      blockMetadataSink = new CollectorTestSink<>();
       blockReader.blocksMetadataOutput.setSink(blockMetadataSink);
     }
 
@@ -90,8 +89,7 @@ public class FSSliceReaderTest
       blockReader.teardown();
       try {
         FileUtils.forceDelete(new File("target/" + description.getClassName()));
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         throw new RuntimeException(e);
       }
     }
@@ -104,14 +102,16 @@ public class FSSliceReaderTest
   public void testBytesReceived() throws IOException
   {
     long blockSize = 1500;
-    int noOfBlocks = (int) ((testMeta.dataFile.length() / blockSize) + (((testMeta.dataFile.length() % blockSize) == 0) ? 0 : 1));
+    int noOfBlocks = (int)((testMeta.dataFile.length() / blockSize) + (((testMeta.dataFile.length() % blockSize) == 0) ?
+        0 : 1));
 
     testMeta.blockReader.beginWindow(1);
 
     for (int i = 0; i < noOfBlocks; i++) {
-      BlockMetadata.FileBlockMetadata blockMetadata = new BlockMetadata.FileBlockMetadata(testMeta.dataFile.getAbsolutePath(), i, i * blockSize,
-        i == noOfBlocks - 1 ? testMeta.dataFile.length() : (i + 1) * blockSize,
-        i == noOfBlocks - 1, i - 1);
+      BlockMetadata.FileBlockMetadata blockMetadata = new BlockMetadata.FileBlockMetadata(
+          testMeta.dataFile.getAbsolutePath(), i, i * blockSize,
+          i == noOfBlocks - 1 ? testMeta.dataFile.length() : (i + 1) * blockSize,
+          i == noOfBlocks - 1, i - 1);
       testMeta.blockReader.blocksMetadataInput.process(blockMetadata);
     }
 
@@ -125,7 +125,7 @@ public class FSSliceReaderTest
 
     for (Object message : messages) {
       @SuppressWarnings("unchecked")
-      AbstractBlockReader.ReaderRecord<Slice> msg = (AbstractBlockReader.ReaderRecord<Slice>) message;
+      AbstractBlockReader.ReaderRecord<Slice> msg = (AbstractBlockReader.ReaderRecord<Slice>)message;
       totatBytesReceived += msg.getRecord().length;
       outputStream.write(msg.getRecord().buffer);
     }

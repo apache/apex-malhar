@@ -22,16 +22,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.PositionedReadable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.PositionedReadable;
 
 /**
  * This controls how an {@link AbstractBlockReader} reads a {@link BlockMetadata}.
  *
  * @param <STREAM> type of stream
- *
  * @since 2.1.0
  */
 public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
@@ -59,7 +59,7 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
    * Represents the total bytes used to construct the record.<br/>
    * Used bytes can be different from the bytes in the record.
    */
-  public static class Entity
+  class Entity
   {
     private byte[] record;
     private long usedBytes;
@@ -97,9 +97,8 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
    *
    * @param <STREAM> type of stream.
    */
-  public static abstract class AbstractReaderContext<STREAM extends InputStream & PositionedReadable> implements ReaderContext<STREAM>
+  abstract class AbstractReaderContext<STREAM extends InputStream & PositionedReadable> implements ReaderContext<STREAM>
   {
-
     protected transient long offset;
     protected transient STREAM stream;
     protected transient BlockMetadata blockMetadata;
@@ -143,8 +142,7 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
    *
    * @param <STREAM> type of stream.
    */
-
-  public static class LineReaderContext<STREAM extends InputStream & PositionedReadable> extends AbstractReaderContext<STREAM>
+  class LineReaderContext<STREAM extends InputStream & PositionedReadable> extends AbstractReaderContext<STREAM>
   {
 
     protected int bufferSize;
@@ -178,8 +176,8 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
     @Override
     protected Entity readEntity() throws IOException
     {
-      //Implemented a buffered reader instead of using java's BufferedReader because it was reading much ahead of block boundary
-      //and faced issues with duplicate records. Controlling the buffer size didn't help either.
+      //Implemented a buffered reader instead of using java's BufferedReader because it was reading much ahead of block
+      // boundary and faced issues with duplicate records. Controlling the buffer size didn't help either.
 
       boolean foundEOL = false;
       int bytesRead = 0;
@@ -200,8 +198,7 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
           if (c != '\r' && c != '\n') {
             tmpBuilder.write(c);
             posInStr++;
-          }
-          else {
+          } else {
             foundEOL = true;
             break;
           }
@@ -216,14 +213,12 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
             if (c == '\r' || c == '\n') {
               emptyBuilder.write(c);
               posInStr++;
-            }
-            else {
+            } else {
               break;
             }
           }
           usedBytes += emptyBuilder.toByteArray().length;
-        }
-        else {
+        } else {
           //read more bytes from the input stream
           posInStr = 0;
         }
@@ -266,14 +261,14 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
   /**
    * Another reader context that splits the block into records on '\n' or '\r'.<br/>
    * This implementation doesn't need a way to validate the start of a record.<br/>
-   *
+   * <p/>
    * This  starts parsing the block (except the first block of the file) from the first eol character.
    * It is a less optimized version of an {@link LineReaderContext} which always reads beyond the block
    * boundary.
    *
    * @param <STREAM>
    */
-  public static class ReadAheadLineReaderContext<STREAM extends InputStream & PositionedReadable> extends LineReaderContext<STREAM>
+  class ReadAheadLineReaderContext<STREAM extends InputStream & PositionedReadable> extends LineReaderContext<STREAM>
   {
     @Override
     public void initialize(STREAM stream, BlockMetadata blockMetadata, boolean consecutiveBlock)
@@ -285,8 +280,7 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
         try {
           Entity entity = readEntity();
           offset += entity.usedBytes;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
           throw new RuntimeException("when reading first entity", e);
         }
       }
@@ -310,7 +304,7 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
    *
    * @param <STREAM> type of stream.
    */
-  public static class FixedBytesReaderContext<STREAM extends InputStream & PositionedReadable> extends AbstractReaderContext<STREAM>
+  class FixedBytesReaderContext<STREAM extends InputStream & PositionedReadable> extends AbstractReaderContext<STREAM>
   {
     //When this field is null, it is initialized to default fs block size in setup.
     protected Integer length;
@@ -319,7 +313,7 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
     public void initialize(STREAM stream, BlockMetadata blockMetadata, boolean consecutiveBlock)
     {
       if (length == null) {
-        length = (int) new Configuration().getLong("fs.local.block.size", 32 * 1024 * 1024);
+        length = (int)new Configuration().getLong("fs.local.block.size", 32 * 1024 * 1024);
         LOG.debug("length init {}", length);
       }
       super.initialize(stream, blockMetadata, consecutiveBlock);
@@ -331,7 +325,7 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
       entity.clear();
       int bytesToRead = length;
       if (offset + length >= blockMetadata.getLength()) {
-        bytesToRead = (int) (blockMetadata.getLength() - offset);
+        bytesToRead = (int)(blockMetadata.getLength() - offset);
       }
       byte[] record = new byte[bytesToRead];
       stream.readFully(offset, record, 0, bytesToRead);
