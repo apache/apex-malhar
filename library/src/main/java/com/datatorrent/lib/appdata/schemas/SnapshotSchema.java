@@ -20,6 +20,7 @@ package com.datatorrent.lib.appdata.schemas;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -198,12 +199,6 @@ public class SnapshotSchema implements Schema
   {
     schema = new JSONObject(schemaJSON);
 
-    Preconditions.checkState(schema.length() == NUM_KEYS_FIRST_LEVEL,
-                             "Expected "
-                             + NUM_KEYS_FIRST_LEVEL
-                             + " keys in the first level but found "
-                             + schema.length());
-
     if(schemaKeys != null) {
       schema.put(Schema.FIELD_SCHEMA_KEYS,
                  SchemaUtils.createJSONObject(schemaKeys));
@@ -246,6 +241,23 @@ public class SnapshotSchema implements Schema
     schemaJSON = this.schema.toString();
   }
 
+  public void setTags(Set<String> tags)
+  {
+    if (tags == null || tags.isEmpty())
+      throw new IllegalArgumentException("tags can't be null or empty.");
+
+    try {
+      JSONArray tagArray = new JSONArray(tags);
+
+      schema.put(FIELD_SCHEMA_TAGS, tagArray);
+    } catch (JSONException e) {
+      Preconditions.checkState(false, e.getMessage());
+      throw new RuntimeException(e);
+    }
+
+    schemaJSON = schema.toString();
+  }
+  
   /**
    * This is a helper method which sets the JSON that represents this schema.
    * @param schemaJSON The JSON that represents this schema.
