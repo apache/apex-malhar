@@ -24,7 +24,7 @@
   <parent>
     <artifactId>malhar-demos</artifactId>
     <groupId>org.apache.apex</groupId>
-    <version>3.2.0-incubating-SNAPSHOT</version>
+    <version>3.2.1-incubating-SNAPSHOT</version>
   </parent>
   
   <groupId>org.apache.apex</groupId>
