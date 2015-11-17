@@ -23,18 +23,29 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.hadoop.conf.Configuration;
-
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.annotation.ApplicationAnnotation;
+import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.api.Attribute;
+import com.datatorrent.api.AutoMetric;
+import com.datatorrent.api.Context;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.Stats;
+import com.datatorrent.api.StatsListener;
+import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.block.BlockMetadata;
@@ -218,7 +229,8 @@ public class FileSplitterBaseTest
     int count;
 
     transient CountDownLatch latch = new CountDownLatch(1);
-    public final transient DefaultInputPort<FileSplitterInput.FileMetadata> fileMetadata = new DefaultInputPort<FileSplitterInput.FileMetadata>()
+    public final transient DefaultInputPort<FileSplitterInput.FileMetadata> fileMetadata = new
+        DefaultInputPort<FileSplitterInput.FileMetadata>()
     {
       @Override
       public void process(FileSplitterInput.FileMetadata fileMetadata)

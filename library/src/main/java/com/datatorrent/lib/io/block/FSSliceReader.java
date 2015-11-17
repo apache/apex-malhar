@@ -18,10 +18,7 @@
  */
 package com.datatorrent.lib.io.block;
 
-import org.apache.hadoop.fs.FSDataInputStream;
-
 import com.datatorrent.api.StatsListener;
-
 import com.datatorrent.netlet.util.Slice;
 
 /**
@@ -38,7 +35,7 @@ public class FSSliceReader extends AbstractFSBlockReader<Slice>
   public FSSliceReader()
   {
     super();
-    this.readerContext = new ReaderContext.FixedBytesReaderContext<FSDataInputStream>();
+    this.readerContext = new ReaderContext.FixedBytesReaderContext<>();
   }
 
   @Override
