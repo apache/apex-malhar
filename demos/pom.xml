@@ -166,12 +166,12 @@
 -->
 
   <dependencies>
-    <dependency>
+    <!--dependency>
       <groupId>org.apache.apex</groupId>
       <artifactId>malhar-demos</artifactId>
       <version>${malhar.version}</version>
       <type>pom</type>
-    </dependency>
+    </dependency-->
    <dependency>
       <groupId>org.apache.apex</groupId>
       <artifactId>apex-common</artifactId>
