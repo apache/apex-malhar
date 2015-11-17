@@ -1,17 +1,6 @@
-/*
- * Copyright (c) 2015 DataTorrent
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/**
+ * Copyright (c) 2015 DataTorrent, Inc.
+ * All rights reserved.
  */
 package com.datatorrent.contrib.dimensions;
 
@@ -45,6 +34,7 @@ import com.datatorrent.lib.util.TestUtils.TestInfo;
 import com.datatorrent.contrib.dimensions.AppDataSingleSchemaDimensionStoreHDHTTest.InterruptClear;
 import com.datatorrent.contrib.dimensions.AppDataSingleSchemaDimensionStoreHDHTTest.StoreFSTestWatcher;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
+import com.datatorrent.lib.appdata.schemas.CustomTimeBucket;
 
 public class DimensionsQueueManagerTest
 {
@@ -211,6 +201,56 @@ public class DimensionsQueueManagerTest
     dqm.enqueue(dqd, null, null);
 
     Assert.assertEquals(hdhtQueryCount, store.getQueries().size());
+  }
+
+  @Test
+  public void queryStarQueueManagerTest() throws Exception
+  {
+    String eventSchemaString = SchemaUtils.jarResourceFileToString("dimensionsTestSchema.json");
+
+    String basePath = testMeta.getDir();
+    TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();
+    hdsFile.setBasePath(basePath);
+
+    AppDataSingleSchemaDimensionStoreHDHT store = new AppDataSingleSchemaDimensionStoreHDHT();
+
+    store.setCacheWindowDuration(2);
+    store.setConfigurationSchemaJSON(eventSchemaString);
+    store.setFileStore(hdsFile);
+    store.setFlushIntervalCount(1);
+    store.setFlushSize(0);
+
+    store.setup(null);
+
+    DimensionalConfigurationSchema eventSchema = store.configurationSchema;
+    @SuppressWarnings("unchecked")
+    DimensionsQueueManager dqm = new DimensionsQueueManager(store, store.schemaRegistry, new SimpleDataQueryDimensionalExpander((Map) store.seenEnumValues));
+
+    Map<String, Set<String>> fieldToAggregator = Maps.newHashMap();
+    fieldToAggregator.put("impressions", Sets.newHashSet("SUM"));
+    fieldToAggregator.put("cost", Sets.newHashSet("SUM"));
+
+    FieldsAggregatable fieldsAggregatable = new FieldsAggregatable(fieldToAggregator);
+
+    GPOMutable key = AppDataSingleSchemaDimensionStoreHDHTTest.createQueryKey(eventSchema,
+                                                                              "google",
+                                                                              "safeway");
+    Map<String, Set<Object>> keyToValues = Maps.newHashMap();
+    keyToValues.put("publisher", Sets.newHashSet());
+    keyToValues.put("advertiser", Sets.newHashSet());
+
+    DataQueryDimensional dqd = new DataQueryDimensional("1",
+                                                        DataQueryDimensional.TYPE,
+                                                        1,
+                                                        new CustomTimeBucket(TimeBucket.MINUTE),
+                                                        key.getFieldDescriptor(),
+                                                        keyToValues,
+                                                        fieldsAggregatable,
+                                                        true);
+
+    dqm.enqueue(dqd, null, null);
+
+    Assert.assertEquals(9, store.getQueries().size());
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(DimensionsQueueManagerTest.class);

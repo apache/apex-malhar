@@ -726,13 +726,13 @@ public class DimensionalConfigurationSchema
       keyToTags.put(keyName, keyTags);
 
       Type type = Type.getTypeEx(typeName);
-
       fieldToType.put(keyName, type);
+
+      List<Object> valuesList = Lists.newArrayList();
+      keysToEnumValuesList.put(keyName, valuesList);
 
       if(tempKeyDescriptor.has(FIELD_KEYS_ENUMVALUES)) {
         Type maxType = null;
-        List<Object> valuesList = Lists.newArrayList();
-        getKeysToEnumValuesList().put(keyName, valuesList);
         JSONArray valArray = tempKeyDescriptor.getJSONArray(FIELD_KEYS_ENUMVALUES);
 
         //Validate the provided data types

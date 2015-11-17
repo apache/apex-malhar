@@ -216,7 +216,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
     queryDeserializerFactory = new MessageDeserializerFactory(SchemaQuery.class, DataQueryDimensional.class);
     queryDeserializerFactory.setContext(DataQueryDimensional.class, schemaRegistry);
 
-    dimensionsQueueManager = new DimensionsQueueManager(this, schemaRegistry);
+    dimensionsQueueManager = getDimensionsQueueManager();
     queryProcessor
             = new QueryManagerAsynchronous<>(queryResult,
                                              dimensionsQueueManager,
@@ -342,6 +342,11 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
    * @return The {@link SchemaRegistry} used by this operator.
    */
   protected abstract SchemaRegistry getSchemaRegistry();
+
+  protected DimensionsQueueManager getDimensionsQueueManager()
+  {
+    return new DimensionsQueueManager(this, schemaRegistry);
+  }
 
   @Override
   public IncrementalAggregator getAggregator(int aggregatorID)

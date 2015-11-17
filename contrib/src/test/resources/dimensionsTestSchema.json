@@ -1,5 +1,5 @@
-{"keys":[{"name":"publisher","type":"string"},
-         {"name":"advertiser","type":"string"}],
+{"keys":[{"name":"publisher","type":"string","enumValues":["twitter","facebook","yahoo"]},
+         {"name":"advertiser","type":"string","enumValues":["starbucks","safeway","mcdonalds"]}],
  "timeBuckets":["1m"],
  "values":
   [{"name":"impressions","type":"long","aggregators":["SUM","CUM_SUM"]},
