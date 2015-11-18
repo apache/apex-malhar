@@ -74,6 +74,11 @@ public class DimensionalSchema implements Schema
    * The JSON key string corresponding to the slidingAggregateSupported field.
    */
   public static final String FIELD_SLIDING_AGGREGATE_SUPPORTED = "slidingAggregateSupported";
+  /**
+   * The JSON key string used to identify the tags.
+   */
+  //TODO To be removed when Malhar Library 3.3 becomes a dependency.
+  private static final String FIELD_TAGS = "tags";
 
   public static final List<Fields> VALID_KEYS = ImmutableList.of(new Fields(Sets.newHashSet(FIELD_TIME)));
   public static final List<Fields> VALID_TIME_KEYS = ImmutableList.of(new Fields(Sets.newHashSet(FIELD_TIME_FROM, FIELD_TIME_TO)));
@@ -353,16 +358,30 @@ public class DimensionalSchema implements Schema
     schema.put(SnapshotSchema.FIELD_SCHEMA_TYPE, DimensionalSchema.SCHEMA_TYPE);
     schema.put(SnapshotSchema.FIELD_SCHEMA_VERSION, DimensionalSchema.SCHEMA_VERSION);
 
+    if (!configurationSchema.getTags().isEmpty()) {
+      schema.put(FIELD_TAGS, new JSONArray(configurationSchema.getTags()));
+    }
+
     //time
     time = new JSONObject();
     schema.put(FIELD_TIME, time);
     JSONArray bucketsArray = new JSONArray(configurationSchema.getBucketsString());
     time.put(FIELD_TIME_BUCKETS, bucketsArray);
-
-    time.put(this.FIELD_SLIDING_AGGREGATE_SUPPORTED, true);
+    time.put(FIELD_SLIDING_AGGREGATE_SUPPORTED, true);
 
     //keys
     keys = new JSONArray(configurationSchema.getKeysString());
+
+    for (int keyIndex = 0; keyIndex < keys.length(); keyIndex++) {
+      JSONObject keyJo = keys.getJSONObject(keyIndex);
+      String keyName = keyJo.getString(DimensionalConfigurationSchema.FIELD_KEYS_NAME);
+      List<String> tags = configurationSchema.getKeyToTags().get(keyName);
+
+      if (!tags.isEmpty()) {
+        keyJo.put(FIELD_TAGS, new JSONArray(tags));
+      }
+    }
+
     schema.put(DimensionalConfigurationSchema.FIELD_KEYS, keys);
 
     //values
@@ -385,6 +404,13 @@ public class DimensionalSchema implements Schema
                               aggregatorName;
         value.put(SnapshotSchema.FIELD_VALUES_NAME, combinedName);
         value.put(SnapshotSchema.FIELD_VALUES_TYPE, outputValueType.getName());
+
+        List<String> tags = configurationSchema.getValueToTags().get(valueName);
+
+        if (!tags.isEmpty()) {
+          value.put(FIELD_TAGS, new JSONArray(tags));
+        }
+
         values.put(value);
       }
     }
