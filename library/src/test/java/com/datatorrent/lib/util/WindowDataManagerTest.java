@@ -16,21 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io;
+package com.datatorrent.lib.util;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -40,27 +41,25 @@ import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.annotation.Stateless;
-
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
 /**
- * Tests for {@link IdempotentStorageManager}
+ * Tests for {@link WindowDataManager}
  */
-@Deprecated
-public class IdempotentStorageManagerTest
+public class WindowDataManagerTest
 {
   private static class TestMeta extends TestWatcher
   {
 
     String applicationPath;
-    IdempotentStorageManager.FSIdempotentStorageManager storageManager;
+    WindowDataManager.FSWindowDataManager storageManager;
     Context.OperatorContext context;
 
     @Override
     protected void starting(Description description)
     {
       super.starting(description);
-      storageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
+      storageManager = new WindowDataManager.FSWindowDataManager();
       applicationPath = "target/" + description.getClassName() + "/" + description.getMethodName();
 
       Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
@@ -76,8 +75,7 @@ public class IdempotentStorageManagerTest
       storageManager.teardown();
       try {
         FileUtils.deleteDirectory(new File("target/" + description.getClassName()));
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         throw new RuntimeException(e);
       }
     }
@@ -102,7 +100,7 @@ public class IdempotentStorageManagerTest
     testMeta.storageManager.save(data, 1, 1);
     testMeta.storageManager.setup(testMeta.context);
     @SuppressWarnings("unchecked")
-    Map<Integer, String> decoded = (Map<Integer, String>) testMeta.storageManager.load(1, 1);
+    Map<Integer, String> decoded = (Map<Integer, String>)testMeta.storageManager.load(1, 1);
     Assert.assertEquals("dataOf1", data, decoded);
   }
 
@@ -127,8 +125,7 @@ public class IdempotentStorageManagerTest
     for (Integer operatorId : decodedStates.keySet()) {
       if (operatorId == 1) {
         Assert.assertEquals("data of 1", dataOf1, decodedStates.get(1));
-      }
-      else {
+      } else {
         Assert.assertEquals("data of 2", dataOf2, decodedStates.get(2));
       }
     }
@@ -176,12 +173,12 @@ public class IdempotentStorageManagerTest
     testMeta.storageManager.save(dataOf2, 2, 1);
     testMeta.storageManager.save(dataOf3, 3, 1);
 
-    testMeta.storageManager.partitioned(Lists.<IdempotentStorageManager>newArrayList(testMeta.storageManager),
-      Sets.newHashSet(2, 3));
+    testMeta.storageManager.partitioned(Lists.<WindowDataManager>newArrayList(testMeta.storageManager),
+        Sets.newHashSet(2, 3));
     testMeta.storageManager.setup(testMeta.context);
     testMeta.storageManager.deleteUpTo(1, 1);
 
-    Path appPath = new Path(testMeta.applicationPath + '/' + testMeta.storageManager.recoveryPath);
+    Path appPath = new Path(testMeta.applicationPath + '/' + testMeta.storageManager.getRecoveryPath());
     FileSystem fs = FileSystem.newInstance(appPath.toUri(), new Configuration());
     Assert.assertEquals("no data for 1", 0, fs.listStatus(new Path(appPath, Integer.toString(1))).length);
     Assert.assertEquals("no data for 2", false, fs.exists(new Path(appPath, Integer.toString(2))));
