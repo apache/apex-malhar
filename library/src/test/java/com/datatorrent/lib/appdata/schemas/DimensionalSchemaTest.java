@@ -49,6 +49,35 @@ public class DimensionalSchemaTest
   }
 
   @Test
+  public void noTimeTest() throws Exception
+  {
+    String resultSchema = produceSchema("adsGenericEventSchemaNoTime.json");
+
+    Map<String, String> valueToType = Maps.newHashMap();
+    valueToType.put("impressions:SUM", "long");
+    valueToType.put("clicks:SUM", "long");
+    valueToType.put("cost:SUM", "double");
+    valueToType.put("revenue:SUM", "double");
+
+    @SuppressWarnings("unchecked")
+    List<Set<String>> dimensionCombinationsList = Lists.newArrayList((Set<String>)new HashSet<String>(),
+                                                                     Sets.newHashSet("location"),
+                                                                     Sets.newHashSet("advertiser"),
+                                                                     Sets.newHashSet("publisher"),
+                                                                     Sets.newHashSet("location", "advertiser"),
+                                                                     Sets.newHashSet("location", "publisher"),
+                                                                     Sets.newHashSet("advertiser", "publisher"),
+                                                                     Sets.newHashSet("location", "advertiser", "publisher"));
+
+    basicSchemaChecker(resultSchema,
+                       Lists.newArrayList(TimeBucket.ALL.getText()),
+                       Lists.newArrayList("publisher", "advertiser", "location"),
+                       Lists.newArrayList("string", "string", "string"),
+                       valueToType,
+                       dimensionCombinationsList);
+  }
+
+  @Test
   public void globalValueTest() throws Exception
   {
     String resultSchema = produceSchema("adsGenericEventSchema.json");
@@ -307,6 +336,7 @@ public class DimensionalSchemaTest
                                   Map<String, String> valueToType,
                                   List<Set<String>> dimensionCombinationsList) throws Exception
   {
+    LOG.debug("Schema to check {}", resultSchema);
     JSONObject schemaJO = new JSONObject(resultSchema);
     JSONObject data = schemaJO.getJSONArray("data").getJSONObject(0);
 
@@ -373,4 +403,6 @@ public class DimensionalSchemaTest
       Assert.assertEquals(dimensionCombinationsList.get(index), dimensionCombination);
     }
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(DimensionalSchemaTest.class);
 }

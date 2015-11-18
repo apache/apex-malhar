@@ -221,12 +221,27 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
         conversionContext.keyDescriptor = keyFieldsDescriptor;
         conversionContext.aggregateDescriptor = map.get(aggID);
         conversionContext.aggregateDescriptor = mapOutput.get(aggID);
-        conversionContext.inputTimestampIndex =
-                masterKeyFieldsDescriptor.getTypeToFields().get(DimensionsDescriptor.DIMENSION_TIME_TYPE).indexOf(DimensionsDescriptor.DIMENSION_TIME);
-        conversionContext.outputTimebucketIndex =
-                keyFieldsDescriptor.getTypeToFields().get(DimensionsDescriptor.DIMENSION_TIME_BUCKET_TYPE).indexOf(DimensionsDescriptor.DIMENSION_TIME_BUCKET);
-        conversionContext.outputTimestampIndex =
-                keyFieldsDescriptor.getTypeToFields().get(DimensionsDescriptor.DIMENSION_TIME_TYPE).indexOf(DimensionsDescriptor.DIMENSION_TIME);
+
+        {
+          List<String> fields = masterKeyFieldsDescriptor.getTypeToFields().get(DimensionsDescriptor.DIMENSION_TIME_TYPE);
+
+          if (fields == null) {
+            conversionContext.inputTimestampIndex = -1;
+          } else {
+            conversionContext.inputTimestampIndex = fields.indexOf(DimensionsDescriptor.DIMENSION_TIME);
+          }
+        }
+
+        {
+          List<String> fields = keyFieldsDescriptor.getTypeToFields().get(DimensionsDescriptor.DIMENSION_TIME_BUCKET_TYPE);
+
+          if (fields == null) {
+            conversionContext.outputTimebucketIndex = -1;
+          } else {
+            conversionContext.outputTimebucketIndex = fields.indexOf(DimensionsDescriptor.DIMENSION_TIME_BUCKET);
+          }
+        }
+
         conversionContext.indexSubsetKeys = indexSubsetKey;
         conversionContext.indexSubsetAggregates = indexSubsetAggregate;
 

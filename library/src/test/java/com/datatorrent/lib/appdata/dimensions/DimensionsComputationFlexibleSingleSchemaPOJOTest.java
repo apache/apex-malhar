@@ -35,8 +35,6 @@ import com.datatorrent.lib.util.TestUtils;
 
 public class DimensionsComputationFlexibleSingleSchemaPOJOTest
 {
-  private static final Logger LOG = LoggerFactory.getLogger(DimensionsComputationFlexibleSingleSchemaPOJOTest.class);
-
   @Before
   public void setup()
   {
@@ -244,6 +242,46 @@ public class DimensionsComputationFlexibleSingleSchemaPOJOTest
     Assert.assertEquals(expectedTimeBucketIDs, timeBucketIDs);
   }
 
+  public void testNoTimeBucket()
+  {
+    AdInfo ai1 = createTestAdInfoEvent1();
+    AdInfo ai2 = createTestAdInfoEvent1();
+    ai1.setTime(5000000L);
+
+    DimensionalConfigurationSchema schema = new DimensionalConfigurationSchema(
+      SchemaUtils.jarResourceFileToString("adsGenericEventSchemaNoTime.json"),
+      AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
+
+    DimensionsComputationFlexibleSingleSchemaPOJO dimensions
+      = createDimensionsComputationOperator("adsGenericEventSchemaNoTime.json");
+
+    FieldsDescriptor valueFD = schema.getDimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor().
+      get(0).get(AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY.getIncrementalAggregatorNameToID().
+        get(AggregatorIncrementalType.SUM.name()));
+
+    CollectorTestSink<Aggregate> sink = new CollectorTestSink<Aggregate>();
+    TestUtils.setSink(dimensions.output, sink);
+
+    dimensions.setup(null);
+    dimensions.beginWindow(0L);
+    dimensions.input.put(ai1);
+    dimensions.input.put(ai2);
+    dimensions.endWindow();
+
+    Assert.assertEquals(8, sink.collectedTuples.size());
+
+    GPOMutable valueGPO = new GPOMutable(valueFD);
+    valueGPO.setField("clicks", ai1.getClicks() + ai2.getClicks());
+    valueGPO.setField("impressions", ai1.getImpressions() + ai2.getImpressions());
+    valueGPO.setField("revenue", ai1.getRevenue() + ai2.getRevenue());
+    valueGPO.setField("cost", ai1.getCost() + ai2.getCost());
+
+    for (Aggregate aggregate : sink.collectedTuples) {
+      Assert.assertFalse(aggregate.getKeys().getFieldDescriptor().getFieldList().contains(DimensionsDescriptor.DIMENSION_TIME));
+      Assert.assertEquals(valueGPO, aggregate.getAggregates());
+    }
+  }
+
   public static DimensionsComputationFlexibleSingleSchemaPOJO createDimensionsComputationOperator(String eventSchema)
   {
     DimensionsComputationFlexibleSingleSchemaPOJO dimensions = new DimensionsComputationFlexibleSingleSchemaPOJO();
@@ -328,4 +366,6 @@ public class DimensionsComputationFlexibleSingleSchemaPOJOTest
 
     return num;
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(DimensionsComputationFlexibleSingleSchemaPOJOTest.class);
 }

@@ -1,0 +1,18 @@
+{"keys":[{"name":"publisher","type":"string","enumValues":["twitter","facebook","yahoo","google","bing","amazon"]},
+         {"name":"advertiser","type":"string","enumValues":["starbucks","safeway","mcdonalds","macys","taco bell","walmart","khol's","san diego zoo","pandas","jack in the box","tomatina","ron swanson"]},
+         {"name":"location","type":"string","enumValues":["N","LREC","SKY","AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID"]}],
+ "values":
+  [{"name":"impressions","type":"long","aggregators":["SUM","COUNT","AVG"]},
+   {"name":"clicks","type":"long","aggregators":["SUM","COUNT","AVG"]},
+   {"name":"cost","type":"double","aggregators":["SUM","COUNT","AVG"]},
+   {"name":"revenue","type":"double","aggregators":["SUM","COUNT","AVG"]}],
+ "dimensions":
+  [{"combination":[]},
+   {"combination":["location"]},
+   {"combination":["advertiser"], "additionalValues":["impressions:MIN", "clicks:MIN", "cost:MIN", "revenue:MIN", "impressions:MAX", "clicks:MAX", "cost:MAX", "revenue:MAX"]},
+   {"combination":["publisher"], "additionalValues":["impressions:MIN", "clicks:MIN", "cost:MIN", "revenue:MIN", "impressions:MAX", "clicks:MAX", "cost:MAX", "revenue:MAX"]},
+   {"combination":["advertiser","location"]},
+   {"combination":["publisher","location"]},
+   {"combination":["publisher","advertiser"]},
+   {"combination":["publisher","advertiser","location"]}]
+}

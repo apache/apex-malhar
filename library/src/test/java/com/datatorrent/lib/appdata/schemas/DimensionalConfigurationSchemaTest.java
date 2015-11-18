@@ -419,5 +419,14 @@ public class DimensionalConfigurationSchemaTest
     Assert.assertEquals(dimensionsDescriptors, actualDimensionsDescriptors);
   }
 
+  public void testLoadingSchemaWithNoTimeBucket()
+  {
+    DimensionalConfigurationSchema schema = new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaNoTime.json"),
+                                                                               AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
+
+    Assert.assertEquals(1, schema.getTimeBuckets().size());
+    Assert.assertEquals(TimeBucket.ALL, schema.getTimeBuckets().get(0));
+  }
+
   private static final Logger LOG = LoggerFactory.getLogger(DimensionalConfigurationSchemaTest.class);
 }
