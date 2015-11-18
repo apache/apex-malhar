@@ -20,9 +20,7 @@ package com.datatorrent.lib.appdata.gpo;
 
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.Set;
 
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.Assert;
@@ -32,7 +30,12 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
+import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.appdata.schemas.Type;
 
 public class GPOUtilsTest
@@ -250,6 +253,29 @@ public class GPOUtilsTest
     Assert.assertEquals("Results must equal", tshortv, gpom.getField(tshort));
     Assert.assertEquals("Results must equal", tintegerv, gpom.getField(tinteger));
     Assert.assertEquals("Results must equal", tlongv, gpom.getField(tlong));
+  }
+
+  @Test
+  @SuppressWarnings("AssertEqualsBetweenInconvertibleTypes")
+  public void testDeserializeToMap() throws Exception
+  {
+    Map<String, Type> fieldToType = Maps.newHashMap();
+    fieldToType.put("name", Type.STRING);
+    fieldToType.put("longvals", Type.LONG);
+    fieldToType.put("stringvals", Type.STRING);
+
+    FieldsDescriptor fd = new FieldsDescriptor(fieldToType);
+    String json = SchemaUtils.jarResourceFileToString("deserializeToMapTest.json");
+
+    Map<String, Set<Object>> resultMap = GPOUtils.deserializeToMap(fd, new JSONObject(json));
+
+    Set<Object> names = resultMap.get("name");
+    Set<Object> longvals = resultMap.get("longvals");
+    Set<Object> stringvals = resultMap.get("stringvals");
+
+    Assert.assertEquals(Sets.newHashSet("tim"), names);
+    Assert.assertEquals(Sets.newHashSet(1L, 2L, 3L), longvals);
+    Assert.assertEquals(Sets.newHashSet("a", "b", "c"), stringvals);
   }
 
   @Test
