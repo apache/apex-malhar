@@ -148,6 +148,7 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
   @Override
   public void committed(long windowId)
   {
+    super.committed(windowId);
     committedWindowId = windowId;
     Iterator<Long> iterWindows = queueWindows.iterator();
     ArrayList<String> list = new ArrayList<String>();
@@ -183,12 +184,7 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
     try {
       this.rotate(lastFile);
     }
-    catch (IOException ex) {
-      logger.debug(ex.getMessage());
-      DTThrowable.rethrow(ex);
-    }
-    catch (ExecutionException ex) {
-      logger.debug(ex.getMessage());
+    catch (IOException | ExecutionException ex) {
       DTThrowable.rethrow(ex);
     }
   }
