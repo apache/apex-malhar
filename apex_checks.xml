@@ -60,9 +60,9 @@
 
     <module name="LeftCurly">
       <property name="option" value="nl"/>
+      <!-- Add OBJBLOCK once it moves to apache apex 3.3. version-->
       <property name="tokens"
-          value="ANNOTATION_DEF, CLASS_DEF, CTOR_DEF, ENUM_DEF, ENUM_CONSTANT_DEF, INTERFACE_DEF, METHOD_DEF,
-          OBJBLOCK"/>
+          value="ANNOTATION_DEF, CLASS_DEF, CTOR_DEF, ENUM_DEF, ENUM_CONSTANT_DEF, INTERFACE_DEF, METHOD_DEF"/>
     </module>
 
     <module name="RightCurly">
@@ -82,7 +82,8 @@
     </module>
 
     <module name="NoWhitespaceBefore">
-      <property name="tokens" value="COMMA, SEMI, POST_DEC, POST_INC"/>
+      <!-- ADD COMMA once it moves to apache apex 3.3.0 version -->
+      <property name="tokens" value="SEMI, POST_DEC, POST_INC"/>
     </module>
 
     <module name="NoWhitespaceBefore">
