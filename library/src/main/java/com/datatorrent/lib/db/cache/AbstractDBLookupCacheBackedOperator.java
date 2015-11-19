@@ -29,7 +29,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
-
 import com.datatorrent.lib.db.Connectable;
 import com.datatorrent.lib.util.KeyValPair;
 
@@ -53,7 +52,8 @@ import com.datatorrent.lib.util.KeyValPair;
  * @param <S> type of store
  * @since 0.9.1
  */
-public abstract class AbstractDBLookupCacheBackedOperator<T, S extends Connectable> implements Operator, CacheManager.Backup
+public abstract class AbstractDBLookupCacheBackedOperator<T, S extends Connectable>
+    implements Operator, CacheManager.Backup
 {
   @NotNull
   protected S store;
@@ -83,11 +83,11 @@ public abstract class AbstractDBLookupCacheBackedOperator<T, S extends Connectab
     Object value = cacheManager.get(key);
 
     if (value != null) {
-      output.emit(new KeyValPair<Object, Object>(key, value));
+      output.emit(new KeyValPair<>(key, value));
     }
   }
 
-  public final transient DefaultOutputPort<KeyValPair<Object, Object>> output = new DefaultOutputPort<KeyValPair<Object, Object>>();
+  public final transient DefaultOutputPort<KeyValPair<Object, Object>> output = new DefaultOutputPort<>();
 
   @Override
   public void beginWindow(long l)
@@ -107,8 +107,7 @@ public abstract class AbstractDBLookupCacheBackedOperator<T, S extends Connectab
     cacheManager.setBackup(this);
     try {
       cacheManager.initialize();
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
@@ -118,8 +117,7 @@ public abstract class AbstractDBLookupCacheBackedOperator<T, S extends Connectab
   {
     try {
       cacheManager.close();
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       LOG.error("closing manager", e);
     }
   }
@@ -171,6 +169,6 @@ public abstract class AbstractDBLookupCacheBackedOperator<T, S extends Connectab
    */
   protected abstract Object getKeyFromTuple(T tuple);
 
-  private final static Logger LOG = LoggerFactory.getLogger(AbstractDBLookupCacheBackedOperator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractDBLookupCacheBackedOperator.class);
 
 }

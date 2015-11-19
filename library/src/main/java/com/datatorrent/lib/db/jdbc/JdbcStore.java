@@ -32,8 +32,8 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 
-import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.lib.db.Connectable;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * A {@link Connectable} that uses jdbc to connect to stores.
@@ -125,7 +125,8 @@ public class JdbcStore implements Connectable
    */
   public void setConnectionProperties(String connectionProps)
   {
-    String[] properties = Iterables.toArray(Splitter.on(CharMatcher.anyOf(":,")).omitEmptyStrings().trimResults().split(connectionProps), String.class);
+    String[] properties = Iterables.toArray(Splitter.on(CharMatcher.anyOf(":,")).omitEmptyStrings().trimResults()
+        .split(connectionProps), String.class);
     for (int i = 0; i < properties.length; i += 2) {
       if (i + 1 < properties.length) {
         connectionProperties.put(properties[i], properties[i + 1]);
@@ -163,8 +164,7 @@ public class JdbcStore implements Connectable
       connection = DriverManager.getConnection(databaseUrl, connectionProperties);
 
       logger.debug("JDBC connection Success");
-    }
-    catch (Throwable t) {
+    } catch (Throwable t) {
       DTThrowable.rethrow(t);
     }
   }
@@ -177,8 +177,7 @@ public class JdbcStore implements Connectable
   {
     try {
       connection.close();
-    }
-    catch (SQLException ex) {
+    } catch (SQLException ex) {
       throw new RuntimeException("closing database resource", ex);
     }
   }
@@ -188,8 +187,7 @@ public class JdbcStore implements Connectable
   {
     try {
       return !connection.isClosed();
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException("is isConnected", e);
     }
   }

@@ -55,7 +55,8 @@ public class JdbcStoreTest
 
     ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
     Input input = new Input(bais);
-    JdbcStore deserializedStrore = (JdbcStore) kryo.readClassAndObject(input);
-    Assert.assertEquals("connection properties", store.getConnectionProperties(), deserializedStrore.getConnectionProperties());
+    JdbcStore deserializedStrore = (JdbcStore)kryo.readClassAndObject(input);
+    Assert.assertEquals("connection properties", store.getConnectionProperties(),
+        deserializedStrore.getConnectionProperties());
   }
 }

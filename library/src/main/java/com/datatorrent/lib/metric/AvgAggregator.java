@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.Collection;
 
 import com.datatorrent.api.annotation.Name;
-
 import com.datatorrent.common.metric.SingleMetricAggregator;
 
 /**
@@ -38,7 +37,7 @@ public class AvgAggregator implements SingleMetricAggregator, Serializable
     double sum = 0;
 
     for (Object value : metricValues) {
-      sum += ((Number) value).doubleValue();
+      sum += ((Number)value).doubleValue();
     }
     return sum / metricValues.size();
   }

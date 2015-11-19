@@ -18,7 +18,12 @@
  */
 package com.datatorrent.lib.db.jdbc;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -36,7 +41,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 
 import com.datatorrent.api.Context;
-
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
@@ -49,8 +53,9 @@ public class JDBCLookupCacheBackedOperatorTest
   private static final String INMEM_DB_DRIVER = org.hsqldb.jdbcDriver.class.getName();
   protected static final String TABLE_NAME = "Test_Lookup_Cache";
 
-  protected static TestJDBCLookupCacheBackedOperator lookupCacheBackedOperator = new TestJDBCLookupCacheBackedOperator();
-  protected static CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+  protected static TestJDBCLookupCacheBackedOperator lookupCacheBackedOperator =
+      new TestJDBCLookupCacheBackedOperator();
+  protected static CollectorTestSink<Object> sink = new CollectorTestSink<>();
   protected static final Map<Integer, String> mapping = Maps.newHashMap();
 
   static {
@@ -61,9 +66,10 @@ public class JDBCLookupCacheBackedOperatorTest
     mapping.put(5, "five");
   }
 
-  protected static transient final Logger logger = LoggerFactory.getLogger(JDBCLookupCacheBackedOperatorTest.class);
+  protected static final transient Logger logger = LoggerFactory.getLogger(
+      JDBCLookupCacheBackedOperatorTest.class);
 
-  private final static Exchanger<List<Object>> bulkValuesExchanger = new Exchanger<List<Object>>();
+  private static final Exchanger<List<Object>> bulkValuesExchanger = new Exchanger<>();
 
   public static class TestJDBCLookupCacheBackedOperator extends JDBCLookupCacheBackedOperator<String>
   {
@@ -83,15 +89,15 @@ public class JDBCLookupCacheBackedOperatorTest
     @Override
     protected void preparePutStatement(PreparedStatement putStatement, Object key, Object value) throws SQLException
     {
-      putStatement.setInt(1, (Integer) key);
-      putStatement.setString(2, (String) value);
+      putStatement.setInt(1, (Integer)key);
+      putStatement.setString(2, (String)value);
 
     }
 
     @Override
     protected void prepareGetStatement(PreparedStatement getStatement, Object key) throws SQLException
     {
-      getStatement.setInt(1, (Integer) key);
+      getStatement.setInt(1, (Integer)key);
     }
 
     @Override
@@ -121,8 +127,7 @@ public class JDBCLookupCacheBackedOperatorTest
       List<Object> values = super.getAll(keys);
       try {
         bulkValuesExchanger.exchange(values);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
       return values;
@@ -164,7 +169,7 @@ public class JDBCLookupCacheBackedOperatorTest
     Statement stmt = con.createStatement();
 
     String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME
-      + " (col1 INTEGER, col2 VARCHAR(20))";
+        + " (col1 INTEGER, col2 VARCHAR(20))";
 
     stmt.executeUpdate(createTable);
     stmt.executeUpdate("Delete from " + TABLE_NAME);
@@ -172,8 +177,8 @@ public class JDBCLookupCacheBackedOperatorTest
     // populate the database
     for (Map.Entry<Integer, String> entry : mapping.entrySet()) {
       String insert = "INSERT INTO " + TABLE_NAME
-        + " (col1, col2) VALUES (" + entry.getKey() + ", '"
-        + entry.getValue() + "')";
+          + " (col1, col2) VALUES (" + entry.getKey() + ", '"
+          + entry.getValue() + "')";
       stmt.executeUpdate(insert);
     }
 

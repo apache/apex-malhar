@@ -24,9 +24,10 @@ import java.sql.SQLException;
 
 import javax.validation.constraints.NotNull;
 
-import com.datatorrent.lib.db.TransactionableStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.db.TransactionableStore;
 
 /**
  * <p>JdbcTransactionalStore class.</p>
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JdbcTransactionalStore extends JdbcStore implements TransactionableStore
 {
-  private static transient final Logger LOG = LoggerFactory.getLogger(JdbcTransactionalStore.class);
+  private static final transient Logger LOG = LoggerFactory.getLogger(JdbcTransactionalStore.class);
 
   public static String DEFAULT_APP_ID_COL = "dt_app_id";
   public static String DEFAULT_OPERATOR_ID_COL = "dt_operator_id";
@@ -117,7 +118,7 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
     super.connect();
     try {
       String command = "select " + metaTableWindowColumn + " from " + metaTable + " where " + metaTableAppIdColumn +
-        " = ? and " + metaTableOperatorIdColumn + " = ?";
+          " = ? and " + metaTableOperatorIdColumn + " = ?";
       logger.debug(command);
       lastWindowFetchCommand = connection.prepareStatement(command);
 
@@ -126,18 +127,18 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
       logger.debug(command);
       lastWindowInsertCommand = connection.prepareStatement(command);
 
-      command = "update " + metaTable + " set " + metaTableWindowColumn + " = ? where " + metaTableAppIdColumn + " = ? " +
-        " and " + metaTableOperatorIdColumn + " = ?";
+      command = "update " + metaTable + " set " + metaTableWindowColumn + " = ? where " + metaTableAppIdColumn + " = ? "
+          + " and " + metaTableOperatorIdColumn + " = ?";
       logger.debug(command);
       lastWindowUpdateCommand = connection.prepareStatement(command);
 
-      command = "delete from " + metaTable + " where " + metaTableAppIdColumn + " = ? and " + metaTableOperatorIdColumn + " = ?";
+      command = "delete from " + metaTable + " where " + metaTableAppIdColumn + " = ? and " + metaTableOperatorIdColumn
+          + " = ?";
       logger.debug(command);
       lastWindowDeleteCommand = connection.prepareStatement(command);
 
       connection.setAutoCommit(false);
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException(e);
     }
   }
@@ -148,8 +149,7 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
     if (lastWindowUpdateCommand != null) {
       try {
         lastWindowUpdateCommand.close();
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
         throw new RuntimeException(e);
       }
     }
@@ -168,8 +168,7 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
     try {
       connection.commit();
       inTransaction = false;
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException(e);
     }
   }
@@ -180,8 +179,7 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
     try {
       connection.rollback();
       inTransaction = false;
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException(e);
     }
   }
@@ -198,7 +196,7 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
     Long lastWindow = getCommittedWindowIdHelper(appId, operatorId);
 
     try {
-      if(lastWindow == null) {
+      if (lastWindow == null) {
         lastWindowInsertCommand.close();
         connection.commit();
       }
@@ -206,14 +204,12 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
       lastWindowFetchCommand.close();
       LOG.debug("Last window id: {}", lastWindow);
 
-      if(lastWindow == null) {
+      if (lastWindow == null) {
         return -1L;
-      }
-      else {
+      } else {
         return lastWindow;
       }
-    }
-    catch (SQLException ex) {
+    } catch (SQLException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -233,16 +229,14 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
       ResultSet resultSet = lastWindowFetchCommand.executeQuery();
       if (resultSet.next()) {
         lastWindow = resultSet.getLong(1);
-      }
-      else {
+      } else {
         lastWindowInsertCommand.setString(1, appId);
         lastWindowInsertCommand.setInt(2, operatorId);
         lastWindowInsertCommand.setLong(3, -1);
         lastWindowInsertCommand.executeUpdate();
       }
       return lastWindow;
-    }
-    catch (SQLException ex) {
+    } catch (SQLException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -255,8 +249,7 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
       lastWindowUpdateCommand.setString(2, appId);
       lastWindowUpdateCommand.setInt(3, operatorId);
       lastWindowUpdateCommand.executeUpdate();
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException(e);
     }
   }
@@ -268,8 +261,7 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
       lastWindowDeleteCommand.setString(1, appId);
       lastWindowDeleteCommand.setInt(2, operatorId);
       lastWindowDeleteCommand.executeUpdate();
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException(e);
     }
   }

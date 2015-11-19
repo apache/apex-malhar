@@ -28,6 +28,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.base.Preconditions;
+
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.netlet.util.Slice;
 
@@ -56,7 +57,8 @@ public class KryoSerializableStreamCodec<T> implements StreamCodec<T>, Serializa
   }
 
   /**
-   * Registers a class with kryo. If the class of the tuple and its fields are registered then kryo serialization is more efficient.
+   * Registers a class with kryo. If the class of the tuple and its fields are registered then kryo serialization is
+   * more efficient.
    *
    * @param clazz class to register with Kryo.
    */

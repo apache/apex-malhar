@@ -24,15 +24,13 @@ import java.util.Set;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import com.datatorrent.lib.util.KeyValPair;
-
-import com.datatorrent.common.util.BaseOperator;
-
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
+import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * This operator counts the number of unique values corresponding to a key within a window.&nbsp;
@@ -89,20 +87,21 @@ public class UniqueValueCount<K> extends BaseOperator
     @SuppressWarnings({"rawtypes", "unchecked"})
     public Unifier<KeyValPair<K, Integer>> getUnifier()
     {
-      return (Unifier) new UniqueCountUnifier<K>();
+      return (Unifier)new UniqueCountUnifier<K>();
     }
   };
 
   /**
    * The output port which emits key and set containing unique values
    */
-  public final transient DefaultOutputPort<KeyValPair<K, Set<Object>>> outputValues = new DefaultOutputPort<KeyValPair<K, Set<Object>>>()
+  public final transient DefaultOutputPort<KeyValPair<K, Set<Object>>> outputValues =
+      new DefaultOutputPort<KeyValPair<K, Set<Object>>>()
   {
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public Unifier<KeyValPair<K, Set<Object>>> getUnifier()
     {
-      return (Unifier) new UniqueCountSetUnifier<K>();
+      return (Unifier)new UniqueCountSetUnifier<K>();
     }
   };
 

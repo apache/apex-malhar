@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.Collection;
 
 import com.datatorrent.api.annotation.Name;
-
 import com.datatorrent.common.metric.SingleMetricAggregator;
 
 /**
@@ -37,7 +36,7 @@ public class FloatMinAggregator implements SingleMetricAggregator, Serializable
   {
     Float min = null;
     for (Object metric : metricValues) {
-      float fval = ((Number) metric).floatValue();
+      float fval = ((Number)metric).floatValue();
       if (min == null || fval < min) {
         min = fval;
       }

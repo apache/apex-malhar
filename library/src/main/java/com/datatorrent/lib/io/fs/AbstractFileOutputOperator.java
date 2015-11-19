@@ -126,7 +126,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   /**
    * The default number of max open files.
    */
-  public final static int DEFAULT_MAX_OPEN_FILES = 100;
+  public static final int DEFAULT_MAX_OPEN_FILES = 100;
 
   /**
    * Keyname to rolling file number.
@@ -217,7 +217,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   /**
    * File output counters.
    */
-  protected final BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
+  protected final BasicCounters<MutableLong> fileCounters = new BasicCounters<>(MutableLong.class);
 
   protected StreamCodec<INPUT> streamCodec;
 
@@ -252,8 +252,9 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
    * accessed by a read or write.
    * <p/>
    * https://code.google.com/p/guava-libraries/wiki/CachesExplained <br/>
-   * Caches built with CacheBuilder do not perform cleanup and evict values "automatically," or instantly after a value expires, or anything of the sort.
-   * Instead, it performs small amounts of maintenance during write operations, or during occasional read operations if writes are rare.<br/>
+   * Caches built with CacheBuilder do not perform cleanup and evict values "automatically," or instantly after a
+   * value expires, or anything of the sort. Instead, it performs small amounts of maintenance during write
+   * operations, or during occasional read operations if writes are rare.<br/>
    * This isn't the most effective way but adds a little bit of optimization.
    */
   private Long expireStreamAfterAcessMillis;
@@ -275,8 +276,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
     {
       if (AbstractFileOutputOperator.this.streamCodec == null) {
         return super.getStreamCodec();
-      }
-      else {
+      } else {
         return streamCodec;
       }
     }
@@ -310,9 +310,8 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   {
     FileSystem tempFS = FileSystem.newInstance(new Path(filePath).toUri(), new Configuration());
 
-    if(tempFS instanceof LocalFileSystem)
-    {
-      tempFS = ((LocalFileSystem) tempFS).getRaw();
+    if (tempFS instanceof LocalFileSystem) {
+      tempFS = ((LocalFileSystem)tempFS).getRaw();
     }
 
     return tempFS;
@@ -331,8 +330,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
     //Getting required file system instance.
     try {
       fs = getFSInstance();
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
 
@@ -375,7 +373,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
 
       if (rollingFile) {
         //delete the left over future rolling files produced from the previous crashed instance of this operator.
-        for(String seenFileName: endOffsets.keySet()) {
+        for (String seenFileName : endOffsets.keySet()) {
           try {
             Integer fileOpenPart = this.openPart.get(seenFileName).getValue();
             int nextPart = fileOpenPart + 1;
@@ -416,8 +414,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
               LOG.debug("rotating file at setup.");
               rotate(seenFileName);
             }
-          }
-          catch (IOException | ExecutionException e) {
+          } catch (IOException | ExecutionException e) {
             throw new RuntimeException(e);
           }
         }
@@ -443,8 +440,8 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
    * @param filename     name of the actual file.
    * @param partFileName name of the part file. When not rolling this is same as filename; otherwise this is the
    *                     latest open part file name.
-   * @param filepath     path of the file. When always writing to temp file, this is the path of the temp file; otherwise
-   *                     path of the actual file.
+   * @param filepath     path of the file. When always writing to temp file, this is the path of the temp file;
+   *                     otherwise path of the actual file.
    * @throws IOException
    */
   private void recoverFile(String filename, String partFileName, Path filepath) throws IOException
@@ -716,19 +713,18 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
 
     //Close all the streams you can
     Map<String, FSFilterStreamContext> openStreams = streamsCache.asMap();
-    for(String seenFileName: openStreams.keySet()) {
+    for (String seenFileName : openStreams.keySet()) {
       FSFilterStreamContext fsFilterStreamContext = openStreams.get(seenFileName);
       try {
         long start = System.currentTimeMillis();
         closeStream(fsFilterStreamContext);
         filesWithOpenStreams.remove(seenFileName);
         totalWritingTime += System.currentTimeMillis() - start;
-      }
-      catch (IOException ex) {
+      } catch (IOException ex) {
         //Count number of failures
         numberOfFailures++;
         //Add names of first N failed files to list
-        if(fileNames.size() < MAX_NUMBER_FILES_IN_TEARDOWN_EXCEPTION) {
+        if (fileNames.size() < MAX_NUMBER_FILES_IN_TEARDOWN_EXCEPTION) {
           fileNames.add(seenFileName);
           //save exception
           savedException = ex;
@@ -741,8 +737,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
 
     try {
       fs.close();
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       //Closing file system failed
       savedException = ex;
       fsFailed = true;
@@ -753,20 +748,20 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
       String errorMessage = "";
 
       //File system failed to close
-      if(fsFailed) {
+      if (fsFailed) {
         errorMessage += "Closing the fileSystem failed. ";
       }
 
       //Print names of atmost first N files that failed to close
-      if(!fileNames.isEmpty()) {
+      if (!fileNames.isEmpty()) {
         errorMessage += "The following files failed closing: ";
       }
 
-      for(String seenFileName: fileNames) {
+      for (String seenFileName: fileNames) {
         errorMessage += seenFileName + ", ";
       }
 
-      if(numberOfFailures > MAX_NUMBER_FILES_IN_TEARDOWN_EXCEPTION) {
+      if (numberOfFailures > MAX_NUMBER_FILES_IN_TEARDOWN_EXCEPTION) {
         errorMessage += (numberOfFailures - MAX_NUMBER_FILES_IN_TEARDOWN_EXCEPTION) +
                         " more files failed.";
       }
@@ -801,7 +796,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
       totalBytesWritten += tupleBytes.length;
       MutableLong currentOffset = endOffsets.get(fileName);
 
-      if(currentOffset == null) {
+      if (currentOffset == null) {
         currentOffset = new MutableLong(0);
         endOffsets.put(fileName, currentOffset);
       }
@@ -881,11 +876,10 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
    */
   protected void flush(FSDataOutputStream fsOutput) throws IOException
   {
-    if(fs instanceof LocalFileSystem ||
-       fs instanceof RawLocalFileSystem) {
+    if (fs instanceof LocalFileSystem ||
+        fs instanceof RawLocalFileSystem) {
       fsOutput.flush();
-    }
-    else {
+    } else {
       fsOutput.hflush();
     }
   }
@@ -920,8 +914,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
    * @param part The part number of the rolling file.
    * @return The rolling file name.
    */
-  protected String getPartFileName(String fileName,
-                                   int part)
+  protected String getPartFileName(String fileName, int part)
   {
     return fileName + "." + part;
   }
@@ -940,7 +933,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
     currentWindow = windowId;
   }
 
-    @Override
+  @Override
   public void endWindow()
   {
     try {
@@ -951,8 +944,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
         totalWritingTime += System.currentTimeMillis() - start;
         //streamContext.resetFilter();
       }
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException(e);
     }
 
@@ -1245,8 +1237,8 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
       LOG.debug("rename from tmp {} actual {} ", tmpFileName, fileName);
       rename(srcPath, destPath);
     } else if (fs.exists(srcPath)) {
-      //if the destination and src both exists that means there was a failure between file rename and clearing the endOffset so
-      //we just delete the tmp file.
+      /*if the destination and src both exists that means there was a failure between file rename and clearing the
+      endOffset so we just delete the tmp file*/
       LOG.debug("deleting tmp {}", tmpFileName);
       fs.delete(srcPath, true);
     }

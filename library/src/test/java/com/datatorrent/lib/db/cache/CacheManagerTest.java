@@ -62,7 +62,7 @@ public class CacheManagerTest
         @Override
         public boolean apply(@Nullable Object key)
         {
-          return key != null && (Integer) key <= 5;
+          return key != null && (Integer)key <= 5;
         }
       });
     }

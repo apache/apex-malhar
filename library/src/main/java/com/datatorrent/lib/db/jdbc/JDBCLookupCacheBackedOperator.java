@@ -78,8 +78,7 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
     try {
       putStatement = store.connection.prepareStatement(insertQuery);
       getStatement = store.connection.prepareStatement(getQuery);
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException(e);
     }
   }
@@ -90,8 +89,7 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
     try {
       preparePutStatement(putStatement, key, value);
       putStatement.executeUpdate();
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException("while executing insert", e);
     }
   }
@@ -103,8 +101,7 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
       prepareGetStatement(getStatement, key);
       ResultSet resultSet = getStatement.executeQuery();
       return processResultSet(resultSet);
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException("while fetching key", e);
     }
   }
@@ -118,8 +115,7 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
         prepareGetStatement(getStatement, key);
         ResultSet resultSet = getStatement.executeQuery();
         values.add(processResultSet(resultSet));
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
         throw new RuntimeException("while fetching keys", e);
       }
     }
@@ -128,7 +124,8 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
 
   protected abstract void prepareGetStatement(PreparedStatement getStatement, Object key) throws SQLException;
 
-  protected abstract void preparePutStatement(PreparedStatement putStatement, Object key, Object value) throws SQLException;
+  protected abstract void preparePutStatement(PreparedStatement putStatement, Object key, Object value)
+  throws SQLException;
 
   protected abstract String fetchInsertQuery();
 

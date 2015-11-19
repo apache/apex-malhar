@@ -310,7 +310,8 @@ public class AbstractFileOutputOperatorTest
   }
 
   @Test
-  public void testSingleFileCompletedWriteTmp() {
+  public void testSingleFileCompletedWriteTmp()
+  {
     testMeta.writeToTmp = true;
     testSingleFileCompletedWrite();
   }
@@ -420,6 +421,7 @@ public class AbstractFileOutputOperatorTest
                 singleFileName,
                 correctContents);
   }
+
   @Test
   public void testSingleFileFailedWriteOverwriteInitiaTmp() throws IOException
   {

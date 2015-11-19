@@ -27,15 +27,15 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.commons.net.ftp.FTP;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.ftp.FTPFileSystem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.DefaultOutputPort;
-
 import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
 
 /**
@@ -90,10 +90,10 @@ public abstract class AbstractFTPInputOperator<T> extends AbstractFileInputOpera
   {
     super.partitioned(partitions);
     for (Partition<AbstractFileInputOperator<T>> partition : partitions.values()) {
-      ((AbstractFTPInputOperator<T>) partition.getPartitionedInstance()).host = host;
-      ((AbstractFTPInputOperator<T>) partition.getPartitionedInstance()).port = port;
-      ((AbstractFTPInputOperator<T>) partition.getPartitionedInstance()).userName = userName;
-      ((AbstractFTPInputOperator<T>) partition.getPartitionedInstance()).password = password;
+      ((AbstractFTPInputOperator<T>)partition.getPartitionedInstance()).host = host;
+      ((AbstractFTPInputOperator<T>)partition.getPartitionedInstance()).port = port;
+      ((AbstractFTPInputOperator<T>)partition.getPartitionedInstance()).userName = userName;
+      ((AbstractFTPInputOperator<T>)partition.getPartitionedInstance()).password = password;
     }
   }
 
