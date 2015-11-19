@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>dt-modules</artifactId>
-    <version>3.2.0-SNAPSHOT</version>
+    <version>3.3.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>HdfsInputModule</artifactId>

@@ -10,7 +10,7 @@
 
   <groupId>com.datatorrent</groupId>
   <artifactId>dt-megh</artifactId>
-  <version>3.2.0-SNAPSHOT</version>
+  <version>3.3.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Megh</name>
   <description>Megh proprietary operator libraries</description>
