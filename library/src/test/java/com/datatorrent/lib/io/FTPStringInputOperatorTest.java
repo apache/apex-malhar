@@ -70,9 +70,10 @@ public class FTPStringInputOperatorTest
       ftpOperator.setPassword("test");
 
       ftpOperator.setDirectory(homeDirectory.getPath());
-      ftpOperator.setup(new OperatorContextTestHelper.TestIdOperatorContext(11, new Attribute.AttributeMap.DefaultAttributeMap()));
+      ftpOperator.setup(
+          new OperatorContextTestHelper.TestIdOperatorContext(11, new Attribute.AttributeMap.DefaultAttributeMap()));
 
-      sink = new CollectorTestSink<Object>();
+      sink = new CollectorTestSink<>();
       ftpOperator.output.setSink(sink);
     }
 

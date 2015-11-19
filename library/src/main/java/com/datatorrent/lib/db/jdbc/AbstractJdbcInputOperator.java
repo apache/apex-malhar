@@ -35,7 +35,8 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * and emits the data as tuples.&nbsp;
  * Subclasses should implement the methods required to read the data from the database.
  * <p>
- * This is an abstract class. Sub-classes need to implement {@link #queryToRetrieveData()} and {@link #getTuple(ResultSet)}.
+ * This is an abstract class. Sub-classes need to implement
+ * {@link #queryToRetrieveData()} and {@link #getTuple(ResultSet)}.
  * </p>
  * @displayName Abstract JDBC Input
  * @category Input
@@ -84,17 +85,14 @@ public abstract class AbstractJdbcInputOperator<T> extends AbstractStoreInputOpe
           outputPort.emit(tuple);
         }
         while (result.next());
-      }
-      else {
+      } else {
         // No rows available wait for some time before retrying so as to not continuously slam the database
         Thread.sleep(waitForDataTimeout);
       }
-    }
-    catch (SQLException ex) {
+    } catch (SQLException ex) {
       store.disconnect();
       throw new RuntimeException(String.format("Error while running query: %s", query), ex);
-    }
-    catch (InterruptedException ex) {
+    } catch (InterruptedException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -106,8 +104,7 @@ public abstract class AbstractJdbcInputOperator<T> extends AbstractStoreInputOpe
     super.setup(context);
     try {
       queryStatement = store.getConnection().createStatement();
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException("creating query", e);
     }
   }

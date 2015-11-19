@@ -37,12 +37,10 @@ public class JMSStringInputOperator extends AbstractJMSInputOperator<String>
   public String convert(Message message) throws JMSException
   {
     if (message instanceof TextMessage) {
-      return ((TextMessage) message).getText();
-    }
-    else if (message instanceof StreamMessage) {
-      return ((StreamMessage) message).readString();
-    }
-    else {
+      return ((TextMessage)message).getText();
+    } else if (message instanceof StreamMessage) {
+      return ((StreamMessage)message).readString();
+    } else {
       throw new IllegalArgumentException("Unhandled message type " + message.getClass().getName());
     }
   }

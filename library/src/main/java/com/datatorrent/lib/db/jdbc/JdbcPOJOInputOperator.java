@@ -19,7 +19,14 @@
 package com.datatorrent.lib.db.jdbc;
 
 import java.math.BigDecimal;
-import java.sql.*;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +44,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-
 import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.lib.util.PojoUtils;
 
@@ -49,8 +55,8 @@ import com.datatorrent.lib.util.PojoUtils;
  *
  * For eg. user can set the query property to a complex one : "select x1, x2 from t1, t2 where t1.x3 = t2.x3 ;"<br/>
  *
- * This implementation is generic so it uses offset/limit mechanism for batching which is not optimal. Batching is most efficient
- * when the tables/views are indexed and the query uses this information to retrieve data.<br/>
+ * This implementation is generic so it uses offset/limit mechanism for batching which is not optimal. Batching is
+ * most efficient when the tables/views are indexed and the query uses this information to retrieve data.<br/>
  * This can be achieved in sub-classes by overriding {@link #queryToRetrieveData()} and {@link #setRuntimeParams()}.
  *
  * @displayName Jdbc Input Operator
@@ -58,7 +64,8 @@ import com.datatorrent.lib.util.PojoUtils;
  * @tags database, sql, pojo, jdbc
  * @since 2.1.0
  */
-public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object> implements Operator.ActivationListener<Context.OperatorContext>
+public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
+    implements Operator.ActivationListener<Context.OperatorContext>
 {
   private static int DEF_FETCH_SIZE = 100;
 
@@ -363,53 +370,65 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object> imp
       switch (type) {
         case (Types.CHAR):
         case (Types.VARCHAR):
-          activeFieldInfo.setterOrGetter = PojoUtils.createSetter(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression(),
+          activeFieldInfo.setterOrGetter = PojoUtils.createSetter(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression(),
             String.class);
           break;
 
         case (Types.BOOLEAN):
-          activeFieldInfo.setterOrGetter = PojoUtils.createSetterBoolean(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          activeFieldInfo.setterOrGetter = PojoUtils.createSetterBoolean(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression());
           break;
 
         case (Types.TINYINT):
-          activeFieldInfo.setterOrGetter = PojoUtils.createSetterByte(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          activeFieldInfo.setterOrGetter = PojoUtils.createSetterByte(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression());
           break;
 
         case (Types.SMALLINT):
-          activeFieldInfo.setterOrGetter = PojoUtils.createSetterShort(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          activeFieldInfo.setterOrGetter = PojoUtils.createSetterShort(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression());
           break;
 
         case (Types.INTEGER):
-          activeFieldInfo.setterOrGetter = PojoUtils.createSetterInt(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          activeFieldInfo.setterOrGetter = PojoUtils.createSetterInt(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression());
           break;
 
         case (Types.BIGINT):
-          activeFieldInfo.setterOrGetter = PojoUtils.createSetterLong(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          activeFieldInfo.setterOrGetter = PojoUtils.createSetterLong(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression());
           break;
 
         case (Types.FLOAT):
-          activeFieldInfo.setterOrGetter = PojoUtils.createSetterFloat(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          activeFieldInfo.setterOrGetter = PojoUtils.createSetterFloat(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression());
           break;
 
         case (Types.DOUBLE):
-          activeFieldInfo.setterOrGetter = PojoUtils.createGetterDouble(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          activeFieldInfo.setterOrGetter = PojoUtils.createGetterDouble(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression());
           break;
 
         case Types.DECIMAL:
-          activeFieldInfo.setterOrGetter = PojoUtils.createSetter(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression(),
-            BigDecimal.class);
+          activeFieldInfo.setterOrGetter = PojoUtils.createSetter(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression(),
+              BigDecimal.class);
           break;
 
         case Types.TIMESTAMP:
-          activeFieldInfo.setterOrGetter = PojoUtils.createSetterLong(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          activeFieldInfo.setterOrGetter = PojoUtils.createSetterLong(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression());
           break;
 
         case Types.TIME:
-          activeFieldInfo.setterOrGetter = PojoUtils.createSetterLong(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          activeFieldInfo.setterOrGetter = PojoUtils.createSetterLong(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression());
           break;
 
         case Types.DATE:
-          activeFieldInfo.setterOrGetter = PojoUtils.createSetterLong(pojoClass, activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          activeFieldInfo.setterOrGetter = PojoUtils.createSetterLong(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression());
           break;
 
         default:

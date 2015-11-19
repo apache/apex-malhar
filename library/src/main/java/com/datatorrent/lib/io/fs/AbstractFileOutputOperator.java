@@ -217,7 +217,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   /**
    * File output counters.
    */
-  protected final BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
+  protected final BasicCounters<MutableLong> fileCounters = new BasicCounters<>(MutableLong.class);
 
   protected StreamCodec<INPUT> streamCodec;
 
@@ -252,8 +252,9 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
    * accessed by a read or write.
    * <p/>
    * https://code.google.com/p/guava-libraries/wiki/CachesExplained <br/>
-   * Caches built with CacheBuilder do not perform cleanup and evict values "automatically," or instantly after a value expires, or anything of the sort.
-   * Instead, it performs small amounts of maintenance during write operations, or during occasional read operations if writes are rare.<br/>
+   * Caches built with CacheBuilder do not perform cleanup and evict values "automatically," or instantly after a
+   * value expires, or anything of the sort. Instead, it performs small amounts of maintenance during write
+   * operations, or during occasional read operations if writes are rare.<br/>
    * This isn't the most effective way but adds a little bit of optimization.
    */
   private Long expireStreamAfterAcessMillis;
@@ -275,8 +276,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
     {
       if (AbstractFileOutputOperator.this.streamCodec == null) {
         return super.getStreamCodec();
-      }
-      else {
+      } else {
         return streamCodec;
       }
     }
@@ -414,8 +414,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
               LOG.debug("rotating file at setup.");
               rotate(seenFileName);
             }
-          }
-          catch (IOException | ExecutionException e) {
+          } catch (IOException | ExecutionException e) {
             throw new RuntimeException(e);
           }
         }
@@ -441,8 +440,8 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
    * @param filename     name of the actual file.
    * @param partFileName name of the part file. When not rolling this is same as filename; otherwise this is the
    *                     latest open part file name.
-   * @param filepath     path of the file. When always writing to temp file, this is the path of the temp file; otherwise
-   *                     path of the actual file.
+   * @param filepath     path of the file. When always writing to temp file, this is the path of the temp file;
+   *                     otherwise path of the actual file.
    * @throws IOException
    */
   private void recoverFile(String filename, String partFileName, Path filepath) throws IOException
@@ -714,7 +713,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
 
     //Close all the streams you can
     Map<String, FSFilterStreamContext> openStreams = streamsCache.asMap();
-    for(String seenFileName: openStreams.keySet()) {
+    for (String seenFileName : openStreams.keySet()) {
       FSFilterStreamContext fsFilterStreamContext = openStreams.get(seenFileName);
       try {
         long start = System.currentTimeMillis();
@@ -1238,8 +1237,8 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
       LOG.debug("rename from tmp {} actual {} ", tmpFileName, fileName);
       rename(srcPath, destPath);
     } else if (fs.exists(srcPath)) {
-      //if the destination and src both exists that means there was a failure between file rename and clearing the endOffset so
-      //we just delete the tmp file.
+      /*if the destination and src both exists that means there was a failure between file rename and clearing the
+      endOffset so we just delete the tmp file*/
       LOG.debug("deleting tmp {}", tmpFileName);
       fs.delete(srcPath, true);
     }

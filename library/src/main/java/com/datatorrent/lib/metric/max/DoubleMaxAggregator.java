@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.Collection;
 
 import com.datatorrent.api.annotation.Name;
-
 import com.datatorrent.common.metric.SingleMetricAggregator;
 
 /**
@@ -37,7 +36,7 @@ public class DoubleMaxAggregator implements SingleMetricAggregator, Serializable
   {
     Double max = null;
     for (Object value : metricValues) {
-      double dval = ((Number) value).doubleValue();
+      double dval = ((Number)value).doubleValue();
       if (max == null || dval > max) {
         max = dval;
       }

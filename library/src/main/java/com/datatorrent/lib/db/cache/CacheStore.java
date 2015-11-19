@@ -114,8 +114,7 @@ public class CacheStore implements CacheManager.Primary
     CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
     if (entryExpiryStrategy == ExpiryType.EXPIRE_AFTER_ACCESS) {
       cacheBuilder.expireAfterAccess(entryExpiryDurationInMillis, TimeUnit.MILLISECONDS);
-    }
-    else if (entryExpiryStrategy == ExpiryType.EXPIRE_AFTER_WRITE) {
+    } else if (entryExpiryStrategy == ExpiryType.EXPIRE_AFTER_WRITE) {
       cacheBuilder.expireAfterWrite(entryExpiryDurationInMillis, TimeUnit.MILLISECONDS);
     }
     cache = cacheBuilder.build();
@@ -186,7 +185,7 @@ public class CacheStore implements CacheManager.Primary
   /**
    * Strategies for time-based expiration of entries.
    */
-  public static enum ExpiryType
+  public enum ExpiryType
   {
     /**
      * Only expire the entries after the specified duration has passed since the entry was last accessed by a read
