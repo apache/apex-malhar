@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JdbcTransactionalStore extends JdbcStore implements TransactionableStore
 {
-  private static transient final Logger LOG = LoggerFactory.getLogger(JdbcTransactionalStore.class);
+  private static final transient Logger LOG = LoggerFactory.getLogger(JdbcTransactionalStore.class);
 
   public static String DEFAULT_APP_ID_COL = "dt_app_id";
   public static String DEFAULT_OPERATOR_ID_COL = "dt_operator_id";
@@ -198,7 +198,7 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
     Long lastWindow = getCommittedWindowIdHelper(appId, operatorId);
 
     try {
-      if(lastWindow == null) {
+      if (lastWindow == null) {
         lastWindowInsertCommand.close();
         connection.commit();
       }
@@ -206,14 +206,12 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
       lastWindowFetchCommand.close();
       LOG.debug("Last window id: {}", lastWindow);
 
-      if(lastWindow == null) {
+      if (lastWindow == null) {
         return -1L;
-      }
-      else {
+      } else {
         return lastWindow;
       }
-    }
-    catch (SQLException ex) {
+    } catch (SQLException ex) {
       throw new RuntimeException(ex);
     }
   }
