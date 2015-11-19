@@ -178,6 +178,13 @@
       <version>${apex.core.version}</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>apex-api</artifactId>
+      <version>${apex.core.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
   </dependencies>
 
 
