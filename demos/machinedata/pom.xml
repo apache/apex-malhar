@@ -256,17 +256,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.apex</groupId>
-      <artifactId>malhar-contrib</artifactId>
-      <version>${malhar.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>dt-contrib</artifactId>
       <version>${project.version}</version>

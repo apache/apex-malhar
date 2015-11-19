@@ -171,25 +171,6 @@
       <artifactId>trove4j</artifactId>
       <version>3.0.3</version>
     </dependency>
-    <!-- HDHT depens on org.apache.hadoop.io.file.tfile package in here -->
-    <dependency>
-      <groupId>org.apache.apex</groupId>
-      <artifactId>malhar-contrib</artifactId>
-      <version>${malhar.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <scope>test</scope>
-      <groupId>org.apache.apex</groupId>
-      <artifactId>malhar-library</artifactId>
-      <version>${malhar.version}</version>
-      <classifier>tests</classifier>
-    </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>dt-contrib</artifactId>

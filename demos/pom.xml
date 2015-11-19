@@ -166,13 +166,42 @@
 -->
 
   <dependencies>
-    <!--dependency>
+    <dependency>
       <groupId>org.apache.apex</groupId>
-      <artifactId>malhar-demos</artifactId>
+      <artifactId>malhar-contrib</artifactId>
       <version>${malhar.version}</version>
-      <type>pom</type>
-    </dependency-->
-   <dependency>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>${malhar.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>${malhar.version}</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>org.apache.apex</groupId>
       <artifactId>apex-common</artifactId>
       <version>${apex.core.version}</version>
@@ -184,7 +213,6 @@
       <version>${apex.core.version}</version>
       <scope>provided</scope>
     </dependency>
-
   </dependencies>
 
 
