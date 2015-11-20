@@ -603,6 +603,11 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
       super(directoryPath, relativeFilePath);
       this.modifiedTime = modifiedTime;
     }
+
+    public long getModifiedTime()
+    {
+      return modifiedTime;
+    }
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(FileSplitterInput.class);
