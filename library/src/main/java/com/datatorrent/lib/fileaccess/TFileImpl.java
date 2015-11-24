@@ -1,19 +1,22 @@
-/*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-package com.datatorrent.contrib.hdht.tfile;
+package com.datatorrent.lib.fileaccess;
 
 import java.io.IOException;
 
@@ -25,10 +28,8 @@ import org.apache.hadoop.io.file.tfile.TFile;
 import org.apache.hadoop.io.file.tfile.TFile.Reader;
 import org.apache.hadoop.io.file.tfile.TFile.Writer;
 
-import com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl;
-
 /**
- * A TFile wrapper with HDHTFileAccess API
+ * A TFile wrapper with FileAccess API
  * <ul>
  * <li>{@link TFileImpl.DefaultTFileImpl} return default TFile {@link Reader} and {@link Writer} for IO operations</li> 
  * <li>{@link TFileImpl.DTFileImpl} return DTFile {@link org.apache.hadoop.io.file.tfile.DTFile.Reader}(which is faster than default TFile reader) and {@link Writer} for IO operations</li> 
@@ -36,7 +37,7 @@ import com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl;
  *
  * @since 2.0.0
  */
-public abstract class TFileImpl extends HDHTFileAccessFSImpl
+public abstract class TFileImpl extends FileAccessFSImpl
 {
   private int minBlockSize = 64 * 1024;
 
@@ -60,7 +61,7 @@ public abstract class TFileImpl extends HDHTFileAccessFSImpl
 
 
   @Override
-  public HDSFileWriter getWriter(long bucketKey, String fileName) throws IOException
+  public FileWriter getWriter(long bucketKey, String fileName) throws IOException
   {
     FSDataOutputStream fsdos = getOutputStream(bucketKey, fileName);
     setupConfig(fs.getConf());
@@ -145,7 +146,7 @@ public abstract class TFileImpl extends HDHTFileAccessFSImpl
   public static class DefaultTFileImpl extends TFileImpl{
     
     @Override
-    public HDSFileReader getReader(long bucketKey, String fileName) throws IOException
+    public FileReader getReader(long bucketKey, String fileName) throws IOException
     {
       FSDataInputStream fsdis =  getInputStream(bucketKey, fileName);
       long fileLength = getFileSize(bucketKey, fileName);
@@ -163,7 +164,7 @@ public abstract class TFileImpl extends HDHTFileAccessFSImpl
   public static class DTFileImpl extends TFileImpl {
     
     @Override
-    public HDSFileReader getReader(long bucketKey, String fileName) throws IOException
+    public FileReader getReader(long bucketKey, String fileName) throws IOException
     {
       FSDataInputStream fsdis =  getInputStream(bucketKey, fileName);
       long fileLength = getFileSize(bucketKey, fileName);

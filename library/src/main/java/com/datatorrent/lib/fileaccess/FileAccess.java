@@ -1,19 +1,22 @@
-/*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-package com.datatorrent.contrib.hdht;
+package com.datatorrent.lib.fileaccess;
 
 import java.io.Closeable;
 import java.io.DataInputStream;
@@ -28,11 +31,12 @@ import com.datatorrent.netlet.util.Slice;
  *
  * @since 2.0.0
  */
-public interface HDHTFileAccess extends Closeable
+public interface FileAccess extends Closeable
 {
   void init();
 
   DataOutputStream getOutputStream(long bucketKey, String fileName) throws IOException;
+
   DataInputStream getInputStream(long bucketKey, String fileName) throws IOException;
 
   /**
@@ -48,9 +52,9 @@ public interface HDHTFileAccess extends Closeable
   long getFileSize(long bucketKey, String s) throws IOException;
 
   /**
-   * HDHT Data File Format Reader
+   * Data File Format Reader
    */
-  interface HDSFileReader extends Closeable
+  interface FileReader extends Closeable
   {
     /**
      * Read the entire contents of the underlying file into a TreeMap structure
@@ -90,9 +94,10 @@ public interface HDHTFileAccess extends Closeable
   }
 
   /**
-   * HDHT Data File Format Writer
+   * Data File Format Writer
    */
-  interface HDSFileWriter extends Closeable {
+  interface FileWriter extends Closeable
+  {
     /**
      * Appends key/value pair to the underlying file.
      * @param key
@@ -113,12 +118,12 @@ public interface HDHTFileAccess extends Closeable
    * Obtain a reader for the given data file. Since existing file formats may depend on the file system directly (vs.
    * work just based on InputStream), construction of the reader is part of the file system abstraction itself.
    */
-  public HDSFileReader getReader(long bucketKey, String fileName) throws IOException;
+  public FileReader getReader(long bucketKey, String fileName) throws IOException;
 
   /**
    * Obtain a writer for the given data file. Since existing file formats may depend on the file system directly (vs.
    * work just based on OutputStream), construction of the writer is part of the file system abstraction itself.
    */
-  public HDSFileWriter getWriter(long bucketKey, String fileName) throws IOException;
+  public FileWriter getWriter(long bucketKey, String fileName) throws IOException;
 
 }
