@@ -6,6 +6,9 @@ package com.datatorrent.demos.machinedata.data;
 
 import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 
+/**
+ * @since 3.2.0
+ */
 public class MachineAggregatorHardCodedSum extends AbstractMachineAggregatorHardcoded
 {
   private static final long serialVersionUID = 201510230657L;

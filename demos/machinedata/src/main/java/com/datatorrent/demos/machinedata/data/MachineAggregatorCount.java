@@ -17,6 +17,7 @@ import com.datatorrent.lib.dimensions.aggregator.AggregatorCount;
 
 /**
  * This is a custom aggregator to speed up computation for the machine demo.
+ * @since 3.2.0
  */
 @Name("COUNT")
 public class MachineAggregatorCount extends AbstractIncrementalAggregator

@@ -33,6 +33,9 @@ import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
 import com.datatorrent.lib.statistics.DimensionsComputationUnifierImpl;
 
 @ApplicationAnnotation(name=Application.APP_NAME)
+/**
+ * @since 3.2.0
+ */
 public class Application implements StreamingApplication
 {
   public static final String EVENT_SCHEMA = "machinedataschema.json";

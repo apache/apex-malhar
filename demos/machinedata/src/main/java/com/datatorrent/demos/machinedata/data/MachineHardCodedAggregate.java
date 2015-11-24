@@ -8,6 +8,9 @@ import java.util.Objects;
 
 import com.datatorrent.lib.statistics.DimensionsComputation.AggregateEvent;
 
+/**
+ * @since 3.2.0
+ */
 public class MachineHardCodedAggregate implements AggregateEvent
 {
   public static final String CUSTOMER_ID = "Customer ID";

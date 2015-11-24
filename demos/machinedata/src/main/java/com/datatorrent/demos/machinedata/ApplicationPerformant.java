@@ -19,6 +19,9 @@ import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
 import com.datatorrent.lib.dimensions.aggregator.OTFAggregator;
 
 @ApplicationAnnotation(name = ApplicationPerformant.APP_NAME)
+/**
+ * @since 3.2.0
+ */
 public class ApplicationPerformant extends Application
 {
   public static final String APP_NAME = "MachineDataDemoPerformant";

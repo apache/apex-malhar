@@ -18,6 +18,9 @@ import com.google.common.base.Preconditions;
 
 import com.datatorrent.lib.appdata.schemas.CustomTimeBucket;
 
+/**
+ * @since 3.2.0
+ */
 public class CustomTimeBucketRegistry implements Serializable
 {
   private static final long serialVersionUID = 201509221536L;

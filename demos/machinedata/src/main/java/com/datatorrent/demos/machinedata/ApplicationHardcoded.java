@@ -39,6 +39,9 @@ import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.datatorrent.lib.statistics.DimensionsComputationUnifierImpl;
 
 @ApplicationAnnotation(name = ApplicationHardcoded.APP_NAME)
+/**
+ * @since 3.2.0
+ */
 public class ApplicationHardcoded implements StreamingApplication
 {
   public static final String APP_NAME = "MachineDataDemoHardcoded";
