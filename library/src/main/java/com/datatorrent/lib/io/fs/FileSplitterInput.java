@@ -323,10 +323,18 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
       scanService.submit(this);
     }
 
+    /**
+     * Stop scanner
+     */
+    protected void stopScanning()
+    {
+      running = false;
+    }
+
     @Override
     public void teardown()
     {
-      running = false;
+      stopScanning();
       scanService.shutdownNow();
       try {
         fs.close();
