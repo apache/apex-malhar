@@ -4,10 +4,6 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,6 +12,12 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -23,18 +25,16 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.datatorrent.lib.dimensions.CustomTimeBucketRegistry;
 import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
 import com.datatorrent.lib.dimensions.aggregator.OTFAggregator;
+
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 /**
  * <p>
@@ -179,6 +179,10 @@ public class DimensionalConfigurationSchema
    * The JSON key string for the additional values subsection of the schema.
    */
   public static final String FIELD_DIMENSIONS_ADDITIONAL_VALUES = "additionalValues";
+  /**
+   * The JSON Key string for the timeBuckets defined on a per dimension combination basis.
+   */
+  public static final String FIELD_DIMENSIONS_TIME_BUCKETS = FIELD_TIME_BUCKETS;
   /**
    * This is a {@link FieldsDescriptor} object responsible for managing the key names and types.
    */
@@ -336,8 +340,7 @@ public class DimensionalConfigurationSchema
 
     try {
       initialize(json);
-    }
-    catch(JSONException ex) {
+    } catch (JSONException ex) {
       LOG.error("{}", ex);
       throw new IllegalArgumentException(ex);
     }
@@ -365,18 +368,18 @@ public class DimensionalConfigurationSchema
   {
     List<Map<String, FieldsDescriptor>> tempDdIDToAggregatorToAggregateDescriptor = Lists.newArrayList();
 
-    for(int ddID = 0;
-        ddID < ddIDToValueToAggregator.size();
-        ddID++) {
+    for (int ddID = 0;
+         ddID < ddIDToValueToAggregator.size();
+         ddID++) {
       Map<String, Set<String>> valueToAggregator = ddIDToValueToAggregator.get(ddID);
       Map<String, Set<String>> aggregatorToValues = Maps.newHashMap();
 
-      for(Map.Entry<String, Set<String>> entry: valueToAggregator.entrySet()) {
+      for (Map.Entry<String, Set<String>> entry: valueToAggregator.entrySet()) {
         String value = entry.getKey();
-        for(String aggregator: entry.getValue()) {
+        for (String aggregator: entry.getValue()) {
           Set<String> values = aggregatorToValues.get(aggregator);
 
-          if(values == null) {
+          if (values == null) {
             values = Sets.newHashSet();
             aggregatorToValues.put(aggregator, values);
           }
@@ -387,10 +390,10 @@ public class DimensionalConfigurationSchema
 
       Map<String, FieldsDescriptor> aggregatorToValuesDescriptor = Maps.newHashMap();
 
-      for(Map.Entry<String, Set<String>> entry: aggregatorToValues.entrySet()) {
+      for (Map.Entry<String, Set<String>> entry: aggregatorToValues.entrySet()) {
         aggregatorToValuesDescriptor.put(
-        entry.getKey(),
-        inputValuesDescriptor.getSubset(new Fields(entry.getValue())));
+            entry.getKey(),
+            inputValuesDescriptor.getSubset(new Fields(entry.getValue())));
       }
 
       tempDdIDToAggregatorToAggregateDescriptor.add(aggregatorToValuesDescriptor);
@@ -441,7 +444,7 @@ public class DimensionalConfigurationSchema
 
     Map<String, Type> valueFieldToType = Maps.newHashMap();
 
-    for(Value value: values) {
+    for (Value value: values) {
       valueFieldToType.put(value.getName(), value.getType());
     }
 
@@ -452,7 +455,7 @@ public class DimensionalConfigurationSchema
     Map<String, Type> keyFieldToType = Maps.newHashMap();
     keysToEnumValuesList = Maps.newHashMap();
 
-    for(Key key: keys) {
+    for (Key key: keys) {
       keyFieldToType.put(key.getName(), key.getType());
       keysToEnumValuesList.put(key.getName(), key.getEnumValues());
     }
@@ -469,7 +472,7 @@ public class DimensionalConfigurationSchema
     Map<String, Set<String>> specificValueToOTFAggregator = Maps.newHashMap();
     Map<String, Set<String>> allSpecificValueToAggregator = Maps.newHashMap();
 
-    for(Value value: values) {
+    for (Value value: values) {
       String valueName = value.getName();
       Set<String> aggregators = value.getAggregators();
 
@@ -477,12 +480,11 @@ public class DimensionalConfigurationSchema
       Set<String> allAggregatorSet = Sets.newHashSet();
       Set<String> otfAggregators = Sets.newHashSet();
 
-      for(String aggregatorName: aggregators) {
-        if(aggregatorRegistry.isIncrementalAggregator(aggregatorName)) {
+      for (String aggregatorName: aggregators) {
+        if (aggregatorRegistry.isIncrementalAggregator(aggregatorName)) {
           specificAggregatorSet.add(aggregatorName);
           allAggregatorSet.add(aggregatorName);
-        }
-        else {
+        } else {
           otfAggregators.add(aggregatorName);
           List<String> aggregatorNames = aggregatorRegistry.getOTFAggregatorToIncrementalAggregators().get(aggregatorName);
           specificAggregatorSet.addAll(aggregatorNames);
@@ -496,20 +498,19 @@ public class DimensionalConfigurationSchema
       allSpecificValueToAggregator.put(valueName, allAggregatorSet);
     }
 
-    for(Map.Entry<String, Set<String>> entry: allSpecificValueToAggregator.entrySet()) {
+    for (Map.Entry<String, Set<String>> entry: allSpecificValueToAggregator.entrySet()) {
       String valueName = entry.getKey();
       Type inputType = inputValuesDescriptor.getType(valueName);
       Set<String> aggregators = entry.getValue();
       Map<String, Type> aggregatorToType = Maps.newHashMap();
 
-      for(String aggregatorName: aggregators) {
+      for (String aggregatorName: aggregators) {
 
-        if(aggregatorRegistry.isIncrementalAggregator(aggregatorName)) {
+        if (aggregatorRegistry.isIncrementalAggregator(aggregatorName)) {
           IncrementalAggregator aggregator = aggregatorRegistry.getNameToIncrementalAggregator().get(aggregatorName);
 
           aggregatorToType.put(aggregatorName, aggregator.getOutputType(inputType));
-        }
-        else {
+        } else {
           OTFAggregator otfAggregator = aggregatorRegistry.getNameToOTFAggregators().get(aggregatorName);
 
           aggregatorToType.put(aggregatorName, otfAggregator.getOutputType());
@@ -528,8 +529,8 @@ public class DimensionalConfigurationSchema
     dimensionsDescriptorIDToValueToOTFAggregator = Lists.newArrayList();
 
     int ddID = 0;
-    for(DimensionsCombination dimensionsCombination: dimensionsCombinations) {
-      for(TimeBucket timeBucket: timeBuckets) {
+    for (DimensionsCombination dimensionsCombination: dimensionsCombinations) {
+      for (TimeBucket timeBucket: timeBuckets) {
         DimensionsDescriptor dd = new DimensionsDescriptor(timeBucket, dimensionsCombination.getFields());
         dimensionsDescriptorIDToDimensionsDescriptor.add(dd);
         dimensionsDescriptorIDToKeyDescriptor.add(dd.createFieldsDescriptor(keyDescriptor));
@@ -540,23 +541,22 @@ public class DimensionalConfigurationSchema
 
         Map<String, Set<String>> tempValueToAggregator = dimensionsCombination.getValueToAggregators();
 
-        for(Map.Entry<String, Set<String>> entry: tempValueToAggregator.entrySet()) {
+        for (Map.Entry<String, Set<String>> entry: tempValueToAggregator.entrySet()) {
           String value = entry.getKey();
           Set<String> staticAggregatorNames = Sets.newHashSet();
           Set<String> otfAggregatorNames = Sets.newHashSet();
           Set<String> aggregatorNames = entry.getValue();
 
-          for(String aggregatorName: aggregatorNames) {
-            if(!aggregatorRegistry.isAggregator(aggregatorName)) {
+          for (String aggregatorName: aggregatorNames) {
+            if (!aggregatorRegistry.isAggregator(aggregatorName)) {
               throw new UnsupportedOperationException("The aggregator "
                                                       + aggregatorName
                                                       + " is not valid.");
             }
 
-            if(aggregatorRegistry.isIncrementalAggregator(aggregatorName)) {
+            if (aggregatorRegistry.isIncrementalAggregator(aggregatorName)) {
               staticAggregatorNames.add(aggregatorName);
-            }
-            else {
+            } else {
               staticAggregatorNames.addAll(aggregatorRegistry.getOTFAggregatorToIncrementalAggregators().get(aggregatorName));
               otfAggregatorNames.add(aggregatorName);
             }
@@ -575,23 +575,23 @@ public class DimensionalConfigurationSchema
       }
     }
 
-    for(Map<String, Set<String>> valueToAggregator: dimensionsDescriptorIDToValueToAggregator) {
+    for (Map<String, Set<String>> valueToAggregator: dimensionsDescriptorIDToValueToAggregator) {
 
-      if(specificValueToAggregator.isEmpty()) {
+      if (specificValueToAggregator.isEmpty()) {
         continue;
       }
 
-      for(Map.Entry<String, Set<String>> entry: specificValueToAggregator.entrySet()) {
+      for (Map.Entry<String, Set<String>> entry: specificValueToAggregator.entrySet()) {
         String valueName = entry.getKey();
         Set<String> aggName = entry.getValue();
 
-        if(aggName.isEmpty()) {
+        if (aggName.isEmpty()) {
           continue;
         }
 
         Set<String> ddAggregatorSet = valueToAggregator.get(valueName);
 
-        if(ddAggregatorSet == null) {
+        if (ddAggregatorSet == null) {
           ddAggregatorSet = Sets.newHashSet();
           valueToAggregator.put(valueName, ddAggregatorSet);
         }
@@ -600,23 +600,23 @@ public class DimensionalConfigurationSchema
       }
     }
 
-    for(Map<String, Set<String>> valueToAggregator: dimensionsDescriptorIDToValueToOTFAggregator) {
+    for (Map<String, Set<String>> valueToAggregator: dimensionsDescriptorIDToValueToOTFAggregator) {
 
-      if(specificValueToOTFAggregator.isEmpty()) {
+      if (specificValueToOTFAggregator.isEmpty()) {
         continue;
       }
 
-      for(Map.Entry<String, Set<String>> entry: specificValueToOTFAggregator.entrySet()) {
+      for (Map.Entry<String, Set<String>> entry: specificValueToOTFAggregator.entrySet()) {
         String valueName = entry.getKey();
         Set<String> aggName = entry.getValue();
 
-        if(aggName.isEmpty()) {
+        if (aggName.isEmpty()) {
           continue;
         }
 
         Set<String> ddAggregatorSet = valueToAggregator.get(valueName);
 
-        if(ddAggregatorSet == null) {
+        if (ddAggregatorSet == null) {
           ddAggregatorSet = Sets.newHashSet();
           valueToAggregator.put(valueName, ddAggregatorSet);
         }
@@ -635,7 +635,7 @@ public class DimensionalConfigurationSchema
     dimensionsDescriptorIDToFieldToAggregatorAdditionalValues = Lists.newArrayList();
     dimensionsDescriptorIDToKeys = Lists.newArrayList();
 
-    for(DimensionsCombination dimensionsCombination: dimensionsCombinations) {
+    for (DimensionsCombination dimensionsCombination: dimensionsCombinations) {
       dimensionsDescriptorIDToFieldToAggregatorAdditionalValues.add(dimensionsCombination.getValueToAggregators());
       dimensionsDescriptorIDToKeys.add(dimensionsCombination.getFields());
     }
@@ -644,7 +644,7 @@ public class DimensionalConfigurationSchema
 
     JSONArray keyArray = new JSONArray();
 
-    for(Key key: keys) {
+    for (Key key: keys) {
       JSONObject jo = new JSONObject();
 
       try {
@@ -653,13 +653,12 @@ public class DimensionalConfigurationSchema
 
         JSONArray enumArray = new JSONArray();
 
-        for(Object enumVal: key.getEnumValues()) {
+        for (Object enumVal: key.getEnumValues()) {
           enumArray.put(enumVal);
         }
 
         jo.put(FIELD_KEYS_ENUMVALUES, enumArray);
-      }
-      catch(JSONException ex) {
+      } catch (JSONException ex) {
         throw new RuntimeException(ex);
       }
 
@@ -700,10 +699,9 @@ public class DimensionalConfigurationSchema
     keysToEnumValuesList = Maps.newHashMap();
     JSONArray keysArray;
 
-    if(jo.has(FIELD_KEYS)) {
+    if (jo.has(FIELD_KEYS)) {
       keysArray = jo.getJSONArray(FIELD_KEYS);
-    }
-    else {
+    } else {
       keysArray = new JSONArray();
     }
 
@@ -712,9 +710,9 @@ public class DimensionalConfigurationSchema
 
     Map<String, Type> fieldToType = Maps.newHashMap();
 
-    for(int keyIndex = 0;
-        keyIndex < keysArray.length();
-        keyIndex++) {
+    for (int keyIndex = 0;
+         keyIndex < keysArray.length();
+         keyIndex++) {
       JSONObject tempKeyDescriptor = keysArray.getJSONObject(keyIndex);
 
       SchemaUtils.checkValidKeysEx(tempKeyDescriptor, VALID_KEY_FIELDS);
@@ -731,14 +729,14 @@ public class DimensionalConfigurationSchema
       List<Object> valuesList = Lists.newArrayList();
       keysToEnumValuesList.put(keyName, valuesList);
 
-      if(tempKeyDescriptor.has(FIELD_KEYS_ENUMVALUES)) {
+      if (tempKeyDescriptor.has(FIELD_KEYS_ENUMVALUES)) {
         Type maxType = null;
         JSONArray valArray = tempKeyDescriptor.getJSONArray(FIELD_KEYS_ENUMVALUES);
 
         //Validate the provided data types
-        for(int valIndex = 0;
-            valIndex < valArray.length();
-            valIndex++) {
+        for (int valIndex = 0;
+             valIndex < valArray.length();
+             valIndex++) {
           Object val = valArray.get(valIndex);
           valuesList.add(val);
 
@@ -748,14 +746,12 @@ public class DimensionalConfigurationSchema
 
           Type currentType = Type.CLASS_TO_TYPE.get(val.getClass());
 
-          if(maxType == null) {
+          if (maxType == null) {
             maxType = currentType;
-          }
-          else if(maxType != currentType) {
-            if(maxType.getHigherTypes().contains(currentType)) {
+          } else if (maxType != currentType) {
+            if (maxType.getHigherTypes().contains(currentType)) {
               maxType = currentType;
-            }
-            else {
+            } else {
               Preconditions.checkState(currentType.getHigherTypes().contains(maxType),
                                        "Conficting types: " + currentType.getName()
                                        + " cannot be converted to " + maxType.getName());
@@ -764,7 +760,7 @@ public class DimensionalConfigurationSchema
         }
 
         //This is not the right thing to do, fix later
-        if(!Type.areRelated(maxType, type)) {
+        if (!Type.areRelated(maxType, type)) {
           throw new IllegalArgumentException("The type of the values in "
                                              + valArray + " is " + maxType.getName()
                                              + " while the specified type is " + type.getName());
@@ -791,23 +787,31 @@ public class DimensionalConfigurationSchema
 
     customTimeBucketRegistry = new CustomTimeBucketRegistry(STARTING_TIMEBUCKET_ID);
 
-    for(int timeBucketIndex = 0;
-        timeBucketIndex < timeBucketsJSON.length();
-        timeBucketIndex++) {
+    Set<CustomTimeBucket> customTimeBucketsAllSet = Sets.newHashSet();
+    List<CustomTimeBucket> customTimeBucketsAll = Lists.newArrayList();
+
+    Set<CustomTimeBucket> customTimeBucketsTotalSet = Sets.newHashSet();
+
+    for (int timeBucketIndex = 0;
+         timeBucketIndex < timeBucketsJSON.length();
+         timeBucketIndex++) {
       String timeBucketString = timeBucketsJSON.getString(timeBucketIndex);
       CustomTimeBucket customTimeBucket = new CustomTimeBucket(timeBucketString);
 
-      if (!customTimeBuckets.add(customTimeBucket)) {
+      if (!customTimeBucketsAllSet.add(customTimeBucket)) {
         throw new IllegalArgumentException("The bucket " + customTimeBucket.getText() + " was defined twice.");
       }
 
+      customTimeBucketsAll.add(customTimeBucket);
+
+      customTimeBuckets.add(customTimeBucket);
+
       if (customTimeBucket.isUnit() || customTimeBucket.getTimeBucket() == TimeBucket.ALL) {
         timeBuckets.add(customTimeBucket.getTimeBucket());
-        customTimeBucketRegistry.register(customTimeBucket, customTimeBucket.getTimeBucket().ordinal());
-      } else {
-        customTimeBucketRegistry.register(customTimeBucket);
       }
     }
+
+    customTimeBucketsTotalSet.addAll(customTimeBucketsAllSet);
 
     JSONArray customTimeBucketsJSON = new JSONArray();
 
@@ -836,9 +840,9 @@ public class DimensionalConfigurationSchema
     schemaAllValueToAggregatorToType = Maps.newHashMap();
     valueToTags = Maps.newHashMap();
 
-    for(int valueIndex = 0;
-        valueIndex < valuesArray.length();
-        valueIndex++) {
+    for (int valueIndex = 0;
+         valueIndex < valuesArray.length();
+         valueIndex++) {
       JSONObject value = valuesArray.getJSONObject(valueIndex);
       String name = value.getString(FIELD_VALUES_NAME);
       String type = value.getString(FIELD_VALUES_TYPE);
@@ -848,7 +852,7 @@ public class DimensionalConfigurationSchema
 
       Type typeT = Type.NAME_TO_TYPE.get(type);
 
-      if(aggFieldToType.containsKey(name)) {
+      if (aggFieldToType.containsKey(name)) {
         throw new IllegalArgumentException("Cannot define the value " + name +
                                            " twice.");
       }
@@ -860,50 +864,49 @@ public class DimensionalConfigurationSchema
       Set<String> aggregatorSet = Sets.newHashSet();
       Set<String> aggregatorOTFSet = Sets.newHashSet();
 
-      if(value.has(FIELD_VALUES_AGGREGATIONS)) {
+      if (value.has(FIELD_VALUES_AGGREGATIONS)) {
         JSONArray aggregators = value.getJSONArray(FIELD_VALUES_AGGREGATIONS);
 
-        if(aggregators.length() == 0) {
+        if (aggregators.length() == 0) {
           throw new IllegalArgumentException("Empty aggregators array for: " + name);
         }
 
-        for(int aggregatorIndex = 0;
+        for (int aggregatorIndex = 0;
             aggregatorIndex < aggregators.length();
             aggregatorIndex++) {
           String aggregatorName = aggregators.getString(aggregatorIndex);
 
-          if(!aggregatorRegistry.isAggregator(aggregatorName)) {
+          if (!aggregatorRegistry.isAggregator(aggregatorName)) {
             throw new IllegalArgumentException(aggregatorName + " is not a valid aggregator.");
           }
 
-          if(aggregatorRegistry.isIncrementalAggregator(aggregatorName)) {
+          if (aggregatorRegistry.isIncrementalAggregator(aggregatorName)) {
             Set<String> aggregatorNames = allValueToAggregator.get(name);
 
-            if(aggregatorNames == null) {
+            if (aggregatorNames == null) {
               aggregatorNames = Sets.newHashSet();
               allValueToAggregator.put(name, aggregatorNames);
             }
 
             aggregatorNames.add(aggregatorName);
 
-            if(!aggregatorSet.add(aggregatorName)) {
+            if (!aggregatorSet.add(aggregatorName)) {
               throw new IllegalArgumentException("An aggregator " + aggregatorName
                                                  + " cannot be specified twice for a value");
             }
 
             IncrementalAggregator aggregator = aggregatorRegistry.getNameToIncrementalAggregator().get(aggregatorName);
             aggregatorToType.put(aggregatorName, aggregator.getOutputType(typeT));
-          }
-          else {
+          } else {
             //Check for duplicate on the fly aggregators
             Set<String> aggregatorNames = allValueToOTFAggregator.get(name);
 
-            if(aggregatorNames == null) {
+            if (aggregatorNames == null) {
               aggregatorNames = Sets.newHashSet();
               allValueToOTFAggregator.put(name, aggregatorNames);
             }
 
-            if(!aggregatorNames.add(aggregatorName)) {
+            if (!aggregatorNames.add(aggregatorName)) {
               throw new IllegalArgumentException("An aggregator " + aggregatorName +
                                                  " cannot be specified twice for a value");
             }
@@ -913,7 +916,7 @@ public class DimensionalConfigurationSchema
             //Add child aggregators
             aggregatorNames = allValueToAggregator.get(name);
 
-            if(aggregatorNames == null) {
+            if (aggregatorNames == null) {
               aggregatorNames = Sets.newHashSet();
               allValueToAggregator.put(name, aggregatorNames);
             }
@@ -928,7 +931,7 @@ public class DimensionalConfigurationSchema
         }
       }
 
-      if(!aggregatorSet.isEmpty()) {
+      if (!aggregatorSet.isEmpty()) {
         valueToAggregators.put(name, aggregatorSet);
         valueToOTFAggregators.put(name, aggregatorOTFSet);
       }
@@ -952,7 +955,7 @@ public class DimensionalConfigurationSchema
 
     JSONArray dimensionsArray;
 
-    if(jo.has(FIELD_DIMENSIONS)) {
+    if (jo.has(FIELD_DIMENSIONS)) {
       Object dimensionsVal = jo.get(FIELD_DIMENSIONS);
 
       if (dimensionsVal instanceof String) {
@@ -990,8 +993,7 @@ public class DimensionalConfigurationSchema
       } else {
         throw new IllegalArgumentException("The value for " + FIELD_DIMENSIONS + " must be a string or an array.");
       }
-    }
-    else {
+    } else {
       dimensionsArray = new JSONArray();
       JSONObject combination = new JSONObject();
       combination.put(FIELD_DIMENSIONS_COMBINATIONS, new JSONArray());
@@ -1001,9 +1003,9 @@ public class DimensionalConfigurationSchema
     Set<Fields> dimensionsDescriptorFields = Sets.newHashSet();
 
     //loop through dimension descriptors
-    for(int dimensionsIndex = 0;
-        dimensionsIndex < dimensionsArray.length();
-        dimensionsIndex++) {
+    for (int dimensionsIndex = 0;
+         dimensionsIndex < dimensionsArray.length();
+         dimensionsIndex++) {
       //Get a dimension descriptor
       JSONObject dimension = dimensionsArray.getJSONObject(dimensionsIndex);
       //Get the key fields of a descriptor
@@ -1011,15 +1013,13 @@ public class DimensionalConfigurationSchema
       Map<String, Set<String>> specificValueToAggregator = Maps.newHashMap();
       Map<String, Set<String>> specificValueToOTFAggregator = Maps.newHashMap();
 
-      for(Map.Entry<String, Set<String>> entry:
-          valueToAggregators.entrySet()) {
+      for (Map.Entry<String, Set<String>> entry : valueToAggregators.entrySet()) {
         Set<String> aggregators = Sets.newHashSet();
         aggregators.addAll(entry.getValue());
         specificValueToAggregator.put(entry.getKey(), aggregators);
       }
 
-      for(Map.Entry<String, Set<String>> entry:
-          valueToOTFAggregators.entrySet()) {
+      for (Map.Entry<String, Set<String>> entry : valueToOTFAggregators.entrySet()) {
         Set<String> aggregators = Sets.newHashSet();
         aggregators.addAll(entry.getValue());
         specificValueToOTFAggregator.put(entry.getKey(), aggregators);
@@ -1027,16 +1027,16 @@ public class DimensionalConfigurationSchema
 
       List<String> keyNames = Lists.newArrayList();
       //loop through the key fields of a descriptor
-      for(int keyIndex = 0;
-          keyIndex < combinationFields.length();
-          keyIndex++) {
+      for (int keyIndex = 0;
+           keyIndex < combinationFields.length();
+           keyIndex++) {
         String keyName = combinationFields.getString(keyIndex);
         keyNames.add(keyName);
       }
 
       Fields dimensionDescriptorFields = new Fields(keyNames);
 
-      if(!dimensionsDescriptorFields.add(dimensionDescriptorFields)) {
+      if (!dimensionsDescriptorFields.add(dimensionDescriptorFields)) {
         throw new IllegalArgumentException("Duplicate dimension descriptor: " +
                                            dimensionDescriptorFields);
       }
@@ -1045,24 +1045,51 @@ public class DimensionalConfigurationSchema
       dimensionsDescriptorIDToKeys.add(dimensionDescriptorFields);
       dimensionsDescriptorIDToFieldToAggregatorAdditionalValues.add(fieldToAggregatorAdditionalValues);
 
+      Set<CustomTimeBucket> customTimeBucketsCombinationSet = Sets.newHashSet(customTimeBucketsAllSet);
+      List<CustomTimeBucket> customTimeBucketsCombination = Lists.newArrayList(customTimeBucketsAll);
+
+      if (dimension.has(DimensionalConfigurationSchema.FIELD_DIMENSIONS_TIME_BUCKETS)) {
+        JSONArray timeBuckets = dimension.getJSONArray(DimensionalConfigurationSchema.FIELD_DIMENSIONS_TIME_BUCKETS);
+
+        if (timeBuckets.length() == 0) {
+          throw new IllegalArgumentException(dimensionDescriptorFields.getFields().toString());
+        }
+
+        for (int timeBucketIndex = 0; timeBucketIndex < timeBuckets.length(); timeBucketIndex++) {
+          CustomTimeBucket customTimeBucket = new CustomTimeBucket(timeBuckets.getString(timeBucketIndex));
+
+          if (!customTimeBucketsCombinationSet.add(customTimeBucket)) {
+            throw new IllegalArgumentException("The time bucket " +
+                                               customTimeBucket +
+                                               " is defined twice for the dimensions combination " +
+                                               dimensionDescriptorFields.getFields().toString());
+          }
+
+          customTimeBucketsCombinationSet.add(customTimeBucket);
+          customTimeBucketsCombination.add(customTimeBucket);
+        }
+      }
+
+      customTimeBucketsTotalSet.addAll(customTimeBucketsCombinationSet);
+
       //Loop through time to generate dimension descriptors
-      for (CustomTimeBucket timeBucket : customTimeBuckets) {
+      for (CustomTimeBucket timeBucket : customTimeBucketsCombination) {
         DimensionsDescriptor dimensionsDescriptor  = new DimensionsDescriptor(timeBucket, dimensionDescriptorFields);
         dimensionsDescriptorIDToKeyDescriptor.add(dimensionsDescriptor.createFieldsDescriptor(keyDescriptor));
         dimensionsDescriptorIDToDimensionsDescriptor.add(dimensionsDescriptor);
       }
 
-      if(dimension.has(FIELD_DIMENSIONS_ADDITIONAL_VALUES)) {
+      if (dimension.has(FIELD_DIMENSIONS_ADDITIONAL_VALUES)) {
         JSONArray additionalValues = dimension.getJSONArray(FIELD_DIMENSIONS_ADDITIONAL_VALUES);
 
         //iterate over additional values
-        for(int additionalValueIndex = 0;
+        for (int additionalValueIndex = 0;
             additionalValueIndex < additionalValues.length();
             additionalValueIndex++) {
           String additionalValue = additionalValues.getString(additionalValueIndex);
           String[] components = additionalValue.split(ADDITIONAL_VALUE_SEPERATOR);
 
-          if(components.length != ADDITIONAL_VALUE_NUM_COMPONENTS) {
+          if (components.length != ADDITIONAL_VALUE_NUM_COMPONENTS) {
             throw new IllegalArgumentException("The number of component values "
                                                + "in an additional value must be "
                                                + ADDITIONAL_VALUE_NUM_COMPONENTS
@@ -1075,7 +1102,7 @@ public class DimensionalConfigurationSchema
           {
             Set<String> aggregators = fieldToAggregatorAdditionalValues.get(valueName);
 
-            if(aggregators == null) {
+            if (aggregators == null) {
               aggregators = Sets.newHashSet();
               fieldToAggregatorAdditionalValues.put(valueName, aggregators);
             }
@@ -1083,14 +1110,14 @@ public class DimensionalConfigurationSchema
             aggregators.add(aggregatorName);
           }
 
-          if(!aggregatorRegistry.isAggregator(aggregatorName)) {
+          if (!aggregatorRegistry.isAggregator(aggregatorName)) {
             throw new IllegalArgumentException(aggregatorName + " is not a valid aggregator.");
           }
 
-          if(aggregatorRegistry.isIncrementalAggregator(aggregatorName)) {
+          if (aggregatorRegistry.isIncrementalAggregator(aggregatorName)) {
             Set<String> aggregatorNames = allValueToAggregator.get(valueName);
 
-            if(aggregatorNames == null) {
+            if (aggregatorNames == null) {
               aggregatorNames = Sets.newHashSet();
               allValueToAggregator.put(valueName, aggregatorNames);
             }
@@ -1099,45 +1126,44 @@ public class DimensionalConfigurationSchema
 
             Set<String> aggregators = specificValueToAggregator.get(valueName);
 
-            if(aggregators == null) {
+            if (aggregators == null) {
               aggregators = Sets.newHashSet();
               specificValueToAggregator.put(valueName, aggregators);
             }
 
-            if(aggregators == null) {
+            if (aggregators == null) {
               throw new IllegalArgumentException("The additional value " + additionalValue
                                                  + "Does not have a corresponding value " + valueName
                                                  + " defined in the " + FIELD_VALUES + " section.");
             }
 
-            if(!aggregators.add(aggregatorName)) {
+            if (!aggregators.add(aggregatorName)) {
               throw new IllegalArgumentException("The aggregator " + aggregatorName
                                                  + " was already defined in the " + FIELD_VALUES
                                                  + " section for the value " + valueName);
             }
-          }
-          else {
+          } else {
             //Check for duplicate on the fly aggregators
             Set<String> aggregatorNames = specificValueToOTFAggregator.get(valueName);
 
-            if(aggregatorNames == null) {
+            if (aggregatorNames == null) {
               aggregatorNames = Sets.newHashSet();
               specificValueToOTFAggregator.put(valueName, aggregatorNames);
             }
 
-            if(!aggregatorNames.add(aggregatorName)) {
+            if (!aggregatorNames.add(aggregatorName)) {
               throw new IllegalArgumentException("The aggregator " + aggregatorName +
                                                  " cannot be specified twice for the value " + valueName);
             }
 
             aggregatorNames = allValueToOTFAggregator.get(valueName);
 
-            if(aggregatorNames == null) {
+            if (aggregatorNames == null) {
               aggregatorNames = Sets.newHashSet();
               allValueToOTFAggregator.put(valueName, aggregatorNames);
             }
 
-            if(!aggregatorNames.add(aggregatorName)) {
+            if (!aggregatorNames.add(aggregatorName)) {
               throw new IllegalArgumentException("The aggregator " + aggregatorName +
                                                  " cannot be specified twice for the value " + valueName);
             }
@@ -1146,12 +1172,12 @@ public class DimensionalConfigurationSchema
 
             Set<String> aggregators = specificValueToAggregator.get(valueName);
 
-            if(aggregators == null) {
+            if (aggregators == null) {
               aggregators = Sets.newHashSet();
               specificValueToAggregator.put(valueName, aggregators);
             }
 
-            if(aggregators == null) {
+            if (aggregators == null) {
               throw new IllegalArgumentException("The additional value " + additionalValue
                                                  + "Does not have a corresponding value " + valueName
                                                  + " defined in the " + FIELD_VALUES + " section.");
@@ -1162,23 +1188,33 @@ public class DimensionalConfigurationSchema
         }
       }
 
-      LOG.debug("fieldToAggregatorAdditionalValues: {}", fieldToAggregatorAdditionalValues);
-
-      if(specificValueToAggregator.isEmpty()) {
+      if (specificValueToAggregator.isEmpty()) {
         throw new IllegalArgumentException("No aggregations defined for the " +
                                            "following field combination " +
                                            combinationFields.toString());
       }
 
-      for(CustomTimeBucket customTimeBucket: customTimeBuckets) {
+      for (CustomTimeBucket customTimeBucket: customTimeBucketsCombination) {
         dimensionsDescriptorIDToValueToAggregator.add(specificValueToAggregator);
         dimensionsDescriptorIDToValueToOTFAggregator.add(specificValueToOTFAggregator);
       }
     }
 
-    //DD ID To Aggregator To Aggregate Descriptor
+    customTimeBucketsAll.clear();
+    customTimeBucketsAll.addAll(customTimeBucketsTotalSet);
+    Collections.sort(customTimeBucketsAll);
 
-    LOG.debug("Correct ddId {}", dimensionsDescriptorIDToValueToAggregator);
+    for (CustomTimeBucket customTimeBucket : customTimeBucketsAll) {
+      if (customTimeBucketRegistry.getTimeBucketId(customTimeBucket) == null) {
+        if (customTimeBucket.isUnit() || customTimeBucket.getTimeBucket() == TimeBucket.ALL) {
+          customTimeBucketRegistry.register(customTimeBucket, customTimeBucket.getTimeBucket().ordinal());
+        } else {
+          customTimeBucketRegistry.register(customTimeBucket);
+        }
+      }
+    }
+
+    //DD ID To Aggregator To Aggregate Descriptor
 
     dimensionsDescriptorIDToAggregatorToAggregateDescriptor = computeAggregatorToAggregateDescriptor(dimensionsDescriptorIDToValueToAggregator);
 
@@ -1190,7 +1226,7 @@ public class DimensionalConfigurationSchema
 
     dimensionsDescriptorToID = Maps.newHashMap();
 
-    for(int index = 0;
+    for (int index = 0;
         index < dimensionsDescriptorIDToDimensionsDescriptor.size();
         index++) {
       dimensionsDescriptorToID.put(dimensionsDescriptorIDToDimensionsDescriptor.get(index), index);
@@ -1267,7 +1303,7 @@ public class DimensionalConfigurationSchema
     dimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor = Lists.newArrayList();
     dimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor = Lists.newArrayList();
 
-    for(int index = 0;
+    for (int index = 0;
         index < dimensionsDescriptorIDToAggregatorToAggregateDescriptor.size();
         index++) {
       IntArrayList aggIDList = new IntArrayList();
@@ -1278,7 +1314,7 @@ public class DimensionalConfigurationSchema
       dimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor.add(inputMap);
       dimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor.add(outputMap);
 
-      for(Map.Entry<String, FieldsDescriptor> entry:
+      for (Map.Entry<String, FieldsDescriptor> entry:
           dimensionsDescriptorIDToAggregatorToAggregateDescriptor.get(index).entrySet()) {
         String aggregatorName = entry.getKey();
         FieldsDescriptor inputDescriptor = entry.getValue();
@@ -1295,19 +1331,17 @@ public class DimensionalConfigurationSchema
 
   private void mergeMaps(Map<String, Set<String>> destmap, Map<String, Set<String>> srcmap)
   {
-    for(Map.Entry<String, Set<String>> entry: srcmap.entrySet()) {
+    for (Map.Entry<String, Set<String>> entry: srcmap.entrySet()) {
       String key = entry.getKey();
       Set<String> destset = destmap.get(key);
       Set<String> srcset = srcmap.get(key);
 
-      if(destset == null)
-      {
+      if (destset == null) {
         destset = Sets.newHashSet();
         destmap.put(key, destset);
       }
 
-      if(srcset != null)
-      {
+      if (srcset != null) {
         destset.addAll(srcset);
       }
     }
@@ -1539,68 +1573,68 @@ public class DimensionalConfigurationSchema
   @Override
   public boolean equals(Object obj)
   {
-    if(obj == null) {
+    if (obj == null) {
       return false;
     }
-    if(getClass() != obj.getClass()) {
+    if (getClass() != obj.getClass()) {
       return false;
     }
     final DimensionalConfigurationSchema other = (DimensionalConfigurationSchema)obj;
-    if(this.keyDescriptor != other.keyDescriptor && (this.keyDescriptor == null || !this.keyDescriptor.equals(other.keyDescriptor))) {
+    if (this.keyDescriptor != other.keyDescriptor && (this.keyDescriptor == null || !this.keyDescriptor.equals(other.keyDescriptor))) {
       return false;
     }
-    if(this.inputValuesDescriptor != other.inputValuesDescriptor && (this.inputValuesDescriptor == null || !this.inputValuesDescriptor.equals(other.inputValuesDescriptor))) {
+    if (this.inputValuesDescriptor != other.inputValuesDescriptor && (this.inputValuesDescriptor == null || !this.inputValuesDescriptor.equals(other.inputValuesDescriptor))) {
       return false;
     }
-    if(this.keysToEnumValuesList != other.keysToEnumValuesList && (this.keysToEnumValuesList == null || !this.keysToEnumValuesList.equals(other.keysToEnumValuesList))) {
+    if (this.keysToEnumValuesList != other.keysToEnumValuesList && (this.keysToEnumValuesList == null || !this.keysToEnumValuesList.equals(other.keysToEnumValuesList))) {
       return false;
     }
-    if(this.dimensionsDescriptorIDToKeyDescriptor != other.dimensionsDescriptorIDToKeyDescriptor && (this.dimensionsDescriptorIDToKeyDescriptor == null || !this.dimensionsDescriptorIDToKeyDescriptor.equals(other.dimensionsDescriptorIDToKeyDescriptor))) {
+    if (this.dimensionsDescriptorIDToKeyDescriptor != other.dimensionsDescriptorIDToKeyDescriptor && (this.dimensionsDescriptorIDToKeyDescriptor == null || !this.dimensionsDescriptorIDToKeyDescriptor.equals(other.dimensionsDescriptorIDToKeyDescriptor))) {
       return false;
     }
-    if(this.dimensionsDescriptorIDToDimensionsDescriptor != other.dimensionsDescriptorIDToDimensionsDescriptor && (this.dimensionsDescriptorIDToDimensionsDescriptor == null || !this.dimensionsDescriptorIDToDimensionsDescriptor.equals(other.dimensionsDescriptorIDToDimensionsDescriptor))) {
+    if (this.dimensionsDescriptorIDToDimensionsDescriptor != other.dimensionsDescriptorIDToDimensionsDescriptor && (this.dimensionsDescriptorIDToDimensionsDescriptor == null || !this.dimensionsDescriptorIDToDimensionsDescriptor.equals(other.dimensionsDescriptorIDToDimensionsDescriptor))) {
       return false;
     }
-    if(this.dimensionsDescriptorIDToValueToAggregator != other.dimensionsDescriptorIDToValueToAggregator && (this.dimensionsDescriptorIDToValueToAggregator == null || !this.dimensionsDescriptorIDToValueToAggregator.equals(other.dimensionsDescriptorIDToValueToAggregator))) {
+    if (this.dimensionsDescriptorIDToValueToAggregator != other.dimensionsDescriptorIDToValueToAggregator && (this.dimensionsDescriptorIDToValueToAggregator == null || !this.dimensionsDescriptorIDToValueToAggregator.equals(other.dimensionsDescriptorIDToValueToAggregator))) {
       return false;
     }
-    if(this.dimensionsDescriptorIDToValueToOTFAggregator != other.dimensionsDescriptorIDToValueToOTFAggregator && (this.dimensionsDescriptorIDToValueToOTFAggregator == null || !this.dimensionsDescriptorIDToValueToOTFAggregator.equals(other.dimensionsDescriptorIDToValueToOTFAggregator))) {
+    if (this.dimensionsDescriptorIDToValueToOTFAggregator != other.dimensionsDescriptorIDToValueToOTFAggregator && (this.dimensionsDescriptorIDToValueToOTFAggregator == null || !this.dimensionsDescriptorIDToValueToOTFAggregator.equals(other.dimensionsDescriptorIDToValueToOTFAggregator))) {
       return false;
     }
-    if(this.dimensionsDescriptorIDToAggregatorToAggregateDescriptor != other.dimensionsDescriptorIDToAggregatorToAggregateDescriptor && (this.dimensionsDescriptorIDToAggregatorToAggregateDescriptor == null || !this.dimensionsDescriptorIDToAggregatorToAggregateDescriptor.equals(other.dimensionsDescriptorIDToAggregatorToAggregateDescriptor))) {
+    if (this.dimensionsDescriptorIDToAggregatorToAggregateDescriptor != other.dimensionsDescriptorIDToAggregatorToAggregateDescriptor && (this.dimensionsDescriptorIDToAggregatorToAggregateDescriptor == null || !this.dimensionsDescriptorIDToAggregatorToAggregateDescriptor.equals(other.dimensionsDescriptorIDToAggregatorToAggregateDescriptor))) {
       return false;
     }
-    if(this.dimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor != other.dimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor && (this.dimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor == null || !this.dimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor.equals(other.dimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor))) {
+    if (this.dimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor != other.dimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor && (this.dimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor == null || !this.dimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor.equals(other.dimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor))) {
       return false;
     }
-    if(this.dimensionsDescriptorToID != other.dimensionsDescriptorToID && (this.dimensionsDescriptorToID == null || !this.dimensionsDescriptorToID.equals(other.dimensionsDescriptorToID))) {
+    if (this.dimensionsDescriptorToID != other.dimensionsDescriptorToID && (this.dimensionsDescriptorToID == null || !this.dimensionsDescriptorToID.equals(other.dimensionsDescriptorToID))) {
       return false;
     }
-    if(this.dimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor != other.dimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor && (this.dimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor == null || !this.dimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor.equals(other.dimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor))) {
+    if (this.dimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor != other.dimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor && (this.dimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor == null || !this.dimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor.equals(other.dimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor))) {
       return false;
     }
-    if(this.dimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor != other.dimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor && (this.dimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor == null || !this.dimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor.equals(other.dimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor))) {
+    if (this.dimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor != other.dimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor && (this.dimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor == null || !this.dimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor.equals(other.dimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor))) {
       return false;
     }
-    if(this.dimensionsDescriptorIDToAggregatorIDs != other.dimensionsDescriptorIDToAggregatorIDs && (this.dimensionsDescriptorIDToAggregatorIDs == null || !this.dimensionsDescriptorIDToAggregatorIDs.equals(other.dimensionsDescriptorIDToAggregatorIDs))) {
+    if (this.dimensionsDescriptorIDToAggregatorIDs != other.dimensionsDescriptorIDToAggregatorIDs && (this.dimensionsDescriptorIDToAggregatorIDs == null || !this.dimensionsDescriptorIDToAggregatorIDs.equals(other.dimensionsDescriptorIDToAggregatorIDs))) {
       return false;
     }
-    if(this.dimensionsDescriptorIDToFieldToAggregatorAdditionalValues != other.dimensionsDescriptorIDToFieldToAggregatorAdditionalValues && (this.dimensionsDescriptorIDToFieldToAggregatorAdditionalValues == null || !this.dimensionsDescriptorIDToFieldToAggregatorAdditionalValues.equals(other.dimensionsDescriptorIDToFieldToAggregatorAdditionalValues))) {
+    if (this.dimensionsDescriptorIDToFieldToAggregatorAdditionalValues != other.dimensionsDescriptorIDToFieldToAggregatorAdditionalValues && (this.dimensionsDescriptorIDToFieldToAggregatorAdditionalValues == null || !this.dimensionsDescriptorIDToFieldToAggregatorAdditionalValues.equals(other.dimensionsDescriptorIDToFieldToAggregatorAdditionalValues))) {
       return false;
     }
-    if(this.dimensionsDescriptorIDToKeys != other.dimensionsDescriptorIDToKeys && (this.dimensionsDescriptorIDToKeys == null || !this.dimensionsDescriptorIDToKeys.equals(other.dimensionsDescriptorIDToKeys))) {
+    if (this.dimensionsDescriptorIDToKeys != other.dimensionsDescriptorIDToKeys && (this.dimensionsDescriptorIDToKeys == null || !this.dimensionsDescriptorIDToKeys.equals(other.dimensionsDescriptorIDToKeys))) {
       return false;
     }
-    if((this.keysString == null) ? (other.keysString != null) : !this.keysString.equals(other.keysString)) {
+    if ((this.keysString == null) ? (other.keysString != null) : !this.keysString.equals(other.keysString)) {
       return false;
     }
-    if((this.bucketsString == null) ? (other.bucketsString != null) : !this.bucketsString.equals(other.bucketsString)) {
+    if ((this.bucketsString == null) ? (other.bucketsString != null) : !this.bucketsString.equals(other.bucketsString)) {
       return false;
     }
-    if(this.aggregatorRegistry != other.aggregatorRegistry && (this.aggregatorRegistry == null || !this.aggregatorRegistry.equals(other.aggregatorRegistry))) {
+    if (this.aggregatorRegistry != other.aggregatorRegistry && (this.aggregatorRegistry == null || !this.aggregatorRegistry.equals(other.aggregatorRegistry))) {
       return false;
     }
-    if(this.customTimeBuckets != other.customTimeBuckets && (this.customTimeBuckets == null || !this.customTimeBuckets.equals(other.customTimeBuckets))) {
+    if (this.customTimeBuckets != other.customTimeBuckets && (this.customTimeBuckets == null || !this.customTimeBuckets.equals(other.customTimeBuckets))) {
       return false;
     }
     return !(this.schemaAllValueToAggregatorToType != other.schemaAllValueToAggregatorToType && (this.schemaAllValueToAggregatorToType == null || !this.schemaAllValueToAggregatorToType.equals(other.schemaAllValueToAggregatorToType)));
@@ -1708,7 +1742,7 @@ public class DimensionalConfigurationSchema
     {
       Preconditions.checkNotNull(aggregators);
 
-      for(String aggregator: aggregators) {
+      for (String aggregator: aggregators) {
         Preconditions.checkNotNull(aggregator);
       }
 
@@ -1802,7 +1836,7 @@ public class DimensionalConfigurationSchema
     {
       Preconditions.checkNotNull(enumValues);
 
-      for(Object values: enumValues) {
+      for (Object values: enumValues) {
         Preconditions.checkNotNull(values);
       }
 
@@ -1893,13 +1927,13 @@ public class DimensionalConfigurationSchema
       Preconditions.checkNotNull(valueToAggregators);
       Map<String, Set<String>> newValueToAggregators = Maps.newHashMap();
 
-      for(Map.Entry<String, Set<String>> entry: valueToAggregators.entrySet()) {
+      for (Map.Entry<String, Set<String>> entry: valueToAggregators.entrySet()) {
         Preconditions.checkNotNull(entry.getKey());
         Preconditions.checkNotNull(entry.getValue());
 
         newValueToAggregators.put(entry.getKey(), Sets.newHashSet(entry.getValue()));
 
-        for(String aggregator: entry.getValue()) {
+        for (String aggregator: entry.getValue()) {
           Preconditions.checkNotNull(aggregator);
         }
       }

@@ -242,6 +242,7 @@ public class DimensionsComputationFlexibleSingleSchemaPOJOTest
     Assert.assertEquals(expectedTimeBucketIDs, timeBucketIDs);
   }
 
+  @Test
   public void testNoTimeBucket()
   {
     AdInfo ai1 = createTestAdInfoEvent1();
@@ -346,6 +347,24 @@ public class DimensionsComputationFlexibleSingleSchemaPOJOTest
     Aggregate agg = sink.collectedTuples.get(index);
 
     Assert.assertEquals(10.0, agg.getAggregates().getFieldDouble("revenue"), .001);
+  }
+
+  @Test
+  public void differentTimeBucketsForDimensionCombinations()
+  {
+    AdInfo ai = createTestAdInfoEvent1();
+
+    DimensionsComputationFlexibleSingleSchemaPOJO dcss = createDimensionsComputationOperator("adsGenericEventSchemaDimensionTimeBuckets.json");
+
+    CollectorTestSink<Aggregate> sink = new CollectorTestSink<>();
+    TestUtils.setSink(dcss.output, sink);
+
+    dcss.setup(null);
+    dcss.beginWindow(0L);
+    dcss.input.put(ai);
+    dcss.endWindow();
+
+    Assert.assertEquals(11, sink.collectedTuples.size());
   }
 
   public static DimensionsComputationFlexibleSingleSchemaPOJO createDimensionsComputationOperator(String eventSchema)

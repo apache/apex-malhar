@@ -459,5 +459,49 @@ public class DimensionalConfigurationSchemaTest
     Assert.assertEquals(4, schema.getDimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor().get(1).get(sumID).getFieldList().size());
   }
 
+  /**
+   * Tests to make sure that the correct number of dimension descriptors are produced when different time buckets are
+   * specified for each dimension combination.
+   */
+  @Test
+  public void testTimeBucketsDimensionCombination()
+  {
+    final int numDDIds = 11;
+    final int numCombinations = 3;
+
+    DimensionalConfigurationSchema schema = new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaDimensionTimeBuckets.json"), AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
+
+    List<DimensionsDescriptor> dimensionsDescriptors = schema.getDimensionsDescriptorIDToDimensionsDescriptor();
+
+    Assert.assertEquals(numDDIds, dimensionsDescriptors.size());
+    Assert.assertEquals(numDDIds, schema.getDimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor().size());
+    Assert.assertEquals(numDDIds, schema.getDimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor().size());
+    Assert.assertEquals(numDDIds, schema.getDimensionsDescriptorIDToAggregatorIDs().size());
+    Assert.assertEquals(numDDIds, schema.getDimensionsDescriptorIDToAggregatorToAggregateDescriptor().size());
+    Assert.assertEquals(numDDIds, schema.getDimensionsDescriptorIDToDimensionsDescriptor().size());
+    Assert.assertEquals(numDDIds, schema.getDimensionsDescriptorIDToKeyDescriptor().size());
+    Assert.assertEquals(numDDIds, schema.getDimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor().size());
+    Assert.assertEquals(numDDIds, schema.getDimensionsDescriptorIDToValueToAggregator().size());
+    Assert.assertEquals(numDDIds, schema.getDimensionsDescriptorIDToValueToOTFAggregator().size());
+
+    Assert.assertEquals(numCombinations, schema.getDimensionsDescriptorIDToFieldToAggregatorAdditionalValues().size());
+    Assert.assertEquals(numCombinations, schema.getDimensionsDescriptorIDToKeys().size());
+
+    String[] buckets = new String[]{"1m", "3d", "1h", "5s", "1m", "3d", "1m", "3d", "30s", "2h", "1d"};
+
+    for (int ddId = 0; ddId < numDDIds; ddId++) {
+      CustomTimeBucket customTimeBucket = dimensionsDescriptors.get(ddId).getCustomTimeBucket();
+      Assert.assertEquals(new CustomTimeBucket(buckets[ddId]), customTimeBucket);
+    }
+  }
+
+  @Test
+  public void testTimeBucketsBackwardCompatibility()
+  {
+    DimensionalConfigurationSchema schema = new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaDimensionTimeBuckets.json"), AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
+
+    Assert.assertEquals(2, schema.getCustomTimeBuckets().size());
+  }
+
   private static final Logger LOG = LoggerFactory.getLogger(DimensionalConfigurationSchemaTest.class);
 }
