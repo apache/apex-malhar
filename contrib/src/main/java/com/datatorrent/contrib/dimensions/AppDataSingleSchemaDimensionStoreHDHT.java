@@ -5,12 +5,12 @@
 package com.datatorrent.contrib.dimensions;
 
 import java.io.Serializable;
-
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.validation.constraints.NotNull;
 
@@ -18,14 +18,13 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 import com.datatorrent.lib.appdata.schemas.*;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputationFlexibleSingleSchema;
 import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
-
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.OperatorAnnotation;
 
 /**
  * This is a dimensions store which stores data corresponding to one {@link DimensionalSchema} into an HDHT bucket.
@@ -133,6 +132,12 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   @Override
   public void setup(OperatorContext context)
   {
+    boolean initializeSeenEnumValues = seenEnumValues == null;
+
+    if (initializeSeenEnumValues) {
+      seenEnumValues = Maps.newConcurrentMap();
+    }
+
     super.setup(context);
 
     this.buckets = Sets.newHashSet(bucketID);
@@ -147,14 +152,20 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
       }
     }
 
-    if(updateEnumValues) {
-      if(seenEnumValues == null) {
-        seenEnumValues = Maps.newHashMap();
-        for(String key: configurationSchema.getKeyDescriptor().getFieldList()) {
-          @SuppressWarnings("rawtypes")
-          Set<Comparable> enumValuesSet = Sets.newHashSet();
-          seenEnumValues.put(key, enumValuesSet);
+    if (initializeSeenEnumValues) {
+      Map<String, List<Object>> keysToEnumValuesList = this.configurationSchema.getKeysToEnumValuesList();
+
+      for (String key : configurationSchema.getKeyDescriptor().getFieldList()) {
+        if (DimensionsDescriptor.RESERVED_DIMENSION_NAMES.contains(key)) {
+          continue;
         }
+
+        @SuppressWarnings("rawtypes")
+        Set<Comparable> enumValuesSet = new ConcurrentSkipListSet<>();
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        List<Comparable> enumValuesList = (List)keysToEnumValuesList.get(key);
+        enumValuesSet.addAll(enumValuesList);
+        seenEnumValues.put(key, enumValuesSet);
       }
     }
   }
@@ -198,6 +209,13 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
     }
 
     return schemaRegistry.getSchemaResult(schemaQuery);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  protected DimensionsQueueManager getDimensionsQueueManager()
+  {
+    return new DimensionsQueueManager(this, schemaRegistry, new SimpleDataQueryDimensionalExpander((Map) seenEnumValues));
   }
 
   @Override

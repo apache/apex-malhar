@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2015 DataTorrent, Inc.
+ * All rights reserved.
+ */
 package com.datatorrent.contrib.dimensions;
 
 import org.codehaus.jettison.json.JSONArray;
@@ -12,9 +16,9 @@ import com.datatorrent.lib.appdata.schemas.Result;
 
 /**
  * This is a QueryResult unifier for AbstractAppDataDimensionStoreHDHT for port queryResult.
- * 
+ *
  * The unifier filters out all the data which are having empty query result data.
- * 
+ *
  * This is specially useful when Store is partitioned and Queries goes to all the stores but
  * only one store is going to hold the data for the actual results.
  */

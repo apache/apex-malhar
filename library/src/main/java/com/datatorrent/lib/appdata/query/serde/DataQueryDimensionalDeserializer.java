@@ -5,21 +5,21 @@
 package com.datatorrent.lib.appdata.query.serde;
 
 import java.io.IOException;
-
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.gpo.GPOUtils;
+import org.apache.hadoop.classification.InterfaceStability.Unstable;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import com.datatorrent.lib.appdata.schemas.CustomTimeBucket;
 import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
@@ -33,6 +33,7 @@ import com.datatorrent.lib.appdata.schemas.Query;
 import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.appdata.schemas.TimeBucket;
+import com.datatorrent.lib.appdata.schemas.Type;
 import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 
 /**
@@ -240,13 +241,14 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
     FieldsAggregatable queryFields = new FieldsAggregatable(nonAggregatedFields,
                                                             fieldToAggregator);
     FieldsDescriptor keyFieldsDescriptor = gsd.getDimensionalConfigurationSchema().getKeyDescriptor().getSubset(new Fields(keySet));
-    GPOMutable gpoIm = new GPOMutable(GPOUtils.deserialize(keyFieldsDescriptor, keys));
+    Map<String, Set<Object>> map = deserializeToMap(keyFieldsDescriptor, keys);
     DataQueryDimensional resultQuery;
 
     if (!hasTime) {
       resultQuery = new DataQueryDimensional(id,
                                              type,
-                                             gpoIm,
+                                             keyFieldsDescriptor,
+                                             map,
                                              queryFields,
                                              incompleteResultOK,
                                              schemaKeys);
@@ -258,7 +260,8 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
                                                  from,
                                                  to,
                                                  bucket,
-                                                 gpoIm,
+                                                 keyFieldsDescriptor,
+                                                 map,
                                                  queryFields,
                                                  incompleteResultOK,
                                                  schemaKeys);
@@ -267,7 +270,8 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
                                                  type,
                                                  latestNumBuckets,
                                                  bucket,
-                                                 gpoIm,
+                                                 keyFieldsDescriptor,
+                                                 map,
                                                  queryFields,
                                                  incompleteResultOK,
                                                  schemaKeys);
@@ -279,7 +283,8 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
                                                  from,
                                                  to,
                                                  bucket,
-                                                 gpoIm,
+                                                 keyFieldsDescriptor,
+                                                 map,
                                                  queryFields,
                                                  countdown,
                                                  incompleteResultOK,
@@ -289,7 +294,8 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
                                                  type,
                                                  latestNumBuckets,
                                                  bucket,
-                                                 gpoIm,
+                                                 keyFieldsDescriptor,
+                                                 map,
                                                  queryFields,
                                                  countdown,
                                                  incompleteResultOK,
@@ -301,6 +307,278 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
     resultQuery.setSlidingAggregateSize(slidingAggregateSize);
 
     return resultQuery;
+  }
+
+  //TODO this is duplicate code remove once malhar dependency is upgraded to 3.3
+  @Unstable
+  private static Map<String, Set<Object>> deserializeToMap(FieldsDescriptor fieldsDescriptor,
+                                                           JSONObject dpou)
+  {
+    Map<String, Set<Object>> keyToValues = Maps.newHashMap();
+
+    for (String key : fieldsDescriptor.getFields().getFields()) {
+      if (!dpou.has(key)) {
+        throw new IllegalArgumentException("The given key " + key + " is not contained in the given JSON");
+      }
+
+      Set<Object> keyValues;
+      Object keyValue;
+
+      try {
+        keyValue = dpou.get(key);
+      } catch (JSONException ex) {
+        throw new IllegalStateException("This should never happen", ex);
+      }
+
+      if (keyValue instanceof JSONArray) {
+
+        JSONArray ja = (JSONArray) keyValue;
+        keyValues = Sets.newHashSetWithExpectedSize(ja.length());
+
+        Type type = fieldsDescriptor.getType(key);
+
+        for (int index = 0; index < ja.length(); index++) {
+          keyValues.add(getFieldFromJSON(type, ja, index));
+        }
+
+      } else if (keyValue instanceof JSONObject) {
+        throw new UnsupportedOperationException("Cannot extract objects from JSONObjects");
+      } else {
+        keyValues = Sets.newHashSetWithExpectedSize(1);
+        keyValues.add(getFieldFromJSON(fieldsDescriptor, key, dpou));
+      }
+
+      keyToValues.put(key, keyValues);
+    }
+
+    return keyToValues;
+  }
+
+  //TODO this is duplicate code remove once malhar dependency is upgraded to 3.3
+  @Unstable
+  private static Object getFieldFromJSON(Type type, JSONArray ja, int index)
+  {
+    int intVal = 0;
+
+    if(numericTypeIntOrSmaller(type)) {
+      try {
+        intVal = ja.getInt(index);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The index "
+                                           + index
+                                           + " does not have a valid "
+                                           + type
+                                           + " value.", ex);
+      }
+
+      if (type != Type.INTEGER && !insideRange(type, intVal)) {
+        throw new IllegalArgumentException("The index "
+                                           + index
+                                           + " has a value "
+                                           + intVal
+                                           + " which is out of range for a "
+                                           + type
+                                           + ".");
+      }
+    }
+
+    if (type == Type.BOOLEAN) {
+      try {
+        return ja.getBoolean(index);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The index " + index + " does not have a valid bool value.", ex);
+      }
+    } else if (type == Type.BYTE) {
+      return ((byte) intVal);
+    } else if (type == Type.SHORT) {
+      return ((short) intVal);
+    } else if (type == Type.INTEGER) {
+      return intVal;
+    } else if (type == Type.LONG) {
+      try {
+        return ja.getLong(index);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The index "
+                                           + index
+                                           + " does not have a valid long value.",
+                                           ex);
+      }
+    } else if (type == Type.CHAR) {
+      String val;
+
+      try {
+        val = ja.getString(index);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The index "
+                                           + index
+                                           + " does not have a valid character value.",
+                                           ex);
+      }
+
+      if (val.length() != 1) {
+        throw new IllegalArgumentException("The index "
+                                           + index
+                                           + " has a value "
+                                           + val
+                                           + " that is not one character long.");
+      }
+
+      return val.charAt(0);
+    } else if (type == Type.STRING) {
+      try {
+        return ja.getString(index);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The index "
+                                           + index
+                                           + " does not have a valid string value.",
+                                           ex);
+      }
+    } else if (type == Type.DOUBLE) {
+      try {
+        return ja.getDouble(index);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The index "
+                                           + index
+                                           + " does not have a valid double value.",
+                                           ex);
+      }
+    } else if (type == Type.FLOAT) {
+      try {
+        return (float) ja.getDouble(index);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The index "
+                                           + index
+                                           + " does not have a valid double value.",
+                                           ex);
+      }
+    } else {
+      throw new UnsupportedOperationException("The type " + type + " is not supported.");
+    }
+  }
+
+  //TODO this is duplicate code remove once malhar dependency is upgraded to 3.3
+  @Unstable
+  private static Object getFieldFromJSON(FieldsDescriptor fd, String field, JSONObject jo)
+  {
+    Type type = fd.getType(field);
+    int intVal = 0;
+
+    if(numericTypeIntOrSmaller(type)) {
+      try {
+        intVal = jo.getInt(field);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The key "
+                                           + field
+                                           + " does not have a valid "
+                                           + type
+                                           + " value.", ex);
+      }
+
+      if (type != Type.INTEGER && !insideRange(type, intVal)) {
+        throw new IllegalArgumentException("The key "
+                                           + field
+                                           + " has a value "
+                                           + intVal
+                                           + " which is out of range for a "
+                                           + type
+                                           + ".");
+      }
+    }
+
+    if (type == Type.BOOLEAN) {
+      try {
+        return jo.getBoolean(field);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The key " + field + " does not have a valid bool value.", ex);
+      }
+    } else if (type == Type.BYTE) {
+      return ((byte) intVal);
+    } else if (type == Type.SHORT) {
+      return ((short) intVal);
+    } else if (type == Type.INTEGER) {
+      return intVal;
+    } else if (type == Type.LONG) {
+      try {
+        return jo.getLong(field);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The key "
+                                           + field
+                                           + " does not have a valid long value.",
+                                           ex);
+      }
+    } else if (type == Type.CHAR) {
+      String val;
+
+      try {
+        val = jo.getString(field);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The key "
+                                           + field
+                                           + " does not have a valid character value.",
+                                           ex);
+      }
+
+      if (val.length() != 1) {
+        throw new IllegalArgumentException("The key "
+                                           + field
+                                           + " has a value "
+                                           + val
+                                           + " that is not one character long.");
+      }
+
+      return val.charAt(0);
+    } else if (type == Type.STRING) {
+      try {
+        return jo.getString(field);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The key "
+                                           + field
+                                           + " does not have a valid string value.",
+                                           ex);
+      }
+    } else if (type == Type.DOUBLE) {
+      try {
+        return jo.getDouble(field);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The key "
+                                           + field
+                                           + " does not have a valid double value.",
+                                           ex);
+      }
+    } else if (type == Type.FLOAT) {
+      try {
+        return (float)jo.getDouble(field);
+      } catch (JSONException ex) {
+        throw new IllegalArgumentException("The key "
+                                           + field
+                                           + " does not have a valid double value.",
+                                           ex);
+      }
+    } else {
+      throw new UnsupportedOperationException("The type " + type + " is not supported.");
+    }
+  }
+
+  //TODO this is duplicate code remove once malhar dependency is upgraded to 3.3
+  @Unstable
+  private static boolean insideRange(Type type, int val) {
+    switch(type) {
+      case BYTE: {
+        return !(val < (int)Byte.MIN_VALUE || val > (int)Byte.MAX_VALUE);
+      }
+      case SHORT: {
+        return !(val < (int)Short.MIN_VALUE || val > (int)Short.MAX_VALUE);
+      }
+      default:
+        throw new UnsupportedOperationException("This operation is not supported for the type " + type);
+    }
+  }
+
+  //TODO this is duplicate code remove once malhar dependency is upgraded to 3.3
+  @Unstable
+  private static boolean numericTypeIntOrSmaller(Type type)
+  {
+    return type == Type.BYTE || type == Type.SHORT || type == Type.INTEGER;
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(DataQueryDimensionalDeserializer.class);

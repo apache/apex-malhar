@@ -10,28 +10,27 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang3.mutable.MutableLong;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
+import com.datatorrent.contrib.hdht.HDHTReader.HDSQuery;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.query.AppDataWindowEndQueueManager;
 import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
+import com.datatorrent.lib.appdata.schemas.DataQueryDimensionalExpander;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
 import com.datatorrent.lib.appdata.schemas.DimensionalSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
 import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
-
-import com.datatorrent.contrib.hdht.HDHTReader.HDSQuery;
-
 import com.datatorrent.netlet.util.Slice;
 
 /**
@@ -56,16 +55,28 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
    */
   @NotNull
   private final SchemaRegistry schemaRegistry;
+  @NotNull
+  private DataQueryDimensionalExpander dqe = SingleDataQueryDimensionalExpander.INSTANCE;
 
   /**
    * Creates a {@link DimensionsQueueManager} from the given {@link DimensionsStoreHDHT} and {@link SchemaRegistry}.
    * @param operator The {@link DimensionsStoreHDHT} to issue queries against.
    * @param schemaRegistry The {@link SchemaRegistry} which contains all the schemas served by the {@link DimensionsStoreHDHT}.
    */
-  public DimensionsQueueManager(@NotNull DimensionsStoreHDHT operator, @NotNull SchemaRegistry schemaRegistry)
+  @Deprecated
+  public DimensionsQueueManager(@NotNull DimensionsStoreHDHT operator,
+                                @NotNull SchemaRegistry schemaRegistry)
   {
     this.operator = Preconditions.checkNotNull(operator);
     this.schemaRegistry = Preconditions.checkNotNull(schemaRegistry);
+  }
+
+  public DimensionsQueueManager(@NotNull DimensionsStoreHDHT operator,
+                                @NotNull SchemaRegistry schemaRegistry,
+                                @NotNull DataQueryDimensionalExpander dqe)
+  {
+    this(operator, schemaRegistry);
+    this.dqe = Preconditions.checkNotNull(dqe);
   }
 
   @Override
@@ -84,8 +95,10 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
 
     //Create query key
     FieldsDescriptor keyDescriptor = configurationSchema.getDimensionsDescriptorIDToKeyDescriptor().get(dimensionsDescriptorID);
-    GPOMutable gpoKey = query.createKeyGPO(keyDescriptor);
-    Map<String, EventKey> aggregatorToEventKey = Maps.newHashMap();
+    //TODO mutating this references after setting them on event keys. Should find a better way to avoid
+    //object creation.
+    List<GPOMutable> gpoKeys = dqe.createGPOs(query.getKeysToQueryValues(), keyDescriptor);
+    List<Map<String, EventKey>> aggregatorToEventKeys = Lists.newArrayList();
     //The set of all incremental aggregations to query.
     Set<String> aggregatorNames = Sets.newHashSet();
 
@@ -109,13 +122,19 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
       aggregatorNames.addAll(configurationSchema.getAggregatorRegistry().getOTFAggregatorToIncrementalAggregators().get(aggregatorName));
     }
 
-    for(String aggregatorName: aggregatorNames) {
-      //build the event key for each aggregator
-      LOG.debug("querying for aggregator {}", aggregatorName);
-      Integer aggregatorID = configurationSchema.getAggregatorRegistry().getIncrementalAggregatorNameToID().get(aggregatorName);
-      EventKey eventKey = new EventKey(schemaDimensional.getSchemaID(), dimensionsDescriptorID, aggregatorID, gpoKey);
-      //add the event key for each aggregator
-      aggregatorToEventKey.put(aggregatorName, eventKey);
+    for (GPOMutable gpoKey : gpoKeys) {
+      Map<String, EventKey> aggregatorToEventKey = Maps.newHashMap();
+
+      for (String aggregatorName : aggregatorNames) {
+        //build the event key for each aggregator
+        LOG.debug("querying for aggregator {}", aggregatorName);
+        Integer aggregatorID = configurationSchema.getAggregatorRegistry().getIncrementalAggregatorNameToID().get(aggregatorName);
+        EventKey eventKey = new EventKey(schemaDimensional.getSchemaID(), dimensionsDescriptorID, aggregatorID, gpoKey);
+        //add the event key for each aggregator
+        aggregatorToEventKey.put(aggregatorName, eventKey);
+      }
+
+      aggregatorToEventKeys.add(aggregatorToEventKey);
     }
 
     long bucketKey = operator.getBucketForSchema(schemaDimensional.getSchemaID());
@@ -126,24 +145,26 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
       //query doesn't have time
 
       //Create the queries
-      Map<String, HDSQuery> aggregatorToQueryMap = Maps.newHashMap();
-      Map<String, EventKey> aggregatorToEventKeyMap = Maps.newHashMap();
+      for (Map<String, EventKey> aggregatorToEventKey : aggregatorToEventKeys) {
+        Map<String, HDSQuery> aggregatorToQueryMap = Maps.newHashMap();
+        Map<String, EventKey> aggregatorToEventKeyMap = Maps.newHashMap();
 
-      for(Map.Entry<String, EventKey> entry: aggregatorToEventKey.entrySet()) {
-        //create the query for each event key
+        for (Map.Entry<String, EventKey> entry : aggregatorToEventKey.entrySet()) {
+          //create the query for each event key
 
-        String aggregatorName = entry.getKey();
-        EventKey eventKey = entry.getValue();
-        issueHDSQuery(eventKey,
-                      bucketKey,
-                      query,
-                      aggregatorToEventKeyMap,
-                      aggregatorToQueryMap,
-                      aggregatorName);
+          String aggregatorName = entry.getKey();
+          EventKey eventKey = entry.getValue();
+          issueHDSQuery(eventKey,
+                        bucketKey,
+                        query,
+                        aggregatorToEventKeyMap,
+                        aggregatorToQueryMap,
+                        aggregatorName);
+        }
+
+        hdsQueries.add(aggregatorToQueryMap);
+        eventKeys.add(aggregatorToEventKeyMap);
       }
-
-      hdsQueries.add(aggregatorToQueryMap);
-      eventKeys.add(aggregatorToEventKeyMap);
     }
     else {
       //the query has time
@@ -178,32 +199,37 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
       startTime -= startTimeDelta;
 
       int timeBucketId = configurationSchema.getCustomTimeBucketRegistry().getTimeBucketId(query.getCustomTimeBucket());
-      gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, timeBucketId);
+
+      for (GPOMutable gpoKey: gpoKeys) {
+        gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, timeBucketId);
+      }
 
       //loop through each time to query
       for(long timestamp = startTime; timestamp <= endTime; timestamp += query.getCustomTimeBucket().getNumMillis()) {
-        Map<String, HDSQuery> aggregatorToQueryMap = Maps.newHashMap();
-        Map<String, EventKey> aggregatorToEventKeyMap = Maps.newHashMap();
+        for (Map<String, EventKey> aggregatorToEventKey : aggregatorToEventKeys)
+        {
+          Map<String, HDSQuery> aggregatorToQueryMap = Maps.newHashMap();
+          Map<String, EventKey> aggregatorToEventKeyMap = Maps.newHashMap();
+          //loop over aggregators
+          for (Map.Entry<String, EventKey> entry : aggregatorToEventKey.entrySet()) {
+            String aggregatorName = entry.getKey();
+            //create event key for this query
+            EventKey eventKey = entry.getValue();
+            eventKey.getKey().setField(DimensionsDescriptor.DIMENSION_TIME, timestamp);
+            eventKey.getKey().setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, timeBucketId);
+            EventKey queryEventKey = new EventKey(eventKey);
 
-        //loop over aggregators
-        for(Map.Entry<String, EventKey> entry: aggregatorToEventKey.entrySet()) {
-          String aggregatorName = entry.getKey();
-          //create event key for this query
-          EventKey eventKey = entry.getValue();
-          gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME, timestamp);
-          gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, timeBucketId);
-          EventKey queryEventKey = new EventKey(eventKey);
+            issueHDSQuery(queryEventKey,
+                          bucketKey,
+                          query,
+                          aggregatorToEventKeyMap,
+                          aggregatorToQueryMap,
+                          aggregatorName);
+          }
 
-          issueHDSQuery(queryEventKey,
-                        bucketKey,
-                        query,
-                        aggregatorToEventKeyMap,
-                        aggregatorToQueryMap,
-                        aggregatorName);
+          hdsQueries.add(aggregatorToQueryMap);
+          eventKeys.add(aggregatorToEventKeyMap);
         }
-
-        hdsQueries.add(aggregatorToQueryMap);
-        eventKeys.add(aggregatorToEventKeyMap);
       }
     }
 
