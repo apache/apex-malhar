@@ -9,11 +9,11 @@ import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
-@ApplicationAnnotation(name = AdsDimensionsDemoNoTime.APP_NAME)
-public class AdsDimensionsDemoNoTime extends AdsDimensionsDemo
+@ApplicationAnnotation(name = AdsDimensionsDemoDifferentTimeBuckets.APP_NAME)
+public class AdsDimensionsDemoDifferentTimeBuckets extends AdsDimensionsDemo
 {
-  public static final String APP_NAME = "AdsDimensionsDemoNoTime";
-  public static final String EVENT_SCHEMA_LOCATION = "adsGenericEventSchemaNoTime.json";
+  public static final String APP_NAME = "AdsDimensionsDemoDifferentTimeBuckets";
+  public static final String EVENT_SCHEMA_LOCATION = "adsGenericEventSchemaTimeBuckets.json";
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)

@@ -131,6 +131,45 @@
     <name>16384</name>
   </property>
 
+  <!-- Settings for AdsDimensionsDemoDifferentTimeBuckets -->
+
+  <property>
+    <name>dt.application.AdsDimensionsDemoDifferentTimeBuckets.operator.InputGenerator.numTuplesPerWindow</name>
+    <value>2500</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoDifferentTimeBuckets.operator.Store.fileStore.basePathPrefix</name>
+    <value>AdsDimensionsDemoDifferentTimeBuckets/Store</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoDifferentTimeBuckets.operator.Store.embeddableQueryInfoProvider.topic</name>
+    <value>AdsDimensionsDemoDifferentTimeBucketsQuery</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoDifferentTimeBuckets.operator.QueryResult.topic</name>
+    <value>AdsDimensionsDemoDifferentTimeBucketsResult</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoDifferentTimeBuckets.operator.QueryResult.numRetries</name>
+    <value>2147483647</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoDifferentTimeBuckets.operator.DimensionsComputation.port.input.attr.PARTITION_PARALLEL</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoDifferentTimeBuckets.operator.InputGenerator.attr.PARTITIONER</name>
+    <value>com.datatorrent.common.partitioner.StatelessPartitioner:8</value>
+  </property>
+  <property>
+    <value>dt.application.AdsDimensionsDemoDifferentTimeBuckets.operator.InputGenerator.attr.MEMORY_MB</value>
+    <name>16384</name>
+  </property>
+  <property>
+    <value>dt.application.AdsDimensionsDemoDifferentTimeBuckets.operator.DimensionsComputation.attr.MEMORY_MB</value>
+    <name>16384</name>
+  </property>
+
   <!-- Settings for AdsDimensionsDemoGeneric -->
 
   <property>
