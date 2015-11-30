@@ -28,8 +28,11 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
 
-// write top N words and their frequencies to a file
-//
+/**
+ * write top N words and their frequencies to a file
+ *
+ * @since 3.2.0
+ */
 public class WordCountWriter extends AbstractFileOutputOperator<Map<String, Object>>
 {
   private static final Logger LOG = LoggerFactory.getLogger(WordCountWriter.class);
@@ -39,6 +42,10 @@ public class WordCountWriter extends AbstractFileOutputOperator<Map<String, Obje
   private String fileName;    // current file name
   private transient final StringBuilder sb = new StringBuilder();
 
+  /**
+   * {@inheritDoc}
+   * Invoke requestFinalize() to create the output file with the desired name without decorations.
+   */
   @Override
   public void endWindow()
   {
@@ -48,9 +55,11 @@ public class WordCountWriter extends AbstractFileOutputOperator<Map<String, Obje
     super.endWindow();
   }
 
-  // input is a singleton list [M] where M is a singleton map {fileName => L} where L is a
-  // list of pairs: (word, frequency)
-  //
+  /**
+   * Extracts file name from argument
+   * @param tuple Singleton map {@literal (fileName => L) where L is a list of (word, frequency) pairs}
+   * @return the file name to write the tuple to
+   */
   @Override
   protected String getFileName(Map<String, Object> tuple)
   {
@@ -62,6 +71,11 @@ public class WordCountWriter extends AbstractFileOutputOperator<Map<String, Obje
     return fileName;
   }
 
+  /**
+   * Extracts output file content from argument
+   * @param tuple Singleton map {@literal (fileName => L) where L is a list of (word, frequency) pairs}
+   * @return input tuple converted to an array of bytes
+   */
   @Override
   protected byte[] getBytesForTuple(Map<String, Object> tuple)
   {

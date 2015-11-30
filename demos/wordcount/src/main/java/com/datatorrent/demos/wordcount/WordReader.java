@@ -25,17 +25,25 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.BaseOperator;
 
-// extracts words from input line
+/**
+ * extracts words from input line
+ */
 public class WordReader extends BaseOperator
 {
   // default pattern for word-separators
   private static final Pattern nonWordDefault = Pattern.compile("[\\p{Punct}\\s]+");
 
-  private String nonWordStr;    // configurable regex
+  private String nonWordStr;              // configurable regex
   private transient Pattern nonWord;      // compiled regex
 
+  /**
+   * output port on which words from the current file are emitted
+   */
   public final transient DefaultOutputPort<String> output = new DefaultOutputPort<>();
 
+  /**
+   * input port on which lines from the current file are received
+   */
   public final transient DefaultInputPort<String>
     input = new DefaultInputPort<String>() {
 
@@ -51,14 +59,26 @@ public class WordReader extends BaseOperator
     }
   };
 
+  /**
+   * Returns the regular expression that matches strings between words
+   * @return Regular expression for strings that separate words
+   */
   public String getNonWordStr() {
     return nonWordStr;
   }
 
+  /**
+   * Sets the regular expression that matches strings between words
+   * @param regex New regular expression for strings that separate words
+   */
   public void setNonWordStr(String regex) {
     nonWordStr = regex;
   }
 
+  /**
+   * {@inheritDoc}
+   * Set nonWord to the default pattern if necessary
+   */
   @Override
   public void setup(OperatorContext context)
   {

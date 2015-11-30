@@ -32,15 +32,24 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
 
-// reads lines from input file and returns them; if end-of-file is reached, a control tuple
-// is emitted on the control port
-//
+/**
+ * Reads lines from input file and returns them. If EOF is reached, a control tuple
+ * is emitted on the control port
+ *
+ * @since 3.2.0
+ */
 public class LineReader extends AbstractFileInputOperator<String>
 {
   private static final Logger LOG = LoggerFactory.getLogger(LineReader.class);
 
+  /**
+   * output port on which lines from current file name are emitted
+   */
   public final transient DefaultOutputPort<String> output  = new DefaultOutputPort<>();
 
+  /**
+   * control port on which the current file name is emitted to indicate EOF
+   */
   @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<String> control = new DefaultOutputPort<>();
 
@@ -48,6 +57,10 @@ public class LineReader extends AbstractFileInputOperator<String>
 
   private Path path;
 
+  /**
+   * file open callback; wrap the file input stream in a buffered reader for reading lines
+   * @param curPath The path to the file just opened
+   */
   @Override
   protected InputStream openFile(Path curPath) throws IOException
   {
@@ -58,6 +71,10 @@ public class LineReader extends AbstractFileInputOperator<String>
     return is;
   }
 
+  /**
+   * file close callback; close buffered reader
+   * @param is File input stream that will imminently be closed
+   */
   @Override
   protected void closeFile(InputStream is) throws IOException
   {
@@ -67,7 +84,10 @@ public class LineReader extends AbstractFileInputOperator<String>
     path = null;
   }
 
-  // return empty string 
+  /**
+   * {@inheritDoc}
+   * if we hit EOF, emit file name on control port
+   */
   @Override
   protected String readEntity() throws IOException
   {
