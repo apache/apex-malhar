@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.lang.mutable.MutableLong;
 
+import com.datatorrent.api.Operator.CheckpointListener;
 import com.datatorrent.lib.counters.BasicCounters;
 
 /**
@@ -60,7 +61,7 @@ import com.datatorrent.lib.counters.BasicCounters;
  * @param <T> event type
  * @since 0.9.4
  */
-public interface BucketManager<T> extends Cloneable
+public interface BucketManager<T> extends Cloneable, CheckpointListener
 {
   void setBucketStore(@Nonnull BucketStore<T> bucketStore);
 
@@ -193,6 +194,13 @@ public interface BucketManager<T> extends Cloneable
      */
     void bucketOffLoaded(long bucketKey);
 
+    /**
+     * Invoked when a bucket is deleted.<br/>
+     * This will be called only when the bucket is deleted and no longer needed.
+     *
+     * @param bucketKey key of the bucket which was deleted.
+     */
+    void bucketDeleted(long bucketKey);
   }
 
   public static enum CounterKeys

@@ -64,6 +64,11 @@ public class BucketManagerTest
     {
     }
 
+    @Override
+    public void bucketDeleted(long bucketKey)
+    {
+    }
+
   }
 
   @Test
