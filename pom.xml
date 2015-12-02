@@ -87,7 +87,59 @@
           </excludes>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <maxAllowedViolations>8789</maxAllowedViolations>
+        </configuration>
+      </plugin>
     </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>com.github.siom79.japicmp</groupId>
+          <artifactId>japicmp-maven-plugin</artifactId>
+          <version>0.5.3</version>
+          <configuration>
+            <oldVersion>
+              <dependency>
+                <groupId>org.apache.apex</groupId>
+                <artifactId>${project.artifactId}</artifactId>
+                <version>3.2.0-incubating</version>
+              </dependency>
+            </oldVersion>
+            <newVersion>
+              <file>
+                <path>${project.build.directory}/${project.artifactId}-${project.version}.jar</path>
+              </file>
+            </newVersion>
+            <parameter>
+              <onlyModified>true</onlyModified>
+              <accessModifier>protected</accessModifier>
+              <breakBuildOnModifications>false</breakBuildOnModifications>
+              <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
+              <onlyBinaryIncompatible>false</onlyBinaryIncompatible>
+              <includeSynthetic>false</includeSynthetic>
+              <ignoreMissingClasses>true</ignoreMissingClasses>
+              <excludes>
+                <exclude>*POJO*</exclude>
+                <exclude>org.apache.hadoop.io.file.tfile.*</exclude>
+              </excludes>
+            </parameter>
+            <skip>${semver.plugin.skip}</skip>
+          </configuration>
+          <executions>
+            <execution>
+              <phase>verify</phase>
+              <goals>
+                <goal>cmp</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 
   <profiles>
@@ -97,58 +149,6 @@
           <exists>src</exists>
         </file>
       </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.github.siom79.japicmp</groupId>
-            <artifactId>japicmp-maven-plugin</artifactId>
-            <version>0.5.3</version>
-            <configuration>
-              <oldVersion>
-                <dependency>
-                  <groupId>org.apache.apex</groupId>
-                  <artifactId>${project.artifactId}</artifactId>
-                  <version>3.2.0-incubating</version>
-                </dependency>
-              </oldVersion>
-              <newVersion>
-                <file>
-                  <path>${project.build.directory}/${project.artifactId}-${project.version}.jar</path>
-                </file>
-              </newVersion>
-              <parameter>
-                <onlyModified>true</onlyModified>
-                <accessModifier>protected</accessModifier>
-                <breakBuildOnModifications>false</breakBuildOnModifications>
-                <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
-                <onlyBinaryIncompatible>false</onlyBinaryIncompatible>
-                <includeSynthetic>false</includeSynthetic>
-                <ignoreMissingClasses>true</ignoreMissingClasses>
-                <excludes>
-                  <exclude>*POJO*</exclude>
-                  <exclude>org.apache.hadoop.io.file.tfile.*</exclude>
-                </excludes>
-              </parameter>
-              <skip>${semver.plugin.skip}</skip>
-            </configuration>
-            <executions>
-              <execution>
-                <phase>verify</phase>
-                <goals>
-                  <goal>cmp</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-checkstyle-plugin</artifactId>
-            <configuration>
-              <maxAllowedViolations>8789</maxAllowedViolations>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
     <profile>
       <id>skip-source-release-attach</id>
