@@ -155,6 +155,26 @@ public class BucketManagerTest
   }
 
   @Test
+  public void testBucketCollation() throws InterruptedException
+  {
+    manager.setCollateFilesForBucket(true);
+    for (int i = 1; i <= 10; i++) {
+      manager.newEvent(i, new DummyEvent(i, System.currentTimeMillis()));
+    }
+    manager.endWindow(0);
+    Assert.assertEquals(manager.bucketsToDelete.size(), 0);
+    for (int i = 1; i <= 10; i++) {
+      manager.newEvent(i, new DummyEvent(i * 2, System.currentTimeMillis()));
+    }
+    manager.endWindow(1);
+    Assert.assertEquals(manager.bucketsToDelete.size(), 10);
+
+    for (int i = 1; i <= 10; i++) {
+      Assert.assertEquals(manager.getBucket(i).countOfWrittenEvents(), 2);
+    }
+  }
+
+  @Test
   public void testClone() throws CloneNotSupportedException, InterruptedException
   {
     manager.loadBucketData(bucket1);
