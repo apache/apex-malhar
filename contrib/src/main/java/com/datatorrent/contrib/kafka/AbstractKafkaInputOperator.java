@@ -28,22 +28,32 @@ import com.datatorrent.api.Stats;
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
-
-import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.getOffsetsForPartitions;
-import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.get_1minMovingAvgParMap;
-
 import com.datatorrent.lib.io.IdempotentStorageManager;
+import com.datatorrent.netlet.util.DTThrowable;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
+import kafka.api.FetchRequest;
+import kafka.api.FetchRequestBuilder;
+import kafka.cluster.Broker;
+import kafka.javaapi.FetchResponse;
+import kafka.javaapi.PartitionMetadata;
+import kafka.javaapi.consumer.SimpleConsumer;
+import kafka.message.Message;
+import kafka.message.MessageAndOffset;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -59,23 +69,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-
-import kafka.api.FetchRequest;
-import kafka.api.FetchRequestBuilder;
-import kafka.cluster.Broker;
-import kafka.javaapi.FetchResponse;
-import kafka.javaapi.PartitionMetadata;
-import kafka.javaapi.consumer.SimpleConsumer;
-import kafka.message.Message;
-import kafka.message.MessageAndOffset;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.getOffsetsForPartitions;
+import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.get_1minMovingAvgParMap;
 
 /**
  * This is a base implementation of a Kafka input operator, which consumes data from Kafka message bus.&nbsp;
@@ -175,6 +170,8 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
 
   private transient long lastRepartitionTime = 0L;
 
+  protected transient int spinMillis;
+
   // A list store the newly discovered partitions
   private transient List<KafkaPartition> newWaitingPartition = new LinkedList<KafkaPartition>();
 
@@ -217,6 +214,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     if(consumer instanceof HighlevelKafkaConsumer && !(idempotentStorageManager instanceof IdempotentStorageManager.NoopIdempotentStorageManager)) {
       throw new RuntimeException("Idempotency is not supported for High Level Kafka Consumer");
     }
+    spinMillis = context.getValue(OperatorContext.SPIN_MILLIS);
     idempotentStorageManager.setup(context);
   }
 
@@ -363,18 +361,26 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     if (maxTuplesPerWindow > 0) {
       count = Math.min(count, maxTuplesPerWindow - emitCount);
     }
-    for (int i = 0; i < count; i++) {
-      KafkaConsumer.KafkaMessage message = consumer.pollMessage();
-      // Ignore the duplicate messages
-      if(offsetStats.containsKey(message.kafkaPart) && message.offSet <= offsetStats.get(message.kafkaPart))
-        continue;
-      emitTuple(message.msg);
-      offsetStats.put(message.kafkaPart, message.offSet);
-      MutablePair<Long, Integer> offsetAndCount = currentWindowRecoveryState.get(message.kafkaPart);
-      if(offsetAndCount == null) {
-        currentWindowRecoveryState.put(message.kafkaPart, new MutablePair<Long, Integer>(message.offSet, 1));
-      } else {
-        offsetAndCount.setRight(offsetAndCount.right+1);
+    if (count > 0) {
+      for (int i = 0; i < count; i++) {
+        KafkaConsumer.KafkaMessage message = consumer.pollMessage();
+        // Ignore the duplicate messages
+        if (offsetStats.containsKey(message.kafkaPart) && message.offSet <= offsetStats.get(message.kafkaPart))
+          continue;
+        emitTuple(message.msg);
+        offsetStats.put(message.kafkaPart, message.offSet);
+        MutablePair<Long, Integer> offsetAndCount = currentWindowRecoveryState.get(message.kafkaPart);
+        if (offsetAndCount == null) {
+          currentWindowRecoveryState.put(message.kafkaPart, new MutablePair<Long, Integer>(message.offSet, 1));
+        } else {
+          offsetAndCount.setRight(offsetAndCount.right + 1);
+        }
+      }
+    } else {
+      try {
+        Thread.sleep(spinMillis);
+      } catch (InterruptedException e) {
+        DTThrowable.rethrow(e);
       }
     }
     emitCount += count;
