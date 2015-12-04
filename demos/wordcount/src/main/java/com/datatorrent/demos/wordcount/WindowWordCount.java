@@ -31,7 +31,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.BaseOperator;
 
 /**
- * Computes word frequency counts per window and emits them at each endWindow. The output is a
+ * Computes word frequencies per window and emits them at each {@code endWindow()}. The output is a
  * list of (word, frequency) pairs
  *
  * @since 3.2.0
@@ -44,7 +44,7 @@ public class WindowWordCount extends BaseOperator
   protected Map<String, WCPair> wordMap = new HashMap<>();
 
   /**
-   * input port on which words are received
+   * Input port on which words are received
    */
   public final transient DefaultInputPort<String> input = new DefaultInputPort<String>()
   {
@@ -66,7 +66,7 @@ public class WindowWordCount extends BaseOperator
   };
 
   /**
-   * output port which emits the list of word frequencies for current window
+   * Output port which emits the list of word frequencies for current window
    */
   public final transient DefaultOutputPort<List<WCPair>> output = new DefaultOutputPort<>();
 

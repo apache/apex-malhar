@@ -36,8 +36,8 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.common.util.BaseOperator;
 
 /**
- * Monitors an input directory for text files, computes word frequency counts per file and globally,
- * and writes the top N pairs to an output file and to snapshot servers for visualization.
+ * Computes word frequencies per file and globally, and writes the top N pairs to an output file
+ * and to snapshot servers for visualization.
  * Currently designed to work with only 1 file at a time; will be enhanced later to support
  * multiple files dropped into the monitored directory at the same time.
  *
@@ -67,13 +67,13 @@ public class FileWordCount extends BaseOperator
   protected int topN;
 
   /**
-   * set to true when an EOF control tuple for the current input file is received; reset to false
+   * Set to true when an EOF control tuple for the current input file is received; reset to false
    * when the corresponding output file has been written.
    */
   protected boolean eof = false;
 
   /**
-   * last component of path (just the file name)
+   * Last component of path (just the file name)
    * incoming value from control tuple
    */
   protected String fileName;
@@ -89,17 +89,17 @@ public class FileWordCount extends BaseOperator
   protected Map<String, WCPair> wordMapGlobal = new HashMap<>();
 
   /**
-   * singleton list with per file data; sent on {@code outputPerFile}
+   * Singleton list with per file data; sent on {@code outputPerFile}
    */
   protected transient List<Map<String, Object>> resultPerFile;
 
   /**
-   * singleton list with global data; sent on {@code outputGlobal}
+   * Singleton list with global data; sent on {@code outputGlobal}
    */
   protected transient List<Map<String, Object>> resultGlobal;
 
   /**
-   * singleton map of {@code fileName} to sorted list of (word, frequency) pairs
+   * Singleton map of {@code fileName} to sorted list of (word, frequency) pairs
    */
   protected transient Map<String, Object> resultFileFinal;
 
@@ -109,7 +109,7 @@ public class FileWordCount extends BaseOperator
   protected transient List<WCPair> fileFinalList;
 
   /**
-   * input port on which per-window {@literal (word => frequency)} map is received; the map
+   * Input port on which per-window {@literal (word => frequency)} map is received; the map
    * is merged into {@code wordMapFile} and {@code wordMapGlobal}.
    */
   public final transient DefaultInputPort<List<WCPair>> input = new DefaultInputPort<List<WCPair>>()
@@ -147,7 +147,7 @@ public class FileWordCount extends BaseOperator
   };
 
   /**
-   * control port on which the current file name is received to indicate EOF
+   * Control port on which the current file name is received to indicate EOF
    */
   @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<String> control = new DefaultInputPort<String>()
@@ -166,20 +166,20 @@ public class FileWordCount extends BaseOperator
   };
 
   /**
-   * output port for current file output
+   * Output port for current file output
    */
   public final transient DefaultOutputPort<List<Map<String, Object>>>
     outputPerFile = new DefaultOutputPort<>();
 
   /**
-   * output port for global output
+   * Output port for global output
    */
   @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<List<Map<String, Object>>>
     outputGlobal = new DefaultOutputPort<>();
 
   /**
-   * tuple is singleton map {@code fileName => TopNMap} where {@code TopNMap} is the final
+   * Tuple is singleton map {@code fileName => TopNMap} where {@code TopNMap} is the final
    * top N pairs for current file and will be written to the output file; emitted in the
    * {@code endWindow()} call after an EOF
    */
@@ -187,14 +187,14 @@ public class FileWordCount extends BaseOperator
     fileOutput = new DefaultOutputPort<>();
 
   /**
-   * get the number of top (word, frequency) pairs that will be output
+   * Get the number of top (word, frequency) pairs that will be output
    */
   public int getTopN() {
     return topN;
   }
 
   /**
-   * set the number of top (word, frequency) pairs that will be output
+   * Set the number of top (word, frequency) pairs that will be output
    * @param n The new number
    */
   public void setTopN(int n) {
@@ -284,7 +284,7 @@ public class FileWordCount extends BaseOperator
   }
 
   /**
-   * get topN frequencies from map, convert each pair to a singleton map and append to result
+   * Get topN frequencies from map, convert each pair to a singleton map and append to result
    * This map is suitable input to AppDataSnapshotServer
    * MUST have {@code map.size() > 0} here
    */
@@ -319,7 +319,7 @@ public class FileWordCount extends BaseOperator
   }
 
   /**
-   * populate fileFinalList with topN frequencies from argument
+   * Populate fileFinalList with topN frequencies from argument
    * This list is suitable input to WordCountWriter which writes it to a file
    * MUST have {@code map.size() > 0} here
    */

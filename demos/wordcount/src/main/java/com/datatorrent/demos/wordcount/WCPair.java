@@ -19,7 +19,7 @@
 package com.datatorrent.demos.wordcount;
 
 /**
- * a single (word, frequency) pair
+ * A single (word, frequency) pair
  *
  * @since 3.2.0
  */

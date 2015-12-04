@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
 
 /**
- * write top N words and their frequencies to a file
+ * Write top N words and their frequencies to a file
  *
  * @since 3.2.0
  */

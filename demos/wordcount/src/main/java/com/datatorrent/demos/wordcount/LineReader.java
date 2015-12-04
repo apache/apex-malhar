@@ -43,12 +43,12 @@ public class LineReader extends AbstractFileInputOperator<String>
   private static final Logger LOG = LoggerFactory.getLogger(LineReader.class);
 
   /**
-   * output port on which lines from current file name are emitted
+   * Output port on which lines from current file name are emitted
    */
   public final transient DefaultOutputPort<String> output  = new DefaultOutputPort<>();
 
   /**
-   * control port on which the current file name is emitted to indicate EOF
+   * Control port on which the current file name is emitted to indicate EOF
    */
   @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<String> control = new DefaultOutputPort<>();
@@ -58,7 +58,7 @@ public class LineReader extends AbstractFileInputOperator<String>
   private Path path;
 
   /**
-   * file open callback; wrap the file input stream in a buffered reader for reading lines
+   * File open callback; wrap the file input stream in a buffered reader for reading lines
    * @param curPath The path to the file just opened
    */
   @Override
@@ -72,7 +72,7 @@ public class LineReader extends AbstractFileInputOperator<String>
   }
 
   /**
-   * file close callback; close buffered reader
+   * File close callback; close buffered reader
    * @param is File input stream that will imminently be closed
    */
   @Override
@@ -86,7 +86,7 @@ public class LineReader extends AbstractFileInputOperator<String>
 
   /**
    * {@inheritDoc}
-   * if we hit EOF, emit file name on control port
+   * If we hit EOF, emit file name on control port
    */
   @Override
   protected String readEntity() throws IOException

@@ -26,7 +26,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.BaseOperator;
 
 /**
- * extracts words from input line
+ * Extracts words from input line
  */
 public class WordReader extends BaseOperator
 {
@@ -37,12 +37,12 @@ public class WordReader extends BaseOperator
   private transient Pattern nonWord;      // compiled regex
 
   /**
-   * output port on which words from the current file are emitted
+   * Output port on which words from the current file are emitted
    */
   public final transient DefaultOutputPort<String> output = new DefaultOutputPort<>();
 
   /**
-   * input port on which lines from the current file are received
+   * Input port on which lines from the current file are received
    */
   public final transient DefaultInputPort<String>
     input = new DefaultInputPort<String>() {

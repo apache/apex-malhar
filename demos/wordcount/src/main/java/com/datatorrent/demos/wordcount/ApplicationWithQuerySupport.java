@@ -39,7 +39,7 @@ import com.datatorrent.lib.io.ConsoleOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * Simple demo that counts word frequencies from any file dropped into a
+ * Simple demo that computes word frequencies from any file dropped into a
  * monitored directory. It outputs the top N word-frequency pairs for each file
  * as well globally across all files.
  * <p>
@@ -55,7 +55,7 @@ public class ApplicationWithQuerySupport implements StreamingApplication
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationWithQuerySupport.class);
 
   /**
-   * name of schema file
+   * Name of schema file.
    */
   public static final String SNAPSHOT_SCHEMA = "WordDataSchema.json";
 
@@ -63,7 +63,7 @@ public class ApplicationWithQuerySupport implements StreamingApplication
    * Populates the DAG with operators and connecting streams
    *
    * @param dag The directed acyclic graph of operators to populate
-   * @param conf The directed acyclic graph of operators to populate
+   * @param conf The configuration
    */
   @Override
   public void populateDAG(DAG dag, Configuration conf)
