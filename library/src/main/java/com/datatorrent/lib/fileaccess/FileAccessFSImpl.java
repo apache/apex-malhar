@@ -27,8 +27,10 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Options.Rename;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.RemoteIterator;
 
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -119,6 +121,22 @@ public abstract class FileAccessFSImpl implements FileAccess
       bucketPath = new Path(fs.getWorkingDirectory(), bucketPath);
     }
     fc.rename(new Path(bucketPath, fromName), new Path(bucketPath, toName), Rename.OVERWRITE);
+  }
+
+  @Override
+  public boolean exists(long bucketKey, String fileName) throws IOException
+  {
+    return fs.exists(getFilePath(bucketKey, fileName));
+  }
+
+  @Override
+  public RemoteIterator<LocatedFileStatus> listFiles(long bucketKey) throws IOException
+  {
+    Path bucketPath = getBucketPath(bucketKey);
+    if (!fs.exists(bucketPath)) {
+      return null;
+    }
+    return fs.listFiles(bucketPath, true);
   }
 
   @Override
