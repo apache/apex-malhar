@@ -45,7 +45,7 @@ public class DeduperOptimizationsTest
   public static int count = 0;
   public Calendar calendar = Calendar.getInstance();
 
-  private static class DummyDeduper extends AbstractDeduperOptimized<DummyEvent, DummyEvent>
+  private static class DummyDeduper extends AbstractBloomFilterDeduper<DummyEvent, DummyEvent>
   {
     @Override
     public void setup(Context.OperatorContext context)

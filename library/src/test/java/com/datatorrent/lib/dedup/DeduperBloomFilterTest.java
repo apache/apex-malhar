@@ -45,7 +45,7 @@ public class DeduperBloomFilterTest
   private static final String APP_ID = "DeduperBloomFilterTest";
   private static final int OPERATOR_ID = 0;
 
-  private static class DummyDeduper extends AbstractDeduperOptimized<DummyEvent, DummyEvent>
+  private static class DummyDeduper extends AbstractBloomFilterDeduper<DummyEvent, DummyEvent>
   {
     @Override
     public void setup(Context.OperatorContext context)

@@ -18,6 +18,7 @@ package com.datatorrent.lib.dedup;
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -41,6 +42,7 @@ import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.netlet.util.DTThrowable;
 
 import com.esotericsoftware.kryo.Kryo;
@@ -75,6 +77,10 @@ import com.esotericsoftware.kryo.io.Output;
  * Based on the assumption that duplicate events fall in the same bucket.
  * </p>
  *
+ * Additionally it also has the following
+ * features:
+ * {@link #orderedOutput}: Whether or not the order of input tuples is preserved
+ *
  * @displayName Deduper
  * @category Deduplication
  * @tags dedupe
@@ -83,6 +89,7 @@ import com.esotericsoftware.kryo.io.Output;
  * @param <OUTPUT> type of output tuple
  * @since 0.9.4
  */
+@OperatorAnnotation(checkpointableWithinAppWindow = false)
 public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, BucketManager.Listener<INPUT>, Operator.IdleTimeHandler, Partitioner<AbstractDeduper<INPUT, OUTPUT>>
 {
   /**
@@ -105,6 +112,14 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
    * The output port on which duplicate events are emitted.
    */
   public final transient DefaultOutputPort<INPUT> duplicates = new DefaultOutputPort<INPUT>();
+  /**
+   * The output port on which expired events are emitted.
+   */
+  public final transient DefaultOutputPort<OUTPUT> expired = new DefaultOutputPort<OUTPUT>();
+  /**
+   * The output port on which error events are emitted.
+   */
+  public final transient DefaultOutputPort<OUTPUT> error = new DefaultOutputPort<OUTPUT>();
 
   //Check-pointed state
   @NotNull
@@ -114,6 +129,12 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
   protected final Map<Long, List<INPUT>> waitingEvents;
   protected Set<Integer> partitionKeys;
   protected int partitionMask;
+  protected boolean orderedOutput = false;
+  /**
+   * Map to hold the result of a tuple processing (unique, duplicate, expired or error) until previous
+   * tuples get processed. This is used only when {@link #orderedOutput} is true.
+   */
+  protected transient Map<INPUT, Decision> decisions;
   //Non check-pointed state
   protected transient final BlockingQueue<AbstractBucket<INPUT>> fetchedBuckets;
   private transient long sleepTimeMillis;
@@ -167,6 +188,9 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
     logger.debug("bucket keys at startup {}", waitingEvents.keySet());
     for (long bucketKey : waitingEvents.keySet()) {
       bucketManager.loadBucketData(bucketKey);
+    }
+    if (orderedOutput) {
+      decisions = Maps.newLinkedHashMap();
     }
   }
 
@@ -222,6 +246,41 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
    */
   protected void processInvalid(INPUT tuple, long bucketKey)
   {
+    if (bucketKey == -1) {
+      if (orderedOutput && !decisions.isEmpty()) {
+        recordDecision(tuple, Decision.EXPIRED);
+      } else {
+        processExpired(tuple);
+      }
+    } else if (bucketKey == -2) {
+      if (orderedOutput && !decisions.isEmpty()) {
+        recordDecision(tuple, Decision.ERROR);
+      } else {
+        processError(tuple);
+      }
+    }
+  }
+
+  /**
+   * Processes an expired tuple
+   *
+   * @param tuple
+   */
+  protected void processExpired(INPUT tuple)
+  {
+    expiredEvents++;
+    expired.emit(convert(tuple));
+  }
+
+  /**
+   * Processes an error tuple
+   *
+   * @param tuple
+   */
+  protected void processError(INPUT tuple)
+  {
+    errorEvents++;
+    error.emit(convert(tuple));
   }
 
   /**
@@ -259,8 +318,12 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
   protected void processDuplicate(INPUT tuple, AbstractBucket<INPUT> bucket)
   {
     counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
-    duplicateEvents++;
-    duplicates.emit(tuple);
+    if (orderedOutput && !decisions.isEmpty()) {
+      recordDecision(tuple, Decision.DUPLICATE);
+    } else {
+      duplicateEvents++;
+      duplicates.emit(tuple);
+    }
   }
 
   /**
@@ -273,8 +336,12 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
    */
   protected void processUnique(INPUT tuple, AbstractBucket<INPUT> bucket)
   {
-    uniqueEvents++;
-    output.emit(convert(tuple));
+    if (orderedOutput && !decisions.isEmpty()) {
+      recordDecision(tuple, Decision.UNIQUE);
+    } else {
+      uniqueEvents++;
+      output.emit(convert(tuple));
+    }
   }
 
   /**
@@ -304,6 +371,9 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
       //Trigger the storage manager to load bucketData for this bucket key. This is a non-blocking call.
       bucketManager.loadBucketData(bucketKey);
     }
+    if (orderedOutput) {
+      recordDecision(tuple, Decision.UNKNOWN);
+    }
   }
 
   @Override
@@ -313,6 +383,10 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
       bucketManager.blockUntilAllRequestsServiced();
       handleIdleTime();
       Preconditions.checkArgument(waitingEvents.isEmpty(), waitingEvents.keySet());
+      if (orderedOutput) {
+        emitProcessedTuples();
+        Preconditions.checkArgument(decisions.isEmpty(), "events pending " + decisions.size());
+      }
       bucketManager.endWindow(currentWindow);
     }
     catch (Throwable cause) {
@@ -324,6 +398,9 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
   @Override
   public void handleIdleTime()
   {
+    if (orderedOutput) {
+      emitProcessedTuples();
+    }
     if (!fetchedBuckets.isEmpty()) {
       processAuxiliary();
     } else {
@@ -367,6 +444,56 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
             }
           }
         }
+      }
+    }
+  }
+
+  /**
+   * Records a decision for use later. This is needed to ensure that the order of incoming tuples is maintained.
+   *
+   * @param tuple
+   * @param d
+   */
+  protected void recordDecision(INPUT tuple, Decision d)
+  {
+    decisions.put(tuple, d);
+  }
+
+  /**
+   * Processes tuples for which the decision (unique / duplicate / expired / error) has been made.
+   */
+  protected void emitProcessedTuples()
+  {
+    Iterator<Entry<INPUT, Decision>> entries = decisions.entrySet().iterator();
+    while (entries.hasNext()) {
+      Entry<INPUT, Decision> td = entries.next();
+      switch (td.getValue()) {
+        case UNIQUE:
+          uniqueEvents++;
+          output.emit(convert(td.getKey()));
+          entries.remove();
+          break;
+        case DUPLICATE:
+          duplicateEvents++;
+          duplicates.emit(td.getKey());
+          entries.remove();
+          break;
+        case EXPIRED:
+          expiredEvents++;
+          expired.emit(convert(td.getKey()));
+          entries.remove();
+          break;
+        case ERROR:
+          errorEvents++;
+          error.emit(convert(td.getKey()));
+          entries.remove();
+          break;
+        default:
+          /*
+           * Decision for this is still UNKNOWN. Tuple is still waiting for bucket to be loaded. Break and come back
+           * later in endWindow.
+           */
+          break;
       }
     }
   }
@@ -614,6 +741,26 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
     protected static transient final Logger logger = LoggerFactory.getLogger(CountersListener.class);
   }
 
+  /**
+   * Checks whether output of deduper should preserve the input order
+   */
+  public boolean isOrderedOutput()
+  {
+    return orderedOutput;
+  }
+
+  /**
+   * If set to true, the deduper will emit tuples in the order in which they were received. Tuples which arrived later
+   * will wait for previous tuples to get processed and be emitted. If not set, the order of tuples may change as tuples
+   * may be emitted out of order as and when they get processed.
+   *
+   * @param orderedOutput
+   */
+  public void setOrderedOutput(boolean orderedOutput)
+  {
+    this.orderedOutput = orderedOutput;
+  }
+
   // Bucket Manager Metrics
   @AutoMetric
   public long getDeletedBuckets()
@@ -649,6 +796,14 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
   public long getStartOfBuckets()
   {
     return ((AbstractBucketManager<INPUT>)bucketManager).getStartOfBuckets();
+  }
+
+  /**
+   * Enum for holding all possible values for a decision for a tuple
+   */
+  protected enum Decision
+  {
+    UNIQUE, DUPLICATE, EXPIRED, ERROR, UNKNOWN
   }
 
   private final static Logger logger = LoggerFactory.getLogger(AbstractDeduper.class);
