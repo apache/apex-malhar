@@ -101,6 +101,8 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
   @NotNull
   protected final Map<Integer, AbstractBucket<T>> dirtyBuckets;
   protected long committedWindow;
+  private boolean collateFilesForBucket = false;
+  protected Set<Integer> bucketsToDelete;
   //Not check-pointed
   //Indexed by bucketKey keys.
   protected transient AbstractBucket<T>[] buckets;
@@ -162,6 +164,7 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
     maxNoOfBucketsInMemory = DEF_NUM_BUCKETS_MEM + 100;
     millisPreventingBucketEviction = DEF_MILLIS_PREVENTING_EVICTION;
     writeEventKeysOnly = true;
+    bucketsToDelete = Sets.newHashSet();
   }
 
   /**
@@ -526,6 +529,13 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
     for (Map.Entry<Integer, AbstractBucket<T>> entry : dirtyBuckets.entrySet()) {
       AbstractBucket<T> bucket = entry.getValue();
       dataToStore.put(entry.getKey(), bucket.getUnwrittenEvents());
+      if (collateFilesForBucket) {
+        // Then collate all data together and write into a new file together
+        if (bucket.getWrittenEventKeys() != null && !bucket.getWrittenEventKeys().isEmpty()) {
+          dataToStore.put(entry.getKey(), bucket.getWrittenEvents());
+          bucketsToDelete.add(entry.getKey()); // Record bucket to be deleted
+        }
+      }
       bucket.transferDataFromMemoryToStore();
       evictionCandidates.add(entry.getKey());
     }
@@ -534,6 +544,15 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
 
   protected void storeData(long window, long id, Map<Integer, Map<Object, T>> dataToStore)
   {
+    if (collateFilesForBucket) {
+      for (int key : bucketsToDelete) {
+        try {
+          bucketStore.deleteBucket(key);
+        } catch (Exception e) {
+          throw new RuntimeException("Error deleting bucket index " + key, e);
+        }
+      }
+    }
     try {
       bucketStore.storeBucketData(window, id, dataToStore);
     } catch (IOException e) {
@@ -722,6 +741,22 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
   public void setStartOfBuckets(long startOfBuckets)
   {
     this.startOfBuckets = startOfBuckets;
+  }
+
+  public boolean isCollateFilesForBucket()
+  {
+    return collateFilesForBucket;
+  }
+
+  /**
+   * Sets whether entire bucket data must be persisted together in a new file.
+   * When this is not set, only the unwritten part of the bucket is persisted.
+   *
+   * @param collateFilesForBucket
+   */
+  public void setCollateFilesForBucket(boolean collateFilesForBucket)
+  {
+    this.collateFilesForBucket = collateFilesForBucket;
   }
 
   private static transient final Logger logger = LoggerFactory.getLogger(AbstractBucketManager.class);
