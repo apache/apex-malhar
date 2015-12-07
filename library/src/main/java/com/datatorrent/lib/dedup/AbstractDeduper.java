@@ -17,54 +17,66 @@ package com.datatorrent.lib.dedup;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang.mutable.MutableLong;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
+import com.datatorrent.api.AutoMetric;
+import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.Partitioner;
+import com.datatorrent.api.Stats;
+import com.datatorrent.api.StatsListener;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.bucket.AbstractBucket;
 import com.datatorrent.lib.bucket.AbstractBucketManager;
 import com.datatorrent.lib.bucket.BucketManager;
 import com.datatorrent.lib.counters.BasicCounters;
-import com.datatorrent.api.*;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.netlet.util.DTThrowable;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-
 /**
- * This is the base implementation of an deduper.&nbsp;
- * This deduper determines whether a duplicate event has occurred and spools data out to a particular store as necessary,
- * Subclasses must implement the getEventKey method which gets the keys on which deduplication is done
- * and convert method which turns input tuples into output tuples.
- *  <p>
+ * This is the base implementation of an de-duplication operator.<br/>
+ * Subclasses must implement the {@link #getEventKey(Object)} method which extracts the key from an event. This key
+ * is used for deciding whether an event is a duplicate or not.
+ * <p/>
  * Processing of an event involves:
  * <ol>
- * <li>Finding the bucket key of an event by calling {@link BucketManager#getBucketKeyFor(Bucketable)}.</li>
+ * <li>Finding the bucket key of an event by calling {@link BucketManager#getBucketKeyFor(Object)}.</li>
  * <li>Getting the bucket from {@link BucketManager} by calling {@link BucketManager#getBucket(long)}.</li>
  * <li>
  * If the bucket is not loaded:
  * <ol>
  * <li>it requests the {@link BucketManager} to load the bucket which is a non-blocking call.</li>
- * <li>Adds the event to {@link #waitingEvents} which is a collection of events that are waiting for buckets to be loaded.</li>
- * <li>{@link BucketManager} loads the bucket and informs deduper by calling {@link #bucketLoaded(Bucket)}</li>
+ * <li>Adds the event to {@link #waitingEvents} which is a collection of events that are waiting for buckets to be
+ * loaded.</li>
+ * <li>{@link BucketManager} loads the bucket and informs deduper by calling {@link #bucketLoaded(AbstractBucket)}</li>
  * <li>The deduper then processes the waiting events in {@link #handleIdleTime()}</li>
  * </ol>
  * <li>
@@ -90,7 +102,9 @@ import com.esotericsoftware.kryo.io.Output;
  * @since 0.9.4
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
-public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, BucketManager.Listener<INPUT>, Operator.IdleTimeHandler, Partitioner<AbstractDeduper<INPUT, OUTPUT>>
+public abstract class AbstractDeduper<INPUT, OUTPUT>
+    implements Operator, BucketManager.Listener<INPUT>, Operator.IdleTimeHandler,
+    Partitioner<AbstractDeduper<INPUT, OUTPUT>>
 {
   /**
    * The input port on which events are received.
@@ -136,7 +150,7 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
    */
   protected transient Map<INPUT, Decision> decisions;
   //Non check-pointed state
-  protected transient final BlockingQueue<AbstractBucket<INPUT>> fetchedBuckets;
+  protected final transient BlockingQueue<AbstractBucket<INPUT>> fetchedBuckets;
   private transient long sleepTimeMillis;
   private transient OperatorContext context;
   protected BasicCounters<MutableLong> counters;
@@ -388,8 +402,7 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
         Preconditions.checkArgument(decisions.isEmpty(), "events pending " + decisions.size());
       }
       bucketManager.endWindow(currentWindow);
-    }
-    catch (Throwable cause) {
+    } catch (Throwable cause) {
       DTThrowable.rethrow(cause);
     }
     context.setCounters(counters);
@@ -407,8 +420,7 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
       /* nothing to do here, so sleep for a while to avoid busy loop */
       try {
         Thread.sleep(sleepTimeMillis);
-      }
-      catch (InterruptedException ie) {
+      } catch (InterruptedException ie) {
         throw new RuntimeException(ie);
       }
     }
@@ -530,7 +542,8 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
 
   @Override
   @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch", "deprecation"})
-  public Collection<Partition<AbstractDeduper<INPUT, OUTPUT>>> definePartitions(Collection<Partition<AbstractDeduper<INPUT, OUTPUT>>> partitions, PartitioningContext context)
+  public Collection<Partition<AbstractDeduper<INPUT, OUTPUT>>> definePartitions(
+      Collection<Partition<AbstractDeduper<INPUT, OUTPUT>>> partitions, PartitioningContext context)
   {
     final int finalCapacity = DefaultPartition.getRequiredPartitionCount(context, this.partitionCount);
 
@@ -572,11 +585,11 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
         Input lInput = new Input(bos.toByteArray());
 
         @SuppressWarnings("unchecked")
-        AbstractDeduper<INPUT, OUTPUT> deduper = (AbstractDeduper<INPUT, OUTPUT>) kryo.readObject(lInput, this.getClass());
-        DefaultPartition<AbstractDeduper<INPUT, OUTPUT>> partition = new DefaultPartition<AbstractDeduper<INPUT, OUTPUT>>(deduper);
+        AbstractDeduper<INPUT, OUTPUT> deduper = (AbstractDeduper<INPUT, OUTPUT>)kryo.readObject(lInput,
+            this.getClass());
+        DefaultPartition<AbstractDeduper<INPUT, OUTPUT>> partition = new DefaultPartition<>(deduper);
         newPartitions.add(partition);
-      }
-      catch (Throwable cause) {
+      } catch (Throwable cause) {
         DTThrowable.rethrow(cause);
       }
     }
@@ -593,12 +606,10 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
       logger.debug("partitions {},{}", deduperInstance.partitionKeys, deduperInstance.partitionMask);
       try {
         deduperInstance.bucketManager = bucketManager.clone();
-      }
-      catch (CloneNotSupportedException ex) {
+      } catch (CloneNotSupportedException ex) {
         if ((deduperInstance.bucketManager = bucketManager.cloneWithProperties()) == null) {
           DTThrowable.rethrow(ex);
-        }
-        else {
+        } else {
           logger.warn("Please use clone method of bucketManager instead of cloneWithProperties");
         }
       }
@@ -665,7 +676,7 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
       return false;
     }
 
-    AbstractDeduper<?, ?> deduper = (AbstractDeduper<?, ?>) o;
+    AbstractDeduper<?, ?> deduper = (AbstractDeduper<?, ?>)o;
 
     if (partitionMask != deduper.partitionMask) {
       return false;
@@ -695,17 +706,7 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
     return "Deduper{" + "partitionKeys=" + partitionKeys + ", partitionMask=" + partitionMask + '}';
   }
 
-  public OperatorContext getContext()
-  {
-    return context;
-  }
-
-  public long getCurrentWindow()
-  {
-    return currentWindow;
-  }
-
-  public static enum CounterKeys
+  public enum CounterKeys
   {
     DUPLICATE_EVENTS
   }
@@ -721,15 +722,16 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
           if (os.counters != null) {
             if (os.counters instanceof BasicCounters) {
               @SuppressWarnings("unchecked")
-              BasicCounters<MutableLong> cs = (BasicCounters<MutableLong>) os.counters;
-              logger.debug("operatorId:{} buckets:[in-memory:{} deleted:{} evicted:{}] events:[in-memory:{} committed-last-window:{} " +
-                  "duplicates:{}] low:{} high:{}", batchedOperatorStats.getOperatorId(),
-                cs.getCounter(BucketManager.CounterKeys.BUCKETS_IN_MEMORY),
-                cs.getCounter(BucketManager.CounterKeys.DELETED_BUCKETS),
-                cs.getCounter(BucketManager.CounterKeys.EVICTED_BUCKETS),
-                cs.getCounter(BucketManager.CounterKeys.EVENTS_IN_MEMORY),
-                cs.getCounter(BucketManager.CounterKeys.EVENTS_COMMITTED_LAST_WINDOW),
-                cs.getCounter(CounterKeys.DUPLICATE_EVENTS));
+              BasicCounters<MutableLong> cs = (BasicCounters<MutableLong>)os.counters;
+              logger.debug("operatorId:{} buckets:[in-memory:{} deleted:{} evicted:{}] events:[in-memory:{} "
+                  + "committed-last-window:{} duplicates:{}] low:{} high:{}",
+                  batchedOperatorStats.getOperatorId(),
+                  cs.getCounter(BucketManager.CounterKeys.BUCKETS_IN_MEMORY),
+                  cs.getCounter(BucketManager.CounterKeys.DELETED_BUCKETS),
+                  cs.getCounter(BucketManager.CounterKeys.EVICTED_BUCKETS),
+                  cs.getCounter(BucketManager.CounterKeys.EVENTS_IN_MEMORY),
+                  cs.getCounter(BucketManager.CounterKeys.EVENTS_COMMITTED_LAST_WINDOW),
+                  cs.getCounter(CounterKeys.DUPLICATE_EVENTS));
             }
           }
         }
@@ -738,7 +740,7 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
     }
 
     private static final long serialVersionUID = 201404082336L;
-    protected static transient final Logger logger = LoggerFactory.getLogger(CountersListener.class);
+    protected static final transient Logger logger = LoggerFactory.getLogger(CountersListener.class);
   }
 
   /**
@@ -806,5 +808,5 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
     UNIQUE, DUPLICATE, EXPIRED, ERROR, UNKNOWN
   }
 
-  private final static Logger logger = LoggerFactory.getLogger(AbstractDeduper.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractDeduper.class);
 }
