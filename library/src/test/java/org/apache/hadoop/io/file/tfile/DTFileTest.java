@@ -36,6 +36,9 @@ import java.util.Random;
 
 public class DTFileTest
 {
+   private static String ROOT =
+      System.getProperty("test.build.data", "target/tfile-test");
+
   private Configuration conf;
   private Path path;
   private FileSystem fs;
@@ -70,7 +73,7 @@ public class DTFileTest
 
     conf.setInt("tfile.fs.input.buffer.size", tconf.fsInputBufferSize);
     conf.setInt("tfile.fs.output.buffer.size", tconf.fsOutputBufferSize);
-    path = new Path("tmp/dtfile");
+    path = new Path(ROOT, "dtfile");
     fs = path.getFileSystem(conf);
     timer = new NanoTimer(false);
     rng = new Random();
@@ -163,9 +166,8 @@ public class DTFileTest
     DTFile.Reader.Scanner scanner = reader.createScanner();
 
     /* Read first key in the file */
-    long numBlocks = CacheManager.getCacheSize();
     scanner.lowerBound(key);
-    Assert.assertEquals("Cache contains some blocks ", numBlocks + 1, CacheManager.getCacheSize());
+    Assert.assertTrue("Cache contains some blocks ", CacheManager.getCacheSize() > 0);
 
     /* Next key does not add a new block in cache, it reads directly from cache */
     // close scanner, so that it does not use its own cache.
@@ -174,7 +176,7 @@ public class DTFileTest
     bb.clear();
     bb.putLong(ikey);
 
-    numBlocks = CacheManager.getCacheSize();
+    long numBlocks = CacheManager.getCacheSize();
     long hit = CacheManager.getCache().stats().hitCount();
     scanner.lowerBound(key);
     Assert.assertEquals("Cache contains some blocks ", CacheManager.getCacheSize(), numBlocks);
