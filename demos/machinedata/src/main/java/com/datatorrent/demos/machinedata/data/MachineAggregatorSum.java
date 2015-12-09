@@ -14,6 +14,7 @@ import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 
 /**
  * This is a custom aggregator to speed up computation for the machine demo.
+ * @since 3.2.0
  */
 @Name("SUM")
 public class MachineAggregatorSum extends AbstractIncrementalAggregator

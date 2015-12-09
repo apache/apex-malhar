@@ -18,6 +18,7 @@ import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 
 /**
  * This is a custom aggregate to speed up computation for the machine demo.
+ * @since 3.2.0
  */
 public class MachineAggregate extends Aggregate
 {

@@ -13,6 +13,9 @@ import com.datatorrent.lib.dimensions.aggregator.AggregatorAverage;
 import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
 
 @Name("AVG")
+/**
+ * @since 3.2.0
+ */
 public class MachineAggregatorAverage extends AggregatorAverage
 {
   private static final long serialVersionUID = 201510130110L;

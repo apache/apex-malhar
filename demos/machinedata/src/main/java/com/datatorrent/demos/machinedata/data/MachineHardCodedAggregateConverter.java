@@ -43,6 +43,9 @@ import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
 import com.datatorrent.stram.codec.DefaultStatefulStreamCodec;
 
+/**
+ * @since 3.2.0
+ */
 public class MachineHardCodedAggregateConverter implements Operator, Partitioner<MachineHardCodedAggregateConverter>
 {
   public static final int PARTITION_COUNT = 2;

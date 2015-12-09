@@ -10,6 +10,9 @@ import com.datatorrent.demos.machinedata.data.MachineKey.KeySelector;
 import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.statistics.DimensionsComputation.Aggregator;
 
+/**
+ * @since 3.2.0
+ */
 public abstract class AbstractMachineAggregatorHardcoded implements Aggregator<MachineInfo, MachineHardCodedAggregate>
 {
   private static final long serialVersionUID = 201510220615L;

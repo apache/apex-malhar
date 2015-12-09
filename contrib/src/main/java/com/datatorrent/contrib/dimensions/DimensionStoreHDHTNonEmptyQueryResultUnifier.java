@@ -21,6 +21,7 @@ import com.datatorrent.lib.appdata.schemas.Result;
  *
  * This is specially useful when Store is partitioned and Queries goes to all the stores but
  * only one store is going to hold the data for the actual results.
+ * @since 3.2.0
  */
 public class DimensionStoreHDHTNonEmptyQueryResultUnifier extends BaseOperator implements Unifier<String>
 {
