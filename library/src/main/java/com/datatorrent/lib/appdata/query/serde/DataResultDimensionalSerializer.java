@@ -24,6 +24,7 @@ import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 
 /**
  * This class is used to serialize {@link DataResultDimensional} objects.
+ *
  * @since 3.1.0
  */
 
@@ -43,15 +44,14 @@ public class DataResultDimensionalSerializer implements CustomMessageSerializer
   {
     try {
       return serializeHelper(result, resultFormatter);
-    }
-    catch(Exception e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
   private String serializeHelper(Message result, ResultFormatter resultFormatter) throws Exception
   {
-    DataResultDimensional dataResult = (DataResultDimensional) result;
+    DataResultDimensional dataResult = (DataResultDimensional)result;
 
     JSONObject jo = new JSONObject();
 
@@ -73,7 +73,7 @@ public class DataResultDimensionalSerializer implements CustomMessageSerializer
     List<Map<String, GPOMutable>> keys = dataResult.getKeys();
     List<Map<String, GPOMutable>> values = dataResult.getValues();
 
-    for(int index = 0;
+    for (int index = 0;
         index < keys.size();
         index++) {
       Map<String, GPOMutable> key = keys.get(index);
@@ -83,29 +83,27 @@ public class DataResultDimensionalSerializer implements CustomMessageSerializer
 
       GPOMutable gpoKey = key.values().iterator().next();
 
-      if(hasTime && nonAggregatedFields.getFields().contains(DimensionsDescriptor.DIMENSION_TIME)) {
+      if (hasTime && nonAggregatedFields.getFields().contains(DimensionsDescriptor.DIMENSION_TIME)) {
         Object time = gpoKey.getField(DimensionsDescriptor.DIMENSION_TIME);
         valueJO.put(DimensionsDescriptor.DIMENSION_TIME, time);
       }
 
-      for(String field: nonAggregatedFields.getFields()) {
-        if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
+      for (String field : nonAggregatedFields.getFields()) {
+        if (field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
           //Do nothing
-        }
-        else if(gpoKey.getFieldDescriptor().getFields().getFields().contains(field)) {
+        } else if (gpoKey.getFieldDescriptor().getFields().getFields().contains(field)) {
           valueJO.put(field, resultFormatter.format(gpoKey.getField(field)));
-        }
-        else {
+        } else {
           valueJO.put(field, ALL);
         }
       }
 
-      for(Map.Entry<String, GPOMutable> entry: value.entrySet()) {
+      for (Map.Entry<String, GPOMutable> entry : value.entrySet()) {
         String aggregatorName = entry.getKey();
         GPOMutable aggregateValues = entry.getValue();
         Set<String> fields = aggregatorToFields.get(aggregatorName);
 
-        for(String field: fields) {
+        for (String field : fields) {
           String compoundName = aggregatorToFieldToName.get(aggregatorName).get(field);
           valueJO.put(compoundName, resultFormatter.format(aggregateValues.getField(field)));
         }
@@ -114,9 +112,9 @@ public class DataResultDimensionalSerializer implements CustomMessageSerializer
       data.put(valueJO);
     }
 
-    if(!dataResult.getQuery().isOneTime()) {
+    if (!dataResult.getQuery().isOneTime()) {
       jo.put(DataResultDimensional.FIELD_COUNTDOWN,
-             dataResult.getCountdown());
+          dataResult.getCountdown());
     }
 
     return jo.toString();

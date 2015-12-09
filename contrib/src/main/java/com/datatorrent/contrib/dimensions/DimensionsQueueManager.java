@@ -38,13 +38,14 @@ import com.datatorrent.netlet.util.Slice;
  * This is a QueueManager for {@link DataQueryDimensional}.
  * </p>
  * <p>
- * <b>Note:</b> This {@link QueryExecutor} will work with {@link DimensionStoreHDHT}
+ * <b>Note:</b> This {@link DimensionsQueryExecutor} will work with {@link DimensionsStoreHDHT}
  * operators that serve data for single or multiple schemas.
  * </p>
- * @since 3.1.0
  *
+ * @since 3.1.0
  */
-public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQueryDimensional, QueryMeta> {
+public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQueryDimensional, QueryMeta>
+{
   /**
    * The operator which stores the data.
    */
@@ -60,20 +61,22 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
 
   /**
    * Creates a {@link DimensionsQueueManager} from the given {@link DimensionsStoreHDHT} and {@link SchemaRegistry}.
-   * @param operator The {@link DimensionsStoreHDHT} to issue queries against.
-   * @param schemaRegistry The {@link SchemaRegistry} which contains all the schemas served by the {@link DimensionsStoreHDHT}.
+   *
+   * @param operator       The {@link DimensionsStoreHDHT} to issue queries against.
+   * @param schemaRegistry The
+   * {@link SchemaRegistry} which contains all the schemas served by the {@link DimensionsStoreHDHT}.
    */
   @Deprecated
   public DimensionsQueueManager(@NotNull DimensionsStoreHDHT operator,
-                                @NotNull SchemaRegistry schemaRegistry)
+      @NotNull SchemaRegistry schemaRegistry)
   {
     this.operator = Preconditions.checkNotNull(operator);
     this.schemaRegistry = Preconditions.checkNotNull(schemaRegistry);
   }
 
   public DimensionsQueueManager(@NotNull DimensionsStoreHDHT operator,
-                                @NotNull SchemaRegistry schemaRegistry,
-                                @NotNull DataQueryDimensionalExpander dqe)
+      @NotNull SchemaRegistry schemaRegistry,
+      @NotNull DataQueryDimensionalExpander dqe)
   {
     this(operator, schemaRegistry);
     this.dqe = Preconditions.checkNotNull(dqe);
@@ -83,18 +86,20 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
   public boolean enqueue(DataQueryDimensional query, QueryMeta queryMeta, MutableLong windowExpireCount)
   {
     //Get the schema corresponding to this query.
-    DimensionalSchema schemaDimensional = (DimensionalSchema) schemaRegistry.getSchema(query.getSchemaKeys());
+    DimensionalSchema schemaDimensional = (DimensionalSchema)schemaRegistry.getSchema(query.getSchemaKeys());
     DimensionalConfigurationSchema configurationSchema = schemaDimensional.getDimensionalConfigurationSchema();
-    Integer dimensionsDescriptorID = configurationSchema.getDimensionsDescriptorToID().get(query.getDimensionsDescriptor());
+    Integer dimensionsDescriptorID = configurationSchema.getDimensionsDescriptorToID().get(
+        query.getDimensionsDescriptor());
 
-    if(dimensionsDescriptorID == null) {
+    if (dimensionsDescriptorID == null) {
       //Dimension combination not found
       LOG.debug("No aggregations for keys: {}", query.getKeyFields());
       return false;
     }
 
     //Create query key
-    FieldsDescriptor keyDescriptor = configurationSchema.getDimensionsDescriptorIDToKeyDescriptor().get(dimensionsDescriptorID);
+    FieldsDescriptor keyDescriptor = configurationSchema.getDimensionsDescriptorIDToKeyDescriptor().get(
+        dimensionsDescriptorID);
     //TODO mutating this references after setting them on event keys. Should find a better way to avoid
     //object creation.
     List<GPOMutable> gpoKeys = dqe.createGPOs(query.getKeysToQueryValues(), keyDescriptor);
@@ -103,14 +108,14 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
     Set<String> aggregatorNames = Sets.newHashSet();
 
     //loop through each different type of aggregation that is being queried.
-    for(String aggregatorName: query.getFieldsAggregatable().getAggregators()) {
-      if(!configurationSchema.getAggregatorRegistry().isAggregator(aggregatorName)) {
+    for (String aggregatorName : query.getFieldsAggregatable().getAggregators()) {
+      if (!configurationSchema.getAggregatorRegistry().isAggregator(aggregatorName)) {
         //Check if a queried aggregation is valid.
         LOG.error(aggregatorName + " is not a valid aggregator.");
         return false;
       }
 
-      if(configurationSchema.getAggregatorRegistry().isIncrementalAggregator(aggregatorName)) {
+      if (configurationSchema.getAggregatorRegistry().isIncrementalAggregator(aggregatorName)) {
         //The incremental aggregations to query
         aggregatorNames.add(aggregatorName);
         continue;
@@ -119,7 +124,8 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
       //this is an OTF aggregator
 
       //gets the child aggregators of this otf aggregator and add it to the set of incremental aggregators to query
-      aggregatorNames.addAll(configurationSchema.getAggregatorRegistry().getOTFAggregatorToIncrementalAggregators().get(aggregatorName));
+      aggregatorNames.addAll(
+          configurationSchema.getAggregatorRegistry().getOTFAggregatorToIncrementalAggregators().get(aggregatorName));
     }
 
     for (GPOMutable gpoKey : gpoKeys) {
@@ -128,7 +134,8 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
       for (String aggregatorName : aggregatorNames) {
         //build the event key for each aggregator
         LOG.debug("querying for aggregator {}", aggregatorName);
-        Integer aggregatorID = configurationSchema.getAggregatorRegistry().getIncrementalAggregatorNameToID().get(aggregatorName);
+        Integer aggregatorID = configurationSchema.getAggregatorRegistry().getIncrementalAggregatorNameToID().get(
+            aggregatorName);
         EventKey eventKey = new EventKey(schemaDimensional.getSchemaID(), dimensionsDescriptorID, aggregatorID, gpoKey);
         //add the event key for each aggregator
         aggregatorToEventKey.put(aggregatorName, eventKey);
@@ -141,7 +148,7 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
     List<Map<String, EventKey>> eventKeys = Lists.newArrayList();
     List<Map<String, HDSQuery>> hdsQueries = Lists.newArrayList();
 
-    if(!query.isHasTime()) {
+    if (!query.isHasTime()) {
       //query doesn't have time
 
       //Create the queries
@@ -155,32 +162,30 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
           String aggregatorName = entry.getKey();
           EventKey eventKey = entry.getValue();
           issueHDSQuery(eventKey,
-                        bucketKey,
-                        query,
-                        aggregatorToEventKeyMap,
-                        aggregatorToQueryMap,
-                        aggregatorName);
+              bucketKey,
+              query,
+              aggregatorToEventKeyMap,
+              aggregatorToQueryMap,
+              aggregatorName);
         }
 
         hdsQueries.add(aggregatorToQueryMap);
         eventKeys.add(aggregatorToEventKeyMap);
       }
-    }
-    else {
+    } else {
       //the query has time
 
       long endTime;
       long startTime;
 
-      if(query.isFromTo()) {
+      if (query.isFromTo()) {
         //If the query has from and to times
 
         //The from time in the query
         startTime = query.getCustomTimeBucket().roundDown(query.getFrom());
         //the to time in the query
         endTime = query.getCustomTimeBucket().roundDown(query.getTo());
-      }
-      else {
+      } else {
         //the query has lastnumbuckets
 
         long time;
@@ -200,14 +205,13 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
 
       int timeBucketId = configurationSchema.getCustomTimeBucketRegistry().getTimeBucketId(query.getCustomTimeBucket());
 
-      for (GPOMutable gpoKey: gpoKeys) {
+      for (GPOMutable gpoKey : gpoKeys) {
         gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, timeBucketId);
       }
 
       //loop through each time to query
-      for(long timestamp = startTime; timestamp <= endTime; timestamp += query.getCustomTimeBucket().getNumMillis()) {
-        for (Map<String, EventKey> aggregatorToEventKey : aggregatorToEventKeys)
-        {
+      for (long timestamp = startTime; timestamp <= endTime; timestamp += query.getCustomTimeBucket().getNumMillis()) {
+        for (Map<String, EventKey> aggregatorToEventKey : aggregatorToEventKeys) {
           Map<String, HDSQuery> aggregatorToQueryMap = Maps.newHashMap();
           Map<String, EventKey> aggregatorToEventKeyMap = Maps.newHashMap();
           //loop over aggregators
@@ -220,11 +224,11 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
             EventKey queryEventKey = new EventKey(eventKey);
 
             issueHDSQuery(queryEventKey,
-                          bucketKey,
-                          query,
-                          aggregatorToEventKeyMap,
-                          aggregatorToQueryMap,
-                          aggregatorName);
+                bucketKey,
+                query,
+                aggregatorToEventKeyMap,
+                aggregatorToQueryMap,
+                aggregatorName);
           }
 
           hdsQueries.add(aggregatorToQueryMap);
@@ -242,34 +246,35 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
 
   /**
    * This is a helper method for issuing {@link HDSQuery}s for app data {@link DataQueryDimensional} queries.
-   * @param eventKey The {@link EventKey} whose value needs to be found.
-   * @param bucketKey The HDHT bucket to issue {@link HDSQuery}s against.
-   * @param query The original {@link DataQueryDimensional} query.
-   * @param aggregatorToEventKeyMap A map from aggregators to their corresponding {@link EventKey}s for this time bucket.
-   * @param aggregatorToQueryMap A map from aggregators to their corresponding {@link HDSQuery} for this time bucket.
-   * @param aggregatorName The name of the aggregator to issue queries for.
+   *
+   * @param eventKey                The {@link EventKey} whose value needs to be found.
+   * @param bucketKey               The HDHT bucket to issue {@link HDSQuery}s against.
+   * @param query                   The original {@link DataQueryDimensional} query.
+   * @param aggregatorToEventKeyMap A map from aggregators to their corresponding {@link EventKey}s for this time
+   *                                bucket.
+   * @param aggregatorToQueryMap    A map from aggregators to their corresponding {@link HDSQuery} for this time bucket.
+   * @param aggregatorName          The name of the aggregator to issue queries for.
    */
   private void issueHDSQuery(EventKey eventKey,
-                             long bucketKey,
-                             DataQueryDimensional query,
-                             Map<String, EventKey> aggregatorToEventKeyMap,
-                             Map<String, HDSQuery> aggregatorToQueryMap,
-                             String aggregatorName)
+      long bucketKey,
+      DataQueryDimensional query,
+      Map<String, EventKey> aggregatorToEventKeyMap,
+      Map<String, HDSQuery> aggregatorToQueryMap,
+      String aggregatorName)
   {
     Slice key = new Slice(operator.getEventKeyBytesGAE(eventKey));
     //reuse the existing HDSQuery for the given key if it exists
     HDSQuery hdsQuery = operator.getQueries().get(key);
 
-    if(hdsQuery == null) {
+    if (hdsQuery == null) {
       //no prexisting query, so create a new one
       hdsQuery = new HDSQuery();
       hdsQuery.bucketKey = bucketKey;
       hdsQuery.key = key;
       operator.addQuery(hdsQuery);
-    }
-    else {
+    } else {
       //Work around for bug in HDS???
-      if(hdsQuery.result == null) {
+      if (hdsQuery.result == null) {
         hdsQuery.processed = false;
       }
     }
@@ -277,7 +282,7 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
     //get the countdown for the query
     int countDown = (int)query.getCountdown();
 
-    if(hdsQuery.keepAliveCount < countDown) {
+    if (hdsQuery.keepAliveCount < countDown) {
       //keep alive time for shared query should be max countdown
       hdsQuery.keepAliveCount = countDown;
     }

@@ -21,7 +21,13 @@ import com.google.common.collect.Sets;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
-import com.datatorrent.lib.appdata.schemas.*;
+import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
+import com.datatorrent.lib.appdata.schemas.DimensionalSchema;
+import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
+import com.datatorrent.lib.appdata.schemas.SchemaQuery;
+import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
+import com.datatorrent.lib.appdata.schemas.SchemaRegistrySingle;
+import com.datatorrent.lib.appdata.schemas.SchemaResult;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputationFlexibleSingleSchema;
 import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
@@ -72,8 +78,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
    */
   private long bucketID = DEFAULT_BUCKET_ID;
   /**
-   * This flag determines whether or not the lists of all possible values for the keys in this operators {@link DimensionalSchema}
-   * are updated based on the key values seen in {@link Aggregate}s received by this operator.
+   * This flag determines whether or not the lists of all possible values for the keys in this operators
+   * {@link DimensionalSchema} are updated based on the key values seen in {@link Aggregate}s received by this operator.
    */
   protected boolean updateEnumValues = false;
   @SuppressWarnings({"rawtypes"})
@@ -85,11 +91,12 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   protected Map<String, Set<Comparable>> seenEnumValues;
 
   @Override
-  public void processEvent(Aggregate gae) {
+  public void processEvent(Aggregate gae)
+  {
     super.processEvent(gae);
 
-    if(!dimensionalSchema.isPredefinedFromTo() &&
-       gae.getKeys().getFieldDescriptor().getFields().getFields().contains(DimensionsDescriptor.DIMENSION_TIME)) {
+    if (!dimensionalSchema.isPredefinedFromTo() &&
+        gae.getKeys().getFieldDescriptor().getFields().getFields().contains(DimensionsDescriptor.DIMENSION_TIME)) {
 
       long timestamp = gae.getEventKey().getKey().getFieldLong(DimensionsDescriptor.DIMENSION_TIME);
 
@@ -104,10 +111,10 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
       }
     }
 
-    if(updateEnumValues) {
+    if (updateEnumValues) {
       //update the lists of possible values for keys in this operator's {@link DimensionalSchema}.
-      for(String field: gae.getKeys().getFieldDescriptor().getFields().getFields()) {
-        if(DimensionsDescriptor.RESERVED_DIMENSION_NAMES.contains(field)) {
+      for (String field: gae.getKeys().getFieldDescriptor().getFields().getFields()) {
+        if (DimensionsDescriptor.RESERVED_DIMENSION_NAMES.contains(field)) {
           continue;
         }
 
@@ -125,7 +132,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   }
 
   @Override
-  public int getPartitionGAE(Aggregate inputEvent) {
+  public int getPartitionGAE(Aggregate inputEvent)
+  {
     return inputEvent.getDimensionDescriptorID();
   }
 
@@ -171,9 +179,12 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   }
 
   @Override
-  public Collection<Partition<AbstractSinglePortHDHTWriter<Aggregate>>> definePartitions(Collection<Partition<AbstractSinglePortHDHTWriter<Aggregate>>> partitions, PartitioningContext context)
+  public Collection<Partition<AbstractSinglePortHDHTWriter<Aggregate>>>
+      definePartitions(Collection<Partition<AbstractSinglePortHDHTWriter<Aggregate>>> partitions,
+      PartitioningContext context)
   {
-    Collection<Partition<AbstractSinglePortHDHTWriter<Aggregate>>> newPartitions = super.definePartitions(partitions, context);
+    Collection<Partition<AbstractSinglePortHDHTWriter<Aggregate>>> newPartitions = super.definePartitions(partitions,
+        context);
 
     if (newPartitions.size() == partitions.size()) {
       return newPartitions;
@@ -203,7 +214,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   @Override
   protected SchemaResult processSchemaQuery(SchemaQuery schemaQuery)
   {
-    if(updateEnumValues) {
+    if (updateEnumValues) {
       //update the enum values in the schema.
       dimensionalSchema.setEnumsSetComparable(seenEnumValues);
     }
@@ -215,7 +226,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   @SuppressWarnings("unchecked")
   protected DimensionsQueueManager getDimensionsQueueManager()
   {
-    return new DimensionsQueueManager(this, schemaRegistry, new SimpleDataQueryDimensionalExpander((Map) seenEnumValues));
+    return new DimensionsQueueManager(this, schemaRegistry,
+        new SimpleDataQueryDimensionalExpander((Map)seenEnumValues));
   }
 
   @Override
@@ -227,7 +239,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   @Override
   public FieldsDescriptor getValueDescriptor(int schemaID, int dimensionsDescriptorID, int aggregatorID)
   {
-    return configurationSchema.getDimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor().get(dimensionsDescriptorID).get(aggregatorID);
+    return configurationSchema.getDimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor()
+        .get(dimensionsDescriptorID).get(aggregatorID);
   }
 
   @Override
@@ -256,7 +269,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
 
   /**
    * Sets the JSON representing the dimensional schema stub to be used by this operator's {@link DimensionalSchema}.
-   * @param dimensionalSchemaStubJSON The JSON representing the dimensional schema stub to be used by this operator's {@link DimensionalSchema}.
+   * @param dimensionalSchemaStubJSON The JSON representing the dimensional schema stub to be used by this operator's
+   * {@link DimensionalSchema}.
    */
   public void setDimensionalSchemaStubJSON(String dimensionalSchemaStubJSON)
   {
@@ -282,9 +296,9 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   }
 
   /**
-   * Sets the value of updateEnumValues. This value is true if the list of possible key values in this operator's {@link DimensionalSchema} is to be updated
-   * based on observed values of the keys. This value is false if the possible key values in this operator's {@link DimensionalSchema}
-   * are not to be updated.
+   * Sets the value of updateEnumValues. This value is true if the list of possible key values in this operator's
+   * {@link DimensionalSchema} is to be updated based on observed values of the keys. This value is false if the
+   * possible key values in this operator's {@link DimensionalSchema} are not to be updated.
    * @param updateEnumValues The value of updateEnumValues to set.
    */
   public void setUpdateEnumValues(boolean updateEnumValues)

@@ -6,9 +6,9 @@ package com.datatorrent.lib.appdata.schemas;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import java.util.Set;
 
 public interface DataQueryDimensionalExpander
 {

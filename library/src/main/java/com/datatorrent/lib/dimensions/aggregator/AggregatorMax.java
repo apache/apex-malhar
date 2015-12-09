@@ -14,8 +14,8 @@ import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 
 /**
  * This {@link IncrementalAggregator} takes the max of the fields provided in the {@link InputEvent}.
- * @since 3.1.0
  *
+ * @since 3.1.0
  */
 @Name("MAX")
 public class AggregatorMax extends AbstractIncrementalAggregator
@@ -45,14 +45,14 @@ public class AggregatorMax extends AbstractIncrementalAggregator
 
     {
       byte[] destByte = destAggs.getFieldsByte();
-      if(destByte != null) {
+      if (destByte != null) {
         byte[] srcByte = srcAggs.getFieldsByte();
         int[] srcIndices = context.indexSubsetAggregates.fieldsByteIndexSubset;
-        for(int index = 0;
+        for (int index = 0;
             index < destByte.length;
             index++) {
           byte tempVal = srcByte[srcIndices[index]];
-          if(destByte[index] < tempVal) {
+          if (destByte[index] < tempVal) {
             destByte[index] = tempVal;
           }
         }
@@ -61,14 +61,14 @@ public class AggregatorMax extends AbstractIncrementalAggregator
 
     {
       short[] destShort = destAggs.getFieldsShort();
-      if(destShort != null) {
+      if (destShort != null) {
         short[] srcShort = srcAggs.getFieldsShort();
         int[] srcIndices = context.indexSubsetAggregates.fieldsShortIndexSubset;
-        for(int index = 0;
+        for (int index = 0;
             index < destShort.length;
             index++) {
           short tempVal = srcShort[srcIndices[index]];
-          if(destShort[index] < tempVal) {
+          if (destShort[index] < tempVal) {
             destShort[index] = tempVal;
           }
         }
@@ -77,14 +77,14 @@ public class AggregatorMax extends AbstractIncrementalAggregator
 
     {
       int[] destInteger = destAggs.getFieldsInteger();
-      if(destInteger != null) {
+      if (destInteger != null) {
         int[] srcInteger = srcAggs.getFieldsInteger();
         int[] srcIndices = context.indexSubsetAggregates.fieldsIntegerIndexSubset;
-        for(int index = 0;
+        for (int index = 0;
             index < destInteger.length;
             index++) {
           int tempVal = srcInteger[srcIndices[index]];
-          if(destInteger[index] < tempVal) {
+          if (destInteger[index] < tempVal) {
             destInteger[index] = tempVal;
           }
         }
@@ -93,14 +93,14 @@ public class AggregatorMax extends AbstractIncrementalAggregator
 
     {
       long[] destLong = destAggs.getFieldsLong();
-      if(destLong != null) {
+      if (destLong != null) {
         long[] srcLong = srcAggs.getFieldsLong();
         int[] srcIndices = context.indexSubsetAggregates.fieldsLongIndexSubset;
-        for(int index = 0;
+        for (int index = 0;
             index < destLong.length;
             index++) {
           long tempVal = srcLong[srcIndices[index]];
-          if(destLong[index] < tempVal) {
+          if (destLong[index] < tempVal) {
             destLong[index] = tempVal;
           }
         }
@@ -109,14 +109,14 @@ public class AggregatorMax extends AbstractIncrementalAggregator
 
     {
       float[] destFloat = destAggs.getFieldsFloat();
-      if(destFloat != null) {
+      if (destFloat != null) {
         float[] srcFloat = srcAggs.getFieldsFloat();
         int[] srcIndices = context.indexSubsetAggregates.fieldsFloatIndexSubset;
-        for(int index = 0;
+        for (int index = 0;
             index < destFloat.length;
             index++) {
           float tempVal = srcFloat[srcIndices[index]];
-          if(destFloat[index] < tempVal) {
+          if (destFloat[index] < tempVal) {
             destFloat[index] = tempVal;
           }
         }
@@ -125,14 +125,14 @@ public class AggregatorMax extends AbstractIncrementalAggregator
 
     {
       double[] destDouble = destAggs.getFieldsDouble();
-      if(destDouble != null) {
+      if (destDouble != null) {
         double[] srcDouble = srcAggs.getFieldsDouble();
         int[] srcIndices = context.indexSubsetAggregates.fieldsDoubleIndexSubset;
-        for(int index = 0;
+        for (int index = 0;
             index < destDouble.length;
             index++) {
           double tempVal = srcDouble[srcIndices[index]];
-          if(destDouble[index] < tempVal) {
+          if (destDouble[index] < tempVal) {
             destDouble[index] = tempVal;
           }
         }
@@ -148,13 +148,13 @@ public class AggregatorMax extends AbstractIncrementalAggregator
 
     {
       byte[] destByte = destAggs.getFieldsByte();
-      if(destByte != null) {
+      if (destByte != null) {
         byte[] srcByte = srcAggs.getFieldsByte();
 
-        for(int index = 0;
+        for (int index = 0;
             index < destByte.length;
             index++) {
-          if(destByte[index] < srcByte[index]) {
+          if (destByte[index] < srcByte[index]) {
             destByte[index] = srcByte[index];
           }
         }
@@ -163,13 +163,13 @@ public class AggregatorMax extends AbstractIncrementalAggregator
 
     {
       short[] destShort = destAggs.getFieldsShort();
-      if(destShort != null) {
+      if (destShort != null) {
         short[] srcShort = srcAggs.getFieldsShort();
 
-        for(int index = 0;
+        for (int index = 0;
             index < destShort.length;
             index++) {
-          if(destShort[index] < srcShort[index]) {
+          if (destShort[index] < srcShort[index]) {
             destShort[index] = srcShort[index];
           }
         }
@@ -178,13 +178,13 @@ public class AggregatorMax extends AbstractIncrementalAggregator
 
     {
       int[] destInteger = destAggs.getFieldsInteger();
-      if(destInteger != null) {
+      if (destInteger != null) {
         int[] srcInteger = srcAggs.getFieldsInteger();
 
-        for(int index = 0;
+        for (int index = 0;
             index < destInteger.length;
             index++) {
-          if(destInteger[index] < srcInteger[index]) {
+          if (destInteger[index] < srcInteger[index]) {
             destInteger[index] = srcInteger[index];
           }
         }
@@ -193,13 +193,13 @@ public class AggregatorMax extends AbstractIncrementalAggregator
 
     {
       long[] destLong = destAggs.getFieldsLong();
-      if(destLong != null) {
+      if (destLong != null) {
         long[] srcLong = srcAggs.getFieldsLong();
 
-        for(int index = 0;
+        for (int index = 0;
             index < destLong.length;
             index++) {
-          if(destLong[index] < srcLong[index]) {
+          if (destLong[index] < srcLong[index]) {
             destLong[index] = srcLong[index];
           }
         }
@@ -208,13 +208,13 @@ public class AggregatorMax extends AbstractIncrementalAggregator
 
     {
       float[] destFloat = destAggs.getFieldsFloat();
-      if(destFloat != null) {
+      if (destFloat != null) {
         float[] srcFloat = srcAggs.getFieldsFloat();
 
-        for(int index = 0;
+        for (int index = 0;
             index < destFloat.length;
             index++) {
-          if(destFloat[index] < srcFloat[index]) {
+          if (destFloat[index] < srcFloat[index]) {
             destFloat[index] = srcFloat[index];
           }
         }
@@ -223,13 +223,13 @@ public class AggregatorMax extends AbstractIncrementalAggregator
 
     {
       double[] destDouble = destAggs.getFieldsDouble();
-      if(destDouble != null) {
+      if (destDouble != null) {
         double[] srcDouble = srcAggs.getFieldsDouble();
 
-        for(int index = 0;
+        for (int index = 0;
             index < destDouble.length;
             index++) {
-          if(destDouble[index] < srcDouble[index]) {
+          if (destDouble[index] < srcDouble[index]) {
             destDouble[index] = srcDouble[index];
           }
         }

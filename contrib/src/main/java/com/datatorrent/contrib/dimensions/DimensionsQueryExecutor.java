@@ -8,19 +8,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 import javax.validation.constraints.NotNull;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang3.mutable.MutableLong;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
+import com.datatorrent.contrib.hdht.HDHTReader.HDSQuery;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.query.QueryExecutor;
 import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
@@ -35,9 +35,6 @@ import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
 import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
 import com.datatorrent.lib.dimensions.aggregator.OTFAggregator;
-
-import com.datatorrent.contrib.hdht.HDHTReader.HDSQuery;
-
 import com.datatorrent.netlet.util.Slice;
 
 /**
@@ -49,10 +46,11 @@ import com.datatorrent.netlet.util.Slice;
  * <b>Note:</b> This {@link QueryExecutor} will work with {@link DimensionStoreHDHT}
  * operators that serve data for single or multiple schemas.
  * </p>
- * @since 3.1.0
  *
+ * @since 3.1.0
  */
-public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimensional, QueryMeta, MutableLong, Result> {
+public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimensional, QueryMeta, MutableLong, Result>
+{
   /**
    * The operator from which to retrieve data from.
    */
@@ -100,7 +98,7 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
     boolean allSatisfied = true;
 
     //loops through all of the issues HDSQueries
-    for(int index = 0; index < queries.size(); index++) {
+    for (int index = 0; index < queries.size(); index++) {
       //Get the query and keys for this time bucket
       Map<String, HDSQuery> aggregatorToQuery = queries.get(index);
       Map<String, EventKey> aggregatorToEventKey = eventKeys.get(index);
@@ -111,7 +109,7 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
       Map<String, GPOMutable> aggregatorResults = Maps.newHashMap();
 
       //loop over aggregators
-      for(String aggregatorName: aggregatorToQuery.keySet()) {
+      for (String aggregatorName : aggregatorToQuery.keySet()) {
         //Get the original query and key for this timebucket/aggregator combination
         HDSQuery hdsQuery = aggregatorToQuery.get(aggregatorName);
         EventKey eventKey = aggregatorToEventKey.get(aggregatorName);
@@ -121,7 +119,7 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
         //First check in the operator's DimensionsEvent cache
         DimensionsEvent gae = operator.cache.get(eventKey);
 
-        if(gae != null) {
+        if (gae != null) {
           //Result was in the cache
           LOG.debug("Retrieved from cache. {} {}", aggregatorName, gae.getEventKey());
 
@@ -129,16 +127,16 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
           aggregatorEventKeys.put(aggregatorName, gae.getEventKey());
           aggregatorKeys.put(aggregatorName, gae.getKeys());
           aggregatorResults.put(aggregatorName, gae.getAggregates());
-        }
-        else {
+        } else {
           //Result was not in cache
 
           //TODO this is inefficient
           //Check if the uncommitted HDHT cache has the data
           Slice keySlice = new Slice(operator.getEventKeyBytesGAE(eventKey));
-          byte[] value = operator.getUncommitted(operator.getBucketForSchema(schemaDimensional.getSchemaID()), keySlice);
+          byte[] value = operator.getUncommitted(operator.getBucketForSchema(schemaDimensional.getSchemaID()),
+              keySlice);
 
-          if(value != null) {
+          if (value != null) {
             LOG.debug("Retrieved from uncommited");
             gae = operator.fromKeyValueGAE(keySlice, value);
 
@@ -146,8 +144,7 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
             aggregatorEventKeys.put(aggregatorName, gae.getEventKey());
             aggregatorKeys.put(aggregatorName, gae.getKeys());
             aggregatorResults.put(aggregatorName, gae.getAggregates());
-          }
-          else if(hdsQuery.result != null) {
+          } else if (hdsQuery.result != null) {
             //If the uncommitted cache did not have the result, but the asynchronous HDSQuery did
             gae = operator.getCodec().fromKeyValue(hdsQuery.key, hdsQuery.result);
 
@@ -155,21 +152,20 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
             aggregatorEventKeys.put(aggregatorName, gae.getEventKey());
             aggregatorKeys.put(aggregatorName, gae.getKeys());
             aggregatorResults.put(aggregatorName, gae.getAggregates());
-          }
-          else {
+          } else {
             //The result could not be found in the operator cache, uncommitted cache, or from
             //an asynchronous HDSQuery.
             allSatisfied = false;
           }
 
-          if(hdsQuery.processed) {
+          if (hdsQuery.processed) {
             //Refresh the result of the HDSQuery if it's processed.
             hdsQuery.processed = false;
           }
         }
       }
 
-      if(!aggregatorResults.isEmpty()) {
+      if (!aggregatorResults.isEmpty()) {
         //Add results to the result lists
         keysEventKeys.add(aggregatorEventKeys);
         keys.add(aggregatorKeys);
@@ -177,7 +173,7 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
       }
     }
 
-    if(!query.getIncompleteResultOK() && !allSatisfied && queueContext.longValue() > 1L) {
+    if (!query.getIncompleteResultOK() && !allSatisfied && queueContext.longValue() > 1L) {
       //if incomplete results are not ok,
       //And all the requested results were not found
       //And the query still has time in its countdown
@@ -192,23 +188,23 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
     List<Map<String, GPOMutable>> rolledResults = Lists.newArrayList();
 
     applyRolling(keysEventKeys,
-                 keys,
-                 results,
-                 rolledKeys,
-                 rolledResults,
-                 configurationSchema,
-                 query);
+        keys,
+        results,
+        rolledKeys,
+        rolledResults,
+        configurationSchema,
+        query);
 
     return pruneResults(rolledKeys, rolledResults, query, configurationSchema, queueContext);
   }
 
   private void applyRolling(List<Map<String, EventKey>> keysEventKeys,
-                            List<Map<String, GPOMutable>> keys,
-                            List<Map<String, GPOMutable>> results,
-                            List<Map<String, GPOMutable>> rolledKeys,
-                            List<Map<String, GPOMutable>> rolledResults,
-                            DimensionalConfigurationSchema configurationSchema,
-                            DataQueryDimensional query)
+      List<Map<String, GPOMutable>> keys,
+      List<Map<String, GPOMutable>> results,
+      List<Map<String, GPOMutable>> rolledKeys,
+      List<Map<String, GPOMutable>> rolledResults,
+      DimensionalConfigurationSchema configurationSchema,
+      DataQueryDimensional query)
   {
     for (int offset = 0; offset < keys.size() - (query.getSlidingAggregateSize() - 1); offset++) {
       int index = offset + (query.getSlidingAggregateSize() - 1);
@@ -235,7 +231,8 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
         for (int rollingIndex = 0; rollingIndex < query.getSlidingAggregateSize(); rollingIndex++) {
           Map<String, GPOMutable> currentResult = results.get(offset + rollingIndex);
           for (String aggregator : aggregators) {
-            IncrementalAggregator incrementalAggregator = configurationSchema.getAggregatorRegistry().getNameToIncrementalAggregator().get(aggregator);
+            IncrementalAggregator incrementalAggregator =
+                configurationSchema.getAggregatorRegistry().getNameToIncrementalAggregator().get(aggregator);
             GPOMutable aggregate = result.get(aggregator);
             GPOMutable currentAggregate = currentResult.get(aggregator);
             EventKey currentEventKey = bucketKeysEventKeys.get(aggregator);
@@ -244,7 +241,7 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
               result.put(aggregator, currentAggregate);
             } else {
               incrementalAggregator.aggregate(new Aggregate(currentEventKey, aggregate),
-                                              new Aggregate(currentEventKey, currentAggregate));
+                  new Aggregate(currentEventKey, currentAggregate));
             }
           }
         }
@@ -264,24 +261,25 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
    * they only asked for average. So the sum and count results should be used to compute the average, and then
    * they should not be returned to the user. Additionally, if the user requests average, and we issue sum and
    * count queries, but only get the sum back; we should not return any result because we cannot compute the average.
-   * @param keys The list of result keys.
-   * @param results The list of result aggregates.
-   * @param query The query issued.
+   *
+   * @param keys                The list of result keys.
+   * @param results             The list of result aggregates.
+   * @param query               The query issued.
    * @param configurationSchema The dimensional configuration schema.
-   * @param queueContext The countdown for the query.
+   * @param queueContext        The countdown for the query.
    * @return The pruned dimensional result.
    */
   private Result pruneResults(List<Map<String, GPOMutable>> keys,
-                              List<Map<String, GPOMutable>> results,
-                              DataQueryDimensional query,
-                              DimensionalConfigurationSchema configurationSchema,
-                              MutableLong queueContext)
+      List<Map<String, GPOMutable>> results,
+      DataQueryDimensional query,
+      DimensionalConfigurationSchema configurationSchema,
+      MutableLong queueContext)
   {
     List<Map<String, GPOMutable>> prunedKeys = Lists.newArrayList();
     List<Map<String, GPOMutable>> prunedResults = Lists.newArrayList();
 
     //Loop through each time bucket for the result keys and aggregates
-    for(int index = 0; index < keys.size(); index++) {
+    for (int index = 0; index < keys.size(); index++) {
       //Results for time bucket.
       Map<String, GPOMutable> key = keys.get(index);
       Map<String, GPOMutable> value = results.get(index);
@@ -290,7 +288,7 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
       Map<String, GPOMutable> prunedKey = Maps.newHashMap();
       Map<String, GPOMutable> prunedValue = Maps.newHashMap();
 
-      if(key.isEmpty()) {
+      if (key.isEmpty()) {
         //no data for this time bucket
         //skip this
         continue;
@@ -301,12 +299,12 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
       GPOMutable singleKey = key.entrySet().iterator().next().getValue();
 
       //loop through each aggregator.
-      for(String aggregatorName: query.getFieldsAggregatable().getAggregators()) {
-        if(configurationSchema.getAggregatorRegistry().isIncrementalAggregator(aggregatorName)) {
+      for (String aggregatorName : query.getFieldsAggregatable().getAggregators()) {
+        if (configurationSchema.getAggregatorRegistry().isIncrementalAggregator(aggregatorName)) {
           //If the aggregator is an incremental aggregator.
           GPOMutable valueGPO = value.get(aggregatorName);
 
-          if(valueGPO == null) {
+          if (valueGPO == null) {
             //this time bucket is not complete.
             break;
           }
@@ -322,7 +320,8 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
 
         List<GPOMutable> mutableResults = Lists.newArrayList();
         //get the child aggregators
-        List<String> childAggregators = configurationSchema.getAggregatorRegistry().getOTFAggregatorToIncrementalAggregators().get(aggregatorName);
+        List<String> childAggregators =
+            configurationSchema.getAggregatorRegistry().getOTFAggregatorToIncrementalAggregators().get(aggregatorName);
 
         boolean gotAllStaticAggregators = true;
 
@@ -330,11 +329,11 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
         Set<String> fieldsSet = query.getFieldsAggregatable().getAggregatorToFields().get(aggregatorName);
         Fields fields = new Fields(fieldsSet);
 
-        for(String childAggregator: childAggregators) {
+        for (String childAggregator : childAggregators) {
           //get the values for the child aggregators
           GPOMutable valueGPO = value.get(childAggregator);
 
-          if(valueGPO == null) {
+          if (valueGPO == null) {
             //we don't have all the child aggregators, we can't compute the OTFAggregation
             gotAllStaticAggregators = false;
             break;
@@ -342,17 +341,18 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
 
           //Add the child aggregator results to the list of results
           mutableResults.add(new GPOMutable(valueGPO,
-                                            fields));
+              fields));
         }
 
-        if(!gotAllStaticAggregators) {
+        if (!gotAllStaticAggregators) {
           //we didn't get all the incremental aggregations required to compute this OTF aggregation
           //so we must skip computing the result
           continue;
         }
 
         //Get the OTFAggregator
-        OTFAggregator aggregator = configurationSchema.getAggregatorRegistry().getNameToOTFAggregators().get(aggregatorName);
+        OTFAggregator aggregator = configurationSchema.getAggregatorRegistry().getNameToOTFAggregators().get(
+            aggregatorName);
 
         //Compute the OTF aggregation
         GPOMutable result = aggregator.aggregate(mutableResults.toArray(new GPOMutable[mutableResults.size()]));
@@ -362,7 +362,7 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
         prunedKey.put(aggregatorName, singleKey);
       }
 
-      if(prunedKey.isEmpty()) {
+      if (prunedKey.isEmpty()) {
         continue;
       }
 

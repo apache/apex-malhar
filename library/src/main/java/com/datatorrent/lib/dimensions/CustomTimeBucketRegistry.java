@@ -4,19 +4,18 @@
  */
 package com.datatorrent.lib.dimensions;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.io.Serializable;
-
 import java.util.HashMap;
 import java.util.Map;
-
 
 import com.google.common.base.Preconditions;
 
 import com.datatorrent.lib.appdata.schemas.CustomTimeBucket;
+
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 /**
  * @since 3.2.0
@@ -46,13 +45,13 @@ public class CustomTimeBucketRegistry implements Serializable
   }
 
   public CustomTimeBucketRegistry(Int2ObjectMap<CustomTimeBucket> idToTimeBucket,
-                                  int startingId)
+      int startingId)
   {
     int tempId = initialize(idToTimeBucket);
 
     Preconditions.checkArgument(tempId < startingId, "The statingId " + startingId
-                                                     + " must be larger than the largest ID " + tempId
-                                                     + " in the given idToTimeBucket mapping");
+        + " must be larger than the largest ID " + tempId
+        + " in the given idToTimeBucket mapping");
 
     this.idToTimeBucket = Preconditions.checkNotNull(idToTimeBucket);
     this.currentId = startingId;

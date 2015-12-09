@@ -7,9 +7,8 @@ package com.datatorrent.contrib.dimensions;
 import java.util.List;
 import java.util.Map;
 
-import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
-
 import com.datatorrent.contrib.hdht.HDHTReader.HDSQuery;
+import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
 
 /**
  * This class is used to hold meta data required to process data queries. This class is
@@ -21,15 +20,17 @@ public class QueryMeta
 {
   /**
    * Each entry in this list represents the {@link HDSQuery}s that are issued for a particular
-   * time bucket. Each {@link Map} for each timebucket is a map from an {@link IncrementalAggregator} name
-   * to the {@link HDSQuery} issued for that {@link IncrementalAggregator}. The {@link HDSQuery}s at a particular
-   * index in this list correspond with the {@link EventKey}s stored at the same index in the eventKeys list.
+   * time bucket. Each {@link Map} for each timebucket is a map from an
+   * {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator} name to the {@link HDSQuery} issued
+   * for that {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator}. The {@link HDSQuery}s at a
+   * particular index in this list correspond with the {@link EventKey}s stored at the same index in the eventKeys list.
    */
   private List<Map<String, HDSQuery>> hdsQueries;
   /**
-   * Each entry in this list represents the {@link EventKey}s for queries issued for a particular time bucket. Each {@link Map}
-   * for each timebucket is a map from an {@link IncrementalAggregator} name to the {@link EventKey} used to issue
-   * the {@link HDSQuery} for that {@link IncrementalAggregator}.
+   * Each entry in this list represents the {@link EventKey}s for queries issued for a particular time bucket. Each
+   * {@link Map} for each timebucket is a map from an
+   * {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator} name to the {@link EventKey} used to issue
+   * the {@link HDSQuery} for that {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator}.
    */
   private List<Map<String, EventKey>> eventKeys;
 

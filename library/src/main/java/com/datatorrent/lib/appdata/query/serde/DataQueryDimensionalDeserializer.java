@@ -38,6 +38,7 @@ import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 
 /**
  * This class is a deserializer for {@link DataQueryDimensional} objects.
+ *
  * @since 3.1.0
  */
 public class DataQueryDimensionalDeserializer implements CustomMessageDeserializer
@@ -55,15 +56,15 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
   {
     try {
       return deserializeHelper(json, context);
-    }
-    catch(Exception e) {
+    } catch (Exception e) {
       throw new IOException(e);
     }
   }
 
   /**
    * This is a helper message to deserialize queries.
-   * @param json The json to deserialize.
+   *
+   * @param json    The json to deserialize.
    * @param context The context to use when deserializing the json.
    * @return The deserialized query.
    * @throws Exception
@@ -81,14 +82,13 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
     boolean oneTime = !jo.has(QRBase.FIELD_COUNTDOWN);
     long countdown = 1;
 
-    if(!oneTime) {
+    if (!oneTime) {
       countdown = jo.getLong(QRBase.FIELD_COUNTDOWN);
     }
 
-
     boolean incompleteResultOK = true;
 
-    if(jo.has(DataQueryDimensional.FIELD_INCOMPLETE_RESULT_OK)) {
+    if (jo.has(DataQueryDimensional.FIELD_INCOMPLETE_RESULT_OK)) {
       incompleteResultOK = jo.getBoolean(DataQueryDimensional.FIELD_INCOMPLETE_RESULT_OK);
     }
 
@@ -98,12 +98,12 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
     ////Schema keys
     Map<String, String> schemaKeys = null;
 
-    if(data.has(Query.FIELD_SCHEMA_KEYS)) {
+    if (data.has(Query.FIELD_SCHEMA_KEYS)) {
       schemaKeys = SchemaUtils.extractMap(data.getJSONObject(Query.FIELD_SCHEMA_KEYS));
     }
 
-    SchemaRegistry schemaRegistry = ((SchemaRegistry) context);
-    DimensionalSchema gsd = (DimensionalSchema) schemaRegistry.getSchema(schemaKeys);
+    SchemaRegistry schemaRegistry = ((SchemaRegistry)context);
+    DimensionalSchema gsd = (DimensionalSchema)schemaRegistry.getSchema(schemaKeys);
 
     boolean hasFromTo = false;
     int latestNumBuckets = -1;
@@ -115,7 +115,7 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
 
     int slidingAggregateSize = 1;
 
-    if(hasTime) {
+    if (hasTime) {
       //// Time
       JSONObject time = data.getJSONObject(DataQueryDimensional.FIELD_TIME);
 
@@ -123,27 +123,25 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
         slidingAggregateSize = time.getInt(DataQueryDimensional.FIELD_SLIDING_AGGREGATE_SIZE);
       }
 
-      if(time.has(DataQueryDimensional.FIELD_FROM)
-         ^ time.has(DataQueryDimensional.FIELD_TO)) {
+      if (time.has(DataQueryDimensional.FIELD_FROM)
+          ^ time.has(DataQueryDimensional.FIELD_TO)) {
         LOG.error("Both from and to must be specified, or netiher");
         return null;
       }
 
       hasFromTo = time.has(DataQueryDimensional.FIELD_FROM);
 
-      if(hasFromTo) {
+      if (hasFromTo) {
         from = time.getLong(DataQueryDimensional.FIELD_FROM);
         to = time.getLong(DataQueryDimensional.FIELD_TO);
-      }
-      else {
+      } else {
         latestNumBuckets = time.getInt(DataQueryDimensional.FIELD_LATEST_NUM_BUCKETS);
       }
 
-      if(time.has(DataQueryDimensional.FIELD_BUCKET)) {
+      if (time.has(DataQueryDimensional.FIELD_BUCKET)) {
         String timeBucketString = time.getString(DataQueryDimensional.FIELD_BUCKET);
         bucket = new CustomTimeBucket(timeBucketString);
-      }
-      else {
+      } else {
         bucket = gsd.getDimensionalConfigurationSchema().getCustomTimeBuckets().get(0);
       }
     } else {
@@ -154,84 +152,82 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
     JSONObject keys = data.getJSONObject(DataQueryDimensional.FIELD_KEYS);
 
     @SuppressWarnings("unchecked")
-    Iterator<String> keyIterator = (Iterator<String>) keys.keys();
+    Iterator<String> keyIterator = (Iterator<String>)keys.keys();
     Set<String> keySet = Sets.newHashSet();
 
-    while(keyIterator.hasNext()) {
+    while (keyIterator.hasNext()) {
       String key = keyIterator.next();
-      if(!keySet.add(key)) {
+      if (!keySet.add(key)) {
         LOG.error("Duplicate key: {}", key);
         return null;
       }
     }
 
     DimensionsDescriptor dimensionDescriptor = new DimensionsDescriptor(bucket,
-                                                                        new Fields(keySet));
+        new Fields(keySet));
     Integer ddID = gsd.getDimensionalConfigurationSchema().getDimensionsDescriptorToID().get(dimensionDescriptor);
 
-    if(ddID == null) {
+    if (ddID == null) {
       LOG.error("The given dimensionDescriptor is not valid: {}", dimensionDescriptor);
       return null;
     }
 
-    Map<String, Set<String>> valueToAggregator = gsd.getDimensionalConfigurationSchema().getDimensionsDescriptorIDToValueToAggregator().get(ddID);
+    Map<String, Set<String>> valueToAggregator =
+        gsd.getDimensionalConfigurationSchema().getDimensionsDescriptorIDToValueToAggregator().get(ddID);
 
     ////Fields
 
     Set<String> nonAggregatedFields = Sets.newHashSet();
     Map<String, Set<String>> fieldToAggregator;
 
-    if(data.has(DataQueryDimensional.FIELD_FIELDS)) {
+    if (data.has(DataQueryDimensional.FIELD_FIELDS)) {
       fieldToAggregator = Maps.newHashMap();
 
       JSONArray fields = data.getJSONArray(DataQueryDimensional.FIELD_FIELDS);
 
-      for(int fieldIndex = 0;
+      for (int fieldIndex = 0;
           fieldIndex < fields.length();
           fieldIndex++) {
         String field = fields.getString(fieldIndex);
 
-        if(DimensionsDescriptor.TIME_FIELDS.getFields().contains(field)) {
+        if (DimensionsDescriptor.TIME_FIELDS.getFields().contains(field)) {
           nonAggregatedFields.add(field);
         }
 
         String[] components = field.split(DimensionalConfigurationSchema.ADDITIONAL_VALUE_SEPERATOR);
 
-        if(components.length == 1) {
+        if (components.length == 1) {
           Set<String> aggregators = valueToAggregator.get(field);
 
-          if(aggregators == null) {
+          if (aggregators == null) {
             nonAggregatedFields.add(field);
-          }
-          else {
+          } else {
             fieldToAggregator.put(field, aggregators);
           }
-        }
-        else if(components.length == 2) {
+        } else if (components.length == 2) {
           String value = components[DimensionalConfigurationSchema.ADDITIONAL_VALUE_VALUE_INDEX];
           String aggregator = components[DimensionalConfigurationSchema.ADDITIONAL_VALUE_AGGREGATOR_INDEX];
 
-          if(!gsd.getDimensionalConfigurationSchema().getAggregatorRegistry().isAggregator(aggregator)) {
+          if (!gsd.getDimensionalConfigurationSchema().getAggregatorRegistry().isAggregator(aggregator)) {
             LOG.error("{} is not a valid aggregator", aggregator);
             return null;
           }
 
           Set<String> aggregators = fieldToAggregator.get(value);
 
-          if(aggregators == null) {
+          if (aggregators == null) {
             aggregators = Sets.newHashSet();
             fieldToAggregator.put(value, aggregators);
           }
 
           aggregators.add(aggregator);
-        }
-        else {
-          LOG.error("A field selector can have at most one {}.", DimensionalConfigurationSchema.ADDITIONAL_VALUE_SEPERATOR);
+        } else {
+          LOG.error("A field selector can have at most one {}.",
+              DimensionalConfigurationSchema.ADDITIONAL_VALUE_SEPERATOR);
         }
       }
-    }
-    else {
-      if(hasTime) {
+    } else {
+      if (hasTime) {
         nonAggregatedFields.add(DimensionsDescriptor.DIMENSION_TIME);
       }
 
@@ -239,67 +235,68 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
     }
 
     FieldsAggregatable queryFields = new FieldsAggregatable(nonAggregatedFields,
-                                                            fieldToAggregator);
-    FieldsDescriptor keyFieldsDescriptor = gsd.getDimensionalConfigurationSchema().getKeyDescriptor().getSubset(new Fields(keySet));
+        fieldToAggregator);
+    FieldsDescriptor keyFieldsDescriptor = gsd.getDimensionalConfigurationSchema().getKeyDescriptor().getSubset(
+        new Fields(keySet));
     Map<String, Set<Object>> map = deserializeToMap(keyFieldsDescriptor, keys);
     DataQueryDimensional resultQuery;
 
     if (!hasTime) {
       resultQuery = new DataQueryDimensional(id,
-                                             type,
-                                             keyFieldsDescriptor,
-                                             map,
-                                             queryFields,
-                                             incompleteResultOK,
-                                             schemaKeys);
+          type,
+          keyFieldsDescriptor,
+          map,
+          queryFields,
+          incompleteResultOK,
+          schemaKeys);
     } else {
       if (oneTime) {
         if (hasFromTo) {
           resultQuery = new DataQueryDimensional(id,
-                                                 type,
-                                                 from,
-                                                 to,
-                                                 bucket,
-                                                 keyFieldsDescriptor,
-                                                 map,
-                                                 queryFields,
-                                                 incompleteResultOK,
-                                                 schemaKeys);
+              type,
+              from,
+              to,
+              bucket,
+              keyFieldsDescriptor,
+              map,
+              queryFields,
+              incompleteResultOK,
+              schemaKeys);
         } else {
           resultQuery = new DataQueryDimensional(id,
-                                                 type,
-                                                 latestNumBuckets,
-                                                 bucket,
-                                                 keyFieldsDescriptor,
-                                                 map,
-                                                 queryFields,
-                                                 incompleteResultOK,
-                                                 schemaKeys);
+              type,
+              latestNumBuckets,
+              bucket,
+              keyFieldsDescriptor,
+              map,
+              queryFields,
+              incompleteResultOK,
+              schemaKeys);
         }
       } else {
         if (hasFromTo) {
           resultQuery = new DataQueryDimensional(id,
-                                                 type,
-                                                 from,
-                                                 to,
-                                                 bucket,
-                                                 keyFieldsDescriptor,
-                                                 map,
-                                                 queryFields,
-                                                 countdown,
-                                                 incompleteResultOK,
-                                                 schemaKeys);
+              type,
+              from,
+              to,
+              bucket,
+              keyFieldsDescriptor,
+              map,
+              queryFields,
+              countdown,
+              incompleteResultOK,
+              schemaKeys);
         } else {
           resultQuery = new DataQueryDimensional(id,
-                                                 type,
-                                                 latestNumBuckets,
-                                                 bucket,
-                                                 keyFieldsDescriptor,
-                                                 map,
-                                                 queryFields,
-                                                 countdown,
-                                                 incompleteResultOK,
-                                                 schemaKeys);
+              type,
+              latestNumBuckets,
+              bucket,
+              keyFieldsDescriptor,
+              map,
+              queryFields,
+              countdown,
+              incompleteResultOK,
+              schemaKeys);
         }
       }
     }
@@ -312,7 +309,7 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
   //TODO this is duplicate code remove once malhar dependency is upgraded to 3.3
   @Unstable
   private static Map<String, Set<Object>> deserializeToMap(FieldsDescriptor fieldsDescriptor,
-                                                           JSONObject dpou)
+      JSONObject dpou)
   {
     Map<String, Set<Object>> keyToValues = Maps.newHashMap();
 
@@ -332,7 +329,7 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
 
       if (keyValue instanceof JSONArray) {
 
-        JSONArray ja = (JSONArray) keyValue;
+        JSONArray ja = (JSONArray)keyValue;
         keyValues = Sets.newHashSetWithExpectedSize(ja.length());
 
         Type type = fieldsDescriptor.getType(key);
@@ -360,25 +357,25 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
   {
     int intVal = 0;
 
-    if(numericTypeIntOrSmaller(type)) {
+    if (numericTypeIntOrSmaller(type)) {
       try {
         intVal = ja.getInt(index);
       } catch (JSONException ex) {
         throw new IllegalArgumentException("The index "
-                                           + index
-                                           + " does not have a valid "
-                                           + type
-                                           + " value.", ex);
+            + index
+            + " does not have a valid "
+            + type
+            + " value.", ex);
       }
 
       if (type != Type.INTEGER && !insideRange(type, intVal)) {
         throw new IllegalArgumentException("The index "
-                                           + index
-                                           + " has a value "
-                                           + intVal
-                                           + " which is out of range for a "
-                                           + type
-                                           + ".");
+            + index
+            + " has a value "
+            + intVal
+            + " which is out of range for a "
+            + type
+            + ".");
       }
     }
 
@@ -389,9 +386,9 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
         throw new IllegalArgumentException("The index " + index + " does not have a valid bool value.", ex);
       }
     } else if (type == Type.BYTE) {
-      return ((byte) intVal);
+      return ((byte)intVal);
     } else if (type == Type.SHORT) {
-      return ((short) intVal);
+      return ((short)intVal);
     } else if (type == Type.INTEGER) {
       return intVal;
     } else if (type == Type.LONG) {
@@ -399,9 +396,9 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
         return ja.getLong(index);
       } catch (JSONException ex) {
         throw new IllegalArgumentException("The index "
-                                           + index
-                                           + " does not have a valid long value.",
-                                           ex);
+            + index
+            + " does not have a valid long value.",
+            ex);
       }
     } else if (type == Type.CHAR) {
       String val;
@@ -410,17 +407,17 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
         val = ja.getString(index);
       } catch (JSONException ex) {
         throw new IllegalArgumentException("The index "
-                                           + index
-                                           + " does not have a valid character value.",
-                                           ex);
+            + index
+            + " does not have a valid character value.",
+            ex);
       }
 
       if (val.length() != 1) {
         throw new IllegalArgumentException("The index "
-                                           + index
-                                           + " has a value "
-                                           + val
-                                           + " that is not one character long.");
+            + index
+            + " has a value "
+            + val
+            + " that is not one character long.");
       }
 
       return val.charAt(0);
@@ -429,27 +426,27 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
         return ja.getString(index);
       } catch (JSONException ex) {
         throw new IllegalArgumentException("The index "
-                                           + index
-                                           + " does not have a valid string value.",
-                                           ex);
+            + index
+            + " does not have a valid string value.",
+            ex);
       }
     } else if (type == Type.DOUBLE) {
       try {
         return ja.getDouble(index);
       } catch (JSONException ex) {
         throw new IllegalArgumentException("The index "
-                                           + index
-                                           + " does not have a valid double value.",
-                                           ex);
+            + index
+            + " does not have a valid double value.",
+            ex);
       }
     } else if (type == Type.FLOAT) {
       try {
-        return (float) ja.getDouble(index);
+        return (float)ja.getDouble(index);
       } catch (JSONException ex) {
         throw new IllegalArgumentException("The index "
-                                           + index
-                                           + " does not have a valid double value.",
-                                           ex);
+            + index
+            + " does not have a valid double value.",
+            ex);
       }
     } else {
       throw new UnsupportedOperationException("The type " + type + " is not supported.");
@@ -463,25 +460,25 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
     Type type = fd.getType(field);
     int intVal = 0;
 
-    if(numericTypeIntOrSmaller(type)) {
+    if (numericTypeIntOrSmaller(type)) {
       try {
         intVal = jo.getInt(field);
       } catch (JSONException ex) {
         throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " does not have a valid "
-                                           + type
-                                           + " value.", ex);
+            + field
+            + " does not have a valid "
+            + type
+            + " value.", ex);
       }
 
       if (type != Type.INTEGER && !insideRange(type, intVal)) {
         throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " has a value "
-                                           + intVal
-                                           + " which is out of range for a "
-                                           + type
-                                           + ".");
+            + field
+            + " has a value "
+            + intVal
+            + " which is out of range for a "
+            + type
+            + ".");
       }
     }
 
@@ -492,9 +489,9 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
         throw new IllegalArgumentException("The key " + field + " does not have a valid bool value.", ex);
       }
     } else if (type == Type.BYTE) {
-      return ((byte) intVal);
+      return ((byte)intVal);
     } else if (type == Type.SHORT) {
-      return ((short) intVal);
+      return ((short)intVal);
     } else if (type == Type.INTEGER) {
       return intVal;
     } else if (type == Type.LONG) {
@@ -502,9 +499,9 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
         return jo.getLong(field);
       } catch (JSONException ex) {
         throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " does not have a valid long value.",
-                                           ex);
+            + field
+            + " does not have a valid long value.",
+            ex);
       }
     } else if (type == Type.CHAR) {
       String val;
@@ -513,17 +510,17 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
         val = jo.getString(field);
       } catch (JSONException ex) {
         throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " does not have a valid character value.",
-                                           ex);
+            + field
+            + " does not have a valid character value.",
+            ex);
       }
 
       if (val.length() != 1) {
         throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " has a value "
-                                           + val
-                                           + " that is not one character long.");
+            + field
+            + " has a value "
+            + val
+            + " that is not one character long.");
       }
 
       return val.charAt(0);
@@ -532,27 +529,27 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
         return jo.getString(field);
       } catch (JSONException ex) {
         throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " does not have a valid string value.",
-                                           ex);
+            + field
+            + " does not have a valid string value.",
+            ex);
       }
     } else if (type == Type.DOUBLE) {
       try {
         return jo.getDouble(field);
       } catch (JSONException ex) {
         throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " does not have a valid double value.",
-                                           ex);
+            + field
+            + " does not have a valid double value.",
+            ex);
       }
     } else if (type == Type.FLOAT) {
       try {
         return (float)jo.getDouble(field);
       } catch (JSONException ex) {
         throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " does not have a valid double value.",
-                                           ex);
+            + field
+            + " does not have a valid double value.",
+            ex);
       }
     } else {
       throw new UnsupportedOperationException("The type " + type + " is not supported.");
@@ -561,8 +558,9 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
 
   //TODO this is duplicate code remove once malhar dependency is upgraded to 3.3
   @Unstable
-  private static boolean insideRange(Type type, int val) {
-    switch(type) {
+  private static boolean insideRange(Type type, int val)
+  {
+    switch (type) {
       case BYTE: {
         return !(val < (int)Byte.MIN_VALUE || val > (int)Byte.MAX_VALUE);
       }

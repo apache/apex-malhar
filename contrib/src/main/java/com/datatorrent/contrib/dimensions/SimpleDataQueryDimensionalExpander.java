@@ -31,7 +31,7 @@ public class SimpleDataQueryDimensionalExpander implements DataQueryDimensionalE
 
   @Override
   public List<GPOMutable> createGPOs(Map<String, Set<Object>> keyToValues,
-                                     FieldsDescriptor fd)
+      FieldsDescriptor fd)
   {
     //Unclean work around until helper method in FieldsDescriptor is added
     List<String> fields = Lists.newArrayList(fd.getFieldList());
@@ -56,23 +56,23 @@ public class SimpleDataQueryDimensionalExpander implements DataQueryDimensionalE
   }
 
   private void createKeyGPOsHelper(int index,
-                                   Map<String, Set<Object>> keyToValues,
-                                   FieldsDescriptor fd,
-                                   List<String> fields,
-                                   GPOMutable gpo,
-                                   List<GPOMutable> resultGPOs)
+      Map<String, Set<Object>> keyToValues,
+      FieldsDescriptor fd,
+      List<String> fields,
+      GPOMutable gpo,
+      List<GPOMutable> resultGPOs)
   {
     String key = fields.get(index);
     Collection<Object> vals = keyToValues.get(key);
 
-    if(vals.isEmpty()) {
+    if (vals.isEmpty()) {
       vals = seenKeyValues.get(key);
     }
 
     for (Object val : vals) {
       GPOMutable gpoKey;
 
-      if(index == 0) {
+      if (index == 0) {
         gpoKey = new GPOMutable(fd);
       } else {
         gpoKey = new GPOMutable(gpo);

@@ -17,8 +17,8 @@ import com.google.common.collect.Sets;
  * This is a helper class used internally for processing queries issued against the {@link DimensionalSchema}.
  * It maintains information about which fields do not have any aggregations (time would be an example of such a field).
  * And it also maintains what aggregations aggregatable fields have applied to them.
- * @since 3.1.0
  *
+ * @since 3.1.0
  */
 public class FieldsAggregatable
 {
@@ -55,12 +55,13 @@ public class FieldsAggregatable
 
   /**
    * The is creates a {@link FieldsAggregatable} object.
-   * @param fields The non aggregatable fields managed by this {@link FieldsAggregatable} object.
+   *
+   * @param fields            The non aggregatable fields managed by this {@link FieldsAggregatable} object.
    * @param fieldToAggregator The aggregatable fields managed by this object and a set of all the
-   * aggregators applied to each aggregatable fields.
+   *                          aggregators applied to each aggregatable fields.
    */
   public FieldsAggregatable(Set<String> fields,
-                            Map<String, Set<String>> fieldToAggregator)
+      Map<String, Set<String>> fieldToAggregator)
   {
     setNonAggregatedFields(fields);
     setFieldToAggregator(fieldToAggregator);
@@ -69,7 +70,6 @@ public class FieldsAggregatable
   }
 
   /**
-   *
    * @param fieldToAggregator
    */
   public FieldsAggregatable(Map<String, Set<String>> fieldToAggregator)
@@ -82,8 +82,9 @@ public class FieldsAggregatable
 
   /**
    * This is a helper method for setting the non aggregatable fields.
+   *
    * @param nonAggregatedFields The non aggregatable fields managed by this
-   * {@link FieldsAggregatable} object.
+   *                            {@link FieldsAggregatable} object.
    */
   private void setNonAggregatedFields(Set<String> nonAggregatedFields)
   {
@@ -93,22 +94,23 @@ public class FieldsAggregatable
   /**
    * This is a helper method for setting the map from the field to the set of all
    * the aggregators managed by this {@link FieldsAggregatable} object.
+   *
    * @param fieldToAggregator A map from the field to the set of all aggregators applied to that field.
    */
   private void setFieldToAggregator(Map<String, Set<String>> fieldToAggregator)
   {
     this.fieldToAggregator = Maps.newHashMap();
 
-    for(Map.Entry<String, Set<String>> entry: fieldToAggregator.entrySet()) {
+    for (Map.Entry<String, Set<String>> entry : fieldToAggregator.entrySet()) {
       Preconditions.checkNotNull(entry.getKey());
       Preconditions.checkNotNull(entry.getValue());
 
-      for(String aggregator: entry.getValue()) {
+      for (String aggregator : entry.getValue()) {
         Preconditions.checkNotNull(aggregator);
       }
 
       this.fieldToAggregator.put(entry.getKey(),
-                                 Sets.newHashSet(entry.getValue()));
+          Sets.newHashSet(entry.getValue()));
     }
   }
 
@@ -122,6 +124,7 @@ public class FieldsAggregatable
 
   /**
    * Convenience method to get the set of all aggregators applied on a field.
+   *
    * @param field The field to get the set of aggregators for.
    * @return The set of all aggregators applied to the given field.
    */
@@ -132,6 +135,7 @@ public class FieldsAggregatable
 
   /**
    * Returns the set of all aggregated fields.
+   *
    * @return The set of all aggregated fields.
    */
   public Fields getAggregatedFields()
@@ -141,6 +145,7 @@ public class FieldsAggregatable
 
   /**
    * The set of all non aggregated fields.
+   *
    * @return The set of all non aggregated fields.
    */
   public Fields getNonAggregatedFields()
@@ -150,17 +155,18 @@ public class FieldsAggregatable
 
   /**
    * Gets the set of all aggregators applied to a field managed by this {@link FieldsAggregatable} object.
+   *
    * @return The set of all aggregators applied to a field.
    */
   public Set<String> getAggregators()
   {
-    if(aggregators != null) {
+    if (aggregators != null) {
       return aggregators;
     }
 
     aggregators = Sets.newHashSet();
 
-    for(Map.Entry<String, Set<String>> entry: fieldToAggregator.entrySet()) {
+    for (Map.Entry<String, Set<String>> entry : fieldToAggregator.entrySet()) {
       aggregators.addAll(entry.getValue());
     }
 
@@ -169,21 +175,22 @@ public class FieldsAggregatable
 
   /**
    * Gets the set of all fields managed by this {@link FieldsAggregatable} object.
+   *
    * @return The set of all fields managed by this {@link FieldsAggregatable} object.
    */
   public Set<String> getFieldNames()
   {
     StringBuilder sb = new StringBuilder();
 
-    if(fieldNames != null) {
+    if (fieldNames != null) {
       return fieldNames;
     }
 
     fieldNames = Sets.newHashSet();
 
-    for(Map.Entry<String, Set<String>> entry: fieldToAggregator.entrySet()) {
+    for (Map.Entry<String, Set<String>> entry : fieldToAggregator.entrySet()) {
       String value = entry.getKey();
-      for(String aggregator: entry.getValue()) {
+      for (String aggregator : entry.getValue()) {
         sb.append(value);
         sb.append(DimensionalConfigurationSchema.ADDITIONAL_VALUE_SEPERATOR);
         sb.append(aggregator);
@@ -193,7 +200,7 @@ public class FieldsAggregatable
       }
     }
 
-    for(String field: nonAggregatedFields.getFields()) {
+    for (String field : nonAggregatedFields.getFields()) {
       fieldNames.add(field);
     }
 
@@ -203,25 +210,26 @@ public class FieldsAggregatable
   /**
    * Returns a map from aggregator names to a set of all the fields that
    * that aggregator is applied to.
+   *
    * @return A map from aggregator names to a set of all the fields that
    * that aggregator is applied to.
    */
   public Map<String, Set<String>> getAggregatorToFields()
   {
-    if(aggregatorToField != null) {
+    if (aggregatorToField != null) {
       return aggregatorToField;
     }
 
     Map<String, Set<String>> aggregatorToFields = Maps.newHashMap();
 
-    for(Map.Entry<String, Set<String>> entry: fieldToAggregator.entrySet()) {
+    for (Map.Entry<String, Set<String>> entry : fieldToAggregator.entrySet()) {
       String field = entry.getKey();
       Set<String> aggregators = entry.getValue();
 
-      for(String aggregatorName: aggregators) {
+      for (String aggregatorName : aggregators) {
         Set<String> fieldSet = aggregatorToFields.get(aggregatorName);
 
-        if(fieldSet == null) {
+        if (fieldSet == null) {
           fieldSet = Sets.newHashSet();
           aggregatorToFields.put(aggregatorName, fieldSet);
         }
@@ -232,7 +240,7 @@ public class FieldsAggregatable
 
     aggregatorToField = Maps.newHashMap();
 
-    for(Map.Entry<String, Set<String>> entry: aggregatorToFields.entrySet()) {
+    for (Map.Entry<String, Set<String>> entry : aggregatorToFields.entrySet()) {
       aggregatorToField.put(entry.getKey(), Collections.unmodifiableSet(entry.getValue()));
     }
 
@@ -242,34 +250,35 @@ public class FieldsAggregatable
 
   /**
    * Returns a map from aggregator to field name to the field name with the aggregator name appended to it.
+   *
    * @return a map from aggregator to field name to the field name with the aggregator name appended to it.
    */
   public Map<String, Map<String, String>> getAggregatorToFieldToName()
   {
-    if(aggregatorToFieldToName != null) {
+    if (aggregatorToFieldToName != null) {
       return aggregatorToFieldToName;
     }
 
     Map<String, Set<String>> aggregatorToFields = getAggregatorToFields();
     Map<String, Map<String, String>> tAggregatorToFieldToName = Maps.newHashMap();
 
-    for(Map.Entry<String, Set<String>> entry: aggregatorToFields.entrySet()) {
+    for (Map.Entry<String, Set<String>> entry : aggregatorToFields.entrySet()) {
       String aggregatorName = entry.getKey();
       Set<String> fields = entry.getValue();
 
       Map<String, String> fieldToName = Maps.newHashMap();
       tAggregatorToFieldToName.put(aggregatorName, fieldToName);
 
-      for(String field: fields) {
+      for (String field : fields) {
         fieldToName.put(field, field +
-                               DimensionalConfigurationSchema.ADDITIONAL_VALUE_SEPERATOR +
-                               aggregatorName);
+            DimensionalConfigurationSchema.ADDITIONAL_VALUE_SEPERATOR +
+            aggregatorName);
       }
     }
 
     aggregatorToFieldToName = Maps.newHashMap();
 
-    for(Map.Entry<String, Map<String, String>> entry: tAggregatorToFieldToName.entrySet()) {
+    for (Map.Entry<String, Map<String, String>> entry : tAggregatorToFieldToName.entrySet()) {
       aggregatorToFieldToName.put(entry.getKey(), Collections.unmodifiableMap(entry.getValue()));
     }
 
@@ -289,17 +298,19 @@ public class FieldsAggregatable
   @Override
   public boolean equals(Object obj)
   {
-    if(obj == null) {
+    if (obj == null) {
       return false;
     }
-    if(getClass() != obj.getClass()) {
+    if (getClass() != obj.getClass()) {
       return false;
     }
     final FieldsAggregatable other = (FieldsAggregatable)obj;
-    if(this.fieldToAggregator != other.fieldToAggregator && (this.fieldToAggregator == null || !this.fieldToAggregator.equals(other.fieldToAggregator))) {
+    if (this.fieldToAggregator != other.fieldToAggregator &&
+        (this.fieldToAggregator == null || !this.fieldToAggregator.equals(other.fieldToAggregator))) {
       return false;
     }
-    if(this.nonAggregatedFields != other.nonAggregatedFields && (this.nonAggregatedFields == null || !this.nonAggregatedFields.equals(other.nonAggregatedFields))) {
+    if (this.nonAggregatedFields != other.nonAggregatedFields &&
+        (this.nonAggregatedFields == null || !this.nonAggregatedFields.equals(other.nonAggregatedFields))) {
       return false;
     }
     return true;
@@ -308,6 +319,7 @@ public class FieldsAggregatable
   @Override
   public String toString()
   {
-    return "FieldsAggregatable{" + "fieldToAggregator=" + fieldToAggregator + ", nonAggregatedFields=" + nonAggregatedFields + '}';
+    return "FieldsAggregatable{" + "fieldToAggregator=" + fieldToAggregator + ", nonAggregatedFields=" +
+        nonAggregatedFields + '}';
   }
 }

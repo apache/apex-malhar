@@ -4,14 +4,19 @@
  */
 package com.datatorrent.lib.dimensions;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.io.Serializable;
-
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.Sink;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.gpo.GPOUtils.IndexSubset;
@@ -25,13 +30,8 @@ import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
 import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.datatorrent.lib.statistics.DimensionsComputationUnifierImpl;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Operator;
-import com.datatorrent.api.Sink;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 /**
  * This is the base class for a generic single schema dimensions computation operator. A single
@@ -39,15 +39,16 @@ import org.slf4j.LoggerFactory;
  * predefined {@link DimensionalConfigurationSchema}. The way in which dimensions computation
  * is performed on these inputs is the following:
  * <ol>
- *  <li>A {@link DimensionalConfigurationSchema} is set on the operator which specifies the
- *  keys, values, dimension combinations, and aggregations to perform over the dimension combinations.</li>
- *  <li>The aggregators are set on the operator as an {@link AggregatorRegistry}</li>
- *  <li>An event is received.</li>
- *  <li>The event is converted into an {@link InputEvent} via the {@link #convert} method.</li>
- *  <li>The {@link InputEvent} is passed on to the {@link DimensionsComputation} operator, which
- *  performs dimensions computation.</li>
- *  <li>Aggregations are emitted by the operator as {@link Aggregate}s.</li>
+ * <li>A {@link DimensionalConfigurationSchema} is set on the operator which specifies the
+ * keys, values, dimension combinations, and aggregations to perform over the dimension combinations.</li>
+ * <li>The aggregators are set on the operator as an {@link AggregatorRegistry}</li>
+ * <li>An event is received.</li>
+ * <li>The event is converted into an {@link InputEvent} via the {@link #convert} method.</li>
+ * <li>The {@link InputEvent} is passed on to the {@link DimensionsComputation} operator, which
+ * performs dimensions computation.</li>
+ * <li>Aggregations are emitted by the operator as {@link Aggregate}s.</li>
  * </ol>
+ *
  * @param <EVENT> The type of the input events on which to perform dimensions computation.
  * @since 3.1.0
  */
@@ -96,7 +97,8 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
   /**
    * The output port for the aggregates.
    */
-  public final transient DefaultOutputPort<Aggregate> output = new DefaultOutputPort<Aggregate>() {
+  public final transient DefaultOutputPort<Aggregate> output = new DefaultOutputPort<Aggregate>()
+  {
     @Override
     public Unifier<Aggregate> getUnifier()
     {
@@ -108,7 +110,8 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
   /**
    * The input port which receives events to perform dimensions computation on.
    */
-  public transient final DefaultInputPort<EVENT> input = new DefaultInputPort<EVENT>() {
+  public final transient DefaultInputPort<EVENT> input = new DefaultInputPort<EVENT>()
+  {
     @Override
     public void process(EVENT tuple)
     {
@@ -121,7 +124,7 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
   }
 
   @Override
-  @SuppressWarnings({"unchecked","rawtypes"})
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public void setup(OperatorContext context)
   {
     IncrementalAggregator[] aggregatorArray = createAggregators();
@@ -129,7 +132,8 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
     dimensionsComputation = new DimensionsComputation<InputEvent, Aggregate>();
     dimensionsComputation.setAggregators(aggregatorArray);
 
-    Sink<Aggregate> sink = new Sink<Aggregate>() {
+    Sink<Aggregate> sink = new Sink<Aggregate>()
+    {
 
       @Override
       public void put(Aggregate tuple)
@@ -144,7 +148,7 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
       }
     };
 
-    dimensionsComputation.output.setSink((Sink) sink);
+    dimensionsComputation.output.setSink((Sink)sink);
     dimensionsComputation.setup(context);
 
     createInputEvent();
@@ -153,26 +157,27 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
   private void createInputEvent()
   {
     inputEvent = new InputEvent(
-            new EventKey(0,
-                         0,
-                         0,
-                         new GPOMutable(this.configurationSchema.getKeyDescriptorWithTime())),
-            new GPOMutable(this.configurationSchema.getInputValuesDescriptor()));
+        new EventKey(0,
+            0,
+            0,
+            new GPOMutable(this.configurationSchema.getKeyDescriptorWithTime())),
+        new GPOMutable(this.configurationSchema.getInputValuesDescriptor()));
   }
 
   /**
    * This is a helper method which initializes internal data structures for the operator and
    * creates the array of aggregators which are set on the {@link DimensionsComputation} operator
    * (which is used internally to perform dimensions computation), and the {@link DimensionsComputationUnifierImpl}.
+   *
    * @return The aggregators to be set on the unifier and internal {@link DimensionsComputation} operator.
    */
   private IncrementalAggregator[] createAggregators()
   {
     aggregatorRegistry.setup();
 
-    if(configurationSchema == null) {
+    if (configurationSchema == null) {
       configurationSchema = new DimensionalConfigurationSchema(configurationSchemaJSON,
-                                                               aggregatorRegistry);
+          aggregatorRegistry);
     }
 
     //Num incremental aggregators
@@ -182,36 +187,41 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
     List<FieldsDescriptor> keyFieldsDescriptors = configurationSchema.getDimensionsDescriptorIDToKeyDescriptor();
 
     //Compute the number of aggregators to create
-    for(int dimensionsDescriptorID = 0;
+    for (int dimensionsDescriptorID = 0;
         dimensionsDescriptorID < configurationSchema.getDimensionsDescriptorIDToAggregatorIDs().size();
         dimensionsDescriptorID++) {
-      IntArrayList aggIDList = configurationSchema.getDimensionsDescriptorIDToAggregatorIDs().get(dimensionsDescriptorID);
+      IntArrayList aggIDList = configurationSchema.getDimensionsDescriptorIDToAggregatorIDs().get(
+          dimensionsDescriptorID);
       numIncrementalAggregators += aggIDList.size();
     }
 
     IncrementalAggregator[] aggregatorArray = new IncrementalAggregator[numIncrementalAggregators];
     int incrementalAggregatorIndex = 0;
 
-    for(int dimensionsDescriptorID = 0;
+    for (int dimensionsDescriptorID = 0;
         dimensionsDescriptorID < keyFieldsDescriptors.size();
         dimensionsDescriptorID++) {
       //Create the conversion context for the conversion.
       FieldsDescriptor keyFieldsDescriptor = keyFieldsDescriptors.get(dimensionsDescriptorID);
-      Int2ObjectMap<FieldsDescriptor> map = configurationSchema.getDimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor().get(dimensionsDescriptorID);
-      Int2ObjectMap<FieldsDescriptor> mapOutput = configurationSchema.getDimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor().get(dimensionsDescriptorID);
-      IntArrayList aggIDList = configurationSchema.getDimensionsDescriptorIDToAggregatorIDs().get(dimensionsDescriptorID);
-      DimensionsDescriptor dd = configurationSchema.getDimensionsDescriptorIDToDimensionsDescriptor().get(dimensionsDescriptorID);
+      Int2ObjectMap<FieldsDescriptor> map = configurationSchema
+          .getDimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor().get(dimensionsDescriptorID);
+      Int2ObjectMap<FieldsDescriptor> mapOutput = configurationSchema
+          .getDimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor().get(dimensionsDescriptorID);
+      IntArrayList aggIDList = configurationSchema
+          .getDimensionsDescriptorIDToAggregatorIDs().get(dimensionsDescriptorID);
+      DimensionsDescriptor dd = configurationSchema
+          .getDimensionsDescriptorIDToDimensionsDescriptor().get(dimensionsDescriptorID);
 
-      for(int aggIDIndex = 0;
+      for (int aggIDIndex = 0;
           aggIDIndex < aggIDList.size();
           aggIDIndex++, incrementalAggregatorIndex++) {
         int aggID = aggIDList.get(aggIDIndex);
 
         DimensionsConversionContext conversionContext = new DimensionsConversionContext();
         IndexSubset indexSubsetKey = GPOUtils.computeSubIndices(keyFieldsDescriptor, masterKeyFieldsDescriptor);
-        IndexSubset indexSubsetAggregate = GPOUtils.computeSubIndices(this.configurationSchema.getDimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor().get
-                                                                              (dimensionsDescriptorID).get(aggID),
-                                                                      this.configurationSchema.getInputValuesDescriptor());
+        IndexSubset indexSubsetAggregate = GPOUtils
+            .computeSubIndices(configurationSchema.getDimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor()
+            .get(dimensionsDescriptorID).get(aggID), configurationSchema.getInputValuesDescriptor());
 
         conversionContext.schemaID = schemaID;
         conversionContext.dimensionsDescriptorID = dimensionsDescriptorID;
@@ -223,7 +233,8 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
         conversionContext.aggregateDescriptor = mapOutput.get(aggID);
 
         {
-          List<String> fields = masterKeyFieldsDescriptor.getTypeToFields().get(DimensionsDescriptor.DIMENSION_TIME_TYPE);
+          List<String> fields = masterKeyFieldsDescriptor.getTypeToFields().get(
+              DimensionsDescriptor.DIMENSION_TIME_TYPE);
 
           if (fields == null) {
             conversionContext.inputTimestampIndex = -1;
@@ -233,7 +244,8 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
         }
 
         {
-          List<String> fields = keyFieldsDescriptor.getTypeToFields().get(DimensionsDescriptor.DIMENSION_TIME_BUCKET_TYPE);
+          List<String> fields = keyFieldsDescriptor.getTypeToFields().get(
+              DimensionsDescriptor.DIMENSION_TIME_BUCKET_TYPE);
 
           if (fields == null) {
             conversionContext.outputTimebucketIndex = -1;
@@ -248,12 +260,11 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
         IncrementalAggregator aggregator;
 
         try {
-          aggregator = this.aggregatorRegistry.getIncrementalAggregatorIDToAggregator().get(aggID).getClass().newInstance();
-        }
-        catch(InstantiationException ex) {
+          aggregator = this.aggregatorRegistry.getIncrementalAggregatorIDToAggregator().get(aggID).getClass()
+              .newInstance();
+        } catch (InstantiationException ex) {
           throw new RuntimeException(ex);
-        }
-        catch(IllegalAccessException ex) {
+        } catch (IllegalAccessException ex) {
           throw new RuntimeException(ex);
         }
 
@@ -283,11 +294,12 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
     dimensionsComputation.teardown();
   }
 
-  public void processInputEvent(EVENT event) {
+  public void processInputEvent(EVENT event)
+  {
     convert(inputEvent, event);
     dimensionsComputation.data.put(inputEvent);
 
-    if(inputEvent.used) {
+    if (inputEvent.used) {
       createInputEvent();
     }
   }
@@ -297,13 +309,15 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
    * object. All of the keys and values defined in this operators {@link DimensionalConfigurationSchema}
    * should be packaged into the {@link InputEvent} received by this method, including the time
    * field if it is specified as a key.
+   *
    * @param inputEvent The {@link InputEvent} to convert received events into.
-   * @param event The event to unpack into the given {@link InputEvent}.
+   * @param event      The event to unpack into the given {@link InputEvent}.
    */
   public abstract void convert(InputEvent inputEvent, EVENT event);
 
   /**
    * Gets the {@link AggregatorRegistry} for this operator.
+   *
    * @return The {@link AggregatorRegistry} for this operator.
    */
   protected AggregatorRegistry getAggregatorRegistry()
@@ -313,6 +327,7 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
 
   /**
    * Sets the {@link AggregatorRegistry} for this operator.
+   *
    * @param aggregatorRegistry The {@link AggregatorRegistry} for this operator.
    */
   public void setAggregatorRegistry(AggregatorRegistry aggregatorRegistry)
@@ -321,7 +336,9 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
   }
 
   /**
-   * Gets the JSON specifying the {@link DimensionalConigurationSchema} for this operator.
+   * Gets the JSON specifying the {@link com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema} for this
+   * operator.
+   *
    * @return The JSON specifying the {@link DimensionalConfigurationSchema} for this operator.
    */
   public String getConfigurationSchemaJSON()
@@ -331,8 +348,9 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
 
   /**
    * Sets the JSON specifying the {@link DimensionalConfigurationSchema} for this operator.
+   *
    * @param configurationSchemaJSON The JSON specifying the {@link DimensionalConfigurationSchema} for
-   * this operator.
+   *                                this operator.
    */
   public void setConfigurationSchemaJSON(String configurationSchemaJSON)
   {
@@ -341,6 +359,7 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
 
   /**
    * Gets the unifier set on this operator.
+   *
    * @return The unifier set on this operator.
    */
   public DimensionsComputationUnifierImpl<InputEvent, Aggregate> getUnifier()
@@ -350,6 +369,7 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
 
   /**
    * Sets the unifier on this operator.
+   *
    * @param unifier The unifier set on this operator.
    */
   public void setUnifier(DimensionsComputationUnifierImpl<InputEvent, Aggregate> unifier)
@@ -382,15 +402,20 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
 
     public CustomTimeBucketRegistry customTimeBucketRegistry;
     /**
-     * The schema ID for {@link Aggregate}s emitted by the {@link IncrementalAggegator}s holding this context.
+     * The schema ID for
+     * {@link Aggregate}s emitted by the {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator}s
+     * holding this context.
      */
     public int schemaID;
     /**
-     * The dimensionsDescriptor ID for {@link Aggregate}s emitted by the {@link IncrementalAggegator}s holding this context.
+     * The dimensionsDescriptor ID for {@link Aggregate}s emitted by the
+     * {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator}s
+     * holding this context.
      */
     public int dimensionsDescriptorID;
     /**
-     * The aggregator ID for {@link Aggregate}s emitted by the {@link IncrementalAggegator}s holding this context.
+     * The aggregator ID for {@link Aggregate}s emitted by the
+     * {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator}s holding this context.
      */
     public int aggregatorID;
     /**
@@ -398,26 +423,33 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<EVENT> i
      */
     public DimensionsDescriptor dd;
     /**
-     * The {@link FieldsDescriptor} for the aggregate of the {@link Aggregate}s emitted by the {@link IncrementalAggegator}s holding this context object.
+     * The
+     * {@link FieldsDescriptor} for the aggregate of the {@link Aggregate}s emitted by the
+     * {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator}s holding this context object.
      */
     public FieldsDescriptor aggregateDescriptor;
     /**
-     * The {@link FieldsDescriptor} for the key of the {@link Aggregate}s emitted by the {@link IncrementalAggegator}s holding this context object.
+     * The
+     * {@link FieldsDescriptor} for the key of the {@link Aggregate}s emitted by the
+     * {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator}s holding this context object.
      */
     public FieldsDescriptor keyDescriptor;
     /**
-     * The index of the timestamp field within the key of {@link InputEvent}s received by the {@link IncrementalAggegator}s holding this context object.
-     * This is -1 if the {@link InputEvent} key has no timestamp.
+     * The index of the timestamp field within the key of
+     * {@link InputEvent}s received by the {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator}s
+     * holding this context object. This is -1 if the {@link InputEvent} key has no timestamp.
      */
     public int inputTimestampIndex;
     /**
-     * The index of the timestamp field within the key of {@link Aggregate}s emitted by the {@link IncrementalAggegator}s holding this context object.
-     * This is -1 if the {@link Aggregate}'s key has no timestamp.
+     * The index of the timestamp field within the key of
+     * {@link Aggregate}s emitted by the {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator}s
+     * holding this context object. This is -1 if the {@link Aggregate}'s key has no timestamp.
      */
     public int outputTimestampIndex;
     /**
-     * The index of the time bucket field within the key of {@link Aggregate}s emitted by the {@link IncrementalAggegator}s holding this context object.
-     * This is -1 if the {@link Aggregate}'s key has no timebucket.
+     * The index of the time bucket field within the key of
+     * {@link Aggregate}s emitted by the {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator}s
+     * holding this context object. This is -1 if the {@link Aggregate}'s key has no timebucket.
      */
     public int outputTimebucketIndex;
     /**

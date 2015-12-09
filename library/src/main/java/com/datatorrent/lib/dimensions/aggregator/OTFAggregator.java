@@ -15,18 +15,18 @@ import com.datatorrent.lib.appdata.schemas.Type;
  * <p>
  * This interface represents an On The Fly Aggregator. On the fly aggregators represent a class
  * of aggregations which use the results of incremental aggregators, which implement the
- * {@link Aggregator} interface. An example of an aggregation which needs to be performed on the
- * fly is average. Average needs to be performed on the fly because average cannot be computed with
- * just an existing average and a new data item, an average required the sum of all data items, and the
+ * {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator} interface. An example of an aggregation which
+ * needs to be performed on the fly is average. Average needs to be performed on the fly because average cannot be
+ * computed with just an existing average and a new data item, an average required the sum of all data items, and the
  * count of all data items. An example implementation of average is {@link AggregatorAverage}. Also note
  * that unlike {@link IncrementalAggregator}s an {@link OTFAggregator} only has one output type. This done
- * because {@link OTFAggregators} usually represent a very specific computation, with a specific output type.
+ * because {@link OTFAggregator}s usually represent a very specific computation, with a specific output type.
  * For example, average is a computation that you will almost always want to produce a double. But if you require
  * an average operation that produces an integer, that could be done as a separate {@link OTFAggregator}.
  * </p>
  * <p>
  * The primary usage for {@link OTFAggregator}s are in store operators which respond to queries. Currently,
- * the only places which utilize {@link OTFAggregator}s are subclasses of the {@link DimensionsStoreHDHT} operator.
+ * the only places which utilize {@link OTFAggregator}s are subclasses of the DimensionsStoreHDHT operator.
  * </p>
  * <p>
  * This interface extends {@link Serializable} because On The Fly aggregators may be set
@@ -45,6 +45,7 @@ public interface OTFAggregator extends Serializable
    * @return All the incremental aggregators on which this aggregator depends on to compute its
    * result.
    */
+
   public List<Class<? extends IncrementalAggregator>> getChildAggregators();
   /**
    * This method performs an on the fly aggregation from the given aggregates. The aggregates
@@ -57,11 +58,13 @@ public interface OTFAggregator extends Serializable
    * order as the child aggregators specified in the result of the {@link #getChildAggregators} method.
    * @return The result of the on the fly aggregation.
    */
+
   public GPOMutable aggregate(GPOMutable... aggregates);
   /**
    * Returns the output type of the {@link OTFAggregator}. <b>Note<b> that any combination of input types
    * will produce the same output type for {@link OTFAggregator}s.
    * @return The output type of the {@link OTFAggregator}.
    */
+
   public Type getOutputType();
 }

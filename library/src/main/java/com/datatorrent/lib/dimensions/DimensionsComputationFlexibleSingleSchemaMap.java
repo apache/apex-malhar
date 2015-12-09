@@ -10,11 +10,10 @@ import javax.validation.constraints.NotNull;
 
 import com.google.common.collect.Maps;
 
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
-
-import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * <p>
@@ -23,16 +22,18 @@ import com.datatorrent.api.Context.OperatorContext;
  * </p>
  * <p>
  * This operator is configured by by setting key and value aliases. These aliases are used in the
- * case where the names of keys or values as they're defined in the {@link DimensionalConfigurationSchema} are different from the
+ * case where the names of keys or values as they're defined in the {@link DimensionalConfigurationSchema} are
+ * different from the
  * names of keys or values as they're defined in incoming input maps.
  * </p>
+ *
  * @displayName Dimension Computation Map
  * @category Stats and Aggregations
  * @tags event, dimension, aggregation, computation, map
  * @since 3.1.0
- *  
  */
-public class DimensionsComputationFlexibleSingleSchemaMap extends AbstractDimensionsComputationFlexibleSingleSchema<Map<String, Object>>
+public class DimensionsComputationFlexibleSingleSchemaMap
+    extends AbstractDimensionsComputationFlexibleSingleSchema<Map<String, Object>>
 {
   @NotNull
   private Map<String, String> keyNameAliases = Maps.newHashMap();
@@ -49,35 +50,35 @@ public class DimensionsComputationFlexibleSingleSchemaMap extends AbstractDimens
   public void convert(InputEvent inputEvent, Map<String, Object> event)
   {
     populateGPO(inputEvent.getKeys(),
-                event,
-                keyNameAliases);
+        event,
+        keyNameAliases);
 
     populateGPO(inputEvent.getAggregates(),
-                event,
-                valueNameAliases);
+        event,
+        valueNameAliases);
   }
 
   private void populateGPO(GPOMutable gpoMutable,
-                           Map<String, Object> event,
-                           Map<String, String> aliasMap)
+      Map<String, Object> event,
+      Map<String, String> aliasMap)
   {
     FieldsDescriptor fd = gpoMutable.getFieldDescriptor();
 
-    for(int index = 0;
+    for (int index = 0;
         index < fd.getFieldList().size();
         index++) {
       String field = fd.getFieldList().get(index);
       gpoMutable.setFieldGeneric(field, event.get(getMapAlias(aliasMap,
-                                                     field)));
+          field)));
     }
   }
 
   private String getMapAlias(Map<String, String> map,
-                             String name)
+      String name)
   {
     String aliasName = map.get(name);
 
-    if(aliasName == null) {
+    if (aliasName == null) {
       aliasName = name;
     }
 
@@ -86,6 +87,7 @@ public class DimensionsComputationFlexibleSingleSchemaMap extends AbstractDimens
 
   /**
    * Gets the keyNameAliases.
+   *
    * @return The keyNameAliases.
    */
   public Map<String, String> getKeyNameAliases()
@@ -94,8 +96,10 @@ public class DimensionsComputationFlexibleSingleSchemaMap extends AbstractDimens
   }
 
   /**
-   * Sets a map from key names as defined in the {@link DimensionalConfigurationSchema} to the
-   * corresponding key names in input maps.
+   * Sets a map from key names as defined in the
+   * {@link com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema} to the corresponding key names in
+   * input maps.
+   *
    * @param keyNameAliases The keyNameAliases to set.
    */
   public void setKeyNameAliases(Map<String, String> keyNameAliases)
@@ -105,6 +109,7 @@ public class DimensionsComputationFlexibleSingleSchemaMap extends AbstractDimens
 
   /**
    * Gets the valueNameAliases.
+   *
    * @return The valueNameAliases.
    */
   public Map<String, String> getValueNameAliases()
@@ -113,8 +118,10 @@ public class DimensionsComputationFlexibleSingleSchemaMap extends AbstractDimens
   }
 
   /**
-   * Sets a map from value names as defined in the {@link DimensionalConfigurationSchema} to the
-   * corresponding value names in input maps.
+   * Sets a map from value names as defined in the
+   * {@link com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema} to the corresponding value names in
+   * input maps.
+   *
    * @param valueNameAliases The valueNameAliases to set.
    */
   public void setValueNameAliases(Map<String, String> valueNameAliases)

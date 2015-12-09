@@ -21,8 +21,8 @@ import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
  * <b>Note:</b> when aggregates are combined in a unifier it is not possible to tell which came first or last, so
  * one is picked arbitrarily to be the last.
  * </p>
- * @since 3.1.0
  *
+ * @since 3.1.0
  */
 @Name("LAST")
 public class AggregatorLast extends AbstractIncrementalAggregator

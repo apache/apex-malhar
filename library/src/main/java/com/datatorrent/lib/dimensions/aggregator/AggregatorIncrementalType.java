@@ -7,16 +7,15 @@ package com.datatorrent.lib.dimensions.aggregator;
 import java.util.Collections;
 import java.util.Map;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 /**
  * @since 3.1.0
  */
-
 
 public enum AggregatorIncrementalType
 {
@@ -37,7 +36,7 @@ public enum AggregatorIncrementalType
     Map<String, Integer> nameToOrdinal = Maps.newHashMap();
     Map<String, IncrementalAggregator> nameToAggregator = Maps.newHashMap();
 
-    for(AggregatorIncrementalType aggType: AggregatorIncrementalType.values()) {
+    for (AggregatorIncrementalType aggType : AggregatorIncrementalType.values()) {
       nameToOrdinal.put(aggType.name(), aggType.ordinal());
       nameToAggregator.put(aggType.name(), aggType.getAggregator());
     }

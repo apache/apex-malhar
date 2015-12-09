@@ -5,19 +5,26 @@
 package com.datatorrent.contrib.dimensions;
 
 import java.io.IOException;
-
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang3.mutable.MutableLong;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
+
+import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator.IdleTimeHandler;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.common.experimental.AppData;
+import com.datatorrent.common.experimental.AppData.EmbeddableQueryInfoProvider;
 import com.datatorrent.lib.appdata.StoreUtils;
 import com.datatorrent.lib.appdata.query.QueryExecutor;
 import com.datatorrent.lib.appdata.query.QueryManagerAsynchronous;
@@ -34,23 +41,14 @@ import com.datatorrent.lib.appdata.schemas.SchemaResult;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
 import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
 
-import com.datatorrent.api.Context;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Operator.IdleTimeHandler;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-
-import com.datatorrent.common.experimental.AppData;
-import com.datatorrent.common.experimental.AppData.EmbeddableQueryInfoProvider;
-
 /**
  * This is a base class for App Data enabled Dimensions Stores. This class holds all the template code required
  * for processing AppData queries.
  * @since 3.1.0
  *
  */
-public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements IdleTimeHandler, AppData.Store<String>
+public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreHDHT
+    implements IdleTimeHandler, AppData.Store<String>
 {
   /**
    * This is the result formatter used to format data sent as a result to an App Data query.
@@ -135,7 +133,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
    */
   @InputPortFieldAnnotation(optional = true)
   @AppData.QueryPort
-  public transient final DefaultInputPort<String> query = new DefaultInputPort<String>()
+  public final transient DefaultInputPort<String> query = new DefaultInputPort<String>()
   {
     @Override
     public void process(String s)
@@ -146,8 +144,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
       Message query;
       try {
         query = queryDeserializerFactory.deserialize(s);
-      }
-      catch (IOException ex) {
+      } catch (IOException ex) {
         LOG.error("error parsing query {}", s, ex);
         return;
       }
@@ -164,8 +161,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
 
           schemaMessages.clear();
         }
-      }
-      else if (query instanceof DataQueryDimensional) {
+      } else if (query instanceof DataQueryDimensional) {
         dataMessages.add(query);
 
         //TODO this is a work around for APEX-129 and should be removed
@@ -177,8 +173,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
 
           dataMessages.clear();
         }
-      }
-      else {
+      } else {
         LOG.warn("Invalid query {}", s);
       }
     }
@@ -240,9 +235,10 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
 
     if (embeddableQueryInfoProvider != null) {
       embeddableQueryInfoProvider.enableEmbeddedMode();
-      LOG.info("An embeddable query operator is being used of class {}.", embeddableQueryInfoProvider.getClass().getName());
+      LOG.info("An embeddable query operator is being used of class {}.",
+          embeddableQueryInfoProvider.getClass().getName());
       StoreUtils.attachOutputPortToInputPort(embeddableQueryInfoProvider.getOutputPort(),
-                                             query);
+          query);
       embeddableQueryInfoProvider.setup(context);
     }
   }

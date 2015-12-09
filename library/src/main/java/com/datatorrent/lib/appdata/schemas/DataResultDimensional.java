@@ -16,10 +16,11 @@ import com.datatorrent.lib.appdata.query.serde.MessageType;
 
 /**
  * This class represents the result sent in response to a {@link DataQueryDimensional}
+ *
  * @since 3.1.0
  */
-@MessageType(type=DataResultDimensional.TYPE)
-@MessageSerializerInfo(clazz=DataResultDimensionalSerializer.class)
+@MessageType(type = DataResultDimensional.TYPE)
+@MessageSerializerInfo(clazz = DataResultDimensionalSerializer.class)
 public class DataResultDimensional extends Result
 {
   /**
@@ -40,15 +41,16 @@ public class DataResultDimensional extends Result
   /**
    * This constructor creates a {@link DataResultDimensional} object with the
    * given data query, keys, and values.
+   *
    * @param dataQuery The query that this result is a response to.
-   * @param keys A list of keys for the queried data. The n'th index in this list
-   * corresponds to the n'th index in the values list.
-   * @param values A list of values for the queried data. The n'th index in this list
-   * corresponds to the n'th index in the keys list.
+   * @param keys      A list of keys for the queried data. The n'th index in this list
+   *                  corresponds to the n'th index in the values list.
+   * @param values    A list of values for the queried data. The n'th index in this list
+   *                  corresponds to the n'th index in the keys list.
    */
   public DataResultDimensional(DataQueryDimensional dataQuery,
-                               List<Map<String, GPOMutable>> keys,
-                               List<Map<String, GPOMutable>> values)
+      List<Map<String, GPOMutable>> keys,
+      List<Map<String, GPOMutable>> values)
   {
     super(dataQuery);
     setKeys(keys);
@@ -60,20 +62,21 @@ public class DataResultDimensional extends Result
   /**
    * This constructor creates a {@link DataResultDimensional} object with the
    * given data query, keys, and values.
+   *
    * @param dataQuery The data query that this result is a response to.
-   * @param keys A list of keys for the queried data. The n'th index in this list
-   * corresponds to the n'th index in the values list.
-   * @param values A list of values for the queried data. The n'th index in this list
-   * corresponds to the n'th index in the keys list.
+   * @param keys      A list of keys for the queried data. The n'th index in this list
+   *                  corresponds to the n'th index in the values list.
+   * @param values    A list of values for the queried data. The n'th index in this list
+   *                  corresponds to the n'th index in the keys list.
    * @param countdown The countdown value for this result.
    */
   public DataResultDimensional(DataQueryDimensional dataQuery,
-                               List<Map<String, GPOMutable>> keys,
-                               List<Map<String, GPOMutable>> values,
-                               long countdown)
+      List<Map<String, GPOMutable>> keys,
+      List<Map<String, GPOMutable>> values,
+      long countdown)
   {
     super(dataQuery,
-          countdown);
+        countdown);
     setKeys(keys);
     setValues(values);
 
@@ -86,21 +89,22 @@ public class DataResultDimensional extends Result
    */
   private void initialize()
   {
-    if(keys.size() != values.size()) {
+    if (keys.size() != values.size()) {
       throw new IllegalArgumentException("The keys " + keys.size()
-                                         + " and values " + values.size()
-                                         + " arrays must be the same size.");
+          + " and values " + values.size()
+          + " arrays must be the same size.");
     }
   }
 
   @Override
   public DataQueryDimensional getQuery()
   {
-    return (DataQueryDimensional) super.getQuery();
+    return (DataQueryDimensional)super.getQuery();
   }
 
   /**
    * This is a helper method which sets and validates the key values.
+   *
    * @param keys The key values to set on the data result.
    */
   private void setKeys(List<Map<String, GPOMutable>> keys)
@@ -110,6 +114,7 @@ public class DataResultDimensional extends Result
 
   /**
    * Gets the key values for this result.
+   *
    * @return The key values for this result.
    */
   public List<Map<String, GPOMutable>> getKeys()
@@ -119,6 +124,7 @@ public class DataResultDimensional extends Result
 
   /**
    * Sets the values for this result.
+   *
    * @param values The values for this result.
    */
   private void setValues(List<Map<String, GPOMutable>> values)
@@ -128,6 +134,7 @@ public class DataResultDimensional extends Result
 
   /**
    * Gets the values for this result.
+   *
    * @return The values for this result.
    */
   public List<Map<String, GPOMutable>> getValues()
