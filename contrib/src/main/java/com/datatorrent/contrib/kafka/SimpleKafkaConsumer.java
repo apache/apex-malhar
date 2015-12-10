@@ -159,10 +159,20 @@ public class SimpleKafkaConsumer extends KafkaConsumer
             FetchResponse fetchResponse = ksc.fetch(req);
             for (Iterator<KafkaPartition> iterator = kpS.iterator(); iterator.hasNext();) {
               KafkaPartition kafkaPartition = iterator.next();
-              if (fetchResponse.hasError() && fetchResponse.errorCode(consumer.topic, kafkaPartition.getPartitionId()) != ErrorMapping.NoError()) {
+              short errorCode = fetchResponse.errorCode(consumer.topic, kafkaPartition.getPartitionId());
+              if (fetchResponse.hasError() && errorCode != ErrorMapping.NoError()) {
                 // Kick off partition(s) which has error when fetch from this broker temporarily 
                 // Monitor will find out which broker it goes in monitor thread
-                logger.warn("Error when consuming topic {} from broker {} with error code {} ", kafkaPartition, broker,  fetchResponse.errorCode(consumer.topic, kafkaPartition.getPartitionId()));
+                logger.warn("Error when consuming topic {} from broker {} with error {} ", kafkaPartition, broker,
+                  ErrorMapping.exceptionFor(errorCode));
+                if (errorCode == ErrorMapping.OffsetOutOfRangeCode()) {
+                  long seekTo = consumer.initialOffset.toLowerCase().equals("earliest") ? OffsetRequest.EarliestTime()
+                    : OffsetRequest.LatestTime();
+                  seekTo = KafkaMetadataUtil.getLastOffset(ksc, consumer.topic, kafkaPartition.getPartitionId(), seekTo, clientName);
+                  logger.warn("Offset out of range error, reset offset to {}", seekTo);
+                  consumer.offsetTrack.put(kafkaPartition, seekTo);
+                  continue;
+                }
                 iterator.remove();
                 consumer.partitionToBroker.remove(kafkaPartition);
                 consumer.stats.updatePartitionStats(kafkaPartition, -1, "");
