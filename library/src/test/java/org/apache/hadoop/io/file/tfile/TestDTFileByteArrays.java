@@ -47,7 +47,7 @@ import org.junit.Test;
  */
 public class TestDTFileByteArrays {
   private static String ROOT =
-      System.getProperty("test.build.data", "/tmp/tfile-test");
+      System.getProperty("test.build.data", "target/tfile-test");
   private final static int BLOCK_SIZE = 512;
   private final static int BUF_SIZE = 64;
   private final static int K = 1024;

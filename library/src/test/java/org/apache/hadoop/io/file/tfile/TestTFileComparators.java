@@ -37,7 +37,7 @@ import org.junit.Assert;
  */
 public class TestTFileComparators extends TestCase {
   private static String ROOT =
-      System.getProperty("test.build.data", "/tmp/tfile-test");
+      System.getProperty("test.build.data", "target/tfile-test");
 
   private final static int BLOCK_SIZE = 512;
   private FileSystem fs;

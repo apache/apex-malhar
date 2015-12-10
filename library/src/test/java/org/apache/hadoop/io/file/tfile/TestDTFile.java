@@ -40,7 +40,7 @@ import org.apache.hadoop.io.file.tfile.DTFile.Reader.Scanner;
  */
 public class TestDTFile extends TestCase {
   private static String ROOT =
-      System.getProperty("test.build.data", "/tmp/tfile-test");
+      System.getProperty("test.build.data", "target/tfile-test");
   private FileSystem fs;
   private Configuration conf;
   private static final int minBlockSize = 512;

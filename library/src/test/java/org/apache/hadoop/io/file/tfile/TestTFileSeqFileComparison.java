@@ -517,7 +517,7 @@ public class TestTFileSeqFileComparison extends TestCase {
   private static class MyOptions {
     String rootDir =
         System
-            .getProperty("test.build.data", "/tmp/tfile-test");
+            .getProperty("test.build.data", "target/tfile-test");
     String compress = "gz";
     String format = "tfile";
     int dictSize = 1000;

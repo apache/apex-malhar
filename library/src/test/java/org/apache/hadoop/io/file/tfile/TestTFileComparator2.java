@@ -35,7 +35,7 @@ import static org.junit.Assert.*;
 
 public class TestTFileComparator2 {
   private static final String ROOT = System.getProperty("test.build.data",
-      "/tmp/tfile-test");
+      "target/tfile-test");
   private static final String name = "test-tfile-comparator2";
   private final static int BLOCK_SIZE = 512;
   private static final String VALUE = "value";

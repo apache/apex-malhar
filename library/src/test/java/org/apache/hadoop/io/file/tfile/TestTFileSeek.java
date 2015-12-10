@@ -243,7 +243,7 @@ public class TestTFileSeek extends TestCase {
     int fsOutputBufferSizeGz = 1;
    
     String rootDir =
-        System.getProperty("test.build.data", "/tmp/tfile-test");
+        System.getProperty("test.build.data", "target/tfile-test");
     String file = "TestTFileSeek";
     String compress = "gz";
     int minKeyLen = 10;
