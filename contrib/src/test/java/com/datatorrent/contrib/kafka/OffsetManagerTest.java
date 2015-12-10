@@ -60,6 +60,7 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
   static final int totalCount = 100;
   static CountDownLatch latch;
   static final String OFFSET_FILE = ".offset";
+  static long initialPos = 10l;
 
 
   public static class TestOffsetManager implements OffsetManager{
@@ -82,8 +83,8 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
     {
       KafkaPartition kp0 = new KafkaPartition(TEST_TOPIC, 0);
       KafkaPartition kp1 = new KafkaPartition(TEST_TOPIC, 1);
-      offsets.put(kp0, 10l);
-      offsets.put(kp1, 10l);
+      offsets.put(kp0, initialPos);
+      offsets.put(kp1, initialPos);
       return offsets;
     }
 
@@ -117,7 +118,7 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
         for (long entry : offsets.values()) {
           count += entry;
         }
-        if (count == totalCount + 2) {
+        if (count == totalCount) {
           // wait until all offsets add up to totalCount messages + 2 control END_TUPLE
           latch.countDown();
         }
@@ -185,10 +186,34 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
   @Test
   public void testSimpleConsumerUpdateOffsets() throws Exception
   {
+    initialPos = 10l;
     // Create template simple consumer
     try{
       SimpleKafkaConsumer consumer = new SimpleKafkaConsumer();
-      testPartitionableInputOperator(consumer);
+      testPartitionableInputOperator(consumer, totalCount - (int)initialPos - (int)initialPos);
+    } finally {
+      // clean test offset file
+      cleanFile();
+    }
+  }
+
+  /**
+   * Test OffsetManager update offsets in Simple Consumer
+   *
+   * [Generate send 100 messages to Kafka] ==> [wait until the offsets has been updated to 102 or timeout after 30s which means offset has not been updated]
+   *
+   * Initial offsets are invalid, reset to ealiest and get all messages
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testSimpleConsumerInvalidInitialOffsets() throws Exception
+  {
+    initialPos = 1000l;
+    // Create template simple consumer
+    try{
+      SimpleKafkaConsumer consumer = new SimpleKafkaConsumer();
+      testPartitionableInputOperator(consumer, totalCount);
     } finally {
       // clean test offset file
       cleanFile();
@@ -204,7 +229,7 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
     }
   }
 
-  public void testPartitionableInputOperator(KafkaConsumer consumer) throws Exception{
+  public void testPartitionableInputOperator(KafkaConsumer consumer, int expectedCount) throws Exception{
 
     // Set to 3 because we want to make sure END_TUPLE from both 2 partitions are received and offsets has been updated to 102
     latch = new CountDownLatch(3);
@@ -238,7 +263,7 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
     consumer.setTopic(TEST_TOPIC);
     //set the zookeeper list used to initialize the partition
     SetMultimap<String, String> zookeeper = HashMultimap.create();
-    String zks = KafkaPartition.DEFAULT_CLUSTERID + "::localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT[0];
+    String zks = "localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT[0];
     consumer.setZookeeper(zks);
     consumer.setInitialOffset("earliest");
 
@@ -257,11 +282,11 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
     lc.runAsync();
 
     // Wait 30s for consumer finish consuming all the messages and offsets has been updated to 100
-    assertTrue("TIMEOUT: 30s ", latch.await(30000, TimeUnit.MILLISECONDS));
+    assertTrue("TIMEOUT: 30s, collected " + collectedTuples + " tuples", latch.await(30000, TimeUnit.MILLISECONDS));
 
 
     // Check results
-    assertEquals("Tuple count", totalCount -10 -10, collectedTuples.size());
+    assertEquals("Tuple count", expectedCount, collectedTuples.size());
     logger.debug(String.format("Number of emitted tuples: %d", collectedTuples.size()));
 
     p.close();
