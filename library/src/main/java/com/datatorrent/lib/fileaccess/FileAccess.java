@@ -52,7 +52,10 @@ public interface FileAccess extends Closeable
    * @throws IOException
    */
   void rename(long bucketKey, String oldName, String newName) throws IOException;
+
   void delete(long bucketKey, String fileName) throws IOException;
+
+  void deleteBucket(long bucketKey) throws IOException;
 
   long getFileSize(long bucketKey, String s) throws IOException;
 

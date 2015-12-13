@@ -135,10 +135,13 @@ public abstract class FileAccessFSImpl implements FileAccess
   public RemoteIterator<LocatedFileStatus> listFiles(long bucketKey) throws IOException
   {
     Path bucketPath = getBucketPath(bucketKey);
-    if (!fs.exists(bucketPath)) {
-      return null;
-    }
-    return fs.listFiles(bucketPath, true);
+    return fs.exists(bucketPath) ? fs.listFiles(bucketPath, true) : null;
+  }
+
+  @Override
+  public void deleteBucket(long bucketKey) throws IOException
+  {
+    fs.delete(getBucketPath(bucketKey), true);
   }
 
   @Override
