@@ -38,10 +38,8 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
 import java.io.ByteArrayOutputStream;
@@ -74,6 +72,8 @@ import kafka.message.MessageAndOffset;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,7 +145,14 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   protected transient long currentWindowId;
   protected transient int operatorId;
   protected final transient Map<KafkaPartition, MutablePair<Long, Integer>> currentWindowRecoveryState;
-  protected transient Map<KafkaPartition, Long> offsetStats = new HashMap<KafkaPartition, Long>();
+  /**
+   * Offsets that are checkpointed for recovery
+   */
+  protected Map<KafkaPartition, Long> offsetStats = new HashMap<KafkaPartition, Long>();
+  /**
+   * offset history with window id
+   */
+  protected transient List<Pair<Long, Map<KafkaPartition, Long>>> offsetTrackHistory = new LinkedList<>();
   private transient OperatorContext context = null;
   // By default the partition policy is 1:1
   public PartitionStrategy strategy = PartitionStrategy.ONE_TO_ONE;
@@ -212,6 +219,10 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   {
     logger.debug("consumer {} topic {} cacheSize {}", consumer, consumer.getTopic(), consumer.getCacheSize());
     consumer.create();
+    // reset the offsets to checkpointed one
+    if (consumer instanceof SimpleKafkaConsumer && !offsetStats.isEmpty()) {
+      ((SimpleKafkaConsumer)consumer).resetOffset(offsetStats);
+    }
     this.context = context;
     operatorId = context.getId();
     if(consumer instanceof HighlevelKafkaConsumer && !(idempotentStorageManager instanceof IdempotentStorageManager.NoopIdempotentStorageManager)) {
@@ -301,12 +312,13 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   @Override
   public void endWindow()
   {
+    //TODO depends on APEX-78 only needs to keep the history of windows needs to be commit
+    if (getConsumer() instanceof SimpleKafkaConsumer) {
+      Map<KafkaPartition, Long> carryOn = new HashMap<>(offsetStats);
+      offsetTrackHistory.add(Pair.of(currentWindowId, carryOn));
+    }
     if (currentWindowId > idempotentStorageManager.getLargestRecoveryWindow()) {
       try {
-        if((getConsumer() instanceof  SimpleKafkaConsumer)) {
-          SimpleKafkaConsumer cons = (SimpleKafkaConsumer) getConsumer();
-          context.setCounters(cons.getConsumerStats(offsetStats));
-        }
         idempotentStorageManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
       }
       catch (IOException e) {
@@ -326,6 +338,23 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   @Override
   public void committed(long windowId)
   {
+    if ((getConsumer() instanceof  SimpleKafkaConsumer)) {
+      SimpleKafkaConsumer cons = (SimpleKafkaConsumer)getConsumer();
+      for (Iterator<Pair<Long, Map<KafkaPartition, Long>>> iter = offsetTrackHistory.iterator(); iter.hasNext(); ) {
+        Pair<Long, Map<KafkaPartition, Long>> item = iter.next();
+        if (item.getLeft() < windowId) {
+          iter.remove();
+          continue;
+        } else if (item.getLeft() == windowId) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("report offsets {} ", Joiner.on(';').withKeyValueSeparator("=").join(item.getRight()));
+          }
+          context.setCounters(cons.getConsumerStats(item.getRight()));
+        }
+        break;
+      }
+    }
+
     try {
       idempotentStorageManager.deleteUpTo(operatorId, windowId);
     }
@@ -365,9 +394,6 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     }
     for (int i = 0; i < count; i++) {
       KafkaConsumer.KafkaMessage message = consumer.pollMessage();
-      // Ignore the duplicate messages
-      if(offsetStats.containsKey(message.kafkaPart) && message.offSet <= offsetStats.get(message.kafkaPart))
-        continue;
       emitTuple(message.msg);
       offsetStats.put(message.kafkaPart, message.offSet);
       MutablePair<Long, Integer> offsetAndCount = currentWindowRecoveryState.get(message.kafkaPart);
@@ -586,7 +612,12 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     Input lInput = new Input(bos.toByteArray());
     @SuppressWarnings("unchecked")
     Partitioner.Partition<AbstractKafkaInputOperator<K>> p = new DefaultPartition<AbstractKafkaInputOperator<K>>(kryo.readObject(lInput, this.getClass()));
-    p.getPartitionedInstance().getConsumer().resetPartitionsAndOffset(pIds, initOffsets);
+    if (p.getPartitionedInstance().getConsumer() instanceof SimpleKafkaConsumer) {
+      p.getPartitionedInstance().getConsumer().resetPartitionsAndOffset(pIds, initOffsets);
+      if (initOffsets != null) {
+        p.getPartitionedInstance().offsetStats.putAll(initOffsets);
+      }
+    }
     newManagers.add(p.getPartitionedInstance().idempotentStorageManager);
 
     PartitionInfo pif = new PartitionInfo();

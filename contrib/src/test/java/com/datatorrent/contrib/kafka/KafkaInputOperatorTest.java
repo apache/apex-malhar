@@ -19,6 +19,7 @@
 package com.datatorrent.contrib.kafka;
 
 import com.datatorrent.api.Attribute;
+import com.datatorrent.api.StringCodec;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
@@ -27,6 +28,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Partitioner;
+import com.datatorrent.common.util.FSStorageAgent;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.partitioner.StatelessPartitionerTest;
@@ -41,6 +43,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.conf.Configuration;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -54,6 +58,8 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
   static final org.slf4j.Logger logger = LoggerFactory.getLogger(KafkaInputOperatorTest.class);
   static AtomicInteger tupleCount = new AtomicInteger();
   static CountDownLatch latch;
+  static boolean isSuicide = false;
+  static int suicideTrigger = 3000;
 
   /**
    * Test Operator to collect tuples from KafkaSingleInputStringOperator.
@@ -68,6 +74,8 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
   public static class CollectorInputPort<T> extends DefaultInputPort<T>
   {
 
+    private int k = 0;
+
     public CollectorInputPort(String id, Operator module)
     {
       super();
@@ -76,6 +84,11 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     @Override
     public void process(T tuple)
     {
+      if (isSuicide && k++ == suicideTrigger) {
+        //you can only kill yourself once
+        isSuicide = false;
+        throw  new RuntimeException();
+      }
       if (tuple.equals(KafkaOperatorTestBase.END_TUPLE)) {
         if (latch != null) {
           latch.countDown();
@@ -83,12 +96,6 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
         return;
       }
       tupleCount.incrementAndGet();
-    }
-
-    @Override
-    public void setConnected(boolean flag)
-    {
-      tupleCount.set(0);
     }
   }
 
@@ -124,12 +131,21 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 
     // Create KafkaSinglePortStringInputOperator
     KafkaSinglePortStringInputOperator node = dag.addOperator("Kafka message consumer", KafkaSinglePortStringInputOperator.class);
+    if(isSuicide) {
+      // make some extreme assumptions to make it fail if checkpointing wrong offsets
+      dag.setAttribute(Context.DAGContext.CHECKPOINT_WINDOW_COUNT, 1);
+      dag.setAttribute(Context.OperatorContext.STORAGE_AGENT, new FSStorageAgent("target/ck", new Configuration()));
+      node.setMaxTuplesPerWindow(500);
+    }
+
     if(idempotent) {
       node.setIdempotentStorageManager(new IdempotentStorageManager.FSIdempotentStorageManager());
     }
     consumer.setTopic(TEST_TOPIC);
 
     node.setConsumer(consumer);
+
+    consumer.setCacheSize(5000);
 
     if (isValid) {
       node.setZookeeper("localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT[0]);
@@ -151,7 +167,8 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     Assert.assertTrue("TIMEOUT: 30s ", latch.await(300000, TimeUnit.MILLISECONDS));
 
     // Check results
-    Assert.assertEquals("Tuple count", totalCount, tupleCount.intValue());
+    Assert.assertTrue("Expected count >= " + totalCount + "; Actual count " + tupleCount.intValue(),
+      totalCount <= tupleCount.intValue());
     logger.debug(String.format("Number of emitted tuples: %d", tupleCount.intValue()));
 
     p.close();
@@ -178,6 +195,16 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     int totalCount = 10000;
     KafkaConsumer k = new SimpleKafkaConsumer();
     k.setInitialOffset("earliest");
+    testKafkaInputOperator(1000, totalCount, k, true, false);
+  }
+
+  @Test
+  public void testKafkaInputOperator_SimpleSuicide() throws Exception
+  {
+    int totalCount = 10000;
+    KafkaConsumer k = new SimpleKafkaConsumer();
+    k.setInitialOffset("earliest");
+    isSuicide = true;
     testKafkaInputOperator(1000, totalCount, k, true, false);
   }
 

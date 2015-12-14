@@ -39,6 +39,7 @@ import org.apache.hadoop.fs.Path;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.api.Context;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
@@ -64,6 +65,7 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
   static CountDownLatch latch;
   static final String OFFSET_FILE = ".offset";
   static long initialPos = 10l;
+  static Path baseFolder = new Path("target");
 
 
   public static class TestOffsetManager implements OffsetManager{
@@ -98,8 +100,8 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
       offsets.putAll(offsetsOfPartitions);
 
       try {
-        Path tmpFile = new Path(filename + ".tmp");
-        Path dataFile = new Path(filename);
+        Path tmpFile = new Path(baseFolder, filename + ".tmp");
+        Path dataFile = new Path(baseFolder, filename);
         FSDataOutputStream out = fs.create(tmpFile, true);
         for (Entry<KafkaPartition, Long> e : offsets.entrySet()) {
           out.writeBytes(e.getKey() +", " + e.getValue() + "\n");
@@ -142,7 +144,7 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
   /**
    * Test Operator to collect tuples from KafkaSingleInputStringOperator.
    *
-   * @param <T>
+   * @param
    */
   public static class CollectorModule extends BaseOperator
   {
@@ -226,7 +228,7 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
   private void cleanFile()
   {
     try {
-      FileSystem.get(new Configuration()).delete(new Path(TEST_TOPIC + OFFSET_FILE), true);
+      FileSystem.get(new Configuration()).delete(new Path(baseFolder, TEST_TOPIC + OFFSET_FILE), true);
     } catch (IOException e) {
 
     }
@@ -278,18 +280,22 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
     // Connect ports
     dag.addStream("Kafka message", node.outputPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
 
+    dag.setAttribute(Context.DAGContext.CHECKPOINT_WINDOW_COUNT, 1);
+
     // Create local cluster
     final LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(true);
 
     lc.runAsync();
 
-    // Wait 30s for consumer finish consuming all the messages and offsets has been updated to 100
-    assertTrue("TIMEOUT: 30s, collected " + collectedTuples + " tuples", latch.await(30000, TimeUnit.MILLISECONDS));
 
+
+    boolean isNotTimeout = latch.await(30000, TimeUnit.MILLISECONDS);
+    // Wait 30s for consumer finish consuming all the messages and offsets has been updated to 100
+    assertTrue("TIMEOUT: 30s, collected " + collectedTuples.size() + " tuples", isNotTimeout);
 
     // Check results
-    assertEquals("Tuple count", expectedCount, collectedTuples.size());
+    assertEquals("Tuple count " + collectedTuples, expectedCount, collectedTuples.size());
     logger.debug(String.format("Number of emitted tuples: %d", collectedTuples.size()));
 
     p.close();

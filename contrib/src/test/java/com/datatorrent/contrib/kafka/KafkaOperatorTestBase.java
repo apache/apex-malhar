@@ -58,7 +58,7 @@ public class KafkaOperatorTestBase
   // multiple cluster
   private final ServerCnxnFactory[] zkFactory = new ServerCnxnFactory[2];
 
-  public String baseDir = "/tmp";
+  public String baseDir = "target";
 
   private final String zkBaseDir = "zookeeper-server-data";
   private final String kafkaBaseDir = "kafka-server-data";

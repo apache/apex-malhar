@@ -305,13 +305,13 @@ public class SimpleKafkaConsumer extends KafkaConsumer
 
   // This map maintains mapping between kafka partition and it's leader broker in realtime monitored by a thread
   private transient final ConcurrentHashMap<KafkaPartition, Broker> partitionToBroker = new ConcurrentHashMap<KafkaPartition, Broker>();
-  
+
   /**
    * Track offset for each partition, so operator could start from the last serialized state Use ConcurrentHashMap to
    * avoid ConcurrentModificationException without blocking reads when updating in another thread(hashtable or
    * synchronizedmap)
    */
-  private final ConcurrentHashMap<KafkaPartition, Long> offsetTrack = new ConcurrentHashMap<KafkaPartition, Long>();
+  private final transient ConcurrentHashMap<KafkaPartition, Long> offsetTrack = new ConcurrentHashMap<KafkaPartition, Long>();
 
   private transient AtomicReference<Throwable> monitorException;
   private transient AtomicInteger monitorExceptionCount;
