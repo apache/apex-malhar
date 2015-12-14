@@ -18,13 +18,33 @@
  */
 package com.datatorrent.demos.wordcount;
 
-// a single (word, frequency) pair
+/**
+ * A single (word, frequency) pair
+ *
+ * @since 3.2.0
+ */
 public class WCPair {
+
+  /**
+   * The word
+   */
   public String word;
+
+  /**
+   * The frequency
+   */
   public int freq;
 
+  /**
+   * Default constructor
+   */
   public WCPair() {}
 
+  /**
+   * Create new object with given values
+   * @param w The word
+   * @param f The frequency
+   */
   public WCPair(String w, int f) {
     word = w;
     freq = f;

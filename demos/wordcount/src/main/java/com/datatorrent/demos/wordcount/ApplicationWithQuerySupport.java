@@ -38,13 +38,33 @@ import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 import org.apache.hadoop.conf.Configuration;
 
+/**
+ * Simple demo that computes word frequencies from any file dropped into a
+ * monitored directory. It outputs the top N word-frequency pairs for each file
+ * as well globally across all files.
+ * <p>
+ * Each input file generates a corresponding output file in the output directory
+ * containing the top N pairs for that file. The output is also written
+ * to an internal store to support visualization in the UI via queries.
+ * <p>
+ * @since 3.2.0
+ */
 @ApplicationAnnotation(name="TopNWordsWithQueries")
 public class ApplicationWithQuerySupport implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationWithQuerySupport.class);
 
+  /**
+   * Name of schema file.
+   */
   public static final String SNAPSHOT_SCHEMA = "WordDataSchema.json";
 
+  /**
+   * Populates the DAG with operators and connecting streams
+   *
+   * @param dag The directed acyclic graph of operators to populate
+   * @param conf The configuration
+   */
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
