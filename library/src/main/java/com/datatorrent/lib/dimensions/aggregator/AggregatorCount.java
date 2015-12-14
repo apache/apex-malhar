@@ -4,13 +4,12 @@
  */
 package com.datatorrent.lib.dimensions.aggregator;
 
-import com.datatorrent.api.annotation.Name;
-
 import java.util.Collections;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
 
+import com.datatorrent.api.annotation.Name;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
@@ -21,8 +20,8 @@ import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 
 /**
  * This {@link IncrementalAggregator} performs a count of the number of times an input is encountered.
- * @since 3.1.0
  *
+ * @since 3.1.0
  */
 @Name("COUNT")
 public class AggregatorCount extends AbstractIncrementalAggregator
@@ -33,12 +32,12 @@ public class AggregatorCount extends AbstractIncrementalAggregator
    * This is a map whose keys represent input types and whose values
    * represent the corresponding output types.
    */
-  public static transient final Map<Type, Type> TYPE_CONVERSION_MAP;
+  public static final transient Map<Type, Type> TYPE_CONVERSION_MAP;
 
   static {
     Map<Type, Type> typeConversionMap = Maps.newHashMap();
 
-    for(Type type: Type.values()) {
+    for (Type type : Type.values()) {
       typeConversionMap.put(type, Type.LONG);
     }
 
@@ -59,19 +58,19 @@ public class AggregatorCount extends AbstractIncrementalAggregator
     GPOUtils.indirectCopy(keys, src.getKeys(), context.indexSubsetKeys);
 
     EventKey eventKey = createEventKey(src,
-                                       context,
-                                       aggregatorIndex);
+        context,
+        aggregatorIndex);
 
     long[] longFields = aggregates.getFieldsLong();
 
-    for(int index = 0;
+    for (int index = 0;
         index < longFields.length;
         index++) {
       longFields[index] = 0;
     }
 
     return new Aggregate(eventKey,
-                         aggregates);
+        aggregates);
   }
 
   @Override
@@ -79,7 +78,7 @@ public class AggregatorCount extends AbstractIncrementalAggregator
   {
     long[] fieldsLong = dest.getAggregates().getFieldsLong();
 
-    for(int index = 0;
+    for (int index = 0;
         index < fieldsLong.length;
         index++) {
       //increment count
@@ -93,7 +92,7 @@ public class AggregatorCount extends AbstractIncrementalAggregator
     long[] destLongs = destAgg.getAggregates().getFieldsLong();
     long[] srcLongs = srcAgg.getAggregates().getFieldsLong();
 
-    for(int index = 0;
+    for (int index = 0;
         index < destLongs.length;
         index++) {
       //aggregate count

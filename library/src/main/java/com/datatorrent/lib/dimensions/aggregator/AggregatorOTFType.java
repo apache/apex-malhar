@@ -13,6 +13,7 @@ import com.google.common.collect.Maps;
 /**
  * This is a convenience enum to store all the information about default {@link OTFAggregator}s
  * in one place.
+ *
  * @since 3.1.0
  */
 public enum AggregatorOTFType
@@ -30,7 +31,7 @@ public enum AggregatorOTFType
   static {
     Map<String, OTFAggregator> nameToAggregator = Maps.newHashMap();
 
-    for(AggregatorOTFType aggType: AggregatorOTFType.values()) {
+    for (AggregatorOTFType aggType : AggregatorOTFType.values()) {
       nameToAggregator.put(aggType.name(), aggType.getAggregator());
     }
 
@@ -44,6 +45,7 @@ public enum AggregatorOTFType
 
   /**
    * Creates an {@link OTFAggregator} enum with the given aggregator.
+   *
    * @param aggregator The {@link OTFAggregator} assigned to this enum.
    */
   AggregatorOTFType(OTFAggregator aggregator)
@@ -53,6 +55,7 @@ public enum AggregatorOTFType
 
   /**
    * Sets the {@link OTFAggregator} assigned to this enum.
+   *
    * @param aggregator The {@link OTFAggregator} assigned to this enum.
    */
   private void setAggregator(OTFAggregator aggregator)
@@ -62,6 +65,7 @@ public enum AggregatorOTFType
 
   /**
    * Gets the {@link OTFAggregator} assigned to this enum.
+   *
    * @return The {@link OTFAggregator} assigned to this enum.
    */
   public OTFAggregator getAggregator()

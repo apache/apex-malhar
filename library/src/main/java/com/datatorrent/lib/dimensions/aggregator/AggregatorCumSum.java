@@ -4,14 +4,13 @@
  */
 package com.datatorrent.lib.dimensions.aggregator;
 
-import com.datatorrent.api.annotation.Name;
-
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import com.datatorrent.api.annotation.Name;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.gpo.Serde;
@@ -53,8 +52,8 @@ public class AggregatorCumSum extends AggregatorSum
     fieldToSerde.put("values", SerdeListGPOMutable.INSTANCE);
 
     META_DATA_FIELDS_DESCRIPTOR = new FieldsDescriptor(fieldToType,
-                                                       fieldToSerde,
-                                                       new PayloadFix());
+        fieldToSerde,
+        new PayloadFix());
   }
 
   public AggregatorCumSum()
@@ -66,8 +65,8 @@ public class AggregatorCumSum extends AggregatorSum
   {
     src.used = true;
     Aggregate agg = createAggregate(src,
-                                    context,
-                                    aggregatorIndex);
+        context,
+        aggregatorIndex);
 
     GPOUtils.indirectCopy(agg.getAggregates(), src.getAggregates(), context.indexSubsetAggregates);
 
@@ -75,7 +74,7 @@ public class AggregatorCumSum extends AggregatorSum
 
     GPOMutable fullKey = new GPOMutable(src.getKeys());
 
-    if(context.inputTimestampIndex >= 0) {
+    if (context.inputTimestampIndex >= 0) {
       fullKey.getFieldsLong()[context.inputTimestampIndex] = -1L;
     }
 
@@ -98,20 +97,20 @@ public class AggregatorCumSum extends AggregatorSum
   {
     @SuppressWarnings("unchecked")
     List<GPOMutable> destKeys =
-    (List<GPOMutable>) dest.getMetaData().getFieldsObject()[KEYS_INDEX];
+        (List<GPOMutable>)dest.getMetaData().getFieldsObject()[KEYS_INDEX];
 
     @SuppressWarnings("unchecked")
     List<GPOMutable> destAggregates =
-    (List<GPOMutable>) dest.getMetaData().getFieldsObject()[AGGREGATES_INDEX];
+        (List<GPOMutable>)dest.getMetaData().getFieldsObject()[AGGREGATES_INDEX];
 
     long timestamp = 0L;
 
-    if(context.inputTimestampIndex >= 0) {
+    if (context.inputTimestampIndex >= 0) {
       timestamp = src.getKeys().getFieldsLong()[context.inputTimestampIndex];
       src.getKeys().getFieldsLong()[context.inputTimestampIndex] = -1L;
     }
 
-    if(!contains(destKeys, src.getKeys())) {
+    if (!contains(destKeys, src.getKeys())) {
       destKeys.add(new GPOMutable(src.getKeys()));
 
       GPOMutable aggregates = new GPOMutable(context.aggregateDescriptor);
@@ -122,7 +121,7 @@ public class AggregatorCumSum extends AggregatorSum
       this.aggregateAggs(dest.getAggregates(), aggregates);
     }
 
-    if(context.inputTimestampIndex >= 0) {
+    if (context.inputTimestampIndex >= 0) {
       src.getKeys().getFieldsLong()[context.inputTimestampIndex] = timestamp;
     }
   }
@@ -135,30 +134,30 @@ public class AggregatorCumSum extends AggregatorSum
 
     @SuppressWarnings("unchecked")
     List<GPOMutable> destKeys =
-    (List<GPOMutable>) dest.getMetaData().getFieldsObject()[KEYS_INDEX];
+        (List<GPOMutable>)dest.getMetaData().getFieldsObject()[KEYS_INDEX];
 
     @SuppressWarnings("unchecked")
     List<GPOMutable> srcKeys =
-    (List<GPOMutable>) src.getMetaData().getFieldsObject()[KEYS_INDEX];
+        (List<GPOMutable>)src.getMetaData().getFieldsObject()[KEYS_INDEX];
 
     @SuppressWarnings("unchecked")
     List<GPOMutable> destAggregates =
-    (List<GPOMutable>) dest.getMetaData().getFieldsObject()[AGGREGATES_INDEX];
+        (List<GPOMutable>)dest.getMetaData().getFieldsObject()[AGGREGATES_INDEX];
 
     @SuppressWarnings("unchecked")
     List<GPOMutable> srcAggregates =
-    (List<GPOMutable>) src.getMetaData().getFieldsObject()[AGGREGATES_INDEX];
+        (List<GPOMutable>)src.getMetaData().getFieldsObject()[AGGREGATES_INDEX];
 
     List<GPOMutable> newKeys = Lists.newArrayList();
     List<GPOMutable> newAggs = Lists.newArrayList();
 
-    for(int index = 0;
+    for (int index = 0;
         index < srcKeys.size();
         index++) {
       GPOMutable currentSrcKey = srcKeys.get(index);
       GPOMutable currentSrcAgg = srcAggregates.get(index);
 
-      if(!contains(destKeys, currentSrcKey)) {
+      if (!contains(destKeys, currentSrcKey)) {
         newKeys.add(currentSrcKey);
         newAggs.add(currentSrcAgg);
 
@@ -172,12 +171,12 @@ public class AggregatorCumSum extends AggregatorSum
 
   private boolean contains(List<GPOMutable> mutables, GPOMutable mutable)
   {
-    for(int index = 0;
+    for (int index = 0;
         index < mutables.size();
         index++) {
       GPOMutable mutableFromList = mutables.get(index);
 
-      if(GPOUtils.equals(mutableFromList, mutable)) {
+      if (GPOUtils.equals(mutableFromList, mutable)) {
         return true;
       }
     }
@@ -196,13 +195,13 @@ public class AggregatorCumSum extends AggregatorSum
     @Override
     public void fix(Object[] objects)
     {
-      FieldsDescriptor keyfd = (FieldsDescriptor) objects[KEY_FD_INDEX];
-      FieldsDescriptor valuefd = (FieldsDescriptor) objects[AGGREGATE_FD_INDEX];
+      FieldsDescriptor keyfd = (FieldsDescriptor)objects[KEY_FD_INDEX];
+      FieldsDescriptor valuefd = (FieldsDescriptor)objects[AGGREGATE_FD_INDEX];
 
       @SuppressWarnings("unchecked")
-      List<GPOMutable> keyMutables = (List<GPOMutable>) objects[KEYS_INDEX];
+      List<GPOMutable> keyMutables = (List<GPOMutable>)objects[KEYS_INDEX];
       @SuppressWarnings("unchecked")
-      List<GPOMutable> aggregateMutables = (List<GPOMutable>) objects[AGGREGATES_INDEX];
+      List<GPOMutable> aggregateMutables = (List<GPOMutable>)objects[AGGREGATES_INDEX];
 
       fix(keyfd, keyMutables);
       fix(valuefd, aggregateMutables);
@@ -210,7 +209,7 @@ public class AggregatorCumSum extends AggregatorSum
 
     private void fix(FieldsDescriptor fd, List<GPOMutable> mutables)
     {
-      for(int index = 0;
+      for (int index = 0;
           index < mutables.size();
           index++) {
         mutables.get(index).setFieldDescriptor(fd);
