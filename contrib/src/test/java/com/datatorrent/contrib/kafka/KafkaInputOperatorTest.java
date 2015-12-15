@@ -19,8 +19,6 @@
 package com.datatorrent.contrib.kafka;
 
 import com.datatorrent.api.Attribute;
-import com.datatorrent.api.StringCodec;
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
@@ -29,10 +27,20 @@ import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.common.util.FSStorageAgent;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.partitioner.StatelessPartitionerTest;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -42,16 +50,7 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
-
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-import org.slf4j.LoggerFactory;
 
 public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 {
@@ -336,6 +335,61 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 
     Assert.assertEquals("Total messages collected ", totalCount, testMeta.sink.collectedTuples.size());
     testMeta.sink.collectedTuples.clear();
+  }
+
+  @Test
+  public void testMaxTotalSize() throws InterruptedException {
+    int totalCount = 1500;
+    int maxTotalSize = 500;
+
+    // initial the latch for this test
+    latch = new CountDownLatch(1);
+
+    // Start producer
+    KafkaTestProducer p = new KafkaTestProducer(TEST_TOPIC);
+    p.setSendCount(totalCount);
+    Thread t = new Thread(p);
+    t.start();
+
+    Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
+    attributeMap.put(Context.DAGContext.APPLICATION_PATH, testMeta.baseDir);
+
+    Context.OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+    KafkaSinglePortStringInputOperator operator = new KafkaSinglePortStringInputOperator();
+
+    KafkaConsumer consumer = new SimpleKafkaConsumer();
+    consumer.setTopic(TEST_TOPIC);
+    consumer.setInitialOffset("earliest");
+
+    operator.setConsumer(consumer);
+    operator.setZookeeper("localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT[0]);
+    operator.setMaxTotalMsgSizePerWindow(maxTotalSize);
+
+    List<Partitioner.Partition<AbstractKafkaInputOperator<KafkaConsumer>>> partitions = new LinkedList<Partitioner.Partition<AbstractKafkaInputOperator<KafkaConsumer>>>();
+
+    Collection<Partitioner.Partition<AbstractKafkaInputOperator<KafkaConsumer>>> newPartitions = operator.definePartitions(partitions, new StatelessPartitionerTest.PartitioningContextImpl(null, 0));
+    Assert.assertEquals(1, newPartitions.size());
+
+    operator = (KafkaSinglePortStringInputOperator)newPartitions.iterator().next().getPartitionedInstance();
+
+    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+    operator.outputPort.setSink(sink);
+    operator.setup(context);
+    operator.activate(context);
+    latch.await(4000, TimeUnit.MILLISECONDS);
+    operator.beginWindow(1);
+    operator.emitTuples();
+    operator.endWindow();
+
+    t.join();
+
+    operator.deactivate();
+    operator.teardown();
+    int size = 0;
+    for (Object o : sink.collectedTuples) {
+      size += ((String)o).getBytes().length;
+    }
+    Assert.assertTrue("Total emitted size comparison", size < maxTotalSize);
   }
 
   @Test

@@ -28,10 +28,6 @@ import com.datatorrent.api.Stats;
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
-
-import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.getOffsetsForPartitions;
-import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.get_1minMovingAvgParMap;
-
 import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -41,7 +37,23 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import kafka.api.FetchRequest;
+import kafka.api.FetchRequestBuilder;
+import kafka.cluster.Broker;
+import kafka.javaapi.FetchResponse;
+import kafka.javaapi.PartitionMetadata;
+import kafka.javaapi.consumer.SimpleConsumer;
+import kafka.message.Message;
+import kafka.message.MessageAndOffset;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -57,25 +69,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-
-import kafka.api.FetchRequest;
-import kafka.api.FetchRequestBuilder;
-import kafka.cluster.Broker;
-import kafka.javaapi.FetchResponse;
-import kafka.javaapi.PartitionMetadata;
-import kafka.javaapi.consumer.SimpleConsumer;
-import kafka.message.Message;
-import kafka.message.MessageAndOffset;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.getOffsetsForPartitions;
+import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.get_1minMovingAvgParMap;
 
 /**
  * This is a base implementation of a Kafka input operator, which consumes data from Kafka message bus.&nbsp;
@@ -140,7 +135,10 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
 
   @Min(1)
   private int maxTuplesPerWindow = Integer.MAX_VALUE;
+  @Min(1)
+  private long maxTotalMsgSizePerWindow = Long.MAX_VALUE;
   private transient int emitCount = 0;
+  private transient long emitTotalMsgSize = 0;
   protected IdempotentStorageManager idempotentStorageManager;
   protected transient long currentWindowId;
   protected transient int operatorId;
@@ -185,6 +183,8 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   // A list store the newly discovered partitions
   private transient List<KafkaPartition> newWaitingPartition = new LinkedList<KafkaPartition>();
 
+  private transient KafkaConsumer.KafkaMessage pendingMessage;
+
   @Min(1)
   private int initialPartitionCount = 1;
 
@@ -212,6 +212,27 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   public void setMaxTuplesPerWindow(int maxTuplesPerWindow)
   {
     this.maxTuplesPerWindow = maxTuplesPerWindow;
+  }
+
+  /**
+   * Get the maximum total size of messages to be transmitted per window. When the sum of the message sizes transmitted
+   * in a window reaches this limit no more messages are transmitted till the next window. There is one exception
+   * however, if the size of the first message in a window is greater than the limit it is still transmitted so that the
+   * processing of messages doesn't get stuck.
+   * @return The maximum for the total size
+     */
+  public long getMaxTotalMsgSizePerWindow() {
+    return maxTotalMsgSizePerWindow;
+  }
+
+  /**
+   * Set the maximum total size of messages to be transmitted per window. See {@link #getMaxTotalMsgSizePerWindow()} for
+   * more description about this property.
+   *
+   * @param maxTotalMsgSizePerWindow The maximum for the total size
+     */
+  public void setMaxTotalMsgSizePerWindow(long maxTotalMsgSizePerWindow) {
+    this.maxTotalMsgSizePerWindow = maxTotalMsgSizePerWindow;
   }
 
   @Override
@@ -246,6 +267,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
       replay(windowId);
     }
     emitCount = 0;
+    emitTotalMsgSize = 0;
   }
 
   protected void replay(long windowId)
@@ -388,13 +410,28 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     if (currentWindowId <= idempotentStorageManager.getLargestRecoveryWindow()) {
       return;
     }
-    int count = consumer.messageSize();
+    int count = consumer.messageSize() + ((pendingMessage != null) ? 1 : 0);
     if (maxTuplesPerWindow > 0) {
       count = Math.min(count, maxTuplesPerWindow - emitCount);
     }
+    KafkaConsumer.KafkaMessage message = null;
     for (int i = 0; i < count; i++) {
-      KafkaConsumer.KafkaMessage message = consumer.pollMessage();
+      if (pendingMessage != null) {
+        message = pendingMessage;
+        pendingMessage = null;
+      } else {
+        message = consumer.pollMessage();
+      }
+      // If the total size transmitted in the window will be exceeded don't transmit anymore messages in this window
+      // Make an exception for the case when no message has been transmitted in the window and transmit at least one
+      // message even if the condition is violated so that the processing doesn't get stuck
+      if ((emitCount > 0) && ((maxTotalMsgSizePerWindow - emitTotalMsgSize) < message.msg.size())) {
+        pendingMessage = message;
+        break;
+      }
       emitTuple(message.msg);
+      emitCount++;
+      emitTotalMsgSize += message.msg.size();
       offsetStats.put(message.kafkaPart, message.offSet);
       MutablePair<Long, Integer> offsetAndCount = currentWindowRecoveryState.get(message.kafkaPart);
       if(offsetAndCount == null) {
@@ -403,7 +440,6 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
         offsetAndCount.setRight(offsetAndCount.right+1);
       }
     }
-    emitCount += count;
   }
 
   public void setConsumer(K consumer)
