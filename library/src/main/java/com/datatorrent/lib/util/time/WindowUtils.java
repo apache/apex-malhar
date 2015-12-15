@@ -23,6 +23,8 @@ import java.math.BigDecimal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.hadoop.classification.InterfaceStability.Unstable;
+
 import com.google.common.base.Preconditions;
 
 import com.datatorrent.api.Context.DAGContext;
@@ -32,6 +34,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * This a is class which holds utility functions that can be used by operators to perform common
  * tasks.
  */
+@Unstable
 public class WindowUtils
 {
   /**
