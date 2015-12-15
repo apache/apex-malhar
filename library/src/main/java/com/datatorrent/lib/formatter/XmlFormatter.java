@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.schema.formatter;
+package com.datatorrent.lib.formatter;
 
 import java.io.Writer;
 
@@ -25,14 +25,14 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.classification.InterfaceStability;
 
-import com.datatorrent.api.Context;
-
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.converters.basic.DateConverter;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.XppDriver;
+
+import com.datatorrent.api.Context;
 
 /**
  * @displayName XmlParser

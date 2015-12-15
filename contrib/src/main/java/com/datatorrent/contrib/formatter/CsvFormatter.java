@@ -16,35 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.schema.parser;
+package com.datatorrent.contrib.formatter;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 
 import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.supercsv.cellprocessor.FmtDate;
 import org.supercsv.cellprocessor.Optional;
-import org.supercsv.cellprocessor.ParseBool;
-import org.supercsv.cellprocessor.ParseChar;
-import org.supercsv.cellprocessor.ParseDate;
-import org.supercsv.cellprocessor.ParseDouble;
-import org.supercsv.cellprocessor.ParseInt;
-import org.supercsv.cellprocessor.ParseLong;
 import org.supercsv.cellprocessor.ift.CellProcessor;
-import org.supercsv.io.CsvBeanReader;
+import org.supercsv.exception.SuperCsvException;
+import org.supercsv.io.CsvBeanWriter;
+import org.supercsv.io.ICsvBeanWriter;
 import org.supercsv.prefs.CsvPreference;
-
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.util.ReusableStringReader;
+import com.datatorrent.lib.formatter.Formatter;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
- * Operator that converts CSV string to Pojo <br>
+ * Operator that converts POJO to CSV string <br>
  * Assumption is that each field in the delimited data should map to a simple
  * java type.<br>
  * <br>
@@ -52,20 +48,20 @@ import com.datatorrent.netlet.util.DTThrowable;
  * <b>fieldInfo</b>:User need to specify fields and their types as a comma
  * separated string having format &lt;NAME&gt;:&lt;TYPE&gt;|&lt;FORMAT&gt; in
  * the same order as incoming data. FORMAT refers to dates with dd/mm/yyyy as
- * default e.g name:string,dept:string,eid:integer,dateOfJoining:date|dd/mm/yyyy <br>
- * <b>fieldDelimiter</b>: Default is comma <br>
- * <b>lineDelimiter</b>: Default is '\r\n'
+ * default e.g name:string,dept:string,eid:integer,dateOfJoining:date|dd/mm/yyyy
  * 
- * @displayName CsvParser
- * @category Parsers
- * @tags csv pojo parser
+ * @displayName CsvFormatter
+ * @category Formatter
+ * @tags pojo csv formatter
  * @since 3.2.0
  */
 @InterfaceStability.Evolving
-public class CsvParser extends Parser<String>
+public class CsvFormatter extends Formatter<String>
 {
 
   private ArrayList<Field> fields;
+  @NotNull
+  protected String classname;
   @NotNull
   protected int fieldDelimiter;
   protected String lineDelimiter;
@@ -73,31 +69,29 @@ public class CsvParser extends Parser<String>
   @NotNull
   protected String fieldInfo;
 
-  protected transient String[] nameMapping;
-  protected transient CellProcessor[] processors;
-  private transient CsvBeanReader csvReader;
-
   public enum FIELD_TYPE
   {
     BOOLEAN, DOUBLE, INTEGER, FLOAT, LONG, SHORT, CHARACTER, STRING, DATE
   };
 
-  @NotNull
-  private transient ReusableStringReader csvStringReader = new ReusableStringReader();
+  protected transient String[] nameMapping;
+  protected transient CellProcessor[] processors;
+  protected transient CsvPreference preference;
 
-  public CsvParser()
+  public CsvFormatter()
   {
     fields = new ArrayList<Field>();
     fieldDelimiter = ',';
     lineDelimiter = "\r\n";
+
   }
 
   @Override
-  public void setup(OperatorContext context)
+  public void setup(Context.OperatorContext context)
   {
     super.setup(context);
 
-    logger.info("field info {}", fieldInfo);
+    //fieldInfo information
     fields = new ArrayList<Field>();
     String[] fieldInfoTuple = fieldInfo.split(",");
     for (int i = 0; i < fieldInfoTuple.length; i++) {
@@ -111,14 +105,12 @@ public class CsvParser extends Parser<String>
       }
       getFields().add(field);
     }
-
-    CsvPreference preference = new CsvPreference.Builder('"', fieldDelimiter, lineDelimiter).build();
-    csvReader = new CsvBeanReader(csvStringReader, preference);
+    preference = new CsvPreference.Builder('"', fieldDelimiter, lineDelimiter).build();
     int countKeyValue = getFields().size();
-    logger.info("countKeyValue {}", countKeyValue);
     nameMapping = new String[countKeyValue];
     processors = new CellProcessor[countKeyValue];
     initialise(nameMapping, processors);
+
   }
 
   private void initialise(String[] nameMapping, CellProcessor[] processors)
@@ -126,27 +118,14 @@ public class CsvParser extends Parser<String>
     for (int i = 0; i < getFields().size(); i++) {
       FIELD_TYPE type = getFields().get(i).type;
       nameMapping[i] = getFields().get(i).name;
-      if (type == FIELD_TYPE.DOUBLE) {
-        processors[i] = new Optional(new ParseDouble());
-      } else if (type == FIELD_TYPE.INTEGER) {
-        processors[i] = new Optional(new ParseInt());
-      } else if (type == FIELD_TYPE.FLOAT) {
-        processors[i] = new Optional(new ParseDouble());
-      } else if (type == FIELD_TYPE.LONG) {
-        processors[i] = new Optional(new ParseLong());
-      } else if (type == FIELD_TYPE.SHORT) {
-        processors[i] = new Optional(new ParseInt());
-      } else if (type == FIELD_TYPE.STRING) {
-        processors[i] = new Optional();
-      } else if (type == FIELD_TYPE.CHARACTER) {
-        processors[i] = new Optional(new ParseChar());
-      } else if (type == FIELD_TYPE.BOOLEAN) {
-        processors[i] = new Optional(new ParseBool());
-      } else if (type == FIELD_TYPE.DATE) {
+      if (type == FIELD_TYPE.DATE) {
         String dateFormat = getFields().get(i).format;
-        processors[i] = new Optional(new ParseDate(dateFormat == null ? "dd/MM/yyyy" : dateFormat));
+        processors[i] = new Optional(new FmtDate(dateFormat == null ? "dd/MM/yyyy" : dateFormat));
+      } else {
+        processors[i] = new Optional();
       }
     }
+
   }
 
   @Override
@@ -162,27 +141,21 @@ public class CsvParser extends Parser<String>
   }
 
   @Override
-  public Object convert(String tuple)
+  public String convert(Object tuple)
   {
     try {
-      csvStringReader.open(tuple);
-      return csvReader.read(clazz, nameMapping, processors);
-    } catch (IOException e) {
+      StringWriter stringWriter = new StringWriter();
+      ICsvBeanWriter beanWriter = new CsvBeanWriter(stringWriter, preference);
+      beanWriter.write(tuple, nameMapping, processors);
+      beanWriter.flush();
+      beanWriter.close();
+      return stringWriter.toString();
+    } catch (SuperCsvException e) {
       logger.debug("Error while converting tuple {} {}",tuple,e.getMessage());
-      return null;
-    }
-  }
-
-  @Override
-  public void teardown()
-  {
-    try {
-      if (csvReader != null) {
-        csvReader.close();
-      }
     } catch (IOException e) {
       DTThrowable.rethrow(e);
     }
+    return null;
   }
 
   public static class Field
@@ -220,7 +193,6 @@ public class CsvParser extends Parser<String>
     {
       this.format = format;
     }
-
   }
 
   /**
@@ -287,8 +259,8 @@ public class CsvParser extends Parser<String>
   }
 
   /**
-   * Gets the name of the fields with type and format ( for date ) as comma
-   * separated string in same order as incoming data. e.g
+   * Gets the name of the fields with type and format in data as comma separated
+   * string in same order as incoming data. e.g
    * name:string,dept:string,eid:integer,dateOfJoining:date|dd/mm/yyyy
    * 
    * @return fieldInfo
@@ -299,8 +271,8 @@ public class CsvParser extends Parser<String>
   }
 
   /**
-   * Sets the name of the fields with type and format ( for date ) as comma
-   * separated string in same order as incoming data. e.g
+   * Sets the name of the fields with type and format in data as comma separated
+   * string in same order as incoming data. e.g
    * name:string,dept:string,eid:integer,dateOfJoining:date|dd/mm/yyyy
    * 
    * @param fieldInfo
@@ -310,6 +282,5 @@ public class CsvParser extends Parser<String>
     this.fieldInfo = fieldInfo;
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(CsvParser.class);
-
+  private static final Logger logger = LoggerFactory.getLogger(CsvFormatter.class);
 }

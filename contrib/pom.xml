@@ -612,12 +612,6 @@
       <type>jar</type>
     </dependency>
     <dependency>
-      <!-- required by Xml parser and formatter -->
-      <groupId>com.thoughtworks.xstream</groupId>
-      <artifactId>xstream</artifactId>
-      <version>1.4.8</version>
-    </dependency>
-    <dependency>
       <!-- required by Csv parser and formatter -->
       <groupId>net.sf.supercsv</groupId>
       <artifactId>super-csv-joda</artifactId>

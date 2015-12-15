@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.schema.parser;
+package com.datatorrent.lib.parser;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

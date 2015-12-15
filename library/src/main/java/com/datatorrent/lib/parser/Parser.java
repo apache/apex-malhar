@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.schema.formatter;
+package com.datatorrent.lib.parser;
 
 import org.apache.hadoop.classification.InterfaceStability;
 
@@ -25,19 +25,19 @@ import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.ActivationListener;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.contrib.converter.Converter;
+import com.datatorrent.lib.converter.Converter;
 
 /**
  * Abstract class that implements Converter interface. This is a schema enabled
- * Formatter <br>
+ * Parser <br>
  * Sub classes need to implement the convert method <br>
+ * <br>
  * <b>Port Interface</b><br>
- * <b>in</b>: expects &lt;Object&gt; this is a schema enabled port<br>
- * <b>out</b>: emits &lt;OUTPUT&gt; <br>
- * <b>err</b>: emits &lt;Object&gt; error port that emits input tuple that could
+ * <b>in</b>: expects &lt;INPUT&gt;<br>
+ * <b>out</b>: emits &lt;Object&gt; this is a schema enabled port<br>
+ * <b>err</b>: emits &lt;INPUT&gt; error port that emits input tuple that could
  * not be converted<br>
  * <br>
  * 
@@ -47,29 +47,29 @@ import com.datatorrent.contrib.converter.Converter;
  * @since 3.2.0
  */
 @InterfaceStability.Evolving
-public abstract class Formatter<OUTPUT> extends BaseOperator implements Converter<Object, OUTPUT>,
+public abstract class Parser<INPUT> extends BaseOperator implements Converter<INPUT, Object>,
     ActivationListener<Context>
 {
   protected transient Class<?> clazz;
 
-  @OutputPortFieldAnnotation
-  public transient DefaultOutputPort<OUTPUT> out = new DefaultOutputPort<OUTPUT>();
-
-  @OutputPortFieldAnnotation(optional = true)
-  public transient DefaultOutputPort<Object> err = new DefaultOutputPort<Object>();
-
-  @InputPortFieldAnnotation(schemaRequired = true)
-  public transient DefaultInputPort<Object> in = new DefaultInputPort<Object>()
+  @OutputPortFieldAnnotation(schemaRequired = true)
+  public transient DefaultOutputPort<Object> out = new DefaultOutputPort<Object>()
   {
     public void setup(PortContext context)
     {
       clazz = context.getValue(Context.PortContext.TUPLE_CLASS);
     }
+  };
 
+  @OutputPortFieldAnnotation(optional = true)
+  public transient DefaultOutputPort<INPUT> err = new DefaultOutputPort<INPUT>();
+
+  public transient DefaultInputPort<INPUT> in = new DefaultInputPort<INPUT>()
+  {
     @Override
-    public void process(Object inputTuple)
+    public void process(INPUT inputTuple)
     {
-      OUTPUT tuple = convert(inputTuple);
+      Object tuple = convert(inputTuple);
       if (tuple == null && err.isConnected()) {
         err.emit(inputTuple);
         return;
@@ -99,4 +99,5 @@ public abstract class Formatter<OUTPUT> extends BaseOperator implements Converte
   {
     this.clazz = clazz;
   }
+
 }

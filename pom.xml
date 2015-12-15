@@ -124,6 +124,8 @@
               <ignoreMissingClasses>true</ignoreMissingClasses>
               <excludes>
                 <exclude>*POJO*</exclude>
+                <exclude>com.datatorrent.contrib.converter.Converter</exclude>
+                <exclude>com.datatorrent.contrib.schema.*</exclude>
                 <exclude>org.apache.hadoop.io.file.tfile.*</exclude>
               </excludes>
             </parameter>
