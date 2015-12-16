@@ -29,11 +29,11 @@ import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.common.util.SimpleDelayOperator;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
-import com.datatorrent.stram.util.LRUCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Iteration demo : <br>
@@ -99,26 +99,16 @@ public class Application implements StreamingApplication
     }
   }
 
-  public static class FibMap extends LRUCache<Long, Long>
-  {
-    public FibMap()
-    {
-      super(1000, true);
-    }
-  }
-
   public static class FibDelayOperator extends SimpleDelayOperator<Long>
   {
 
-    public Map<Long, Long> windowToData = new FibMap();
-    public long windowId;
+    public List<Long> lastWindowData = new ArrayList<>();
 
     @Override
     public void firstWindow(long windowId)
     {
-      if (windowToData.containsKey(windowId)) {
-        Long tuple = windowToData.get(windowId);
-        LOG.info("RECOVERING {} -> {}", windowId, tuple);
+      for (Long tuple : lastWindowData) {
+        LOG.info("RECOVERING {}; emitting {}", windowId, tuple);
         output.emit(tuple);
       }
     }
@@ -126,13 +116,13 @@ public class Application implements StreamingApplication
     @Override
     public void beginWindow(long windowId)
     {
-      this.windowId = windowId;
+      lastWindowData.clear();
     }
 
     @Override
     protected void processTuple(Long tuple)
     {
-      windowToData.put(windowId, tuple);
+      lastWindowData.add(tuple);
       super.processTuple(tuple);
     }
 
