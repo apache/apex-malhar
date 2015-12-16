@@ -24,6 +24,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.TreeMap;
 
+import org.apache.hadoop.fs.LocatedFileStatus;
+import org.apache.hadoop.fs.RemoteIterator;
+
 import com.datatorrent.netlet.util.Slice;
 
 /**
@@ -50,6 +53,25 @@ public interface FileAccess extends Closeable
   void delete(long bucketKey, String fileName) throws IOException;
 
   long getFileSize(long bucketKey, String s) throws IOException;
+
+  /**
+   * Checks if a file exists under a bucket.
+   *
+   * @param bucketKey bucket key
+   * @param fileName  file name
+   * @return true if file exists; false otherwise.
+   * @throws IOException
+   */
+  boolean exists(long bucketKey, String fileName) throws IOException;
+
+  /**
+   * Lists the files in the bucket path.
+   *
+   * @param bucketKey bucket key
+   * @return status of all the files in the bucket path if the bucket exists; null otherwise.
+   * @throws IOException
+   */
+  RemoteIterator<LocatedFileStatus> listFiles(long bucketKey) throws IOException;
 
   /**
    * Data File Format Reader
