@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 
+import org.apache.hadoop.classification.InterfaceStability;
+
 import com.google.common.collect.Maps;
 
 /**
@@ -31,6 +33,7 @@ import com.google.common.collect.Maps;
  *
  * @since 2.1.0
  */
+@InterfaceStability.Stable
 public interface FilterStreamProvider<F extends FilterOutputStream, S extends OutputStream>
 {
   public FilterStreamContext<F> getFilterStreamContext(S outputStream) throws IOException;

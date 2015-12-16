@@ -35,10 +35,12 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * @since 2.1.0
  */
+@InterfaceStability.Stable
 public class PojoUtils
 {
   private static final Logger logger = LoggerFactory.getLogger(PojoUtils.class);

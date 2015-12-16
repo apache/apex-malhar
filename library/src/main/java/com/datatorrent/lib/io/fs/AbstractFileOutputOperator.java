@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.AbstractFileSystem;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -109,6 +110,7 @@ import com.datatorrent.lib.counters.BasicCounters;
  *
  * @since 2.0.0
  */
+@InterfaceStability.Stable
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
 public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator implements Operator.CheckpointListener
 {

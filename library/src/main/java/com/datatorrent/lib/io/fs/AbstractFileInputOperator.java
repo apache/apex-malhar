@@ -35,6 +35,7 @@ import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.mutable.MutableLong;
+import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -76,6 +77,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * @param <T> The type of the object that this input operator reads.
  * @since 1.0.2
  */
+@InterfaceStability.Stable
 public abstract class AbstractFileInputOperator<T> implements InputOperator, Partitioner<AbstractFileInputOperator<T>>, StatsListener,
   Operator.CheckpointListener
 {

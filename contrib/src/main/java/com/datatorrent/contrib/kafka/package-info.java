@@ -19,4 +19,7 @@
 /**
  * Kafka operators and utilities.
  */
+@InterfaceStability.Stable
 package com.datatorrent.contrib.kafka;
+
+import org.apache.hadoop.classification.InterfaceStability;

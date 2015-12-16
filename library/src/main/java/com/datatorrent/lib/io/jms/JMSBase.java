@@ -27,6 +27,8 @@ import javax.jms.JMSException;
 import javax.jms.Session;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.hadoop.classification.InterfaceStability;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +69,7 @@ import com.google.common.collect.Maps;
  *
  * @since 0.3.2
  */
+@InterfaceStability.Stable
 public class JMSBase
 {
   private static final Logger logger = LoggerFactory.getLogger(JMSBase.class);

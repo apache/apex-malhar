@@ -32,6 +32,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.hadoop.classification.InterfaceStability;
+
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -47,6 +49,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
+@InterfaceStability.Stable
 public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> implements Runnable
 {
   private static final long serialVersionUID = 201506160829L;

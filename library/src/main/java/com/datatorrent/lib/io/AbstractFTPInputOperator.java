@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.commons.net.ftp.FTP;
+import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.ftp.FTPFileSystem;
@@ -56,6 +57,7 @@ import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
  *
  * @since 2.0.0
  */
+@InterfaceStability.Stable
 public abstract class AbstractFTPInputOperator<T> extends AbstractFileInputOperator<T>
 {
   @NotNull

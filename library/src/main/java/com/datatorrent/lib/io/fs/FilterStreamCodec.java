@@ -25,11 +25,14 @@ import java.util.zip.GZIPOutputStream;
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 
+import org.apache.hadoop.classification.InterfaceStability;
+
 /**
  * Filters for compression and encryption.
  *
  * @since 2.1.0
  */
+@InterfaceStability.Stable
 public class FilterStreamCodec
 {
   /**
