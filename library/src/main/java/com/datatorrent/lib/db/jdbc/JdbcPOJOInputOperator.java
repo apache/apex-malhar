@@ -95,7 +95,6 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
   protected transient Class<?> pojoClass;
 
   protected int pageNumber;
-  private transient long sleepMillis;
 
   @OutputPortFieldAnnotation(schemaRequired = true)
   public final transient DefaultOutputPort<Object> outputPort = new DefaultOutputPort<Object>()
@@ -119,7 +118,6 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
   public void setup(Context.OperatorContext context)
   {
     Preconditions.checkArgument(query != null || tableName != null, "both query and table name are not set");
-    sleepMillis = context.getValue(Context.OperatorContext.SPIN_MILLIS);
     super.setup(context);
 
     try {
@@ -209,12 +207,6 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
       } catch (SQLException ex) {
         store.disconnect();
         throw new RuntimeException(ex);
-      }
-    } else {
-      try {
-        Thread.sleep(sleepMillis);
-      } catch (InterruptedException e) {
-        throw new RuntimeException(e);
       }
     }
   }
