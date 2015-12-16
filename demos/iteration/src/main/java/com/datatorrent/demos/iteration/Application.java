@@ -26,14 +26,11 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.common.util.SimpleDelayOperator;
+import com.datatorrent.common.util.DefaultDelayOperator;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Iteration demo : <br>
@@ -99,41 +96,12 @@ public class Application implements StreamingApplication
     }
   }
 
-  public static class FibDelayOperator extends SimpleDelayOperator<Long>
-  {
-
-    public List<Long> lastWindowData = new ArrayList<>();
-
-    @Override
-    public void firstWindow(long windowId)
-    {
-      for (Long tuple : lastWindowData) {
-        LOG.info("RECOVERING {}; emitting {}", windowId, tuple);
-        output.emit(tuple);
-      }
-    }
-
-    @Override
-    public void beginWindow(long windowId)
-    {
-      lastWindowData.clear();
-    }
-
-    @Override
-    protected void processTuple(Long tuple)
-    {
-      lastWindowData.add(tuple);
-      super.processTuple(tuple);
-    }
-
-  }
-
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
     RandomEventGenerator rand = dag.addOperator("rand", new RandomEventGenerator());
     FibonacciOperator fib = dag.addOperator("FIB", FibonacciOperator.class);
-    SimpleDelayOperator opDelay = dag.addOperator("opDelay", FibDelayOperator.class);
+    DefaultDelayOperator opDelay = dag.addOperator("opDelay", DefaultDelayOperator.class);
     ConsoleOutputOperator console = dag.addOperator("console", new ConsoleOutputOperator());
     dag.addStream("dummy_to_operator", rand.integer_data, fib.dummyInputPort);
     dag.addStream("operator_to_delay", fib.output, opDelay.input, console.input);
