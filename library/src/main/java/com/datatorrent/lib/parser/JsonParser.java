@@ -27,11 +27,10 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.classification.InterfaceStability;
 
-import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
@@ -45,14 +44,14 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @since 3.2.0
  */
 @InterfaceStability.Evolving
-public class JsonParser extends Parser<String>
+public class JsonParser extends Parser<String, String>
 {
 
   private transient ObjectReader reader;
   protected String dateFormat;
 
   @Override
-  public void activate(Context context)
+  public void setup(OperatorContext context)
   {
     try {
       ObjectMapper mapper = new ObjectMapper();
@@ -64,11 +63,6 @@ public class JsonParser extends Parser<String>
     } catch (Throwable e) {
       throw new RuntimeException("Unable find provided class");
     }
-  }
-
-  @Override
-  public void deactivate()
-  {
   }
 
   @Override
@@ -84,6 +78,12 @@ public class JsonParser extends Parser<String>
       DTThrowable.rethrow(e);
     }
     return null;
+  }
+
+  @Override
+  public String processErorrTuple(String input)
+  {
+    return input;
   }
 
   /**

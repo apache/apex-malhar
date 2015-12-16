@@ -18,16 +18,33 @@
  */
 package com.datatorrent.lib.parser;
 
+import java.io.IOException;
+
+import javax.xml.XMLConstants;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 import org.apache.hadoop.classification.InterfaceStability;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.XStreamException;
-import com.thoughtworks.xstream.converters.basic.DateConverter;
-
-import com.datatorrent.api.Context;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.lib.util.ReusableStringReader;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * Operator that converts XML string to Pojo <br>
@@ -44,99 +61,109 @@ import com.datatorrent.api.Context;
  * @since 3.2.0
  */
 @InterfaceStability.Evolving
-public class XmlParser extends Parser<String>
+public class XmlParser extends Parser<String, String>
 {
-
-  private transient XStream xstream;
-  protected String alias;
-  protected String dateFormats;
-
-  public XmlParser()
-  {
-    alias = null;
-    dateFormats = null;
-  }
-
-  @Override
-  public void activate(Context context)
-  {
-    xstream = new XStream();
-    if (alias != null) {
-      try {
-        xstream.alias(alias, clazz);
-      } catch (Throwable e) {
-        throw new RuntimeException("Unable find provided class");
-      }
-    }
-    if (dateFormats != null) {
-      String[] dateFormat = dateFormats.split(",");
-      xstream.registerConverter(new DateConverter(dateFormat[0], dateFormat));
-    }
-  }
-
-  @Override
-  public void deactivate()
-  {
-
-  }
+  private String schemaXSDFile;
+  private transient Unmarshaller unmarshaller;
+  private transient Validator validator;
+  private ReusableStringReader reader = new ReusableStringReader();
+  public transient DefaultOutputPort<Document> parsedOutput = new DefaultOutputPort<Document>();
 
   @Override
   public Object convert(String tuple)
   {
+    // This method is not invoked for XML parser
+    return null;
+  }
+
+  @Override
+  public void processTuple(String inputTuple)
+  {
     try {
-      return xstream.fromXML(tuple);
-    } catch (XStreamException e) {
-      logger.debug("Error while converting tuple {} {}", tuple,e.getMessage());
-      return null;
+      if (out.isConnected()) {
+        reader.open(inputTuple);
+        JAXBElement<?> output = unmarshaller.unmarshal(new StreamSource(reader), getClazz());
+        LOG.debug(output.getValue().toString());
+        emittedObjectCount++;
+        out.emit(output.getValue());
+      } else if (validator != null) {
+        validator.validate(new StreamSource(inputTuple));
+      }
+      if (parsedOutput.isConnected()) {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder;
+        try {
+          builder = factory.newDocumentBuilder();
+          Document doc = builder.parse(inputTuple);
+          parsedOutput.emit(doc);
+
+        } catch (Exception e) {
+          LOG.info("Failed to parse xml tuple {}, Exception = {} , StackTrace = {}", inputTuple, e, e.getStackTrace());
+          errorTupleCount++;
+          if (err.isConnected()) {
+            err.emit(inputTuple);
+          }
+        }
+      }
+    } catch (Exception e) {
+      LOG.info("Failed to parse xml tuple {}, Exception = {}, StackTrace = {} ", inputTuple, e, e.getStackTrace());
+      errorTupleCount++;
+      if (err.isConnected()) {
+        err.emit(inputTuple);
+      }
+    } finally {
+      try {
+        if (reader.isOpen()) {
+          reader.close();
+        }
+      } catch (IOException e) {
+        DTThrowable.wrapIfChecked(e);
+      }
     }
   }
 
-  /**
-   * Gets the alias
-   * 
-   * @return alias.
-   */
-  public String getAlias()
+  @Override
+  public String processErorrTuple(String input)
   {
-    return alias;
+    return input;
   }
 
-  /**
-   * Sets the alias This maps to the root element of the XML string. If not
-   * specified, parser would expect the root element to be fully qualified name
-   * of the Pojo Class.
-   * 
-   * @param alias
-   *          .
-   */
-  public void setAlias(String alias)
+  @Override
+  public void setup(com.datatorrent.api.Context.OperatorContext context)
   {
-    this.alias = alias;
+    try {
+      JAXBContext ctx = JAXBContext.newInstance(getClazz());
+      unmarshaller = ctx.createUnmarshaller();
+      if (schemaXSDFile != null) {
+        Path filePath = new Path(schemaXSDFile);
+        Configuration configuration = new Configuration();
+        FileSystem fs = FileSystem.newInstance(filePath.toUri(), configuration);
+        FSDataInputStream inputStream = fs.open(filePath);
+
+        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        Schema schema = factory.newSchema(new StreamSource(inputStream));
+        unmarshaller.setSchema(schema);
+        validator = schema.newValidator();
+        fs.close();
+      }
+    } catch (SAXException e) {
+      DTThrowable.wrapIfChecked(e);
+    } catch (JAXBException e) {
+      DTThrowable.wrapIfChecked(e);
+    } catch (IOException e) {
+      DTThrowable.wrapIfChecked(e);
+    }
   }
 
-  /**
-   * Gets the comma separated string of date formats e.g dd/mm/yyyy,dd-mmm-yyyy
-   * where first one would be considered default
-   * 
-   * @return dateFormats.
-   */
-  public String getDateFormats()
+  public String getSchemaFile()
   {
-    return dateFormats;
+    return schemaXSDFile;
   }
 
-  /**
-   * Sets the comma separated string of date formats e.g dd/mm/yyyy,dd-mmm-yyyy
-   * where first one would be considered default
-   * 
-   * @param dateFormats
-   *          .
-   */
-  public void setDateFormats(String dateFormats)
+  public void setSchemaFile(String schemaFile)
   {
-    this.dateFormats = dateFormats;
+    this.schemaXSDFile = schemaFile;
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(XmlParser.class);
-
+  public static Logger LOG = LoggerFactory.getLogger(Parser.class);
 }

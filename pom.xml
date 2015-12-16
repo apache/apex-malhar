@@ -62,6 +62,7 @@
           <excludes combine.children="append">
             <exclude>**/src/test/resources/**/sample_logs/**</exclude>
             <exclude>src/test/resources/*.csv</exclude>
+            <exclude>src/test/resources/*.xsd</exclude>
             <exclude>**/src/main/resources/com/datatorrent/apps/logstream/**</exclude>
             <exclude>src/main/c/zmq_push/Makefile</exclude>
             <exclude>src/test/resources/com/datatorrent/contrib/romesyndication/*.rss</exclude>
@@ -78,6 +79,7 @@
           <excludes combine.children="append">
             <exclude>**/src/test/resources/**/sample_logs/**</exclude>
             <exclude>src/test/resources/*.csv</exclude>
+            <exclude>src/test/resources/*.xsd</exclude>
             <exclude>**/src/main/resources/com/datatorrent/apps/logstream/**</exclude>
             <exclude>src/main/c/zmq_push/Makefile</exclude>
             <exclude>src/test/resources/com/datatorrent/contrib/romesyndication/*.rss</exclude>

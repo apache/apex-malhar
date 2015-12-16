@@ -300,12 +300,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <!-- required by Xml parser and formatter -->
-      <groupId>com.thoughtworks.xstream</groupId>
-      <artifactId>xstream</artifactId>
-      <version>1.4.8</version>
-    </dependency>
-    <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-websocket</artifactId>
       <version>${jetty.version}</version>

@@ -24,7 +24,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Operator.ActivationListener;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
@@ -47,8 +46,7 @@ import com.datatorrent.lib.converter.Converter;
  * @since 3.2.0
  */
 @InterfaceStability.Evolving
-public abstract class Formatter<OUTPUT> extends BaseOperator implements Converter<Object, OUTPUT>,
-    ActivationListener<Context>
+public abstract class Formatter<OUTPUT> extends BaseOperator implements Converter<Object, OUTPUT>
 {
   protected transient Class<?> clazz;
 

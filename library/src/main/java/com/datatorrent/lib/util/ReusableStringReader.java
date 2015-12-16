@@ -92,4 +92,8 @@ public class ReusableStringReader extends Reader
     this.next = 0;
   }
 
+  public boolean isOpen()
+  {
+    return this.str != null;
+  }
 }

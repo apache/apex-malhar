@@ -28,10 +28,9 @@ import org.codehaus.jackson.map.ObjectWriter;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.hadoop.classification.InterfaceStability;
 
-import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
@@ -51,7 +50,7 @@ public class JsonFormatter extends Formatter<String>
   protected String dateFormat;
 
   @Override
-  public void activate(Context context)
+  public void setup(OperatorContext context)
   {
     try {
       ObjectMapper mapper = new ObjectMapper();
@@ -65,12 +64,6 @@ public class JsonFormatter extends Formatter<String>
     } catch (Throwable e) {
       throw new RuntimeException("Unable find provided class");
     }
-  }
-
-  @Override
-  public void deactivate()
-  {
-
   }
 
   @Override

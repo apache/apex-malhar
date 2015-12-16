@@ -62,7 +62,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @since 3.2.0
  */
 @InterfaceStability.Evolving
-public class CsvParser extends Parser<String>
+public class CsvParser extends Parser<String, String>
 {
 
   private ArrayList<Field> fields;
@@ -148,19 +148,6 @@ public class CsvParser extends Parser<String>
       }
     }
   }
-
-  @Override
-  public void activate(Context context)
-  {
-
-  }
-
-  @Override
-  public void deactivate()
-  {
-
-  }
-
   @Override
   public Object convert(String tuple)
   {
@@ -183,6 +170,12 @@ public class CsvParser extends Parser<String>
     } catch (IOException e) {
       DTThrowable.rethrow(e);
     }
+  }
+
+  @Override
+  public String processErorrTuple(String input)
+  {
+    return input;
   }
 
   public static class Field

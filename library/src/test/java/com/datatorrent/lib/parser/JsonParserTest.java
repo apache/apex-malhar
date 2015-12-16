@@ -77,7 +77,6 @@ public class JsonParserTest
       TestUtils.setSink(operator.out, validDataSink);
       TestUtils.setSink(operator.err, invalidDataSink);
       operator.setup(null);
-      operator.activate(null);
 
       operator.beginWindow(0);
     }
@@ -119,7 +118,6 @@ public class JsonParserTest
     String tuple = "{\"a\":123,\"b\":234876274,\"c\":\"HowAreYou?\",\"d\":[\"ABC\",\"PQR\",\"XYZ\"],\"date\":\"15-09-2015\"}";
     operator.setDateFormat("dd-MM-yyyy");
     operator.setup(null);
-    operator.activate(null);
     operator.in.put(tuple);
     Assert.assertEquals(1, validDataSink.collectedTuples.size());
     Assert.assertEquals(0, invalidDataSink.collectedTuples.size());

@@ -20,11 +20,11 @@ package com.datatorrent.lib.parser;
 
 import org.apache.hadoop.classification.InterfaceStability;
 
+import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Operator.ActivationListener;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.converter.Converter;
@@ -47,10 +47,15 @@ import com.datatorrent.lib.converter.Converter;
  * @since 3.2.0
  */
 @InterfaceStability.Evolving
-public abstract class Parser<INPUT> extends BaseOperator implements Converter<INPUT, Object>,
-    ActivationListener<Context>
+public abstract class Parser<INPUT, ERROROUT> extends BaseOperator implements Converter<INPUT, Object>
 {
   protected transient Class<?> clazz;
+  @AutoMetric
+  protected long errorTupleCount;
+  @AutoMetric
+  protected long emittedObjectCount;
+  @AutoMetric
+  protected long incomingTuplesCount;
 
   @OutputPortFieldAnnotation(schemaRequired = true)
   public transient DefaultOutputPort<Object> out = new DefaultOutputPort<Object>()
@@ -61,24 +66,45 @@ public abstract class Parser<INPUT> extends BaseOperator implements Converter<IN
     }
   };
 
-  @OutputPortFieldAnnotation(optional = true)
-  public transient DefaultOutputPort<INPUT> err = new DefaultOutputPort<INPUT>();
-
+  public transient DefaultOutputPort<ERROROUT> err = new DefaultOutputPort<ERROROUT>();
   public transient DefaultInputPort<INPUT> in = new DefaultInputPort<INPUT>()
   {
     @Override
     public void process(INPUT inputTuple)
     {
-      Object tuple = convert(inputTuple);
-      if (tuple == null && err.isConnected()) {
-        err.emit(inputTuple);
-        return;
-      }
-      if (out.isConnected()) {
-        out.emit(tuple);
-      }
+      incomingTuplesCount++;
+      processTuple(inputTuple);
     }
   };
+
+  public void processTuple(INPUT inputTuple)
+  {
+    Object tuple = convert(inputTuple);
+    if (tuple == null && err.isConnected()) {
+      errorTupleCount++;
+      err.emit(processErorrTuple(inputTuple));
+      return;
+    }
+    if (out.isConnected()) {
+      emittedObjectCount++;
+      out.emit(tuple);
+    }
+  }
+
+  public abstract ERROROUT processErorrTuple(INPUT input);
+
+  @Override
+  public void beginWindow(long windowId)
+  {
+    errorTupleCount = 0;
+    emittedObjectCount = 0;
+    incomingTuplesCount = 0;
+  }
+
+  @Override
+  public void endWindow()
+  {
+  }
 
   /**
    * Get the class that needs to be formatted
@@ -99,5 +125,4 @@ public abstract class Parser<INPUT> extends BaseOperator implements Converter<IN
   {
     this.clazz = clazz;
   }
-
 }

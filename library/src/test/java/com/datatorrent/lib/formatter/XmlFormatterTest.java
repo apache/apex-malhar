@@ -18,7 +18,14 @@
  */
 package com.datatorrent.lib.formatter;
 
+import java.io.ByteArrayOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.XMLFormatter;
+
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.joda.time.DateTime;
 import org.junit.Assert;
@@ -27,6 +34,11 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+
+import com.datatorrent.lib.parser.XmlParser;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 
@@ -64,6 +76,18 @@ public class XmlFormatterTest
     }
 
   }
+  @Test
+  public void testOperatorSerialization()
+  {
+    Kryo kryo = new Kryo();
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    Output output = new Output(baos);
+    kryo.writeObject(output, this.operator);
+    output.close();
+    Input input = new Input(baos.toByteArray());
+    XMLFormatter tba1 = kryo.readObject(input, XMLFormatter.class);
+    Assert.assertNotNull("XML parser not null", tba1);
+  }
 
   @Test
   public void testPojoToXmlWithoutAlias()
@@ -75,13 +99,12 @@ public class XmlFormatterTest
     e.setDateOfJoining(new DateTime().withYear(2015).withMonthOfYear(1).withDayOfYear(1).toDate());
 
     operator.setup(null);
-    operator.activate(null);
     operator.in.process(e);
     Assert.assertEquals(1, validDataSink.collectedTuples.size());
     Assert.assertEquals(0, invalidDataSink.collectedTuples.size());
-    String expected = "<com.datatorrent.contrib.schema.formatter.XmlFormatterTest_-EmployeeBean>" + "<name>john</name>"
+    String expected = "<EmployeeBean>" + "<name>john</name>"
         + "<dept>cs</dept>" + "<eid>1</eid>" + "<dateOfJoining>2015-01-01</dateOfJoining>"
-        + "</com.datatorrent.contrib.schema.formatter.XmlFormatterTest_-EmployeeBean>";
+        + "</EmployeeBean>";
     Assert.assertEquals(expected, validDataSink.collectedTuples.get(0));
   }
 
@@ -96,7 +119,6 @@ public class XmlFormatterTest
 
     operator.setAlias("EmployeeBean");
     operator.setup(null);
-    operator.activate(null);
     operator.in.process(e);
     Assert.assertEquals(1, validDataSink.collectedTuples.size());
     Assert.assertEquals(0, invalidDataSink.collectedTuples.size());
@@ -117,12 +139,11 @@ public class XmlFormatterTest
     operator.setAlias("EmployeeBean");
     operator.setPrettyPrint(true);
     operator.setup(null);
-    operator.activate(null);
     operator.in.process(e);
     Assert.assertEquals(1, validDataSink.collectedTuples.size());
     Assert.assertEquals(0, invalidDataSink.collectedTuples.size());
-    String expected = "<EmployeeBean>\n" + "  <name>john</name>\n" + "  <dept>cs</dept>\n" + "  <eid>1</eid>\n"
-        + "  <dateOfJoining>2015-01-01</dateOfJoining>\n" + "</EmployeeBean>";
+    String expected = "<EmployeeBean>\n" + "    <name>john</name>\n" + "    <dept>cs</dept>\n" + "    <eid>1</eid>\n"
+        + "    <dateOfJoining>2015-01-01</dateOfJoining>\n" + "</EmployeeBean>";
     Assert.assertEquals(expected, validDataSink.collectedTuples.get(0));
   }
 
@@ -140,18 +161,48 @@ public class XmlFormatterTest
     e.setAddress(address);
 
     operator.setup(null);
-    operator.activate(null);
     operator.in.process(e);
     System.out.println(validDataSink.collectedTuples.get(0));
     Assert.assertEquals(1, validDataSink.collectedTuples.size());
     Assert.assertEquals(0, invalidDataSink.collectedTuples.size());
-    String expected = "<com.datatorrent.contrib.schema.formatter.XmlFormatterTest_-EmployeeBean>" + "<name>john</name>"
+    String expected = "<EmployeeBean>" + "<name>john</name>"
         + "<dept>cs</dept>" + "<eid>1</eid>" + "<dateOfJoining>2015-01-01</dateOfJoining>" + "<address>"
         + "<city>new york</city>" + "<country>US</country>" + "</address>"
-        + "</com.datatorrent.contrib.schema.formatter.XmlFormatterTest_-EmployeeBean>";
+        + "</EmployeeBean>";
     Assert.assertEquals(expected, validDataSink.collectedTuples.get(0));
   }
+  
+  public static class DateAdapter extends XmlAdapter<String, Date>
+  {
 
+    private String dateFormatString = "yyyy-MM-dd";
+    private SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatString);
+
+    @Override
+    public String marshal(Date v) throws Exception
+    {
+      return dateFormat.format(v);
+    }
+
+    @Override
+    public Date unmarshal(String v) throws Exception
+    {
+      return dateFormat.parse(v);
+    }
+
+    public String getDateFormatString()
+    {
+      return dateFormatString;
+    }
+
+    public void setDateFormatString(String dateFormatString)
+    {
+      this.dateFormatString = dateFormatString;
+    }
+
+  }
+
+  @XmlType (propOrder={"name","dept","eid", "dateOfJoining", "address"})
   public static class EmployeeBean
   {
 
@@ -191,6 +242,7 @@ public class XmlFormatterTest
       this.eid = eid;
     }
 
+    @XmlJavaTypeAdapter(DateAdapter.class)
     public Date getDateOfJoining()
     {
       return dateOfJoining;

@@ -129,18 +129,6 @@ public class CsvFormatter extends Formatter<String>
   }
 
   @Override
-  public void activate(Context context)
-  {
-
-  }
-
-  @Override
-  public void deactivate()
-  {
-
-  }
-
-  @Override
   public String convert(Object tuple)
   {
     try {
