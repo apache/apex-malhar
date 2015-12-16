@@ -83,9 +83,7 @@ public interface FileAccess extends Closeable
      * @param data
      * @throws IOException
      */
-    //Move to
-    // void readFully(TreeMap<Slice, Slice> data) throws IOException;
-    void readFully(TreeMap<Slice, byte[]> data) throws IOException;
+    void readFully(TreeMap<Slice, Slice> data) throws IOException;
 
     /**
      * Repositions the pointer to the beginning of the underlying file.
