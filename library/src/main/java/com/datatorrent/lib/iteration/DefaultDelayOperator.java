@@ -1,3 +1,22 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package com.datatorrent.lib.iteration;
 
 import java.io.IOException;
@@ -10,7 +29,7 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.lib.util.WindowDataManager;
 import com.datatorrent.netlet.util.DTThrowable;
 
-public class DelayOperator<T> implements Operator.DelayOperator, Operator.CheckpointListener
+public class DefaultDelayOperator<T> implements Operator.DelayOperator, Operator.CheckpointListener
 {
   public WindowDataManager getWindowDataManager()
   {
@@ -27,6 +46,7 @@ public class DelayOperator<T> implements Operator.DelayOperator, Operator.Checkp
   private transient int operatorContextId;
   private transient ArrayList<T> windowData;
   private transient boolean timeToStoreTheWindow = false;
+  private transient Context.OperatorContext context;
 
   public transient DefaultInputPort<T> input = new DefaultInputPort<T>() {
     @Override
@@ -38,7 +58,7 @@ public class DelayOperator<T> implements Operator.DelayOperator, Operator.Checkp
 
   public transient DefaultOutputPort<T> output = new DefaultOutputPort();
 
-  DelayOperator()
+  DefaultDelayOperator()
   {
     windowData = new ArrayList<>();
   }
@@ -48,10 +68,7 @@ public class DelayOperator<T> implements Operator.DelayOperator, Operator.Checkp
   {
     this.operatorContextId = context.getId();
     this.windowDataManager.setup(context);
-
-    if ( context.getWindowsFromCheckpoint() == 1 ) {
-      timeToStoreTheWindow = true;
-    }
+    this.context = context;
   }
 
   @Override
@@ -85,6 +102,10 @@ public class DelayOperator<T> implements Operator.DelayOperator, Operator.Checkp
   @Override
   public void beginWindow(long windowId)
   {
+    if ( context.getWindowsFromCheckpoint() == 1 ) {
+      timeToStoreTheWindow = true;
+    }
+
     currentWindowId = windowId;
   }
 

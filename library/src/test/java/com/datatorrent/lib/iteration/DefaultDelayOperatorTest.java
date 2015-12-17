@@ -1,3 +1,22 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package com.datatorrent.lib.iteration;
 
 import com.datatorrent.api.*;
@@ -19,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-public class DelayOperatorTest {
+public class DefaultDelayOperatorTest {
 
   public static OperatorContextTestHelper.TestIdOperatorContext context;
 
@@ -55,47 +74,47 @@ public class DelayOperatorTest {
   @Test
   public void testIntegrationWithWindowDataManager() throws Exception {
 
-    DelayOperator<Integer> delayOperator = new DelayOperator<>() ;
-    delayOperator.setWindowDataManager(new WindowDataManager.FSWindowDataManager());
+    DefaultDelayOperator<Integer> defaultDelayOperator = new DefaultDelayOperator<>() ;
+    defaultDelayOperator.setWindowDataManager(new WindowDataManager.FSWindowDataManager());
 
-    delayOperator.setup(context);
+    defaultDelayOperator.setup(context);
 
     CollectorTestSink testSink = new CollectorTestSink();
-    delayOperator.output.setSink(testSink);
+    defaultDelayOperator.output.setSink(testSink);
 
-    delayOperator.beginWindow(1);
-    delayOperator.input.process(1);
-    delayOperator.input.process(2);
-    delayOperator.endWindow();
+    defaultDelayOperator.beginWindow(1);
+    defaultDelayOperator.input.process(1);
+    defaultDelayOperator.input.process(2);
+    defaultDelayOperator.endWindow();
 
-    delayOperator.beginWindow(2);
-    delayOperator.input.process(3);
-    delayOperator.input.process(4);
-    delayOperator.endWindow();
+    defaultDelayOperator.beginWindow(2);
+    defaultDelayOperator.input.process(3);
+    defaultDelayOperator.input.process(4);
+    defaultDelayOperator.endWindow();
 
 
-    delayOperator = new DelayOperator<>() ;
-    delayOperator.setWindowDataManager(new WindowDataManager.FSWindowDataManager());
+    defaultDelayOperator = new DefaultDelayOperator<>() ;
+    defaultDelayOperator.setWindowDataManager(new WindowDataManager.FSWindowDataManager());
 
-    delayOperator.setup(context);
+    defaultDelayOperator.setup(context);
 
     testSink = new CollectorTestSink();
-    delayOperator.output.setSink(testSink);
+    defaultDelayOperator.output.setSink(testSink);
 
-    delayOperator.firstWindow(1);
+    defaultDelayOperator.firstWindow(1);
 
     Assert.assertEquals("required tuples - replayed", testSink.collectedTuples.get(0), 1);
     Assert.assertEquals("required tuples - replayed", testSink.collectedTuples.get(1), 2);
 
     testSink.collectedTuples.clear();
 
-    delayOperator.firstWindow(2);
+    defaultDelayOperator.firstWindow(2);
 
     Assert.assertEquals("required tuples - replayed", testSink.collectedTuples.get(0), 3);
     Assert.assertEquals("required tuples - replayed", testSink.collectedTuples.get(1), 4);
 
-    delayOperator.teardown();
-    delayOperator.getWindowDataManager().deleteUpTo(context.getId(),2);
+    defaultDelayOperator.teardown();
+    defaultDelayOperator.getWindowDataManager().deleteUpTo(context.getId(),2);
   }
 
   @Test
@@ -160,15 +179,15 @@ public class DelayOperatorTest {
       RandomEventGenerator rand = dag.addOperator("rand", new RandomEventGenerator());
       rand.setTuplesBlast(1);
       rand.setTuplesBlastIntervalMillis(1000);
-      DelayOperator<Long> delayOperator = dag.addOperator("delay", new DelayOperator<Long>());
+      DefaultDelayOperator<Long> defaultDelayOperator = dag.addOperator("delay", new DefaultDelayOperator<Long>());
       OutputOperator outputOperator = dag.addOperator("output", new OutputOperator());
       inputToDelay inputToDelay = dag.addOperator("inputToDelay", new inputToDelay()) ;
 
-      delayOperator.setWindowDataManager(new WindowDataManager.NoopWindowDataManager());
+      defaultDelayOperator.setWindowDataManager(new WindowDataManager.NoopWindowDataManager());
 
       dag.addStream("rand_inputToDelay", rand.integer_data, inputToDelay.input);
-      dag.addStream("inputToDelay_toDelay", inputToDelay.output, delayOperator.input);
-      dag.addStream("DelayOperator_output", delayOperator.output, outputOperator.input);
+      dag.addStream("inputToDelay_toDelay", inputToDelay.output, defaultDelayOperator.input);
+      dag.addStream("DelayOperator_output", defaultDelayOperator.output, outputOperator.input);
     }
   }
 }
