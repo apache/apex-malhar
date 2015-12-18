@@ -1,6 +1,20 @@
 /**
- * Copyright (c) 2015 DataTorrent, Inc.
- * All rights reserved.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.lib.dimensions.aggregator;
 
@@ -12,15 +26,28 @@ import com.google.common.base.Preconditions;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.schemas.CustomTimeBucket;
-import com.datatorrent.lib.dimensions.AbstractDimensionsComputationFlexibleSingleSchema.DimensionsConversionContext;
+import com.datatorrent.lib.dimensions.DimensionsConversionContext;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 
 /**
- * This is a base class for {@link IncrementalAggregator}s which provides common functionality.
- *
- * @since 3.1.0
+ * * <p>
+ * {@link IncrementalAggregator}s perform aggregations in place, on a field by field basis. For example if we have a
+ * field cost, an incremental aggregator would take a new value of cost and aggregate it to an aggregate value for
+ * cost. No fields except the cost field are used in the computation of the cost aggregation in the case of an
+ * {@link IncrementalAggregator}.
+ * </p>
+ * <p>
+ * {@link IncrementalAggregator}s are intended to be used with subclasses of
+ * {@link com.datatorrent.lib.dimensions.AbstractDimensionsComputationFlexibleSingleSchema}. The way in which
+ * {@link IncrementalAggregator}s are used in this context is that a batch of fields to be aggregated by the aggregator
+ * are provided in the form of an {@link InputEvent}. For example, if there are two fields (cost and revenue), which
+ * will be aggregated by a sum aggregator, both of those fields will be included in the {@link InputEvent} passed to
+ * the sum aggregator. And the {DimensionsEventregate} event produced by the sum aggregator will contain two fields,
+ * one for cost and one for revenue.
+ * </p>
+ * 
  */
 public abstract class AbstractIncrementalAggregator implements IncrementalAggregator
 {
@@ -52,7 +79,7 @@ public abstract class AbstractIncrementalAggregator implements IncrementalAggreg
   }
 
   @Override
-  public int computeHashCode(InputEvent inputEvent)
+  public int hashCode(InputEvent inputEvent)
   {
     long timestamp = -1L;
     boolean hasTime = this.context.inputTimestampIndex != -1
