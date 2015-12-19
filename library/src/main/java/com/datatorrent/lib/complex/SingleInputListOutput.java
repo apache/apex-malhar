@@ -1,13 +1,13 @@
 package com.datatorrent.lib.complex;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.Name;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.BaseOperator;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A base implementation of an operator that abstracts away the input and output ports.
@@ -42,14 +42,16 @@ import java.util.List;
  */
 @Stateless
 @Name("single-input-list-output")
-public abstract class SingleInputListOutput<I, O> extends BaseOperator {
+public abstract class SingleInputListOutput<I, O> extends BaseOperator
+{
   protected static final int DEFAULT_NUM_OUTPUTS = 2;
 
   protected transient List<DefaultOutputPort<O>> outputs = null;
 
-  protected transient final DefaultInputPort<I> input = new DefaultInputPort<I>() {
+  protected final transient DefaultInputPort<I> input = new DefaultInputPort<I>() {
     @Override
-    public void process(I inputTuple) {
+    public void process(I inputTuple)
+    {
       List<O> resultList = SingleInputListOutput.this.process(inputTuple);
       resultList = resultList != null ? resultList : new ArrayList<O>();
 
@@ -65,9 +67,10 @@ public abstract class SingleInputListOutput<I, O> extends BaseOperator {
     }
   };
 
-  public SingleInputListOutput(int numOutputs) throws InstantiationException {
+  public SingleInputListOutput(int numOutputs) throws InstantiationException
+  {
     if (numOutputs < 1 || numOutputs > 65535) {
-      throw new InstantiationException("Cannot instantiate with "+numOutputs+
+      throw new InstantiationException("Cannot instantiate with " + numOutputs +
           "; must be 1 < numOutputs < 65535");
     } else {
       this.outputs = new ArrayList<DefaultOutputPort<O>>(numOutputs);
@@ -78,7 +81,8 @@ public abstract class SingleInputListOutput<I, O> extends BaseOperator {
     }
   }
 
-  public SingleInputListOutput() throws InstantiationException {
+  public SingleInputListOutput() throws InstantiationException
+  {
     this(DEFAULT_NUM_OUTPUTS);
   }
 

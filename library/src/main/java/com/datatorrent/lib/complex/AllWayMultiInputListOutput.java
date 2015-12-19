@@ -1,13 +1,13 @@
 package com.datatorrent.lib.complex;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.Name;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.BaseOperator;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A base implementation of an operator that abstracts away the input and output port.
@@ -43,23 +43,26 @@ import java.util.List;
  */
 @Stateless
 @Name("all-way-multiple-input-list-output")
-public abstract class AllWayMultiInputListOutput<I, O> extends BaseOperator {
+public abstract class AllWayMultiInputListOutput<I, O> extends BaseOperator
+{
   protected static final int DEFAULT_NUM_INPUTS = 2;
   protected static final int DEFAULT_NUM_OUTPUTS = 2;
 
   protected transient List<DefaultInputPort<I>> inputs = null;
   protected transient List<DefaultOutputPort<O>> outputs = null;
 
-  public AllWayMultiInputListOutput() throws InstantiationException {
+  public AllWayMultiInputListOutput() throws InstantiationException
+  {
     this(DEFAULT_NUM_INPUTS, DEFAULT_NUM_OUTPUTS);
   }
 
-  public AllWayMultiInputListOutput(int numInputs, int numOutputs) throws InstantiationException {
+  public AllWayMultiInputListOutput(int numInputs, int numOutputs) throws InstantiationException
+  {
     if (numInputs < 1 || numInputs > 65535) {
-      throw new InstantiationException("Cannot instantiate with "+numInputs+
+      throw new InstantiationException("Cannot instantiate with " + numInputs +
           "; must be 1 < numInputs < 65535");
     } else if (numOutputs < 1 || numOutputs > 65535) {
-      throw new InstantiationException("Cannot instantiate with "+numOutputs+
+      throw new InstantiationException("Cannot instantiate with " + numOutputs +
           "; must be 1 < numOutputs < 65535");
     } else {
       inputs = new ArrayList<DefaultInputPort<I>>(numInputs);
@@ -72,7 +75,8 @@ public abstract class AllWayMultiInputListOutput<I, O> extends BaseOperator {
       for (int i = 0; i < numInputs; ++i) {
         inputs.add(new DefaultInputPort<I>() {
           @Override
-          public void process(I inputTuple) {
+          public void process(I inputTuple)
+          {
             List<O> results = AllWayMultiInputListOutput.this.process(inputTuple);
 
             for (int i = 0; i < outputs.size(); ++i) {

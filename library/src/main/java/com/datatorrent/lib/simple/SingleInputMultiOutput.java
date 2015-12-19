@@ -1,13 +1,13 @@
 package com.datatorrent.lib.simple;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.Name;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.BaseOperator;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A base implementation of an operator that abstracts away the input and output ports.
@@ -34,26 +34,29 @@ import java.util.List;
  */
 @Stateless
 @Name("single-input-multi-output")
-public abstract class SingleInputMultiOutput<I, O> extends BaseOperator {
+public abstract class SingleInputMultiOutput<I, O> extends BaseOperator
+{
   protected static final int DEFAULT_NUM_OUTPUTS = 2;
 
   protected transient List<DefaultOutputPort<O>> outputs = null;
 
-  protected transient final DefaultInputPort<I> input = new DefaultInputPort<I>() {
+  protected final transient DefaultInputPort<I> input = new DefaultInputPort<I>() {
     @Override
-    public void process(I inputTuple) {
+    public void process(I inputTuple)
+    {
       O result;
-      if((result = SingleInputMultiOutput.this.process(inputTuple)) != null) {
-        for(int i = 0; i < outputs.size(); ++i) {
+      if ((result = SingleInputMultiOutput.this.process(inputTuple)) != null) {
+        for (int i = 0; i < outputs.size(); ++i) {
           outputs.get(i).emit(result);
         }
       }
     }
   };
 
-  public SingleInputMultiOutput(int numOutputs) throws InstantiationException {
+  public SingleInputMultiOutput(int numOutputs) throws InstantiationException
+  {
     if (numOutputs < 1 || numOutputs > 65535) {
-      throw new InstantiationException("Cannot instantiate with "+numOutputs+
+      throw new InstantiationException("Cannot instantiate with " + numOutputs +
           "; must be 1 < numOutputs < 65535");
     } else {
       this.outputs = new ArrayList<DefaultOutputPort<O>>(numOutputs);
@@ -64,7 +67,8 @@ public abstract class SingleInputMultiOutput<I, O> extends BaseOperator {
     }
   }
 
-  public SingleInputMultiOutput() throws InstantiationException {
+  public SingleInputMultiOutput() throws InstantiationException
+  {
     this(DEFAULT_NUM_OUTPUTS);
   }
 

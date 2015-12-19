@@ -31,11 +31,13 @@ import com.datatorrent.common.util.BaseOperator;
  */
 @Stateless
 @Name("single-input-output")
-public abstract class SingleInputOutput<I, O> extends BaseOperator {
-  protected transient final DefaultOutputPort<O> output = new DefaultOutputPort<O>();
-  protected transient final DefaultInputPort<I> input = new DefaultInputPort<I>() {
+public abstract class SingleInputOutput<I, O> extends BaseOperator
+{
+  protected final transient DefaultOutputPort<O> output = new DefaultOutputPort<O>();
+  protected final transient DefaultInputPort<I> input = new DefaultInputPort<I>() {
     @Override
-    public void process(I inputTuple) {
+    public void process(I inputTuple)
+    {
       output.emit(SingleInputOutput.this.process(inputTuple));
     }
   };

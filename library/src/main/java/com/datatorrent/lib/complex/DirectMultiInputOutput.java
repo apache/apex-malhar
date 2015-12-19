@@ -1,13 +1,13 @@
 package com.datatorrent.lib.complex;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.Name;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.BaseOperator;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A base implementation of an operator that abstracts away the input and output ports.
@@ -36,19 +36,22 @@ import java.util.List;
  */
 @Stateless
 @Name("direct-multi-input-output")
-public abstract class DirectMultiInputOutput<I, O> extends BaseOperator {
+public abstract class DirectMultiInputOutput<I, O> extends BaseOperator
+{
   protected static final int DEFAULT_NUM_INPUTS_OUTPUTS = 2;
 
   protected transient List<DefaultInputPort<I>> inputs = null;
   protected transient List<DefaultOutputPort<O>> outputs = null;
 
-  public DirectMultiInputOutput() throws InstantiationException {
+  public DirectMultiInputOutput() throws InstantiationException
+  {
     this(DEFAULT_NUM_INPUTS_OUTPUTS);
   }
 
-  public DirectMultiInputOutput(int numInputsOutputs) throws InstantiationException {
+  public DirectMultiInputOutput(int numInputsOutputs) throws InstantiationException
+  {
     if (numInputsOutputs < 1 || numInputsOutputs > 65535) {
-      throw new InstantiationException("Cannot instantiate with "+numInputsOutputs+
+      throw new InstantiationException("Cannot instantiate with " + numInputsOutputs +
           "; must be 1 < numInputsOutputs < 65535");
     } else {
       inputs = new ArrayList<DefaultInputPort<I>>(numInputsOutputs);
@@ -60,7 +63,8 @@ public abstract class DirectMultiInputOutput<I, O> extends BaseOperator {
 
         inputs.add(new DefaultInputPort<I>() {
           @Override
-          public void process(I inputTuple) {
+          public void process(I inputTuple)
+          {
             O result;
             if ((result = DirectMultiInputOutput.this.process(inputTuple)) != null) {
               output.emit(result);
