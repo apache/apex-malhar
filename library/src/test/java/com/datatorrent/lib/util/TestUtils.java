@@ -30,6 +30,8 @@ import com.esotericsoftware.kryo.io.Output;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Operator.OutputPort;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TestUtils
 {
@@ -78,6 +80,20 @@ public class TestUtils
      return sink;
   }
 
+  /**
+   * Calls {@link Thread#sleep} with the specified number of milliseconds. If the
+   * sleep is interrupted a {@link RuntimeException} is thrown.
+   * @param sleepMillis The number of milliseconds to sleep for.
+   */
+  public static void sleep(long sleepMillis)
+  {
+    try {
+      Thread.sleep(sleepMillis);
+    } catch (InterruptedException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+  
   /**
    * A mock batched operator stats used for testing stats listener and partitioner.
    */
