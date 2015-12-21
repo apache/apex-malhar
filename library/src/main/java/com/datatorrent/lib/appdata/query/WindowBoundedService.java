@@ -24,22 +24,22 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.base.Preconditions;
-
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
 
 import com.datatorrent.api.Component;
 import com.datatorrent.api.Context.OperatorContext;
-
 import com.datatorrent.common.util.NameableThreadFactory;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * This class asynchronously executes a function so that the function is only called between calls
- * to {@link Operator#beginWindow} and {@link Operator#endWindow}.<br/><br/>
- * This service works by asynchronously calling its {@link #execute} method only after
+ * to {@link com.datatorrent.api.Operator#beginWindow(long)} and {@link com.datatorrent.api.Operator#endWindow}
+ * .<br/><br/>
+ * This service works by asynchronously calling its {@link Runnable} method only after
  * {@link #beginWindow} and called and before {@link #endWindow} ends. Calls to {@link #beginWindow}
- * and {@link endWindow} will happen in the enclosing {@link Operator}'s main thread.
+ * and {@link #endWindow} will happen in the enclosing {@link com.datatorrent.api.Operator}'s main thread.
  * <br/><br/>
  * <b>Note:</b> This service cannot be used in operators which allow checkpointing within an
  * application window.
@@ -70,10 +70,10 @@ public class WindowBoundedService implements Component<OperatorContext>
   }
 
   public WindowBoundedService(long executeIntervalMillis,
-                              Runnable runnable)
+      Runnable runnable)
   {
     Preconditions.checkArgument(executeIntervalMillis > 0,
-                                "The executeIntervalMillis must be positive");
+        "The executeIntervalMillis must be positive");
     this.executeIntervalMillis = executeIntervalMillis;
     this.runnable = Preconditions.checkNotNull(runnable);
   }
@@ -81,7 +81,7 @@ public class WindowBoundedService implements Component<OperatorContext>
   @Override
   public void setup(OperatorContext context)
   {
-    executorThread = Executors.newSingleThreadExecutor(new NameableThreadFactory("Query Executor Thread"));
+    executorThread = Executors.newSingleThreadExecutor(new NameableThreadFactory("Window Bounded Thread"));
     executorThread.submit(new AsynchExecutorThread());
   }
 
