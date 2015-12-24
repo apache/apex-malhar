@@ -18,10 +18,8 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
-import java.io.IOException;
+import com.datatorrent.lib.db.AbstractStoreInputOperator;
 
 /**
  * A base implementation of hbase input operator which derives from HBaseOperatorBase. <br>
@@ -33,39 +31,6 @@ import java.io.IOException;
  * @param <T> The tuple type
  * @since 0.3.2
  */
-public abstract class HBaseInputOperator<T> extends HBaseOperatorBase implements InputOperator
+public abstract class HBaseInputOperator<T> extends AbstractStoreInputOperator<T, HBaseStore> implements InputOperator
 {
-  /**
-   * Output port that emits tuples into the DAG.
-   */
-  public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
-
-  //protected abstract T getTuple(Result result);
-  //protected abstract T getTuple(KeyValue kv);
-
-  @Override
-  public void beginWindow(long windowId)
-  {
-  }
-
-  @Override
-  public void endWindow()
-  {
-  }
-
-  @Override
-  public void setup(OperatorContext context)
-  {
-    try{
-      setupConfiguration();
-    } catch (IOException ie) {
-      throw new RuntimeException(ie);
-    }
-  }
-
-  @Override
-  public void teardown()
-  {
-  }
-
 }

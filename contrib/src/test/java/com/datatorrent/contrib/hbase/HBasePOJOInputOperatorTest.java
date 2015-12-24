@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Attribute.AttributeMap;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
@@ -59,17 +60,32 @@ public class HBasePOJOInputOperatorTest
       this.setTupleType( TestPOJO.class );
     }
   }
-  
+
+  public static class TestHBasePOJOInputOperator extends HBasePOJOInputOperator
+  {
+    @Override
+    public void setup(OperatorContext context)
+    {
+      try {
+        // Added to let the output operator insert data into hbase table before input operator can read it
+        Thread.sleep(1000);
+      } catch(InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+      super.setup(context);
+    }
+  }
+
   private static final Logger logger = LoggerFactory.getLogger( HBasePOJOInputOperatorTest.class );
   private final int TUPLE_NUM = 1000;
   private HBaseStore store;
   private HBasePOJOPutOperator hbaseOutputOperator;
-  private HBasePOJOInputOperator hbaseInputOperator;
+  private TestHBasePOJOInputOperator hbaseInputOperator;
   
   @Before
   public void prepare() throws Exception
   {
-    hbaseInputOperator = new HBasePOJOInputOperator();
+    hbaseInputOperator = new TestHBasePOJOInputOperator();
     hbaseOutputOperator = new HBasePOJOPutOperator();
     setupOperators();
     HBaseUtil.createTable( store.getConfiguration(), store.getTableName());
@@ -128,7 +144,7 @@ public class HBasePOJOInputOperatorTest
         Thread.sleep(1000);
       }
       catch( Exception e ){}
-      
+      logger.info("Tuple row key: ", output.getReceivedTuples());
       logger.info( "Received tuple number {}, instance is {}.", output.getReceivedTuples() == null ? 0 : output.getReceivedTuples().size(), System.identityHashCode( output ) );
       if( output.getReceivedTuples() != null && output.getReceivedTuples().size() == TUPLE_NUM )
         break;

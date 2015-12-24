@@ -47,7 +47,7 @@ public abstract class HBaseGetOperator<T> extends HBaseInputOperator<T>
   {
     try {
       Get get = operationGet();
-      Result result = table.get(get);
+      Result result = getStore().getTable().get(get);
       KeyValue[] kvs = result.raw();
       //T t = getTuple(kvs);
       //T t = getTuple(result);
