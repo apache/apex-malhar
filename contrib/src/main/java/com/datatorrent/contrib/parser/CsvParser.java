@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.schema.parser;
+package com.datatorrent.contrib.parser;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,11 +35,11 @@ import org.supercsv.cellprocessor.ParseLong;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvBeanReader;
 import org.supercsv.prefs.CsvPreference;
-
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.lib.parser.Parser;
 import com.datatorrent.lib.util.ReusableStringReader;
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -62,7 +62,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @since 3.2.0
  */
 @InterfaceStability.Evolving
-public class CsvParser extends Parser<String>
+public class CsvParser extends Parser<String, String>
 {
 
   private ArrayList<Field> fields;
@@ -148,19 +148,6 @@ public class CsvParser extends Parser<String>
       }
     }
   }
-
-  @Override
-  public void activate(Context context)
-  {
-
-  }
-
-  @Override
-  public void deactivate()
-  {
-
-  }
-
   @Override
   public Object convert(String tuple)
   {
@@ -183,6 +170,12 @@ public class CsvParser extends Parser<String>
     } catch (IOException e) {
       DTThrowable.rethrow(e);
     }
+  }
+
+  @Override
+  public String processErorrTuple(String input)
+  {
+    return input;
   }
 
   public static class Field

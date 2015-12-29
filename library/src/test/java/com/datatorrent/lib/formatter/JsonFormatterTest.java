@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.schema.formatter;
+package com.datatorrent.lib.formatter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -77,7 +77,6 @@ public class JsonFormatterTest
       TestUtils.setSink(operator.out, validDataSink);
       TestUtils.setSink(operator.err, invalidDataSink);
       operator.setup(null);
-      operator.activate(null);
 
       operator.beginWindow(0);
     }
@@ -120,7 +119,6 @@ public class JsonFormatterTest
     pojo.date = new DateTime().withYear(2015).withMonthOfYear(9).withDayOfMonth(15).toDate();
     operator.setDateFormat("dd-MM-yyyy");
     operator.setup(null);
-    operator.activate(null);
     operator.in.put(pojo);
     Assert.assertEquals(1, validDataSink.collectedTuples.size());
     Assert.assertEquals(0, invalidDataSink.collectedTuples.size());

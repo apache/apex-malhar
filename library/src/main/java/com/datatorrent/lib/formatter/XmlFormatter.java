@@ -16,23 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.schema.formatter;
+package com.datatorrent.lib.formatter;
 
-import java.io.Writer;
+import java.io.StringWriter;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.hadoop.classification.InterfaceStability;
 
-import com.datatorrent.api.Context;
-
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.XStreamException;
-import com.thoughtworks.xstream.converters.basic.DateConverter;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import com.thoughtworks.xstream.io.xml.CompactWriter;
-import com.thoughtworks.xstream.io.xml.XppDriver;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * @displayName XmlParser
@@ -43,12 +42,11 @@ import com.thoughtworks.xstream.io.xml.XppDriver;
 @InterfaceStability.Evolving
 public class XmlFormatter extends Formatter<String>
 {
-
-  private transient XStream xstream;
-
   protected String alias;
   protected String dateFormat;
   protected boolean prettyPrint;
+
+  private transient Marshaller marshaller;
 
   public XmlFormatter()
   {
@@ -57,45 +55,32 @@ public class XmlFormatter extends Formatter<String>
   }
 
   @Override
-  public void activate(Context context)
+  public void setup(OperatorContext context)
   {
-    if (prettyPrint) {
-      xstream = new XStream();
-    } else {
-      xstream = new XStream(new XppDriver()
-      {
-        @Override
-        public HierarchicalStreamWriter createWriter(Writer out)
-        {
-          return new CompactWriter(out, getNameCoder());
-        }
-      });
+    JAXBContext ctx;
+    try {
+      ctx = JAXBContext.newInstance(getClazz());
+      marshaller = ctx.createMarshaller();
+      marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, prettyPrint);
+    } catch (JAXBException e) {
+      DTThrowable.wrapIfChecked(e);
     }
-    if (alias != null) {
-      try {
-        xstream.alias(alias, clazz);
-      } catch (Throwable e) {
-        throw new RuntimeException("Unable find provided class");
-      }
-    }
-    if (dateFormat != null) {
-      xstream.registerConverter(new DateConverter(dateFormat, new String[] {}));
-    }
-  }
-
-  @Override
-  public void deactivate()
-  {
-
   }
 
   @Override
   public String convert(Object tuple)
   {
     try {
-      return xstream.toXML(tuple);
-    } catch (XStreamException e) {
-      logger.debug("Error while converting tuple {} {} ",tuple,e.getMessage());
+      StringWriter writer = new StringWriter();
+      if (getAlias() != null) {
+        marshaller.marshal(new JAXBElement(new QName(getAlias()), tuple.getClass(), tuple), writer);
+      } else {
+        marshaller.marshal(new JAXBElement(new QName(getClazz().getSimpleName()), tuple.getClass(), tuple), writer);
+      }
+      return writer.toString();
+    } catch (Exception e) {
+      logger.debug("Error while converting tuple {} {} ", tuple, e.getMessage());
       return null;
     }
   }

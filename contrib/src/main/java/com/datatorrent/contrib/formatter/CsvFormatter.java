@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.schema.formatter;
+package com.datatorrent.contrib.formatter;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -33,10 +33,10 @@ import org.supercsv.exception.SuperCsvException;
 import org.supercsv.io.CsvBeanWriter;
 import org.supercsv.io.ICsvBeanWriter;
 import org.supercsv.prefs.CsvPreference;
-
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.api.Context;
+import com.datatorrent.lib.formatter.Formatter;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
@@ -125,18 +125,6 @@ public class CsvFormatter extends Formatter<String>
         processors[i] = new Optional();
       }
     }
-
-  }
-
-  @Override
-  public void activate(Context context)
-  {
-
-  }
-
-  @Override
-  public void deactivate()
-  {
 
   }
 

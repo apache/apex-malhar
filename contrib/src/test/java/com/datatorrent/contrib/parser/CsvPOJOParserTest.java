@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.schema.parser;
+package com.datatorrent.contrib.parser;
 
 import java.util.Date;
 
@@ -27,11 +27,10 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-import com.datatorrent.contrib.schema.parser.CsvParser;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 
-public class CsvParserTest
+public class CsvPOJOParserTest
 {
 
   CsvParser operator;

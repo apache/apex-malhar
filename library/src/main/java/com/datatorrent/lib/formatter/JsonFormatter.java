@@ -16,70 +16,63 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.schema.parser;
+package com.datatorrent.lib.formatter;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectReader;
+import org.codehaus.jackson.map.ObjectWriter;
+import org.codehaus.jackson.map.SerializationConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.classification.InterfaceStability;
 
-import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
- * Operator that converts JSON string to Pojo <br>
+ * Operator that converts POJO to JSON string <br>
  * <b>Properties</b> <br>
  * <b>dateFormat</b>: date format e.g dd/MM/yyyy
  * 
- * @displayName JsonParser
- * @category Parsers
- * @tags json pojo parser
+ * @displayName JsonFormatter
+ * @category Formatter
+ * @tags pojo json formatter
  * @since 3.2.0
  */
 @InterfaceStability.Evolving
-public class JsonParser extends Parser<String>
+public class JsonFormatter extends Formatter<String>
 {
-
-  private transient ObjectReader reader;
+  private transient ObjectWriter writer;
   protected String dateFormat;
 
   @Override
-  public void activate(Context context)
+  public void setup(OperatorContext context)
   {
     try {
       ObjectMapper mapper = new ObjectMapper();
-      mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
       if (dateFormat != null) {
         mapper.setDateFormat(new SimpleDateFormat(dateFormat));
       }
-      reader = mapper.reader(clazz);
+      writer = mapper.writerWithType(clazz);
+      mapper.configure(SerializationConfig.Feature.AUTO_DETECT_FIELDS, true);
+      mapper.configure(SerializationConfig.Feature.AUTO_DETECT_GETTERS, true);
+      mapper.configure(SerializationConfig.Feature.AUTO_DETECT_IS_GETTERS, true);
     } catch (Throwable e) {
       throw new RuntimeException("Unable find provided class");
     }
   }
 
   @Override
-  public void deactivate()
-  {
-  }
-
-  @Override
-  public Object convert(String tuple)
+  public String convert(Object tuple)
   {
     try {
-      if (!StringUtils.isEmpty(tuple)) {
-        return reader.readValue(tuple);
-      }
-    } catch (JsonProcessingException e) {
-      logger.debug("Error while converting tuple {} {}", tuple, e.getMessage());
+      return writer.writeValueAsString(tuple);
+    } catch (JsonGenerationException | JsonMappingException e) {
+      logger.debug("Error while converting tuple {} {}",tuple,e.getMessage());
     } catch (IOException e) {
       DTThrowable.rethrow(e);
     }
@@ -106,5 +99,5 @@ public class JsonParser extends Parser<String>
     this.dateFormat = dateFormat;
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(JsonParser.class);
+  private static final Logger logger = LoggerFactory.getLogger(JsonFormatter.class);
 }

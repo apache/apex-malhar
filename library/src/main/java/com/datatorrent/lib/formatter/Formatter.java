@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.schema.formatter;
+package com.datatorrent.lib.formatter;
 
 import org.apache.hadoop.classification.InterfaceStability;
 
@@ -24,11 +24,10 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Operator.ActivationListener;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.contrib.converter.Converter;
+import com.datatorrent.lib.converter.Converter;
 
 /**
  * Abstract class that implements Converter interface. This is a schema enabled
@@ -47,8 +46,7 @@ import com.datatorrent.contrib.converter.Converter;
  * @since 3.2.0
  */
 @InterfaceStability.Evolving
-public abstract class Formatter<OUTPUT> extends BaseOperator implements Converter<Object, OUTPUT>,
-    ActivationListener<Context>
+public abstract class Formatter<OUTPUT> extends BaseOperator implements Converter<Object, OUTPUT>
 {
   protected transient Class<?> clazz;
 
