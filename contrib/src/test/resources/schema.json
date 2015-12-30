@@ -1,0 +1,96 @@
+{
+    "separator": ",",
+    "quoteChar":"\"",
+    "fields": [
+        {
+            "name": "adId",
+            "type": "Integer",
+            "constraints": {
+                "required": "true"
+            }
+        },
+        {
+            "name": "campaignId",
+            "type": "Integer",
+            "constraints": {
+                "equals": "98233"
+            }
+        },
+        {
+            "name": "adName",
+            "type": "String",
+            "constraints": {
+                "required": "true",
+                "pattern": "[a-z].*[a-z]$",
+                "maxLength": "10"
+            }
+        },
+        {
+            "name": "bidPrice",
+            "type": "Double",
+            "constraints": {
+                "required": "true",
+                "minValue": "0.1",
+                "maxValue": "3.2"
+            }
+        },
+        {
+            "name": "startDate",
+            "type": "Date",
+            "constraints": {
+                "format": "yyyy-MM-dd HH:mm:ss",
+                "locale":"IN"
+            }
+        },
+        {
+            "name": "endDate",
+            "type": "Date",
+            "constraints": {
+                "format": "dd/MM/yyyy"
+            }
+        },
+        {
+            "name": "securityCode",
+            "type": "Long",
+            "constraints": {
+                "minValue": "10",
+                "maxValue": "30"
+            }
+        },
+        {
+            "name": "active",
+            "type": "Boolean",
+            "constraints": {
+                "required": "true"                
+            }
+        },
+        {
+            "name": "optimized",
+            "type": "Boolean",
+            "constraints": {                  
+                "trueValue":"OPTIMIZE",
+                "falseValue":"NO_OPTIMIZE"                
+            }
+        },
+        {
+            "name": "parentCampaign",
+            "type": "String",
+            "constraints": {
+                "required": "true",
+                "equals": "CAMP_AD"
+            }
+        },
+        {
+            "name": "weatherTargeted",
+            "type": "Character",
+            "constraints": {
+                "required": "true",
+                "equals": "Y"
+            }
+        },
+        {
+            "name": "valid",
+            "type": "String"            
+        }
+    ]
+}
