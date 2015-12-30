@@ -20,169 +20,514 @@ package com.datatorrent.contrib.parser;
 
 import java.util.Date;
 
-import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.TestUtils;
 
 public class CsvPOJOParserTest
 {
 
-  CsvParser operator;
-  CollectorTestSink<Object> validDataSink;
-  CollectorTestSink<String> invalidDataSink;
+  private static final String filename = "schema.json";
+  CollectorTestSink<Object> error = new CollectorTestSink<Object>();
+  CollectorTestSink<Object> objectPort = new CollectorTestSink<Object>();
+  CollectorTestSink<Object> pojoPort = new CollectorTestSink<Object>();
+  CsvParser parser = new CsvParser();
 
   @Rule
   public Watcher watcher = new Watcher();
 
   public class Watcher extends TestWatcher
   {
-
     @Override
     protected void starting(Description description)
     {
       super.starting(description);
-      operator = new CsvParser();
-      operator.setClazz(EmployeeBean.class);
-      operator.setFieldInfo("name:string,dept:string,eid:integer,dateOfJoining:date");
-      validDataSink = new CollectorTestSink<Object>();
-      invalidDataSink = new CollectorTestSink<String>();
-      TestUtils.setSink(operator.out, validDataSink);
-      TestUtils.setSink(operator.err, invalidDataSink);
+      parser.setClazz(Ad.class);
+      parser.setSchema(SchemaUtils.jarResourceFileToString(filename));
+      parser.setup(null);
+      parser.err.setSink(error);
+      parser.parsedOutput.setSink(objectPort);
+      parser.out.setSink(pojoPort);
     }
 
     @Override
     protected void finished(Description description)
     {
       super.finished(description);
-      operator.teardown();
+      error.clear();
+      objectPort.clear();
+      pojoPort.clear();
+      parser.teardown();
     }
+  }
 
+  /*
+  * adId,campaignId,adName,bidPrice,startDate,endDate,securityCode,isActive,isOptimized,parentCampaign,weatherTargeted,valid
+  * 1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,OPTIMIZE,CAMP_AD,Y,yes
+  * Constraints are defined in schema.json
+  */
+  @Test
+  public void TestParserValidInput()
+  {
+    String input = "1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,,CAMP_AD,Y,yes";
+    parser.beginWindow(0);
+    parser.in.process(input.getBytes());
+    parser.endWindow();
+    Assert.assertEquals(1, objectPort.collectedTuples.size());
+    Assert.assertEquals(1, pojoPort.collectedTuples.size());
+    Assert.assertEquals(0, error.collectedTuples.size());
+    Object obj = pojoPort.collectedTuples.get(0);
+    Ad adPojo = (Ad)obj;
+    Assert.assertNotNull(obj);
+    Assert.assertEquals(Ad.class, obj.getClass());
+    Assert.assertEquals(1234, adPojo.getAdId());
+    Assert.assertTrue("adxyz".equals(adPojo.getAdName()));
+    Assert.assertEquals(0.2, adPojo.getBidPrice(), 0.0);
+    Assert.assertEquals(Date.class, adPojo.getStartDate().getClass());
+    Assert.assertEquals(Date.class, adPojo.getEndDate().getClass());
+    Assert.assertEquals(12, adPojo.getSecurityCode());
+    Assert.assertTrue("CAMP_AD".equals(adPojo.getParentCampaign()));
+    Assert.assertTrue(adPojo.isActive());
+    Assert.assertFalse(adPojo.isOptimized());
+    Assert.assertTrue("yes".equals(adPojo.getValid()));
   }
 
   @Test
-  public void testCsvToPojoWriterDefault()
+  public void TestParserValidInputPojoPortNotConnected()
   {
-    operator.setup(null);
-    String tuple = "john,cs,1,01/01/2015";
-    operator.in.process(tuple);
-    Assert.assertEquals(1, validDataSink.collectedTuples.size());
-    Assert.assertEquals(0, invalidDataSink.collectedTuples.size());
-    Object obj = validDataSink.collectedTuples.get(0);
-    Assert.assertNotNull(obj);
-    Assert.assertEquals(EmployeeBean.class, obj.getClass());
-    EmployeeBean pojo = (EmployeeBean)obj;
-    Assert.assertEquals("john", pojo.getName());
-    Assert.assertEquals("cs", pojo.getDept());
-    Assert.assertEquals(1, pojo.getEid());
-    Assert.assertEquals(new DateTime().withDate(2015, 1, 1).withMillisOfDay(0).withTimeAtStartOfDay(), new DateTime(
-        pojo.getDateOfJoining()));
+    parser.out.setSink(null);
+    String input = "1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,,CAMP_AD,Y,yes";
+    parser.beginWindow(0);
+    parser.in.process(input.getBytes());
+    parser.endWindow();
+    Assert.assertEquals(1, objectPort.collectedTuples.size());
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(0, error.collectedTuples.size());
   }
 
   @Test
-  public void testCsvToPojoWriterDateFormat()
+  public void TestParserValidInputClassNameNotProvided()
   {
-    operator.setFieldInfo("name:string,dept:string,eid:integer,dateOfJoining:date|dd-MMM-yyyy");
-    operator.setup(null);
-    String tuple = "john,cs,1,01-JAN-2015";
-    operator.in.process(tuple);
-    Assert.assertEquals(1, validDataSink.collectedTuples.size());
-    Assert.assertEquals(0, invalidDataSink.collectedTuples.size());
-    Object obj = validDataSink.collectedTuples.get(0);
-    Assert.assertNotNull(obj);
-    Assert.assertEquals(EmployeeBean.class, obj.getClass());
-    EmployeeBean pojo = (EmployeeBean)obj;
-    Assert.assertEquals("john", pojo.getName());
-    Assert.assertEquals("cs", pojo.getDept());
-    Assert.assertEquals(1, pojo.getEid());
-    Assert.assertEquals(new DateTime().withDate(2015, 1, 1).withMillisOfDay(0).withTimeAtStartOfDay(), new DateTime(
-        pojo.getDateOfJoining()));
+    parser.setClazz(null);
+    String input = "1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,,CAMP_AD,Y,yes";
+    parser.beginWindow(0);
+    parser.in.process(input.getBytes());
+    parser.endWindow();
+    Assert.assertEquals(1, objectPort.collectedTuples.size());
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(0, error.collectedTuples.size());
   }
 
   @Test
-  public void testCsvToPojoWriterDateFormatMultiple()
+  public void TestParserInvalidAdIdInput()
   {
-    operator.setFieldInfo("name:string,dept:string,eid:integer,dateOfJoining:date|dd-MMM-yyyy,dateOfBirth:date");
-    operator.setup(null);
-    String tuple = "john,cs,1,01-JAN-2015,01/01/2015";
-    operator.in.process(tuple);
-    Assert.assertEquals(1, validDataSink.collectedTuples.size());
-    Assert.assertEquals(0, invalidDataSink.collectedTuples.size());
-    Object obj = validDataSink.collectedTuples.get(0);
-    Assert.assertNotNull(obj);
-    Assert.assertEquals(EmployeeBean.class, obj.getClass());
-    EmployeeBean pojo = (EmployeeBean)obj;
-    Assert.assertEquals("john", pojo.getName());
-    Assert.assertEquals("cs", pojo.getDept());
-    Assert.assertEquals(1, pojo.getEid());
-    Assert.assertEquals(new DateTime().withDate(2015, 1, 1).withMillisOfDay(0).withTimeAtStartOfDay(), new DateTime(
-        pojo.getDateOfJoining()));
-    Assert.assertEquals(new DateTime().withDate(2015, 1, 1).withMillisOfDay(0).withTimeAtStartOfDay(), new DateTime(
-        pojo.getDateOfBirth()));
+    String input = ",98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,,CAMP_AD,Y,yes";
+    parser.beginWindow(0);
+    parser.in.process(input.getBytes());
+    parser.endWindow();
+    Assert.assertEquals(0, objectPort.collectedTuples.size());
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(1, error.collectedTuples.size());
   }
 
-  public static class EmployeeBean
+  @Test
+  public void TestParserNoCampaignIdInput()
+  {
+    String input = "1234,,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,,CAMP_AD,Y,yes";
+    parser.beginWindow(0);
+    parser.in.process(input.getBytes());
+    parser.endWindow();
+    Assert.assertEquals(1, objectPort.collectedTuples.size());
+    Assert.assertEquals(1, pojoPort.collectedTuples.size());
+    Object obj = pojoPort.collectedTuples.get(0);
+    Assert.assertNotNull(obj);
+    Assert.assertEquals(Ad.class, obj.getClass());
+    Assert.assertEquals(0, error.collectedTuples.size());
+  }
+
+  @Test
+  public void TestParserInvalidCampaignIdInput()
+  {
+    String input = "1234,9833,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,,CAMP_AD,Y,yes";
+    parser.beginWindow(0);
+    parser.in.process(input.getBytes());
+    parser.endWindow();
+    Assert.assertEquals(0, objectPort.collectedTuples.size());
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(1, error.collectedTuples.size());
+  }
+
+  @Test
+  public void TestParserInvalidAdNameInput()
+  {
+    String input = "1234,98233,adxyz123,0.2,2015-03-08 03:37:12,11/12/2012,12,y,,CAMP_AD,Y,yes";
+    parser.beginWindow(0);
+    parser.in.process(input.getBytes());
+    parser.endWindow();
+    Assert.assertEquals(0, objectPort.collectedTuples.size());
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(1, error.collectedTuples.size());
+  }
+
+  @Test
+  public void TestParserInvalidBidPriceInput()
+  {
+    String input = "1234,98233,adxyz,3.3,2015-03-08 03:37:12,11/12/2012,12,y,,CAMP_AD,Y,yes";
+    parser.beginWindow(0);
+    parser.in.process(input.getBytes());
+    parser.endWindow();
+    Assert.assertEquals(0, objectPort.collectedTuples.size());
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(1, error.collectedTuples.size());
+  }
+
+  @Test
+  public void TestParserInvalidStartDateInput()
+  {
+    String input = "1234,98233,adxyz,0.2,2015-30-08 02:37:12,11/12/2012,12,y,,CAMP_AD,Y,yes";
+    parser.beginWindow(0);
+    parser.in.process(input.getBytes());
+    parser.endWindow();
+    Assert.assertEquals(0, objectPort.collectedTuples.size());
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(1, error.collectedTuples.size());
+  }
+
+  @Test
+  public void TestParserInvalidSecurityCodeInput()
+  {
+    String input = "1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,85,y,,CAMP_AD,Y,yes";
+    parser.beginWindow(0);
+    parser.in.process(input.getBytes());
+    parser.endWindow();
+    Assert.assertEquals(0, objectPort.collectedTuples.size());
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(1, error.collectedTuples.size());
+  }
+
+  @Test
+  public void TestParserInvalidisActiveInput()
+  {
+    String input = "1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,yo,,CAMP_AD,Y,yes";
+    parser.beginWindow(0);
+    parser.in.process(input.getBytes());
+    parser.endWindow();
+    Assert.assertEquals(0, objectPort.collectedTuples.size());
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(1, error.collectedTuples.size());
+  }
+
+  @Test
+  public void TestParserInvalidParentCampaignInput()
+  {
+    String input = "1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,,CAMP,Y,yes";
+    parser.beginWindow(0);
+    parser.in.process(input.getBytes());
+    parser.endWindow();
+    Assert.assertEquals(0, objectPort.collectedTuples.size());
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(1, error.collectedTuples.size());
+  }
+
+  @Test
+  public void TestParserValidisOptimized()
+  {
+    String input = "1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,OPTIMIZE,CAMP_AD,Y,yes";
+    parser.in.process(input.getBytes());
+    Assert.assertEquals(1, objectPort.collectedTuples.size());
+    Assert.assertEquals(1, pojoPort.collectedTuples.size());
+    Object obj = pojoPort.collectedTuples.get(0);
+    Assert.assertNotNull(obj);
+    Assert.assertEquals(Ad.class, obj.getClass());
+    Assert.assertEquals(0, error.collectedTuples.size());
+  }
+
+  @Test
+  public void TestParserInValidisOptimized()
+  {
+    String input = "1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,OPTIMIZATION,CAMP,Y,yes";
+    parser.beginWindow(0);
+    parser.in.process(input.getBytes());
+    parser.endWindow();
+    Assert.assertEquals(0, objectPort.collectedTuples.size());
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(1, error.collectedTuples.size());
+  }
+
+  @Test
+  public void TestParserInValidWeatherTargeting()
+  {
+    String input = "1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,OPTIMIZE,CAMP_AD,NO,yes";
+    parser.beginWindow(0);
+    parser.in.process(input.getBytes());
+    parser.endWindow();
+    Assert.assertEquals(0, objectPort.collectedTuples.size());
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(1, error.collectedTuples.size());
+  }
+
+  @Test
+  public void TestParserNullOrBlankInput()
+  {
+    parser.beginWindow(0);
+    parser.in.process(null);
+    parser.endWindow();
+    Assert.assertEquals(0, objectPort.collectedTuples.size());
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(1, error.collectedTuples.size());
+  }
+
+  @Test
+  public void TestParserHeaderAsInput()
+  {
+    String input = "adId,campaignId,adName,bidPrice,startDate,endDate,securityCode,active,optimized,parentCampaign,weatherTargeted,valid";
+    parser.beginWindow(0);
+    parser.in.process(input.getBytes());
+    parser.endWindow();
+    Assert.assertEquals(0, objectPort.collectedTuples.size());
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(1, error.collectedTuples.size());
+  }
+
+  @Test
+  public void TestParserLessFields()
+  {
+    parser.beginWindow(0);
+    parser.in.process("1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,OPTIMIZATION".getBytes());
+    parser.endWindow();
+    Assert.assertEquals(0, objectPort.collectedTuples.size());
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(1, error.collectedTuples.size());
+  }
+
+  @Test
+  public void TestParserMoreFields()
   {
 
-    private String name;
-    private String dept;
-    private int eid;
-    private Date dateOfJoining;
-    private Date dateOfBirth;
+    parser.beginWindow(0);
+    parser.in.process("1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,OPTIMIZATION,CAMP_AD,Y,yes,ExtraField"
+        .getBytes());
+    parser.endWindow();
+    Assert.assertEquals(0, objectPort.collectedTuples.size());
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(1, error.collectedTuples.size());
+  }
 
-    public String getName()
+  @Test
+  public void TestParserValidInputMetricVerification()
+  {
+    parser.beginWindow(0);
+    Assert.assertEquals(0, parser.parsedOutputCount);
+    Assert.assertEquals(0, parser.getIncomingTuplesCount());
+    Assert.assertEquals(0, parser.getErrorTupleCount());
+    Assert.assertEquals(0, parser.getEmittedObjectCount());
+    String input = "1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,,CAMP_AD,Y,yes";
+    parser.in.process(input.getBytes());
+    parser.endWindow();
+    Assert.assertEquals(1, parser.parsedOutputCount);
+    Assert.assertEquals(1, parser.getIncomingTuplesCount());
+    Assert.assertEquals(0, parser.getErrorTupleCount());
+    Assert.assertEquals(1, parser.getEmittedObjectCount());
+  }
+
+  @Test
+  public void TestParserInvalidInputMetricVerification()
+  {
+    parser.beginWindow(0);
+    Assert.assertEquals(0, parser.parsedOutputCount);
+    Assert.assertEquals(0, parser.getIncomingTuplesCount());
+    Assert.assertEquals(0, parser.getErrorTupleCount());
+    Assert.assertEquals(0, parser.getEmittedObjectCount());
+    parser.in.process("1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,OPTIMIZATION,CAMP_AD,Y,yes,ExtraField"
+        .getBytes());
+    parser.endWindow();
+    Assert.assertEquals(0, parser.parsedOutputCount);
+    Assert.assertEquals(1, parser.getIncomingTuplesCount());
+    Assert.assertEquals(1, parser.getErrorTupleCount());
+    Assert.assertEquals(0, parser.getEmittedObjectCount());
+  }
+
+  @Test
+  public void TestParserValidInputMetricResetCheck()
+  {
+    parser.beginWindow(0);
+    Assert.assertEquals(0, parser.parsedOutputCount);
+    Assert.assertEquals(0, parser.getIncomingTuplesCount());
+    Assert.assertEquals(0, parser.getErrorTupleCount());
+    Assert.assertEquals(0, parser.getEmittedObjectCount());
+    String input = "1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,,CAMP_AD,Y,yes";
+    parser.in.process(input.getBytes());
+    parser.endWindow();
+    Assert.assertEquals(1, parser.parsedOutputCount);
+    Assert.assertEquals(1, parser.getIncomingTuplesCount());
+    Assert.assertEquals(0, parser.getErrorTupleCount());
+    Assert.assertEquals(1, parser.getEmittedObjectCount());
+    parser.beginWindow(1);
+    Assert.assertEquals(0, parser.parsedOutputCount);
+    Assert.assertEquals(0, parser.getIncomingTuplesCount());
+    Assert.assertEquals(0, parser.getErrorTupleCount());
+    Assert.assertEquals(0, parser.getEmittedObjectCount());
+    parser.in.process(input.getBytes());
+    Assert.assertEquals(1, parser.parsedOutputCount);
+    Assert.assertEquals(1, parser.getIncomingTuplesCount());
+    Assert.assertEquals(0, parser.getErrorTupleCount());
+    Assert.assertEquals(1, parser.getEmittedObjectCount());
+    parser.endWindow();
+  }
+
+  public static class Ad
+  {
+
+    private int adId;
+    private int campaignId;
+    private String adName;
+    private double bidPrice;
+    private Date startDate;
+    private Date endDate;
+    private long securityCode;
+    private boolean active;
+    private boolean optimized;
+    private String parentCampaign;
+    private Character weatherTargeted;
+    private String valid;
+
+    public Ad()
     {
-      return name;
+
     }
 
-    public void setName(String name)
+    public int getAdId()
     {
-      this.name = name;
+      return adId;
     }
 
-    public String getDept()
+    public void setAdId(int adId)
     {
-      return dept;
+      this.adId = adId;
     }
 
-    public void setDept(String dept)
+    public int getCampaignId()
     {
-      this.dept = dept;
+      return campaignId;
     }
 
-    public int getEid()
+    public void setCampaignId(int campaignId)
     {
-      return eid;
+      this.campaignId = campaignId;
     }
 
-    public void setEid(int eid)
+    public String getAdName()
     {
-      this.eid = eid;
+      return adName;
     }
 
-    public Date getDateOfJoining()
+    public void setAdName(String adName)
     {
-      return dateOfJoining;
+      this.adName = adName;
     }
 
-    public void setDateOfJoining(Date dateOfJoining)
+    public double getBidPrice()
     {
-      this.dateOfJoining = dateOfJoining;
+      return bidPrice;
     }
 
-    public Date getDateOfBirth()
+    public void setBidPrice(double bidPrice)
     {
-      return dateOfBirth;
+      this.bidPrice = bidPrice;
     }
 
-    public void setDateOfBirth(Date dateOfBirth)
+    public Date getStartDate()
     {
-      this.dateOfBirth = dateOfBirth;
+      return startDate;
+    }
+
+    public void setStartDate(Date startDate)
+    {
+      this.startDate = startDate;
+    }
+
+    public Date getEndDate()
+    {
+      return endDate;
+    }
+
+    public void setEndDate(Date endDate)
+    {
+      this.endDate = endDate;
+    }
+
+    public long getSecurityCode()
+    {
+      return securityCode;
+    }
+
+    public void setSecurityCode(long securityCode)
+    {
+      this.securityCode = securityCode;
+    }
+
+    public boolean isActive()
+    {
+      return active;
+    }
+
+    public void setActive(boolean active)
+    {
+      this.active = active;
+    }
+
+    public boolean isOptimized()
+    {
+      return optimized;
+    }
+
+    public void setOptimized(boolean optimized)
+    {
+      this.optimized = optimized;
+    }
+
+    public String getParentCampaign()
+    {
+      return parentCampaign;
+    }
+
+    public void setParentCampaign(String parentCampaign)
+    {
+      this.parentCampaign = parentCampaign;
+    }
+
+    public Character getWeatherTargeted()
+    {
+      return weatherTargeted;
+    }
+
+    public void setWeatherTargeted(Character weatherTargeted)
+    {
+      this.weatherTargeted = weatherTargeted;
+    }
+
+    public String getValid()
+    {
+      return valid;
+    }
+
+    public void setValid(String valid)
+    {
+      this.valid = valid;
+    }
+
+    @Override
+    public String toString()
+    {
+      return "Ad [adId=" + adId + ", campaignId=" + campaignId + ", adName=" + adName + ", bidPrice=" + bidPrice
+          + ", startDate=" + startDate + ", endDate=" + endDate + ", securityCode=" + securityCode + ", active="
+          + active + ", optimized=" + optimized + ", parentCampaign=" + parentCampaign + ", weatherTargeted="
+          + weatherTargeted + ", valid=" + valid + "]";
     }
   }
 
