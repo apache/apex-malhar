@@ -978,6 +978,11 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     this.offsetManager = offsetManager;
   }
 
+  public OffsetManager getOffsetManager()
+  {
+    return offsetManager;
+  }
+
   public void setRepartitionCheckInterval(long repartitionCheckInterval)
   {
     this.repartitionCheckInterval = repartitionCheckInterval;
