@@ -82,7 +82,7 @@ public abstract class Parser<INPUT, ERROROUT> extends BaseOperator implements Co
     Object tuple = convert(inputTuple);
     if (tuple == null && err.isConnected()) {
       errorTupleCount++;
-      err.emit(processErorrTuple(inputTuple));
+      err.emit(processErrorTuple(inputTuple));
       return;
     }
     if (out.isConnected()) {
@@ -91,7 +91,7 @@ public abstract class Parser<INPUT, ERROROUT> extends BaseOperator implements Co
     }
   }
 
-  public abstract ERROROUT processErorrTuple(INPUT input);
+  public abstract ERROROUT processErrorTuple(INPUT input);
 
   @Override
   public void beginWindow(long windowId)

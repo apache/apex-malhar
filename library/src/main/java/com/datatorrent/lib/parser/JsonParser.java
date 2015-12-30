@@ -81,7 +81,7 @@ public class JsonParser extends Parser<String, String>
   }
 
   @Override
-  public String processErorrTuple(String input)
+  public String processErrorTuple(String input)
   {
     return input;
   }
