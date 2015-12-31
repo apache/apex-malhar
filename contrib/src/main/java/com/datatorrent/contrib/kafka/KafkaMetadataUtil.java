@@ -111,7 +111,7 @@ public class KafkaMetadataUtil
     ZkClient zkclient = new ZkClient(StringUtils.join(zkHost, ',') ,30000, 30000, ZKStringSerializer$.MODULE$);
     Set<String> brokerHosts = new HashSet<String>();
     for (Broker b : JavaConversions.asJavaIterable(ZkUtils.getAllBrokersInCluster(zkclient))) {
-      brokerHosts.add(b.getConnectionString());
+      brokerHosts.add(b.connectionString());
     }
     zkclient.close();
     return brokerHosts;
