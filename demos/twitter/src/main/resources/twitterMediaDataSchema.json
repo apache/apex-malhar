@@ -1,0 +1,4 @@
+{
+  "values": [{"name": "media", "type": "string"},
+             {"name": "count", "type": "integer"}]
+}

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+<property>
+    <name>dt.attr.MASTER_MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+	<property>
+		<name>dt.application.RollingTopUsersDemo.class</name>
+		<value>com.datatorrent.demos.twitter.TwitterTopUsersApplication</value>
+		<description>An alias for the application</description>
+	</property>
+	<property>
+		<name>dt.application.RollingTopUsersDemo.operator.TopCounter.topCount
+		</name>
+		<value>10</value>
+	</property>
+	<property>
+		<name>dt.application.RollingTopUsersDemo.stream.TweetStream.locality
+		</name>
+		<value>CONTAINER_LOCAL</value>
+	</property>
+	<property>
+		<name>dt.application.RollingTopUsersDemo.stream.TwittedWords.locality
+		</name>
+		<value></value>
+	</property>
+	<property>
+		<name>dt.application.RollingTopUsersDemo.stream.UniqueWordCounts.locality
+		</name>
+		<value></value>
+	</property>
+	<property>
+		<name>dt.application.RollingTopUsersDemo.stream.TopWords.locality</name>
+		<value></value>
+	</property>
+
+</configuration>

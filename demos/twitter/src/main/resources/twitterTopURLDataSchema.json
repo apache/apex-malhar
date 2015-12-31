@@ -1,0 +1,4 @@
+{
+  "values": [{"name": "url", "type": "string"},
+             {"name": "count", "type": "integer"}]
+}
