@@ -232,10 +232,6 @@ public class JdbcOperatorTest
         con = DriverManager.getConnection(URL);
         Statement stmt = con.createStatement();
 
-        String countQuery1 = "SELECT * from " + TABLE_POJO_NAME;
-        ResultSet resultSet1 = stmt.executeQuery(countQuery1);
-        resultSet1.next();
-
         String countQuery = "SELECT count(distinct(name)) from " + TABLE_POJO_NAME;
         ResultSet resultSet = stmt.executeQuery(countQuery);
         resultSet.next();
