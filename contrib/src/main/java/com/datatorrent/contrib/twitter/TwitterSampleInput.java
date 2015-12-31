@@ -68,14 +68,14 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
    * This is the output port on which the twitter hashtags are emitted.
    */
   public final transient DefaultOutputPort<String> hashtag = new DefaultOutputPort<String>();
-  /**
+   /**
    * This is the output port on which the twitter users are emitted.
    */
   public final transient DefaultOutputPort<String> userMention = new DefaultOutputPort<String>();
-  /**
-   * This is the output port on which the twitter mediaTypes are emitted.
+    /**
+   * This is the output port on which the twitter media are emitted.
    */
-  public final transient DefaultOutputPort<String> mediaType = new DefaultOutputPort<String>();
+  public final transient DefaultOutputPort<String> media = new DefaultOutputPort<String>();
   /**
    * Enable debugging.
    */
@@ -289,11 +289,11 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
         }
       }
 
-      if (mediaType.isConnected()) {
+      if (media.isConnected()) {
        MediaEntity[] mediaEntities = s.getMediaEntities();
        if (mediaEntities != null) {
-         for (MediaEntity media : mediaEntities) {
-           mediaType.emit(media.getType());
+         for (MediaEntity mediaType : mediaEntities) {
+           media.emit(mediaType.getType());
          }
        }
       }

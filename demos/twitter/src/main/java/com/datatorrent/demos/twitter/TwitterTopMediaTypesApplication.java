@@ -59,7 +59,7 @@ public class TwitterTopMediaTypesApplication implements StreamingApplication
     topCounts.setSlidingWindowWidth(120);
     topCounts.setDagWindowWidth(1);
     
-    dag.addStream("Tweetstream", twitterFeed.mediaType, uniqueCounter.data);
+    dag.addStream("Tweetstream", twitterFeed.media, uniqueCounter.data);
     dag.addStream("UniqueWordCounts", uniqueCounter.count, topCounts.input);
 
     TwitterTopCounterApplication.consoleOutput(dag, "topWords",
