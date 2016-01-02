@@ -69,18 +69,18 @@ public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOpe
     implements Operator.ActivationListener<OperatorContext>
 {
   @NotNull
-  private List<FieldInfo> fieldInfos;
+  protected List<FieldInfo> fieldInfos;
 
-  private List<Integer> columnDataTypes;
+  protected List<Integer> columnDataTypes;
 
   @NotNull
   private String tablename;
 
-  private final transient List<JdbcPOJOInputOperator.ActiveFieldInfo> columnFieldGetters;
+  protected final transient List<JdbcPOJOInputOperator.ActiveFieldInfo> columnFieldGetters;
 
   private String insertStatement;
 
-  private transient Class<?> pojoClass;
+  protected transient Class<?> pojoClass;
 
   @InputPortFieldAnnotation(optional = true, schemaRequired = true)
   public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()

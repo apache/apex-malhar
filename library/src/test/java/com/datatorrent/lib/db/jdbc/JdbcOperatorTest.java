@@ -140,6 +140,9 @@ public class JdbcOperatorTest
       String cleanTable = "delete from " + TABLE_NAME;
       stmt.executeUpdate(cleanTable);
 
+      cleanTable = "delete from " + TABLE_POJO_NAME;
+      stmt.executeUpdate(cleanTable);
+
       cleanTable = "delete from " + JdbcTransactionalStore.DEFAULT_META_TABLE;
       stmt.executeUpdate(cleanTable);
     } catch (SQLException e) {
@@ -217,6 +220,47 @@ public class JdbcOperatorTest
         Statement stmt = con.createStatement();
 
         String countQuery = "SELECT count(*) from " + TABLE_POJO_NAME;
+        ResultSet resultSet = stmt.executeQuery(countQuery);
+        resultSet.next();
+        return resultSet.getInt(1);
+      } catch (SQLException e) {
+        throw new RuntimeException("fetching count", e);
+      }
+    }
+
+  }
+
+  private static class TestPOJOUpdateOperator extends JdbcPOJOGenericUpdateOperator
+  {
+    TestPOJOUpdateOperator()
+    {
+      cleanTable();
+    }
+
+    public int getNumOfEventsInStore()
+    {
+      Connection con;
+      try {
+        con = DriverManager.getConnection(URL);
+        Statement stmt = con.createStatement();
+
+        String countQuery = "SELECT count(*) from " + TABLE_POJO_NAME;
+        ResultSet resultSet = stmt.executeQuery(countQuery);
+        resultSet.next();
+        return resultSet.getInt(1);
+      } catch (SQLException e) {
+        throw new RuntimeException("fetching count", e);
+      }
+    }
+
+    public int getDistinctNonUnique()
+    {
+      Connection con;
+      try {
+        con = DriverManager.getConnection(URL);
+        Statement stmt = con.createStatement();
+
+        String countQuery = "SELECT count(distinct(name)) from " + TABLE_POJO_NAME;
         ResultSet resultSet = stmt.executeQuery(countQuery);
         resultSet.next();
         return resultSet.getInt(1);
@@ -333,6 +377,60 @@ public class JdbcOperatorTest
     outputOperator.endWindow();
 
     Assert.assertEquals("rows in db", 10, outputOperator.getNumOfEventsInStore());
+  }
+
+  @Test
+  public void testJdbcPojoUpdateOperator()
+  {
+    JdbcTransactionalStore transactionalStore = new JdbcTransactionalStore();
+    transactionalStore.setDatabaseDriver(DB_DRIVER);
+    transactionalStore.setDatabaseUrl(URL);
+
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap =
+        new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
+    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
+        OPERATOR_ID, attributeMap);
+
+    TestPOJOUpdateOperator updateOperator = new TestPOJOUpdateOperator();
+    updateOperator.setBatchSize(3);
+    updateOperator.setTablename(TABLE_POJO_NAME);
+
+    updateOperator.setStore(transactionalStore);
+
+    updateOperator.setUpdateCommand("MERGE INTO " + TABLE_POJO_NAME + " AS T USING (VALUES (?, ?)) AS FOO(id, name) "
+        + "ON T.id = FOO.id "
+        + "WHEN MATCHED THEN UPDATE SET name = FOO.name "
+        + "WHEN NOT MATCHED THEN INSERT( id, name ) VALUES (FOO.id, FOO.name);");
+
+    updateOperator
+        .setUpdateConfigJsonString("[{\"input\": \"id\", \"dataType\": \"INTEGER\", \"columnName\": \"id\"}, "
+        + "{\"input\": \"name\", \"dataType\": \"VARCHAR\", \"columnName\": \"name\"}]");
+    updateOperator.setup(context);
+
+    Attribute.AttributeMap.DefaultAttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();
+    portAttributes.put(Context.PortContext.TUPLE_CLASS, TestPOJOEvent.class);
+    TestPortContext tpc = new TestPortContext(portAttributes);
+    updateOperator.input.setup(tpc);
+
+    updateOperator.activate(context);
+
+    List<TestPOJOEvent> events = Lists.newArrayList();
+    for (int i = 0; i < 10; i++) {
+      events.add(new TestPOJOEvent(i, "test" + i));
+    }
+    for (int i = 0; i < 5; i++) {
+      events.add(new TestPOJOEvent(i, "test" + 100));
+    }
+
+    updateOperator.beginWindow(0);
+    for (TestPOJOEvent event : events) {
+      updateOperator.input.process(event);
+    }
+    updateOperator.endWindow();
+
+    Assert.assertEquals("rows in db", 10, updateOperator.getNumOfEventsInStore());
+    Assert.assertEquals("rows in db", 6, updateOperator.getDistinctNonUnique());
   }
 
   @Test
