@@ -182,6 +182,7 @@
     <module>uniquecount</module>
     <module>r</module>
     <module>echoserver</module>
+    <module>iteration</module>
   </modules>
 
   <dependencies>

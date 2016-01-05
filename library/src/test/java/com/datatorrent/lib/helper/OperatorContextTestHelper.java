@@ -47,6 +47,8 @@ public class OperatorContextTestHelper
   public static class TestIdOperatorContext extends TestContext implements OperatorContext
   {
     int id;
+    int windowsFromCheckpoint = 0;
+
     com.datatorrent.api.Attribute.AttributeMap attributes;
 
     public TestIdOperatorContext(int id)
@@ -64,6 +66,15 @@ public class OperatorContextTestHelper
     public int getId()
     {
       return id;
+    }
+
+    @Override
+    public int getWindowsFromCheckpoint() {
+      return windowsFromCheckpoint;
+    }
+
+    public void setWindowsFromCheckpoint( int distanceFromCheckpoint ) {
+      windowsFromCheckpoint = distanceFromCheckpoint;
     }
 
     @Override
