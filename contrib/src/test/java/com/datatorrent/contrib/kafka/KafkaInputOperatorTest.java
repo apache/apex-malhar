@@ -18,6 +18,26 @@
  */
 package com.datatorrent.contrib.kafka;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
+import org.slf4j.LoggerFactory;
+
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
@@ -32,25 +52,8 @@ import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.partitioner.StatelessPartitionerTest;
 import com.datatorrent.lib.testbench.CollectorTestSink;
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-import org.slf4j.LoggerFactory;
+import com.datatorrent.stram.StramLocalCluster;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.hadoop.conf.Configuration;
 
 public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 {
@@ -230,11 +233,20 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
   }
 
   @Override
-  @After
-  public void afterTest()
+  @Before
+  public void beforeTest()
   {
     tupleCount.set(0);
-    super.afterTest();
+    File syncCheckPoint = new File("target", "ck");
+    File localFiles = new File("target" + StramLocalCluster.class.getName());
+    try {
+      FileUtils.deleteQuietly(syncCheckPoint);
+      FileUtils.deleteQuietly(localFiles);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      super.beforeTest();
+    }
   }
 
   public static class TestMeta extends TestWatcher
@@ -251,9 +263,9 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
       String methodName = description.getMethodName();
       String className = description.getClassName();
       baseDir = "target/" + className + "/" + methodName;
-      recoveryDir = baseDir + "/" + "recovery";
+      recoveryDir = "recovery";
       try {
-        FileUtils.deleteDirectory(new File(recoveryDir));
+        FileUtils.deleteDirectory(new File(baseDir, "recovery"));
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -276,9 +288,49 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     p.setSendCount(totalCount);
     new Thread(p).start();
 
+
+    KafkaSinglePortStringInputOperator operator = createAndDeployOperator();
+    latch.await(4000, TimeUnit.MILLISECONDS);
+    operator.beginWindow(1);
+    operator.emitTuples();
+    operator.endWindow();
+    operator.beginWindow(2);
+    operator.emitTuples();
+    operator.endWindow();
+
+    //failure and then re-deployment of operator
+    testMeta.sink.collectedTuples.clear();
+    operator.teardown();
+    operator.deactivate();
+
+    operator = createAndDeployOperator();
+    Assert.assertEquals("largest recovery window", 2, operator.getIdempotentStorageManager().getLargestRecoveryWindow());
+
+    operator.beginWindow(1);
+    operator.emitTuples();
+    operator.endWindow();
+    operator.beginWindow(2);
+    operator.emitTuples();
+    operator.endWindow();
+    latch.await(3000, TimeUnit.MILLISECONDS);
+    // Emiting data after all recovery windows are replayed
+    operator.beginWindow(3);
+    operator.emitTuples();
+    operator.endWindow();
+
+    Assert.assertEquals("Total messages collected ", totalCount, testMeta.sink.collectedTuples.size());
+    testMeta.sink.collectedTuples.clear();
+    operator.teardown();
+    operator.deactivate();
+  }
+
+  private KafkaSinglePortStringInputOperator createAndDeployOperator()
+  {
+
     Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
     attributeMap.put(Context.DAGContext.APPLICATION_PATH, testMeta.baseDir);
+
 
     testMeta.context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
     testMeta.operator = new KafkaSinglePortStringInputOperator();
@@ -304,37 +356,12 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     testMeta.sink = new CollectorTestSink<Object>();
     testMeta.operator.outputPort.setSink(testMeta.sink);
     operator.outputPort.setSink(testMeta.sink);
+
     operator.setup(testMeta.context);
     operator.activate(testMeta.context);
-    latch.await(4000, TimeUnit.MILLISECONDS);
-    operator.beginWindow(1);
-    operator.emitTuples();
-    operator.endWindow();
-    operator.beginWindow(2);
-    operator.emitTuples();
-    operator.endWindow();
 
-    //failure and then re-deployment of operator
-    testMeta.sink.collectedTuples.clear();
-    operator.teardown();
-    operator.setup(testMeta.context);
+    return operator;
 
-    Assert.assertEquals("largest recovery window", 2, operator.getIdempotentStorageManager().getLargestRecoveryWindow());
-
-    operator.beginWindow(1);
-    operator.emitTuples();
-    operator.endWindow();
-    operator.beginWindow(2);
-    operator.emitTuples();
-    operator.endWindow();
-    latch.await(3000, TimeUnit.MILLISECONDS);
-    // Emiting data after all recovery windows are replayed
-    operator.beginWindow(3);
-    operator.emitTuples();
-    operator.endWindow();
-
-    Assert.assertEquals("Total messages collected ", totalCount, testMeta.sink.collectedTuples.size());
-    testMeta.sink.collectedTuples.clear();
   }
 
   @Test

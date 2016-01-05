@@ -26,8 +26,8 @@ import java.util.Properties;
 import kafka.admin.TopicCommand;
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServerStartable;
-import kafka.utils.Utils;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ServerCnxnFactory;
 import org.apache.zookeeper.server.ZKDatabase;
@@ -71,7 +71,8 @@ public class KafkaOperatorTestBase
   {
 
     try {
-
+      //before start, clean the zookeeper files if it exists
+      FileUtils.deleteQuietly(new File(baseDir, zkBaseDir));
       int clientPort = TEST_ZOOKEEPER_PORT[clusterId];
       int numConnections = 10;
       int tickTime = 2000;
@@ -96,11 +97,13 @@ public class KafkaOperatorTestBase
         zkf.shutdown();
       }
     }
-    Utils.rm(new File(baseDir, zkBaseDir));
   }
 
   public void startKafkaServer(int clusterid, int brokerid, int defaultPartitions)
   {
+    // before start, clean the kafka dir if it exists
+    FileUtils.deleteQuietly(new File(baseDir, kafkaBaseDir));
+
     Properties props = new Properties();
     props.setProperty("broker.id", "" + brokerid);
     props.setProperty("log.dirs", new File(baseDir, kafkadir[clusterid][brokerid]).toString());
@@ -149,7 +152,6 @@ public class KafkaOperatorTestBase
         }
       }
     }
-    Utils.rm(new File(baseDir, kafkaBaseDir));
   }
 
   @Before
