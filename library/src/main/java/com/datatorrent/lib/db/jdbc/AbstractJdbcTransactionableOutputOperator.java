@@ -28,6 +28,8 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.hadoop.classification.InterfaceStability;
+
 import com.google.common.collect.Lists;
 
 import com.datatorrent.api.Context;
@@ -55,6 +57,7 @@ import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator
  * @param <T> type of tuple
  * @since 0.9.4
  */
+@InterfaceStability.Stable
 public abstract class AbstractJdbcTransactionableOutputOperator<T>
     extends AbstractPassThruTransactionableStoreOutputOperator<T, JdbcTransactionalStore>
 {

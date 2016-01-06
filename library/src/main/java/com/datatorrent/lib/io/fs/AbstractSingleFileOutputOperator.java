@@ -20,6 +20,8 @@ package com.datatorrent.lib.io.fs;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.hadoop.classification.InterfaceStability;
+
 /**
  * This is a simple class that output all tuples to a single file.
  *
@@ -31,6 +33,7 @@ import javax.validation.constraints.NotNull;
  *
  * @since 2.0.0
  */
+@InterfaceStability.Stable
 public abstract class AbstractSingleFileOutputOperator<INPUT> extends AbstractFileOutputOperator<INPUT>
 {
   /**

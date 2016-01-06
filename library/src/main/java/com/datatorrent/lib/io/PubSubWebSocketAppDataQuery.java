@@ -30,6 +30,8 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.hadoop.classification.InterfaceStability;
+
 import com.datatorrent.lib.appdata.StoreUtils.BufferingOutputPortFlusher;
 import com.datatorrent.lib.appdata.query.WindowBoundedService;
 
@@ -50,6 +52,7 @@ import com.datatorrent.common.util.PubSubMessage;
  * @tags input, app data, query
  * @since 3.0.0
  */
+@InterfaceStability.Stable
 public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<String> implements AppData.ConnectionInfoProvider, EmbeddableQueryInfoProvider<String>
 {
   private static final Logger logger = LoggerFactory.getLogger(PubSubWebSocketAppDataQuery.class);

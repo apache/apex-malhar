@@ -20,6 +20,8 @@ package com.datatorrent.lib.io.block;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.hadoop.classification.InterfaceStability;
+
 import com.google.common.base.Preconditions;
 
 /**
@@ -27,6 +29,7 @@ import com.google.common.base.Preconditions;
  *
  * @since 2.1.0
  */
+@InterfaceStability.Stable
 public interface BlockMetadata
 {
   /**

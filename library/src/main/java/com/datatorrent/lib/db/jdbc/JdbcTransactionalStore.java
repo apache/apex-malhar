@@ -27,6 +27,8 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.hadoop.classification.InterfaceStability;
+
 import com.datatorrent.lib.db.TransactionableStore;
 
 /**
@@ -34,6 +36,7 @@ import com.datatorrent.lib.db.TransactionableStore;
  *
  * @since 0.9.4
  */
+@InterfaceStability.Stable
 public class JdbcTransactionalStore extends JdbcStore implements TransactionableStore
 {
   private static final transient Logger LOG = LoggerFactory.getLogger(JdbcTransactionalStore.class);

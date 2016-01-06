@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang.mutable.MutableLong;
+import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.PositionedReadable;
 
 import com.esotericsoftware.kryo.Kryo;
@@ -80,7 +81,7 @@ import com.datatorrent.lib.counters.BasicCounters;
  *
  * @since 2.1.0
  */
-
+@InterfaceStability.Stable
 @StatsListener.DataQueueSize
 public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM extends InputStream & PositionedReadable>
     extends BaseOperator

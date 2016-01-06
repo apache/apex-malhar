@@ -30,6 +30,9 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.common.experimental.AppData;
 import com.datatorrent.common.util.PubSubMessage.PubSubMessageType;
 import java.net.URI;
+
+import org.apache.hadoop.classification.InterfaceStability;
+
 /**
  * This is an app data pub sub result operator. This operator is used to send results to
  * App Data dashboards produced by App Data store operators.
@@ -39,6 +42,7 @@ import java.net.URI;
  * @tags output, app data, result
  * @since 3.0.0
  */
+@InterfaceStability.Stable
 @AppData.AppendQueryIdToTopic(value=true)
 public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<String> implements AppData.ConnectionInfoProvider
 {

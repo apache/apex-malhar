@@ -27,6 +27,8 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.hadoop.classification.InterfaceStability;
+
 import com.datatorrent.common.util.PubSubMessageCodec;
 import com.datatorrent.common.util.PubSubWebSocketClient;
 
@@ -39,6 +41,7 @@ import com.datatorrent.common.util.PubSubWebSocketClient;
  *
  * @since 0.3.2
  */
+@InterfaceStability.Stable
 public class PubSubWebSocketInputOperator<T> extends WebSocketInputOperator<T>
 {
   private static final Logger LOG = LoggerFactory.getLogger(PubSubWebSocketInputOperator.class);

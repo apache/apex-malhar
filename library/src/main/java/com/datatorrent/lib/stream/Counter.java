@@ -18,6 +18,8 @@
  */
 package com.datatorrent.lib.stream;
 
+import org.apache.hadoop.classification.InterfaceStability;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
@@ -40,6 +42,7 @@ import com.datatorrent.api.Operator.Unifier;
  * @tags integer, object, count
  * @since 0.3.3
  */
+@InterfaceStability.Stable
 public class Counter implements Operator, Unifier<Integer>
 {
         /**

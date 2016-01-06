@@ -29,6 +29,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.hadoop.classification.InterfaceStability;
+
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 
@@ -55,6 +57,7 @@ import com.datatorrent.common.util.NameableThreadFactory;
  * @param <QUEUETUPLE> tuple enqueued each window to be processed after window is committed
  * @since 2.0.0
  */
+@InterfaceStability.Stable
 public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator implements CheckpointListener, IdleTimeHandler
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractReconciler.class);

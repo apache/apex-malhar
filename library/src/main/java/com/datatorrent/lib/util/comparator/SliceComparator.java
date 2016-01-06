@@ -20,6 +20,7 @@ package com.datatorrent.lib.util.comparator;
 
 import java.util.Comparator;
 
+import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.io.WritableComparator;
 
 import com.datatorrent.netlet.util.Slice;
@@ -27,6 +28,7 @@ import com.datatorrent.netlet.util.Slice;
 /**
  * Default key comparator that performs lexicographical comparison of the byte arrays.
  */
+@InterfaceStability.Stable
 public class SliceComparator implements Comparator<Slice>
 {
   @Override

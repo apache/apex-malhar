@@ -28,6 +28,8 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.hadoop.classification.InterfaceStability;
+
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
@@ -40,6 +42,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  *
  * @since 0.9.4
  */
+@InterfaceStability.Stable
 public class JdbcStore implements Connectable
 {
   protected static final Logger logger = LoggerFactory.getLogger(JdbcStore.class);
