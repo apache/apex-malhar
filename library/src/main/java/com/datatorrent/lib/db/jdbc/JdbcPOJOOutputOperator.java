@@ -44,6 +44,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
@@ -73,6 +74,7 @@ public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOpe
 
   private final transient List<JdbcPOJOInputOperator.ActiveFieldInfo> columnFieldGetters;
 
+  @NotNull
   private String sqlQuery;
 
   @AutoMetric
@@ -82,9 +84,10 @@ public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOpe
 
   private transient Class<?> pojoClass;
 
-  public transient DefaultOutputPort<Object> error = new DefaultOutputPort<>();
+  @OutputPortFieldAnnotation(optional = true)
+  public final transient DefaultOutputPort<Object> error = new DefaultOutputPort<>();
 
-  @InputPortFieldAnnotation(optional = true, schemaRequired = true)
+  @InputPortFieldAnnotation(schemaRequired = true)
   public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
   {
     @Override
@@ -149,8 +152,8 @@ public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOpe
       super.processTuple(tuple);
       numRecordsWritten++;
     } catch (RuntimeException e) {
-      numErrorRecords++;
       error.emit(tuple);
+      numErrorRecords++;
     }
   }
 

@@ -27,27 +27,21 @@ import com.google.common.collect.Maps;
 import com.datatorrent.lib.util.FieldInfo;
 
 /**
- * A {@link FieldInfo} object for Jdbc.
- * Includes an SQL type for each field.
+ * A {@link FieldInfo} object for Jdbc. <br/>
+ * Includes an SQL type for each field. <br/>
+ * An {@link FieldInfo} object used for JDBC output sources must have the SQL data types.
+ * This is needed to create correct getters and setters for the POJO,
+ * as well as setting the right parameter types in the JDBC prepared statement.
  */
 public class JdbcFieldInfo extends FieldInfo
 {
   private int sqlType;
-  private Map<String, Integer> jdbcTypes;
 
   public JdbcFieldInfo(String columnName, String pojoFieldExpression, SupportType type, String sqlTypeStr)
   {
     super(columnName, pojoFieldExpression, type);
 
-    jdbcTypes = Maps.newHashMap();
-    for (Field f : Types.class.getFields()) {
-      try {
-        jdbcTypes.put(f.getName(), f.getInt(null));
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-    }
-    sqlType = jdbcTypes.get(sqlTypeStr);
+    sqlType = JdbcTypes.getSqlDataType(sqlTypeStr);
   }
 
   public int getSqlType()
@@ -58,5 +52,26 @@ public class JdbcFieldInfo extends FieldInfo
   public void setSqlType(int sqlType)
   {
     this.sqlType = sqlType;
+  }
+
+  private static class JdbcTypes
+  {
+    private static Map<String, Integer> jdbcTypes;
+
+    static {
+      jdbcTypes = Maps.newHashMap();
+      for (Field f : Types.class.getFields()) {
+        try {
+          jdbcTypes.put(f.getName(), f.getInt(null));
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+      }
+    }
+
+    public static int getSqlDataType(String sqlTypeStr)
+    {
+      return jdbcTypes.get(sqlTypeStr);
+    }
   }
 }
