@@ -151,4 +151,23 @@ public abstract class AbstractKafkaOutputOperator<K, V> implements Operator
   public void endWindow()
   {
   }
+
+  /**
+   * Return the additional producer properties
+   * @return producerProperties
+   */
+  public String getProducerProperties()
+  {
+    return producerProperties;
+  }
+
+  /**
+   * Specify the additional producer properties in comma separated as string in the
+   * form of key1=value1,key2=value2,key3=value3,..
+   * @param producerProperties Given properties as string
+   */
+  public void setProducerProperties(String producerProperties)
+  {
+    this.producerProperties = producerProperties;
+  }
 }
