@@ -84,7 +84,7 @@ public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOpe
   @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Object> error = new DefaultOutputPort<>();
 
-  @InputPortFieldAnnotation(schemaRequired = true)
+  @InputPortFieldAnnotation(optional = true, schemaRequired = true)
   public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
   {
     @Override
