@@ -36,6 +36,8 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.hadoop.classification.InterfaceStability;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -64,6 +66,7 @@ import com.datatorrent.lib.util.PojoUtils;
  * @tags database, sql, pojo, jdbc
  * @since 2.1.0
  */
+@InterfaceStability.Evolving
 public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
     implements Operator.ActivationListener<Context.OperatorContext>
 {

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.TreeMap;
 
+import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.io.file.tfile.DTFile;
@@ -42,6 +43,7 @@ import com.datatorrent.netlet.util.Slice;
  *
  * @since 2.0.0
  */
+@InterfaceStability.Evolving
 public class DTFileReader implements FileAccess.FileReader
 {
   private final Reader reader;

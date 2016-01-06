@@ -22,6 +22,8 @@ import java.lang.management.ManagementFactory;
 import java.util.Collection;
 
 import com.google.common.annotations.VisibleForTesting;
+
+import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.io.file.tfile.DTBCFile.Reader.BlockReader;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -39,6 +41,7 @@ import com.google.common.cache.Weigher;
  *
  * @since 2.0.0
  */
+@InterfaceStability.Evolving
 public class CacheManager
 {
   public static final int STRING_OVERHEAD = 64;

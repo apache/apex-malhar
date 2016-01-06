@@ -24,6 +24,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.TreeMap;
 
+import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.RemoteIterator;
 
@@ -34,6 +35,7 @@ import com.datatorrent.netlet.util.Slice;
  *
  * @since 2.0.0
  */
+@InterfaceStability.Evolving
 public interface FileAccess extends Closeable
 {
   void init();

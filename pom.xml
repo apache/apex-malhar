@@ -102,7 +102,7 @@
         <plugin>
           <groupId>com.github.siom79.japicmp</groupId>
           <artifactId>japicmp-maven-plugin</artifactId>
-          <version>0.5.3</version>
+          <version>0.6.2</version>
           <configuration>
             <oldVersion>
               <dependency>
@@ -125,10 +125,11 @@
               <includeSynthetic>false</includeSynthetic>
               <ignoreMissingClasses>true</ignoreMissingClasses>
               <excludes>
-                <exclude>*POJO*</exclude>
                 <exclude>com.datatorrent.contrib.converter.Converter</exclude>
                 <exclude>com.datatorrent.contrib.schema.*</exclude>
                 <exclude>org.apache.hadoop.io.file.tfile.*</exclude>
+                <exclude>@org.apache.hadoop.classification.InterfaceStability.Evolving</exclude>
+                <exclude>@org.apache.hadoop.classification.InterfaceStability.Unstable</exclude>
               </excludes>
             </parameter>
             <skip>${semver.plugin.skip}</skip>

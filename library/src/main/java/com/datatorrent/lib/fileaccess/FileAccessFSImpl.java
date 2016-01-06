@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -39,6 +40,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  *
  * @since 2.0.0
  */
+@InterfaceStability.Evolving
 public abstract class FileAccessFSImpl implements FileAccess
 {
   @NotNull

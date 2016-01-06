@@ -20,6 +20,7 @@ package com.datatorrent.lib.fileaccess;
 
 import java.io.IOException;
 
+import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.io.file.tfile.TFile.Writer;
@@ -29,6 +30,7 @@ import org.apache.hadoop.io.file.tfile.TFile.Writer;
  *
  * @since 2.0.0
  */
+@InterfaceStability.Evolving
 public final class TFileWriter implements FileAccess.FileWriter
 {
   private Writer writer;
