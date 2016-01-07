@@ -43,6 +43,7 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
  * @param <S> The store type
  * @since 0.9.3
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractTransactionableStoreOutputOperator<T, S extends TransactionableStore> extends BaseOperator
 {
   protected S store;

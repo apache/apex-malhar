@@ -48,6 +48,7 @@ import com.datatorrent.api.Operator.ActivationListener;
  * @param <T>
  * @since 0.9.5
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractSocketInputOperator<T> implements InputOperator, ActivationListener<OperatorContext>
 {
   /* The host to which to connect */

@@ -19,5 +19,5 @@
 /**
  * Library of operators for stream operations
  */
-
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 package com.datatorrent.lib.stream;

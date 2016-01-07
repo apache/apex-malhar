@@ -34,6 +34,7 @@ import com.google.common.collect.Lists;
  * @param <S> The store type.
  * @since 1.0.2
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractBatchTransactionableStoreOutputOperator<T, S extends TransactionableStore> extends AbstractAggregateTransactionableStoreOutputOperator<T, S> {
 
   private Collection<T> tuples;

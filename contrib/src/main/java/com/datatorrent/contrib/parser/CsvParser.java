@@ -35,9 +35,7 @@ import org.supercsv.cellprocessor.ParseLong;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvBeanReader;
 import org.supercsv.prefs.CsvPreference;
-import org.apache.hadoop.classification.InterfaceStability;
 
-import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.parser.Parser;
 import com.datatorrent.lib.util.ReusableStringReader;
@@ -61,7 +59,6 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @tags csv pojo parser
  * @since 3.2.0
  */
-@InterfaceStability.Evolving
 public class CsvParser extends Parser<String, String>
 {
 

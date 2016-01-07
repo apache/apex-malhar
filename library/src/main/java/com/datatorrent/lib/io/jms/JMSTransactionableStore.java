@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 2.0.0
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class JMSTransactionableStore extends JMSBaseTransactionableStore
 {
   private static final Logger logger = LoggerFactory.getLogger(JMSTransactionableStore.class);

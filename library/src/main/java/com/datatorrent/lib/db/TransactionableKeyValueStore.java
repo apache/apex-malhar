@@ -23,6 +23,7 @@ package com.datatorrent.lib.db;
  *
  * @since 0.9.3
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public interface TransactionableKeyValueStore extends TransactionableStore, KeyValueStore
 {
 }

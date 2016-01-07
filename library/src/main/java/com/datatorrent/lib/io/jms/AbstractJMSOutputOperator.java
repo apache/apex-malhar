@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractJMSOutputOperator extends JMSBase implements Operator
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractJMSOutputOperator.class);

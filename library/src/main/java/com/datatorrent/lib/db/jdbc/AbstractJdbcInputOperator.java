@@ -45,6 +45,7 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * @param <T> The tuple type
  * @since 0.9.4
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractJdbcInputOperator<T> extends AbstractStoreInputOperator<T, JdbcStore>
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractJdbcInputOperator.class);

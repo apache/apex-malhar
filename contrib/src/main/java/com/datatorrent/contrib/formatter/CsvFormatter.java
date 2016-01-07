@@ -33,7 +33,6 @@ import org.supercsv.exception.SuperCsvException;
 import org.supercsv.io.CsvBeanWriter;
 import org.supercsv.io.ICsvBeanWriter;
 import org.supercsv.prefs.CsvPreference;
-import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.lib.formatter.Formatter;
@@ -55,7 +54,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @tags pojo csv formatter
  * @since 3.2.0
  */
-@InterfaceStability.Evolving
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class CsvFormatter extends Formatter<String>
 {
 

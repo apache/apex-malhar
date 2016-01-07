@@ -51,6 +51,7 @@ import com.datatorrent.api.Operator.ActivationListener;
  * @tags local fs, file
  * @since 0.9.4
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class TailFsInputOperator implements InputOperator, ActivationListener<OperatorContext>
 {
   /**

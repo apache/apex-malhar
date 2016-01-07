@@ -44,6 +44,7 @@ import com.datatorrent.lib.io.block.BlockMetadata;
  *
  * @since 3.2.0
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractFileSplitter extends BaseOperator
 {
   protected Long blockSize;

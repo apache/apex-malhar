@@ -21,14 +21,11 @@ package com.datatorrent.lib.io.fs;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 
-import org.apache.hadoop.classification.InterfaceStability;
-
 /**
  * An encapsulation of the filter stream that provides different methods to handle the stream.
  *
  * @since 2.1.0
  */
-@InterfaceStability.Stable
 public interface FilterStreamContext<F extends FilterOutputStream>
 {
   /**

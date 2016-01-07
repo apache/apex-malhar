@@ -58,6 +58,7 @@ import com.datatorrent.common.util.PubSubWebSocketClient;
  *
  * @since 0.9.3
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class WidgetOutputOperator extends BaseOperator
 {
   protected transient WebSocketOutputOperator<Pair<String, Object>> wsoo = new WebSocketOutputOperator<Pair<String,Object>>(){

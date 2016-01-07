@@ -18,8 +18,6 @@
  */
 package com.datatorrent.lib.io.block;
 
-import org.apache.hadoop.classification.InterfaceStability;
-
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.netlet.util.Slice;
 
@@ -31,7 +29,6 @@ import com.datatorrent.netlet.util.Slice;
  * 
  * @since 2.1.0
  */
-@InterfaceStability.Stable
 @StatsListener.DataQueueSize
 public class FSSliceReader extends AbstractFSBlockReader<Slice>
 {

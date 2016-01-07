@@ -41,7 +41,6 @@ import javax.validation.constraints.Size;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -76,7 +75,6 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @tags file
  * @since 2.0.0
  */
-@InterfaceStability.Stable
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
 public class FileSplitterInput extends AbstractFileSplitter implements InputOperator, Operator.CheckpointListener
 {

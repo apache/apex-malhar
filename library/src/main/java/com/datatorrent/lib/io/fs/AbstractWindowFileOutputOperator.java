@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 1.0.2
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractWindowFileOutputOperator<INPUT> extends AbstractFileOutputOperator<INPUT>
 {
   private transient String windowIdString;

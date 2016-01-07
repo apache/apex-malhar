@@ -48,6 +48,7 @@ import com.datatorrent.api.DefaultInputPort;
  * @param <T> tuple type
  * @since 0.3.2
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class WebSocketOutputOperator<T> extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(WebSocketOutputOperator.class);

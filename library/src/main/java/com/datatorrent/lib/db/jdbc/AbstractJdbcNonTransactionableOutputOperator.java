@@ -21,8 +21,6 @@ package com.datatorrent.lib.db.jdbc;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-
-
 import com.datatorrent.api.Context;
 import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
@@ -37,6 +35,7 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  * @param <T> The kind of tuples that are being processed
  * @since 1.0.4
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractJdbcNonTransactionableOutputOperator<T, S extends JdbcStore> extends AbstractStoreOutputOperator<T, S>
 {
   protected transient PreparedStatement updateCommand;

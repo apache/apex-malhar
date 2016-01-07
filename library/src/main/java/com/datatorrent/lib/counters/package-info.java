@@ -19,4 +19,5 @@
 /**
  * Basic counters and aggregates implementations.
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 package com.datatorrent.lib.counters;

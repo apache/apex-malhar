@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 2.1.0
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class JMSObjectInputOperator extends AbstractJMSInputOperator<Object>
 {
   public final transient DefaultOutputPort<String> outputString = new DefaultOutputPort<String>();

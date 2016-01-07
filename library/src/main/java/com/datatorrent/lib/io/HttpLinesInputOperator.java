@@ -33,6 +33,7 @@ import java.io.InputStreamReader;
  *
  * @since 0.9.4
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class HttpLinesInputOperator extends AbstractHttpInputOperator<String>
 {
   @Override

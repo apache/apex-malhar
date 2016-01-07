@@ -41,6 +41,7 @@ import com.datatorrent.api.DefaultInputPort;
  *
  * @since 0.3.4
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class MapMultiConsoleOutputOperator<K, V> extends BaseOperator
 {
   private boolean debug = false;

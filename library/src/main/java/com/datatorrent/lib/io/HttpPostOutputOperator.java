@@ -41,6 +41,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * @param <T>
  * @since 0.3.2
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class HttpPostOutputOperator<T> extends AbstractHttpOperator<T>
 {
   protected transient WebResource resource;

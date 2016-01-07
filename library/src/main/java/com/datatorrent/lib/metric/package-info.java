@@ -19,7 +19,4 @@
 /**
  * This package contains simple physical metrics aggregators.
  */
-@InterfaceStability.Stable
 package com.datatorrent.lib.metric;
-
-import org.apache.hadoop.classification.InterfaceStability;

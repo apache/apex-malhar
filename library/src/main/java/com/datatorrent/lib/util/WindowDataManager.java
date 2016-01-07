@@ -27,7 +27,6 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -58,7 +57,6 @@ import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
  *
  * @since 2.0.0
  */
-@InterfaceStability.Evolving
 public interface WindowDataManager extends StorageAgent, Component<Context.OperatorContext>
 {
   /**

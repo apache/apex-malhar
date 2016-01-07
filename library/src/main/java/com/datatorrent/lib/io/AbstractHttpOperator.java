@@ -41,6 +41,7 @@ import com.datatorrent.api.DefaultInputPort;
  * @param <T>
  * @since 1.0.2
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractHttpOperator<T> extends BaseOperator
 {
   @NotNull

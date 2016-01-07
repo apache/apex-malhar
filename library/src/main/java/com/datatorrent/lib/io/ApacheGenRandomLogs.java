@@ -56,6 +56,7 @@ import com.datatorrent.api.Context.OperatorContext;
  *
  * @since 0.3.2
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class ApacheGenRandomLogs extends BaseOperator implements InputOperator
 {
 	/**

@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.9.4
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class HttpJsonChunksInputOperator extends AbstractHttpInputOperator<Map<String, String>>
 {
   private static final Logger LOG = LoggerFactory.getLogger(HttpJsonChunksInputOperator.class);

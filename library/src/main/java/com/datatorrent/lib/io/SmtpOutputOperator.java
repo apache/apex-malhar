@@ -45,6 +45,7 @@ import com.google.common.collect.Maps;
  *
  * @since 0.3.2
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class SmtpOutputOperator extends BaseOperator
 {
   public enum RecipientType

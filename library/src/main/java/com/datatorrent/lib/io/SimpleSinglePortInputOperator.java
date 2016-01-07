@@ -39,6 +39,7 @@ import org.apache.commons.lang3.ClassUtils;
  *
  * @since 0.3.2
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class SimpleSinglePortInputOperator<T> extends BaseOperator implements InputOperator, Operator.ActivationListener<OperatorContext>
 {
   private transient Thread ioThread;

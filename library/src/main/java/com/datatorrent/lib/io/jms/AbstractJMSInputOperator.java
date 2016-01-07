@@ -40,7 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang.mutable.MutableLong;
-import org.apache.hadoop.classification.InterfaceStability;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -78,7 +77,6 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @tags jms, input operator
  * @since 0.3.2
  */
-@InterfaceStability.Stable
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
 public abstract class AbstractJMSInputOperator<T> extends JMSBase
     implements InputOperator, ActivationListener<OperatorContext>, MessageListener, ExceptionListener,

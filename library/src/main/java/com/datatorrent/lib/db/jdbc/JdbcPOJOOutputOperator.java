@@ -35,8 +35,6 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.hadoop.classification.InterfaceStability.Evolving;
-
 import com.google.common.collect.Lists;
 
 import com.datatorrent.api.Context;
@@ -64,7 +62,7 @@ import com.datatorrent.lib.util.PojoUtils.GetterShort;
  * @tags database, sql, pojo, jdbc
  * @since 2.1.0
  */
-@Evolving
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOperator<Object>
     implements Operator.ActivationListener<OperatorContext>
 {

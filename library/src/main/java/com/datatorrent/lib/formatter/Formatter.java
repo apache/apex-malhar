@@ -18,8 +18,6 @@
  */
 package com.datatorrent.lib.formatter;
 
-import org.apache.hadoop.classification.InterfaceStability;
-
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DefaultInputPort;
@@ -45,7 +43,7 @@ import com.datatorrent.lib.converter.Converter;
  * @param <INPUT>
  * @since 3.2.0
  */
-@InterfaceStability.Evolving
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class Formatter<OUTPUT> extends BaseOperator implements Converter<Object, OUTPUT>
 {
   protected transient Class<?> clazz;

@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @since 2.1.0
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class JMSMultiPortOutputOperator extends AbstractJMSOutputOperator
 {
   /**

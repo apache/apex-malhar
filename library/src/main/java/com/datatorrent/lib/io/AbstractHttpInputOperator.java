@@ -44,6 +44,7 @@ import com.sun.jersey.api.client.WebResource;
  *
  * @since 0.3.2
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractHttpInputOperator<T> extends SimpleSinglePortInputOperator<T> implements Runnable
 {
   /**

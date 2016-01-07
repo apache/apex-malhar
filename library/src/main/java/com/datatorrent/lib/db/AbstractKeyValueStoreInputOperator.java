@@ -34,6 +34,7 @@ import java.util.*;
  * @param <S> The store type.
  * @since 0.9.3
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractKeyValueStoreInputOperator<T, S extends KeyValueStore> extends AbstractStoreInputOperator<T, S>
 {
   protected List<Object> keys = new ArrayList<Object>();

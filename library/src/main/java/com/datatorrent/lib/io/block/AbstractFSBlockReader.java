@@ -20,7 +20,6 @@ package com.datatorrent.lib.io.block;
 
 import java.io.IOException;
 
-import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -36,7 +35,6 @@ import com.datatorrent.api.StatsListener;
  *
  * @since 2.1.0
  */
-@InterfaceStability.Stable
 @StatsListener.DataQueueSize
 public abstract class AbstractFSBlockReader<R>
     extends AbstractBlockReader<R, BlockMetadata.FileBlockMetadata, FSDataInputStream>

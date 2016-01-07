@@ -44,6 +44,7 @@ import com.datatorrent.lib.db.cache.AbstractDBLookupCacheBackedOperator;
  * @param <T> type of input tuples </T>
  * @since 0.9.1
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupCacheBackedOperator<T, JdbcStore>
 {
   @NotNull

@@ -30,6 +30,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketServlet;
 
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class WebSocketServerInputOperator implements InputOperator
 {
   public static final String DEFAULT_EXTENSION = "/in";

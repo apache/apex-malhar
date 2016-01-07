@@ -31,6 +31,7 @@ import javax.jms.TextMessage;
  * @tags jms, input operator, string
  * @since 0.3.3
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class JMSStringInputOperator extends AbstractJMSInputOperator<String>
 {
   @Override

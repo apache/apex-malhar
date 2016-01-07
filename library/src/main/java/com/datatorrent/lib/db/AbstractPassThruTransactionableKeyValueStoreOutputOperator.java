@@ -34,6 +34,7 @@ package com.datatorrent.lib.db;
  * @param <S> The store type
  * @since 0.9.3
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractPassThruTransactionableKeyValueStoreOutputOperator<T, S extends TransactionableKeyValueStore>
         extends AbstractPassThruTransactionableStoreOutputOperator<T, S>
 {

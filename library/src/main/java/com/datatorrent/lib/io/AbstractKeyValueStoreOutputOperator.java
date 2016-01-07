@@ -42,6 +42,7 @@ import com.datatorrent.lib.util.KeyValPair;
  *
  * @since 0.3.2
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractKeyValueStoreOutputOperator.class);

@@ -25,6 +25,7 @@ import com.datatorrent.lib.db.TransactionableStore;
  *
  * @since 2.0.0
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class JMSBaseTransactionableStore implements TransactionableStore
 {
   /**

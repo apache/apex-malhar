@@ -35,6 +35,7 @@ import com.datatorrent.common.util.PubSubWebSocketClient;
  * @param <T>
  * @since 0.3.2
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class PubSubWebSocketOutputOperator<T> extends WebSocketOutputOperator<T>
 {
   private String topic = null;

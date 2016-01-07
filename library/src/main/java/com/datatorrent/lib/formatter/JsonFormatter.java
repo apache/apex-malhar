@@ -28,7 +28,6 @@ import org.codehaus.jackson.map.ObjectWriter;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.netlet.util.DTThrowable;
@@ -43,7 +42,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @tags pojo json formatter
  * @since 3.2.0
  */
-@InterfaceStability.Evolving
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class JsonFormatter extends Formatter<String>
 {
   private transient ObjectWriter writer;

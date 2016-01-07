@@ -19,5 +19,5 @@
 /**
  * Library of multi-window operators including sliding window.
  */
-
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 package com.datatorrent.lib.multiwindow;

@@ -23,7 +23,6 @@ import java.util.LinkedList;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -40,7 +39,6 @@ import com.datatorrent.api.Operator;
  *
  * @since 3.2.0
  */
-@InterfaceStability.Stable
 public class FileSplitterBase extends AbstractFileSplitter implements Operator.IdleTimeHandler
 {
   @NotNull

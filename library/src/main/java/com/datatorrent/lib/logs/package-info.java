@@ -19,5 +19,5 @@
 /**
  * Library of log line processing operators.
  */
-
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 package com.datatorrent.lib.logs;

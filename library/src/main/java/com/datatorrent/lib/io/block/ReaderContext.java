@@ -25,7 +25,6 @@ import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.PositionedReadable;
 
@@ -35,7 +34,6 @@ import org.apache.hadoop.fs.PositionedReadable;
  * @param <STREAM> type of stream
  * @since 2.1.0
  */
-@InterfaceStability.Stable
 public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
 {
 

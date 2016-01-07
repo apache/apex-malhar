@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractJMSSinglePortOutputOperator<T> extends AbstractJMSOutputOperator
 {
   @SuppressWarnings("unused")

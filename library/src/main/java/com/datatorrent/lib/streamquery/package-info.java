@@ -19,5 +19,5 @@
 /**
  * Library of operators for streaming query language.
  */
-
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 package com.datatorrent.lib.streamquery;

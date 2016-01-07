@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 1.0.4
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractThroughputFileInputOperator<T> extends AbstractFileInputOperator<T>
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractThroughputFileInputOperator.class);

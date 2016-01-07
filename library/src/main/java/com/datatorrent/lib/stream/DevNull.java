@@ -18,8 +18,6 @@
  */
 package com.datatorrent.lib.stream;
 
-import org.apache.hadoop.classification.InterfaceStability;
-
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.Stateless;
@@ -38,7 +36,6 @@ import com.datatorrent.api.annotation.Stateless;
  * @tags debug, terminate
  * @since 0.3.3
  */
-@InterfaceStability.Stable
 @Stateless
 public class DevNull<K> extends BaseOperator
 {

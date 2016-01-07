@@ -124,12 +124,11 @@
               <onlyBinaryIncompatible>false</onlyBinaryIncompatible>
               <includeSynthetic>false</includeSynthetic>
               <ignoreMissingClasses>true</ignoreMissingClasses>
-              <includes>
-                <include>@org.apache.hadoop.classification.InterfaceStability.Stable</include>
-              </includes>
               <excludes>
-                <exclude>@org.apache.hadoop.classification.InterfaceStability.Evolving</exclude>
-                <exclude>@org.apache.hadoop.classification.InterfaceStability.Unstable</exclude>
+                <exclude>com.datatorrent.contrib.converter.Converter</exclude>
+                <exclude>com.datatorrent.contrib.schema</exclude>
+                <exclude>org.apache.hadoop.io.file.tfile</exclude>
+                <exclude>*POJO*</exclude>
               </excludes>
             </parameter>
             <skip>${semver.plugin.skip}</skip>

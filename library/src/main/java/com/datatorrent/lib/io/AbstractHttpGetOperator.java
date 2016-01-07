@@ -40,6 +40,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * @param <OUTPUT> tuple type of output port
  * @since 1.0.2
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractHttpGetOperator<INPUT, OUTPUT> extends AbstractHttpOperator<INPUT>
 {
   /**

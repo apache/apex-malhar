@@ -40,6 +40,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  *
  * @since 1.0.2
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractXmlDOMOperator<T> extends BaseOperator
 {
   protected transient DocumentBuilderFactory docFactory;

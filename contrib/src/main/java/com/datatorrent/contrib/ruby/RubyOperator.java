@@ -40,6 +40,7 @@ import com.datatorrent.lib.script.ScriptOperator;
  * @tags script, map, string
  * @since 1.0.4
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class RubyOperator extends ScriptOperator {
 
   public enum Type
