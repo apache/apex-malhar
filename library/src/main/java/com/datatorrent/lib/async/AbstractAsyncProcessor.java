@@ -23,6 +23,7 @@ import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import javax.validation.constraints.Min;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,50 +31,64 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Operator.IdleTimeHandler;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
 
+
 /**
- * This base operator having a single input and tuple coming from input port are enqueued for processing asynchronously
- * by Thread Executors.
+ * This base operator can be used to enqueue tuples for processing asynchronously by seperate Worker Threads.
+ * This operator can be implemented to do async and parallel operations.
  *
- * User can configure number of of threads that are required for processing. Defaulting to single thread which is
- * different than operator thread.
- * The user will also configure the timeout for the operations to happen.
+ * User can configure a number of threads that are required for async processing. Defaulting to no limit, meaning the
+ * threads will be created for as per need basis. These worker executor threads are seperate than operator thread.
+ * The user can also configure the timeout for the operations to happen.
  *
  * <b>Workflow is as follows:</b>
  * <ol>
- *   <li>Tuple of type INPUT is received on input port.</li>
- *   <li>Tuple gets enqueued into Executors by calling <i>enqueueTupleForProcessing</i>.
- *       Once can override <i>processTuple</i> method in which case, its users responsibility to enqueue tuple for
- *       processing by calling <i>enqueueTupleForProcessing</i>.</li>
- *   <li>When tuple gets its turn of execution, <i>processTupleAsync</i> gets called from thread other than
- *       operator thread.</li>
- *   <li>Based on maintainTupleOrder parameter, the results are consolidated at end of every window and respective call
- *       to <i>handleProcessedTuple</i> will be made. This call will happen in operator thread.</li>
+ *   <li>Implementing class can enqueue the tuples of type QUEUETUPLE using <i>enqueueTupleForProcessing</i>
+ *       method.</li>
+ *   <li>When a tuple gets its turn for execution, <i>processTupleAsync</i> gets called from processing thread pool
+ *       other than operator thread.</li>
+ *   <li>Based on maintainTupleOrder parameter, the results are consolidated at the end of every window and respective
+ *       call to <i>handleProcessedTuple</i> will be made. This call will happen in operator thread.</li>
  * </ol>
  *
- * This operator can be implemented to do async and parallel operations.
  *
- * Use case examples:
+ * <b>Use case examples:</b>
  * <ul>
  *   <li>Parallel reads from external datastore/database system.</li>
  *   <li>Doing any operations which are long running tasks per tuple but DAG io should not be blocked.</li>
  * </ul>
  *
- * @param <INPUT> input type of tuple
- * @param <RESULT> Result of async processing of tuple.
- * @since 3.3.0
+ * @param <QUEUETUPLE> input type of tuple
+ * @param <RESULTTUPLE> Result of async processing of tuple.
  */
-public abstract class AbstractAsyncProcessor<INPUT, RESULT> extends BaseOperator implements IdleTimeHandler
+public abstract class AbstractAsyncProcessor<QUEUETUPLE, RESULTTUPLE> extends BaseOperator implements IdleTimeHandler
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractAsyncProcessor.class);
 
+  /**
+   * This is a executor service which hold thread pool and enqueues the task for processing.
+   */
   private transient ExecutorService executor;
-  private int numProcessors = 1;
+
+  /**
+   * Number of worker threads for processing
+   * 0   - Threads will be created as per need.
+   * >=1 - Fixed number of thread pool will be created.
+   */
+  @Min(0)
+  private int numProcessors = 0;
+
+  /**
+   * Tells whether the <i>handleProcessedTuple</i> should be called for tuples in the same order in which
+   * they get enqueued using <i>enqueueTupleForProcessing</i>.
+   */
   private boolean maintainTupleOrder = false;
+
+  /**
+   * Timeout is milliseconds for how long a tuple can go through processing.
+   */
   private long processTimeoutMs = 0;
 
   /**
@@ -82,31 +97,6 @@ public abstract class AbstractAsyncProcessor<INPUT, RESULT> extends BaseOperator
    */
   private Queue<ProcessTuple> waitingTuples = Lists.newLinkedList();
 
-  @InputPortFieldAnnotation(optional = true)
-  public final transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>()
-  {
-    @Override public void process(INPUT input)
-    {
-      processTuple(input);
-    }
-
-    @Override public void setup(Context.PortContext context)
-    {
-      setupInputPort(context);
-    }
-  };
-
-  /**
-   * This method is exposed for implementing class so as to take care of input port based initialization.
-   * For eg. Retrieve TUPLE_CLASS attribute from input port.
-   *
-   * @param context PortContext of input port
-   */
-  protected void setupInputPort(Context.PortContext context)
-  {
-    // Do nothing. Concrete class may choose to do override this. For eg. reading TUPLE_CLASS attribute.
-  }
-
   /**
    * Setup method of this operator will initialize the various types of executors possible.
    *
@@ -114,14 +104,10 @@ public abstract class AbstractAsyncProcessor<INPUT, RESULT> extends BaseOperator
    */
   @Override public void setup(Context.OperatorContext context)
   {
-    if (numProcessors == 1) {
-      this.executor = Executors.newSingleThreadExecutor();
-    } else if (numProcessors == 0) {
+    if (numProcessors == 0) {
       this.executor = Executors.newCachedThreadPool();
-    } else if (numProcessors > 0) {
-      this.executor = Executors.newFixedThreadPool(numProcessors);
     } else {
-      throw new RuntimeException("Number of processors cannot be -ve. Value set is: " + numProcessors);
+      this.executor = Executors.newFixedThreadPool(numProcessors);
     }
 
     replayTuplesIfRequired();
@@ -152,27 +138,14 @@ public abstract class AbstractAsyncProcessor<INPUT, RESULT> extends BaseOperator
   }
 
   /**
-   * This method is called from process of input port.
-   * The default behaviour of this method is to enqueue the input tuple for processing to Executors.
-   *
-   * One can chose to override this method to have additional action and then enqueue the tuple for processing.
-   *
-   * @param input Input tuple of type INPUT.
-   */
-  protected void processTuple(INPUT input)
-  {
-    enqueueTupleForProcessing(input);
-  }
-
-  /**
-   * Enqueues received INPUT tuple for processing to Executors.
+   * Enqueues tuple of type QUEUETUPLE for processing to Worker threads.
    * This method should be called only from operator thread.
    *
-   * @param input Input tuple of type INPUT
+   * @param QUEUETUPLE Input tuple of type QUEUETUPLE
    */
-  protected void enqueueTupleForProcessing(INPUT input)
+  protected void enqueueTupleForProcessing(QUEUETUPLE QUEUETUPLE)
   {
-    ProcessTuple processTuple = new ProcessTuple(input);
+    ProcessTuple processTuple = new ProcessTuple(QUEUETUPLE);
     waitingTuples.add(processTuple);
     processTuple.taskHandle = executor.submit(new Processor(processTuple));
     processTuple.processState = State.SUBMITTED;
@@ -185,21 +158,21 @@ public abstract class AbstractAsyncProcessor<INPUT, RESULT> extends BaseOperator
    *
    * The implementer of this method should keep this method to minimal overhead.
    *
-   * @param inpTuple     Input tuple which was processed of type INPUT
-   * @param resultTuple  Result tuple of type RESULT
+   * @param inpTuple     Input tuple which was processed of type QUEUETUPLE
+   * @param resultTuple  Result tuple of type RESULTTUPLE
    * @param processState Processing State of input tuple which will be one of SUCCESS, FAILED or TIMEOUT.
    */
-  protected abstract void handleProcessedTuple(INPUT inpTuple, RESULT resultTuple, State processState);
+  protected abstract void handleProcessedTuple(QUEUETUPLE inpTuple, RESULTTUPLE resultTuple, State processState);
 
   /**
-   * Abstract method which will get called from Executor threads for processing given input tuple of type INPUT.
+   * Abstract method which will get called from Worker threads for processing given input tuple of type QUEUETUPLE.
    * The method will be called in Async mode.
    * The implementer of this method can chose to have long running tasks here.
    *
-   * @param tuple Input tuple to be processed of type INPUT
-   * @return Result of processing of input tuple of type RESULT.
+   * @param tuple Input tuple to be processed of type QUEUETUPLE
+   * @return Result of processing of input tuple of type RESULTTUPLE.
    */
-  protected abstract RESULT processTupleAsync(INPUT tuple);
+  protected abstract RESULTTUPLE processTupleAsync(QUEUETUPLE tuple);
 
   /**
    * This method will be called from endWindow where any ready to notify tuple will be identified and
@@ -299,7 +272,7 @@ public abstract class AbstractAsyncProcessor<INPUT, RESULT> extends BaseOperator
   }
 
   /**
-   * This is a mail Executor thread which will call processTupleAsync method for async processing of tuple.
+   * This is a main Worker thread which will call processTupleAsync method for async processing of tuple.
    */
   private class Processor implements Runnable
   {
@@ -334,8 +307,8 @@ public abstract class AbstractAsyncProcessor<INPUT, RESULT> extends BaseOperator
    */
   public class ProcessTuple
   {
-    INPUT inpTuple;
-    transient RESULT outTuple;
+    QUEUETUPLE inpTuple;
+    transient RESULTTUPLE outTuple;
     transient Future taskHandle;
     transient State processState;
     transient long processStartTime;
@@ -345,7 +318,7 @@ public abstract class AbstractAsyncProcessor<INPUT, RESULT> extends BaseOperator
       // For kryo
     }
 
-    public ProcessTuple(INPUT inpTuple)
+    public ProcessTuple(QUEUETUPLE inpTuple)
     {
       this.inpTuple = inpTuple;
       this.outTuple = null;

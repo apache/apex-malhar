@@ -18,6 +18,7 @@
  */
 package com.datatorrent.lib.async;
 
+import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import org.junit.Assert;
@@ -29,6 +30,13 @@ public class AbstractAsyncProcessorTest
 {
   public static class TestAsyncProcessor extends AbstractAsyncProcessor<String, String>
   {
+    public transient final DefaultInputPort<String> input = new DefaultInputPort<String>()
+    {
+      @Override public void process(String s)
+      {
+        enqueueTupleForProcessing(s);
+      }
+    };
     public transient final DefaultOutputPort<String> output = new DefaultOutputPort<>();
     public transient final DefaultOutputPort<String> error = new DefaultOutputPort<>();
 
@@ -51,17 +59,21 @@ public class AbstractAsyncProcessorTest
           return tuple + ";SECONDPASS";
         case 0:
         default:
-          throw new RuntimeException("Failed...");
+          throw new RuntimeException("Expected");
       }
     }
   }
 
-  @Test public void basicTest() throws InterruptedException
+  @Test public void maintainOrderTest() throws InterruptedException
+  {
+    testOperator(1, true, 5000);
+    testOperator(1, true, 15000);
+  }
+
+  @Test public void noOrderMaintainedTest() throws InterruptedException
   {
     testOperator(1, false, 5000);
     testOperator(2, false, 15000);
-    testOperator(1, true, 5000);
-    testOperator(1, false, 15000);
   }
 
   private void testOperator(int numThreads, boolean maintainOrder, long waitInterval) throws InterruptedException
