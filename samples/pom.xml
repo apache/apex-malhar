@@ -26,7 +26,7 @@
   <parent>
     <groupId>org.apache.apex</groupId>
     <artifactId>malhar</artifactId>
-    <version>3.3.0-incubating-SNAPSHOT</version>
+    <version>3.3.0-incubating</version>
   </parent>
 
   <artifactId>malhar-samples</artifactId>
