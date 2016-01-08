@@ -36,28 +36,27 @@ import com.datatorrent.common.util.BaseOperator;
 
 
 /**
- * This base operator can be used to enqueue tuples for processing asynchronously by seperate Worker Threads.
- * This operator can be implemented to do async and parallel operations.
+ * This base operator can be used to enqueue tuples for asynchronous and parallel processing by separate worker threads.
  *
- * User can configure a number of threads that are required for async processing. Defaulting to no limit, meaning the
- * threads will be created for as per need basis. These worker executor threads are seperate than operator thread.
- * The user can also configure the timeout for the operations to happen.
+ * User can configure number of threads required for async processing. By default
+ * threads will be created on need basis with no upper limit. These worker threads, spawned by operator thread,
+ * can also be configured to processing timeout.
  *
  * <b>Workflow is as follows:</b>
  * <ol>
  *   <li>Implementing class can enqueue the tuples of type QUEUETUPLE using <i>enqueueTupleForProcessing</i>
  *       method.</li>
- *   <li>When a tuple gets its turn for execution, <i>processTupleAsync</i> gets called from processing thread pool
- *       other than operator thread.</li>
+ *   <li>When a tuple gets its turn for execution, <i>processTupleAsync</i> gets called
+ *       by worker thread. This is asynchronous call</li>
  *   <li>Based on maintainTupleOrder parameter, the results are consolidated at the end of every window and respective
- *       call to <i>handleProcessedTuple</i> will be made. This call will happen in operator thread.</li>
+ *       call to <i>handleProcessedTuple</i> will be made. This callback is in operator thread.</li>
  * </ol>
  *
  *
  * <b>Use case examples:</b>
  * <ul>
  *   <li>Parallel reads from external datastore/database system.</li>
- *   <li>Doing any operations which are long running tasks per tuple but DAG io should not be blocked.</li>
+ *   <li>Operations which are long running tasks per tuple but DAG i/o should not be blocked.</li>
  * </ul>
  *
  * @param <QUEUETUPLE> input type of tuple
@@ -68,7 +67,7 @@ public abstract class AbstractAsyncProcessor<QUEUETUPLE, RESULTTUPLE> extends Ba
   private static final Logger logger = LoggerFactory.getLogger(AbstractAsyncProcessor.class);
 
   /**
-   * This is a executor service which hold thread pool and enqueues the task for processing.
+   * This is an executor service which holds thread pool and enqueues task for processing.
    */
   private transient ExecutorService executor;
 
@@ -87,18 +86,22 @@ public abstract class AbstractAsyncProcessor<QUEUETUPLE, RESULTTUPLE> extends Ba
   private boolean maintainTupleOrder = false;
 
   /**
-   * Timeout is milliseconds for how long a tuple can go through processing.
+   * Timeout in milliseconds after which processing of tuple may be terminated.
    */
   private long processTimeoutMs = 0;
 
   /**
-   * This Queue will hold all the tuples that are in process, has completed processing but yet to be notified for
-   * processing completion.
+   * The queue holds following types of tuples:
+   * <ul>
+   *   <li>Yet to be processed</li>
+   *   <li>In Process</li>
+   *   <li>Completed processing but yet to be notified for process completion</li>
+   * </ul>
    */
-  private Queue<ProcessTuple> waitingTuples = Lists.newLinkedList();
+  private Queue<WorkItem> waitingTuples = Lists.newLinkedList();
 
   /**
-   * Setup method of this operator will initialize the various types of executors possible.
+   * Setup method of this operator will initialize various types of executors possible.
    *
    * @param context OperatorContext
    */
@@ -114,18 +117,26 @@ public abstract class AbstractAsyncProcessor<QUEUETUPLE, RESULTTUPLE> extends Ba
   }
 
   /**
-   * This method will be called from setup of this operator. The method will enqueue all the tuples for prcessing to
-   * Executors which are pre-existing in processing queue i.e. <i>waitingTuples</i> variable.
-   * The <i>waitingTuple</i> is expected to contain anything only if the operators gets restored back to previous
-   * checkpointed state.
+   * This method is called from setup of the operator. If <i>waitingTuples</i> contains anything, the method enqueues
+   * all those tuples for processing to worker threads.
+   *
+   * Dependening on condition the method will behave as follows:
+   * <ul>
+   *   <li>During fresh start of operator, this method will not have any effect as there are no tuples in
+   *       <i>waitingTuples</i>.</li>
+   *   <li>During restore of operator to previous checkpointed state, if there are any tuples already present
+   *       in <i>waitingTuples</i> that means they're yet to be notified, hence enqueued again.</li>
+   * </ul>
    */
   private void replayTuplesIfRequired()
   {
     // Enqueue everything that is still left.
     // Its left because its either not completed processing OR its not emitted because of ordering restrictions.
-    for (ProcessTuple processTuple : waitingTuples) {
-      processTuple.taskHandle = executor.submit(new Processor(processTuple));
-      processTuple.processState = State.SUBMITTED;
+    for (WorkItem item : waitingTuples) {
+      item.taskHandle = executor.submit(new Processor(item));
+      item.processState = State.SUBMITTED;
+      item.processStartTime = 0;
+      item.outTuple = null;
     }
   }
 
@@ -138,25 +149,28 @@ public abstract class AbstractAsyncProcessor<QUEUETUPLE, RESULTTUPLE> extends Ba
   }
 
   /**
-   * Enqueues tuple of type QUEUETUPLE for processing to Worker threads.
+   * Enqueues tuple of type QUEUETUPLE for processing to worker threads.
    * This method should be called only from operator thread.
    *
    * @param QUEUETUPLE Input tuple of type QUEUETUPLE
    */
   protected void enqueueTupleForProcessing(QUEUETUPLE QUEUETUPLE)
   {
-    ProcessTuple processTuple = new ProcessTuple(QUEUETUPLE);
-    waitingTuples.add(processTuple);
-    processTuple.taskHandle = executor.submit(new Processor(processTuple));
-    processTuple.processState = State.SUBMITTED;
+    WorkItem item = new WorkItem(QUEUETUPLE);
+    waitingTuples.add(item);
+    item.taskHandle = executor.submit(new Processor(item));
+    item.processState = State.SUBMITTED;
   }
 
   /**
-   * Abstract method which will get called from this AsyncProcessor when the results for certain input tuple
+   * Abstract method which gets called from AsyncProcessor when results for certain input tuple
    * are ready to be notified.
-   * The method will be called from operator thread hence this is a sync method of this operator.
+   * The method is called from operator thread hence this is synchronous method of this operator.
    *
-   * The implementer of this method should keep this method to minimal overhead.
+   * <b>
+   *   The implementer of this method should keep this method to minimal overhead because this being part of operator
+   *   thread, the long running tasks may block DAG i/o.
+   * </b>
    *
    * @param inpTuple     Input tuple which was processed of type QUEUETUPLE
    * @param resultTuple  Result tuple of type RESULTTUPLE
@@ -165,7 +179,7 @@ public abstract class AbstractAsyncProcessor<QUEUETUPLE, RESULTTUPLE> extends Ba
   protected abstract void handleProcessedTuple(QUEUETUPLE inpTuple, RESULTTUPLE resultTuple, State processState);
 
   /**
-   * Abstract method which will get called from Worker threads for processing given input tuple of type QUEUETUPLE.
+   * Abstract method which gets called from Worker threads for processing given input tuple of type QUEUETUPLE.
    * The method will be called in Async mode.
    * The implementer of this method can chose to have long running tasks here.
    *
@@ -175,33 +189,33 @@ public abstract class AbstractAsyncProcessor<QUEUETUPLE, RESULTTUPLE> extends Ba
   protected abstract RESULTTUPLE processTupleAsync(QUEUETUPLE tuple);
 
   /**
-   * This method will be called from endWindow where any ready to notify tuple will be identified and
+   * This method will be called from endWindow/handleIdleTimeout where any ready to notify tuple will be identified and
    * notification will be done.
    */
-  private void emitFinishedTuple()
+  private void checkFinishedTuples()
   {
-    Iterator<ProcessTuple> listIterator = waitingTuples.iterator();
+    Iterator<WorkItem> listIterator = waitingTuples.iterator();
     while (listIterator.hasNext()) {
-      ProcessTuple processTuple = listIterator.next();
-      switch (processTuple.processState) {
+      WorkItem item = listIterator.next();
+      switch (item.processState) {
         case SUCCESS:
           // Tuple processing is completed successfully. As this is in order its safe to emit.
-          handleProcessedTuple(processTuple.inpTuple, processTuple.outTuple, processTuple.processState);
+          handleProcessedTuple(item.inpTuple, item.outTuple, item.processState);
           listIterator.remove();
           break;
         case FAILED:
           // Tuple processing is completed in a failed state. As this is in order its safe to emit.
-          handleProcessedTuple(processTuple.inpTuple, processTuple.outTuple, processTuple.processState);
+          handleProcessedTuple(item.inpTuple, item.outTuple, item.processState);
           listIterator.remove();
           break;
         case INPROCESS:
           // Tuple is in process.
-          if ((processTimeoutMs != 0) && ((System.currentTimeMillis() - processTuple.processStartTime)
+          if ((processTimeoutMs != 0) && ((System.currentTimeMillis() - item.processStartTime)
               > processTimeoutMs)) {
             // Tuple has be in process for quite some time. Stop it.
-            processTuple.taskHandle.cancel(true);
-            processTuple.processState = State.TIMEOUT;
-            handleProcessedTuple(processTuple.inpTuple, processTuple.outTuple, processTuple.processState);
+            item.taskHandle.cancel(true);
+            item.processState = State.TIMEOUT;
+            handleProcessedTuple(item.inpTuple, item.outTuple, item.processState);
             listIterator.remove();
           } else {
             // Tuple is in process and has not exceed timeout OR there is no timeout.
@@ -220,7 +234,7 @@ public abstract class AbstractAsyncProcessor<QUEUETUPLE, RESULTTUPLE> extends Ba
           break;
         default:
           // Still in init state. That's not possible. Throw.
-          throw new RuntimeException("Unexpected condition met. ProcessTuple cannot be in INIT state.");
+          throw new RuntimeException("Unexpected condition met. WorkItem cannot be in INIT state.");
       }
     }
   }
@@ -230,7 +244,7 @@ public abstract class AbstractAsyncProcessor<QUEUETUPLE, RESULTTUPLE> extends Ba
    */
   @Override public void handleIdleTime()
   {
-    emitFinishedTuple();
+    checkFinishedTuples();
   }
 
   /**
@@ -238,7 +252,7 @@ public abstract class AbstractAsyncProcessor<QUEUETUPLE, RESULTTUPLE> extends Ba
    */
   @Override public void endWindow()
   {
-    emitFinishedTuple();
+    checkFinishedTuples();
   }
 
   public int getNumProcessors()
@@ -276,9 +290,9 @@ public abstract class AbstractAsyncProcessor<QUEUETUPLE, RESULTTUPLE> extends Ba
    */
   private class Processor implements Runnable
   {
-    private ProcessTuple tupleToProcess;
+    private WorkItem tupleToProcess;
 
-    public Processor(ProcessTuple tupleToProcess)
+    public Processor(WorkItem tupleToProcess)
     {
       this.tupleToProcess = tupleToProcess;
     }
@@ -303,9 +317,9 @@ public abstract class AbstractAsyncProcessor<QUEUETUPLE, RESULTTUPLE> extends Ba
   }
 
   /**
-   * ProcessTuple class will hold the various information of processing tuples.
+   * WorkItem class will hold the various information of processing tuples.
    */
-  public class ProcessTuple
+  private class WorkItem
   {
     QUEUETUPLE inpTuple;
     transient RESULTTUPLE outTuple;
@@ -313,12 +327,12 @@ public abstract class AbstractAsyncProcessor<QUEUETUPLE, RESULTTUPLE> extends Ba
     transient State processState;
     transient long processStartTime;
 
-    protected ProcessTuple()
+    protected WorkItem()
     {
       // For kryo
     }
 
-    public ProcessTuple(QUEUETUPLE inpTuple)
+    public WorkItem(QUEUETUPLE inpTuple)
     {
       this.inpTuple = inpTuple;
       this.outTuple = null;
