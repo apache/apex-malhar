@@ -18,6 +18,9 @@
  */
 package org.apache.apex.malhar.kafka;
 
+/**
+ * @since 3.3.0
+ */
 public enum PartitionStrategy
 {
   /**

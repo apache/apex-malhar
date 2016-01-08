@@ -60,6 +60,8 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  *
  * It also use the consumers to commit the application processed offsets along with the application name
  *
+ *
+ * @since 3.3.0
  */
 public class KafkaConsumerWrapper implements Closeable
 {

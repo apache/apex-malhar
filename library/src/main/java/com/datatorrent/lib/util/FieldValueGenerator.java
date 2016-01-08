@@ -25,6 +25,9 @@ import java.util.Map;
 import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.datatorrent.lib.util.PojoUtils.Setter;
 
+/**
+ * @since 3.3.0
+ */
 public class FieldValueGenerator<T extends FieldInfo>
 {
   public static interface FieldValueHandler<T extends FieldInfo>

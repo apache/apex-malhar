@@ -31,6 +31,8 @@ import com.datatorrent.api.Context.OperatorContext;
 /**
  * This a is class which holds utility functions that can be used by operators to perform common
  * tasks.
+ *
+ * @since 3.3.0
  */
 public class WindowUtils
 {

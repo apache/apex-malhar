@@ -27,6 +27,8 @@ import com.datatorrent.common.util.BaseOperator;
 
 /**
  * Extracts words from input line
+ *
+ * @since 3.3.0
  */
 public class WordReader extends BaseOperator
 {

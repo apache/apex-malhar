@@ -30,6 +30,8 @@ import com.datatorrent.api.AutoMetric;
 
 /**
  * Metrics class
+ *
+ * @since 3.3.0
  */
 public class KafkaMetrics implements Serializable
 {

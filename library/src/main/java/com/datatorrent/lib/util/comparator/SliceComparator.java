@@ -26,6 +26,8 @@ import com.datatorrent.netlet.util.Slice;
 
 /**
  * Default key comparator that performs lexicographical comparison of the byte arrays.
+ *
+ * @since 3.3.0
  */
 public class SliceComparator implements Comparator<Slice>
 {

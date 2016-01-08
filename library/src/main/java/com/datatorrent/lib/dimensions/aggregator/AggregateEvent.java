@@ -20,6 +20,9 @@ package com.datatorrent.lib.dimensions.aggregator;
 
 import it.unimi.dsi.fastutil.Hash;
 
+/**
+ * @since 3.3.0
+ */
 public interface AggregateEvent
 {
   int getAggregatorIndex();
