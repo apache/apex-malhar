@@ -30,6 +30,8 @@ import com.google.common.collect.Sets;
 /**
  * An one-to-one partitioner implementation that always returns same amount of operator partitions as
  * Kafka partitions for the topics that operator subscribe
+ *
+ * @since 3.3.0
  */
 public class OneToOnePartitioner extends AbstractKafkaPartitioner
 {

@@ -53,6 +53,8 @@ import com.datatorrent.api.StatsListener;
  * the consumer subscribes and expose those to subclass which implements the assign method
  *
  * The partitioner is always stateless.
+ *
+ * @since 3.3.0
  */
 public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKafkaInputOperator>, StatsListener
 {

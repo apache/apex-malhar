@@ -72,6 +72,8 @@ import com.datatorrent.lib.appdata.schemas.Type;
  * dimensionsDescriptorID is used for storage in order to prevent key conflicts.
  * </p>
  *
+ *
+ * @since 3.3.0
  */
 public class DimensionsDescriptor implements Serializable, Comparable<DimensionsDescriptor>
 {

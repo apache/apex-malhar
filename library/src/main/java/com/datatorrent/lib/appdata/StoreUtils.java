@@ -29,6 +29,9 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Sink;
 
+/**
+ * @since 3.3.0
+ */
 public class StoreUtils
 {
   /**

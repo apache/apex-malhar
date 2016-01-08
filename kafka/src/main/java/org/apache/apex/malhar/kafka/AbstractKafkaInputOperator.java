@@ -63,6 +63,8 @@ import com.datatorrent.api.StatsListener;
  * <li>Multi-topic support, one operator can subscribe multiple topics</li>
  * <li>Throughput control support, you can throttle number of tuple for each streaming window</li>
  * </ol>
+ *
+ * @since 3.3.0
  */
 public abstract class AbstractKafkaInputOperator implements InputOperator, Operator.ActivationListener<Context.OperatorContext>, Operator.CheckpointListener, Partitioner<AbstractKafkaInputOperator>, StatsListener, OffsetCommitCallback
 {

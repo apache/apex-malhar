@@ -53,6 +53,8 @@ import kafka.producer.ProducerConfig;
  * @category Messaging
  * @tags Output operator
  *
+ *
+ * @since 3.3.0
  */
 public class POJOKafkaOutputOperator extends AbstractKafkaOutputOperator<Object,Object>
 {

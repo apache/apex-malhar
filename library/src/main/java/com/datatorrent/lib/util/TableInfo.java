@@ -22,6 +22,9 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+/**
+ * @since 3.3.0
+ */
 public class TableInfo< T extends FieldInfo >
 {
   //the row or id expression

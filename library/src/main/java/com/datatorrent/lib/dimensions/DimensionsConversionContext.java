@@ -26,6 +26,8 @@ import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 /**
  * This is a context object used to convert {@link InputEvent}s into aggregates
  * in {@link IncrementalAggregator}s.
+ *
+ * @since 3.3.0
  */
 public class DimensionsConversionContext implements Serializable
 {

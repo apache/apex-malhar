@@ -31,6 +31,9 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
+/**
+ * @since 3.3.0
+ */
 public class CustomTimeBucketRegistry implements Serializable
 {
   private static final long serialVersionUID = 201509221536L;

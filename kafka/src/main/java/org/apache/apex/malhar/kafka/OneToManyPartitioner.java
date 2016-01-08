@@ -29,6 +29,8 @@ import org.apache.kafka.common.PartitionInfo;
 /**
  * A one-to-many partitioner implementation that creates fix number of operator partitions and assign one or more
  * Kafka partitions to each. It use round robin to assign partitions
+ *
+ * @since 3.3.0
  */
 public class OneToManyPartitioner extends AbstractKafkaPartitioner
 {

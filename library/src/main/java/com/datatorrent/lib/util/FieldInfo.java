@@ -21,6 +21,9 @@ package com.datatorrent.lib.util;
 import javax.validation.constraints.NotNull;
 
 @SuppressWarnings("rawtypes")
+/**
+ * @since 3.3.0
+ */
 public class FieldInfo
 {
   // Columns name set by user.

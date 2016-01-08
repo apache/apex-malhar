@@ -26,6 +26,8 @@ import com.datatorrent.api.DefaultOutputPort;
  * This is just an example of single port operator emits only byte array messages
  * The key and cluster information are ignored
  * This class emit the value to the single output port
+ *
+ * @since 3.3.0
  */
 public class KafkaSinglePortInputOperator extends AbstractKafkaInputOperator
 {
