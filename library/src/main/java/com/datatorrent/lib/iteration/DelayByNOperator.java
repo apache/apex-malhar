@@ -29,6 +29,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.lib.util.WindowDataManager;
 import com.datatorrent.netlet.util.DTThrowable;
+import com.datatorrent.stram.engine.WindowGenerator;
 
 /**
  * This operator is used in iteration and can do n window delay.
@@ -38,7 +39,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @category iteration
 
  */
-public class nDelayOperator<T> implements Operator.DelayOperator, Operator.CheckpointListener
+public class DelayByNOperator<T> implements Operator.DelayOperator, Operator.CheckpointListener
 {
   private WindowDataManager windowDataManager = new WindowDataManager.FSWindowDataManager();
   @Min(1)
@@ -47,6 +48,8 @@ public class nDelayOperator<T> implements Operator.DelayOperator, Operator.Check
   private transient int operatorContextId;
   private transient ArrayList<T> windowData;
   private transient Context.OperatorContext context;
+  private long previouslyCommittedWindow;
+  private boolean previouslyCommittedWindowSet = false;
 
   public transient DefaultInputPort<T> input = new DefaultInputPort<T>() {
     @Override
@@ -58,7 +61,7 @@ public class nDelayOperator<T> implements Operator.DelayOperator, Operator.Check
 
   public transient DefaultOutputPort<T> output = new DefaultOutputPort();
 
-  public nDelayOperator()
+  public DelayByNOperator()
   {
     init();
   }
@@ -66,7 +69,7 @@ public class nDelayOperator<T> implements Operator.DelayOperator, Operator.Check
   /*
   * @param delay set the delay in number of windows for the tuples.
    */
-  public nDelayOperator(int delay)
+  public DelayByNOperator(int delay)
   {
     if ( delay < 1 ) {
       throw new IllegalArgumentException("Invalid Delay specified.");
@@ -113,13 +116,19 @@ public class nDelayOperator<T> implements Operator.DelayOperator, Operator.Check
   @Override
   public void firstWindow()
   {
-    replay(currentWindowId - delay);
+    replay(currentWindowId, delay, true);
   }
 
-  private void replay( long windowId )
+  private void replay( long windowId, int delay, boolean firstWindow )
   {
-    if ( windowId < 0 ) {
-      return;
+    if (  WindowGenerator.MIN_WINDOW_ID + delay > windowId ) {
+      windowId = WindowGenerator.MAX_WINDOW_ID - ( delay -  ( windowId - WindowGenerator.MIN_WINDOW_ID )  ) + 1;
+    } else {
+      windowId = windowId - delay;
+    }
+
+    if ( !firstWindow) {
+      ++windowId;
     }
 
     ArrayList<T> recoveredData;
@@ -142,7 +151,7 @@ public class nDelayOperator<T> implements Operator.DelayOperator, Operator.Check
     currentWindowId = windowId;
 
     if ( delay > 1 ) {
-      replay(windowId - delay + 1);
+      replay(windowId, delay, false);
     }
   }
 
@@ -152,7 +161,7 @@ public class nDelayOperator<T> implements Operator.DelayOperator, Operator.Check
     try {
       this.windowDataManager.save(windowData, operatorContextId, currentWindowId);
     } catch (IOException e) {
-      DTThrowable.rethrow(e);
+      throw DTThrowable.wrapIfChecked(e);
     }
 
     windowData.clear();
@@ -177,7 +186,37 @@ public class nDelayOperator<T> implements Operator.DelayOperator, Operator.Check
   public void committed(long windowId)
   {
     try {
-      windowDataManager.deleteUpTo(operatorContextId, windowId - delay - 1);
+
+      if ( previouslyCommittedWindowSet == false ) {
+        windowDataManager.deleteUpTo(operatorContextId, windowId - delay - 1);
+      } else {
+
+        if (previouslyCommittedWindow < windowId) {
+          windowDataManager.deleteUpTo(operatorContextId, windowId - delay - 1);
+        } else {
+
+          if (WindowGenerator.MIN_WINDOW_ID + delay + 1 > windowId) {
+
+            windowDataManager.deleteUpTo(operatorContextId, windowId - delay - 1);
+
+            for ( long i = WindowGenerator.MAX_WINDOW_ID; i >= previouslyCommittedWindow - delay; --i) {
+              windowDataManager.delete(operatorContextId,i);
+            }
+
+          } else {
+            long start = WindowGenerator.MAX_WINDOW_ID - (delay - (windowId - WindowGenerator.MIN_WINDOW_ID)) - 1;
+            long end =  previouslyCommittedWindow - delay;
+
+            for ( long i = start; i >= end;--i) {
+              windowDataManager.delete(operatorContextId,i);
+            }
+          }
+        }
+      }
+
+      previouslyCommittedWindow = windowId;
+      previouslyCommittedWindowSet = true;
+
     } catch (IOException e) {
       throw new RuntimeException("committing", e);
     }
