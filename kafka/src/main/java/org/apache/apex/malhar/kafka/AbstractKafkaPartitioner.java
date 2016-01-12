@@ -259,13 +259,13 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
       }
       PartitionMeta that = (PartitionMeta)o;
       return Objects.equals(cluster, that.cluster) &&
-        Objects.equals(topicPartition, that.topicPartition);
+        Objects.equals(getTopicPartition(), that.getTopicPartition());
     }
 
     @Override
     public int hashCode()
     {
-      return Objects.hash(cluster, topicPartition);
+      return Objects.hash(cluster, getTopicPartition());
     }
 
     @Override

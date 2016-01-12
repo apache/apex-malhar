@@ -54,8 +54,8 @@ public class OneToManyPartitioner extends AbstractKafkaPartitioner
       for (Map.Entry<String, List<PartitionInfo>> topicPartition : clusterMap.getValue().entrySet()) {
         for (PartitionInfo pif : topicPartition.getValue()) {
           int index = i++ % partitionCount;
-          if (eachPartitionAssignment.get(index) == null) {
-            eachPartitionAssignment.add(index, new HashSet<PartitionMeta>());
+          if (index >= eachPartitionAssignment.size()) {
+            eachPartitionAssignment.add(new HashSet<PartitionMeta>());
           }
           eachPartitionAssignment.get(index).add(new PartitionMeta(clusterMap.getKey(), topicPartition.getKey(), pif.partition()));
         }
