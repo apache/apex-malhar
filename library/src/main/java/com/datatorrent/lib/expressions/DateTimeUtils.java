@@ -22,23 +22,41 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+/**
+ * This class contains some public static method which are utility methods available in expression to be invoked.
+ *
+ * This set of methods takes care of some basic functionality associated with date/time.
+ */
 public class DateTimeUtils
 {
+  /**
+   * Returns Date object representing current datetime.
+   */
   public Date nowDate()
   {
     return new Date();
   }
 
+  /**
+   * Returns current time in unix time format.
+   */
   public long nowTime()
   {
     return System.currentTimeMillis();
   }
 
+  /**
+   * Returns Calender instance representing current datetime for default timezone.
+   */
   public Calendar nowCalender()
   {
     return Calendar.getInstance();
   }
 
+  /**
+   * Returns Calender instance of current datetime for given timezone.
+   * @param timeZone Timezone for which Calender instance needs to be returned.
+   */
   public Calendar nowCalender(String timeZone)
   {
     return Calendar.getInstance(TimeZone.getTimeZone(timeZone));

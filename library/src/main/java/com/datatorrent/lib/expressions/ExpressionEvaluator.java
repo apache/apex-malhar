@@ -44,7 +44,7 @@ import java.util.regex.Pattern;
  * 2. Return type of of expression evaluation.
  * 3. Expression to be evaluated. This is a standard java expression except for referencing the variable inside object JEL syntax needs to be used i.e. ${objectPlaceHolder.varName}
  *
- * Expression cab be defined as per JSL 7 syntax:
+ * Expression can be defined as per JSL 7 syntax:
  * http://docs.oracle.com/javase/specs/jls/se7/html/jls-14.html
  */
 public class ExpressionEvaluator
