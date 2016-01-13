@@ -36,9 +36,18 @@ public class JdbcStoreTest
   {
     JdbcStore store = new JdbcStore();
     store.setConnectionProperties("user:test,password:pwd");
-    Properties properties = store.getConnectionProperties();
+    Properties properties = store.getConnectionPropertiesList();
     Assert.assertEquals("user", properties.get("user"), "test");
     Assert.assertEquals("password", properties.get("password"), "pwd");
+  }
+
+  @Test
+  public void testConnectionPropertiesString()
+  {
+    String connectionProps = "user:test,password:pwd,connectTimeout:2000";
+    JdbcStore store = new JdbcStore();
+    store.setConnectionProperties(connectionProps);
+    Assert.assertEquals("Connection Properties", connectionProps, store.getConnectionProperties());
   }
 
   @Test

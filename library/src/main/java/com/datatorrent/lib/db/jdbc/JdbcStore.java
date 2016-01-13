@@ -21,6 +21,7 @@ package com.datatorrent.lib.db.jdbc;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Enumeration;
 import java.util.Properties;
 
 import javax.validation.constraints.NotNull;
@@ -31,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
-
 import com.datatorrent.lib.db.Connectable;
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -47,7 +47,7 @@ public class JdbcStore implements Connectable
   private String databaseUrl;
   @NotNull
   private String databaseDriver;
-  private Properties connectionProperties;
+  private Properties connectionPropertiesList;
   protected transient Connection connection = null;
 
   /*
@@ -84,10 +84,9 @@ public class JdbcStore implements Connectable
     this.databaseDriver = databaseDriver;
   }
 
-
   public JdbcStore()
   {
-    connectionProperties = new Properties();
+    connectionPropertiesList = new Properties();
   }
 
   public Connection getConnection()
@@ -103,7 +102,7 @@ public class JdbcStore implements Connectable
    */
   public void setUserName(String userName)
   {
-    connectionProperties.put("user", userName);
+    connectionPropertiesList.put("user", userName);
   }
 
   /**
@@ -114,42 +113,60 @@ public class JdbcStore implements Connectable
    */
   public void setPassword(String password)
   {
-    connectionProperties.put("password", password);
+    connectionPropertiesList.put("password", password);
   }
 
   /**
    * Sets the connection properties on JDBC connection. Connection properties are provided as a string.
    *
-   * @param connectionProps Comma separated list of properties. Property key and value are separated by colon.
-   *                        eg. user:xyz,password:ijk
+   * @param connectionProps Comma separated list of properties. Property key and value are separated by colon. eg.
+   *                        user:xyz,password:ijk
    */
   public void setConnectionProperties(String connectionProps)
   {
-    String[] properties = Iterables.toArray(Splitter.on(CharMatcher.anyOf(":,")).omitEmptyStrings().trimResults()
-        .split(connectionProps), String.class);
+    String[] properties = Iterables.toArray(Splitter.on(CharMatcher.anyOf(":,")).omitEmptyStrings().trimResults().split(connectionProps), String.class);
     for (int i = 0; i < properties.length; i += 2) {
       if (i + 1 < properties.length) {
-        connectionProperties.put(properties[i], properties[i + 1]);
+        connectionPropertiesList.put(properties[i], properties[i + 1]);
       }
     }
   }
 
   /**
-   * Sets the connection properties on JDBC connection.
-   *
-   * @param connectionProperties connection properties.
+   * Get the connection properties of JDBC connection
+   * @return connectionProperties
    */
-  public void setConnectionProperties(Properties connectionProperties)
+  public String getConnectionProperties()
   {
-    this.connectionProperties = connectionProperties;
+    StringBuilder props = new StringBuilder();
+    Enumeration propertiesItr = connectionPropertiesList.propertyNames();
+    while (propertiesItr.hasMoreElements()) {
+      String key = (String) propertiesItr.nextElement();
+      props.append(key).append(":").append(connectionPropertiesList.getProperty(key));
+      if (propertiesItr.hasMoreElements()) {
+        props.append(",");
+      }
+    }
+    return props.toString();
   }
 
   /**
-   * Get the connection properties of JDBC connection.
+   * Sets the connection properties list on JDBC connection.
+   *
+   * @param connectionPropertiesList connection properties
    */
-  public Properties getConnectionProperties()
+  public void setConnectionPropertiesList(Properties connectionPropertiesList)
   {
-    return connectionProperties;
+    this.connectionPropertiesList = connectionPropertiesList;
+  }
+
+  /**
+   * Get JDBC connection properties list
+   * @return connectionPropertiesList
+   */
+  public Properties getConnectionPropertiesList()
+  {
+    return connectionPropertiesList;
   }
 
   /**
@@ -161,7 +178,7 @@ public class JdbcStore implements Connectable
     try {
       // This will load the JDBC driver, each DB has its own driver
       Class.forName(databaseDriver).newInstance();
-      connection = DriverManager.getConnection(databaseUrl, connectionProperties);
+      connection = DriverManager.getConnection(databaseUrl, connectionPropertiesList);
 
       logger.debug("JDBC connection Success");
     } catch (Throwable t) {
@@ -191,6 +208,5 @@ public class JdbcStore implements Connectable
       throw new RuntimeException("is isConnected", e);
     }
   }
-
 
 }
