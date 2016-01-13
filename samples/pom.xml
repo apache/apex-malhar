@@ -34,6 +34,10 @@
 
   <name>Apache Apex Malhar (incubating) Samples</name>
 
+  <properties>
+    <maven.deploy.skip>true</maven.deploy.skip>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
