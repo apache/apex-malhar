@@ -37,7 +37,7 @@
 
   <properties>
     <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
-    <maven.deploy.skip>false</maven.deploy.skip>
+    <maven.deploy.skip>true</maven.deploy.skip>
     <skipTests>true</skipTests>
     <semver.plugin.skip>true</semver.plugin.skip>
   </properties>

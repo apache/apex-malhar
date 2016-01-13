@@ -35,7 +35,6 @@
   <name>Apache Apex Malhar (incubating) Library</name>
 
   <properties>
-    <maven.deploy.skip>false</maven.deploy.skip>
   </properties>
 
   <build>
