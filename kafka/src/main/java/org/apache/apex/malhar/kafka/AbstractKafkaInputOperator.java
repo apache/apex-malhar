@@ -177,6 +177,8 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   @Override
   public void committed(long windowId)
   {
+    if (initialOffset == InitialOffset.LATEST || initialOffset == InitialOffset.EARLIEST)
+      return;
     //ask kafka consumer wrapper to store the committed offsets
     for (Iterator<Pair<Long, Map<AbstractKafkaPartitioner.PartitionMeta, Long>>> iter = offsetHistory.iterator(); iter.hasNext(); ) {
       Pair<Long, Map<AbstractKafkaPartitioner.PartitionMeta, Long>> item = iter.next();
@@ -202,7 +204,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
       emitTuple(tuple.getLeft(), msg);
       AbstractKafkaPartitioner.PartitionMeta pm = new AbstractKafkaPartitioner.PartitionMeta(tuple.getLeft(),
           msg.topic(), msg.partition());
-      offsetTrack.put(pm, msg.offset());
+      offsetTrack.put(pm, msg.offset() + 1);
     }
     emitCount += count;
   }
