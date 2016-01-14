@@ -33,7 +33,8 @@
   <name>Apache Apex Malhar (incubating) Demos</name>
 
   <properties>
-    <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
+    <apex.apppackage.groupid>${groupId}</apex.apppackage.groupid>
+    <apex.apppackage.classpath>lib/*.jar</apex.apppackage.classpath>
     <semver.plugin.skip>true</semver.plugin.skip>
     <maven.deploy.skip>true</maven.deploy.skip>
   </properties>
@@ -105,8 +106,9 @@
                 </archiverConfig>
                 <archive>
                   <manifestEntries>
-                    <Class-Path>${datatorrent.apppackage.classpath}</Class-Path>
+                    <Class-Path>${apex.apppackage.classpath}</Class-Path>
                     <DT-Engine-Version>${apex.core.version}</DT-Engine-Version>
+                    <DT-App-Package-Group-Id>${apex.apppackage.groupid}</DT-App-Package-Group-Id>
                     <DT-App-Package-Name>${project.artifactId}</DT-App-Package-Name>
                     <DT-App-Package-Version>${project.version}</DT-App-Package-Version>
                     <DT-App-Package-Display-Name>${project.name}</DT-App-Package-Display-Name>

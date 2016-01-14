@@ -36,7 +36,7 @@
   <description>Benchmark applications package</description>
 
   <properties>
-    <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
+    <apex.apppackage.classpath>lib/*.jar</apex.apppackage.classpath>
     <maven.deploy.skip>true</maven.deploy.skip>
     <skipTests>true</skipTests>
     <semver.plugin.skip>true</semver.plugin.skip>
@@ -103,9 +103,10 @@
               </archiverConfig>
               <archive>
                 <manifestEntries>
-                  <Class-Path>${datatorrent.apppackage.classpath}</Class-Path>
+                  <Class-Path>${apex.apppackage.classpath}</Class-Path>
                   <DT-Engine-Version>${apex.core.version}</DT-Engine-Version>
                   <DT-App-Package-Name>${project.artifactId}</DT-App-Package-Name>
+                  <DT-App-Package-Group-Id>${project.groupId}</DT-App-Package-Group-Id>
                   <DT-App-Package-Version>${project.version}</DT-App-Package-Version>
                   <DT-App-Package-Display-Name>${project.name}</DT-App-Package-Display-Name>
                   <DT-App-Package-Description>${project.description}</DT-App-Package-Description>
