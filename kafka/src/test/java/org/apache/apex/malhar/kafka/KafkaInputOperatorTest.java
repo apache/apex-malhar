@@ -48,26 +48,30 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 
   private int totalBrokers = 0;
 
+  private String partition = null;
 
-
-  @Parameterized.Parameters(name = "multi-cluster: {0}, multi-partition: {1}")
-  public static Collection<Boolean[]> testScenario()
+  @Parameterized.Parameters(name = "multi-cluster: {0}, multi-partition: {1}, partition: {2}")
+  public static Collection<Object[]> testScenario()
   {
-    return Arrays.asList(new Boolean[][]{{true, false}, // multi cluster with single partition
-      {true, true}, // multi cluster with multi partitions
-      {false, true}, // single cluster with multi partitions
-      {false, false}, // single cluster with single partitions
+    return Arrays.asList(new Object[][]{{true, false, "one_to_one"},// multi cluster with single partition
+      {true, false, "one_to_many"},
+      {true, true, "one_to_one"},// multi cluster with multi partitions
+      {true, true, "one_to_many"},
+      {false, true, "one_to_one"}, // single cluster with multi partitions
+      {false, true, "one_to_many"},
+      {false, false, "one_to_one"}, // single cluster with single partitions
+      {false, false, "one_to_many"}
     });
   }
 
-  public KafkaInputOperatorTest(boolean hasMultiCluster, boolean hasMultiPartition)
+  public KafkaInputOperatorTest(boolean hasMultiCluster, boolean hasMultiPartition, String partition)
   {
     // This class want to initialize several kafka brokers for multiple partitions
     this.hasMultiCluster = hasMultiCluster;
     this.hasMultiPartition = hasMultiPartition;
     int cluster = 1 + (hasMultiCluster ? 1 : 0);
     totalBrokers = (1 + (hasMultiPartition ? 1 : 0)) * cluster;
-
+    this.partition = partition;
   }
 
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(KafkaInputOperatorTest.class);
@@ -167,6 +171,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     node.setTopics(TEST_TOPIC);
     node.setInitialOffset(AbstractKafkaInputOperator.InitialOffset.EARLIEST.name());
     node.setClusters(getClusterConfig());
+    node.setStrategy(partition);
 
     // Create Test tuple collector
     CollectorModule collector = dag.addOperator("TestMessageCollector", new CollectorModule());

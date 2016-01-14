@@ -256,14 +256,15 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
         return false;
       }
       PartitionMeta that = (PartitionMeta)o;
-      return Objects.equals(cluster, that.cluster) &&
-        Objects.equals(topicPartition, that.topicPartition);
+      return Objects.equals(partitionId, that.partitionId) &&
+        Objects.equals(cluster, that.cluster) &&
+        Objects.equals(topic, that.topic);
     }
 
     @Override
     public int hashCode()
     {
-      return Objects.hash(cluster, topicPartition);
+      return Objects.hash(cluster, topic, partitionId);
     }
 
     @Override
