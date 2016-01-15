@@ -25,16 +25,18 @@ import org.junit.Test;
 
 import java.util.Date;
 
-public class ExpressionEvaluatorTest
+public class JavaExpressionEvaluatorTest
 {
   @Test
   public void testBasic() throws Exception
   {
     POJO1 pojo = createTestPOJO1();
 
-    ExpressionEvaluator ee = new ExpressionEvaluator();
-    // Let expression evaluator know what are the object mappings present in expressions and their class types.
-    ee.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
+    JavaExpressionParser parser = new JavaExpressionParser();
+    parser.setInputObjectPlaceholders(new String[] {"inp"}, new Class[] {POJO1.class});
+
+    JavaExpressionEvaluator ee = new JavaExpressionEvaluator();
+    ee.setExpressionParser(parser);
 
     // Operand type: ${objectPlaceholder.fieldName}
     String expression = "${inp.a}";
@@ -49,28 +51,36 @@ public class ExpressionEvaluatorTest
     Assert.assertEquals(12, age.intValue());
 
     // Operand type: ${fieldName} with multiple registered placeholders.
-    ee.setInputObjectPlaceholders(new String[]{"inp", "inpA"}, new Class[]{POJO1.class, POJO1.class});
+    parser = new JavaExpressionParser();
+    parser.setInputObjectPlaceholders(new String[] {"inp", "inpA"}, new Class[] {POJO1.class, POJO1.class});
+    ee.setExpressionParser(parser);
     expression = "${a}";
     getter = ee.createExecutableExpression(expression, Integer.class);
     age = getter.execute(pojo, pojo);
     Assert.assertEquals(12, age.intValue());
 
     // Operand type: ${objectPlaceholder}
-    ee.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{Integer.class});
+    parser = new JavaExpressionParser();
+    parser.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{Integer.class});
+    ee.setExpressionParser(parser);
     expression = "${inp} * 2";
     getter = ee.createExecutableExpression(expression, Integer.class);
     age = getter.execute(new Integer(6));
     Assert.assertEquals(12, age.intValue());
 
     // Operand type: ${objectPlaceholder} with placeholder same as variable name
-    ee.setInputObjectPlaceholders(new String[]{"a"}, new Class[]{Integer.class});
+    parser = new JavaExpressionParser();
+    parser.setInputObjectPlaceholders(new String[]{"a"}, new Class[]{Integer.class});
+    ee.setExpressionParser(parser);
     expression = "${a} * 2";
     getter = ee.createExecutableExpression(expression, Integer.class);
     age = getter.execute(new Integer(66));
     Assert.assertEquals(132, age.intValue());
 
     // Operand type : Nested Operands ${objectPlaceholder.fieldName1.fieldName2}
-    ee.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{NestedPOJO.class});
+    parser = new JavaExpressionParser();
+    parser.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{NestedPOJO.class});
+    ee.setExpressionParser(parser);
     expression = "${inp.innerPOJO.a} + toInt(${inp.innerPOJO.b}) + ${inp.innerPOJO2.a} + toInt(${inp.innerPOJO2.b})";
     getter = ee.createExecutableExpression(expression, Integer.class);
 
@@ -85,10 +95,11 @@ public class ExpressionEvaluatorTest
   public void testSerialization() throws Exception
   {
     POJO1 pojo = createTestPOJO1();
+    JavaExpressionParser parser = new JavaExpressionParser();
+    parser.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
 
-    ExpressionEvaluator ee = new ExpressionEvaluator();
-    // Let expression evaluator know what are the object mappings present in expressions and their class types.
-    ee.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
+    JavaExpressionEvaluator ee = new JavaExpressionEvaluator();
+    ee.setExpressionParser(parser);
 
     String expression = "${inp.a} + ${inp.b}";
     ExpressionEvaluator.Expression<Long> getter = ee.createExecutableExpression(expression, Long.class);
@@ -96,6 +107,7 @@ public class ExpressionEvaluatorTest
     Assert.assertEquals(25, addition.longValue());
 
     TestUtils.clone(new Kryo(), getter);
+    TestUtils.clone(new Kryo(), parser);
     TestUtils.clone(new Kryo(), ee);
   }
 
@@ -104,9 +116,10 @@ public class ExpressionEvaluatorTest
   {
     POJO1 pojo = createTestPOJO1();
 
-    ExpressionEvaluator ee = new ExpressionEvaluator();
-    // Let expression evaluator know what are the object mappings present in expressions and their class types.
-    ee.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
+    JavaExpressionParser parser = new JavaExpressionParser();
+    parser.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
+    JavaExpressionEvaluator ee = new JavaExpressionEvaluator();
+    ee.setExpressionParser(parser);
 
     String expression = "${inp.a} + ${inp.b}";
     ExpressionEvaluator.Expression<Long> getter = ee.createExecutableExpression(expression, Long.class);
@@ -120,9 +133,10 @@ public class ExpressionEvaluatorTest
   {
     POJO1 pojo = createTestPOJO1();
 
-    ExpressionEvaluator ee = new ExpressionEvaluator();
-    // Let expression evaluator know what are the object mappings present in expressions and their class types.
-    ee.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
+    JavaExpressionParser parser = new JavaExpressionParser();
+    parser.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
+    JavaExpressionEvaluator ee = new JavaExpressionEvaluator();
+    ee.setExpressionParser(parser);
 
     String expression1 = "${inp.a} + ${inp.b}";
     ExpressionEvaluator.Expression<Long> getter1 = ee.createExecutableExpression(expression1, Long.class);
@@ -135,9 +149,10 @@ public class ExpressionEvaluatorTest
   {
     POJO1 pojo = createTestPOJO1();
 
-    ExpressionEvaluator ee = new ExpressionEvaluator();
-    // Let expression evaluator know what are the object mappings present in expressions and their class types.
-    ee.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
+    JavaExpressionParser parser = new JavaExpressionParser();
+    parser.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
+    JavaExpressionEvaluator ee = new JavaExpressionEvaluator();
+    ee.setExpressionParser(parser);
 
     String expression = "${inp.a} * ${inp.b}";
     ExpressionEvaluator.Expression<Long> getter = ee.createExecutableExpression(expression, Long.class);
@@ -150,9 +165,10 @@ public class ExpressionEvaluatorTest
   {
     POJO1 pojo = createTestPOJO1();
 
-    ExpressionEvaluator ee = new ExpressionEvaluator();
-    // Let expression evaluator know what are the object mappings present in expressions and their class types.
-    ee.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
+    JavaExpressionParser parser = new JavaExpressionParser();
+    parser.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
+    JavaExpressionEvaluator ee = new JavaExpressionEvaluator();
+    ee.setExpressionParser(parser);
 
     String expression = "(int) (${inp.a} * ${inp.b})";
     ExpressionEvaluator.Expression<Integer> getter = ee.createExecutableExpression(expression, Integer.class);
@@ -167,9 +183,10 @@ public class ExpressionEvaluatorTest
     pojo.setA(1);
     pojo.setB(1);
 
-    ExpressionEvaluator ee = new ExpressionEvaluator();
-    // Let expression evaluator know what are the object mappings present in expressions and their class types.
-    ee.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
+    JavaExpressionParser parser = new JavaExpressionParser();
+    parser.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
+    JavaExpressionEvaluator ee = new JavaExpressionEvaluator();
+    ee.setExpressionParser(parser);
 
     String expression = "(${inp.a} * ${inp.b}) > 0 ? ${inp.name1} : ${inp.name2}";
     ExpressionEvaluator.Expression<String> getter = ee.createExecutableExpression(expression, String.class);
@@ -193,9 +210,10 @@ public class ExpressionEvaluatorTest
     pojo.setA(1);
     pojo.setB(1);
 
-    ExpressionEvaluator ee = new ExpressionEvaluator();
-    // Let expression evaluator know what are the object mappings present in expressions and their class types.
-    ee.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
+    JavaExpressionParser parser = new JavaExpressionParser();
+    parser.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
+    JavaExpressionEvaluator ee = new JavaExpressionEvaluator();
+    ee.setExpressionParser(parser);
 
     String expression = "${inp.name2} + \" \" + ${inp.name1}";
     ExpressionEvaluator.Expression<String> getter = ee.createExecutableExpression(expression, String.class);
@@ -209,9 +227,10 @@ public class ExpressionEvaluatorTest
   {
     POJO1 pojo = createTestPOJO1();
 
-    ExpressionEvaluator ee = new ExpressionEvaluator();
-    // Let expression evaluator know what are the object mappings present in expressions and their class types.
-    ee.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
+    JavaExpressionParser parser = new JavaExpressionParser();
+    parser.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
+    JavaExpressionEvaluator ee = new JavaExpressionEvaluator();
+    ee.setExpressionParser(parser);
 
     String expression = "isEmpty(${inp.name1})";
     ExpressionEvaluator.Expression<Boolean> getter = ee.createExecutableExpression(expression, Boolean.class);
@@ -243,9 +262,10 @@ public class ExpressionEvaluatorTest
   {
     POJO1 pojo = createTestPOJO1();
 
-    ExpressionEvaluator ee = new ExpressionEvaluator();
-    // Let expression evaluator know what are the object mappings present in expressions and their class types.
-    ee.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
+    JavaExpressionParser parser = new JavaExpressionParser();
+    parser.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
+    JavaExpressionEvaluator ee = new JavaExpressionEvaluator();
+    ee.setExpressionParser(parser);
 
     String expression = "equalsWithCase(${inp.name1}, ${inp.name2}) ? true: false";
     ExpressionEvaluator.Expression<Boolean> getter = ee.createExecutableExpression(expression, Boolean.class);
@@ -268,9 +288,10 @@ public class ExpressionEvaluatorTest
     POJO1 pojo1 = createTestPOJO1();
     POJO2 pojo2 = createTestPOJO2();
 
-    ExpressionEvaluator ee = new ExpressionEvaluator();
-    // Let expression evaluator know what are the object mappings present in expressions and their class types.
-    ee.setInputObjectPlaceholders(new String[]{"inpA", "inpB"}, new Class[]{POJO1.class, POJO2.class});
+    JavaExpressionParser parser = new JavaExpressionParser();
+    parser.setInputObjectPlaceholders(new String[]{"inpA", "inpB"}, new Class[]{POJO1.class, POJO2.class});
+    JavaExpressionEvaluator ee = new JavaExpressionEvaluator();
+    ee.setExpressionParser(parser);
 
     String expression = "equalsWithCase(${inpA.name1}, ${inpA.name2}) ? ${inpB.a} : ${inpB.b}";
     ExpressionEvaluator.Expression<Double> getter = ee.createExecutableExpression(expression, Double.class);
@@ -299,9 +320,10 @@ public class ExpressionEvaluatorTest
   {
     POJO1 pojo = createTestPOJO1();
 
-    ExpressionEvaluator ee = new ExpressionEvaluator();
-    // Let expression evaluator know what are the object mappings present in expressions and their class types.
-    ee.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
+    JavaExpressionParser parser = new JavaExpressionParser();
+    parser.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{POJO1.class});
+    JavaExpressionEvaluator ee = new JavaExpressionEvaluator();
+    ee.setExpressionParser(parser);
 
     String expression = "long retVal = 1; for (int i=0;i<${inp.a};i++) { retVal = retVal * ${inp.b}; } return retVal;";
     ExpressionEvaluator.Expression<Long> getter = ee.createExecutableFunction(expression, Long.class);
@@ -317,9 +339,11 @@ public class ExpressionEvaluatorTest
     nestedPOJO.setInnerPOJO(createTestPOJO1());
     nestedPOJO.innerPOJO2 = createTestPOJO1();
 
-    ExpressionEvaluator ee = new ExpressionEvaluator();
-    ee.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{NestedPOJO.class});
-    ee.registerCustomMethod("com.datatorrent.lib.expressions.ExpressionEvaluatorTest.customMethod");
+    JavaExpressionParser parser = new JavaExpressionParser();
+    parser.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{NestedPOJO.class});
+    JavaExpressionEvaluator ee = new JavaExpressionEvaluator();
+    ee.setExpressionParser(parser);
+    ee.registerCustomMethod("com.datatorrent.lib.expressions.JavaExpressionEvaluatorTest.customMethod");
 
     String expression = "${inp.innerPOJO.name1} + customMethod(${inp})";
     ExpressionEvaluator.Expression exp = ee.createExecutableExpression(expression, String.class);

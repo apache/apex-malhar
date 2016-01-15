@@ -18,17 +18,17 @@
  */
 package com.datatorrent.lib.expressions;
 
-import com.datatorrent.lib.expressions.ExpressionEvaluatorTest.POJO1;
-import com.datatorrent.lib.expressions.ExpressionEvaluatorTest.POJO2;
+import com.datatorrent.lib.expressions.JavaExpressionEvaluatorTest.POJO1;
+import com.datatorrent.lib.expressions.JavaExpressionEvaluatorTest.POJO2;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
-public class ExpressionPerformanceTest
+public class JavaExpressionPerformanceTest
 {
-  private static final Logger logger = LoggerFactory.getLogger(ExpressionPerformanceTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(JavaExpressionPerformanceTest.class);
 
   @Test
   public void testExpressionPerformance() throws Exception
@@ -66,9 +66,10 @@ public class ExpressionPerformanceTest
 
   public void runMathExpressionPerformance(int count) throws Exception
   {
-    ExpressionEvaluator ee = new ExpressionEvaluator();
-    // Let expression evaluator know what are the object mappings present in expressions and their class types.
-    ee.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{Double.class});
+    JavaExpressionParser parser = new JavaExpressionParser();
+    parser.setInputObjectPlaceholders(new String[]{"inp"}, new Class[]{Double.class});
+    JavaExpressionEvaluator ee = new JavaExpressionEvaluator();
+    ee.setExpressionParser(parser);
 
     String expression1 = "2 + (7-5) * 3.14159 * ${inp} + sin(${inp})";
     ExpressionEvaluator.Expression getter = ee.createExecutableExpression(expression1, double.class);
@@ -84,9 +85,10 @@ public class ExpressionPerformanceTest
 
   public void runExpressionPerformance(int count) throws Exception
   {
-    ExpressionEvaluator ee = new ExpressionEvaluator();
-    // Let expression evaluator know what are the object mappings present in expressions and their class types.
-    ee.setInputObjectPlaceholders(new String[]{"inpA", "inpB"}, new Class[]{POJO1.class, POJO2.class});
+    JavaExpressionParser parser = new JavaExpressionParser();
+    parser.setInputObjectPlaceholders(new String[]{"inpA", "inpB"}, new Class[]{POJO1.class, POJO2.class});
+    JavaExpressionEvaluator ee = new JavaExpressionEvaluator();
+    ee.setExpressionParser(parser);
 
     String expression1 = "equalsWithCase(${inpA.name1}, ${inpA.name2}) ? ${inpB.a} * ${inpB.a} : toInt(${inpB.b}) * toInt(${inpB.b})";
     ExpressionEvaluator.Expression<Integer> getter = ee.createExecutableExpression(expression1, Integer.class);
@@ -113,9 +115,10 @@ public class ExpressionPerformanceTest
 
   public void runFunctionPerformance(int count) throws Exception
   {
-    ExpressionEvaluator ee = new ExpressionEvaluator();
-    // Let expression evaluator know what are the object mappings present in expressions and their class types.
-    ee.setInputObjectPlaceholders(new String[]{"inpA", "inpB"}, new Class[]{POJO1.class, POJO2.class});
+    JavaExpressionParser parser = new JavaExpressionParser();
+    parser.setInputObjectPlaceholders(new String[]{"inpA", "inpB"}, new Class[]{POJO1.class, POJO2.class});
+    JavaExpressionEvaluator ee = new JavaExpressionEvaluator();
+    ee.setExpressionParser(parser);
 
     String expression1 = "long retVal = 1; " +
                           "if (equalsWithCase(${inpA.name1}, ${inpA.name2})) { " +

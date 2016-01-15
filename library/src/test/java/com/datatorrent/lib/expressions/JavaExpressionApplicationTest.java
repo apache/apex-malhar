@@ -26,14 +26,14 @@ import org.junit.Test;
 
 import javax.validation.ConstraintViolationException;
 
-public class ExpressionApplicationTest
+public class JavaExpressionApplicationTest
 {
   @Test public void testExpressionApplication() throws Exception
   {
     try {
       LocalMode lma = LocalMode.newInstance();
       Configuration conf = new Configuration(false);
-      lma.prepareDAG(new ExpressionApplication(), conf);
+      lma.prepareDAG(new Application(), conf);
       LocalMode.Controller lc = lma.getController();
       lc.run(10000); // runs for 10 seconds and quits
     } catch (ConstraintViolationException e) {
@@ -41,7 +41,7 @@ public class ExpressionApplicationTest
     }
   }
 
-  public static class ExpressionApplication implements StreamingApplication
+  public static class Application implements StreamingApplication
   {
     @Override public void populateDAG(DAG dag, Configuration configuration)
     {
@@ -115,7 +115,8 @@ public class ExpressionApplicationTest
     public static String VARIABLE_PLACEHOLDER = "inp";
 
     private String stringExp;
-    private ExpressionEvaluator ee;
+    private JavaExpressionParser parser;
+    private JavaExpressionEvaluator ee;
     private ExpressionEvaluator.Expression expression;
 
     public final transient DefaultInputPort<TestPojo> input = new DefaultInputPort<TestPojo>()
@@ -131,8 +132,11 @@ public class ExpressionApplicationTest
 
     @Override public void setup(Context.OperatorContext context)
     {
-      ee = new ExpressionEvaluator();
-      ee.setInputObjectPlaceholders(new String[] { VARIABLE_PLACEHOLDER }, new Class[] { TestPojo.class });
+      parser = new JavaExpressionParser();
+      parser.setInputObjectPlaceholders(new String[] {VARIABLE_PLACEHOLDER}, new Class[] {TestPojo.class});
+      ee = new JavaExpressionEvaluator();
+      ee.setExpressionParser(parser);
+
       expression = ee.createExecutableExpression(stringExp, String.class);
     }
 
