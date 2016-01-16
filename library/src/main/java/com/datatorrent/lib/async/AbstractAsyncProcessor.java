@@ -23,6 +23,7 @@ import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
 import org.slf4j.Logger;
@@ -38,9 +39,8 @@ import com.datatorrent.common.util.BaseOperator;
 /**
  * This base operator can be used to enqueue tuples for asynchronous and parallel processing by separate worker threads.
  *
- * User can configure number of threads required for async processing. By default
- * threads will be created on need basis with no upper limit. These worker threads, spawned by operator thread,
- * can also be configured to processing timeout.
+ * User can configure number of threads required for async processing. By default 32 threads will be created.
+ * These worker threads, spawned by operator thread, can also be configured to processing timeout.
  *
  * <b>Workflow is as follows:</b>
  * <ol>
@@ -73,11 +73,13 @@ public abstract class AbstractAsyncProcessor<QUEUETUPLE, RESULTTUPLE> extends Ba
 
   /**
    * Number of worker threads for processing
-   * 0   - Threads will be created as per need.
-   * >=1 - Fixed number of thread pool will be created.
+   * Minimum value is 1 and max allowed number of threads are 32.
+   *
+   * Default number of threads is 32.
    */
-  @Min(0)
-  private int numProcessors = 0;
+  @Min(1)
+  @Max(32)
+  private int numProcessors = 32;
 
   /**
    * Tells whether the <i>handleProcessedTuple</i> should be called for tuples in the same order in which
@@ -107,12 +109,7 @@ public abstract class AbstractAsyncProcessor<QUEUETUPLE, RESULTTUPLE> extends Ba
    */
   @Override public void setup(Context.OperatorContext context)
   {
-    if (numProcessors == 0) {
-      this.executor = Executors.newCachedThreadPool();
-    } else {
-      this.executor = Executors.newFixedThreadPool(numProcessors);
-    }
-
+    this.executor = Executors.newFixedThreadPool(numProcessors);
     replayTuplesIfRequired();
   }
 

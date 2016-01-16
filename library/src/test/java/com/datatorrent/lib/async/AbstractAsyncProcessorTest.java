@@ -88,7 +88,8 @@ public class AbstractAsyncProcessorTest
     async.error.setSink(sinkErr);
     async.setup(null);
 
-    for (int windowId = 0; windowId < 10; windowId++) {
+    int windowId = 0;
+    for (windowId = 0; windowId < 10; windowId++) {
       async.beginWindow(windowId);
       for (int i = 0; i < 100; i++) {
         async.input.put(Integer.toString(windowId * 100 + i));
@@ -97,6 +98,7 @@ public class AbstractAsyncProcessorTest
     }
 
     for (int i = 0; i < 10; i++) {
+      async.beginWindow(windowId++);
       Thread.sleep(waitInterval / 10);
       async.endWindow();
     }
@@ -114,13 +116,20 @@ public class AbstractAsyncProcessorTest
       String[] split = outTuple1.split(";");
       Assert.assertEquals(2, split.length);
       int current = Integer.parseInt(split[0]);
-      if (current % 3 == 1) {
-        Assert.assertEquals("FIRSTPASS", split[1]);
-      } else if (current % 3 == 2) {
-        Assert.assertEquals("SECONDPASS", split[1]);
-      } else if (current % 3 == 0) {
-        Assert.assertTrue(false);
+      switch (current % 3) {
+        case 0:
+          Assert.assertTrue(false);
+          break;
+        case 1:
+          Assert.assertEquals("FIRSTPASS", split[1]);
+          break;
+        case 2:
+          Assert.assertEquals("SECONDPASS", split[1]);
+          break;
+        default:
+          throw new RuntimeException("Something wrong happened. Should never end up here.");
       }
+
       if (maintainOrder) {
         Assert.assertTrue(previous < current);
         previous = current;
