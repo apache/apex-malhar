@@ -1,0 +1,77 @@
+{
+  "name": "TestSchema",
+  "fields": [
+    {
+        "name": "vString1",
+        "type": "java.lang.String"
+    },
+    {
+        "name": "vLong1",
+        "type": "long"
+    },
+    {
+        "name": "vInt1",
+        "type": "int"
+    },
+    {
+        "name": "vBool1",
+        "type": "boolean"
+    },
+    {
+        "name": "vString2",
+        "type": "java.lang.String"
+    },
+    {
+        "name": "vShort2",
+        "type": "short"
+    },
+    {
+        "name": "vFloat1",
+        "type": "float"
+    },
+    {
+        "name": "vDouble2",
+        "type": "double"
+    },
+    {
+        "name": "vChar1",
+        "type": "char"
+    },
+    {
+        "name": "vLong2",
+        "type": "long"
+    },
+    {
+        "name": "vByte1",
+        "type": "byte"
+    },
+    {
+        "name": "vShort1",
+        "type": "short"
+    },
+    {
+        "name": "vInt2",
+        "type": "int"
+    },
+    {
+        "name": "vDouble1",
+        "type": "double"
+    },
+    {
+        "name": "vFloat2",
+        "type": "float"
+    },
+    {
+        "name": "vByte2",
+        "type": "byte"
+    },
+    {
+        "name": "vBool2",
+        "type": "boolean"
+    },
+    {
+        "name": "vChar2",
+        "type": "char"
+    }
+  ]
+}

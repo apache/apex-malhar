@@ -142,4 +142,159 @@ public class BeanClassGeneratorTest
 
     assertEquals("reflect getWaterUsage invoke", 88.343243, electricityUsage, 0);
   }
+
+  @Test
+  public void testToString() throws IOException, JSONException, InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException
+  {
+    File testFile = new File("src/test/resources/schemas/TestSchema.json");
+    String testSchema = FileUtils.readFileToString(testFile);
+
+    JSONObject testSchemaObj = new JSONObject(testSchema);
+    String testSchemaClassName = ClassSchemasResource.PACKAGE_GENERATED_CLASSES + "TestSchema_v1";
+    Path testSchemaClassPath = new Path(testMeta.generatedDir + "/TestSchema_v1.class");
+    FileSystem fs = FileSystem.newInstance(testSchemaClassPath.toUri(), new Configuration());
+    FSDataOutputStream outputStream = fs.create(testSchemaClassPath);
+
+    BeanClassGenerator.createAndWriteBeanClass(testSchemaClassName, testSchemaObj, outputStream);
+
+    Class<?> clazz = BeanClassGenerator.readBeanClass(testSchemaClassName, fs.open(testSchemaClassPath));
+    Object o = clazz.newInstance();
+
+    Method m = clazz.getDeclaredMethod("setVString1", String.class);
+    m.invoke(o, "vString1");
+    m = clazz.getDeclaredMethod("setVString2", String.class);
+    m.invoke(o, "vString2");
+    m = clazz.getDeclaredMethod("setVChar1", char.class);
+    m.invoke(o, '1');
+    m = clazz.getDeclaredMethod("setVChar2", char.class);
+    m.invoke(o, '2');
+    m = clazz.getMethod("toString");
+    String actualString = (String) m.invoke(o);
+    String expectedString = "com/datatorrent/beans/generated/TestSchema_v1{vString1=vString1, vLong1=0, vInt1=0, vBool1=false, vString2=vString2, vShort2=0, vFloat1=0.0, vDouble2=0.0, vChar1=1, vLong2=0, vByte1=0, vShort1=0, vInt2=0, vDouble1=0.0, vFloat2=0.0, vByte2=0, vBool2=false, vChar2=2}";
+    Assert.assertTrue(actualString.equals(expectedString));
+  }
+
+  @Test
+  public void testHashCode() throws IOException, JSONException, InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException
+  {
+    File testFile = new File("src/test/resources/schemas/TestSchema.json");
+    String testSchema = FileUtils.readFileToString(testFile);
+
+    JSONObject testSchemaObj = new JSONObject(testSchema);
+    String testSchemaClassName = ClassSchemasResource.PACKAGE_GENERATED_CLASSES + "TestSchema_v1";
+    Path testSchemaClassPath = new Path(testMeta.generatedDir + "/TestSchema_v1.class");
+    FileSystem fs = FileSystem.newInstance(testSchemaClassPath.toUri(), new Configuration());
+    FSDataOutputStream outputStream = fs.create(testSchemaClassPath);
+
+    BeanClassGenerator.createAndWriteBeanClass(testSchemaClassName, testSchemaObj, outputStream);
+
+    Class<?> clazz = BeanClassGenerator.readBeanClass(testSchemaClassName, fs.open(testSchemaClassPath));
+    Object o = clazz.newInstance();
+
+    Method m = clazz.getDeclaredMethod("setVString1", String.class);
+    m.invoke(o, "vString1");
+    m = clazz.getDeclaredMethod("setVString2", String.class);
+    m.invoke(o, "vString2");
+    m = clazz.getDeclaredMethod("setVChar1", char.class);
+    m.invoke(o, '1');
+    m = clazz.getDeclaredMethod("setVChar2", char.class);
+    m.invoke(o, '2');
+
+    m = clazz.getMethod("hashCode");
+    Integer actualHashCode = (Integer) m.invoke(o);
+    int expectedHashCode = 1086553467;
+    Assert.assertEquals(expectedHashCode, actualHashCode.intValue());
+
+    m = clazz.getDeclaredMethod("setVLong1", long.class);
+    m.invoke(o, 234972498);
+    m = clazz.getMethod("hashCode");
+    actualHashCode = (Integer) m.invoke(o);
+    expectedHashCode = 2041226189;
+    Assert.assertEquals(expectedHashCode, actualHashCode.intValue());
+
+    m = clazz.getDeclaredMethod("setVBool1", boolean.class);
+    m.invoke(o, true);
+    m = clazz.getMethod("hashCode");
+    actualHashCode = (Integer) m.invoke(o);
+    expectedHashCode = 761736999;
+    Assert.assertEquals(expectedHashCode, actualHashCode.intValue());
+
+    m = clazz.getDeclaredMethod("setVString2", String.class);
+    m.invoke(o, "TestingHashCode");
+    m = clazz.getMethod("hashCode");
+    actualHashCode = (Integer) m.invoke(o);
+    expectedHashCode = 843404263;
+    Assert.assertEquals(expectedHashCode, actualHashCode.intValue());
+  }
+
+  @Test
+  public void testEquals() throws IOException, JSONException, InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException
+  {
+    File testFile = new File("src/test/resources/schemas/TestSchema.json");
+    String testSchema = FileUtils.readFileToString(testFile);
+
+    JSONObject testSchemaObj = new JSONObject(testSchema);
+    String testSchemaClassName = ClassSchemasResource.PACKAGE_GENERATED_CLASSES + "TestSchema_v1";
+    Path testSchemaClassPath = new Path(testMeta.generatedDir + "/TestSchema_v1.class");
+    FileSystem fs = FileSystem.newInstance(testSchemaClassPath.toUri(), new Configuration());
+    FSDataOutputStream outputStream = fs.create(testSchemaClassPath);
+
+    BeanClassGenerator.createAndWriteBeanClass(testSchemaClassName, testSchemaObj, outputStream);
+
+    Class<?> clazz = BeanClassGenerator.readBeanClass(testSchemaClassName, fs.open(testSchemaClassPath));
+
+    Object o1 = clazz.newInstance();
+    Method m = clazz.getDeclaredMethod("setVString1", String.class);
+    m.invoke(o1, "vString1");
+    m = clazz.getDeclaredMethod("setVString2", String.class);
+    m.invoke(o1, "vString2");
+    m = clazz.getDeclaredMethod("setVChar1", char.class);
+    m.invoke(o1, '1');
+    m = clazz.getDeclaredMethod("setVChar2", char.class);
+    m.invoke(o1, '2');
+
+    Object o2 = clazz.newInstance();
+    m = clazz.getDeclaredMethod("setVString1", String.class);
+    m.invoke(o2, "vString1");
+    m = clazz.getDeclaredMethod("setVString2", String.class);
+    m.invoke(o2, "vString2");
+    m = clazz.getDeclaredMethod("setVChar1", char.class);
+    m.invoke(o2, '1');
+    m = clazz.getDeclaredMethod("setVChar2", char.class);
+    m.invoke(o2, '2');
+
+    m = clazz.getDeclaredMethod("equals", Object.class);
+    Boolean b = (Boolean) m.invoke(o1, o2);
+    Assert.assertTrue(b.booleanValue());
+
+    m = clazz.getDeclaredMethod("setVInt1", int.class);
+    m.invoke(o1, 123);
+    m.invoke(o2, 321);
+    m = clazz.getDeclaredMethod("setVInt2", int.class);
+    m.invoke(o1, 321);
+    m.invoke(o2, 123);
+    m = clazz.getDeclaredMethod("equals", Object.class);
+    b = (Boolean) m.invoke(o1, o2);
+    Assert.assertFalse(b.booleanValue());
+
+    m = clazz.getDeclaredMethod("setVInt1", int.class);
+    m.invoke(o2, 123);
+    m = clazz.getDeclaredMethod("setVInt2", int.class);
+    m.invoke(o2, 321);
+    m = clazz.getDeclaredMethod("equals", Object.class);
+    b = (Boolean) m.invoke(o1, o2);
+    Assert.assertTrue(b.booleanValue());
+
+    m = clazz.getDeclaredMethod("setVString1", String.class);
+    m.invoke(o2, "abcdefg");
+    m = clazz.getDeclaredMethod("equals", Object.class);
+    b = (Boolean) m.invoke(o1, o2);
+    Assert.assertFalse(b.booleanValue());
+
+    m = clazz.getDeclaredMethod("setVString1", String.class);
+    m.invoke(o2, "vString1");
+    m = clazz.getDeclaredMethod("equals", Object.class);
+    b = (Boolean) m.invoke(o1, o2);
+    Assert.assertTrue(b.booleanValue());
+  }
 }
