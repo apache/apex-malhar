@@ -1,0 +1,30 @@
+{
+  "name": "Address",
+  "fields": [
+    {
+      "name": "streetNumber",
+      "type": "java.lang.Long",
+      "default" : "777"
+    },
+    {
+      "name": "streetName",
+      "type": "java.lang.String",
+      "default" : "Main St"
+    },
+    {
+      "name": "city",
+      "type": "java.lang.String" ,
+      "default" : "San Francisco"
+    },
+    {
+      "name": "state",
+      "type": "java.lang.String",
+      "default": "California"
+    },
+    {
+      "name": "zip",
+      "type": "java.lang.String",
+      "default": "94403"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name" : "Customer",
+  "fields" : [ {
+    "name" : "id",
+    "type" : "java.lang.Long"
+  }, {
+    "name" : "type",
+    "type" : "java.lang.String"
+  } ]
+}
