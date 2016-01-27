@@ -1,0 +1,30 @@
+{
+  "name": "Energy",
+  "fields": [
+    {
+      "name": "streetNumber",
+      "type": "int",
+      "default" : "777"
+    },
+    {
+      "name": "houseNumber",
+      "type": "long",
+      "default" : "123"
+    },
+    {
+      "name": "condo",
+      "type": "boolean" ,
+      "default" : "true"
+    },
+    {
+      "name": "water-usage",
+      "type": "float",
+      "default": "99.34"
+    },
+    {
+      "name": "electricity-usage",
+      "type": "double",
+      "default": "92.3242"
+    }
+  ]
+}
