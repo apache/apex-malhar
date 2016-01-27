@@ -89,11 +89,13 @@ public class BeanClassGenerator
 
       switch (fieldType) {
         case "boolean":
+          addIntGetterNSetter(classNode, fieldName, fieldNameForMethods, fieldJavaType, true);
+          break;
         case "byte":
         case "char":
         case "short":
         case "int":
-          addIntGetterNSetter(classNode, fieldName, fieldNameForMethods, fieldJavaType);
+          addIntGetterNSetter(classNode, fieldName, fieldNameForMethods, fieldJavaType, false);
           break;
         case "long":
           addLongGetterNSetter(classNode, fieldName, fieldNameForMethods, fieldJavaType);
@@ -124,11 +126,11 @@ public class BeanClassGenerator
 
   @SuppressWarnings("unchecked")
   private static void addIntGetterNSetter(ClassNode classNode, String fieldName, String fieldNameForMethods,
-                                          String fieldJavaType)
+                                          String fieldJavaType, boolean isBoolean)
   {
     // Create getter
     String getterSignature = "()" + fieldJavaType;
-    MethodNode getterNode = new MethodNode(Opcodes.ACC_PUBLIC, "get" + fieldNameForMethods, getterSignature, null, null);
+    MethodNode getterNode = new MethodNode(Opcodes.ACC_PUBLIC, (isBoolean ? "is" : "get") + fieldNameForMethods, getterSignature, null, null);
     getterNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
     getterNode.instructions.add(new FieldInsnNode(Opcodes.GETFIELD, classNode.name, fieldName, fieldJavaType));
     getterNode.instructions.add(new InsnNode(Opcodes.IRETURN));
@@ -438,7 +440,7 @@ public class BeanClassGenerator
       String fieldType = fieldObj.getString(JSON_KEY_TYPE);
       String fieldJavaType = getJavaType(fieldType);
 
-      String getterMethodName = "get" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+      String getterMethodName = (fieldType.equals("boolean") ? "is" : "get")+ Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
       equalsNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 2));
       equalsNode.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, classNode.name, getterMethodName, "()" + fieldJavaType, false));
       equalsNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));

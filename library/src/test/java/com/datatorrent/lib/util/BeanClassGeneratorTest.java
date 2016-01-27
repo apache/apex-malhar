@@ -121,7 +121,7 @@ public class BeanClassGeneratorTest
     //boolean setter and getter
     m = clazz.getDeclaredMethod("setCondo", boolean.class);
     m.invoke(o, true);
-    m = clazz.getMethod("getCondo");
+    m = clazz.getMethod("isCondo");
     Boolean isCondo = (Boolean) m.invoke(o);
 
     assertEquals("reflect getCondo invoke", true, isCondo);
