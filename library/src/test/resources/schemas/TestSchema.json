@@ -1,5 +1,5 @@
 {
-  "name": "TestSchema",
+  "fqcn": "com.datatorrent.beans.generated.TestSchema",
   "fields": [
     {
         "name": "vString1",

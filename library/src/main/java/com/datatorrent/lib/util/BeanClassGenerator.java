@@ -1,31 +1,60 @@
 /**
- * Copyright (c) 2015 DataTorrent, Inc.
- * All rights reserved.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-package com.datatorrent.gateway.schema;
+package com.datatorrent.lib.util;
 
 import java.io.IOException;
 import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.xbean.asm5.ClassWriter;
 import org.apache.xbean.asm5.Opcodes;
-import org.apache.xbean.asm5.tree.*;
+import org.apache.xbean.asm5.tree.ClassNode;
+import org.apache.xbean.asm5.tree.FieldInsnNode;
+import org.apache.xbean.asm5.tree.FieldNode;
+import org.apache.xbean.asm5.tree.InsnNode;
+import org.apache.xbean.asm5.tree.IntInsnNode;
+import org.apache.xbean.asm5.tree.JumpInsnNode;
+import org.apache.xbean.asm5.tree.LabelNode;
+import org.apache.xbean.asm5.tree.LdcInsnNode;
+import org.apache.xbean.asm5.tree.MethodInsnNode;
+import org.apache.xbean.asm5.tree.MethodNode;
+import org.apache.xbean.asm5.tree.TypeInsnNode;
+import org.apache.xbean.asm5.tree.VarInsnNode;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.datatorrent.stram.webapp.asm.MethodNode;
 
 /**
- * Creates a bean class on fly.
+ * This utility creates a bean class on fly.
+ * Static method {@link #createBeanClass(JSONObject) createBeanClass} can be used to create a compiled bean class on
+ * the fly. The method takes JSONObject as parameter which is a representation of content of bean class.
+ * The the resultant class generated will be returned as a byte[].
+ * The class generated also contains some basic overridden methods viz. toString, hashCode, equals.
+ *
+ * The utility also provides a static method {@link #readBeanClass(String, byte[]) readBeanClass} which takes a byte[]
+ * and return and Class object.
  */
 public class BeanClassGenerator
 {
+  private static final String JSON_KEY_FQCN = "fqcn";
   private static final String JSON_KEY_NAME = "name";
   private static final String JSON_KEY_FIELDS = "fields";
   private static final String JSON_KEY_TYPE = "type";
@@ -46,23 +75,43 @@ public class BeanClassGenerator
   }
 
   /**
-   * Creates a class from the json and writes it to the output stream.
+   * Creates a class from the json and returns a compiled class in a byte[]
+   * The input to this method should be a JSONObject of which JSON representation is as follows:
+   * <p>
+   * {
+   *   "fqcn":"<fully qualified class name>",
+   *   "fields"[
+   *      {
+   *        "name":"field1",
+   *        "type":"fieldType1"
+   *      },
+   *      {
+   *        "name":"field2"
+   *        "type":"fieldType2"
+   *      }
+   *   ]
+   * }
+   * </p>
    *
-   * @param fqcn         fully qualified class name
+   * Allowed fields types are boolean, char, byte, short, int, float, long, double, <fqcn of java object>.
+   * For eg.
+   *  - a String object in bean class should have type "java.lang.String".
+   *  - a int in bean class should have type "int"
+   *
    * @param jsonObject   json describing the class
-   * @param outputStream stream to which the class is persisted
+   * @return byte[]      Compiled class which is ready to used.
    * @throws JSONException
    * @throws IOException
    */
   @SuppressWarnings("unchecked")
-  public static void createAndWriteBeanClass(String fqcn, JSONObject jsonObject,
-                                             FSDataOutputStream outputStream) throws JSONException, IOException
+  public static byte[] createBeanClass(JSONObject jsonObject) throws JSONException, IOException
   {
     ClassNode classNode = new ClassNode();
 
     classNode.version = Opcodes.V1_6;  //generated class will only run on JRE 1.6 or above
     classNode.access = Opcodes.ACC_PUBLIC;
 
+    String fqcn = jsonObject.getString(JSON_KEY_FQCN);
     classNode.name = fqcn.replace('.', '/');
     classNode.superName = "java/lang/Object";
 
@@ -120,8 +169,8 @@ public class BeanClassGenerator
     ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
     classNode.accept(cw);
     cw.visitEnd();
-    outputStream.write(cw.toByteArray());
-    outputStream.close();
+
+    return cw.toByteArray();
   }
 
   @SuppressWarnings("unchecked")
@@ -237,10 +286,6 @@ public class BeanClassGenerator
 
   /**
    * Adds a toString method to underlying class. Uses StringBuilder to generate the final string.
-   *
-   * @param classNode
-   * @param allFields
-   * @throws JSONException
    */
   @SuppressWarnings("unchecked")
   private static void addToStringMethod(ClassNode classNode, JSONArray allFields) throws JSONException
@@ -300,10 +345,6 @@ public class BeanClassGenerator
    * </p></i>
    * <br>
    * <b> For primitive field, hashcode implemenented is similar to the one present in its wrapper class. </b>
-   *
-   * @param classNode
-   * @param allFields
-   * @throws JSONException
    */
   @SuppressWarnings("unchecked")
   private static void addHashCodeMethod(ClassNode classNode, JSONArray allFields) throws JSONException
@@ -390,9 +431,6 @@ public class BeanClassGenerator
    * return true;
    * </p></i>
    * <br>
-   * @param classNode
-   * @param allFields
-   * @throws JSONException
    */
   @SuppressWarnings("unchecked")
   private static void addEqualsMethod(ClassNode classNode, JSONArray allFields) throws JSONException
@@ -497,18 +535,16 @@ public class BeanClassGenerator
   }
 
   /**
-   * Given the class name it reads and loads the class from the input stream.
+   * Given the fqcn of class it reads and loads the class from given byte[].
    *
    * @param fqcn        fully qualified class name.
-   * @param inputStream stream from which class is read.
-   * @return loaded class
+   * @param classBytes  byte array holding class.
+   * @return loaded class as Class object
    * @throws IOException
    */
-  public static Class<?> readBeanClass(String fqcn, FSDataInputStream inputStream) throws IOException
+  public static Class<?> readBeanClass(String fqcn, byte[] classBytes) throws IOException
   {
-    byte[] bytes = IOUtils.toByteArray(inputStream);
-    inputStream.close();
-    return new ByteArrayClassLoader().defineClass(fqcn, bytes);
+    return new ByteArrayClassLoader().defineClass(fqcn, classBytes);
   }
 
   private static class ByteArrayClassLoader extends ClassLoader

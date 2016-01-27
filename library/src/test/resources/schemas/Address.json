@@ -1,5 +1,5 @@
 {
-  "name": "Address",
+  "fqcn": "com.datatorrent.beans.generated.Address",
   "fields": [
     {
       "name": "streetNumber",

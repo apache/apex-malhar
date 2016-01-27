@@ -1,5 +1,5 @@
 {
-  "name" : "Customer",
+  "fqcn" : "com.datatorrent.beans.generated.Customer",
   "fields" : [ {
     "name" : "id",
     "type" : "java.lang.Long"

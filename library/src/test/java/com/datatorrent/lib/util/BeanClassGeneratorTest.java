@@ -1,8 +1,22 @@
 /**
- * Copyright (c) 2015 DataTorrent, Inc.
- * All rights reserved.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-package com.datatorrent.gateway.schema;
+package com.datatorrent.lib.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,10 +25,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.Assert;
@@ -23,13 +33,10 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-import com.datatorrent.gateway.resources.ws.v2.ClassSchemasResource;
-
 import static org.junit.Assert.assertEquals;
 
 public class BeanClassGeneratorTest
 {
-
   protected class TestMeta extends TestWatcher
   {
     String generatedDir;
@@ -59,14 +66,11 @@ public class BeanClassGeneratorTest
     String addressSchema = FileUtils.readFileToString(addressFile);
 
     JSONObject addressObj = new JSONObject(addressSchema);
-    String addressClassName = ClassSchemasResource.PACKAGE_GENERATED_CLASSES + "Address_v1";
-    Path addressClassPath = new Path(testMeta.generatedDir + "/Address_v1.class");
-    FileSystem fs = FileSystem.newInstance(addressClassPath.toUri(), new Configuration());
-    FSDataOutputStream outputStream = fs.create(addressClassPath);
 
-    BeanClassGenerator.createAndWriteBeanClass(addressClassName, addressObj, outputStream);
+    byte[] beanClass = BeanClassGenerator.createBeanClass(addressObj);
 
-    Class<?> clazz = BeanClassGenerator.readBeanClass(addressClassName, fs.open(addressClassPath));
+    String addressClassName = addressObj.getString("fqcn");
+    Class<?> clazz = BeanClassGenerator.readBeanClass(addressClassName, beanClass);
 
     Object o = clazz.newInstance();
     Field f = clazz.getDeclaredField("streetNumber");
@@ -89,14 +93,10 @@ public class BeanClassGeneratorTest
     String addressSchema = FileUtils.readFileToString(addressFile);
 
     JSONObject addressObj = new JSONObject(addressSchema);
-    String addressClassName = ClassSchemasResource.PACKAGE_GENERATED_CLASSES + "Energy_v1";
-    Path addressClassPath = new Path(testMeta.generatedDir + "/Energy_v1.class");
-    FileSystem fs = FileSystem.newInstance(addressClassPath.toUri(), new Configuration());
-    FSDataOutputStream outputStream = fs.create(addressClassPath);
+    byte[] beanClass = BeanClassGenerator.createBeanClass(addressObj);
 
-    BeanClassGenerator.createAndWriteBeanClass(addressClassName, addressObj, outputStream);
-
-    Class<?> clazz = BeanClassGenerator.readBeanClass(addressClassName, fs.open(addressClassPath));
+    String addressClassName = addressObj.getString("fqcn");
+    Class<?> clazz = BeanClassGenerator.readBeanClass(addressClassName, beanClass);
 
     Object o = clazz.newInstance();
     Field f = clazz.getDeclaredField("streetNumber");
@@ -150,14 +150,11 @@ public class BeanClassGeneratorTest
     String testSchema = FileUtils.readFileToString(testFile);
 
     JSONObject testSchemaObj = new JSONObject(testSchema);
-    String testSchemaClassName = ClassSchemasResource.PACKAGE_GENERATED_CLASSES + "TestSchema_v1";
-    Path testSchemaClassPath = new Path(testMeta.generatedDir + "/TestSchema_v1.class");
-    FileSystem fs = FileSystem.newInstance(testSchemaClassPath.toUri(), new Configuration());
-    FSDataOutputStream outputStream = fs.create(testSchemaClassPath);
 
-    BeanClassGenerator.createAndWriteBeanClass(testSchemaClassName, testSchemaObj, outputStream);
+    byte[] beanClass = BeanClassGenerator.createBeanClass(testSchemaObj);
 
-    Class<?> clazz = BeanClassGenerator.readBeanClass(testSchemaClassName, fs.open(testSchemaClassPath));
+    String testSchemaClassName = testSchemaObj.getString("fqcn");
+    Class<?> clazz = BeanClassGenerator.readBeanClass(testSchemaClassName, beanClass);
     Object o = clazz.newInstance();
 
     Method m = clazz.getDeclaredMethod("setVString1", String.class);
@@ -170,7 +167,7 @@ public class BeanClassGeneratorTest
     m.invoke(o, '2');
     m = clazz.getMethod("toString");
     String actualString = (String) m.invoke(o);
-    String expectedString = "com/datatorrent/beans/generated/TestSchema_v1{vString1=vString1, vLong1=0, vInt1=0, vBool1=false, vString2=vString2, vShort2=0, vFloat1=0.0, vDouble2=0.0, vChar1=1, vLong2=0, vByte1=0, vShort1=0, vInt2=0, vDouble1=0.0, vFloat2=0.0, vByte2=0, vBool2=false, vChar2=2}";
+    String expectedString = "com/datatorrent/beans/generated/TestSchema{vString1=vString1, vLong1=0, vInt1=0, vBool1=false, vString2=vString2, vShort2=0, vFloat1=0.0, vDouble2=0.0, vChar1=1, vLong2=0, vByte1=0, vShort1=0, vInt2=0, vDouble1=0.0, vFloat2=0.0, vByte2=0, vBool2=false, vChar2=2}";
     Assert.assertTrue(actualString.equals(expectedString));
   }
 
@@ -181,14 +178,11 @@ public class BeanClassGeneratorTest
     String testSchema = FileUtils.readFileToString(testFile);
 
     JSONObject testSchemaObj = new JSONObject(testSchema);
-    String testSchemaClassName = ClassSchemasResource.PACKAGE_GENERATED_CLASSES + "TestSchema_v1";
-    Path testSchemaClassPath = new Path(testMeta.generatedDir + "/TestSchema_v1.class");
-    FileSystem fs = FileSystem.newInstance(testSchemaClassPath.toUri(), new Configuration());
-    FSDataOutputStream outputStream = fs.create(testSchemaClassPath);
 
-    BeanClassGenerator.createAndWriteBeanClass(testSchemaClassName, testSchemaObj, outputStream);
+    byte[] beanClass = BeanClassGenerator.createBeanClass(testSchemaObj);
 
-    Class<?> clazz = BeanClassGenerator.readBeanClass(testSchemaClassName, fs.open(testSchemaClassPath));
+    String testSchemaClassName = testSchemaObj.getString("fqcn");
+    Class<?> clazz = BeanClassGenerator.readBeanClass(testSchemaClassName, beanClass);
     Object o = clazz.newInstance();
 
     Method m = clazz.getDeclaredMethod("setVString1", String.class);
@@ -234,14 +228,11 @@ public class BeanClassGeneratorTest
     String testSchema = FileUtils.readFileToString(testFile);
 
     JSONObject testSchemaObj = new JSONObject(testSchema);
-    String testSchemaClassName = ClassSchemasResource.PACKAGE_GENERATED_CLASSES + "TestSchema_v1";
-    Path testSchemaClassPath = new Path(testMeta.generatedDir + "/TestSchema_v1.class");
-    FileSystem fs = FileSystem.newInstance(testSchemaClassPath.toUri(), new Configuration());
-    FSDataOutputStream outputStream = fs.create(testSchemaClassPath);
 
-    BeanClassGenerator.createAndWriteBeanClass(testSchemaClassName, testSchemaObj, outputStream);
+    byte[] beanClass = BeanClassGenerator.createBeanClass(testSchemaObj);
 
-    Class<?> clazz = BeanClassGenerator.readBeanClass(testSchemaClassName, fs.open(testSchemaClassPath));
+    String testSchemaClassName = testSchemaObj.getString("fqcn");
+    Class<?> clazz = BeanClassGenerator.readBeanClass(testSchemaClassName, beanClass);
 
     Object o1 = clazz.newInstance();
     Method m = clazz.getDeclaredMethod("setVString1", String.class);
