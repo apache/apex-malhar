@@ -21,7 +21,6 @@ package com.datatorrent.lib.appdata.snapshot;
 import java.util.List;
 import java.util.Map;
 
-import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -32,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.TestUtils;
+import com.datatorrent.lib.util.KryoCloneUtils;
 
 public class AppDataSnapshotServerMapTest
 {
@@ -103,7 +102,7 @@ public class AppDataSnapshotServerMapTest
     Assert.assertEquals("b", secondRow.getString("word"));
 
     //Test serialization
-    TestUtils.clone(new Kryo(), snapshotServer);
+    KryoCloneUtils.cloneObject(snapshotServer);
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(AppDataSnapshotServerMapTest.class);

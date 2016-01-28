@@ -18,8 +18,7 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import com.datatorrent.lib.util.TestUtils;
-import com.esotericsoftware.kryo.Kryo;
+import com.datatorrent.lib.util.KryoCloneUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -39,7 +38,7 @@ public class SimpleKakfaConsumerTest
     kc.setTopic("test_topic");
     kc.setClientId("test_clientid");
 
-    SimpleKafkaConsumer kcClone = TestUtils.clone(new Kryo(), kc);
+    SimpleKafkaConsumer kcClone = KryoCloneUtils.cloneObject(kc);
     Assert.assertEquals("Buffer size is " + bufferSize, bufferSize, kcClone.getBufferSize());
     Assert.assertEquals("Cache size is " + cacheSize, cacheSize, kcClone.getCacheSize());
     Assert.assertEquals("Clint id is same", kc.getClientId(), kcClone.getClientId());

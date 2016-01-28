@@ -18,19 +18,17 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
-import com.esotericsoftware.kryo.Kryo;
-
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.util.TestUtils;
+import com.datatorrent.lib.util.KryoCloneUtils;
 
 public class ResultFormatterTest
 {
   @Test
   public void serializationTest() throws Exception
   {
-    TestUtils.clone(new Kryo(), new ResultFormatter());
+    KryoCloneUtils.cloneObject(new ResultFormatter());
   }
 
   @Test
