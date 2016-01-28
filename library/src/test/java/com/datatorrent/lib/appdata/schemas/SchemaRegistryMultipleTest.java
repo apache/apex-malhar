@@ -21,14 +21,13 @@ package com.datatorrent.lib.appdata.schemas;
 import java.util.Collections;
 import java.util.Map;
 
-import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.util.TestUtils;
+import com.datatorrent.lib.util.KryoCloneUtils;
 
 public class SchemaRegistryMultipleTest
 {
@@ -50,7 +49,7 @@ public class SchemaRegistryMultipleTest
   {
     SchemaRegistryMultiple schemaRegistryMultiple = createSchemaRegistry();
 
-    schemaRegistryMultiple = TestUtils.clone(new Kryo(), schemaRegistryMultiple);
+    schemaRegistryMultiple = KryoCloneUtils.cloneObject(schemaRegistryMultiple);
 
     Assert.assertEquals(2, schemaRegistryMultiple.size());
   }

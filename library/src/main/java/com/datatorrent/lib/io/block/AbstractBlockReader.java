@@ -18,7 +18,6 @@
  */
 package com.datatorrent.lib.io.block;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -36,9 +35,6 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.fs.PositionedReadable;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -52,6 +48,7 @@ import com.datatorrent.api.Stats;
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.counters.BasicCounters;
+import com.datatorrent.lib.util.KryoCloneUtils;
 
 /**
  * AbstractBlockReader processes a block of data from a stream.<br/>
@@ -295,20 +292,9 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
         partitionIterator.remove();
       }
     } else {
-      //Add more partitions
-      Kryo kryo = new Kryo();
+      KryoCloneUtils<AbstractBlockReader<R, B, STREAM>> cloneUtils = KryoCloneUtils.createCloneUtils(this);
       while (morePartitionsToCreate-- > 0) {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        Output loutput = new Output(bos);
-        kryo.writeObject(loutput, this);
-        loutput.close();
-        Input lInput = new Input(bos.toByteArray());
-
-        @SuppressWarnings("unchecked")
-        AbstractBlockReader<R, B, STREAM> blockReader = kryo.readObject(lInput, this.getClass());
-
-        DefaultPartition<AbstractBlockReader<R, B, STREAM>> partition = new DefaultPartition<>(
-            blockReader);
+        DefaultPartition<AbstractBlockReader<R, B, STREAM>> partition = new DefaultPartition<>(cloneUtils.getClone());
         newPartitions.add(partition);
       }
     }

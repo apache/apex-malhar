@@ -61,7 +61,6 @@ import com.datatorrent.lib.util.PojoUtils.SetterInt;
 import com.datatorrent.lib.util.PojoUtils.SetterLong;
 import com.datatorrent.lib.util.PojoUtils.SetterShort;
 
-import com.esotericsoftware.kryo.Kryo;
 
 
 public class PojoUtilsTest
@@ -113,7 +112,7 @@ public class PojoUtilsTest
   public void testSerialization() throws Exception
   {
     GetterBoolean<Object> getBoolean = createGetterBoolean(fqcn, "innerObj.boolVal");
-    TestUtils.clone(new Kryo(), getBoolean);
+    KryoCloneUtils.cloneObject(getBoolean);
   }
 
   @Test

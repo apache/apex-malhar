@@ -123,6 +123,7 @@ public class FieldValueSerializableGenerator< T extends FieldInfo> extends Field
       {
         if( _kryo == null )
           _kryo = new Kryo();
+        _kryo.setClassLoader(clazz.getClassLoader());
       }
     }
     return _kryo;

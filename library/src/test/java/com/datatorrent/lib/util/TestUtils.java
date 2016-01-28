@@ -51,26 +51,6 @@ public class TestUtils
     }
   }
 
-  /**
-   * Clone object by serializing and deserializing using Kryo.
-   * Note this is different from using {@link Kryo#copy(Object)}, which will attempt to also clone transient fields.
-   * @param kryo
-   * @param src
-   * @return
-   * @throws IOException
-   */
-  public static <T> T clone(Kryo kryo, T src) throws IOException
-  {
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    Output output = new Output(bos);
-    kryo.writeObject(output, src);
-    output.close();
-    Input input = new Input(bos.toByteArray());
-    @SuppressWarnings("unchecked")
-    Class<T> clazz = (Class<T>)src.getClass();
-    return kryo.readObject(input, clazz);
-  }
-
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public static <S extends Sink, T> S setSink(OutputPort<T> port, S sink)
   {

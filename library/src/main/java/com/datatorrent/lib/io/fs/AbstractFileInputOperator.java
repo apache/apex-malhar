@@ -25,9 +25,6 @@ import java.util.regex.Pattern;
 
 import javax.validation.constraints.NotNull;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -45,6 +42,7 @@ import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.CountersAggregator;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.lib.util.KryoCloneUtils;
 
 /**
  * This is the base implementation of a directory input operator, which scans a directory for files.&nbsp;
@@ -829,21 +827,14 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
      */
     List<DirectoryScanner> scanners = scanner.partition(totalCount, oldscanners);
 
-    Kryo kryo = new Kryo();
     Collection<Partition<AbstractFileInputOperator<T>>> newPartitions = Lists.newArrayListWithExpectedSize(totalCount);
     Collection<IdempotentStorageManager> newManagers = Lists.newArrayListWithExpectedSize(totalCount);
 
+    KryoCloneUtils<AbstractFileInputOperator<T>> cloneUtils = KryoCloneUtils.createCloneUtils(this);
     for (int i=0; i<scanners.size(); i++) {
 
-      // Kryo.copy fails as it attempts to clone transient fields
-      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      Output loutput = new Output(bos);
-      kryo.writeObject(loutput, this);
-      loutput.close();
-      Input lInput = new Input(bos.toByteArray());
       @SuppressWarnings("unchecked")
-      AbstractFileInputOperator<T> oper = kryo.readObject(lInput, this.getClass());
-      lInput.close();
+      AbstractFileInputOperator<T> oper = cloneUtils.getClone();
 
       DirectoryScanner scn = scanners.get(i);
       oper.setScanner(scn);

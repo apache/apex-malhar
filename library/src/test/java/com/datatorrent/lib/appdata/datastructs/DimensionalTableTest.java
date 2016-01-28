@@ -21,7 +21,6 @@ package com.datatorrent.lib.appdata.datastructs;
 import java.util.Map;
 import java.util.Set;
 
-import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -29,7 +28,7 @@ import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.util.TestUtils;
+import com.datatorrent.lib.util.KryoCloneUtils;
 
 public class DimensionalTableTest
 {
@@ -38,7 +37,7 @@ public class DimensionalTableTest
   {
     DimensionalTable<Integer> table = createTestTable();
 
-    TestUtils.clone(new Kryo(), table);
+    KryoCloneUtils.cloneObject(table);
   }
 
   @Test
@@ -47,7 +46,7 @@ public class DimensionalTableTest
     DimensionalTable<Integer> table = createTestTable();
     int size = table.size();
 
-    table = TestUtils.clone(new Kryo(), table);
+    table = KryoCloneUtils.cloneObject(table);
     Assert.assertEquals(size, table.size());
   }
 
