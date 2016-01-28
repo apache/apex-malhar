@@ -100,7 +100,7 @@ public abstract class AbstractAsyncProcessor<QUEUETUPLE, RESULTTUPLE> extends Ba
    *   <li>Completed processing but yet to be notified for process completion</li>
    * </ul>
    */
-  private Queue<WorkItem> waitingTuples = Lists.newLinkedList();
+  protected Queue<WorkItem> waitingTuples = Lists.newLinkedList();
 
   /**
    * Setup method of this operator will initialize various types of executors possible.
@@ -130,10 +130,10 @@ public abstract class AbstractAsyncProcessor<QUEUETUPLE, RESULTTUPLE> extends Ba
     // Enqueue everything that is still left.
     // Its left because its either not completed processing OR its not emitted because of ordering restrictions.
     for (WorkItem item : waitingTuples) {
-      item.taskHandle = executor.submit(new Processor(item));
       item.processState = State.SUBMITTED;
       item.processStartTime = 0;
       item.outTuple = null;
+      item.taskHandle = executor.submit(new Processor(item));
     }
   }
 
@@ -154,9 +154,9 @@ public abstract class AbstractAsyncProcessor<QUEUETUPLE, RESULTTUPLE> extends Ba
   protected void enqueueTupleForProcessing(QUEUETUPLE QUEUETUPLE)
   {
     WorkItem item = new WorkItem(QUEUETUPLE);
+    item.processState = State.SUBMITTED;
     waitingTuples.add(item);
     item.taskHandle = executor.submit(new Processor(item));
-    item.processState = State.SUBMITTED;
   }
 
   /**
