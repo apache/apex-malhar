@@ -108,7 +108,7 @@
               <dependency>
                 <groupId>org.apache.apex</groupId>
                 <artifactId>${project.artifactId}</artifactId>
-                <version>3.2.0-incubating</version>
+                <version>3.3.0-incubating</version>
               </dependency>
             </oldVersion>
             <newVersion>
@@ -125,10 +125,12 @@
               <includeSynthetic>false</includeSynthetic>
               <ignoreMissingClasses>true</ignoreMissingClasses>
               <excludes>
-                <exclude>com.datatorrent.contrib.converter.Converter</exclude>
-                <exclude>com.datatorrent.contrib.schema</exclude>
-                <exclude>org.apache.hadoop.io.file.tfile</exclude>
-                <exclude>*POJO*</exclude>
+                <exclude>@org.apache.hadoop.classification.InterfaceStability.Evolving</exclude>
+                <exclude>@org.apache.hadoop.classification.InterfaceStability.Unstable</exclude>
+                <exclude>com.datatorrent.lib.parser.JsonParser</exclude>
+                <exclude>com.datatorrent.lib.parser.Parser</exclude>
+                <exclude>com.datatorrent.lib.parser.XmlParser</exclude>
+                <exclude>com.datatorrent.contrib.parser.CsvParser</exclude>
               </excludes>
             </parameter>
             <skip>${semver.plugin.skip}</skip>
