@@ -32,6 +32,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
@@ -53,6 +54,7 @@ import com.datatorrent.lib.util.KryoCloneUtils;
  *
  * @since 3.3.0
  */
+@InterfaceStability.Evolving
 public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKafkaInputOperator>, StatsListener
 {
 
@@ -264,7 +266,7 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
     {
       return "PartitionMeta{" +
         "cluster='" + cluster + '\'' +
-        ", topicPartition=" + topicPartition +
+        ", topicPartition=" + getTopicPartition() +
         '}';
     }
   }
