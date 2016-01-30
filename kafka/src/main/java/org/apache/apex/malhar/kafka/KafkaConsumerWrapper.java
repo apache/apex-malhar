@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -63,6 +64,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  *
  * @since 3.3.0
  */
+@InterfaceStability.Evolving
 public class KafkaConsumerWrapper implements Closeable
 {
 

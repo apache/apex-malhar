@@ -18,9 +18,12 @@
  */
 package org.apache.apex.malhar.kafka;
 
+import org.apache.hadoop.classification.InterfaceStability;
+
 /**
  * @since 3.3.0
  */
+@InterfaceStability.Evolving
 public enum PartitionStrategy
 {
   /**

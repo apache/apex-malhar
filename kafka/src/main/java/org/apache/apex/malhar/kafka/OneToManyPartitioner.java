@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.kafka.common.PartitionInfo;
 
 /**
@@ -32,6 +33,7 @@ import org.apache.kafka.common.PartitionInfo;
  *
  * @since 3.3.0
  */
+@InterfaceStability.Evolving
 public class OneToManyPartitioner extends AbstractKafkaPartitioner
 {
 

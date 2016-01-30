@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.kafka.common.Metric;
 import org.apache.kafka.common.MetricName;
 
@@ -33,6 +34,7 @@ import com.datatorrent.api.AutoMetric;
  *
  * @since 3.3.0
  */
+@InterfaceStability.Evolving
 public class KafkaMetrics implements Serializable
 {
   private KafkaConsumerStats[] stats;

@@ -34,12 +34,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.consumer.OffsetCommitCallback;
 import org.apache.kafka.common.TopicPartition;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 
 import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
@@ -66,6 +69,7 @@ import com.datatorrent.api.StatsListener;
  *
  * @since 3.3.0
  */
+@InterfaceStability.Evolving
 public abstract class AbstractKafkaInputOperator implements InputOperator, Operator.ActivationListener<Context.OperatorContext>, Operator.CheckpointListener, Partitioner<AbstractKafkaInputOperator>, StatsListener, OffsetCommitCallback
 {
 
@@ -366,17 +370,18 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
     return Joiner.on(';').join(clusters);
   }
 
-  public void setTopics(String... topics)
+  public void setTopics(String topics)
   {
-    this.topics = topics;
+    this.topics = Iterables.toArray(Splitter.on(',').trimResults().omitEmptyStrings().split(topics), String.class);
   }
 
   /**
-   * The topics the operator consumes
+   * The topics the operator consumes, separate by','
+   * Topic name can only contain ASCII alphanumerics, '.', '_' and '-'
    */
-  public String[] getTopics()
+  public String getTopics()
   {
-    return topics;
+    return Joiner.on(", ").join(topics);
   }
 
   public void setStrategy(String policy)

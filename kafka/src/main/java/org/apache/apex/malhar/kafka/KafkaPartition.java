@@ -21,9 +21,12 @@ package org.apache.apex.malhar.kafka;
 
 import java.io.Serializable;
 
+import org.apache.hadoop.classification.InterfaceStability;
+
 /**
  * @since 2.1.0
  */
+@InterfaceStability.Evolving
 public class KafkaPartition implements Serializable
 {
   protected static final String DEFAULT_CLUSTERID = "com.datatorrent.contrib.kafka.defaultcluster";
