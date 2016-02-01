@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
+import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
@@ -96,6 +96,9 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
   protected transient Class<?> pojoClass;
 
   protected int pageNumber;
+
+  @AutoMetric
+  protected long tuplesRead;
 
   @OutputPortFieldAnnotation(schemaRequired = true)
   public final transient DefaultOutputPort<Object> outputPort = new DefaultOutputPort<Object>()
@@ -185,6 +188,7 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
   public void beginWindow(long l)
   {
     windowDone = false;
+    tuplesRead = 0;
   }
 
   @Override
@@ -198,6 +202,7 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
           do {
             Object tuple = getTuple(resultSet);
             outputPort.emit(tuple);
+            tuplesRead++;
           }
           while (resultSet.next());
         } else {
