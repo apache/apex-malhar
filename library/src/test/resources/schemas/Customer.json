@@ -1,0 +1,10 @@
+{
+  "fqcn" : "com.datatorrent.beans.generated.Customer",
+  "fields" : [ {
+    "name" : "id",
+    "type" : "java.lang.Long"
+  }, {
+    "name" : "type",
+    "type" : "java.lang.String"
+  } ]
+}
