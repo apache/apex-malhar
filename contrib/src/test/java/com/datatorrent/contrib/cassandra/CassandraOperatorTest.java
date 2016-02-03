@@ -293,8 +293,8 @@ public class CassandraOperatorTest
 
     TestInputOperator inputOperator = new TestInputOperator();
     inputOperator.setStore(store);
-    inputOperator.setTablename(TABLE_NAME_INPUT);
     inputOperator.setQuery(query1);
+    inputOperator.setTablename(TABLE_NAME_INPUT);
     inputOperator.setPrimaryKeyColumn("id");
 
     List<FieldInfo> fieldInfos = Lists.newArrayList();

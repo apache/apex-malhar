@@ -143,7 +143,7 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
 
   public void setQuery(String query)
   {
-    this.query = query.replace("%t", tablename);
+    this.query = query;
   }
 
   /**
@@ -195,6 +195,9 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
     ColumnDefinitions rsMetaData = rs.getColumnDefinitions();
 
     primaryKeyColumnType = rsMetaData.getType(primaryKeyColumn);
+    if (query.contains("%t")) {
+      query = query.replace("%t", tablename);
+    }
     if (query.contains("%p")) {
       query = query.replace("%p", primaryKeyColumn);
     }
