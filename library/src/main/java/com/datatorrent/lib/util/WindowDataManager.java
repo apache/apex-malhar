@@ -61,6 +61,7 @@ public interface WindowDataManager extends StorageAgent, Component<Context.Opera
 {
   /**
    * Gets the largest window for which there is recovery data.
+   * @return Returns the window id
    */
   long getLargestRecoveryWindow();
 
@@ -232,13 +233,14 @@ public interface WindowDataManager extends StorageAgent, Component<Context.Opera
     {
       //deleting the replay state
       if (windowId <= largestRecoveryWindow && deletedOperators != null && !deletedOperators.isEmpty()) {
-        Iterator<Long> windowsIterator = replayState.keySet().iterator();
-        while (windowsIterator.hasNext()) {
-          long lwindow = windowsIterator.next();
+        Iterator<Map.Entry<Long, Collection<Integer>>> iterator = replayState.asMap().entrySet().iterator();
+        while (iterator.hasNext()) {
+          Map.Entry<Long, Collection<Integer>> windowEntry = iterator.next();
+          long lwindow = windowEntry.getKey();
           if (lwindow > windowId) {
             break;
           }
-          for (Integer loperator : replayState.removeAll(lwindow)) {
+          for (Integer loperator : windowEntry.getValue()) {
 
             if (deletedOperators.contains(loperator)) {
               storageAgent.delete(loperator, lwindow);
@@ -253,6 +255,7 @@ public interface WindowDataManager extends StorageAgent, Component<Context.Opera
               storageAgent.delete(loperator, lwindow);
             }
           }
+          iterator.remove();
         }
       }
 
