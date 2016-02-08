@@ -616,6 +616,12 @@
       <artifactId>apex-common</artifactId>
       <version>${apex.core.version}</version>
       <type>jar</type>
-    </dependency>  
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geode</groupId>
+      <artifactId>gemfire-core</artifactId>
+      <version>1.0.0-incubating.M1</version>
+      <optional>true</optional>
+    </dependency>
   </dependencies>
 </project>
