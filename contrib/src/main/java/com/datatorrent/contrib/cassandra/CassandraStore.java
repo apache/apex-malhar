@@ -24,9 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.ProtocolVersion;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.exceptions.DriverException;
-
 import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.lib.db.Connectable;
 
@@ -47,6 +47,7 @@ public class CassandraStore implements Connectable
   private String node;
   protected transient Cluster cluster = null;
   protected transient Session session = null;
+  private String protocolVersion;
 
   @NotNull
   protected String keyspace;
@@ -90,6 +91,20 @@ public class CassandraStore implements Connectable
     this.password = password;
   }
 
+  public String getProtocolVersion()
+  {
+    return protocolVersion;
+  }
+
+  /**
+   * Sets the protocolVersion of Cassandra
+   * @param protocolVersion as V1, V2, V3 etc
+   */
+  public void setProtocolVersion(String protocolVersion)
+  {
+    this.protocolVersion = protocolVersion;
+  }
+
   @NotNull
   public String getNode() {
     return node;
@@ -115,21 +130,35 @@ public class CassandraStore implements Connectable
   /**
    * Creates a cluster object.
    */
-  public void buildCluster(){
-
+  public void buildCluster()
+  {
     try {
-
-      cluster = Cluster.builder()
-          .addContactPoint(node).withCredentials(userName, password).build();
-    }
-    catch (DriverException ex) {
+      if (protocolVersion != null && protocolVersion.length() != 0) {
+        ProtocolVersion version = getCassandraProtocolVersion();
+        cluster = Cluster.builder().addContactPoint(node).withCredentials(userName, password).withProtocolVersion(version).build();
+      } else {
+        cluster = Cluster.builder().addContactPoint(node).withCredentials(userName, password).build();
+      }
+    } catch (DriverException ex) {
       throw new RuntimeException("closing database resource", ex);
-    }
-    catch (Throwable t) {
+    } catch (Throwable t) {
       DTThrowable.rethrow(t);
     }
   }
 
+  private ProtocolVersion getCassandraProtocolVersion()
+  {
+    switch (protocolVersion.toUpperCase()) {
+      case "V1":
+        return ProtocolVersion.V1;
+      case "V2":
+        return ProtocolVersion.V2;
+      case "V3":
+        return ProtocolVersion.V3;
+      default:
+        throw new RuntimeException("Unsupported Cassandra Protocol Version.");
+    }
+  }
 
   /**
    * Create connection with database.
