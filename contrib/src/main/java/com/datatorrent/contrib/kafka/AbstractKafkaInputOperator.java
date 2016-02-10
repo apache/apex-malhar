@@ -643,7 +643,9 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     if (p.getPartitionedInstance().getConsumer() instanceof SimpleKafkaConsumer) {
       p.getPartitionedInstance().getConsumer().resetPartitionsAndOffset(pIds, initOffsets);
       if (initOffsets != null) {
-        p.getPartitionedInstance().offsetStats.putAll(initOffsets);
+        //Don't send all offsets to all partitions
+        //p.getPartitionedInstance().offsetStats.putAll(initOffsets);
+        p.getPartitionedInstance().offsetStats.putAll(p.getPartitionedInstance().getConsumer().getCurrentOffsets());
       }
     }
     newManagers.add(p.getPartitionedInstance().idempotentStorageManager);
@@ -715,7 +717,11 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   {
     //In every partition check interval, call offsetmanager to update the offsets
     if (offsetManager != null) {
-      offsetManager.updateOffsets(getOffsetsForPartitions(kstats));
+      Map<KafkaPartition, Long> offsetsForPartitions = getOffsetsForPartitions(kstats);
+      if (offsetsForPartitions.size() > 0) {
+        logger.debug("Passing offset updates to offset manager");
+        offsetManager.updateOffsets(offsetsForPartitions);
+      }
     }
   }
 
@@ -743,14 +749,17 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
 
     long t = System.currentTimeMillis();
 
+    // If stats are available then update offsets
+    // Do this before re-partition interval check below to not miss offset updates
+    if (kstats.size() > 0) {
+      logger.debug("Checking offset updates for offset manager");
+      updateOffsets(kstats);
+    }
+
     if (t - lastCheckTime < repartitionCheckInterval) {
       // return false if it's within repartitionCheckInterval since last time it check the stats
       return false;
     }
-
-    logger.debug("Use OffsetManager to update offsets");
-    updateOffsets(kstats);
-
 
     if(repartitionInterval < 0){
       // if repartition is disabled
