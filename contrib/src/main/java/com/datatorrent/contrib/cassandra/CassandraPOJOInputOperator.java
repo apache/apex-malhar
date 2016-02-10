@@ -61,6 +61,7 @@ import com.datatorrent.lib.util.PojoUtils.*;
 @Evolving
 public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<Object> implements Operator.ActivationListener<OperatorContext>
 {
+  private String tokenQuery;
   @NotNull
   private List<FieldInfo> fieldInfos;
   private Number startRow;
@@ -71,14 +72,8 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
   private String query;
   @NotNull
   private String primaryKeyColumn;
-
   @Min(1)
   private int limit = 10;
-
-  private String TOKEN_QUERY;
-  private transient DataType primaryKeyColumnType;
-  private transient Row lastRowInBatch;
-  private transient BoundStatement fetchKeyStatement;
 
   protected final transient List<Object> setters;
   protected final transient List<DataType> columnDataTypes;
@@ -94,14 +89,19 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
     }
   };
 
-  /*
-   * Number of records to be fetched in one time from cassandra table.
+  /**
+   * Gets number of records to be fetched at one time from cassandra table.
+   * @return limit
    */
   public int getLimit()
   {
     return limit;
   }
 
+  /**
+   * Sets number of records to be fetched at one time from cassandra table.
+   * @param limit
+   */
   public void setLimit(int limit)
   {
     this.limit = limit;
@@ -138,7 +138,7 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
   /*
    * Parameterized query with parameters such as %t for table name , %p for primary key, %s for start value and %l for limit.
    * Example of retrieveQuery:
-   * select * from %t where token(%p) > %s limit %l;
+   * select * from %t where token(%p) > %s LIMIT %l;
    */
   public String getQuery()
   {
@@ -196,22 +196,22 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
   public void setup(OperatorContext context)
   {
     super.setup(context);
-    Long keyToken;
-    TOKEN_QUERY = "select token(" + primaryKeyColumn + ") from " + store.keyspace + "." + tablename + " where " + primaryKeyColumn + " =  ?";
-    PreparedStatement statement = store.getSession().prepare(TOKEN_QUERY);
-    fetchKeyStatement = new BoundStatement(statement);
-    if (startRow != null && (keyToken = fetchKeyTokenFromDB(startRow)) != null) {
-      startRowToken = keyToken;
-    }
+    tokenQuery = "select token(" + primaryKeyColumn + ") from " + store.keyspace + "." + tablename + " where " + primaryKeyColumn + " =  ?";
   }
 
   @Override
   public void activate(OperatorContext context)
   {
+    Long keyToken;
+    if (startRow != null) {
+      if ((keyToken = fetchKeyTokenFromDB(startRow)) != null) {
+        startRowToken = keyToken;
+      }
+    }
+
     com.datastax.driver.core.ResultSet rs = store.getSession().execute("select * from " + store.keyspace + "." + tablename + " LIMIT " + 1);
     ColumnDefinitions rsMetaData = rs.getColumnDefinitions();
 
-    primaryKeyColumnType = rsMetaData.getType(primaryKeyColumn);
     if (query.contains("%t")) {
       query = query.replace("%t", tablename);
     }
@@ -282,7 +282,6 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
   @SuppressWarnings("unchecked")
   public Object getTuple(Row row)
   {
-    lastRowInBatch = row;
     Object obj;
 
     try {
@@ -370,48 +369,12 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
     return query;
   }
 
-
-  /*
-   * Overriding emitTupes to save primarykey column value from last row in batch.
-   */
-  @Override
-  public void emitTuples()
-  {
-    super.emitTuples();
-    if (lastRowInBatch != null) {
-      startRowToken = getPrimaryKeyToken(primaryKeyColumnType.getName());
-    }
-  }
-
-  private Long getPrimaryKeyToken(DataType.Name primaryKeyDataType)
-  {
-    Object keyValue;
-    switch (primaryKeyDataType) {
-      case UUID:
-        keyValue = lastRowInBatch.getUUID(primaryKeyColumn);
-        break;
-      case INT:
-        keyValue = lastRowInBatch.getInt(primaryKeyColumn);
-        break;
-      case COUNTER:
-        keyValue = lastRowInBatch.getLong(primaryKeyColumn);
-        break;
-      case FLOAT:
-        keyValue = lastRowInBatch.getFloat(primaryKeyColumn);
-        break;
-      case DOUBLE:
-        keyValue = lastRowInBatch.getDouble(primaryKeyColumn);
-        break;
-      default:
-        throw new RuntimeException("unsupported data type " + primaryKeyColumnType.getName());
-    }
-    return fetchKeyTokenFromDB(keyValue);
-  }
-
   private Long fetchKeyTokenFromDB(Object keyValue)
   {
-    fetchKeyStatement.bind(keyValue);
-    ResultSet rs = store.getSession().execute(fetchKeyStatement);
+    PreparedStatement statement = store.getSession().prepare(tokenQuery);
+    BoundStatement boundStatement = new BoundStatement(statement);
+    boundStatement.bind(keyValue);
+    ResultSet rs = store.getSession().execute(boundStatement);
     Long keyTokenValue = rs.one().getLong(0);
     return keyTokenValue;
   }

@@ -19,14 +19,15 @@
 package com.datatorrent.contrib.cassandra;
 
 
+import com.datastax.driver.core.PagingState;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
+import com.datastax.driver.core.SimpleStatement;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.db.AbstractStoreInputOperator;
-import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -45,16 +46,14 @@ import com.datatorrent.netlet.util.DTThrowable;
 public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInputOperator<T, CassandraStore> {
 
   private static final Logger logger = LoggerFactory.getLogger(AbstractCassandraInputOperator.class);
-
+  private PagingState nextPageState;
+  private int fetchSize;
   int waitForDataTimeout = 100;
-  @AutoMetric
-  protected long tuplesRead;
 
   @Override
   public void beginWindow(long l)
   {
     super.beginWindow(l);
-    tuplesRead = 0;
   }
 
   /**
@@ -112,20 +111,25 @@ public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInp
     String query = queryToRetrieveData();
     logger.debug("select statement: {}", query);
 
+    SimpleStatement stmt = new SimpleStatement(query);
+    stmt.setFetchSize(fetchSize);
     try {
-      ResultSet result = store.getSession().execute(query);
+      if (nextPageState != null) {
+        stmt.setPagingState(nextPageState);
+      }
+      ResultSet result = store.getSession().execute(stmt);
+      nextPageState = result.getExecutionInfo().getPagingState();
+
       if (!result.isExhausted()) {
         for (Row row : result) {
           T tuple = getTuple(row);
           emit(tuple);
-          tuplesRead++;
         }
       } else {
         // No rows available wait for some time before retrying so as to not continuously slam the database
         Thread.sleep(waitForDataTimeout);
       }
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       store.disconnect();
       DTThrowable.rethrow(ex);
     }
@@ -135,4 +139,23 @@ public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInp
   {
     outputPort.emit(tuple);
   }
+
+  /**
+   * Get page fetch Size
+   * @return
+   */
+  public int getFetchSize()
+  {
+    return fetchSize;
+  }
+
+  /**
+   * Set page fetch size
+   * @param fetchSize
+   */
+  public void setFetchSize(int fetchSize)
+  {
+    this.fetchSize = fetchSize;
+  }
+
 }
