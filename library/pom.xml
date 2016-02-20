@@ -182,6 +182,14 @@
         <groupId>com.github.siom79.japicmp</groupId>
         <artifactId>japicmp-maven-plugin</artifactId>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <maxAllowedViolations>15966</maxAllowedViolations>
+          <consoleOutput>false</consoleOutput>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
