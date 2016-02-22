@@ -126,12 +126,8 @@
               <includeSynthetic>false</includeSynthetic>
               <ignoreMissingClasses>true</ignoreMissingClasses>
               <excludes>
-                <exclude>@org.apache.hadoop.classification.InterfaceStability.Evolving</exclude>
-                <exclude>@org.apache.hadoop.classification.InterfaceStability.Unstable</exclude>
-                <exclude>com.datatorrent.lib.parser.JsonParser</exclude>
-                <exclude>com.datatorrent.lib.parser.Parser</exclude>
-                <exclude>com.datatorrent.lib.parser.XmlParser</exclude>
-                <exclude>com.datatorrent.contrib.parser.CsvParser</exclude>
+                <exclude>@org.apache.hadoop.classification.InterfaceStability$Evolving</exclude>
+                <exclude>@org.apache.hadoop.classification.InterfaceStability$Unstable</exclude>
               </excludes>
             </parameter>
             <skip>${semver.plugin.skip}</skip>
