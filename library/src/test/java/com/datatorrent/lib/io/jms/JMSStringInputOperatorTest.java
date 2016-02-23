@@ -1,27 +1,33 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.lib.io.jms;
 
 import java.io.File;
-import java.io.IOException;
 
-import javax.jms.*;
+import javax.jms.Connection;
+import javax.jms.DeliveryMode;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,10 +36,12 @@ import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.commons.io.FileUtils;
+
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.annotation.Stateless;
-
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
@@ -56,8 +64,7 @@ public class JMSStringInputOperatorTest
       testBase = new JMSTestBase();
       try {
         testBase.beforTest();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         throw new RuntimeException(e);
       }
       String methodName = description.getMethodName();
@@ -72,7 +79,7 @@ public class JMSStringInputOperatorTest
       operator = new JMSStringInputOperator();
       operator.getConnectionFactoryProperties().put(JMSTestBase.AMQ_BROKER_URL, "vm://localhost");
 
-      sink = new CollectorTestSink<Object>();
+      sink = new CollectorTestSink<>();
       operator.output.setSink(sink);
       operator.setup(context);
       operator.activate(context);
@@ -84,13 +91,9 @@ public class JMSStringInputOperatorTest
       operator.deactivate();
       operator.teardown();
       try {
-        FileUtils.deleteDirectory(new File("target/"+ description.getClassName()));
+        FileUtils.deleteDirectory(new File("target/" + description.getClassName()));
         testBase.afterTest();
-      }
-      catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         throw new RuntimeException(e);
       }
     }
@@ -122,7 +125,8 @@ public class JMSStringInputOperatorTest
     testMeta.operator.setup(testMeta.context);
     testMeta.operator.activate(testMeta.context);
 
-    Assert.assertEquals("largest recovery window", 1, testMeta.operator.getIdempotentStorageManager().getLargestRecoveryWindow());
+    Assert.assertEquals("largest recovery window", 1,
+        testMeta.operator.getIdempotentStorageManager().getLargestRecoveryWindow());
 
     testMeta.operator.beginWindow(1);
     testMeta.operator.endWindow();
@@ -152,14 +156,14 @@ public class JMSStringInputOperatorTest
     testMeta.operator.emitTuples();
     try {
       testMeta.operator.endWindow();
-    }
-    catch (Throwable t) {
+    } catch (Throwable t) {
       LOG.debug("ack failed");
     }
     testMeta.operator.setup(testMeta.context);
     testMeta.operator.activate(testMeta.context);
 
-    Assert.assertEquals("window 1 should not exist", Stateless.WINDOW_ID, testMeta.operator.getIdempotentStorageManager().getLargestRecoveryWindow());
+    Assert.assertEquals("window 1 should not exist", Stateless.WINDOW_ID,
+        testMeta.operator.getIdempotentStorageManager().getLargestRecoveryWindow());
   }
 
   private void produceMsg(int numMessages) throws Exception
@@ -194,5 +198,5 @@ public class JMSStringInputOperatorTest
 
   }
 
-  private static transient final Logger LOG = LoggerFactory.getLogger(JMSStringInputOperatorTest.class);
+  private static final transient Logger LOG = LoggerFactory.getLogger(JMSStringInputOperatorTest.class);
 }

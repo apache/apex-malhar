@@ -1,17 +1,20 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.lib.io;
 
@@ -20,25 +23,23 @@ import java.util.*;
 
 import javax.validation.constraints.NotNull;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.common.collect.TreeMultimap;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.collect.TreeMultimap;
 
 import com.datatorrent.api.Component;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StorageAgent;
 import com.datatorrent.api.annotation.Stateless;
-
-import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
-
 import com.datatorrent.common.util.FSStorageAgent;
+import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
 
 /**
  * An idempotent storage manager allows an operator to emit the same tuples in every replayed application window. An idempotent agent
@@ -51,12 +52,14 @@ import com.datatorrent.common.util.FSStorageAgent;
  * application window boundaries.
  *
  * @since 2.0.0
+ * @deprecated use {@link com.datatorrent.lib.util.WindowDataManager}
  */
-
+@Deprecated
 public interface IdempotentStorageManager extends StorageAgent, Component<Context.OperatorContext>
 {
   /**
    * Gets the largest window for which there is recovery data.
+   * @return Returns the window id
    */
   long getLargestRecoveryWindow();
 
@@ -229,13 +232,14 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
     {
       //deleting the replay state
       if (windowId <= largestRecoveryWindow && deletedOperators != null && !deletedOperators.isEmpty()) {
-        Iterator<Long> windowsIterator = replayState.keySet().iterator();
-        while (windowsIterator.hasNext()) {
-          long lwindow = windowsIterator.next();
+        Iterator<Map.Entry<Long, Collection<Integer>>> iterator = replayState.asMap().entrySet().iterator();
+        while (iterator.hasNext()) {
+          Map.Entry<Long, Collection<Integer>> windowEntry = iterator.next();
+          long lwindow = windowEntry.getKey();
           if (lwindow > windowId) {
             break;
           }
-          for (Integer loperator : replayState.removeAll(lwindow)) {
+          for (Integer loperator : windowEntry.getValue()) {
 
             if (deletedOperators.contains(loperator)) {
               storageAgent.delete(loperator, lwindow);
@@ -251,6 +255,7 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
               storageAgent.delete(loperator, lwindow);
             }
           }
+          iterator.remove();
         }
       }
 

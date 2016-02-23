@@ -1,42 +1,43 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.demos.mobile;
-
-import java.net.URI;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Random;
-
-import org.apache.commons.lang.mutable.MutableLong;
-import org.apache.commons.lang3.Range;
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.lib.partitioner.StatelessThroughputBasedPartitioner;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
+import org.apache.commons.lang.mutable.MutableLong;
+import org.apache.commons.lang3.Range;
+import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * Mobile Demo Application:
@@ -44,7 +45,7 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
  * This demo simulates large number of cell phones in the range of 40K to 200K
  * and tracks a given cell number across cell towers. It also displays the changing locations of the cell number on a google map.
  *
- * This demo demonstrates the scalability feature of Datatorrent platform.
+ * This demo demonstrates the scalability feature of the Apex platform.
  * It showcases the ability of the platform to scale up and down as the phone numbers generated increase and decrease respectively.
  * If the tuples processed per second by the pmove operator increase beyond 30,000, more partitions of the pmove operator gets deployed until
  * each of the partition processes around 10000 to 30000 tuples per second.

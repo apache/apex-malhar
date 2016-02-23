@@ -1,17 +1,20 @@
-/*
- * Copyright (c) 2015 DataTorrent, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.lib.appdata.query;
 
@@ -47,6 +50,7 @@ public class QueryManagerAsynchronous<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RES
 {
   private DefaultOutputPort<String> resultPort = null;
 
+  //TODO I believe this semaphore is no longer necessary and can just be straight up deleted.
   private transient final Semaphore inWindowSemaphore = new Semaphore(0);
   private final ConcurrentLinkedQueue<String> queue = new ConcurrentLinkedQueue<String>();
   private QueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queueManager;
@@ -123,11 +127,10 @@ public class QueryManagerAsynchronous<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RES
   {
     queueManager.haltEnqueue();
 
-    while(queueManager.getNumLeft() > 0) {
-      if(queue.isEmpty()) {
+    while (!isProcessingDone()) {
+      if (queue.isEmpty()) {
         Thread.yield();
-      }
-      else {
+      } else {
         emptyQueue();
       }
     }
@@ -140,6 +143,16 @@ public class QueryManagerAsynchronous<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RES
     catch(InterruptedException ex) {
       throw new RuntimeException(ex);
     }
+  }
+
+  //Dirty hack TODO fix QueManager interface
+  private boolean isProcessingDone()
+  {
+    if (queueManager instanceof AbstractWindowEndQueueManager) {
+      return ((AbstractWindowEndQueueManager) queueManager).isEmptyAndBlocked();
+    }
+
+    return queueManager.getNumLeft() == 0;
   }
 
   private void emptyQueue()
@@ -201,8 +214,7 @@ public class QueryManagerAsynchronous<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RES
 
         try {
           inWindowSemaphore.acquire();
-        }
-        catch(InterruptedException ex) {
+        } catch (InterruptedException ex) {
           throw new RuntimeException(ex);
         }
 
@@ -210,7 +222,7 @@ public class QueryManagerAsynchronous<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RES
         Result result = queryExecutor.executeQuery(queryBundle.getQuery(),
                                                    queryBundle.getMetaQuery(),
                                                    queryBundle.getQueueContext());
-        if(result != null) {
+        if (result != null) {
           String serializedMessage = messageSerializerFactory.serialize(result);
           queue.add(serializedMessage);
         }

@@ -1,21 +1,40 @@
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.datatorrent</groupId>
+    <groupId>org.apache.apex</groupId>
     <artifactId>malhar</artifactId>
-    <version>3.1.0</version>
+    <version>3.4.0-incubating-SNAPSHOT</version>
   </parent>
 
   <artifactId>malhar-library</artifactId>
   <packaging>jar</packaging>
 
-  <name>Operator and Codec Library</name>
+  <name>Apache Apex Malhar (incubating) Library</name>
 
   <properties>
-    <maven.deploy.skip>false</maven.deploy.skip>
   </properties>
 
   <build>
@@ -159,14 +178,26 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>com.github.siom79.japicmp</groupId>
+        <artifactId>japicmp-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <maxAllowedViolations>15966</maxAllowedViolations>
+          <consoleOutput>false</consoleOutput>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
   <dependencies>
     <dependency>
-      <groupId>com.datatorrent</groupId>
-      <artifactId>dt-common</artifactId>
-      <version>${dt.framework.version}</version>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>apex-common</artifactId>
+      <version>${apex.core.version}</version>
     </dependency>
     <dependency>
       <groupId>com.icegreen</groupId>
@@ -286,6 +317,17 @@
       <artifactId>commons-beanutils</artifactId>
       <version>1.8.3</version>
     </dependency>
+    <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+      <version>2.9.1</version>
+    </dependency>
+    <dependency>
+      <groupId>it.unimi.dsi</groupId>
+      <artifactId>fastutil</artifactId>
+      <version>7.0.6</version>
+    </dependency>
+
   </dependencies>
 
   <profiles>

@@ -1,17 +1,20 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.lib.db.jdbc;
 
@@ -19,8 +22,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 import com.datatorrent.api.Context;
-
 import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator;
 
 /**
@@ -37,7 +39,8 @@ import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator
  * <p>
  * This operator creates a transaction at the start of window, executes batches of sql updates,
  * and closes the transaction at the end of the window. Each tuple corresponds to an SQL update statement.
- * The operator groups the updates in a batch and submits them with one call to the database. Batch processing improves performance considerably.<br/>
+ * The operator groups the updates in a batch and submits them with one call to the database. Batch processing
+ * improves performance considerably.<br/>
  * The size of a batch is configured by batchSize property.
  * </p>
  * <p>
@@ -52,7 +55,8 @@ import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator
  * @param <T> type of tuple
  * @since 0.9.4
  */
-public abstract class AbstractJdbcTransactionableOutputOperator<T> extends AbstractPassThruTransactionableStoreOutputOperator<T, JdbcTransactionalStore>
+public abstract class AbstractJdbcTransactionableOutputOperator<T>
+    extends AbstractPassThruTransactionableStoreOutputOperator<T, JdbcTransactionalStore>
 {
   protected static int DEFAULT_BATCH_SIZE = 1000;
 
@@ -77,8 +81,7 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T> extends Abstr
     super.setup(context);
     try {
       updateCommand = store.connection.prepareStatement(getUpdateCommand());
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException(e);
     }
 
@@ -114,11 +117,9 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T> extends Abstr
       }
       updateCommand.executeBatch();
       updateCommand.clearBatch();
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException("processing batch", e);
-    }
-    finally {
+    } finally {
       batchStartIdx += tuples.size() - batchStartIdx;
     }
   }
@@ -139,7 +140,7 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T> extends Abstr
    *
    * @return the sql statement to update a tuple in the database.
    */
-  @Nonnull
+  @NotNull
   protected abstract String getUpdateCommand();
 
   /**

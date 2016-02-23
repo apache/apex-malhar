@@ -1,17 +1,20 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.contrib.kafka;
 
@@ -25,23 +28,31 @@ import com.datatorrent.api.Stats;
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
-
-import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.getOffsetsForPartitions;
-import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.get_1minMovingAvgParMap;
-
 import com.datatorrent.lib.io.IdempotentStorageManager;
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
+import com.datatorrent.lib.util.KryoCloneUtils;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
+import kafka.api.FetchRequest;
+import kafka.api.FetchRequestBuilder;
+import kafka.cluster.Broker;
+import kafka.javaapi.FetchResponse;
+import kafka.javaapi.PartitionMetadata;
+import kafka.javaapi.consumer.SimpleConsumer;
+import kafka.message.Message;
+import kafka.message.MessageAndOffset;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -56,23 +67,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-
-import kafka.api.FetchRequest;
-import kafka.api.FetchRequestBuilder;
-import kafka.cluster.Broker;
-import kafka.javaapi.FetchResponse;
-import kafka.javaapi.PartitionMetadata;
-import kafka.javaapi.consumer.SimpleConsumer;
-import kafka.message.Message;
-import kafka.message.MessageAndOffset;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.getOffsetsForPartitions;
+import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.get_1minMovingAvgParMap;
 
 /**
  * This is a base implementation of a Kafka input operator, which consumes data from Kafka message bus.&nbsp;
@@ -137,12 +133,22 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
 
   @Min(1)
   private int maxTuplesPerWindow = Integer.MAX_VALUE;
+  @Min(1)
+  private long maxTotalMsgSizePerWindow = Long.MAX_VALUE;
   private transient int emitCount = 0;
+  private transient long emitTotalMsgSize = 0;
   protected IdempotentStorageManager idempotentStorageManager;
   protected transient long currentWindowId;
   protected transient int operatorId;
   protected final transient Map<KafkaPartition, MutablePair<Long, Integer>> currentWindowRecoveryState;
-  protected transient Map<KafkaPartition, Long> offsetStats = new HashMap<KafkaPartition, Long>();
+  /**
+   * Offsets that are checkpointed for recovery
+   */
+  protected Map<KafkaPartition, Long> offsetStats = new HashMap<KafkaPartition, Long>();
+  /**
+   * offset history with window id
+   */
+  protected transient List<Pair<Long, Map<KafkaPartition, Long>>> offsetTrackHistory = new LinkedList<>();
   private transient OperatorContext context = null;
   // By default the partition policy is 1:1
   public PartitionStrategy strategy = PartitionStrategy.ONE_TO_ONE;
@@ -175,6 +181,8 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   // A list store the newly discovered partitions
   private transient List<KafkaPartition> newWaitingPartition = new LinkedList<KafkaPartition>();
 
+  private transient KafkaConsumer.KafkaMessage pendingMessage;
+
   @Min(1)
   private int initialPartitionCount = 1;
 
@@ -204,11 +212,36 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     this.maxTuplesPerWindow = maxTuplesPerWindow;
   }
 
+  /**
+   * Get the maximum total size of messages to be transmitted per window. When the sum of the message sizes transmitted
+   * in a window reaches this limit no more messages are transmitted till the next window. There is one exception
+   * however, if the size of the first message in a window is greater than the limit it is still transmitted so that the
+   * processing of messages doesn't get stuck.
+   * @return The maximum for the total size
+     */
+  public long getMaxTotalMsgSizePerWindow() {
+    return maxTotalMsgSizePerWindow;
+  }
+
+  /**
+   * Set the maximum total size of messages to be transmitted per window. See {@link #getMaxTotalMsgSizePerWindow()} for
+   * more description about this property.
+   *
+   * @param maxTotalMsgSizePerWindow The maximum for the total size
+     */
+  public void setMaxTotalMsgSizePerWindow(long maxTotalMsgSizePerWindow) {
+    this.maxTotalMsgSizePerWindow = maxTotalMsgSizePerWindow;
+  }
+
   @Override
   public void setup(OperatorContext context)
   {
     logger.debug("consumer {} topic {} cacheSize {}", consumer, consumer.getTopic(), consumer.getCacheSize());
     consumer.create();
+    // reset the offsets to checkpointed one
+    if (consumer instanceof SimpleKafkaConsumer && !offsetStats.isEmpty()) {
+      ((SimpleKafkaConsumer)consumer).resetOffset(offsetStats);
+    }
     this.context = context;
     operatorId = context.getId();
     if(consumer instanceof HighlevelKafkaConsumer && !(idempotentStorageManager instanceof IdempotentStorageManager.NoopIdempotentStorageManager)) {
@@ -232,6 +265,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
       replay(windowId);
     }
     emitCount = 0;
+    emitTotalMsgSize = 0;
   }
 
   protected void replay(long windowId)
@@ -298,12 +332,13 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   @Override
   public void endWindow()
   {
+    //TODO depends on APEX-78 only needs to keep the history of windows needs to be commit
+    if (getConsumer() instanceof SimpleKafkaConsumer) {
+      Map<KafkaPartition, Long> carryOn = new HashMap<>(offsetStats);
+      offsetTrackHistory.add(Pair.of(currentWindowId, carryOn));
+    }
     if (currentWindowId > idempotentStorageManager.getLargestRecoveryWindow()) {
       try {
-        if((getConsumer() instanceof  SimpleKafkaConsumer)) {
-          SimpleKafkaConsumer cons = (SimpleKafkaConsumer) getConsumer();
-          context.setCounters(cons.getConsumerStats(offsetStats));
-        }
         idempotentStorageManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
       }
       catch (IOException e) {
@@ -323,6 +358,23 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   @Override
   public void committed(long windowId)
   {
+    if ((getConsumer() instanceof  SimpleKafkaConsumer)) {
+      SimpleKafkaConsumer cons = (SimpleKafkaConsumer)getConsumer();
+      for (Iterator<Pair<Long, Map<KafkaPartition, Long>>> iter = offsetTrackHistory.iterator(); iter.hasNext(); ) {
+        Pair<Long, Map<KafkaPartition, Long>> item = iter.next();
+        if (item.getLeft() < windowId) {
+          iter.remove();
+          continue;
+        } else if (item.getLeft() == windowId) {
+          if (logger.isDebugEnabled()) {
+            logger.debug("report offsets {} ", Joiner.on(';').withKeyValueSeparator("=").join(item.getRight()));
+          }
+          context.setCounters(cons.getConsumerStats(item.getRight()));
+        }
+        break;
+      }
+    }
+
     try {
       idempotentStorageManager.deleteUpTo(operatorId, windowId);
     }
@@ -356,16 +408,28 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     if (currentWindowId <= idempotentStorageManager.getLargestRecoveryWindow()) {
       return;
     }
-    int count = consumer.messageSize();
+    int count = consumer.messageSize() + ((pendingMessage != null) ? 1 : 0);
     if (maxTuplesPerWindow > 0) {
       count = Math.min(count, maxTuplesPerWindow - emitCount);
     }
+    KafkaConsumer.KafkaMessage message = null;
     for (int i = 0; i < count; i++) {
-      KafkaConsumer.KafkaMessage message = consumer.pollMessage();
-      // Ignore the duplicate messages
-      if(offsetStats.containsKey(message.kafkaPart) && message.offSet <= offsetStats.get(message.kafkaPart))
-        continue;
+      if (pendingMessage != null) {
+        message = pendingMessage;
+        pendingMessage = null;
+      } else {
+        message = consumer.pollMessage();
+      }
+      // If the total size transmitted in the window will be exceeded don't transmit anymore messages in this window
+      // Make an exception for the case when no message has been transmitted in the window and transmit at least one
+      // message even if the condition is violated so that the processing doesn't get stuck
+      if ((emitCount > 0) && ((maxTotalMsgSizePerWindow - emitTotalMsgSize) < message.msg.size())) {
+        pendingMessage = message;
+        break;
+      }
       emitTuple(message.msg);
+      emitCount++;
+      emitTotalMsgSize += message.msg.size();
       offsetStats.put(message.kafkaPart, message.offSet);
       MutablePair<Long, Integer> offsetAndCount = currentWindowRecoveryState.get(message.kafkaPart);
       if(offsetAndCount == null) {
@@ -374,7 +438,6 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
         offsetAndCount.setRight(offsetAndCount.right+1);
       }
     }
-    emitCount += count;
   }
 
   public void setConsumer(K consumer)
@@ -575,15 +638,16 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   // Create a new partition with the partition Ids and initial offset positions
   protected Partitioner.Partition<AbstractKafkaInputOperator<K>> createPartition(Set<KafkaPartition> pIds, Map<KafkaPartition, Long> initOffsets, Collection<IdempotentStorageManager> newManagers)
   {
-    Kryo kryo = new Kryo();
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    Output output = new Output(bos);
-    kryo.writeObject(output, this);
-    output.close();
-    Input lInput = new Input(bos.toByteArray());
-    @SuppressWarnings("unchecked")
-    Partitioner.Partition<AbstractKafkaInputOperator<K>> p = new DefaultPartition<AbstractKafkaInputOperator<K>>(kryo.readObject(lInput, this.getClass()));
-    p.getPartitionedInstance().getConsumer().resetPartitionsAndOffset(pIds, initOffsets);
+
+    Partitioner.Partition<AbstractKafkaInputOperator<K>> p = new DefaultPartition<>(KryoCloneUtils.cloneObject(this));
+    if (p.getPartitionedInstance().getConsumer() instanceof SimpleKafkaConsumer) {
+      p.getPartitionedInstance().getConsumer().resetPartitionsAndOffset(pIds, initOffsets);
+      if (initOffsets != null) {
+        //Don't send all offsets to all partitions
+        //p.getPartitionedInstance().offsetStats.putAll(initOffsets);
+        p.getPartitionedInstance().offsetStats.putAll(p.getPartitionedInstance().getConsumer().getCurrentOffsets());
+      }
+    }
     newManagers.add(p.getPartitionedInstance().idempotentStorageManager);
 
     PartitionInfo pif = new PartitionInfo();
@@ -653,7 +717,11 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   {
     //In every partition check interval, call offsetmanager to update the offsets
     if (offsetManager != null) {
-      offsetManager.updateOffsets(getOffsetsForPartitions(kstats));
+      Map<KafkaPartition, Long> offsetsForPartitions = getOffsetsForPartitions(kstats);
+      if (offsetsForPartitions.size() > 0) {
+        logger.debug("Passing offset updates to offset manager");
+        offsetManager.updateOffsets(offsetsForPartitions);
+      }
     }
   }
 
@@ -681,14 +749,17 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
 
     long t = System.currentTimeMillis();
 
+    // If stats are available then update offsets
+    // Do this before re-partition interval check below to not miss offset updates
+    if (kstats.size() > 0) {
+      logger.debug("Checking offset updates for offset manager");
+      updateOffsets(kstats);
+    }
+
     if (t - lastCheckTime < repartitionCheckInterval) {
       // return false if it's within repartitionCheckInterval since last time it check the stats
       return false;
     }
-
-    logger.debug("Use OffsetManager to update offsets");
-    updateOffsets(kstats);
-
 
     if(repartitionInterval < 0){
       // if repartition is disabled
@@ -906,6 +977,11 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   public void setOffsetManager(OffsetManager offsetManager)
   {
     this.offsetManager = offsetManager;
+  }
+
+  public OffsetManager getOffsetManager()
+  {
+    return offsetManager;
   }
 
   public void setRepartitionCheckInterval(long repartitionCheckInterval)

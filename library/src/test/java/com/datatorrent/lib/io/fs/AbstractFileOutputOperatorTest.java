@@ -1,17 +1,20 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.lib.io.fs;
 
@@ -45,9 +48,7 @@ import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.RandomWordGenerator;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.*;
 
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -61,12 +62,10 @@ public class AbstractFileOutputOperatorTest
 
   @Rule public FSTestWatcher testMeta = new FSTestWatcher();
 
-  public static OperatorContextTestHelper.TestIdOperatorContext testOperatorContext =
-                new OperatorContextTestHelper.TestIdOperatorContext(0);
-
   public static class FSTestWatcher extends TestInfo
   {
     public boolean writeToTmp = false;
+    public OperatorContextTestHelper.TestIdOperatorContext testOperatorContext;
 
     @Override
     protected void starting(Description description)
@@ -74,6 +73,11 @@ public class AbstractFileOutputOperatorTest
       super.starting(description);
       try {
         FileUtils.forceMkdir(new File(getDir()));
+        Attribute.AttributeMap.DefaultAttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
+        attributeMap.put(Context.DAGContext.CHECKPOINT_WINDOW_COUNT, 60);
+        attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
+
+        testOperatorContext = new OperatorContextTestHelper.TestIdOperatorContext(0, attributeMap);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -306,7 +310,8 @@ public class AbstractFileOutputOperatorTest
   }
 
   @Test
-  public void testSingleFileCompletedWriteTmp() {
+  public void testSingleFileCompletedWriteTmp()
+  {
     testMeta.writeToTmp = true;
     testSingleFileCompletedWrite();
   }
@@ -347,7 +352,7 @@ public class AbstractFileOutputOperatorTest
   {
     writer.setFilePath(testMeta.getDir());
     writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(0);
     writer.input.put(0);
@@ -416,6 +421,7 @@ public class AbstractFileOutputOperatorTest
                 singleFileName,
                 correctContents);
   }
+
   @Test
   public void testSingleFileFailedWriteOverwriteInitiaTmp() throws IOException
   {
@@ -428,7 +434,7 @@ public class AbstractFileOutputOperatorTest
     File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
     writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(0);
     writer.input.put(0);
@@ -444,7 +450,7 @@ public class AbstractFileOutputOperatorTest
     writer.teardown();
 
     restoreCheckPoint(checkPointWriter, writer);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(1);
     writer.input.put(4);
@@ -635,7 +641,7 @@ public class AbstractFileOutputOperatorTest
     File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
     writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(0);
     writer.input.put(0);
@@ -661,7 +667,7 @@ public class AbstractFileOutputOperatorTest
     File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
     writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(0);
     writer.input.put(0);
@@ -762,7 +768,7 @@ public class AbstractFileOutputOperatorTest
     File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
     writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(0);
     writer.input.put(0);
@@ -783,7 +789,7 @@ public class AbstractFileOutputOperatorTest
 
     restoreCheckPoint(checkPointWriter,
                       writer);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(2);
     writer.input.put(6);
@@ -889,7 +895,7 @@ public class AbstractFileOutputOperatorTest
     writer.setFilePath(testMeta.getDir());
     writer.setMaxLength(4);
     writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(0);
     writer.input.put(0);
@@ -960,7 +966,7 @@ public class AbstractFileOutputOperatorTest
     writer.setMaxLength(4);
     writer.setFilePath(testMeta.getDir());
     writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(0);
     writer.input.put(0);
@@ -978,7 +984,7 @@ public class AbstractFileOutputOperatorTest
 
     restoreCheckPoint(checkPointWriter,
                       writer);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(1);
     writer.input.put(3);
@@ -1003,7 +1009,7 @@ public class AbstractFileOutputOperatorTest
     writer.setFilePath(testMeta.getDir());
     writer.setMaxLength(4);
     writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(0);
     writer.input.put(0);
@@ -1028,7 +1034,7 @@ public class AbstractFileOutputOperatorTest
     restoreCheckPoint(checkPointWriter,
                       writer);
     LOG.debug("Checkpoint endOffsets={}", checkPointWriter.endOffsets);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(2);
     writer.input.put(5);
@@ -1043,7 +1049,7 @@ public class AbstractFileOutputOperatorTest
     writer.teardown();
 
     restoreCheckPoint(checkPointWriter1, writer);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
     writer.committed(2);
 
     String singleFilePath = testMeta.getDir() + File.separator + SINGLE_FILE;
@@ -1143,7 +1149,7 @@ public class AbstractFileOutputOperatorTest
     File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
 
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(0);
     writer.input.put(0);
@@ -1211,7 +1217,7 @@ public class AbstractFileOutputOperatorTest
     File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
     writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(0);
     writer.input.put(0);
@@ -1356,7 +1362,7 @@ public class AbstractFileOutputOperatorTest
     writer.setMaxLength(4);
     writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
 
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(0);
     writer.input.put(0);
@@ -1372,7 +1378,7 @@ public class AbstractFileOutputOperatorTest
 
     restoreCheckPoint(checkPointWriter,
                       writer);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(1);
     writer.input.put(2);
@@ -1476,7 +1482,7 @@ public class AbstractFileOutputOperatorTest
     writer.setFilePath(meta.getAbsolutePath());
     writer.setMaxLength(4);
     writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(0);
     writer.input.put(0);
@@ -1492,7 +1498,7 @@ public class AbstractFileOutputOperatorTest
 
     restoreCheckPoint(checkPointWriter,
                       writer);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(1);
     writer.input.put(4);
@@ -1528,7 +1534,7 @@ public class AbstractFileOutputOperatorTest
     writer.setFilePath(meta.getAbsolutePath());
     writer.setMaxLength(4);
     writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(0);
     writer.input.process(0);
@@ -1544,7 +1550,7 @@ public class AbstractFileOutputOperatorTest
 
     restoreCheckPoint(checkPointWriter,
                       writer);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(1);
     writer.input.process(4);
@@ -1662,7 +1668,7 @@ public class AbstractFileOutputOperatorTest
   private void singleFileMultiRollingFailureHelper(SingleHDFSExactlyOnceWriter writer)
   {
     writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(0);
     writer.input.put(0);
@@ -1690,7 +1696,7 @@ public class AbstractFileOutputOperatorTest
 
     restoreCheckPoint(checkPointWriter,
                       writer);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(1);
     writer.input.put(0);
@@ -1746,7 +1752,7 @@ public class AbstractFileOutputOperatorTest
     writer.setFilePath(testMeta.getDir());
     writer.setRotationWindows(30);
     writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     // Check that rotation doesn't happen prematurely
     for (int i = 0; i < 30; ++i) {
@@ -1808,6 +1814,44 @@ public class AbstractFileOutputOperatorTest
   }
 
   @Test
+  public void testPeriodicRotationWithEviction() throws InterruptedException
+  {
+    EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
+    File dir = new File(testMeta.getDir());
+    writer.setFilePath(testMeta.getDir());
+    writer.setRotationWindows(30);
+    writer.setAlwaysWriteToTmp(true);
+    writer.setExpireStreamAfterAccessMillis(1L);
+    writer.setup(testMeta.testOperatorContext);
+
+    // Check that rotation for even.txt.0 happens
+    for (int i = 0; i < 30; ++i) {
+      writer.beginWindow(i);
+      if (i == 0) {
+        writer.input.put(i);
+      }
+      Thread.sleep(100L);
+      writer.endWindow();
+    }
+    writer.committed(29);
+    Set<String> fileNames = new TreeSet<>();
+    fileNames.add(EVEN_FILE + ".0");
+    Collection<File> files = FileUtils.listFiles(dir, null, false);
+    Assert.assertEquals("Number of part files", 1, files.size());
+    Assert.assertEquals("Part file names", fileNames, getFileNames(files));
+
+    // Check that rotation doesn't happen for files that don't have data during the rotation period
+    for (int i = 30; i < 120; ++i) {
+      writer.beginWindow(i);
+      writer.endWindow();
+    }
+    writer.committed(119);
+    files = FileUtils.listFiles(dir, null, false);
+    Assert.assertEquals("Number of part files", 1, files.size());
+    Assert.assertEquals("Part file names", fileNames, getFileNames(files));
+  }
+
+  @Test
   public void testCompression() throws IOException
   {
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
@@ -1823,7 +1867,7 @@ public class AbstractFileOutputOperatorTest
     
     writer.setFilePath(testMeta.getDir());
     writer.setAlwaysWriteToTmp(false);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     for (int i = 0; i < 10; ++i) {
       writer.beginWindow(i);
@@ -1839,6 +1883,58 @@ public class AbstractFileOutputOperatorTest
 
     checkCompressedFile(evenFile, evenOffsets, 0, 5, 1000, null, null);
     checkCompressedFile(oddFile, oddOffsets, 1, 5, 1000, null, null);
+  }
+
+  @Test
+  public void testRecoveryOfOpenFiles()
+  {
+    EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
+    writer.setMaxLength(4);
+    File meta = new File(testMeta.getDir());
+    writer.setFilePath(meta.getAbsolutePath());
+    writer.setAlwaysWriteToTmp(true);
+    writer.setup(testMeta.testOperatorContext);
+
+    writer.beginWindow(0);
+    writer.input.put(0);
+    writer.input.put(1);
+    writer.input.put(2);
+    writer.input.put(3);
+    writer.endWindow();
+
+    //failure and restored
+    writer.setup(testMeta.testOperatorContext);
+    writer.input.put(4);
+    writer.input.put(5);
+    writer.endWindow();
+
+    writer.beginWindow(1);
+    writer.input.put(6);
+    writer.input.put(7);
+    writer.input.put(8);
+    writer.input.put(9);
+    writer.input.put(6);
+    writer.input.put(7);
+    writer.endWindow();
+
+    writer.committed(1);
+
+    //Part 0 checks
+    String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
+    String correctContents = "0\n" + "2\n" + "4\n";
+    checkOutput(0, evenFileName, correctContents);
+
+    String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
+    correctContents = "1\n" + "3\n" + "5\n";
+    checkOutput(0, oddFileName, correctContents);
+
+
+    //Part 1 checks
+    correctContents = "6\n" + "8\n" + "6\n";
+    checkOutput(1, evenFileName, correctContents);
+
+    correctContents = "7\n" + "9\n" + "7\n";
+    checkOutput(1, oddFileName, correctContents);
   }
 
   private void checkCompressedFile(File file, List<Long> offsets, int startVal, int totalWindows, int totalRecords, SecretKey secretKey, byte[] iv) throws IOException
@@ -1982,7 +2078,7 @@ public class AbstractFileOutputOperatorTest
 
     writer.setFilePath(testMeta.getDir());
     writer.setAlwaysWriteToTmp(false);
-    writer.setup(testOperatorContext);
+    writer.setup(testMeta.testOperatorContext);
 
     for (int i = 0; i < 10; ++i) {
       writer.beginWindow(i);

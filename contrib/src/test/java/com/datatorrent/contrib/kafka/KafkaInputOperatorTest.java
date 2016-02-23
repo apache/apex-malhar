@@ -1,33 +1,23 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.contrib.kafka;
 
-import com.datatorrent.api.Attribute;
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.Context;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.api.Operator;
-import com.datatorrent.api.Partitioner;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.IdempotentStorageManager;
-import com.datatorrent.lib.partitioner.StatelessPartitionerTest;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -37,20 +27,41 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
+import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.api.Attribute;
+import com.datatorrent.api.Context;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.Partitioner;
+import com.datatorrent.common.util.FSStorageAgent;
+import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.io.IdempotentStorageManager;
+import com.datatorrent.lib.partitioner.StatelessPartitionerTest;
+import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.stram.StramLocalCluster;
+
+
 public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 {
   static final org.slf4j.Logger logger = LoggerFactory.getLogger(KafkaInputOperatorTest.class);
   static AtomicInteger tupleCount = new AtomicInteger();
   static CountDownLatch latch;
+  static boolean isSuicide = false;
+  static int suicideTrigger = 3000;
 
   /**
    * Test Operator to collect tuples from KafkaSingleInputStringOperator.
@@ -65,6 +76,8 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
   public static class CollectorInputPort<T> extends DefaultInputPort<T>
   {
 
+    private int k = 0;
+
     public CollectorInputPort(String id, Operator module)
     {
       super();
@@ -73,6 +86,11 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     @Override
     public void process(T tuple)
     {
+      if (isSuicide && k++ == suicideTrigger) {
+        //you can only kill yourself once
+        isSuicide = false;
+        throw  new RuntimeException();
+      }
       if (tuple.equals(KafkaOperatorTestBase.END_TUPLE)) {
         if (latch != null) {
           latch.countDown();
@@ -80,12 +98,6 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
         return;
       }
       tupleCount.incrementAndGet();
-    }
-
-    @Override
-    public void setConnected(boolean flag)
-    {
-      tupleCount.set(0);
     }
   }
 
@@ -121,12 +133,21 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 
     // Create KafkaSinglePortStringInputOperator
     KafkaSinglePortStringInputOperator node = dag.addOperator("Kafka message consumer", KafkaSinglePortStringInputOperator.class);
+    if(isSuicide) {
+      // make some extreme assumptions to make it fail if checkpointing wrong offsets
+      dag.setAttribute(Context.DAGContext.CHECKPOINT_WINDOW_COUNT, 1);
+      dag.setAttribute(Context.OperatorContext.STORAGE_AGENT, new FSStorageAgent("target/ck", new Configuration()));
+      node.setMaxTuplesPerWindow(500);
+    }
+
     if(idempotent) {
       node.setIdempotentStorageManager(new IdempotentStorageManager.FSIdempotentStorageManager());
     }
     consumer.setTopic(TEST_TOPIC);
 
     node.setConsumer(consumer);
+
+    consumer.setCacheSize(5000);
 
     if (isValid) {
       node.setZookeeper("localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT[0]);
@@ -148,7 +169,8 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     Assert.assertTrue("TIMEOUT: 30s ", latch.await(300000, TimeUnit.MILLISECONDS));
 
     // Check results
-    Assert.assertEquals("Tuple count", totalCount, tupleCount.intValue());
+    Assert.assertTrue("Expected count >= " + totalCount + "; Actual count " + tupleCount.intValue(),
+      totalCount <= tupleCount.intValue());
     logger.debug(String.format("Number of emitted tuples: %d", tupleCount.intValue()));
 
     p.close();
@@ -179,6 +201,16 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
   }
 
   @Test
+  public void testKafkaInputOperator_SimpleSuicide() throws Exception
+  {
+    int totalCount = 10000;
+    KafkaConsumer k = new SimpleKafkaConsumer();
+    k.setInitialOffset("earliest");
+    isSuicide = true;
+    testKafkaInputOperator(1000, totalCount, k, true, false);
+  }
+
+  @Test
   public void testKafkaInputOperator_Simple_Idempotent() throws Exception
   {
     int totalCount = 10000;
@@ -201,11 +233,20 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
   }
 
   @Override
-  @After
-  public void afterTest()
+  @Before
+  public void beforeTest()
   {
     tupleCount.set(0);
-    super.afterTest();
+    File syncCheckPoint = new File("target", "ck");
+    File localFiles = new File("target" + StramLocalCluster.class.getName());
+    try {
+      FileUtils.deleteQuietly(syncCheckPoint);
+      FileUtils.deleteQuietly(localFiles);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      super.beforeTest();
+    }
   }
 
   public static class TestMeta extends TestWatcher
@@ -222,9 +263,9 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
       String methodName = description.getMethodName();
       String className = description.getClassName();
       baseDir = "target/" + className + "/" + methodName;
-      recoveryDir = baseDir + "/" + "recovery";
+      recoveryDir = "recovery";
       try {
-        FileUtils.deleteDirectory(new File(recoveryDir));
+        FileUtils.deleteDirectory(new File(baseDir, "recovery"));
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -247,9 +288,49 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     p.setSendCount(totalCount);
     new Thread(p).start();
 
+
+    KafkaSinglePortStringInputOperator operator = createAndDeployOperator();
+    latch.await(4000, TimeUnit.MILLISECONDS);
+    operator.beginWindow(1);
+    operator.emitTuples();
+    operator.endWindow();
+    operator.beginWindow(2);
+    operator.emitTuples();
+    operator.endWindow();
+
+    //failure and then re-deployment of operator
+    testMeta.sink.collectedTuples.clear();
+    operator.teardown();
+    operator.deactivate();
+
+    operator = createAndDeployOperator();
+    Assert.assertEquals("largest recovery window", 2, operator.getIdempotentStorageManager().getLargestRecoveryWindow());
+
+    operator.beginWindow(1);
+    operator.emitTuples();
+    operator.endWindow();
+    operator.beginWindow(2);
+    operator.emitTuples();
+    operator.endWindow();
+    latch.await(3000, TimeUnit.MILLISECONDS);
+    // Emiting data after all recovery windows are replayed
+    operator.beginWindow(3);
+    operator.emitTuples();
+    operator.endWindow();
+
+    Assert.assertEquals("Total messages collected ", totalCount, testMeta.sink.collectedTuples.size());
+    testMeta.sink.collectedTuples.clear();
+    operator.teardown();
+    operator.deactivate();
+  }
+
+  private KafkaSinglePortStringInputOperator createAndDeployOperator()
+  {
+
     Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
     attributeMap.put(Context.DAGContext.APPLICATION_PATH, testMeta.baseDir);
+
 
     testMeta.context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
     testMeta.operator = new KafkaSinglePortStringInputOperator();
@@ -275,37 +356,67 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     testMeta.sink = new CollectorTestSink<Object>();
     testMeta.operator.outputPort.setSink(testMeta.sink);
     operator.outputPort.setSink(testMeta.sink);
+
     operator.setup(testMeta.context);
     operator.activate(testMeta.context);
+
+    return operator;
+
+  }
+
+  @Test
+  public void testMaxTotalSize() throws InterruptedException {
+    int totalCount = 1500;
+    int maxTotalSize = 500;
+
+    // initial the latch for this test
+    latch = new CountDownLatch(1);
+
+    // Start producer
+    KafkaTestProducer p = new KafkaTestProducer(TEST_TOPIC);
+    p.setSendCount(totalCount);
+    Thread t = new Thread(p);
+    t.start();
+
+    Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
+    attributeMap.put(Context.DAGContext.APPLICATION_PATH, testMeta.baseDir);
+
+    Context.OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+    KafkaSinglePortStringInputOperator operator = new KafkaSinglePortStringInputOperator();
+
+    KafkaConsumer consumer = new SimpleKafkaConsumer();
+    consumer.setTopic(TEST_TOPIC);
+    consumer.setInitialOffset("earliest");
+
+    operator.setConsumer(consumer);
+    operator.setZookeeper("localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT[0]);
+    operator.setMaxTotalMsgSizePerWindow(maxTotalSize);
+
+    List<Partitioner.Partition<AbstractKafkaInputOperator<KafkaConsumer>>> partitions = new LinkedList<Partitioner.Partition<AbstractKafkaInputOperator<KafkaConsumer>>>();
+
+    Collection<Partitioner.Partition<AbstractKafkaInputOperator<KafkaConsumer>>> newPartitions = operator.definePartitions(partitions, new StatelessPartitionerTest.PartitioningContextImpl(null, 0));
+    Assert.assertEquals(1, newPartitions.size());
+
+    operator = (KafkaSinglePortStringInputOperator)newPartitions.iterator().next().getPartitionedInstance();
+
+    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+    operator.outputPort.setSink(sink);
+    operator.setup(context);
+    operator.activate(context);
     latch.await(4000, TimeUnit.MILLISECONDS);
     operator.beginWindow(1);
     operator.emitTuples();
     operator.endWindow();
-    operator.beginWindow(2);
-    operator.emitTuples();
-    operator.endWindow();
 
-    //failure and then re-deployment of operator
-    testMeta.sink.collectedTuples.clear();
+    t.join();
+
+    operator.deactivate();
     operator.teardown();
-    operator.setup(testMeta.context);
-
-    Assert.assertEquals("largest recovery window", 2, operator.getIdempotentStorageManager().getLargestRecoveryWindow());
-
-    operator.beginWindow(1);
-    operator.emitTuples();
-    operator.endWindow();
-    operator.beginWindow(2);
-    operator.emitTuples();
-    operator.endWindow();
-    latch.await(3000, TimeUnit.MILLISECONDS);
-    // Emiting data after all recovery windows are replayed
-    operator.beginWindow(3);
-    operator.emitTuples();
-    operator.endWindow();
-
-    Assert.assertEquals("Total messages collected ", totalCount, testMeta.sink.collectedTuples.size());
-    testMeta.sink.collectedTuples.clear();
+    int size = 0;
+    for (Object o : sink.collectedTuples) {
+      size += ((String)o).getBytes().length;
+    }
+    Assert.assertTrue("Total emitted size comparison", size < maxTotalSize);
   }
 
   @Test

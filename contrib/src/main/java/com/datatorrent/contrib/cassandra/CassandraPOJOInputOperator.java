@@ -1,17 +1,20 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.contrib.cassandra;
 
@@ -21,17 +24,23 @@ import java.util.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import com.datastax.driver.core.ColumnDefinitions;
-import com.datastax.driver.core.DataType;
-import com.datastax.driver.core.Row;
-
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datastax.driver.core.ColumnDefinitions;
+import com.datastax.driver.core.DataType;
+import com.datastax.driver.core.Row;
+
+import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+
+import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.*;
-import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * <p>
@@ -49,28 +58,37 @@ import com.datatorrent.api.Context.OperatorContext;
  * @since 3.0.0
  */
 @Evolving
-public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<Object>
+public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<Object> implements Operator.ActivationListener<OperatorContext>
 {
   @NotNull
-  private List<String> columns;
-  private final transient List<DataType> columnDataTypes;
+  private List<FieldInfo> fieldInfos;
   private Number startRow = 0;
   @NotNull
-  private List<String> expressions;
-  @NotNull
   private String tablename;
-  private final transient List<Object> setters;
   @NotNull
   private String query;
-
-  private transient Class<?> objectClass = null;
   @NotNull
-  protected String primaryKeyColumn;
-  protected transient DataType primaryKeyColumnType;
-  private transient Row lastRowInBatch;
+  private String primaryKeyColumn;
 
   @Min(1)
   private int limit = 10;
+
+  private transient DataType primaryKeyColumnType;
+  private transient Row lastRowInBatch;
+
+  protected final transient List<Object> setters;
+  protected final transient List<DataType> columnDataTypes;
+  protected transient Class<?> pojoClass;
+
+  @OutputPortFieldAnnotation(schemaRequired = true)
+  public final transient DefaultOutputPort<Object> outputPort = new DefaultOutputPort<Object>()
+  {
+    @Override
+    public void setup(Context.PortContext context)
+    {
+      pojoClass = context.getValue(Context.PortContext.TUPLE_CLASS);
+    }
+  };
 
   /*
    * Number of records to be fetched in one time from cassandra table.
@@ -114,25 +132,6 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
   }
 
   /*
-   * POJO class which is generated as output from this operator.
-   * Example:
-   * public class TestPOJO{ int intfield; public int getInt(){} public void setInt(){} }
-   * outputClass = TestPOJO
-   * POJOs will be generated on fly in later implementation.
-   */
-  private String outputClass;
-
-  public String getOutputClass()
-  {
-    return outputClass;
-  }
-
-  public void setOutputClass(String outputClass)
-  {
-    this.outputClass = outputClass;
-  }
-
-  /*
    * Parameterized query with parameters such as %t for table name , %p for primary key, %s for start value and %l for limit.
    * Example of retrieveQuery:
    * select * from %t where token(%p) > %s limit %l;
@@ -144,34 +143,28 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
 
   public void setQuery(String query)
   {
-    this.query = query.replace("%t", tablename);
+    this.query = query;
   }
 
-  /*
-   * An ArrayList of Java expressions that will yield the cassandra column value to be set in output object.
-   * Each expression corresponds to one column in the Cassandra table.
+  /**
+   * A list of {@link FieldInfo}s where each item maps a column name to a pojo field name.
    */
-  public List<String> getExpressions()
+  public List<FieldInfo> getFieldInfos()
   {
-    return expressions;
+    return fieldInfos;
   }
 
-  public void setExpressions(List<String> expressions)
-  {
-    this.expressions = expressions;
-  }
-
-  /*
-   * List of column names specified by User in the same order as expressions for the particular fields.
+  /**
+   * Sets the {@link FieldInfo}s. A {@link FieldInfo} maps a store column to a pojo field name.<br/>
+   * The value from fieldInfo.column is assigned to fieldInfo.pojoFieldExpression.
+   *
+   * @description $[].columnName name of the database column name
+   * @description $[].pojoFieldExpression pojo field name or expression
+   * @useSchema $[].pojoFieldExpression outputPort.fields[].name
    */
-  public List<String> getColumns()
+  public void setFieldInfos(List<FieldInfo> fieldInfos)
   {
-    return columns;
-  }
-
-  public void setColumns(List<String> columns)
-  {
-    this.columns = columns;
+    this.fieldInfos = fieldInfos;
   }
 
   /*
@@ -196,87 +189,75 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
   }
 
   @Override
-  public void setup(OperatorContext context)
+  public void activate(OperatorContext context)
   {
-    super.setup(context);
-    if (setters.isEmpty()) {
-      try {
-        // This code will be replaced after integration of creating POJOs on the fly utility.
-        objectClass = Class.forName(outputClass);
+    com.datastax.driver.core.ResultSet rs = store.getSession().execute("select * from " + store.keyspace + "." + tablename + " LIMIT " + 1);
+    ColumnDefinitions rsMetaData = rs.getColumnDefinitions();
+
+    primaryKeyColumnType = rsMetaData.getType(primaryKeyColumn);
+    if (query.contains("%t")) {
+      query = query.replace("%t", tablename);
+    }
+    if (query.contains("%p")) {
+      query = query.replace("%p", primaryKeyColumn);
+    }
+    if (query.contains("%l")) {
+      query = query.replace("%l", limit + "");
+    }
+
+    LOG.debug("query is {}", query);
+
+    for (FieldInfo fieldInfo : fieldInfos) {
+      // Get the designated column's data type.
+      DataType type = rsMetaData.getType(fieldInfo.getColumnName());
+      columnDataTypes.add(type);
+      Object setter;
+      final String setterExpr = fieldInfo.getPojoFieldExpression();
+      switch (type.getName()) {
+        case ASCII:
+        case TEXT:
+        case VARCHAR:
+          setter = PojoUtils.createSetter(pojoClass, setterExpr, String.class);
+          break;
+        case BOOLEAN:
+          setter = PojoUtils.createSetterBoolean(pojoClass, setterExpr);
+          break;
+        case INT:
+          setter = PojoUtils.createSetterInt(pojoClass, setterExpr);
+          break;
+        case BIGINT:
+        case COUNTER:
+          setter = PojoUtils.createSetterLong(pojoClass, setterExpr);
+          break;
+        case FLOAT:
+          setter = PojoUtils.createSetterFloat(pojoClass, setterExpr);
+          break;
+        case DOUBLE:
+          setter = PojoUtils.createSetterDouble(pojoClass, setterExpr);
+          break;
+        case DECIMAL:
+          setter = PojoUtils.createSetter(pojoClass, setterExpr, BigDecimal.class);
+          break;
+        case SET:
+          setter = PojoUtils.createSetter(pojoClass, setterExpr, Set.class);
+          break;
+        case MAP:
+          setter = PojoUtils.createSetter(pojoClass, setterExpr, Map.class);
+          break;
+        case LIST:
+          setter = PojoUtils.createSetter(pojoClass, setterExpr, List.class);
+          break;
+        case TIMESTAMP:
+          setter = PojoUtils.createSetter(pojoClass, setterExpr, Date.class);
+          break;
+        case UUID:
+          setter = PojoUtils.createSetter(pojoClass, setterExpr, UUID.class);
+          break;
+        default:
+          setter = PojoUtils.createSetter(pojoClass, setterExpr, Object.class);
+          break;
       }
-      catch (ClassNotFoundException ex) {
-        throw new RuntimeException(ex);
-      }
-
-      com.datastax.driver.core.ResultSet rs = store.getSession().execute("select * from " + store.keyspace + "." + tablename + " LIMIT " + 1);
-      ColumnDefinitions rsMetaData = rs.getColumnDefinitions();
-
-      primaryKeyColumnType = rsMetaData.getType(primaryKeyColumn);
-       if(query.contains("%p"))
-       {
-          query = query.replace("%p", primaryKeyColumn);
-       }
-       if(query.contains("%l"))
-       {
-         query = query.replace("%l", limit+"");
-       }
-
-      logger.debug("query is {}",query);
-
-      //In case columns is a subset
-      int columnSize = columns.size();
-      for (int i = 0; i < columnSize; i++) {
-        // Get the designated column's data type.
-        DataType type = rsMetaData.getType(columns.get(i));
-        columnDataTypes.add(type);
-        Object setter;
-        final String setterExpr = expressions.get(i);
-        switch (type.getName()) {
-          case ASCII:
-          case TEXT:
-          case VARCHAR:
-            setter = PojoUtils.createSetter(objectClass, setterExpr, String.class);
-            break;
-          case BOOLEAN:
-            setter = PojoUtils.createSetterBoolean(objectClass, setterExpr);
-            break;
-          case INT:
-            setter = PojoUtils.createSetterInt(objectClass, setterExpr);
-            break;
-          case BIGINT:
-          case COUNTER:
-            setter = PojoUtils.createSetterLong(objectClass, setterExpr);
-            break;
-          case FLOAT:
-            setter = PojoUtils.createSetterFloat(objectClass, setterExpr);
-            break;
-          case DOUBLE:
-            setter = PojoUtils.createSetterDouble(objectClass, setterExpr);
-            break;
-          case DECIMAL:
-            setter = PojoUtils.createSetter(objectClass, setterExpr, BigDecimal.class);
-            break;
-          case SET:
-            setter = PojoUtils.createSetter(objectClass, setterExpr, Set.class);
-            break;
-          case MAP:
-            setter = PojoUtils.createSetter(objectClass, setterExpr, Map.class);
-            break;
-          case LIST:
-            setter = PojoUtils.createSetter(objectClass, setterExpr, List.class);
-            break;
-          case TIMESTAMP:
-            setter = PojoUtils.createSetter(objectClass, setterExpr, Date.class);
-            break;
-          case UUID:
-            setter = PojoUtils.createSetter(objectClass, setterExpr, UUID.class);
-            break;
-          default:
-            setter = PojoUtils.createSetter(objectClass, setterExpr, Object.class);
-            break;
-        }
-        setters.add(setter);
-      }
+      setters.add(setter);
     }
   }
 
@@ -285,23 +266,19 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
   public Object getTuple(Row row)
   {
     lastRowInBatch = row;
-    Object obj = null;
-    final int size = columnDataTypes.size();
+    Object obj;
 
     try {
       // This code will be replaced after integration of creating POJOs on the fly utility.
-      obj = objectClass.newInstance();
+      obj = pojoClass.newInstance();
     }
-    catch (InstantiationException ex) {
-      throw new RuntimeException(ex);
-    }
-    catch (IllegalAccessException ex) {
+    catch (InstantiationException | IllegalAccessException ex) {
       throw new RuntimeException(ex);
     }
 
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < columnDataTypes.size(); i++) {
       DataType type = columnDataTypes.get(i);
-      String columnName = columns.get(i);
+      String columnName = fieldInfos.get(i).getColumnName();
       switch (type.getName()) {
         case UUID:
           final UUID id = row.getUUID(columnName);
@@ -370,16 +347,10 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
   @Override
   public String queryToRetrieveData()
   {
-    String parameterizedQuery;
-    if(query.contains("%v"))
-    {
-      parameterizedQuery = query.replace("%v", startRow+"");
+    if (query.contains("%v")) {
+      return query.replace("%v", startRow + "");
     }
-    else
-    {
-      parameterizedQuery = query;
-    }
-    return parameterizedQuery;
+    return query;
   }
 
 
@@ -411,5 +382,16 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
 
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(CassandraPOJOInputOperator.class);
+  @Override
+  protected void emit(Object tuple)
+  {
+    outputPort.emit(tuple);
+  }
+
+  @Override
+  public void deactivate()
+  {
+  }
+
+  private static final Logger LOG = LoggerFactory.getLogger(CassandraPOJOInputOperator.class);
 }

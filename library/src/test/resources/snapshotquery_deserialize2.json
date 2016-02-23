@@ -1,0 +1,12 @@
+{
+  "id":1,
+  "type": "dataQuery",
+  "data": {
+    "schemaKeys": {
+      "publisher":"google",
+      "advertiser":"microsoft",
+      "location":"CA"
+    },
+    "fields": ["url", "count"]
+  }
+}

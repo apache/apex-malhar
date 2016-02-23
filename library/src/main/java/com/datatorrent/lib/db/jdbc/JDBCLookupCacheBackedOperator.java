@@ -1,17 +1,20 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.lib.db.jdbc;
 
@@ -41,6 +44,7 @@ import com.datatorrent.lib.db.cache.AbstractDBLookupCacheBackedOperator;
  * @param <T> type of input tuples </T>
  * @since 0.9.1
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupCacheBackedOperator<T, JdbcStore>
 {
   @NotNull
@@ -75,8 +79,7 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
     try {
       putStatement = store.connection.prepareStatement(insertQuery);
       getStatement = store.connection.prepareStatement(getQuery);
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException(e);
     }
   }
@@ -87,8 +90,7 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
     try {
       preparePutStatement(putStatement, key, value);
       putStatement.executeUpdate();
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException("while executing insert", e);
     }
   }
@@ -100,8 +102,7 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
       prepareGetStatement(getStatement, key);
       ResultSet resultSet = getStatement.executeQuery();
       return processResultSet(resultSet);
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException("while fetching key", e);
     }
   }
@@ -115,8 +116,7 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
         prepareGetStatement(getStatement, key);
         ResultSet resultSet = getStatement.executeQuery();
         values.add(processResultSet(resultSet));
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
         throw new RuntimeException("while fetching keys", e);
       }
     }
@@ -125,7 +125,8 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
 
   protected abstract void prepareGetStatement(PreparedStatement getStatement, Object key) throws SQLException;
 
-  protected abstract void preparePutStatement(PreparedStatement putStatement, Object key, Object value) throws SQLException;
+  protected abstract void preparePutStatement(PreparedStatement putStatement, Object key, Object value)
+  throws SQLException;
 
   protected abstract String fetchInsertQuery();
 

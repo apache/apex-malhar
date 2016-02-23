@@ -1,22 +1,26 @@
-/*
- * Copyright (c) 2015 DataTorrent, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.lib.appdata.schemas;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -195,12 +199,6 @@ public class SnapshotSchema implements Schema
   {
     schema = new JSONObject(schemaJSON);
 
-    Preconditions.checkState(schema.length() == NUM_KEYS_FIRST_LEVEL,
-                             "Expected "
-                             + NUM_KEYS_FIRST_LEVEL
-                             + " keys in the first level but found "
-                             + schema.length());
-
     if(schemaKeys != null) {
       schema.put(Schema.FIELD_SCHEMA_KEYS,
                  SchemaUtils.createJSONObject(schemaKeys));
@@ -243,6 +241,23 @@ public class SnapshotSchema implements Schema
     schemaJSON = this.schema.toString();
   }
 
+  public void setTags(Set<String> tags)
+  {
+    if (tags == null || tags.isEmpty())
+      throw new IllegalArgumentException("tags can't be null or empty.");
+
+    try {
+      JSONArray tagArray = new JSONArray(tags);
+
+      schema.put(FIELD_SCHEMA_TAGS, tagArray);
+    } catch (JSONException e) {
+      Preconditions.checkState(false, e.getMessage());
+      throw new RuntimeException(e);
+    }
+
+    schemaJSON = schema.toString();
+  }
+  
   /**
    * This is a helper method which sets the JSON that represents this schema.
    * @param schemaJSON The JSON that represents this schema.

@@ -1,21 +1,29 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.lib.db.jdbc;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -26,12 +34,14 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
+import com.datatorrent.api.Attribute;
+import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-
-import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.helper.TestPortContext;
 import com.datatorrent.lib.testbench.CollectorTestSink;
-import java.util.ArrayList;
+import com.datatorrent.lib.util.FieldInfo;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * Tests for {@link AbstractJdbcTransactionableOutputOperator} and {@link AbstractJdbcInputOperator}
@@ -103,19 +113,20 @@ public class JdbcOperatorTest
       Statement stmt = con.createStatement();
 
       String createMetaTable = "CREATE TABLE IF NOT EXISTS " + JdbcTransactionalStore.DEFAULT_META_TABLE + " ( "
-              + JdbcTransactionalStore.DEFAULT_APP_ID_COL + " VARCHAR(100) NOT NULL, "
-              + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT NOT NULL, "
-              + JdbcTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT NOT NULL, "
-              + "UNIQUE (" + JdbcTransactionalStore.DEFAULT_APP_ID_COL + ", " + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + ", " + JdbcTransactionalStore.DEFAULT_WINDOW_COL + ") "
-              + ")";
+          + JdbcTransactionalStore.DEFAULT_APP_ID_COL + " VARCHAR(100) NOT NULL, "
+          + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT NOT NULL, "
+          + JdbcTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT NOT NULL, "
+          + "UNIQUE (" + JdbcTransactionalStore.DEFAULT_APP_ID_COL + ", "
+          + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + ", " + JdbcTransactionalStore.DEFAULT_WINDOW_COL + ") "
+          + ")";
       stmt.executeUpdate(createMetaTable);
 
       String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (ID INTEGER)";
       stmt.executeUpdate(createTable);
-      String createPOJOTable = "CREATE TABLE IF NOT EXISTS " + TABLE_POJO_NAME + "(id INTEGER not NULL,name VARCHAR(255), PRIMARY KEY ( id ))";
+      String createPOJOTable = "CREATE TABLE IF NOT EXISTS " + TABLE_POJO_NAME
+          + "(id INTEGER not NULL,name VARCHAR(255), PRIMARY KEY ( id ))";
       stmt.executeUpdate(createPOJOTable);
-    }
-    catch (Throwable e) {
+    } catch (Throwable e) {
       DTThrowable.rethrow(e);
     }
   }
@@ -131,8 +142,23 @@ public class JdbcOperatorTest
 
       cleanTable = "delete from " + JdbcTransactionalStore.DEFAULT_META_TABLE;
       stmt.executeUpdate(cleanTable);
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
     }
-    catch (SQLException e) {
+  }
+
+  public static void insertEventsInTable(int numEvents)
+  {
+    try {
+      Connection con = DriverManager.getConnection(URL);
+      String insert = "insert into " + TABLE_NAME + " values (?)";
+      PreparedStatement stmt = con.prepareStatement(insert);
+
+      for (int i = 0; i < numEvents; i++) {
+        stmt.setInt(1, i);
+        stmt.executeUpdate();
+      }
+    } catch (SQLException e) {
       throw new RuntimeException(e);
     }
   }
@@ -170,8 +196,7 @@ public class JdbcOperatorTest
         ResultSet resultSet = stmt.executeQuery(countQuery);
         resultSet.next();
         return resultSet.getInt(1);
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
         throw new RuntimeException("fetching count", e);
       }
     }
@@ -195,8 +220,7 @@ public class JdbcOperatorTest
         ResultSet resultSet = stmt.executeQuery(countQuery);
         resultSet.next();
         return resultSet.getInt(1);
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
         throw new RuntimeException("fetching count", e);
       }
     }
@@ -218,8 +242,7 @@ public class JdbcOperatorTest
     {
       try {
         return new TestEvent(result.getInt(1));
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
         throw new RuntimeException(e);
       }
     }
@@ -228,23 +251,6 @@ public class JdbcOperatorTest
     public String queryToRetrieveData()
     {
       return retrieveQuery;
-    }
-
-    public void insertEventsInTable(int numEvents)
-    {
-      try {
-        Connection con = DriverManager.getConnection(URL);
-        String insert = "insert into " + TABLE_NAME + " values (?)";
-        PreparedStatement stmt = con.prepareStatement(insert);
-
-        for (int i = 0; i < numEvents; i++) {
-          stmt.setInt(1, i);
-          stmt.executeUpdate();
-        }
-      }
-      catch (SQLException e) {
-        throw new RuntimeException(e);
-      }
     }
   }
 
@@ -255,9 +261,11 @@ public class JdbcOperatorTest
     transactionalStore.setDatabaseDriver(DB_DRIVER);
     transactionalStore.setDatabaseUrl(URL);
 
-    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap =
+        new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
+        OPERATOR_ID, attributeMap);
 
     TestOutputOperator outputOperator = new TestOutputOperator();
     outputOperator.setBatchSize(3);
@@ -281,30 +289,37 @@ public class JdbcOperatorTest
   }
 
   @Test
-  public void testJdbcPOJOOutputOperator()
+  public void testJdbcPojoOutputOperator()
   {
     JdbcTransactionalStore transactionalStore = new JdbcTransactionalStore();
     transactionalStore.setDatabaseDriver(DB_DRIVER);
     transactionalStore.setDatabaseUrl(URL);
 
-    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap =
+        new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
+        OPERATOR_ID, attributeMap);
 
     TestPOJOOutputOperator outputOperator = new TestPOJOOutputOperator();
     outputOperator.setBatchSize(3);
     outputOperator.setTablename(TABLE_POJO_NAME);
-    ArrayList<String> dataColumns = new ArrayList<String>();
-    dataColumns.add("id");
-    dataColumns.add("name");
-    outputOperator.setDataColumns(dataColumns);
+
+    List<FieldInfo> fieldInfos = Lists.newArrayList();
+    fieldInfos.add(new FieldInfo("ID", "id", null));
+    fieldInfos.add(new FieldInfo("NAME", "name", null));
+    outputOperator.setFieldInfos(fieldInfos);
+
     outputOperator.setStore(transactionalStore);
-    ArrayList<String> expressions = new ArrayList<String>();
-    expressions.add("getId()");
-    expressions.add("getName()");
-    outputOperator.setExpressions(expressions);
 
     outputOperator.setup(context);
+
+    Attribute.AttributeMap.DefaultAttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();
+    portAttributes.put(Context.PortContext.TUPLE_CLASS, TestPOJOEvent.class);
+    TestPortContext tpc = new TestPortContext(portAttributes);
+    outputOperator.input.setup(tpc);
+
+    outputOperator.activate(context);
 
     List<TestPOJOEvent> events = Lists.newArrayList();
     for (int i = 0; i < 10; i++) {
@@ -312,7 +327,7 @@ public class JdbcOperatorTest
     }
 
     outputOperator.beginWindow(0);
-    for (TestPOJOEvent event: events) {
+    for (TestPOJOEvent event : events) {
       outputOperator.input.process(event);
     }
     outputOperator.endWindow();
@@ -321,21 +336,23 @@ public class JdbcOperatorTest
   }
 
   @Test
-  public void TestJdbcInputOperator()
+  public void testJdbcInputOperator()
   {
     JdbcStore store = new JdbcStore();
     store.setDatabaseDriver(DB_DRIVER);
     store.setDatabaseUrl(URL);
 
-    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap =
+        new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
+        OPERATOR_ID, attributeMap);
 
     TestInputOperator inputOperator = new TestInputOperator();
     inputOperator.setStore(store);
-    inputOperator.insertEventsInTable(10);
+    insertEventsInTable(10);
 
-    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+    CollectorTestSink<Object> sink = new CollectorTestSink<>();
     inputOperator.outputPort.setSink(sink);
 
     inputOperator.setup(context);
@@ -344,6 +361,75 @@ public class JdbcOperatorTest
     inputOperator.endWindow();
 
     Assert.assertEquals("rows from db", 10, sink.collectedTuples.size());
+  }
+
+  @Test
+  public void testJdbcPojoInputOperator()
+  {
+    JdbcStore store = new JdbcStore();
+    store.setDatabaseDriver(DB_DRIVER);
+    store.setDatabaseUrl(URL);
+
+    Attribute.AttributeMap.DefaultAttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
+    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
+        OPERATOR_ID, attributeMap);
+
+    insertEventsInTable(10);
+
+    JdbcPOJOInputOperator inputOperator = new JdbcPOJOInputOperator();
+    inputOperator.setStore(store);
+    inputOperator.setTableName(TABLE_NAME);
+
+    List<FieldInfo> fieldInfos = Lists.newArrayList();
+    fieldInfos.add(new FieldInfo("ID", "id", null));
+    inputOperator.setFieldInfos(fieldInfos);
+
+    inputOperator.setFetchSize(5);
+
+    CollectorTestSink<Object> sink = new CollectorTestSink<>();
+    inputOperator.outputPort.setSink(sink);
+
+    Attribute.AttributeMap.DefaultAttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();
+    portAttributes.put(Context.PortContext.TUPLE_CLASS, TestPOJOEvent.class);
+    TestPortContext tpc = new TestPortContext(portAttributes);
+
+    inputOperator.setup(context);
+    inputOperator.outputPort.setup(tpc);
+
+    inputOperator.activate(context);
+
+    inputOperator.beginWindow(0);
+    inputOperator.emitTuples();
+    inputOperator.endWindow();
+
+    Assert.assertEquals("rows from db", 5, sink.collectedTuples.size());
+    int i = 0;
+    for (Object tuple : sink.collectedTuples) {
+      TestPOJOEvent pojoEvent = (TestPOJOEvent)tuple;
+      Assert.assertTrue("i=" + i, pojoEvent.getId() == i);
+      i++;
+    }
+    sink.collectedTuples.clear();
+
+    inputOperator.beginWindow(1);
+    inputOperator.emitTuples();
+    inputOperator.endWindow();
+
+    Assert.assertEquals("rows from db", 5, sink.collectedTuples.size());
+    for (Object tuple : sink.collectedTuples) {
+      TestPOJOEvent pojoEvent = (TestPOJOEvent)tuple;
+      Assert.assertTrue("i=" + i, pojoEvent.getId() == i);
+      i++;
+    }
+
+    sink.collectedTuples.clear();
+
+    inputOperator.beginWindow(2);
+    inputOperator.emitTuples();
+    inputOperator.endWindow();
+
+    Assert.assertEquals("rows from db", 0, sink.collectedTuples.size());
   }
 }
 

@@ -1,17 +1,20 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.contrib.kafka;
 
@@ -156,10 +159,20 @@ public class SimpleKafkaConsumer extends KafkaConsumer
             FetchResponse fetchResponse = ksc.fetch(req);
             for (Iterator<KafkaPartition> iterator = kpS.iterator(); iterator.hasNext();) {
               KafkaPartition kafkaPartition = iterator.next();
-              if (fetchResponse.hasError() && fetchResponse.errorCode(consumer.topic, kafkaPartition.getPartitionId()) != ErrorMapping.NoError()) {
+              short errorCode = fetchResponse.errorCode(consumer.topic, kafkaPartition.getPartitionId());
+              if (fetchResponse.hasError() && errorCode != ErrorMapping.NoError()) {
                 // Kick off partition(s) which has error when fetch from this broker temporarily 
                 // Monitor will find out which broker it goes in monitor thread
-                logger.warn("Error when consuming topic {} from broker {} with error code {} ", kafkaPartition, broker,  fetchResponse.errorCode(consumer.topic, kafkaPartition.getPartitionId()));
+                logger.warn("Error when consuming topic {} from broker {} with error {} ", kafkaPartition, broker,
+                  ErrorMapping.exceptionFor(errorCode));
+                if (errorCode == ErrorMapping.OffsetOutOfRangeCode()) {
+                  long seekTo = consumer.initialOffset.toLowerCase().equals("earliest") ? OffsetRequest.EarliestTime()
+                    : OffsetRequest.LatestTime();
+                  seekTo = KafkaMetadataUtil.getLastOffset(ksc, consumer.topic, kafkaPartition.getPartitionId(), seekTo, clientName);
+                  logger.warn("Offset out of range error, reset offset to {}", seekTo);
+                  consumer.offsetTrack.put(kafkaPartition, seekTo);
+                  continue;
+                }
                 iterator.remove();
                 consumer.partitionToBroker.remove(kafkaPartition);
                 consumer.stats.updatePartitionStats(kafkaPartition, -1, "");
@@ -292,13 +305,13 @@ public class SimpleKafkaConsumer extends KafkaConsumer
 
   // This map maintains mapping between kafka partition and it's leader broker in realtime monitored by a thread
   private transient final ConcurrentHashMap<KafkaPartition, Broker> partitionToBroker = new ConcurrentHashMap<KafkaPartition, Broker>();
-  
+
   /**
    * Track offset for each partition, so operator could start from the last serialized state Use ConcurrentHashMap to
    * avoid ConcurrentModificationException without blocking reads when updating in another thread(hashtable or
    * synchronizedmap)
    */
-  private final ConcurrentHashMap<KafkaPartition, Long> offsetTrack = new ConcurrentHashMap<KafkaPartition, Long>();
+  private final transient ConcurrentHashMap<KafkaPartition, Long> offsetTrack = new ConcurrentHashMap<KafkaPartition, Long>();
 
   private transient AtomicReference<Throwable> monitorException;
   private transient AtomicInteger monitorExceptionCount;

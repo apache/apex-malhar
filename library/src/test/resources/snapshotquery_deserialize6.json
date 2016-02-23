@@ -1,0 +1,14 @@
+{
+  "id":1,
+  "type": "dataQuery",
+  "data": {
+    "schemaKeys": {
+      "publisher":"google",
+      "advertiser":"microsoft",
+      "location":"CA"
+    },
+    "fields": ["boolField", "doubleField"]
+  },
+  "incompleteResultOK":true,
+  "countdown":10
+}

@@ -1,17 +1,20 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.demos.distributeddistinct;
 
@@ -20,7 +23,6 @@ import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.algo.UniqueCounterValue;
 import com.datatorrent.lib.algo.UniqueValueCount;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.stream.Counter;
@@ -58,10 +60,10 @@ public class Application implements StreamingApplication
     dag.addStream("Duplicates", valCount.output, dup.data);
     dag.addStream("Unverified", dup.out1, verifier.recIn);
     dag.addStream("EventCount", randGen.verport, verifier.trueIn);
-    dag.addStream("Verified", verifier.successPort, successcounter.data);
-    dag.addStream("Failed", verifier.failurePort, failurecounter.data);
-    dag.addStream("SuccessCount", successcounter.count, successOutput.input);
-    dag.addStream("FailedCount", failurecounter.count, failureOutput.input);
+    dag.addStream("Verified", verifier.successPort, successcounter.input);
+    dag.addStream("Failed", verifier.failurePort, failurecounter.input);
+    dag.addStream("SuccessCount", successcounter.output, successOutput.input);
+    dag.addStream("FailedCount", failurecounter.output, failureOutput.input);
     dag.addStream("Output", dup.out2, consOut.input);
   }
 }

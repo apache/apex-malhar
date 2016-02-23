@@ -1,17 +1,20 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.demos.machinedata.util;
 
@@ -40,7 +43,7 @@ public class Combinatorics<T> {
     public Combinatorics(T[] values) {
         this.values = values;
         this.size = -1;
-        this.result = new ArrayList<T>();
+        this.result = new ArrayList<>();
     }
 
     /**
@@ -52,7 +55,7 @@ public class Combinatorics<T> {
     public Combinatorics(T[] values, int size) {
         this.values = values;
         this.size = size;
-        this.result = new ArrayList<T>();
+        this.result = new ArrayList<>();
     }
 
     public Map<Integer, List<T>> generate() {
@@ -76,11 +79,9 @@ public class Combinatorics<T> {
         if (depth == tmp.length) {
             for (int j = 0; j < depth; j++) {
                 result.add(values[tmp[j]]);
-//                System.out.print(values[tmp[j]] + " ");
             }
             resultMap.put(++resultMapSize, result);
-//            System.out.println(resultMapSize);
-            result = new ArrayList<T>();
+            result = new ArrayList<>();
             return;
         }
         for (int i = start; i < values.length; i++) {

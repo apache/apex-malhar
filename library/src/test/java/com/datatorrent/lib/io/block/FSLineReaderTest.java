@@ -1,21 +1,28 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.lib.io.block;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -33,7 +40,6 @@ import com.google.common.collect.Lists;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
@@ -71,10 +77,10 @@ public class FSLineReaderTest
 
       blockReader.setup(readerContext);
 
-      messageSink = new CollectorTestSink<Object>();
+      messageSink = new CollectorTestSink<>();
       blockReader.messages.setSink(messageSink);
 
-      blockMetadataSink = new CollectorTestSink<Object>();
+      blockMetadataSink = new CollectorTestSink<>();
       blockReader.blocksMetadataOutput.setSink(blockMetadataSink);
 
       BufferedReader reader;
@@ -85,11 +91,7 @@ public class FSLineReaderTest
           messages.add(line.split(","));
         }
         reader.close();
-      }
-      catch (FileNotFoundException e) {
-        throw new RuntimeException(e);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         throw new RuntimeException(e);
       }
     }
@@ -108,8 +110,9 @@ public class FSLineReaderTest
   public void test()
   {
 
-    BlockMetadata.FileBlockMetadata block = new BlockMetadata.FileBlockMetadata(testMeta.dataFile.getAbsolutePath(), 0L, 0L, testMeta.dataFile.length(),
-      true, -1);
+    BlockMetadata.FileBlockMetadata block = new BlockMetadata.FileBlockMetadata(testMeta.dataFile.getAbsolutePath(), 0L,
+        0L, testMeta.dataFile.length(),
+        true, -1);
 
     testMeta.blockReader.beginWindow(1);
     testMeta.blockReader.blocksMetadataInput.process(block);
@@ -120,7 +123,7 @@ public class FSLineReaderTest
 
     for (int i = 0; i < messages.size(); i++) {
       @SuppressWarnings("unchecked")
-      AbstractBlockReader.ReaderRecord<String> msg = (AbstractBlockReader.ReaderRecord<String>) messages.get(i);
+      AbstractBlockReader.ReaderRecord<String> msg = (AbstractBlockReader.ReaderRecord<String>)messages.get(i);
       Assert.assertTrue("line " + i, Arrays.equals(msg.getRecord().split(","), testMeta.messages.get(i)));
     }
   }
@@ -129,13 +132,16 @@ public class FSLineReaderTest
   public void testMultipleBlocks()
   {
     long blockSize = 1000;
-    int noOfBlocks = (int) ((testMeta.dataFile.length() / blockSize) + (((testMeta.dataFile.length() % blockSize) == 0) ? 0 : 1));
+    int noOfBlocks = (int)((testMeta.dataFile.length() / blockSize) + (((testMeta.dataFile.length() % blockSize) == 0) ?
+        0 :
+        1));
 
     testMeta.blockReader.beginWindow(1);
 
     for (int i = 0; i < noOfBlocks; i++) {
-      BlockMetadata.FileBlockMetadata blockMetadata = new BlockMetadata.FileBlockMetadata(testMeta.dataFile.getAbsolutePath(), i, i * blockSize,
-        i == noOfBlocks - 1 ? testMeta.dataFile.length() : (i + 1) * blockSize, i == noOfBlocks - 1, i - 1);
+      BlockMetadata.FileBlockMetadata blockMetadata = new BlockMetadata.FileBlockMetadata(
+          testMeta.dataFile.getAbsolutePath(), i, i * blockSize,
+          i == noOfBlocks - 1 ? testMeta.dataFile.length() : (i + 1) * blockSize, i == noOfBlocks - 1, i - 1);
       testMeta.blockReader.blocksMetadataInput.process(blockMetadata);
     }
 
@@ -145,7 +151,7 @@ public class FSLineReaderTest
     Assert.assertEquals("No of records", testMeta.messages.size(), messages.size());
     for (int i = 0; i < messages.size(); i++) {
       @SuppressWarnings("unchecked")
-      AbstractBlockReader.ReaderRecord<String> msg = (AbstractBlockReader.ReaderRecord<String>) messages.get(i);
+      AbstractBlockReader.ReaderRecord<String> msg = (AbstractBlockReader.ReaderRecord<String>)messages.get(i);
       Assert.assertTrue("line " + i, Arrays.equals(msg.getRecord().split(","), testMeta.messages.get(i)));
     }
   }
@@ -154,13 +160,17 @@ public class FSLineReaderTest
   public void testNonConsecutiveBlocks()
   {
     long blockSize = 1000;
-    int noOfBlocks = (int) ((testMeta.dataFile.length() / blockSize) + (((testMeta.dataFile.length() % blockSize) == 0) ? 0 : 1));
+    int noOfBlocks = (int)((testMeta.dataFile.length() / blockSize) + (((testMeta.dataFile.length() % blockSize) == 0) ?
+        0 :
+        1));
 
     testMeta.blockReader.beginWindow(1);
 
     for (int i = 0; i < noOfBlocks; i++) {
-      BlockMetadata.FileBlockMetadata blockMetadata = new BlockMetadata.FileBlockMetadata(testMeta.dataFile.getAbsolutePath(), i,
-        i * blockSize, i == noOfBlocks - 1 ? testMeta.dataFile.length() : (i + 1) * blockSize, i == noOfBlocks - 1, -1);
+      BlockMetadata.FileBlockMetadata blockMetadata = new BlockMetadata.FileBlockMetadata(
+          testMeta.dataFile.getAbsolutePath(), i,
+          i * blockSize, i == noOfBlocks - 1 ? testMeta.dataFile.length() : (i + 1) * blockSize, i == noOfBlocks - 1,
+          -1);
       testMeta.blockReader.blocksMetadataInput.process(blockMetadata);
     }
 
@@ -170,7 +180,7 @@ public class FSLineReaderTest
     Assert.assertEquals("No of records", testMeta.messages.size(), messages.size());
     for (int i = 0; i < messages.size(); i++) {
       @SuppressWarnings("unchecked")
-      AbstractBlockReader.ReaderRecord<String> msg = (AbstractBlockReader.ReaderRecord<String>) messages.get(i);
+      AbstractBlockReader.ReaderRecord<String> msg = (AbstractBlockReader.ReaderRecord<String>)messages.get(i);
       Assert.assertTrue("line " + i, Arrays.equals(msg.getRecord().split(","), testMeta.messages.get(i)));
     }
   }

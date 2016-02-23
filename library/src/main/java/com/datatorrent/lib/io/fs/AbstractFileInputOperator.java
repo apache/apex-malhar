@@ -1,17 +1,20 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.lib.io.fs;
 
@@ -22,9 +25,6 @@ import java.util.regex.Pattern;
 
 import javax.validation.constraints.NotNull;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -42,6 +42,7 @@ import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.CountersAggregator;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.lib.util.KryoCloneUtils;
 
 /**
  * This is the base implementation of a directory input operator, which scans a directory for files.&nbsp;
@@ -826,21 +827,14 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
      */
     List<DirectoryScanner> scanners = scanner.partition(totalCount, oldscanners);
 
-    Kryo kryo = new Kryo();
     Collection<Partition<AbstractFileInputOperator<T>>> newPartitions = Lists.newArrayListWithExpectedSize(totalCount);
     Collection<IdempotentStorageManager> newManagers = Lists.newArrayListWithExpectedSize(totalCount);
 
+    KryoCloneUtils<AbstractFileInputOperator<T>> cloneUtils = KryoCloneUtils.createCloneUtils(this);
     for (int i=0; i<scanners.size(); i++) {
 
-      // Kryo.copy fails as it attempts to clone transient fields
-      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      Output loutput = new Output(bos);
-      kryo.writeObject(loutput, this);
-      loutput.close();
-      Input lInput = new Input(bos.toByteArray());
       @SuppressWarnings("unchecked")
-      AbstractFileInputOperator<T> oper = kryo.readObject(lInput, this.getClass());
-      lInput.close();
+      AbstractFileInputOperator<T> oper = cloneUtils.getClone();
 
       DirectoryScanner scn = scanners.get(i);
       oper.setScanner(scn);
@@ -1156,6 +1150,52 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
       result = 31 * result + startOffset;
       result = 31 * result + endOffset;
       return result;
+    }
+  }
+
+  /**
+   * This is an implementation of the {@link AbstractFileInputOperator} that outputs the lines in a file.&nbsp;
+   * Each line is emitted as a separate tuple.&nbsp; It is emitted as a String.
+   * <p>
+   * The directory path where to scan and read files from should be specified using the {@link #directory} property.
+   * </p>
+   * @displayName File Line Input
+   * @category Input
+   * @tags fs, file, line, lines, input operator
+   *
+   */
+  public static class FileLineInputOperator extends AbstractFileInputOperator<String>
+  {
+    public transient final DefaultOutputPort<String> output = new DefaultOutputPort<String>();
+
+    protected transient BufferedReader br;
+
+    @Override
+    protected InputStream openFile(Path path) throws IOException
+    {
+      InputStream is = super.openFile(path);
+      br = new BufferedReader(new InputStreamReader(is));
+      return is;
+    }
+
+    @Override
+    protected void closeFile(InputStream is) throws IOException
+    {
+      super.closeFile(is);
+      br.close();
+      br = null;
+    }
+
+    @Override
+    protected String readEntity() throws IOException
+    {
+      return br.readLine();
+    }
+
+    @Override
+    protected void emit(String tuple)
+    {
+      output.emit(tuple);
     }
   }
 }

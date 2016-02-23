@@ -1,17 +1,20 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.contrib.kafka;
 
@@ -36,6 +39,7 @@ import org.apache.hadoop.fs.Path;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.api.Context;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
@@ -60,6 +64,8 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
   static final int totalCount = 100;
   static CountDownLatch latch;
   static final String OFFSET_FILE = ".offset";
+  static long initialPos = 10l;
+  static Path baseFolder = new Path("target");
 
 
   public static class TestOffsetManager implements OffsetManager{
@@ -82,8 +88,8 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
     {
       KafkaPartition kp0 = new KafkaPartition(TEST_TOPIC, 0);
       KafkaPartition kp1 = new KafkaPartition(TEST_TOPIC, 1);
-      offsets.put(kp0, 10l);
-      offsets.put(kp1, 10l);
+      offsets.put(kp0, initialPos);
+      offsets.put(kp1, initialPos);
       return offsets;
     }
 
@@ -94,8 +100,8 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
       offsets.putAll(offsetsOfPartitions);
 
       try {
-        Path tmpFile = new Path(filename + ".tmp");
-        Path dataFile = new Path(filename);
+        Path tmpFile = new Path(baseFolder, filename + ".tmp");
+        Path dataFile = new Path(baseFolder, filename);
         FSDataOutputStream out = fs.create(tmpFile, true);
         for (Entry<KafkaPartition, Long> e : offsets.entrySet()) {
           out.writeBytes(e.getKey() +", " + e.getValue() + "\n");
@@ -117,7 +123,7 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
         for (long entry : offsets.values()) {
           count += entry;
         }
-        if (count == totalCount + 2) {
+        if (count == totalCount) {
           // wait until all offsets add up to totalCount messages + 2 control END_TUPLE
           latch.countDown();
         }
@@ -138,7 +144,7 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
   /**
    * Test Operator to collect tuples from KafkaSingleInputStringOperator.
    *
-   * @param <T>
+   * @param
    */
   public static class CollectorModule extends BaseOperator
   {
@@ -185,10 +191,34 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
   @Test
   public void testSimpleConsumerUpdateOffsets() throws Exception
   {
+    initialPos = 10l;
     // Create template simple consumer
     try{
       SimpleKafkaConsumer consumer = new SimpleKafkaConsumer();
-      testPartitionableInputOperator(consumer);
+      testPartitionableInputOperator(consumer, totalCount - (int)initialPos - (int)initialPos);
+    } finally {
+      // clean test offset file
+      cleanFile();
+    }
+  }
+
+  /**
+   * Test OffsetManager update offsets in Simple Consumer
+   *
+   * [Generate send 100 messages to Kafka] ==> [wait until the offsets has been updated to 102 or timeout after 30s which means offset has not been updated]
+   *
+   * Initial offsets are invalid, reset to ealiest and get all messages
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testSimpleConsumerInvalidInitialOffsets() throws Exception
+  {
+    initialPos = 1000l;
+    // Create template simple consumer
+    try{
+      SimpleKafkaConsumer consumer = new SimpleKafkaConsumer();
+      testPartitionableInputOperator(consumer, totalCount);
     } finally {
       // clean test offset file
       cleanFile();
@@ -198,13 +228,13 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
   private void cleanFile()
   {
     try {
-      FileSystem.get(new Configuration()).delete(new Path(TEST_TOPIC + OFFSET_FILE), true);
+      FileSystem.get(new Configuration()).delete(new Path(baseFolder, TEST_TOPIC + OFFSET_FILE), true);
     } catch (IOException e) {
 
     }
   }
 
-  public void testPartitionableInputOperator(KafkaConsumer consumer) throws Exception{
+  public void testPartitionableInputOperator(KafkaConsumer consumer, int expectedCount) throws Exception{
 
     // Set to 3 because we want to make sure END_TUPLE from both 2 partitions are received and offsets has been updated to 102
     latch = new CountDownLatch(3);
@@ -238,7 +268,7 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
     consumer.setTopic(TEST_TOPIC);
     //set the zookeeper list used to initialize the partition
     SetMultimap<String, String> zookeeper = HashMultimap.create();
-    String zks = KafkaPartition.DEFAULT_CLUSTERID + "::localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT[0];
+    String zks = "localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT[0];
     consumer.setZookeeper(zks);
     consumer.setInitialOffset("earliest");
 
@@ -250,18 +280,22 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
     // Connect ports
     dag.addStream("Kafka message", node.outputPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
 
+    dag.setAttribute(Context.DAGContext.CHECKPOINT_WINDOW_COUNT, 1);
+
     // Create local cluster
     final LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(true);
 
     lc.runAsync();
 
-    // Wait 30s for consumer finish consuming all the messages and offsets has been updated to 100
-    assertTrue("TIMEOUT: 30s ", latch.await(30000, TimeUnit.MILLISECONDS));
 
+
+    boolean isNotTimeout = latch.await(30000, TimeUnit.MILLISECONDS);
+    // Wait 30s for consumer finish consuming all the messages and offsets has been updated to 100
+    assertTrue("TIMEOUT: 30s, collected " + collectedTuples.size() + " tuples", isNotTimeout);
 
     // Check results
-    assertEquals("Tuple count", totalCount -10 -10, collectedTuples.size());
+    assertEquals("Tuple count " + collectedTuples, expectedCount, collectedTuples.size());
     logger.debug(String.format("Number of emitted tuples: %d", collectedTuples.size()));
 
     p.close();

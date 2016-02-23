@@ -1,31 +1,27 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.contrib.romesyndication;
 
-import com.datatorrent.contrib.romesyndication.RomeFeedEntry;
-import com.datatorrent.contrib.romesyndication.RomeStreamProvider;
-import com.datatorrent.contrib.romesyndication.RomeSyndicationOperator;
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import com.datatorrent.common.util.BaseOperator;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -34,6 +30,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -98,11 +99,11 @@ public class RomeSyndicationOperatorTest
     {
       InputStream is;
       if (index == 0) {
-        is = getClass().getResourceAsStream("/com/datatorrent/contrib/romesyndication/cnn_topstories.rss");
+        is = getClass().getResourceAsStream("/com/datatorrent/contrib/romesyndication/datatorrent_feed.rss");
         ++index;
       }
       else {
-        is = getClass().getResourceAsStream("/com/datatorrent/contrib/romesyndication/cnn_topstories_updated.rss");
+        is = getClass().getResourceAsStream("/com/datatorrent/contrib/romesyndication/datatorrent_feed_updated.rss");
       }
       return is;
     }
@@ -129,16 +130,16 @@ public class RomeSyndicationOperatorTest
       LocalMode.Controller lc = lma.getController();
       lc.setHeartbeatMonitoringEnabled(false);
       lc.run(10000);
-      Assert.assertEquals("Entries size", entries.size(), 81);
+      Assert.assertEquals("Entries size", entries.size(), 10);
       // Check first entry
-      Assert.assertEquals("First entry title", entries.get(0).getSyndEntry().getTitle(), "Our favorite surprise homecomings");
-      Assert.assertEquals("First entry URI", entries.get(0).getSyndEntry().getUri(), "http://www.cnn.com/video/#/video/us/2012/09/21/soldier-surprises-daughter-maine.wabi");
+      Assert.assertEquals("First entry title", entries.get(0).getSyndEntry().getTitle(), "Dimensions Computation (Aggregate Navigator) Part 1: Intro");
+      Assert.assertEquals("First entry URI", entries.get(0).getSyndEntry().getUri(), "https://www.datatorrent.com/?p=2399");
       // Check first entry from second run
-      Assert.assertEquals("Second run first entry title", entries.get(74).getSyndEntry().getTitle(), "Watch chimney deliver the news");
-      Assert.assertEquals("Second run first entry URI", entries.get(74).getSyndEntry().getUri(), "http://www.cnn.com/video/#/video/world/2013/03/13/nr-white-smoke-means-new-pope.cnn");
+      Assert.assertEquals("Second run first entry title", entries.get(7).getSyndEntry().getTitle(), "Building Applications with Apache Apex and Malhar");
+      Assert.assertEquals("Second run first entry URI", entries.get(7).getSyndEntry().getUri(), "https://www.datatorrent.com/?p=2054");
       // Check last entry
-      Assert.assertEquals("Last entry title", entries.get(80).getSyndEntry().getTitle(), "How the smoke process works");
-      Assert.assertEquals("Last entry URI", entries.get(80).getSyndEntry().getUri(), "http://www.cnn.com/2013/03/12/world/europe/vatican-chapel-stove/index.html");
+      Assert.assertEquals("Last entry title", entries.get(9).getSyndEntry().getTitle(), "Dimensions Computation (Aggregate Navigator) Part 2: Implementation");
+      Assert.assertEquals("Last entry URI", entries.get(9).getSyndEntry().getUri(), "https://www.datatorrent.com/?p=2401");
     }
     catch (Exception ex) {
       logger.error(ex.getMessage());

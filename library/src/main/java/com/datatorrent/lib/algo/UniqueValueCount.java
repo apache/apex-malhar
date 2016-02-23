@@ -1,17 +1,20 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.lib.algo;
 
@@ -21,15 +24,13 @@ import java.util.Set;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import com.datatorrent.lib.util.KeyValPair;
-
-import com.datatorrent.common.util.BaseOperator;
-
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
+import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * This operator counts the number of unique values corresponding to a key within a window.&nbsp;
@@ -86,20 +87,21 @@ public class UniqueValueCount<K> extends BaseOperator
     @SuppressWarnings({"rawtypes", "unchecked"})
     public Unifier<KeyValPair<K, Integer>> getUnifier()
     {
-      return (Unifier) new UniqueCountUnifier<K>();
+      return (Unifier)new UniqueCountUnifier<K>();
     }
   };
 
   /**
    * The output port which emits key and set containing unique values
    */
-  public final transient DefaultOutputPort<KeyValPair<K, Set<Object>>> outputValues = new DefaultOutputPort<KeyValPair<K, Set<Object>>>()
+  public final transient DefaultOutputPort<KeyValPair<K, Set<Object>>> outputValues =
+      new DefaultOutputPort<KeyValPair<K, Set<Object>>>()
   {
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public Unifier<KeyValPair<K, Set<Object>>> getUnifier()
     {
-      return (Unifier) new UniqueCountSetUnifier<K>();
+      return (Unifier)new UniqueCountSetUnifier<K>();
     }
   };
 

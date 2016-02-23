@@ -1,23 +1,28 @@
-/*
- * Copyright (c) 2015 DataTorrent, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.lib.appdata.schemas;
 
+import com.google.common.collect.Lists;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
+import java.util.List;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
@@ -111,4 +116,34 @@ public class SchemaUtilsTest
     Assert.assertEquals("1", jo.get("a"));
     Assert.assertEquals("2", jo.get("b"));
   }
+
+  @Test
+  public void stringsFromJSONArrayTest() throws Exception
+  {
+    List<String> expected = Lists.newArrayList("a", "b", "c");
+
+    JSONArray ja = new JSONArray();
+    ja.put("a").put("b").put("c");
+
+    List<String> result = SchemaUtils.getStringsFromJSONArray(ja);
+
+    Assert.assertEquals(expected, result);
+  }
+
+  @Test
+  public void extractTagsTest() throws Exception
+  {
+    List<String> expected = Lists.newArrayList("a", "b", "c");
+
+    JSONObject jo = new JSONObject();
+
+    JSONArray ja = new JSONArray();
+    ja.put("a").put("b").put("c");
+
+    jo.put(SchemaUtils.FIELD_TAGS, ja);
+
+    Assert.assertEquals(expected, SchemaUtils.getTags(jo));
+  }
+
+
 }

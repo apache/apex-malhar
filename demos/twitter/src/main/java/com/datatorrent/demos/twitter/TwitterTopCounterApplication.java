@@ -1,17 +1,20 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.demos.twitter;
 
@@ -195,7 +198,7 @@ public class TwitterTopCounterApplication implements StreamingApplication
     if (!StringUtils.isEmpty(gatewayAddress)) {
       URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
 
-      AppDataSnapshotServerMap snapshotServer = dag.addOperator("Snapshot Server", new AppDataSnapshotServerMap());
+      AppDataSnapshotServerMap snapshotServer = dag.addOperator("SnapshotServer", new AppDataSnapshotServerMap());
 
       Map<String, String> conversionMap = Maps.newHashMap();
       conversionMap.put(alias, WindowedTopCounter.FIELD_TYPE);
@@ -204,15 +207,15 @@ public class TwitterTopCounterApplication implements StreamingApplication
       snapshotServer.setSnapshotSchemaJSON(snapshotServerJSON);
       snapshotServer.setTableFieldToMapField(conversionMap);
 
-      PubSubWebSocketAppDataQuery wsQuery = dag.addOperator("Query", new PubSubWebSocketAppDataQuery());
+      PubSubWebSocketAppDataQuery wsQuery = new PubSubWebSocketAppDataQuery();
       wsQuery.setUri(uri);
-      Operator.OutputPort<String> queryPort = wsQuery.outputPort;
+      snapshotServer.setEmbeddableQueryInfoProvider(wsQuery);
+
       PubSubWebSocketAppDataResult wsResult = dag.addOperator("QueryResult", new PubSubWebSocketAppDataResult());
       wsResult.setUri(uri);
       Operator.InputPort<String> queryResultPort = wsResult.input;
 
       dag.addStream("MapProvider", topCount, snapshotServer.input);
-      dag.addStream("Query", queryPort, snapshotServer.query);
       dag.addStream("Result", snapshotServer.queryResult, queryResultPort);
     }
     else {

@@ -6,24 +6,9 @@ Malhar repository contains open source operator and codec library that can be us
 Contributing
 ------------
 
-This project welcomes new contributors.  If you would like to help make Malhar better by adding new features, enhancing existing features, or fixing bugs, here is how to do it.
+This project welcomes new contributors.  If you would like to help make Malhar better by adding new features, enhancing existing features, or fixing bugs, check out the [contributing guidelines](http://apex.incubator.apache.org/contributing.html).
 
-You acknowledge that your submissions on this repository are made pursuant the terms of the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0.html) and constitute "Contributions," as defined therein, and you represent and warrant that you have the right and authority to do so.
-
-  * Fork Malhar into your own GitHub repository
-  * Create a topic branch with an appropriate name
-  * Write code, comments, tests in your repository
-  * Create a GitHub pull request from your repository, providing as many details about your changes as possible
-  * After we review and accept your request we’ll commit your code to the repository
-
-The submitted code must follow certain prescribed conventions and it is also recommended that it follow the prescribed style. The conventions and style are described in the [Coding Conventions and Style](docs/CodingConventionsAndStyle.md) document.
-
-When adding **new files**, please include the Apache v2.0 license header. From the top level directory:
-
-Run `mvn license:check -Dlicense.skip=false` to check correct header formatting.
-Run `mvn license:format -Dlicense.skip=false` to automatically add the header when missing.
-
-Thanks for contributing!
+You acknowledge that your submissions to this repository are made pursuant the terms of the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0.html) and constitute "Contributions," as defined therein, and you represent and warrant that you have the right and authority to do so.
 
 Documentation
 -------------
@@ -43,21 +28,22 @@ The project uses Maven for the build. Run
 mvn install
 ```
 
-The code depends on the Apex API. The API releases are available in the DataTorrent maven repository and the Malhar pom.xml is configured with it. Individual modules such as library can be built independently by changing directory to the module and running maven there.
+The code depends on the Apex API, which is available in the Maven Central Repository.  Individual modules such as library can be built independently by changing directory to the module and running maven there.
 
 Multiple [demo applications](demos/src/main/java/com/datatorrent/demos) are provided to showcase the Apex platform and application development process. 
 
 Issue tracking
 --------------------
 
-[Malhar JIRA](https://malhar.atlassian.net/projects/MLHR) issue tracking system is used for this project.
-You can submit new issues and track the progress of existing issues at https://malhar.atlassian.net/projects/MLHR.
+[JIRA](https://issues.apache.org/jira/browse/APEXMALHAR) issue tracking system is used for this project.
+You can submit new issues and track the progress of existing issues at https://issues.apache.org/jira/browse/APEXMALHAR
 
-When working with JIRA to submit pull requests, please use [smart commits](https://confluence.atlassian.com/display/AOD/Processing+JIRA+issues+with+commit+messages) feature by specifying MLHR-XXXX in the commit messages.
-It helps us link commits with issues being tracked for easy reference.  And example commit might look like this:
+Please include the JIRA ticket number into the commit messages. It will automatically add the commit message to the JIRA ticket(s) and help link the commit with the issue(s) being tracked for easy reference.
+An example commit might look like this:
 
-    git commit -am "MLHR-1234 #comment Task completed ahead of schedule #resolve"
+    git commit -am "APEXMALHAR-1234 Task completed ahead of schedule"
 
+JIRA tickets should be resolved and fix version field set by the committer merging the pull request.
 
 License
 --------------------

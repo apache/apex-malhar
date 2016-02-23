@@ -1,17 +1,20 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.demos.machinedata;
 
@@ -37,13 +40,10 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("unused")
 public class DimensionGenerator extends BaseOperator
 {
-  private static final Logger logger = LoggerFactory.getLogger(DimensionGenerator.class);
-
-  public transient DefaultOutputPort<MachineInfo> outputInline = new DefaultOutputPort<MachineInfo>();
-  public transient DefaultOutputPort<MachineInfo> output = new DefaultOutputPort<MachineInfo>();
-  private static final Random randomGen = new Random();
+  public transient DefaultOutputPort<MachineInfo> outputInline = new DefaultOutputPort<>();
+  public transient DefaultOutputPort<MachineInfo> output = new DefaultOutputPort<>();
   private int threshold=90;
-  
+
   public final transient DefaultInputPort<MachineInfo> inputPort = new DefaultInputPort<MachineInfo>() {
 
     @Override
@@ -59,7 +59,7 @@ public class DimensionGenerator extends BaseOperator
   {
     super.setup(context);
   }
-  
+
   /**
    * This returns the threshold value set
    * @return
@@ -80,47 +80,34 @@ public class DimensionGenerator extends BaseOperator
 
   /**
    * This function takes in the tuple from upstream operator and generates tuples with different dimension combinations
-   * 
+   *
    * @param tuple
    */
   private void emitDimensions(MachineInfo tuple)
   {
-    Calendar calendar = Calendar.getInstance();
     MachineKey tupleKey = tuple.getMachineKey();
-    int random = 0; // this is added to make the data more random for different dimension combinations
 
     for (int i = 0; i < 64; i++) {
-      MachineKey machineKey = new MachineKey(tupleKey.getTimeKey(),tupleKey.getDay());    
+      MachineKey machineKey = new MachineKey(tupleKey.getTimeKey(),tupleKey.getDay());
       if ((i & 1) != 0) {
         machineKey.setCustomer(tupleKey.getCustomer());
-        //random += machineKey.getCustomer();
       }
       if ((i & 2) != 0) {
         machineKey.setProduct(tupleKey.getProduct());
-        //random += machineKey.getProduct();
       }
       if ((i & 4) != 0) {
         machineKey.setOs(tupleKey.getOs());
-        //random += machineKey.getOs();
       }
       if ((i & 8) != 0) {
         machineKey.setDeviceId(tupleKey.getDeviceId());
-        //random += machineKey.getDeviceId();
       }
       if ((i & 16) != 0) {
         machineKey.setSoftware1(tupleKey.getSoftware1());
-        //random += machineKey.getSoftware1();
       }
       if ((i & 32) != 0) {
         machineKey.setSoftware2(tupleKey.getSoftware2());
-        //random += machineKey.getSoftware2();
       }
-      /*
-      if (random > 0) {
-        randomGen.setSeed(System.currentTimeMillis());
-        random = randomGen.nextInt(random);
-      }
-      */
+
       int cpu = tuple.getCpu();
       int ram = tuple.getRam();
       int hdd = tuple.getHdd();

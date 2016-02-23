@@ -1,23 +1,27 @@
-/*
- * Copyright (c) 2015 DataTorrent, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.lib.io;
 
-
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import javax.validation.constraints.Min;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -27,9 +31,12 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
-
+import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.experimental.AppData;
+import com.datatorrent.common.experimental.AppData.EmbeddableQueryInfoProvider;
 import com.datatorrent.common.util.PubSubMessage;
+import com.datatorrent.lib.appdata.StoreUtils.BufferingOutputPortFlusher;
+import com.datatorrent.lib.appdata.query.WindowBoundedService;
 
 /**
  * This is an App Data pub sub query operator. This operator is used to receive queries from
@@ -40,11 +47,18 @@ import com.datatorrent.common.util.PubSubMessage;
  * @tags input, app data, query
  * @since 3.0.0
  */
-public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<String> implements AppData.ConnectionInfoProvider
+public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<String> implements AppData.ConnectionInfoProvider, EmbeddableQueryInfoProvider<String>
 {
   private static final Logger logger = LoggerFactory.getLogger(PubSubWebSocketAppDataQuery.class);
 
   private static final long serialVersionUID = 201506121124L;
+  public static final long DEFAULT_EXECUTE_INTERVAL_MILLIS = 10;
+
+  private boolean useEmitThread;
+  @Min(0)
+  private long executeIntervalMillis = DEFAULT_EXECUTE_INTERVAL_MILLIS;
+
+  private transient WindowBoundedService windowBoundedService;
 
   public PubSubWebSocketAppDataQuery()
   {
@@ -57,6 +71,42 @@ public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<St
     setUri(uriHelper(context, getUri()));
     logger.debug("Setting up:\nuri:{}\ntopic:{}",this.getUri(), this.getTopic());
     super.setup(context);
+
+    if (useEmitThread) {
+      windowBoundedService = new WindowBoundedService(executeIntervalMillis,
+                                                      new BufferingOutputPortFlusher<>(this.outputPort));
+      windowBoundedService.setup(context);
+    }
+  }
+
+  @Override
+  public void beginWindow(long windowId)
+  {
+    super.beginWindow(windowId);
+
+    if (windowBoundedService != null) {
+      windowBoundedService.beginWindow(windowId);
+    }
+  }
+
+  @Override
+  public void endWindow()
+  {
+    if (windowBoundedService != null) {
+      windowBoundedService.endWindow();
+    }
+
+    super.endWindow();
+  }
+
+  @Override
+  public void teardown()
+  {
+    if (windowBoundedService != null) {
+      windowBoundedService.teardown();
+    }
+
+    super.teardown();
   }
 
   public static URI uriHelper(OperatorContext context, URI uri)
@@ -138,5 +188,35 @@ public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<St
   public String getAppDataURL()
   {
     return "pubsub";
+  }
+
+  @Override
+  public DefaultOutputPort<String> getOutputPort()
+  {
+    return outputPort;
+  }
+
+  @Override
+  public void enableEmbeddedMode()
+  {
+    useEmitThread = true;
+  }
+
+  /**
+   * Get the number of milliseconds between calls to execute.
+   * @return The number of milliseconds between calls to execute.
+   */
+  public long getExecuteIntervalMillis()
+  {
+    return executeIntervalMillis;
+  }
+
+  /**
+   * The number of milliseconds between calls to execute.
+   * @param executeIntervalMillis The number of milliseconds between calls to execute.
+   */
+  public void setExecuteIntervalMillis(long executeIntervalMillis)
+  {
+    this.executeIntervalMillis = executeIntervalMillis;
   }
 }

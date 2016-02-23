@@ -1,17 +1,20 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.contrib.couchbase;
 
@@ -23,16 +26,11 @@ import java.util.concurrent.TimeUnit;
 
 import com.couchbase.client.CouchbaseClient;
 import com.couchbase.client.vbucket.config.Config;
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.apache.commons.io.output.ByteArrayOutputStream;
 
 import com.datatorrent.lib.db.AbstractStoreInputOperator;
 
@@ -40,6 +38,7 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
 
+import com.datatorrent.lib.util.KryoCloneUtils;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
@@ -146,19 +145,13 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
     int numPartitions = conf.getServers().size();
     List<String> list = conf.getServers();
     Collection<Partition<AbstractCouchBaseInputOperator<T>>> newPartitions = Lists.newArrayListWithExpectedSize(numPartitions);
-    Kryo kryo = new Kryo();
+    KryoCloneUtils<AbstractCouchBaseInputOperator<T>> cloneUtils = KryoCloneUtils.createCloneUtils(this);
     for (int i = 0; i < numPartitions; i++) {
-      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      Output output = new Output(bos);
-      kryo.writeObject(output, this);
-      output.close();
-      Input lInput = new Input(bos.toByteArray());
-      @SuppressWarnings("unchecked")
-      AbstractCouchBaseInputOperator<T> oper = kryo.readObject(lInput, this.getClass());
+      AbstractCouchBaseInputOperator<T> oper = cloneUtils.getClone();
       oper.setServerIndex(i);
       oper.setServerURIString(list.get(i));
       logger.debug("oper {} urlstring is {}", i, oper.getServerURIString());
-      newPartitions.add(new DefaultPartition<AbstractCouchBaseInputOperator<T>>(oper));
+      newPartitions.add(new DefaultPartition<>(oper));
     }
 
     return newPartitions;

@@ -1,23 +1,31 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.lib.db.cache;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,15 +41,15 @@ import com.datatorrent.lib.db.KeyValueStore;
 
 /**
  * Manages primary and secondary stores.<br/>
- * <p>
- * It firsts checks the primary store for a key. If the primary store doesn't have the key, it queries the backup store and retrieves the value.<br/>
+ * It firsts checks the primary store for a key. If the primary store doesn't have the key, it queries the backup
+ * store and retrieves the value.<br/>
  * If the key was present in the backup store, its value is returned and also saved in the primary store.
- * </p>
- * <p>
- * Typically primary store is faster but has limited size like memory and backup store is slower but unlimited like databases.<br/>
- * Store Manager can also refresh the values of keys at a specified time every day. This time is in format HH:mm:ss Z.<br/>
+ * <p/>
+ * Typically primary store is faster but has limited size like memory and backup store is slower but unlimited like
+ * databases.<br/>
+ * Store Manager can also refresh the values of keys at a specified time every day.
+ * This time is in format HH:mm:ss Z.<br/>
  * This is not thread-safe.
- * </p>
  *
  * @since 0.9.2
  */
@@ -177,7 +185,7 @@ public class CacheManager implements Closeable
   /**
    * A primary store should also provide setting the value for a key.
    */
-  public static interface Primary extends KeyValueStore
+  public interface Primary extends KeyValueStore
   {
 
     /**
@@ -192,7 +200,7 @@ public class CacheManager implements Closeable
    * Backup store is queried when {@link Primary} doesn't contain a key.<br/>
    * It also provides data needed at startup.<br/>
    */
-  public static interface Backup extends KeyValueStore
+  public interface Backup extends KeyValueStore
   {
     /**
      * <br>Backup stores are also used to initialize primary stores. This fetches initialization data.</br>
@@ -203,6 +211,6 @@ public class CacheManager implements Closeable
   }
 
   @SuppressWarnings("unused")
-  private final static Logger LOG = LoggerFactory.getLogger(CacheManager.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CacheManager.class);
 
 }

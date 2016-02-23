@@ -1,19 +1,26 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.lib.io.block;
+
+import javax.validation.constraints.NotNull;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Represents the metadata of a block.
@@ -47,12 +54,13 @@ public interface BlockMetadata
    */
   long getPreviousBlockId();
 
-  public abstract class AbstractBlockMetadata implements BlockMetadata
+  abstract class AbstractBlockMetadata implements BlockMetadata
   {
     private long offset;
     private long length;
-    private final boolean isLastBlock;
-    private final long previousBlockId;
+    private boolean isLastBlock;
+    private long previousBlockId;
+    private long blockId;
 
     @SuppressWarnings("unused")
     protected AbstractBlockMetadata()
@@ -61,6 +69,7 @@ public interface BlockMetadata
       length = -1;
       isLastBlock = false;
       previousBlockId = -1;
+      blockId = -1;
     }
 
     /**
@@ -71,8 +80,28 @@ public interface BlockMetadata
      * @param isLastBlock     true if this is the last block of file
      * @param previousBlockId id of the previous block
      */
+    @Deprecated
     public AbstractBlockMetadata(long offset, long length, boolean isLastBlock, long previousBlockId)
     {
+      this.offset = offset;
+      this.length = length;
+      this.isLastBlock = isLastBlock;
+      this.previousBlockId = previousBlockId;
+      this.blockId = -1;
+    }
+
+    /**
+     * Constructs Block metadata
+     *
+     * @param blockId         block id
+     * @param offset          offset of the file in the block
+     * @param length          length of the file in the block
+     * @param isLastBlock     true if this is the last block of file
+     * @param previousBlockId id of the previous block
+     */
+    public AbstractBlockMetadata(long blockId, long offset, long length, boolean isLastBlock, long previousBlockId)
+    {
+      this.blockId = blockId;
       this.offset = offset;
       this.length = length;
       this.isLastBlock = isLastBlock;
@@ -89,14 +118,14 @@ public interface BlockMetadata
         return false;
       }
 
-      AbstractBlockMetadata that = (AbstractBlockMetadata) o;
+      AbstractBlockMetadata that = (AbstractBlockMetadata)o;
       return getBlockId() == that.getBlockId();
     }
 
     @Override
     public int hashCode()
     {
-      return (int) getBlockId();
+      return (int)getBlockId();
     }
 
     @Override
@@ -133,33 +162,25 @@ public interface BlockMetadata
       return isLastBlock;
     }
 
+    public void setLastBlock(boolean lastBlock)
+    {
+      this.isLastBlock = lastBlock;
+    }
+
     @Override
     public long getPreviousBlockId()
     {
       return previousBlockId;
     }
-  }
 
-  /**
-   * A block of file which contains file path adn other block properties.
-   */
-  public static class FileBlockMetadata extends AbstractBlockMetadata
-  {
-    private final String filePath;
-    private final long blockId;
-
-    protected FileBlockMetadata()
+    /**
+     * Sets the previous block id.
+     *
+     * @param previousBlockId previous block id.
+     */
+    public void setPreviousBlockId(long previousBlockId)
     {
-      super();
-      filePath = null;
-      blockId = -1;
-    }
-
-    public FileBlockMetadata(String filePath, long blockId, long offset, long length, boolean isLastBlock, long previousBlockId)
-    {
-      super(offset, length, isLastBlock, previousBlockId);
-      this.filePath = filePath;
-      this.blockId = blockId;
+      this.previousBlockId = previousBlockId;
     }
 
     @Override
@@ -168,9 +189,46 @@ public interface BlockMetadata
       return blockId;
     }
 
+    public void setBlockId(long blockId)
+    {
+      this.blockId = blockId;
+    }
+  }
+
+  /**
+   * A block of file which contains file path adn other block properties.
+   */
+  class FileBlockMetadata extends AbstractBlockMetadata
+  {
+    private final String filePath;
+
+    protected FileBlockMetadata()
+    {
+      super();
+      filePath = null;
+    }
+
+    public FileBlockMetadata(String filePath, long blockId, long offset, long length, boolean isLastBlock,
+        long previousBlockId)
+    {
+      super(blockId, offset, length, isLastBlock, previousBlockId);
+      this.filePath = filePath;
+    }
+
+    public FileBlockMetadata(String filePath)
+    {
+      this.filePath = filePath;
+    }
+
     public String getFilePath()
     {
       return filePath;
+    }
+
+    public FileBlockMetadata newInstance(@NotNull String filePath)
+    {
+      Preconditions.checkNotNull(filePath);
+      return new FileBlockMetadata(filePath);
     }
   }
 }

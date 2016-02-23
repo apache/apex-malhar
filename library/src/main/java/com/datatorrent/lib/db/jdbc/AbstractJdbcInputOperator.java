@@ -1,17 +1,20 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.lib.db.jdbc;
 
@@ -32,7 +35,8 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * and emits the data as tuples.&nbsp;
  * Subclasses should implement the methods required to read the data from the database.
  * <p>
- * This is an abstract class. Sub-classes need to implement {@link #queryToRetrieveData()} and {@link #getTuple(ResultSet)}.
+ * This is an abstract class. Sub-classes need to implement
+ * {@link #queryToRetrieveData()} and {@link #getTuple(ResultSet)}.
  * </p>
  * @displayName Abstract JDBC Input
  * @category Input
@@ -41,11 +45,11 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * @param <T> The tuple type
  * @since 0.9.4
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractJdbcInputOperator<T> extends AbstractStoreInputOperator<T, JdbcStore>
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractJdbcInputOperator.class);
   protected transient Statement queryStatement;
-  private transient int waitForDataTimeout;
 
   /**
    * Any concrete class has to override this method to convert a Database row into Tuple.
@@ -82,29 +86,19 @@ public abstract class AbstractJdbcInputOperator<T> extends AbstractStoreInputOpe
         }
         while (result.next());
       }
-      else {
-        // No rows available wait for some time before retrying so as to not continuously slam the database
-        Thread.sleep(waitForDataTimeout);
-      }
-    }
-    catch (SQLException ex) {
+    } catch (SQLException ex) {
       store.disconnect();
       throw new RuntimeException(String.format("Error while running query: %s", query), ex);
-    }
-    catch (InterruptedException ex) {
-      throw new RuntimeException(ex);
     }
   }
 
   @Override
   public void setup(OperatorContext context)
   {
-    waitForDataTimeout = context.getValue(OperatorContext.SPIN_MILLIS);
     super.setup(context);
     try {
       queryStatement = store.getConnection().createStatement();
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException("creating query", e);
     }
   }

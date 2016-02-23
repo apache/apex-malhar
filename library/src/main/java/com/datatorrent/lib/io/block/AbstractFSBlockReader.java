@@ -1,17 +1,20 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.lib.io.block;
 
@@ -33,7 +36,8 @@ import com.datatorrent.api.StatsListener;
  * @since 2.1.0
  */
 @StatsListener.DataQueueSize
-public abstract class AbstractFSBlockReader<R> extends AbstractBlockReader<R, BlockMetadata.FileBlockMetadata, FSDataInputStream>
+public abstract class AbstractFSBlockReader<R>
+    extends AbstractBlockReader<R, BlockMetadata.FileBlockMetadata, FSDataInputStream>
 {
   protected transient FileSystem fs;
   protected transient Configuration configuration;
@@ -45,8 +49,7 @@ public abstract class AbstractFSBlockReader<R> extends AbstractBlockReader<R, Bl
     configuration = new Configuration();
     try {
       fs = getFSInstance();
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException("creating fs", e);
     }
   }
@@ -57,8 +60,7 @@ public abstract class AbstractFSBlockReader<R> extends AbstractBlockReader<R, Bl
     super.teardown();
     try {
       fs.close();
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
@@ -85,27 +87,28 @@ public abstract class AbstractFSBlockReader<R> extends AbstractBlockReader<R, Bl
    *
    * @param <R> type of records
    */
-  public static abstract class AbstractFSLineReader<R> extends AbstractFSBlockReader<R>
+  public abstract static class AbstractFSLineReader<R> extends AbstractFSBlockReader<R>
   {
 
     public AbstractFSLineReader()
     {
       super();
-      this.readerContext = new ReaderContext.LineReaderContext<FSDataInputStream>();
+      this.readerContext = new ReaderContext.LineReaderContext<>();
     }
   }
 
   /**
-   * An {@link AbstractFSBlockReader} which reads lines from the block using {@link ReaderContext.ReadAheadLineReaderContext}
+   * An {@link AbstractFSBlockReader} which reads lines from the block using
+   * {@link ReaderContext.ReadAheadLineReaderContext}
    *
-   * @param <R>
+   * @param <R> type of record.
    */
-  public static abstract class AbstractFSReadAheadLineReader<R> extends AbstractFSBlockReader<R>
+  public abstract static class AbstractFSReadAheadLineReader<R> extends AbstractFSBlockReader<R>
   {
     public AbstractFSReadAheadLineReader()
     {
       super();
-      this.readerContext = new ReaderContext.ReadAheadLineReaderContext<FSDataInputStream>();
+      this.readerContext = new ReaderContext.ReadAheadLineReaderContext<>();
     }
   }
 }

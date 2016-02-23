@@ -1,17 +1,20 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.demos.machinedata.data;
 
@@ -38,7 +41,7 @@ public class MachineKey
 
   /**
    * This constructor takes the format in which time has to be captured and the day when this instance is created
-   * 
+   *
    * @param timeKey the format in which time has to be captured
    * @param day the day when this instance is created
    */
@@ -58,8 +61,8 @@ public class MachineKey
   /**
    * This constructor takes format in which time has to be captured, the day when this instance is created, the customer
    * id, product Id on the device, OS version on the device, software1 version on the device, software2 version on the device,
-   * software3 version on the device, deviceId on the device,  
-   * 
+   * software3 version on the device, deviceId on the device,
+   *
    * @param timeKey the format in which time has to be captured
    * @param day the day when this instance is created
    * @param customer the customer Id
@@ -86,7 +89,7 @@ public class MachineKey
   /**
    * This method returns the format in which the time is captured. The time is the time when this instance of MachineKey
    * was generated. For e.g. HHmm to capture Hour and minute
-   * 
+   *
    * @return
    */
   public String getTimeKey()
@@ -97,7 +100,7 @@ public class MachineKey
   /**
    * This method sets the format in which the time is captured. The time is the time when this instance of MachineKey
    * was generated. For e.g. HHmm to capture Hour and minute
-   * 
+   *
    * @param timeKey
    *          the value of format
    */
@@ -108,7 +111,7 @@ public class MachineKey
 
   /**
    * This method returns the day of the month when this instance of MachineKey was generated
-   * 
+   *
    * @return
    */
   public String getDay()
@@ -118,7 +121,7 @@ public class MachineKey
 
   /**
    * This method sets the day of the month when this instance of MachineKey was generated
-   * 
+   *
    * @param day
    *          the day of the month
    */
@@ -129,7 +132,7 @@ public class MachineKey
 
   /**
    * This method returns the customer Id
-   * 
+   *
    * @return
    */
   public Integer getCustomer()
@@ -139,7 +142,7 @@ public class MachineKey
 
   /**
    * This method sets the customer Id
-   * 
+   *
    * @param customer
    *          the customer Id
    */
@@ -150,7 +153,7 @@ public class MachineKey
 
   /**
    * This method returns product on the device
-   * 
+   *
    * @return
    */
   public Integer getProduct()
@@ -160,7 +163,7 @@ public class MachineKey
 
   /**
    * This method sets the product on the device
-   * 
+   *
    * @param product
    *          the value of product
    */
@@ -171,7 +174,7 @@ public class MachineKey
 
   /**
    * This method returns the OS version on the device
-   * 
+   *
    * @return
    */
   public Integer getOs()
@@ -181,7 +184,7 @@ public class MachineKey
 
   /**
    * This method sets the OS version on the device
-   * 
+   *
    * @param os
    *          OS version
    */
@@ -192,7 +195,7 @@ public class MachineKey
 
   /**
    * This method returns the version of the software1 on the device
-   * 
+   *
    * @return
    */
   public Integer getSoftware1()
@@ -202,9 +205,8 @@ public class MachineKey
 
   /**
    * This method sets the version of the software1 on the device
-   * 
-   * @param software3
-   *          the version of the software1
+   *
+   * @param software1 the version of the software1
    */
   public void setSoftware1(Integer software1)
   {
@@ -213,7 +215,7 @@ public class MachineKey
 
   /**
    * This method returns the version of the software2 on the device
-   * 
+   *
    * @return
    */
   public Integer getSoftware2()
@@ -223,7 +225,7 @@ public class MachineKey
 
   /**
    * This method sets the version of the software2 on the device
-   * 
+   *
    * @param software2
    *          the version of the software2
    */
@@ -234,7 +236,7 @@ public class MachineKey
 
   /**
    * This method returns the version of the software3 on the device
-   * 
+   *
    * @return
    */
   public Integer getSoftware3()
@@ -244,7 +246,7 @@ public class MachineKey
 
   /**
    * This method sets the version of the software3 on the device
-   * 
+   *
    * @param software3
    *          the version of the software3
    */
@@ -348,6 +350,7 @@ public class MachineKey
 
   /**
    * This method returns the deviceId of the device
+   * @return The deviceId
    */
   public Integer getDeviceId()
   {
@@ -356,7 +359,7 @@ public class MachineKey
 
   /**
    * This method sets the deviceId of the device
-   * 
+   *
    * @param deviceId
    */
   public void setDeviceId(Integer deviceId)

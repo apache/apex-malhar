@@ -1,17 +1,20 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.demos.machinedata.operator;
 
@@ -49,7 +52,7 @@ import com.datatorrent.demos.machinedata.util.DataTable;
 public class CalculatorOperator extends BaseOperator
 {
 
-  private final DataTable<MachineKey, ResourceType, List<Integer>> data = new DataTable<MachineKey, ResourceType, List<Integer>>();
+  private final DataTable<MachineKey, ResourceType, List<Integer>> data = new DataTable<>();
 
   @Min(1)
   @Max(99)
@@ -61,8 +64,6 @@ public class CalculatorOperator extends BaseOperator
   private int percentileThreshold = 80;
   private int sdThreshold = 70;
   private int maxThreshold = 99;
-
-  private transient DateFormat dateFormat = new SimpleDateFormat();
 
   public final transient DefaultInputPort<MachineInfo> dataPort = new DefaultInputPort<MachineInfo>()
   {
@@ -82,13 +83,13 @@ public class CalculatorOperator extends BaseOperator
     }
   };
 
-  public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Double>>> percentileOutputPort = new DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Double>>>();
+  public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Double>>> percentileOutputPort = new DefaultOutputPort<>();
 
-  public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Double>>> sdOutputPort = new DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Double>>>();
+  public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Double>>> sdOutputPort = new DefaultOutputPort<>();
 
-  public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Integer>>> maxOutputPort = new DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Integer>>>();
+  public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Integer>>> maxOutputPort = new DefaultOutputPort<>();
 
-  public transient DefaultOutputPort<String> smtpAlert = new DefaultOutputPort<String>();
+  public transient DefaultOutputPort<String> smtpAlert = new DefaultOutputPort<>();
 
   private void addDataToCache(MachineInfo tuple)
   {
@@ -117,7 +118,7 @@ public class CalculatorOperator extends BaseOperator
         percentileData.put(ResourceType.CPU, getKthPercentile(data.get(machineKey, ResourceType.CPU)));
         percentileData.put(ResourceType.RAM, getKthPercentile(data.get(machineKey, ResourceType.RAM)));
         percentileData.put(ResourceType.HDD, getKthPercentile(data.get(machineKey, ResourceType.HDD)));
-        percentileOutputPort.emit(new KeyValPair<MachineKey, Map<ResourceType, Double>>(machineKey, percentileData));
+        percentileOutputPort.emit(new KeyValPair<>(machineKey, percentileData));
 
         for (ResourceType resourceType : percentileData.keySet()) {
           double percentileValue = percentileData.get(resourceType);
@@ -135,7 +136,7 @@ public class CalculatorOperator extends BaseOperator
         for (ResourceType resourceType : ResourceType.values()) {
           sdData.put(resourceType, getSD(data.get(machineKey, resourceType)));
         }
-        sdOutputPort.emit(new KeyValPair<MachineKey, Map<ResourceType, Double>>(machineKey, sdData));
+        sdOutputPort.emit(new KeyValPair<>(machineKey, sdData));
 
         for (ResourceType resourceType : sdData.keySet()) {
           double sdValue = sdData.get(resourceType);
@@ -153,7 +154,7 @@ public class CalculatorOperator extends BaseOperator
         maxData.put(ResourceType.RAM, Collections.max(data.get(machineKey, ResourceType.RAM)));
         maxData.put(ResourceType.HDD, Collections.max(data.get(machineKey, ResourceType.HDD)));
 
-        maxOutputPort.emit(new KeyValPair<MachineKey, Map<ResourceType, Integer>>(machineKey, maxData));
+        maxOutputPort.emit(new KeyValPair<>(machineKey, maxData));
 
         for (ResourceType resourceType : maxData.keySet()) {
           double sdValue = maxData.get(resourceType).doubleValue();

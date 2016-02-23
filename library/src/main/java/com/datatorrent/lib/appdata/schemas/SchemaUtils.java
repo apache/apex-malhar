@@ -1,32 +1,32 @@
-/*
- * Copyright (c) 2015 DataTorrent, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.lib.appdata.schemas;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -36,12 +36,19 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.commons.io.IOUtils;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 /**
  * This class holds utility methods for processing JSON.
  * @since 3.0.0
  */
 public class SchemaUtils
 {
+  public static final String FIELD_TAGS = "tags";
+
   /**
    * This constructor should not be used.
    */
@@ -100,18 +107,10 @@ public class SchemaUtils
                                        Fields fields)
   {
     @SuppressWarnings("unchecked")
-    Iterator<String> keyIterator = jo.keys();
     Set<String> fieldSet = fields.getFields();
+    Set<String> jsonKeys = getSetOfJSONKeys(jo);
 
-    while(keyIterator.hasNext()) {
-      String key = keyIterator.next();
-
-      if(!fieldSet.contains(key)) {
-        return false;
-      }
-    }
-
-    return true;
+    return jsonKeys.containsAll(fieldSet);
   }
 
   /**
@@ -124,66 +123,102 @@ public class SchemaUtils
                                       Fields fields)
   {
     @SuppressWarnings("unchecked")
-    Iterator<String> keyIterator = jo.keys();
     Set<String> fieldSet = fields.getFields();
+    Set<String> jsonKeys = getSetOfJSONKeys(jo);
 
-    while(keyIterator.hasNext()) {
-      String key = keyIterator.next();
+    if (!jsonKeys.containsAll(fieldSet)) {
 
-      if(!fieldSet.contains(key)) {
-        throw new IllegalArgumentException("The key " + key +
-                                           " is not valid.");
-      }
+      throw new IllegalArgumentException("The given set of keys "
+                                         + fieldSet
+                                         + " doesn't equal the set of keys in the json "
+                                         + jsonKeys);
     }
   }
 
   /**
    * This is a utility method to check that the given JSONObject has the given keys.
    * @param jo The {@link JSONObject} to check.
-   * @param fieldsList The keys in the {@link JSONObject} to check.
+   * @param fieldsCollection The keys in the {@link JSONObject} to check.
    * @return True if the given {@link JSONObject} contains all the given keys. False otherwise.
    */
   public static boolean checkValidKeys(JSONObject jo,
-                                       List<Fields> fieldsList)
+                                       Collection<Fields> fieldsCollection)
   {
-    for(Fields fields: fieldsList) {
-      if(checkValidKeys(jo, fields)) {
+    return checkValidKeysHelper(jo,
+                                fieldsCollection);
+  }
+
+  private static boolean checkValidKeysHelper(JSONObject jo,
+                                              Collection<Fields> fieldsCollection)
+  {
+    for (Fields fields: fieldsCollection) {
+      LOG.debug("Checking keys: {}", fields);
+      if (checkValidKeys(jo, fields)) {
         return true;
       }
     }
 
+    LOG.error("The first level of keys in the provided JSON {} do not match any of the " +
+              "valid keysets {}",
+              getSetOfJSONKeys(jo),
+              fieldsCollection);
     return false;
+  }
+
+  public static boolean checkValidKeys(JSONObject jo, List<Fields> fieldsCollection)
+  {
+    return checkValidKeysHelper(jo,
+                                fieldsCollection);
   }
 
   /**
    * This is a utility method to check that the given JSONObject has the given keys.
    * It throws an {@link IllegalArgumentException} if it doesn't contain all the given keys.
    * @param jo The {@link JSONObject} to check.
-   * @param fieldsList The keys in the {@link JSONObject} to check.
+   * @param fieldsCollection The keys in the {@link JSONObject} to check.
    * @return True if the given {@link JSONObject} contains all the given keys. False otherwise.
    */
   public static boolean checkValidKeysEx(JSONObject jo,
-                                         List<Fields> fieldsList)
+                                         Collection<Fields> fieldsCollection)
   {
-    for(Fields fields: fieldsList) {
-      if(checkValidKeys(jo, fields)) {
+    return checkValidKeysExHelper(jo,
+                                  fieldsCollection);
+  }
+
+  public static boolean checkValidKeysExHelper(JSONObject jo,
+                                               Collection<Fields> fieldsCollection)
+  {
+    for (Fields fields: fieldsCollection) {
+      if (checkValidKeys(jo, fields)) {
         return true;
       }
     }
 
-    Set<String> keys = Sets.newHashSet();
-    @SuppressWarnings("unchecked")
-    Iterator<String> keyIterator = jo.keys();
-
-    while(keyIterator.hasNext()) {
-      String key = keyIterator.next();
-      keys.add(key);
-    }
+    Set<String> keys = getSetOfJSONKeys(jo);
 
     throw new IllegalArgumentException("The given json object has an invalid set of keys: " +
                                        keys +
                                        "\nOne of the following key combinations was expected:\n" +
-                                       fieldsList);
+                                       fieldsCollection);
+  }
+
+  public static boolean checkValidKeysEx(JSONObject jo, List<Fields> fieldsCollection)
+  {
+    return checkValidKeysExHelper(jo,
+                                  fieldsCollection);
+  }
+
+  public static Set<String> getSetOfJSONKeys(JSONObject jo)
+  {
+    @SuppressWarnings("unchecked")
+    Iterator<String> keyIterator = jo.keys();
+    Set<String> keySet = Sets.newHashSet();
+
+    while (keyIterator.hasNext()) {
+      keySet.add(keyIterator.next());
+    }
+
+    return keySet;
   }
 
   public static Map<String, String> convertFieldToType(Map<String, Type> fieldToType)
@@ -456,6 +491,38 @@ public class SchemaUtils
     }
 
     return jo;
+  }
+
+  /**
+   * This is a helper method which converts the given {@link JSONArray} to a {@link List} of Strings.
+   *
+   * @param jsonStringArray The {@link JSONArray} to convert.
+   * @return The converted {@link List} of Strings.
+   */
+  public static List<String> getStringsFromJSONArray(JSONArray jsonStringArray) throws JSONException
+  {
+    List<String> stringArray = Lists.newArrayListWithCapacity(jsonStringArray.length());
+
+    for (int stringIndex = 0; stringIndex < jsonStringArray.length(); stringIndex++) {
+      stringArray.add(jsonStringArray.getString(stringIndex));
+    }
+
+    return stringArray;
+  }
+
+  /**
+   * This is a helper method which retrieves the schema tags from the {@link JSONObject} if they are present.
+   *
+   * @param jo The {@link JSONObject} to retrieve schema tags from.
+   * @return A list containing the retrieved schema tags. The list is empty if there are no schema tags present.
+   */
+  public static List<String> getTags(JSONObject jo) throws JSONException
+  {
+    if (jo.has(FIELD_TAGS)) {
+      return getStringsFromJSONArray(jo.getJSONArray(FIELD_TAGS));
+    } else {
+      return Collections.emptyList();
+    }
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(SchemaUtils.class);

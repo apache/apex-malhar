@@ -1,29 +1,22 @@
 /**
- * Copyright (C) 2015 DataTorrent, Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package com.datatorrent.contrib.cassandra;
-
-import com.datastax.driver.core.*;
-import com.datastax.driver.core.exceptions.DriverException;
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
-import com.datatorrent.lib.util.PojoUtils.GetterDouble;
-import com.datatorrent.lib.util.PojoUtils.GetterFloat;
-import com.datatorrent.lib.util.PojoUtils.GetterInt;
-import com.datatorrent.lib.util.PojoUtils.GetterLong;
-import com.datatorrent.lib.util.PojoUtils.Getter;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -33,6 +26,18 @@ import javax.validation.constraints.NotNull;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datastax.driver.core.*;
+import com.datastax.driver.core.exceptions.DriverException;
+
+import com.datatorrent.api.Context;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+
+import com.datatorrent.lib.util.FieldInfo;
+import com.datatorrent.lib.util.PojoUtils;
+import com.datatorrent.lib.util.PojoUtils.*;
 
 /**
  * <p>
@@ -45,46 +50,36 @@ import org.slf4j.LoggerFactory;
  * @since 2.1.0
  */
 @Evolving
-public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionableOutputOperatorPS<Object>
+public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionableOutputOperatorPS<Object> implements Operator.ActivationListener<Context.OperatorContext>
 {
-  private static final long serialVersionUID = 201506181024L;
   @NotNull
-  private ArrayList<String> columns;
-  private final transient ArrayList<DataType> columnDataTypes;
-  @NotNull
-  private ArrayList<String> expressions;
-  private final transient ArrayList<Object> getters;
-
-  /*
-   * An ArrayList of Java expressions that will yield the field value from the POJO.
-   * Each expression corresponds to one column in the Cassandra table.
-   */
-  public ArrayList<String> getExpressions()
-  {
-    return expressions;
-  }
-
-  public void setExpressions(ArrayList<String> expressions)
-  {
-    this.expressions = expressions;
-  }
-
-  /*
-   * An ArrayList of Columns in the Cassandra Table.
-   */
-  public ArrayList<String> getColumns()
-  {
-    return columns;
-  }
-
-  public void setColumns(ArrayList<String> columns)
-  {
-    this.columns = columns;
-  }
-
+  private List<FieldInfo> fieldInfos;
   @NotNull
   private String tablename;
 
+  protected final transient ArrayList<DataType> columnDataTypes;
+  protected final transient ArrayList<Object> getters;
+  protected transient Class<?> pojoClass;
+
+  /**
+   * The input port on which tuples are received for writing.
+   */
+  @InputPortFieldAnnotation(optional = true)
+  public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
+  {
+    @Override
+    public void setup(Context.PortContext context)
+    {
+      pojoClass = context.getValue(Context.PortContext.TUPLE_CLASS);
+    }
+
+    @Override
+    public void process(Object tuple)
+    {
+      CassandraPOJOOutputOperator.super.input.process(tuple);
+    }
+
+  };
 
   /*
    * Tablename in cassandra.
@@ -106,63 +101,63 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
     getters = new ArrayList<Object>();
   }
 
-  public void processFirstTuple(Object tuple)
+  @Override
+  public void activate(Context.OperatorContext context)
   {
     com.datastax.driver.core.ResultSet rs = store.getSession().execute("select * from " + store.keyspace + "." + tablename);
 
     final ColumnDefinitions rsMetaData = rs.getColumnDefinitions();
 
     final int numberOfColumns = rsMetaData.size();
-    final Class<?> fqcn = tuple.getClass();
 
     for (int i = 0; i < numberOfColumns; i++) {
       // get the designated column's data type.
       final DataType type = rsMetaData.getType(i);
       columnDataTypes.add(type);
       final Object getter;
-      final String getterExpr = expressions.get(i);
+      final String getterExpr = fieldInfos.get(i).getPojoFieldExpression();
       switch (type.getName()) {
         case ASCII:
         case TEXT:
         case VARCHAR:
-          getter = PojoUtils.createGetter(fqcn, getterExpr, String.class);
+          getter = PojoUtils.createGetter(pojoClass, getterExpr, String.class);
           break;
         case BOOLEAN:
-          getter = PojoUtils.createGetterBoolean(fqcn, getterExpr);
+          getter = PojoUtils.createGetterBoolean(pojoClass, getterExpr);
           break;
         case INT:
-          getter = PojoUtils.createGetterInt(fqcn, getterExpr);
+          getter = PojoUtils.createGetterInt(pojoClass, getterExpr);
           break;
         case BIGINT:
         case COUNTER:
-          getter = PojoUtils.createGetterLong(fqcn, getterExpr);
+          getter = PojoUtils.createGetterLong(pojoClass, getterExpr);
           break;
         case FLOAT:
-          getter = PojoUtils.createGetterFloat(fqcn, getterExpr);
+          getter = PojoUtils.createGetterFloat(pojoClass, getterExpr);
           break;
         case DOUBLE:
-          getter = PojoUtils.createGetterDouble(fqcn, getterExpr);
+          getter = PojoUtils.createGetterDouble(pojoClass, getterExpr);
           break;
         case DECIMAL:
-          getter = PojoUtils.createGetter(fqcn, getterExpr, BigDecimal.class);
+          getter = PojoUtils.createGetter(pojoClass, getterExpr, BigDecimal.class);
           break;
         case SET:
-          getter = PojoUtils.createGetter(fqcn, getterExpr, Set.class);
+          getter = PojoUtils.createGetter(pojoClass, getterExpr, Set.class);
           break;
         case MAP:
-          getter = PojoUtils.createGetter(fqcn, getterExpr, Map.class);
+          getter = PojoUtils.createGetter(pojoClass, getterExpr, Map.class);
           break;
         case LIST:
-          getter = PojoUtils.createGetter(fqcn, getterExpr, List.class);
+          getter = PojoUtils.createGetter(pojoClass, getterExpr, List.class);
           break;
         case TIMESTAMP:
-          getter = PojoUtils.createGetter(fqcn, getterExpr, Date.class);
+          getter = PojoUtils.createGetter(pojoClass, getterExpr, Date.class);
           break;
         case UUID:
-          getter = PojoUtils.createGetter(fqcn, getterExpr, UUID.class);
+          getter = PojoUtils.createGetter(pojoClass, getterExpr, UUID.class);
           break;
         default:
-          getter = PojoUtils.createGetter(fqcn, getterExpr, Object.class);
+          getter = PojoUtils.createGetter(pojoClass, getterExpr, Object.class);
           break;
       }
       getters.add(getter);
@@ -170,17 +165,22 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
   }
 
   @Override
+  public void deactivate()
+  {
+  }
+
+  @Override
   protected PreparedStatement getUpdateCommand()
   {
-    StringBuilder queryfields = new StringBuilder("");
-    StringBuilder values = new StringBuilder("");
-    for (String column: columns) {
+    StringBuilder queryfields = new StringBuilder();
+    StringBuilder values = new StringBuilder();
+    for (FieldInfo fieldInfo: fieldInfos) {
       if (queryfields.length() == 0) {
-        queryfields.append(column);
+        queryfields.append(fieldInfo.getColumnName());
         values.append("?");
       }
       else {
-        queryfields.append(",").append(column);
+        queryfields.append(",").append(fieldInfo.getColumnName());
         values.append(",").append("?");
       }
     }
@@ -197,9 +197,6 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
   @SuppressWarnings("unchecked")
   protected Statement setStatementParameters(PreparedStatement updateCommand, Object tuple) throws DriverException
   {
-    if (getters.isEmpty()) {
-      processFirstTuple(tuple);
-    }
     final BoundStatement boundStmnt = new BoundStatement(updateCommand);
     final int size = columnDataTypes.size();
     for (int i = 0; i < size; i++) {
@@ -261,6 +258,27 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
       }
     }
     return boundStmnt;
+  }
+
+  /**
+   * A list of {@link FieldInfo}s where each item maps a column name to a pojo field name.
+   */
+  public List<FieldInfo> getFieldInfos()
+  {
+    return fieldInfos;
+  }
+
+  /**
+   * Sets the {@link FieldInfo}s. A {@link FieldInfo} maps a store column to a pojo field name.<br/>
+   * The value from fieldInfo.column is assigned to fieldInfo.pojoFieldExpression.
+   *
+   * @description $[].columnName name of the database column name
+   * @description $[].pojoFieldExpression pojo field name or expression
+   * @useSchema $[].pojoFieldExpression input.fields[].name
+   */
+  public void setFieldInfos(List<FieldInfo> fieldInfos)
+  {
+    this.fieldInfos = fieldInfos;
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(CassandraPOJOOutputOperator.class);
