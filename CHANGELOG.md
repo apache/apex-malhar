@@ -1,6 +1,26 @@
 Apex Malhar Changelog
 ========================================================================================================================
 
+Version 3.3.1-incubating - 2016-02-27
+------------------------------------------------------------------------------------------------------------------------
+
+### Bug
+* [APEXMALHAR-1970] - ArrayOutOfBoundary error in One_To_Many Partitioner for 0.9 kafka input operator
+* [APEXMALHAR-1973] - InitialOffset bug and duplication caused by offset checkpoint
+* [APEXMALHAR-1984] - Operators that use Kryo directly would throw exception in local mode
+* [APEXMALHAR-1990] - Occasional concurrent modification exceptions from IdempotentStorageManager
+* [APEXMALHAR-1993] - Committed offsets are not present in offset manager storage for kafka input operator
+* [APEXMALHAR-1994] - Operator partitions are reporting offsets for kafka partitions they don't subscribe to
+* [APEXMALHAR-1998] - Kafka unit test memory requirement breaks Travis CI build
+* [APEXMALHAR-2003] - NPE in FileSplitterInput
+
+### Improvement
+* [APEXMALHAR-1983] - Support special chars in topics setting for new Kafka Input Operator
+
+### Task
+* [APEXMALHAR-1968] - Update NOTICE copyright year
+* [APEXMALHAR-1986] - Change semantic version check to use 3.3 release
+
 Version 3.3.0-incubating - 2016-01-10
 ------------------------------------------------------------------------------------------------------------------------
 
