@@ -51,6 +51,7 @@ import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.io.block.BlockMetadata;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.KryoCloneUtils;
 import com.datatorrent.lib.util.TestUtils;
 
 /**
@@ -454,6 +455,49 @@ public class FileSplitterInputTest
     Assert.assertEquals("File metadata", new File(testMeta.dataDirectory + "/file1.txt").getAbsolutePath(),
         testMeta.fileMetadataSink.collectedTuples.get(0).getFilePath());
   }
+
+  @Test
+  public void testRecoveryOfBlockMetadataIterator() throws InterruptedException
+  {
+    IdempotentStorageManager.FSIdempotentStorageManager fsIdempotentStorageManager =
+        new IdempotentStorageManager.FSIdempotentStorageManager();
+
+    testMeta.fileSplitterInput.setIdempotentStorageManager(fsIdempotentStorageManager);
+    testMeta.fileSplitterInput.setBlockSize(2L);
+    testMeta.fileSplitterInput.setBlocksThreshold(2);
+    testMeta.fileSplitterInput.getScanner().setScanIntervalMillis(500);
+
+
+    testMeta.fileSplitterInput.setup(testMeta.context);
+
+    testMeta.fileSplitterInput.beginWindow(1);
+
+    ((MockScanner)testMeta.fileSplitterInput.getScanner()).semaphore.acquire();
+    testMeta.fileSplitterInput.emitTuples();
+    testMeta.fileSplitterInput.endWindow();
+
+    //file0.txt has just 5 blocks. Since blocks threshold is 2, only 2 are emitted.
+    Assert.assertEquals("Files", 1, testMeta.fileMetadataSink.collectedTuples.size());
+    Assert.assertEquals("Blocks", 2, testMeta.blockMetadataSink.collectedTuples.size());
+
+    testMeta.fileMetadataSink.clear();
+    testMeta.blockMetadataSink.clear();
+
+    //At this point the operator was check-pointed and then there was a failure.
+    testMeta.fileSplitterInput.teardown();
+
+    //The operator was restored from persisted state and re-deployed.
+    testMeta.fileSplitterInput = KryoCloneUtils.cloneObject(testMeta.fileSplitterInput);
+    TestUtils.setSink(testMeta.fileSplitterInput.blocksMetadataOutput, testMeta.blockMetadataSink);
+    TestUtils.setSink(testMeta.fileSplitterInput.filesMetadataOutput, testMeta.fileMetadataSink);
+
+    testMeta.fileSplitterInput.setup(testMeta.context);
+    testMeta.fileSplitterInput.beginWindow(1);
+
+    Assert.assertEquals("Recovered Files", 1, testMeta.fileMetadataSink.collectedTuples.size());
+    Assert.assertEquals("Recovered Blocks", 2, testMeta.blockMetadataSink.collectedTuples.size());
+  }
+
 
   private static class MockScanner extends FileSplitterInput.TimeBasedDirectoryScanner
   {
