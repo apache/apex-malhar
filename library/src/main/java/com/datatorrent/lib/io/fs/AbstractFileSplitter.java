@@ -285,7 +285,7 @@ public abstract class AbstractFileSplitter extends BaseOperator
     private long pos;
     private int blockNumber;
 
-    private final transient AbstractFileSplitter splitter;
+    private final AbstractFileSplitter splitter;
 
     protected BlockMetadataIterator()
     {
@@ -319,8 +319,8 @@ public abstract class AbstractFileSplitter extends BaseOperator
       }
       boolean isLast = length >= fileMetadata.getFileLength();
       long lengthOfFileInBlock = isLast ? fileMetadata.getFileLength() : length;
-      BlockMetadata.FileBlockMetadata fileBlock = splitter
-          .buildBlockMetadata(pos, lengthOfFileInBlock, blockNumber, fileMetadata, isLast);
+      BlockMetadata.FileBlockMetadata fileBlock = splitter.buildBlockMetadata(pos, lengthOfFileInBlock, blockNumber,
+          fileMetadata, isLast);
       pos = lengthOfFileInBlock;
       return fileBlock;
     }
