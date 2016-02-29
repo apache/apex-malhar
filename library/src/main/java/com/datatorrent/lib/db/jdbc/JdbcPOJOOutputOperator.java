@@ -21,10 +21,7 @@ package com.datatorrent.lib.db.jdbc;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -37,11 +34,14 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
+import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
@@ -67,18 +67,22 @@ public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOpe
     implements Operator.ActivationListener<OperatorContext>
 {
   @NotNull
-  private List<FieldInfo> fieldInfos;
-
-  private List<Integer> columnDataTypes;
-
-  @NotNull
-  private String tablename;
+  private List<JdbcFieldInfo> fieldInfos;
 
   private final transient List<JdbcPOJOInputOperator.ActiveFieldInfo> columnFieldGetters;
 
-  private String insertStatement;
+  @NotNull
+  private String sqlQuery;
+
+  @AutoMetric
+  private long numRecordsWritten;
+  @AutoMetric
+  private long numErrorRecords;
 
   private transient Class<?> pojoClass;
+
+  @OutputPortFieldAnnotation(optional = true)
+  public final transient DefaultOutputPort<Object> error = new DefaultOutputPort<>();
 
   @InputPortFieldAnnotation(optional = true, schemaRequired = true)
   public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
@@ -98,53 +102,19 @@ public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOpe
   };
 
   @Override
-  public void setup(OperatorContext context)
+  public void beginWindow(long windowId)
   {
-    StringBuilder columns = new StringBuilder();
-    StringBuilder values = new StringBuilder();
-    for (int i = 0; i < fieldInfos.size(); i++) {
-      columns.append(fieldInfos.get(i).getColumnName());
-      values.append("?");
-      if (i < fieldInfos.size() - 1) {
-        columns.append(",");
-        values.append(",");
-      }
-    }
-    insertStatement = "INSERT INTO "
-            + tablename
-            + " (" + columns.toString() + ")"
-            + " VALUES (" + values.toString() + ")";
-    LOG.debug("insert statement is {}", insertStatement);
-
-    super.setup(context);
-
-    if (columnDataTypes == null) {
-      try {
-        populateColumnDataTypes(columns.toString());
-      } catch (SQLException e) {
-        throw new RuntimeException(e);
-      }
-    }
-
-    for (FieldInfo fi : fieldInfos) {
-      columnFieldGetters.add(new JdbcPOJOInputOperator.ActiveFieldInfo(fi));
-    }
+    currentWindowId = windowId;
+    numRecordsWritten = 0;
+    numErrorRecords = 0;
   }
 
-  protected void populateColumnDataTypes(String columns) throws SQLException
+  @Override
+  public void setup(OperatorContext context)
   {
-    columnDataTypes = Lists.newArrayList();
-    try (Statement st = store.getConnection().createStatement()) {
-      ResultSet rs = st.executeQuery("select " + columns + " from " + tablename);
-
-      ResultSetMetaData rsMetaData = rs.getMetaData();
-      LOG.debug("resultSet MetaData column count {}", rsMetaData.getColumnCount());
-
-      for (int i = 1; i <= rsMetaData.getColumnCount(); i++) {
-        int type = rsMetaData.getColumnType(i);
-        columnDataTypes.add(type);
-        LOG.debug("column name {} type {}", rsMetaData.getColumnName(i), type);
-      }
+    super.setup(context);
+    for (FieldInfo fi : fieldInfos) {
+      columnFieldGetters.add(new JdbcPOJOInputOperator.ActiveFieldInfo(fi));
     }
   }
 
@@ -157,17 +127,40 @@ public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOpe
   @Override
   protected String getUpdateCommand()
   {
-    LOG.debug("insert statement is {}", insertStatement);
-    return insertStatement;
+    LOG.debug("SQL statement is {}", sqlQuery);
+    return sqlQuery;
+  }
+
+  /**
+   * Sets the parameterized SQL query for the JDBC update operation.
+   * This can be an insert, update, delete or a merge query.
+   * Example: "update testTable set id = ? where name = ?"
+   * @param sqlQuery the query statement
+   */
+  protected void setUpdateCommand(String sqlQuery)
+  {
+    this.sqlQuery = sqlQuery;
+  }
+
+  @Override
+  public void processTuple(Object tuple)
+  {
+    try {
+      super.processTuple(tuple);
+      numRecordsWritten++;
+    } catch (RuntimeException e) {
+      error.emit(tuple);
+      numErrorRecords++;
+    }
   }
 
   @Override
   @SuppressWarnings("unchecked")
   protected void setStatementParameters(PreparedStatement statement, Object tuple) throws SQLException
   {
-    final int size = columnDataTypes.size();
+    final int size = fieldInfos.size();
     for (int i = 0; i < size; i++) {
-      final int type = columnDataTypes.get(i);
+      final int type = fieldInfos.get(i).getSqlType();
       JdbcPOJOInputOperator.ActiveFieldInfo activeFieldInfo = columnFieldGetters.get(i);
       switch (type) {
         case (Types.CHAR):
@@ -235,7 +228,7 @@ public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOpe
   /**
    * A list of {@link FieldInfo}s where each item maps a column name to a pojo field name.
    */
-  public List<FieldInfo> getFieldInfos()
+  public List<JdbcFieldInfo> getFieldInfos()
   {
     return fieldInfos;
   }
@@ -248,22 +241,9 @@ public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOpe
    * @description $[].pojoFieldExpression pojo field name or expression
    * @useSchema $[].pojoFieldExpression input.fields[].name
    */
-  public void setFieldInfos(List<FieldInfo> fieldInfos)
+  public void setFieldInfos(List<JdbcFieldInfo> fieldInfos)
   {
     this.fieldInfos = fieldInfos;
-  }
-
-  /*
-   * Gets the name of the table in database.
-   */
-  public String getTablename()
-  {
-    return tablename;
-  }
-
-  public void setTablename(String tablename)
-  {
-    this.tablename = tablename;
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(JdbcPOJOOutputOperator.class);
@@ -271,9 +251,9 @@ public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOpe
   @Override
   public void activate(OperatorContext context)
   {
-    final int size = columnDataTypes.size();
+    final int size = fieldInfos.size();
     for (int i = 0; i < size; i++) {
-      final int type = columnDataTypes.get(i);
+      final int type = fieldInfos.get(i).getSqlType();
       JdbcPOJOInputOperator.ActiveFieldInfo activeFieldInfo = columnFieldGetters.get(i);
       switch (type) {
         case (Types.CHAR):
