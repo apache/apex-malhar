@@ -266,17 +266,45 @@ public void populateDAG(DAG dag, Configuration entries)
 }
 }
 ```
-Below is the configuration for “test” Kafka topic name and
-“localhost:2181” is the zookeeper forum:
+Below is the configuration for using the earliest offset, “test” as the topic name and
+“localhost:2181” as the zookeeper forum:
 
 ```xml
+<property>
+  <name>dt.operator.MessageReader.prop.initialOffset</name>
+  <value>earliest</value>
+</property>
+
 <property>
 <name>dt.operator.MessageReader.prop.topic</name>
 <value>test</value>
 </property>
 
 <property>
-<name>dt.operator.KafkaInputOperator.prop.zookeeper</nam>
+<name>dt.operator.MessageReader.prop.zookeeper</nam>
 <value>localhost:2181</value>
+</property>
+```
+
+Please note that `MessageReader` is the string passed as the first argument to the
+`addOperator()` call. The above stanza sets these parameters for this operator
+regardless of the application it resides in; if you want to set them on a
+per-application basis, you can use this instead (where `KafkaApp` is the name of
+the application):
+
+```xml
+<property>
+  <name>dt.application.KafkaApp.operator.MessageReader.prop.initialOffset</name>
+  <value>earliest</value>
+</property>
+
+<property>
+  <name>dt.application.KafkaApp.operator.MessageReader.prop.topic</name>
+  <value>test-topic</value>
+</property>
+
+<property>
+  <name>dt.application.KafkaApp.operator.MessageReader.prop.zookeeper</name>
+  <value>node21:2181</value>
 </property>
 ```
