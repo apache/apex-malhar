@@ -197,6 +197,7 @@ public abstract class AbstractFileSplitter extends BaseOperator
   {
     LOG.debug("file {}", fileInfo.getFilePath());
     FileMetadata fileMetadata = createFileMetadata(fileInfo);
+    LOG.debug("fileMetadata {}", fileMetadata);
     Path path = new Path(fileInfo.getFilePath());
 
     fileMetadata.setFileName(path.getName());
@@ -380,6 +381,20 @@ public abstract class AbstractFileSplitter extends BaseOperator
     {
       this.filePath = filePath;
       discoverTime = System.currentTimeMillis();
+    }
+    
+    protected FileMetadata(FileMetadata fileMetadata)
+    {
+      this();
+      filePath = fileMetadata.filePath;
+      fileName = fileMetadata.fileName;
+      numberOfBlocks = fileMetadata.numberOfBlocks;
+      dataOffset = fileMetadata.dataOffset;
+      fileLength = fileMetadata.fileLength;
+      discoverTime = fileMetadata.discoverTime;
+      blockIds = fileMetadata.blockIds;
+      isDirectory = fileMetadata.isDirectory;
+      relativePath = fileMetadata.relativePath;
     }
 
     /**
