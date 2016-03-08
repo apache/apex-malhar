@@ -18,23 +18,24 @@
  */
 package com.datatorrent.lib.util;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+import com.datatorrent.lib.expression.Expression;
+import com.datatorrent.lib.expression.JavaExpressionParser;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.commons.compiler.CompileException;
 import org.codehaus.commons.compiler.CompilerFactoryFactory;
 import org.codehaus.commons.compiler.IScriptEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @since 2.1.0
@@ -45,6 +46,7 @@ public class PojoUtils
 
   public static final String DEFAULT_EXP_OBJECT_PLACEHOLDER = "{$}";
   public static final String DEFAULT_EXP_VAL_PLACEHOLDER = "{#}";
+  public static final String DEFAULT_EXPRESSION_OBJ_PLACEHOLDER = "$";
 
   private static final String OBJECT = "object";
   private static final String VAL = "val";
@@ -572,41 +574,13 @@ public class PojoUtils
   @SuppressWarnings("StringEquality")
   private static Object createGetter(Class<?> pojoClass, String getterExpr, String exprObjectPlaceholder, Class<?> exprClass, Class<?> getterClass)
   {
-    if (getterExpr.startsWith(".")) {
-      getterExpr = getterExpr.substring(1);
-    }
-
-    if (getterExpr.isEmpty()) {
-      throw new IllegalArgumentException("The getter expression: \"" + getterExpr + "\" is invalid.");
-    }
-
     logger.debug("{} {} {} {}", pojoClass, getterExpr, exprClass, getterClass);
 
-    IScriptEvaluator se;
+    JavaExpressionParser javaExpressionParser = new JavaExpressionParser();
+    javaExpressionParser.setInputObjectPlaceholder(PojoUtils.DEFAULT_EXPRESSION_OBJ_PLACEHOLDER, PojoUtils.OBJECT);
+    String code = javaExpressionParser.convertToCompilableExpression(getterExpr, pojoClass, exprClass);
 
-    try {
-      se = CompilerFactoryFactory.getDefaultCompilerFactory().newScriptEvaluator();
-    } catch (Exception ex) {
-      throw new RuntimeException(ex);
-    }
-
-    String code = StringUtils.replaceEach(getterExpr, new String[]{exprObjectPlaceholder},
-            new String[]{new JavaStatement(pojoClass.getName().length() + OBJECT.length() + 4).appendCastToTypeExpr(pojoClass, OBJECT).toString()});
-    if (code != getterExpr) {
-      code = new JavaReturnStatement(exprClass.getName().length() + code.length() + 12, exprClass).append(code).getStatement();
-      logger.debug("Original expression {} is a complex expression. Replacing it with {}.", getterExpr, code);
-    }
-    else {
-      code = getSingleFieldGetterExpression(pojoClass, getterExpr, exprClass);
-    }
-
-    logger.debug("code: {}", code);
-
-    try {
-      return se.createFastEvaluator(code, getterClass, new String[] {PojoUtils.OBJECT});
-    } catch (CompileException ex) {
-      throw new RuntimeException(ex);
-    }
+    return compileExpression(code, getterClass, new String[] {PojoUtils.OBJECT});
   }
 
   private static String getSingleFieldSetterExpression(final Class<?> pojoClass, final String fieldExpression, final Class<?> exprClass)
@@ -677,13 +651,6 @@ public class PojoUtils
 
     logger.debug("{} {} {} {}", pojoClass, setterExpr, exprClass, setterClass);
 
-    IScriptEvaluator se;
-
-    try {
-      se = CompilerFactoryFactory.getDefaultCompilerFactory().newScriptEvaluator();
-    } catch (Exception ex) {
-      throw new RuntimeException(ex);
-    }
 
 
     String code = StringUtils.replaceEach(setterExpr, new String[]{exprObjectPlaceholder, exprValPlaceholder},
@@ -696,11 +663,99 @@ public class PojoUtils
       code = getSingleFieldSetterExpression(pojoClass, setterExpr, exprClass);
     }
 
-    try {
+    return compileExpression(code, setterClass, new String[] {PojoUtils.OBJECT, PojoUtils.VAL});
+  }
 
+  /**
+   * This method takes in expression, compiles the expression to provide a executable form of expression.
+   * This method uses {@link com.datatorrent.lib.expression.JavaExpressionParser} as expression parser.
+   *
+   * @param inputType  Type of input object
+   * @param expr       expression to be compiled.
+   * @param returnType Return type of the expression.
+   * @return Object of type {@link Expression} which can be directly executed.
+   */
+  public static Expression createExpression(Class<?> inputType, String expr, Class<?> returnType)
+  {
+    return createExpression(inputType, expr, returnType, null);
+  }
+
+  /**
+   * This method takes in expression, compiles the expression to provide a executable form of expression.
+   * This methods also takes in list of classes and method which can be imported statically in expression.
+   * <p/>
+   * This method uses {@link JavaExpressionParser} as expression parser.
+   *
+   * @param inputType      Type of input object
+   * @param expr           expression to be compiled.
+   * @param returnType     Return type of the expression.
+   * @param defaultImports List of classes/method which will be statically imported to expression compilation.
+   * @return Object of type {@link Expression} which can be directly executed.
+   */
+  public static Expression createExpression(Class<?> inputType, String expr, Class<?> returnType,
+      String[] defaultImports)
+  {
+    JavaExpressionParser javaExpressionParser = new JavaExpressionParser();
+    javaExpressionParser.setInputObjectPlaceholder("$", PojoUtils.OBJECT);
+
+    return createExpression(inputType, expr, returnType, defaultImports, javaExpressionParser);
+  }
+
+  /**
+   * This method takes in expression, compiles the expression to provide a executable form of expression.
+   * This methods also takes in list of classes and method which can be imported statically in expression.
+   * <p/>
+   * Using this method one can override expression parser implementation.
+   *
+   * @param inputType      Type of input object
+   * @param expr           expression to be compiled.
+   * @param returnType     Return type of the expression.
+   * @param defaultImports List of classes/method which will be statically imported to expression compilation.
+   * @param parser         Expression parser that should be used to parse expression.
+   * @return Object of type {@link Expression} which can be directly executed.
+   * @see {@link JavaExpressionParser} as a example.
+   */
+  public static Expression createExpression(Class<?> inputType, String expr, Class<?> returnType,
+      String[] defaultImports, Expression.ExpressionParser parser)
+  {
+    String code = parser.convertToCompilableExpression(expr, inputType, returnType);
+
+    return (Expression)compileExpression(code, Expression.class, new String[] {PojoUtils.OBJECT}, defaultImports);
+  }
+
+  private static Object compileExpression(String code, Class<?> implClass, String[] params)
+  {
+    return compileExpression(code, implClass, params, null);
+  }
+
+  private static Object compileExpression(String code, Class<?> implClass, String[] params, String[] defaultImports)
+  {
+    List<String> imports = new LinkedList<>();
+    if (defaultImports != null && defaultImports.length != 0) {
+      for (String defaultImport : defaultImports) {
+        if (defaultImport != null) {
+          if (!defaultImport.startsWith("static")) {
+            imports.add("static " + defaultImport);
+          } else {
+            imports.add(defaultImport);
+          }
+        }
+      }
+    }
+
+    IScriptEvaluator se;
+
+    try {
+      se = CompilerFactoryFactory.getDefaultCompilerFactory().newScriptEvaluator();
+      se.setDefaultImports(imports.toArray(new String[imports.size()]));
+    } catch (Exception ex) {
+      throw new RuntimeException(ex);
+    }
+
+    try {
       logger.debug("code: {}", code);
 
-      return se.createFastEvaluator(code, setterClass, new String[] { PojoUtils.OBJECT, PojoUtils.VAL});
+      return se.createFastEvaluator(code, implClass, params);
     } catch (CompileException ex) {
       throw new RuntimeException(ex);
     }
