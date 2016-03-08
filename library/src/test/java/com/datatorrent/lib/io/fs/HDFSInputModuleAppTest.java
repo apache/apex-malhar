@@ -153,7 +153,7 @@ class Application implements StreamingApplication
     metadataWriter.setFilePath(HDFSInputModuleAppTest.outputDir);
     dag.addOperator("FileMetadataWriter", metadataWriter);
 
-    AbstractFileOutputOperator<ReaderRecord<Slice>> dataWriter = new FileWriter(HDFSInputModuleAppTest.OUT_DATA_FILE);
+    AbstractFileOutputOperator<ReaderRecord<Slice>> dataWriter = new HDFSFileWriter(HDFSInputModuleAppTest.OUT_DATA_FILE);
     dataWriter.setFilePath(HDFSInputModuleAppTest.outputDir);
     dag.addOperator("FileDataWriter", dataWriter);
 
@@ -195,16 +195,16 @@ class MetadataWriter extends AbstractFileOutputOperator<FileMetadata>
   }
 }
 
-class FileWriter extends AbstractFileOutputOperator<ReaderRecord<Slice>>
+class HDFSFileWriter extends AbstractFileOutputOperator<ReaderRecord<Slice>>
 {
   String fileName;
 
   @SuppressWarnings("unused")
-  private FileWriter()
+  private HDFSFileWriter()
   {
   }
 
-  public FileWriter(String fileName)
+  public HDFSFileWriter(String fileName)
   {
     this.fileName = fileName;
   }
