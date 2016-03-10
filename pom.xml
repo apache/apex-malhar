@@ -67,6 +67,8 @@
             <exclude>**/src/main/resources/com/datatorrent/apps/logstream/**</exclude>
             <exclude>src/main/c/zmq_push/Makefile</exclude>
             <exclude>src/test/resources/com/datatorrent/contrib/romesyndication/*.rss</exclude>
+            <exclude>**/*.md</exclude>
+            <exclude>**/*.yml</exclude>
           </excludes>
           <mapping combine.children="append">
             <R>SCRIPT_STYLE</R>
@@ -87,6 +89,7 @@
             <exclude>src/main/resources/**/*.txt</exclude>
             <exclude>**/*.json</exclude>
             <exclude>**/*.md</exclude>
+            <exclude>**/*.yml</exclude>
           </excludes>
         </configuration>
       </plugin>
