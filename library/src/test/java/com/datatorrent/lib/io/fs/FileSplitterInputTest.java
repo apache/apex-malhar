@@ -71,7 +71,7 @@ public class FileSplitterInputTest
       }
       allLines.addAll(lines);
       File created = new File(dataDirectory, "file" + file + ".txt");
-      filePaths.add(new Path(dataDirectory, created.getName()).toUri().toString());
+      filePaths.add(created.getAbsolutePath());
       FileUtils.write(created, StringUtils.join(lines, '\n'));
     }
     return filePaths;
