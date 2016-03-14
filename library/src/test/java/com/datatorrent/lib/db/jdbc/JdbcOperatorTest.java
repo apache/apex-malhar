@@ -202,7 +202,7 @@ public class JdbcOperatorTest
     }
   }
 
-  private static class TestPOJOOutputOperator extends JdbcPOJOOutputOperator
+  private static class TestPOJOOutputOperator extends AbstractJdbcPOJOOutputOperator
   {
     TestPOJOOutputOperator()
     {

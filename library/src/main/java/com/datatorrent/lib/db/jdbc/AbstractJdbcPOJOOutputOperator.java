@@ -63,7 +63,7 @@ import com.datatorrent.lib.util.PojoUtils.GetterShort;
  * @since 2.1.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOperator<Object>
+public class AbstractJdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOperator<Object>
     implements Operator.ActivationListener<OperatorContext>
 {
   @NotNull
@@ -92,7 +92,7 @@ public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOpe
     @Override
     public void process(Object t)
     {
-      JdbcPOJOOutputOperator.super.input.process(t);
+      AbstractJdbcPOJOOutputOperator.super.input.process(t);
     }
 
   };
@@ -148,7 +148,7 @@ public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOpe
     }
   }
 
-  public JdbcPOJOOutputOperator()
+  public AbstractJdbcPOJOOutputOperator()
   {
     super();
     columnFieldGetters = Lists.newArrayList();
@@ -266,7 +266,7 @@ public class JdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOpe
     this.tablename = tablename;
   }
 
-  private static final Logger LOG = LoggerFactory.getLogger(JdbcPOJOOutputOperator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractJdbcPOJOOutputOperator.class);
 
   @Override
   public void activate(OperatorContext context)
