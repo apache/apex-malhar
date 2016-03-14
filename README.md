@@ -15,6 +15,8 @@ Documentation
 
 Please visit the [documentation section](http://apex.incubator.apache.org/docs.html).
 
+Documentation build and hosting process is explained in [docs README](docs/README.md).
+
 Discussion group
 --------------------
 
