@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<configuration>
+  <!-- 
+  <property>
+    <name>dt.application.{appName}.operator.{opName}.prop.{propName}</name>
+    <value>some-default-value (if value is not specified, it is required from the user or custom config when launching)</value>
+  </property>
+  -->
+  <!-- memory assigned to app master
+  <property>
+    <name>dt.attr.MASTER_MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  -->
+
+  <!-- log4j configuration for all the operators -->
+  <property>
+    <name>dt.operator.*.attr.JVM_OPTIONS</name>
+    <value> -Dlog4j.configuration=my-log4j.properties</value>
+  </property>
+
+  <property>
+    <name>dt.application.*.operator.randomInt.prop.numTuples</name>
+    <value>10</value>
+  </property>
+  <!--
+  <property>
+    <name>dt.application.TestStuff.operator.testPartition.attr.PARTITIONER</name>
+    <value>com.datatorrent.common.partitioner.StatelessPartitioner:2</value>
+  </property>
+  -->
+</configuration>
+
