@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Operator;
 import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator;
 
 /**
@@ -57,6 +59,7 @@ import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator
  */
 public abstract class AbstractJdbcTransactionableOutputOperator<T>
     extends AbstractPassThruTransactionableStoreOutputOperator<T, JdbcTransactionalStore>
+    implements Operator.ActivationListener<Context.OperatorContext>
 {
   protected static int DEFAULT_BATCH_SIZE = 1000;
 
@@ -79,12 +82,17 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T>
   public void setup(Context.OperatorContext context)
   {
     super.setup(context);
+
+  }
+
+  @Override
+  public void activate(OperatorContext context)
+  {
     try {
       updateCommand = store.connection.prepareStatement(getUpdateCommand());
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
-
   }
 
   @Override
@@ -96,6 +104,11 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T>
     super.endWindow();
     tuples.clear();
     batchStartIdx = 0;
+  }
+
+  @Override
+  public void deactivate()
+  {
   }
 
   @Override
