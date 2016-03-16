@@ -196,11 +196,13 @@ public interface BlockMetadata
   }
 
   /**
-   * A block of file which contains file path adn other block properties.
+   * A block of file which contains file path and other block properties.
+   * It also controls if blocks should be read in sequence
    */
   class FileBlockMetadata extends AbstractBlockMetadata
   {
     private final String filePath;
+    private boolean readBlockInSequence = false;
 
     protected FileBlockMetadata()
     {
@@ -225,10 +227,37 @@ public interface BlockMetadata
       return filePath;
     }
 
+    /**
+     * Get if blocks should be read in sequence
+     * @return readBlockInSequence
+     */
+    public boolean isReadBlockInSequence()
+    {
+      return readBlockInSequence;
+    }
+
+    /**
+     * Set if blokcs should be read in sequence
+     * @param readBlockInSequence
+     */
+    public void setReadBlockInSequence(boolean readBlockInSequence)
+    {
+      this.readBlockInSequence = readBlockInSequence;
+    }
+
     public FileBlockMetadata newInstance(@NotNull String filePath)
     {
       Preconditions.checkNotNull(filePath);
       return new FileBlockMetadata(filePath);
+    }
+
+    @Override
+    public int hashCode()
+    {
+      if (isReadBlockInSequence()) {
+        return getFilePath().hashCode();
+      }
+      return super.hashCode();
     }
   }
 }

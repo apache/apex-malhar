@@ -18,6 +18,7 @@
  */
 package com.datatorrent.lib.io.fs;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -27,12 +28,10 @@ import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
 
 import com.google.common.base.Preconditions;
-
 import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
@@ -206,6 +205,13 @@ public abstract class AbstractFileSplitter extends BaseOperator
     fileMetadata.setDirectory(status.isDirectory());
     fileMetadata.setFileLength(status.getLen());
 
+    if (fileInfo.getDirectoryPath() == null) { // Direct filename is given as input.
+      fileMetadata.setRelativePath(status.getPath().getName());
+    } else {
+      String relativePath = getRelativePathWithFolderName(fileInfo);
+      fileMetadata.setRelativePath(relativePath);
+    }
+
     if (!status.isDirectory()) {
       int noOfBlocks = (int)((status.getLen() / blockSize) + (((status.getLen() % blockSize) == 0) ? 0 : 1));
       if (fileMetadata.getDataOffset() >= status.getLen()) {
@@ -215,6 +221,15 @@ public abstract class AbstractFileSplitter extends BaseOperator
       populateBlockIds(fileMetadata);
     }
     return fileMetadata;
+  }
+
+  /*
+   * As folder name was given to input for copy, prefix folder name to the sub items to copy.
+   */
+  private String getRelativePathWithFolderName(FileInfo fileInfo)
+  {
+    String parentDir = new Path(fileInfo.getDirectoryPath()).getName();
+    return parentDir + File.separator + fileInfo.getRelativeFilePath();
   }
 
   /**
@@ -346,6 +361,7 @@ public abstract class AbstractFileSplitter extends BaseOperator
     private long discoverTime;
     private long[] blockIds;
     private boolean isDirectory;
+    private String relativePath;
 
     @SuppressWarnings("unused")
     protected FileMetadata()
@@ -493,6 +509,31 @@ public abstract class AbstractFileSplitter extends BaseOperator
     {
       return isDirectory;
     }
+
+    /**
+     * Sets relative file path
+     * @return relativePath
+     */
+    public String getRelativePath()
+    {
+      return relativePath;
+    }
+
+    /**
+     * Gets relative file path
+     * @param relativePath
+     */
+    public void setRelativePath(String relativePath)
+    {
+      this.relativePath = relativePath;
+    }
+
+    @Override
+    public String toString()
+    {
+      return "FileMetadata [fileName=" + fileName + ", numberOfBlocks=" + numberOfBlocks + ", isDirectory=" + isDirectory + ", relativePath=" + relativePath + "]";
+    }
+
   }
 
   /**
