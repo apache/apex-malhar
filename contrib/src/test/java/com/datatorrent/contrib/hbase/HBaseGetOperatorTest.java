@@ -51,12 +51,14 @@ public class HBaseGetOperatorTest
 
       dag.setAttribute(DAG.APPLICATION_NAME, "HBaseGetOperatorTest");
       TestHBaseGetOperator thop = dag.addOperator("testhbaseget", TestHBaseGetOperator.class);
+      HBaseStore store = new HBaseStore();
+      thop.setStore(store);
       HBaseTupleCollector tc = dag.addOperator("tuplecollector", HBaseTupleCollector.class);
       dag.addStream("ss", thop.outputPort, tc.inputPort);
 
-      thop.setTableName("table1");
-      thop.setZookeeperQuorum("127.0.0.1");
-      thop.setZookeeperClientPort(2181);
+      thop.getStore().setTableName("table1");
+      thop.getStore().setZookeeperQuorum("127.0.0.1");
+      thop.getStore().setZookeeperClientPort(2181);
 
       LocalMode.Controller lc = lma.getController();
       lc.setHeartbeatMonitoringEnabled(false);

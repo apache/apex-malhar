@@ -18,14 +18,14 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import java.io.IOException;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -37,20 +37,20 @@ import com.datatorrent.lib.util.TableInfo;
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
+ * HBasePOJOInputOperator reads data from a HBase store, converts it to a POJO and puts it on the output port.
+ * The read from HBase is asynchronous.
  * @displayName HBase Input Operator
  * @category Input
  * @tags database, nosql, pojo, hbase
  * @since 3.1.0
  */
 @Evolving
-public class HBasePOJOInputOperator extends HBaseInputOperator<Object>
+public class HBasePOJOInputOperator extends HBaseScanOperator<Object>
 {
   private TableInfo<HBaseFieldInfo> tableInfo;
-  protected HBaseStore store;
   private String pojoTypeName;
-  private String startRow;
-  private String lastReadRow;
 
+  // Transients
   protected transient Class pojoType;
   private transient Setter<Object, String> rowSetter;
   protected transient FieldValueGenerator<HBaseFieldInfo> fieldValueGenerator;
@@ -69,11 +69,11 @@ public class HBasePOJOInputOperator extends HBaseInputOperator<Object>
   public void setup(OperatorContext context)
   {
     try {
-      store.connect();
+      super.setup(context);
       pojoType = Class.forName(pojoTypeName);
       pojoType.newInstance();   //try create new instance to verify the class.
       rowSetter = PojoUtils.createSetter(pojoType, tableInfo.getRowOrIdExpression(), String.class);
-      fieldValueGenerator = FieldValueGenerator.getFieldValueGenerator(pojoType, tableInfo.getFieldsInfo() );
+      fieldValueGenerator = HBaseFieldValueGenerator.getHBaseFieldValueGenerator(pojoType, tableInfo.getFieldsInfo() );
       valueConverter = new BytesValueConverter();
     } catch (Exception ex) {
       throw new RuntimeException(ex);
@@ -81,104 +81,91 @@ public class HBasePOJOInputOperator extends HBaseInputOperator<Object>
   }
 
   @Override
-  public void beginWindow(long windowId)
-  {
-  }
-
-  @Override
-  public void teardown()
+  protected Object getTuple(Result result)
   {
     try {
-      store.disconnect();
-    } catch (IOException ex) {
-      throw new RuntimeException(ex);
-    }
-  }
-
-  @Override
-  public void emitTuples()
-  {
-    try {
-      Scan scan = nextScan();
-      if (scan == null)
-        return;
-
-      ResultScanner resultScanner = store.getTable().getScanner(scan);
-
-      while (true) {
-        Result result = resultScanner.next();
-        if (result == null)
-          break;
-
-        String readRow = Bytes.toString(result.getRow());
-        if( readRow.equals( lastReadRow ))
-          continue;
-
-        Object instance = pojoType.newInstance();
-        rowSetter.set(instance, readRow);
-
-        List<Cell> cells = result.listCells();
-
-        for (Cell cell : cells) {
-          String columnName = Bytes.toString(CellUtil.cloneQualifier(cell));
-          byte[] value = CellUtil.cloneValue(cell);
-          fieldValueGenerator.setColumnValue( instance, columnName, value, valueConverter );
-        }
-
-        outputPort.emit(instance);
-        lastReadRow = readRow;
+      String readRow = Bytes.toString(result.getRow());
+      if( readRow.equals( getLastReadRow() )) {
+        return null;
       }
 
+      Object instance = pojoType.newInstance();
+      rowSetter.set(instance, readRow);
+
+       List<Cell> cells = result.listCells();
+       for (Cell cell : cells) {
+         String columnName = Bytes.toString(CellUtil.cloneQualifier(cell));
+         String columnFamily = Bytes.toString(CellUtil.cloneFamily(cell));
+        byte[] value = CellUtil.cloneValue(cell);
+         ((HBaseFieldValueGenerator)fieldValueGenerator).setColumnValue(instance, columnName, columnFamily, value,
+             valueConverter);
+      }
+
+      setLastReadRow(readRow);
+      return instance;
     } catch (Exception e) {
-      throw new RuntimeException(e.getMessage());
+      throw new RuntimeException(e);
     }
-
   }
 
-  protected Scan nextScan()
+  @Override
+  protected Scan operationScan()
   {
-    if(lastReadRow==null && startRow==null )
-      return new Scan();
-    else
-      return new Scan( Bytes.toBytes( lastReadRow == null ? startRow : lastReadRow ) );
+    Scan scan;
+    if (getLastReadRow() == null && getStartRow() == null) {
+      // If no start row specified and no row read yet
+      scan = new Scan();
+    } else if (getEndRow() == null) {
+      // If only start row specified
+      scan = new Scan(Bytes.toBytes(getLastReadRow() == null ? getStartRow() : getLastReadRow()));
+    } else {
+      // If end row also specified
+      scan = new Scan(Bytes.toBytes(getLastReadRow() == null ? getStartRow() : getLastReadRow()),
+          Bytes.toBytes(getEndRow()));
+    }
+    for (HBaseFieldInfo field : tableInfo.getFieldsInfo()) {
+      scan.addColumn(Bytes.toBytes(field.getFamilyName()), Bytes.toBytes(field.getColumnName()));
+    }
+    scan.setAttribute(Scan.HINT_LOOKAHEAD, Bytes.toBytes(getHintScanLookahead()));
+    return scan;
   }
 
-  public HBaseStore getStore()
-  {
-    return store;
-  }
-  public void setStore(HBaseStore store)
-  {
-    this.store = store;
-  }
-
+  /**
+   * Returns the {@link #tableInfo} object as configured
+   * @return {@link #tableInfo}
+   */
   public TableInfo<HBaseFieldInfo> getTableInfo()
   {
     return tableInfo;
   }
 
+  /**
+   * Sets the {@link #tableInfo} object
+   * @param tableInfo
+   */
   public void setTableInfo(TableInfo<HBaseFieldInfo> tableInfo)
   {
     this.tableInfo = tableInfo;
   }
 
+  /**
+   * Returns the POJO class name
+   * @return {@link #pojoTypeName}
+   */
   public String getPojoTypeName()
   {
     return pojoTypeName;
   }
 
+  /**
+   * Sets the POJO class name
+   * @param pojoTypeName
+   */
   public void setPojoTypeName(String pojoTypeName)
   {
     this.pojoTypeName = pojoTypeName;
   }
 
-  public String getStartRow()
-  {
-    return startRow;
-  }
+  private static final Logger logger = LoggerFactory.getLogger(HBasePOJOInputOperator.class);
 
-  public void setStartRow(String startRow)
-  {
-    this.startRow = startRow;
-  }
 }
