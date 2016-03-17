@@ -20,6 +20,7 @@ package com.datatorrent.lib.io.fs;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -498,6 +499,52 @@ public class FileSplitterInputTest
     Assert.assertEquals("Recovered Blocks", 2, testMeta.blockMetadataSink.collectedTuples.size());
   }
 
+  @Test
+  public void testFileModificationTest() throws InterruptedException, IOException, TimeoutException
+  {
+    testMeta.fileSplitterInput.getScanner().setScanIntervalMillis(60 * 1000);
+    testFileMetadata();
+    testMeta.fileMetadataSink.clear();
+    testMeta.blockMetadataSink.clear();
+
+    Thread.sleep(1000);
+    //change a file , this will not change mtime of the file.
+    File f12 = new File(testMeta.dataDirectory, "file11" + ".txt");
+    HashSet<String> lines = Sets.newHashSet();
+    for (int line = 0; line < 2; line++) {
+      lines.add("f13" + "l" + line);
+    }
+    /* Need to use FileWriter, FileUtils changes the directory timestamp when
+       file is changed. */
+    FileWriter fout = new FileWriter(f12, true);
+    fout.write(StringUtils.join(lines, '\n').toCharArray());
+    fout.close();
+    testMeta.fileSplitterInput.getScanner().setTrigger(true);
+
+    //window 2
+    testMeta.fileSplitterInput.beginWindow(2);
+    testMeta.scanner.semaphore.acquire();
+    testMeta.fileSplitterInput.emitTuples();
+    testMeta.fileSplitterInput.endWindow();
+
+    Assert.assertEquals("window 2: files", 1, testMeta.fileMetadataSink.collectedTuples.size());
+    Assert.assertEquals("window 2: blocks", 1, testMeta.blockMetadataSink.collectedTuples.size());
+
+    //window 3
+    testMeta.fileMetadataSink.clear();
+    testMeta.blockMetadataSink.clear();
+    testMeta.scanner.setTrigger(true);
+    testMeta.scanner.semaphore.release();
+    testMeta.fileSplitterInput.beginWindow(3);
+    Thread.sleep(1000);
+    testMeta.scanner.semaphore.acquire();
+    testMeta.fileSplitterInput.emitTuples();
+    testMeta.fileSplitterInput.endWindow();
+
+    Assert.assertEquals("window 2: files", 0, testMeta.fileMetadataSink.collectedTuples.size());
+    Assert.assertEquals("window 2: blocks", 0, testMeta.blockMetadataSink.collectedTuples.size());
+
+  }
 
   private static class MockScanner extends FileSplitterInput.TimeBasedDirectoryScanner
   {

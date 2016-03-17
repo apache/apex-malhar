@@ -476,17 +476,17 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
     }
 
     protected ScannedFileInfo createScannedFileInfo(Path parentPath, FileStatus parentStatus, Path childPath,
-        @SuppressWarnings("UnusedParameters") FileStatus childStatus, Path rootPath)
+        FileStatus childStatus, Path rootPath)
     {
       ScannedFileInfo info;
       if (rootPath == null) {
         info = parentStatus.isDirectory() ?
-          new ScannedFileInfo(parentPath.toUri().getPath(), childPath.getName(), parentStatus.getModificationTime()) :
-          new ScannedFileInfo(null, childPath.toUri().getPath(), parentStatus.getModificationTime());
+          new ScannedFileInfo(parentPath.toUri().getPath(), childPath.getName(), childStatus.getModificationTime()) :
+          new ScannedFileInfo(null, childPath.toUri().getPath(), childStatus.getModificationTime());
       } else {
         URI relativeChildURI = rootPath.toUri().relativize(childPath.toUri());
         info = new ScannedFileInfo(rootPath.toUri().getPath(), relativeChildURI.getPath(),
-            parentStatus.getModificationTime());
+          childStatus.getModificationTime());
       }
       return info;
     }
