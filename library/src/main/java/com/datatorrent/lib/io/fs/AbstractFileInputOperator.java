@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.validation.OverridesAttribute;
 import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Preconditions;
@@ -75,7 +76,7 @@ import com.datatorrent.lib.util.KryoCloneUtils;
  * @since 1.0.2
  */
 public abstract class AbstractFileInputOperator<T> implements InputOperator, Partitioner<AbstractFileInputOperator<T>>, StatsListener,
-  Operator.CheckpointListener
+  Operator.CheckpointNotificationListener
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFileInputOperator.class);
 
@@ -898,6 +899,11 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   public void partitioned(Map<Integer, Partition<AbstractFileInputOperator<T>>> partitions)
   {
     currentPartitions = partitions.size();
+  }
+
+  @Override
+  public void beforeCheckpoint(long windowId)
+  {
   }
 
   @Override

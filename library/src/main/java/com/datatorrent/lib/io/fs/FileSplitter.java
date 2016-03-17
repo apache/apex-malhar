@@ -71,7 +71,7 @@ import com.datatorrent.lib.io.block.BlockMetadata.FileBlockMetadata;
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
 @Deprecated
-public class FileSplitter implements InputOperator, Operator.CheckpointListener
+public class FileSplitter implements InputOperator, Operator.CheckpointNotificationListener
 {
   protected Long blockSize;
   private int sequenceNo;
@@ -380,6 +380,11 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
   public IdempotentStorageManager getIdempotentStorageManager()
   {
     return this.idempotentStorageManager;
+  }
+
+  @Override
+  public void beforeCheckpoint(long l)
+  {
   }
 
   @Override

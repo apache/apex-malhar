@@ -36,7 +36,7 @@ import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Operator.CheckpointListener;
+import com.datatorrent.api.Operator.CheckpointNotificationListener;
 import com.datatorrent.api.annotation.Stateless;
 
 import com.datatorrent.netlet.util.DTThrowable;
@@ -49,7 +49,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  *
  * @since 2.1.0
  */
-public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOutputOperator<T> implements CheckpointListener
+public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOutputOperator<T> implements CheckpointNotificationListener
 {
   private transient String outputFilePath;
   protected MutableInt partNumber;

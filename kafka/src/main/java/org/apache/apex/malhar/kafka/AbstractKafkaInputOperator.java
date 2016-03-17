@@ -70,7 +70,7 @@ import com.datatorrent.api.StatsListener;
  * @since 3.3.0
  */
 @InterfaceStability.Evolving
-public abstract class AbstractKafkaInputOperator implements InputOperator, Operator.ActivationListener<Context.OperatorContext>, Operator.CheckpointListener, Partitioner<AbstractKafkaInputOperator>, StatsListener, OffsetCommitCallback
+public abstract class AbstractKafkaInputOperator implements InputOperator, Operator.ActivationListener<Context.OperatorContext>, Operator.CheckpointNotificationListener, Partitioner<AbstractKafkaInputOperator>, StatsListener, OffsetCommitCallback
 {
 
   private static final Logger logger = LoggerFactory.getLogger(AbstractKafkaInputOperator.class);
@@ -172,6 +172,11 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   public void deactivate()
   {
     consumerWrapper.stop();
+  }
+
+  @Override
+  public void beforeCheckpoint(long windowId)
+  {
   }
 
   @Override

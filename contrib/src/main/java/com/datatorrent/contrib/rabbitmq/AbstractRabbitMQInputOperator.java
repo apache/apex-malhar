@@ -76,7 +76,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractRabbitMQInputOperator<T> implements
     InputOperator, Operator.ActivationListener<OperatorContext>,
-    Operator.CheckpointListener
+    Operator.CheckpointNotificationListener
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractRabbitMQInputOperator.class);
   @NotNull
@@ -308,6 +308,11 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
     catch (IOException ex) {
       logger.debug(ex.toString());
     }
+  }
+
+  @Override
+  public void beforeCheckpoint(long windowId)
+  {
   }
 
   @Override

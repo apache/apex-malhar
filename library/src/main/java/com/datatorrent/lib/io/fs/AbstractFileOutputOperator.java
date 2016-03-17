@@ -110,7 +110,7 @@ import com.datatorrent.lib.counters.BasicCounters;
  * @since 2.0.0
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
-public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator implements Operator.CheckpointListener
+public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator implements Operator.CheckpointNotificationListener
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFileOutputOperator.class);
 
@@ -936,18 +936,6 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   @Override
   public void endWindow()
   {
-    try {
-      Map<String, FSFilterStreamContext> openStreams = streamsCache.asMap();
-      for (FSFilterStreamContext streamContext: openStreams.values()) {
-        long start = System.currentTimeMillis();
-        streamContext.finalizeContext();
-        totalWritingTime += System.currentTimeMillis() - start;
-        //streamContext.resetFilter();
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-
     if (rotationWindows > 0) {
       if (++rotationCount == rotationWindows) {
         rotationCount = 0;
@@ -1191,6 +1179,22 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
     @Override
     public void close() throws IOException
     {
+    }
+  }
+
+  @Override
+  public void beforeCheckpoint(long l)
+  {
+    try {
+      Map<String, FSFilterStreamContext> openStreams = streamsCache.asMap();
+      for (FSFilterStreamContext streamContext: openStreams.values()) {
+        long start = System.currentTimeMillis();
+        streamContext.finalizeContext();
+        totalWritingTime += System.currentTimeMillis() - start;
+        //streamContext.resetFilter();
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 

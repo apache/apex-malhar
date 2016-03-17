@@ -76,7 +76,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @since 2.0.0
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
-public class FileSplitterInput extends AbstractFileSplitter implements InputOperator, Operator.CheckpointListener
+public class FileSplitterInput extends AbstractFileSplitter implements InputOperator, Operator.CheckpointNotificationListener
 {
   @NotNull
   private IdempotentStorageManager idempotentStorageManager;
@@ -218,6 +218,11 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   protected FileStatus getFileStatus(Path path) throws IOException
   {
     return scanner.fs.getFileStatus(path);
+  }
+
+  @Override
+  public void beforeCheckpoint(long l)
+  {
   }
 
   @Override

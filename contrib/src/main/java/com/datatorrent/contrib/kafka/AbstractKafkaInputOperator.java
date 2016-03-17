@@ -22,7 +22,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator.ActivationListener;
-import com.datatorrent.api.Operator.CheckpointListener;
+import com.datatorrent.api.Operator.CheckpointNotificationListener;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.Stats;
 import com.datatorrent.api.StatsListener;
@@ -127,7 +127,7 @@ import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.ge
  */
 
 @OperatorAnnotation(partitionable = true)
-public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implements InputOperator, ActivationListener<OperatorContext>, CheckpointListener, Partitioner<AbstractKafkaInputOperator<K>>, StatsListener
+public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implements InputOperator, ActivationListener<OperatorContext>, CheckpointNotificationListener, Partitioner<AbstractKafkaInputOperator<K>>, StatsListener
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractKafkaInputOperator.class);
 
@@ -346,6 +346,11 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
       }
     }
     currentWindowRecoveryState.clear();
+  }
+
+  @Override
+  public void beforeCheckpoint(long windowId)
+  {
   }
 
   @Override

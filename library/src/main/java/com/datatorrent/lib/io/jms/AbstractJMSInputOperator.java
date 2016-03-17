@@ -80,7 +80,7 @@ import com.datatorrent.netlet.util.DTThrowable;
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
 public abstract class AbstractJMSInputOperator<T> extends JMSBase
     implements InputOperator, ActivationListener<OperatorContext>, MessageListener, ExceptionListener,
-    Operator.IdleTimeHandler, Operator.CheckpointListener
+    Operator.IdleTimeHandler, Operator.CheckpointNotificationListener
 {
   protected static final int DEFAULT_BUFFER_SIZE = 10 * 1024; // 10k
 
@@ -405,6 +405,11 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
     } else if (getSessionAckMode(getAckMode()) == Session.CLIENT_ACKNOWLEDGE) {
       lastMsg.acknowledge(); // acknowledge all consumed messages till now
     }
+  }
+
+  @Override
+  public void beforeCheckpoint(long windowId)
+  {
   }
 
   @Override
