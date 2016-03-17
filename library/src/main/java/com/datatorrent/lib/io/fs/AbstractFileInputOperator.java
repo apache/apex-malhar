@@ -76,7 +76,7 @@ import com.datatorrent.lib.util.KryoCloneUtils;
  * @since 1.0.2
  */
 public abstract class AbstractFileInputOperator<T> implements InputOperator, Partitioner<AbstractFileInputOperator<T>>, StatsListener,
-  Operator.CheckpointNotificationListener
+  Operator.CheckpointListener, Operator.CheckpointNotificationListener
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFileInputOperator.class);
 

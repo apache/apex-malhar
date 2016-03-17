@@ -80,7 +80,7 @@ import com.datatorrent.netlet.util.DTThrowable;
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
 public abstract class AbstractJMSInputOperator<T> extends JMSBase
     implements InputOperator, ActivationListener<OperatorContext>, MessageListener, ExceptionListener,
-    Operator.IdleTimeHandler, Operator.CheckpointNotificationListener
+    Operator.IdleTimeHandler, Operator.CheckpointListener, Operator.CheckpointNotificationListener
 {
   protected static final int DEFAULT_BUFFER_SIZE = 10 * 1024; // 10k
 
