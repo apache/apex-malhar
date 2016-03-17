@@ -260,6 +260,8 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   private Long expireStreamAfterAcessMillis;
   private final Set<String> filesWithOpenStreams;
 
+  private boolean initializeContext;
+
   /**
    * This input port receives incoming tuples.
    */
@@ -922,13 +924,16 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   @Override
   public void beginWindow(long windowId)
   {
-    try {
-      Map<String, FSFilterStreamContext> openStreams = streamsCache.asMap();
-      for (FSFilterStreamContext streamContext : openStreams.values()) {
-        streamContext.initializeContext();
+    if (initializeContext) {
+      try {
+        Map<String, FSFilterStreamContext> openStreams = streamsCache.asMap();
+        for (FSFilterStreamContext streamContext : openStreams.values()) {
+          streamContext.initializeContext();
+        }
+      } catch (IOException e) {
+        throw new RuntimeException(e);
       }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+      initializeContext = false;
     }
     currentWindow = windowId;
   }
@@ -1192,6 +1197,8 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
         streamContext.finalizeContext();
         totalWritingTime += System.currentTimeMillis() - start;
         //streamContext.resetFilter();
+        // Re-initialize context when next window starts after checkpoint
+        initializeContext = true;
       }
     } catch (IOException e) {
       throw new RuntimeException(e);
