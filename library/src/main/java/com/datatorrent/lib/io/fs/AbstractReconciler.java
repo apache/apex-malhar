@@ -25,21 +25,17 @@ import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
-
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.Operator.CheckpointNotificationListener;
 import com.datatorrent.api.Operator.IdleTimeHandler;
-
-import com.datatorrent.netlet.util.DTThrowable;
+import com.datatorrent.api.Operator.CheckpointNotificationListener;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.common.util.NameableThreadFactory;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * This base operator queues input tuples for each window and asynchronously processes them after the window is committed.
