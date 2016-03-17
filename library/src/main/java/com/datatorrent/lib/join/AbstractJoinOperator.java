@@ -64,7 +64,7 @@ import com.datatorrent.common.util.BaseOperator;
  * @since 3.4.0
  */
 @InterfaceStability.Unstable
-public abstract class AbstractJoinOperator<T> extends BaseOperator implements Operator.CheckpointListener
+public abstract class AbstractJoinOperator<T> extends BaseOperator implements Operator.CheckpointNotificationListener
 {
   @AutoMetric
   private long tuplesJoinedPerSec;
@@ -223,6 +223,11 @@ public abstract class AbstractJoinOperator<T> extends BaseOperator implements Op
     super.beginWindow(windowId);
     tuplesJoinedPerSec = 0;
     tuplesCount = 0;
+  }
+
+  @Override
+  public void beforeCheckpoint(long windowId)
+  {
   }
 
   @Override
