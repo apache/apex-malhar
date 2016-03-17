@@ -38,7 +38,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
@@ -61,7 +60,7 @@ import com.datatorrent.lib.util.PojoUtils.GetterShort;
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractJdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOperator<Object>
 {
-  private List<FieldInfo> fieldInfos;
+  private List<JdbcFieldInfo> fieldInfos;
 
   protected List<Integer> columnDataTypes;
 
@@ -142,15 +141,15 @@ public abstract class AbstractJdbcPOJOOutputOperator extends AbstractJdbcTransac
           break;
 
         case Types.TIMESTAMP:
-          statement.setTimestamp(i + 1, new Timestamp(((GetterLong<Object>)activeFieldInfo.setterOrGetter).get(tuple)));
+          statement.setTimestamp(i + 1, ((Getter<Object, Timestamp>)activeFieldInfo.setterOrGetter).get(tuple));
           break;
 
         case Types.TIME:
-          statement.setTime(i + 1, new Time(((GetterLong<Object>)activeFieldInfo.setterOrGetter).get(tuple)));
+          statement.setTime(i + 1, ((Getter<Object, Time>)activeFieldInfo.setterOrGetter).get(tuple));
           break;
 
         case Types.DATE:
-          statement.setDate(i + 1, new Date(((GetterLong<Object>)activeFieldInfo.setterOrGetter).get(tuple)));
+          statement.setDate(i + 1, ((Getter<Object, Date>)activeFieldInfo.setterOrGetter).get(tuple));
           break;
 
         default:
@@ -169,7 +168,7 @@ public abstract class AbstractJdbcPOJOOutputOperator extends AbstractJdbcTransac
   /**
    * A list of {@link FieldInfo}s where each item maps a column name to a pojo field name.
    */
-  public List<FieldInfo> getFieldInfos()
+  public List<JdbcFieldInfo> getFieldInfos()
   {
     return fieldInfos;
   }
@@ -182,7 +181,7 @@ public abstract class AbstractJdbcPOJOOutputOperator extends AbstractJdbcTransac
    * @description $[].pojoFieldExpression pojo field name or expression
    * @useSchema $[].pojoFieldExpression input.fields[].name
    */
-  public void setFieldInfos(List<FieldInfo> fieldInfos)
+  public void setFieldInfos(List<JdbcFieldInfo> fieldInfos)
   {
     this.fieldInfos = fieldInfos;
   }
@@ -195,6 +194,10 @@ public abstract class AbstractJdbcPOJOOutputOperator extends AbstractJdbcTransac
     return tablename;
   }
 
+  /**
+   * Set the target table name in database
+   * @param tablename
+   */
   public void setTablename(String tablename)
   {
     this.tablename = tablename;
@@ -259,18 +262,18 @@ public abstract class AbstractJdbcPOJOOutputOperator extends AbstractJdbcTransac
           break;
 
         case Types.TIMESTAMP:
-          activeFieldInfo.setterOrGetter = PojoUtils.createGetterLong(pojoClass,
-              activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          activeFieldInfo.setterOrGetter = PojoUtils.createGetter(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression(), Timestamp.class);
           break;
 
         case Types.TIME:
-          activeFieldInfo.setterOrGetter = PojoUtils.createGetterLong(pojoClass,
-              activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          activeFieldInfo.setterOrGetter = PojoUtils.createGetter(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression(), Time.class);
           break;
 
         case Types.DATE:
-          activeFieldInfo.setterOrGetter = PojoUtils.createGetterLong(pojoClass,
-              activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          activeFieldInfo.setterOrGetter = PojoUtils.createGetter(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression(), Date.class);
           break;
 
         default:

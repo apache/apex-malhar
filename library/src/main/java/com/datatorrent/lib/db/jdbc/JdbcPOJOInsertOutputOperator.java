@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -60,7 +61,7 @@ public class JdbcPOJOInsertOutputOperator extends AbstractJdbcPOJOOutputOperator
     // Populate columnNames and columnDataTypes
     try {
       if (getFieldInfos() == null) { // then assume direct mapping
-        LOG.info("Assuming direct mapping between POJO fields and DB columns");
+        LOG.info("FieldInfo missing. Assuming direct mapping between POJO fields and DB columns");
         populateColumnDataTypes(null);
       } else {
         // FieldInfo supplied by user
@@ -84,20 +85,20 @@ public class JdbcPOJOInsertOutputOperator extends AbstractJdbcPOJOOutputOperator
   @Override
   public void activate(OperatorContext context)
   {
-    if(getFieldInfos() == null) {
+    if (getFieldInfos() == null) {
       Field[] fields = pojoClass.getDeclaredFields();
       // Create fieldInfos in case of direct mapping
-      List<FieldInfo> fieldInfos = Lists.newArrayList();
+      List<JdbcFieldInfo> fieldInfos = Lists.newArrayList();
       for (int i = 0; i < columnNames.size(); i++) {
         String columnName = columnNames.get(i);
         String pojoField = getMatchingField(fields, columnName);
 
-        if(columnNullabilities.get(i) == ResultSetMetaData.columnNoNulls &&
-                (pojoField == null || pojoField.length() == 0)) {
-          throw new RuntimeException("Data for a non-nullable field not found in POJO");
+        if (columnNullabilities.get(i) == ResultSetMetaData.columnNoNulls &&
+            (pojoField == null || pojoField.length() == 0)) {
+          throw new RuntimeException("Data for a non-nullable field: " + columnName + " not found in POJO");
         } else {
-          if(pojoField != null && pojoField.length() != 0) {
-            FieldInfo fi = new FieldInfo(columnName, pojoField, null);
+          if (pojoField != null && pojoField.length() != 0) {
+            JdbcFieldInfo fi = new JdbcFieldInfo(columnName, pojoField, null, Types.NULL);
             fieldInfos.add(fi);
           } else {
             columnDataTypes.remove(i);
@@ -138,7 +139,7 @@ public class JdbcPOJOInsertOutputOperator extends AbstractJdbcPOJOOutputOperator
   private String getMatchingField(Field[] fields, String columnName)
   {
     for (Field f: fields) {
-      if(f.getName().equalsIgnoreCase(columnName)) {
+      if (f.getName().equalsIgnoreCase(columnName)) {
         return f.getName();
       }
     }
