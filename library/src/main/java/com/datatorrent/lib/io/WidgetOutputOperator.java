@@ -38,7 +38,6 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.common.util.PubSubMessageCodec;
-import com.datatorrent.common.util.PubSubWebSocketClient;
 
 /**
  * This operator outputs data in a format that can be displayed in DT UI widgets.
@@ -63,12 +62,13 @@ public class WidgetOutputOperator extends BaseOperator
 {
   protected transient WebSocketOutputOperator<Pair<String, Object>> wsoo = new WebSocketOutputOperator<Pair<String,Object>>(){
 
-    private transient PubSubMessageCodec<Object> codec = new PubSubMessageCodec<Object>(mapper);
+    private transient PubSubMessageCodec<Object> codec = new PubSubMessageCodec<>(mapper);
 
     @Override
-    public String convertMapToMessage(Pair<String,Object> t) throws IOException {
-      return PubSubWebSocketClient.constructPublishMessage(t.getLeft(), t.getRight(), codec);
-    };
+    public String convertMapToMessage(Pair<String,Object> t) throws IOException
+    {
+      return PubSubMessageCodec.constructPublishMessage(t.getLeft(), t.getRight(), codec);
+    }
 
   };
 
@@ -144,15 +144,14 @@ public class WidgetOutputOperator extends BaseOperator
 
   }
 
-  public static class TimeSeriesData{
-
+  public static class TimeSeriesData
+  {
     public Long time;
-
     public Number data;
-
   }
 
-  public static class TimeseriesInputPort extends DefaultInputPort<TimeSeriesData[]> {
+  public static class TimeseriesInputPort extends DefaultInputPort<TimeSeriesData[]>
+  {
 
     private final WidgetOutputOperator operator;
 
@@ -174,8 +173,8 @@ public class WidgetOutputOperator extends BaseOperator
         timeseriesMapData[i++] = timeseriesMap;
       }
 
-      if(operator.isWebSocketConnected){
-        HashMap<String, Object> schemaObj = new HashMap<String, Object>();
+      if (operator.isWebSocketConnected) {
+        HashMap<String, Object> schemaObj = new HashMap<>();
         schemaObj.put("type", "timeseries");
         schemaObj.put("minValue", operator.timeSeriesMin);
         schemaObj.put("maxValue", operator.timeSeriesMax);
@@ -185,18 +184,21 @@ public class WidgetOutputOperator extends BaseOperator
       }
     }
 
-    public TimeseriesInputPort setMax(Number max){
+    public TimeseriesInputPort setMax(Number max)
+    {
       operator.timeSeriesMax = max;
       return this;
     }
 
 
-    public TimeseriesInputPort setMin(Number min){
+    public TimeseriesInputPort setMin(Number min)
+    {
       operator.timeSeriesMin = min;
       return this;
     }
 
-    public TimeseriesInputPort setTopic(String topic){
+    public TimeseriesInputPort setTopic(String topic)
+    {
       operator.timeSeriesTopic = topic;
       return this;
     }
@@ -219,12 +221,12 @@ public class WidgetOutputOperator extends BaseOperator
       HashMap<String, Object>[] result = new HashMap[topNMap.size()];
       int j = 0;
       for (Entry<String, Number> e : topNMap.entrySet()) {
-        result[j] = new HashMap<String, Object>();
+        result[j] = new HashMap<>();
         result[j].put("name", e.getKey());
         result[j++].put("value", e.getValue());
       }
-      if(operator.isWebSocketConnected){
-        HashMap<String, Object> schemaObj = new HashMap<String, Object>();
+      if (operator.isWebSocketConnected) {
+        HashMap<String, Object> schemaObj = new HashMap<>();
         schemaObj.put("type", "topN");
         schemaObj.put("n", operator.nInTopN);
         operator.wsoo.input.process(new MutablePair<String, Object>(operator.getFullTopic(operator.topNTopic, schemaObj), result));
@@ -233,7 +235,8 @@ public class WidgetOutputOperator extends BaseOperator
       }
     }
 
-    public TopNInputPort setN(int n){
+    public TopNInputPort setN(int n)
+    {
       operator.nInTopN = n;
       return this;
     }
@@ -246,7 +249,8 @@ public class WidgetOutputOperator extends BaseOperator
 
   }
 
-  public static class SimpleInputPort extends DefaultInputPort<Object>{
+  public static class SimpleInputPort extends DefaultInputPort<Object>
+  {
 
     private final WidgetOutputOperator operator;
 
@@ -258,7 +262,6 @@ public class WidgetOutputOperator extends BaseOperator
     @Override
     public void process(Object tuple)
     {
-
       if (operator.isWebSocketConnected) {
         HashMap<String, Object> schemaObj = new HashMap<String, Object>();
         schemaObj.put("type", "simple");
@@ -268,7 +271,8 @@ public class WidgetOutputOperator extends BaseOperator
       }
     }
 
-    public SimpleInputPort setTopic(String topic) {
+    public SimpleInputPort setTopic(String topic)
+    {
       operator.simpleTopic = topic;
       return this;
     }
@@ -286,8 +290,8 @@ public class WidgetOutputOperator extends BaseOperator
     @Override
     public void process(Integer tuple)
     {
-      if(operator.isWebSocketConnected){
-        HashMap<String, Object> schemaObj = new HashMap<String, Object>();
+      if (operator.isWebSocketConnected) {
+        HashMap<String, Object> schemaObj = new HashMap<>();
         schemaObj.put("type", "percentage");
         operator.wsoo.input.process(new MutablePair<String, Object>(operator.getFullTopic(operator.percentageTopic, schemaObj), tuple));
       } else {
@@ -302,7 +306,8 @@ public class WidgetOutputOperator extends BaseOperator
     }
   }
 
-public static class PiechartInputPort extends DefaultInputPort<HashMap<String, Number>>{
+  public static class PiechartInputPort extends DefaultInputPort<HashMap<String, Number>>
+  {
 
     private final WidgetOutputOperator operator;
 
@@ -319,12 +324,12 @@ public static class PiechartInputPort extends DefaultInputPort<HashMap<String, N
 
       int j = 0;
       for (Entry<String, Number> e : pieNumbers.entrySet()) {
-        result[j] = new HashMap<String, Object>();
+        result[j] = new HashMap<>();
         result[j].put("label", e.getKey());
         result[j++].put("value", e.getValue());
       }
-      if(operator.isWebSocketConnected){
-        HashMap<String, Object> schemaObj = new HashMap<String, Object>();
+      if (operator.isWebSocketConnected) {
+        HashMap<String, Object> schemaObj = new HashMap<>();
         schemaObj.put("type", "piechart");
         schemaObj.put("n", operator.nInPie);
         operator.wsoo.input.process(new MutablePair<String, Object>(operator.getFullTopic(operator.pieChartTopic, schemaObj), result));
@@ -333,7 +338,8 @@ public static class PiechartInputPort extends DefaultInputPort<HashMap<String, N
       }
     }
 
-    public PiechartInputPort setN(int n){
+    public PiechartInputPort setN(int n)
+    {
       operator.nInPie = n;
       return this;
     }
@@ -346,8 +352,9 @@ public static class PiechartInputPort extends DefaultInputPort<HashMap<String, N
 
   }
 
-  protected String getFullTopic(String topic, Map<String, Object> schema){
-    HashMap<String, Object> topicObj = new HashMap<String, Object>();
+  protected String getFullTopic(String topic, Map<String, Object> schema)
+  {
+    HashMap<String, Object> topicObj = new HashMap<>();
     topicObj.put("appId", appId);
     topicObj.put("opId", operId);
     topicObj.put("topicName", topic);
@@ -362,7 +369,7 @@ public static class PiechartInputPort extends DefaultInputPort<HashMap<String, N
   @Override
   public void teardown()
   {
-    if(isWebSocketConnected){
+    if (isWebSocketConnected) {
       wsoo.teardown();
     } else {
       coo.teardown();

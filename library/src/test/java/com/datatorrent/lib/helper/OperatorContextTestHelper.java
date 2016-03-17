@@ -89,6 +89,11 @@ public class OperatorContextTestHelper
       /* intentionally no-op */
     }
 
+    @Override
+    public int getWindowsFromCheckpoint()
+    {
+      return 0;
+    }
   }
 
   private static class TestContext implements Context

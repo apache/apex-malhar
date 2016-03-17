@@ -20,20 +20,24 @@ package com.datatorrent.lib.io;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.concurrent.*;
-
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfigBean;
-import com.ning.http.client.websocket.WebSocket;
-import com.ning.http.client.websocket.WebSocketTextListener;
-import com.ning.http.client.websocket.WebSocketUpgradeHandler;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.shaded.ning19.com.ning.http.client.AsyncHttpClient;
+import org.apache.apex.shaded.ning19.com.ning.http.client.AsyncHttpClientConfigBean;
+import org.apache.apex.shaded.ning19.com.ning.http.client.ws.WebSocket;
+import org.apache.apex.shaded.ning19.com.ning.http.client.ws.WebSocketTextListener;
+import org.apache.apex.shaded.ning19.com.ning.http.client.ws.WebSocketUpgradeHandler;
 import org.apache.commons.lang3.ClassUtils;
+
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
@@ -159,10 +163,9 @@ public class WebSocketOutputOperator<T> extends BaseOperator
             client.close();
             openConnection();
           }
-          connection.sendTextMessage(convertMapToMessage(t));
+          connection.sendMessage(convertMapToMessage(t));
           break;
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
           if (++countTries < numRetries) {
             LOG.debug("Caught exception", ex);
             LOG.warn("Send message failed ({}). Retrying ({}).", ex.getMessage(), countTries);
@@ -172,12 +175,11 @@ public class WebSocketOutputOperator<T> extends BaseOperator
             if (waitMillisRetry > 0) {
               try {
                 Thread.sleep(waitMillisRetry);
-              }
-              catch (InterruptedException ex1) {
+              } catch (InterruptedException ex1) {
+                // continue
               }
             }
-          }
-          else {
+          } else {
             throw new RuntimeException(ex);
           }
         }
@@ -212,11 +214,6 @@ public class WebSocketOutputOperator<T> extends BaseOperator
       }
 
       @Override
-      public void onFragment(String string, boolean bln)
-      {
-      }
-
-      @Override
       public void onOpen(WebSocket ws)
       {
         LOG.debug("Connection opened");
@@ -242,8 +239,7 @@ public class WebSocketOutputOperator<T> extends BaseOperator
   {
     try {
       openConnection();
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       LOG.warn("Cannot establish connection:", ex);
     }
   }
