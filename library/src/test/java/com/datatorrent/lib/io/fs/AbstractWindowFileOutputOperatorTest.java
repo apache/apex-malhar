@@ -70,7 +70,7 @@ public class AbstractWindowFileOutputOperatorTest
     oper.input.process("window 0");
     oper.endWindow();
 
-    AbstractFileOutputOperator checkPoint = AbstractFileOutputOperatorTest.checkpoint(oper);
+    AbstractFileOutputOperator checkPoint = AbstractFileOutputOperatorTest.checkpoint(oper, 0);
 
     oper.beginWindow(1);
     oper.input.process("window 1");
@@ -110,7 +110,7 @@ public class AbstractWindowFileOutputOperatorTest
     oper.beginWindow(1);
     oper.input.process("1");
 
-    AbstractFileOutputOperator checkPoint = AbstractFileOutputOperatorTest.checkpoint(oper);
+    AbstractFileOutputOperator checkPoint = AbstractFileOutputOperatorTest.checkpoint(oper, -1);
 
     oper.input.process("1");
     oper.teardown();
