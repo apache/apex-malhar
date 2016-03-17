@@ -34,6 +34,7 @@
 
   <modules>
     <module>logstream</module>
+    <module>filecopy</module>
   </modules>
 
   <properties>
