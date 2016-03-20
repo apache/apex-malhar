@@ -91,6 +91,10 @@ public abstract class AbstractKinesisOutputOperator<V, T> implements Operator, O
   {
   }
 
+  @Override
+  public void endWindow() {
+  }
+
   /**
    * Implement Component Interface.
    */
