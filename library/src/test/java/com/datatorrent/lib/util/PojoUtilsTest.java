@@ -20,6 +20,7 @@ package com.datatorrent.lib.util;
 
 import static com.datatorrent.lib.util.PojoUtils.constructGetter;
 import static com.datatorrent.lib.util.PojoUtils.constructSetter;
+import static com.datatorrent.lib.util.PojoUtils.createExpression;
 import static com.datatorrent.lib.util.PojoUtils.createGetter;
 import static com.datatorrent.lib.util.PojoUtils.createGetterBoolean;
 import static com.datatorrent.lib.util.PojoUtils.createGetterByte;
@@ -39,12 +40,15 @@ import static com.datatorrent.lib.util.PojoUtils.createSetterInt;
 import static com.datatorrent.lib.util.PojoUtils.createSetterLong;
 import static com.datatorrent.lib.util.PojoUtils.createSetterShort;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.datatorrent.lib.expression.Expression;
 import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
 import com.datatorrent.lib.util.PojoUtils.GetterByte;
 import com.datatorrent.lib.util.PojoUtils.GetterChar;
@@ -73,7 +77,7 @@ public class PojoUtilsTest
   @Test
   public void testGetters() throws Exception
   {
-    /* let mvn know that janino is dynamically loaded jar */
+//    /* let mvn know that janino is dynamically loaded jar */
     Assert.assertNotNull(org.codehaus.janino.util.AutoIndentWriter.class);
 
     GetterBoolean<Object> getBoolean = createGetterBoolean(fqcn, "innerObj.boolVal");
@@ -105,7 +109,6 @@ public class PojoUtilsTest
 
     Getter<Object, Object> getObject = createGetter(fqcn, "innerObj.objVal", Object.class);
     assertEquals(testObj.innerObj.getObjVal(), getObject.get(testObj));
-
   }
 
   @Test
@@ -306,7 +309,6 @@ public class PojoUtilsTest
     {
       throw new UnsupportedOperationException("not the right method");
     }
-
   }
 
   @Test
@@ -461,14 +463,6 @@ public class PojoUtilsTest
   }
 
   @Test (expected = RuntimeException.class)
-  public void testPrivateField()
-  {
-    final Class<?> testPojoClass = TestPojo.class;
-    @SuppressWarnings("unused")
-    SetterInt<Object> setterInt = createSetterInt(testPojoClass, "privateIntField");
-  }
-
-  @Test (expected = RuntimeException.class)
   public void testWrongSetterMethod()
   {
     final Class<?> testPojoClass = TestPojo.class;
@@ -488,5 +482,92 @@ public class PojoUtilsTest
   {
     final Class<?> testPojoClass = TestPojo.class;
     createSetter(testPojoClass, TestPojo.INT_FIELD_NAME, int.class);
+  }
+
+  @Test (expected = RuntimeException.class)
+  public void testPrivateFieldExpression()
+  {
+    final Class<?> testPojoClass = TestPojo.class;
+    createExpression(testPojoClass, "privateIntField", int.class);
+  }
+
+  @Test
+  public void testBasicExpression()
+  {
+    TestPojo testObj = new TestPojo(1);
+    Class<?> testObjClass = testObj.getClass();
+
+    assertEquals(testObj.getIntVal(), createExpression(testObjClass, "intField", int.class).execute(testObj));
+    assertEquals(testObj.getIntVal(), createExpression(testObjClass, "intVal", int.class).execute(testObj));
+  }
+
+  @Test (expected = RuntimeException.class)
+  public void testPrivateField()
+  {
+    final Class<?> testPojoClass = TestPojo.class;
+    @SuppressWarnings("unused")
+    SetterInt<Object> setterInt = createSetterInt(testPojoClass, "privateIntField");
+  }
+
+  @Test
+  public void testNestedPOJOExpression()
+  {
+    // Evaluate and execute expression for simple inner boolean value expressed as similar to PojoUtils Getter.
+    Expression expression = createExpression(fqcn, "innerObj.boolVal", boolean.class);
+    assertTrue((Boolean)expression.execute(testObj));
+
+    // Evaluate and execute expression for simple inner boolean value expressed with expression syntax.
+    expression = createExpression(fqcn, "{$.innerObj.boolVal}", boolean.class);
+    assertTrue((Boolean)expression.execute(testObj));
+
+    // Evaluate and execute expression for simple inner boolean value expressed with expression syntax where there is no compiler hint.
+    expression = createExpression(fqcn, "$.innerObj.boolVal", boolean.class);
+    assertTrue((Boolean)expression.execute(testObj));
+
+    // Evaluate and execute expression for simple inner boolean value and not the returned value.
+    expression = createExpression(fqcn, "!{$.innerObj.boolVal}", boolean.class);
+    assertFalse((Boolean)expression.execute(testObj));
+
+    // Access the object with compiler hint and then innerObj and boolVal are publicly accessible method.
+    expression = createExpression(fqcn, "!{$}.innerObj.boolVal", boolean.class);
+    assertFalse((Boolean)expression.execute(testObj));
+  }
+
+  @Test
+  public void testComplexPOJOExpression()
+  {
+    Expression expression = createExpression(fqcn, "{$}.innerObj.boolVal && ({$}.innerObj.intVal == 11)", boolean.class);
+    assertTrue((Boolean)expression.execute(testObj));
+
+    expression = createExpression(fqcn, "valueOf({$.innerObj.privateIntVal}) + substring({$.innerObj.stringVal}, 2) + {$.innerObj.privateStringVal}.length()",
+        String.class, new String[]{"org.apache.commons.lang3.StringUtils.*",
+            "java.lang.String.valueOf"});
+    assertEquals("11llo5", expression.execute(testObj));
+
+    expression = createExpression(fqcn, "round(pow({$.innerObj.privateFloatVal}, {$.innerObj.privateDoubleVal}))", long.class, new String[] {"java.lang.Math.*"});
+    assertEquals(46162L, expression.execute(testObj));
+  }
+
+  @Test
+  public void testExpressionSerialization()
+  {
+    Expression expression = createExpression(fqcn, "{$.innerObj.boolVal}", boolean.class);
+    assertTrue((Boolean)expression.execute(testObj));
+  }
+
+  @Test
+  public void testCustomImports()
+  {
+    Expression expression = createExpression(fqcn, "concat({$.innerObj.stringVal}, {$.innerObj.privateStringVal})",
+        String.class, new String[] {TestImports.class.getName() + ".concat"});
+    assertEquals("hello hello", expression.execute(testObj));
+  }
+
+  public static class TestImports
+  {
+    public static String concat(String a, String b)
+    {
+      return a + " " + b;
+    }
   }
 }
