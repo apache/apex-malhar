@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.dimensions;
+package org.apache.apex.malhar.lib.dimensions;
 
 import java.io.Serializable;
 
@@ -36,20 +36,20 @@ public class DimensionsConversionContext implements Serializable
   public CustomTimeBucketRegistry customTimeBucketRegistry;
   /**
    * The schema ID for {@link Aggregate}s emitted by the
-   * {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator}s
-   * holding this context.
+   * {@link org.apache.apex.malhar.lib.dimensions.aggregator.IncrementalAggregator}
+   * s holding this context.
    */
   public int schemaID;
   /**
    * The dimensionsDescriptor ID for {@link Aggregate}s emitted by the
-   * {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator}s
-   * holding this context.
+   * {@link org.apache.apex.malhar.lib.dimensions.aggregator.IncrementalAggregator}
+   * s holding this context.
    */
   public int dimensionsDescriptorID;
   /**
    * The aggregator ID for {@link Aggregate}s emitted by the
-   * {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator}s
-   * holding this context.
+   * {@link org.apache.apex.malhar.lib.dimensions.aggregator.IncrementalAggregator}
+   * s holding this context.
    */
   public int aggregatorID;
   /**
@@ -60,39 +60,39 @@ public class DimensionsConversionContext implements Serializable
   /**
    * The {@link FieldsDescriptor} for the aggregate of the {@link Aggregate}s
    * emitted by the
-   * {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator}s
-   * holding this context object.
+   * {@link org.apache.apex.malhar.lib.dimensions.aggregator.IncrementalAggregator}
+   * s holding this context object.
    */
   public FieldsDescriptor aggregateDescriptor;
   /**
    * The {@link FieldsDescriptor} for the key of the {@link Aggregate}s emitted
    * by the
-   * {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator}s
-   * holding this context object.
+   * {@link org.apache.apex.malhar.lib.dimensions.aggregator.IncrementalAggregator}
+   * s holding this context object.
    */
   public FieldsDescriptor keyDescriptor;
   /**
    * The index of the timestamp field within the key of {@link InputEvent}s
    * received by the
-   * {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator}s
-   * holding this context object. This is -1 if the {@link InputEvent} key has
+   * {@link org.apache.apex.malhar.lib.dimensions.aggregator.IncrementalAggregator}
+   * s holding this context object. This is -1 if the {@link InputEvent} key has
    * no timestamp.
    */
   public int inputTimestampIndex;
   /**
    * The index of the timestamp field within the key of {@link Aggregate}s
    * emitted by the
-   * {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator}s
-   * holding this context object. This is -1 if the {@link Aggregate}'s key has
-   * no timestamp.
+   * {@link org.apache.apex.malhar.lib.dimensions.aggregator.IncrementalAggregator}
+   * s holding this context object. This is -1 if the {@link Aggregate}'s key
+   * has no timestamp.
    */
   public int outputTimestampIndex;
   /**
    * The index of the time bucket field within the key of {@link Aggregate}s
    * emitted by the
-   * {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator}s
-   * holding this context object. This is -1 if the {@link Aggregate}'s key has
-   * no timebucket.
+   * {@link org.apache.apex.malhar.lib.dimensions.aggregator.IncrementalAggregator}
+   * s holding this context object. This is -1 if the {@link Aggregate}'s key
+   * has no timebucket.
    */
   public int outputTimebucketIndex;
   /**

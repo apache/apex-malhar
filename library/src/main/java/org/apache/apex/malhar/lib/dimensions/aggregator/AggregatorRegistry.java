@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.dimensions.aggregator;
+package org.apache.apex.malhar.lib.dimensions.aggregator;
 
 import java.io.Serializable;
 import java.util.List;

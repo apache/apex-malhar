@@ -18,13 +18,13 @@
  */
 package com.datatorrent.lib.appdata.dimensions;
 
-
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.dimensions.CustomTimeBucketRegistry;
+
 import com.datatorrent.lib.appdata.schemas.CustomTimeBucket;
 import com.datatorrent.lib.appdata.schemas.TimeBucket;
-import com.datatorrent.lib.dimensions.CustomTimeBucketRegistry;
 
 public class CustomTimeBucketRegistryTest
 {

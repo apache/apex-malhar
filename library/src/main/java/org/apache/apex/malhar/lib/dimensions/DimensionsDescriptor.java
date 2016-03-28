@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.dimensions;
+package org.apache.apex.malhar.lib.dimensions;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -41,35 +41,37 @@ import com.datatorrent.lib.appdata.schemas.Type;
 
 /**
  * <p>
- * This class defines a dimensions combination which is used by dimensions computation operators
- * and stores. A dimension combination is composed of the names of the fields that constitute the key,
- * as well as the TimeBucket under which data is stored.
+ * This class defines a dimensions combination which is used by dimensions
+ * computation operators and stores. A dimension combination is composed of the
+ * names of the fields that constitute the key, as well as the TimeBucket under
+ * which data is stored.
  * </p>
  * <p>
- * This class supports the creation of a dimensions combination from a {@link TimeBucket} object and a set of fields.
- * It also supports the creation of a dimensions combination an aggregation string. An aggregation string looks like
- * the following:
- * <br/>
+ * This class supports the creation of a dimensions combination from a
+ * {@link TimeBucket} object and a set of fields. It also supports the creation
+ * of a dimensions combination an aggregation string. An aggregation string
+ * looks like the following: <br/>
  * <br/>
  * {@code
  * "time=MINUTES:publisher:advertiser"
- * }
+ * } <br/>
  * <br/>
- * <br/>
- * In the example above <b>"time=MINUTES"</b> represents a time bucket, and the other colon separated strings represent
- * the name of fields which comprise the key for this dimension combination. When specifiying a time bucket in an
+ * In the example above <b>"time=MINUTES"</b> represents a time bucket, and the
+ * other colon separated strings represent the name of fields which comprise the
+ * key for this dimension combination. When specifiying a time bucket in an
  * aggregation string you must use the name of one of the TimeUnit enums.
  * </p>
  * <p>
- * One of the primary uses of a {@link DimensionsDescriptor} is for querying a dimensional data store. When a query is
- * received for a dimensional data store, the query must be mapped to many things including a dimensionDescriptorID. The
- * dimensionDescriptorID is an id assigned to a class of dimension combinations which share the same keys. This
- * mapping is
- * performed by creating a
- * {@link DimensionsDescriptor} object from the query, and then using the {@link DimensionsDescriptor} object
- * to look up the correct dimensionsDescriptorID. This lookup to retrieve a dimensionsDescriptorID is necessary
- * because a
- * dimensionsDescriptorID is used for storage in order to prevent key conflicts.
+ * One of the primary uses of a {@link DimensionsDescriptor} is for querying a
+ * dimensional data store. When a query is received for a dimensional data
+ * store, the query must be mapped to many things including a
+ * dimensionDescriptorID. The dimensionDescriptorID is an id assigned to a class
+ * of dimension combinations which share the same keys. This mapping is
+ * performed by creating a {@link DimensionsDescriptor} object from the query,
+ * and then using the {@link DimensionsDescriptor} object to look up the correct
+ * dimensionsDescriptorID. This lookup to retrieve a dimensionsDescriptorID is
+ * necessary because a dimensionsDescriptorID is used for storage in order to
+ * prevent key conflicts.
  * </p>
  *
  *
@@ -96,18 +98,19 @@ public class DimensionsDescriptor implements Serializable, Comparable<Dimensions
    */
   public static final Type DIMENSION_TIME_BUCKET_TYPE = Type.INTEGER;
   /**
-   * The set of fields used for time, which are intended to be queried. Not that the
-   * timeBucket field is not included here because its not intended to be queried.
+   * The set of fields used for time, which are intended to be queried. Not that
+   * the timeBucket field is not included here because its not intended to be
+   * queried.
    */
   public static final Fields TIME_FIELDS = new Fields(Sets.newHashSet(DIMENSION_TIME));
   /**
-   * This set represents the field names which cannot be part of the user defined field names in a schema for
-   * dimensions computation.
+   * This set represents the field names which cannot be part of the user
+   * defined field names in a schema for dimensions computation.
    */
-  public static final Set<String> RESERVED_DIMENSION_NAMES = ImmutableSet.of(DIMENSION_TIME,
-      DIMENSION_TIME_BUCKET);
+  public static final Set<String> RESERVED_DIMENSION_NAMES = ImmutableSet.of(DIMENSION_TIME, DIMENSION_TIME_BUCKET);
   /**
-   * This is the equals string separator used when defining a time bucket for a dimensions combination.
+   * This is the equals string separator used when defining a time bucket for a
+   * dimensions combination.
    */
   public static final String DELIMETER_EQUALS = "=";
   /**
@@ -150,39 +153,47 @@ public class DimensionsDescriptor implements Serializable, Comparable<Dimensions
   }
 
   /**
-   * Creates a dimensions descriptor (dimensions combination) with the given {@link TimeBucket} and key fields.
+   * Creates a dimensions descriptor (dimensions combination) with the given
+   * {@link TimeBucket} and key fields.
    *
-   * @param timeBucket The {@link TimeBucket} that this dimensions combination represents.
-   * @param fields     The key fields included in this dimensions combination.
+   * @param timeBucket
+   *          The {@link TimeBucket} that this dimensions combination
+   *          represents.
+   * @param fields
+   *          The key fields included in this dimensions combination.
    * @deprecated use
-   * {@link #DimensionsDescriptor(com.datatorrent.lib.appdata.schemas.CustomTimeBucket,
-   * com.datatorrent.lib.appdata.schemas.Fields)} instead.
+   *             {@link #DimensionsDescriptor(com.datatorrent.lib.appdata.schemas.CustomTimeBucket, com.datatorrent.lib.appdata.schemas.Fields)}
+   *             instead.
    */
   @Deprecated
-  public DimensionsDescriptor(TimeBucket timeBucket,
-      Fields fields)
+  public DimensionsDescriptor(TimeBucket timeBucket, Fields fields)
   {
     setTimeBucket(timeBucket);
     setFields(fields);
   }
 
   /**
-   * Creates a dimensions descriptor (dimensions combination) with the given {@link CustomTimeBucket} and key fields.
+   * Creates a dimensions descriptor (dimensions combination) with the given
+   * {@link CustomTimeBucket} and key fields.
    *
-   * @param timeBucket The {@link CustomTimeBucket} that this dimensions combination represents.
-   * @param fields     The key fields included in this dimensions combination.
+   * @param timeBucket
+   *          The {@link CustomTimeBucket} that this dimensions combination
+   *          represents.
+   * @param fields
+   *          The key fields included in this dimensions combination.
    */
-  public DimensionsDescriptor(CustomTimeBucket timeBucket,
-      Fields fields)
+  public DimensionsDescriptor(CustomTimeBucket timeBucket, Fields fields)
   {
     setCustomTimeBucket(timeBucket);
     setFields(fields);
   }
 
   /**
-   * Creates a dimensions descriptor (dimensions combination) with the given key fields.
+   * Creates a dimensions descriptor (dimensions combination) with the given key
+   * fields.
    *
-   * @param fields The key fields included in this dimensions combination.
+   * @param fields
+   *          The key fields included in this dimensions combination.
    */
   public DimensionsDescriptor(Fields fields)
   {
@@ -190,9 +201,12 @@ public class DimensionsDescriptor implements Serializable, Comparable<Dimensions
   }
 
   /**
-   * This construction creates a dimensions descriptor (dimensions combination) from the given aggregation string.
+   * This construction creates a dimensions descriptor (dimensions combination)
+   * from the given aggregation string.
    *
-   * @param aggregationString The aggregation string to use when initializing this dimensions combination.
+   * @param aggregationString
+   *          The aggregation string to use when initializing this dimensions
+   *          combination.
    */
   public DimensionsDescriptor(String aggregationString)
   {
@@ -202,7 +216,9 @@ public class DimensionsDescriptor implements Serializable, Comparable<Dimensions
   /**
    * Initializes the dimensions combination with the given aggregation string.
    *
-   * @param aggregationString The aggregation string with which to initialize this dimensions combination.
+   * @param aggregationString
+   *          The aggregation string with which to initialize this dimensions
+   *          combination.
    */
   private void initialize(String aggregationString)
   {
@@ -223,9 +239,8 @@ public class DimensionsDescriptor implements Serializable, Comparable<Dimensions
 
       if (fieldName.equals(DIMENSION_TIME)) {
         if (timeBucket != null) {
-          throw new IllegalArgumentException("Cannot specify time in a dimensions "
-              + "descriptor when a timebucket is also "
-              + "specified.");
+          throw new IllegalArgumentException(
+              "Cannot specify time in a dimensions " + "descriptor when a timebucket is also " + "specified.");
         }
 
         if (fieldAndValue.length == 2) {
@@ -241,7 +256,8 @@ public class DimensionsDescriptor implements Serializable, Comparable<Dimensions
   /**
    * This is a helper method which sets and validates the {@link TimeBucket}.
    *
-   * @param timeBucket The {@link TimeBucket} to set and validate.
+   * @param timeBucket
+   *          The {@link TimeBucket} to set and validate.
    */
   private void setTimeBucket(TimeBucket timeBucket)
   {
@@ -251,9 +267,11 @@ public class DimensionsDescriptor implements Serializable, Comparable<Dimensions
   }
 
   /**
-   * This is a helper method which sets and validates the {@link CustomTimeBucket}.
+   * This is a helper method which sets and validates the
+   * {@link CustomTimeBucket}.
    *
-   * @param customTimeBucket The {@link CustomTimeBucket} to set and validate.
+   * @param customTimeBucket
+   *          The {@link CustomTimeBucket} to set and validate.
    */
   private void setCustomTimeBucket(CustomTimeBucket customTimeBucket)
   {
@@ -265,7 +283,8 @@ public class DimensionsDescriptor implements Serializable, Comparable<Dimensions
   /**
    * Gets the {@link TimeBucket} for this {@link DimensionsDescriptor} object.
    *
-   * @return The {@link TimeBucket} for this {@link DimensionsDescriptor} object.
+   * @return The {@link TimeBucket} for this {@link DimensionsDescriptor}
+   *         object.
    * @deprecated use {@link #getCustomTimeBucket()} instead.
    */
   @Deprecated
@@ -275,9 +294,11 @@ public class DimensionsDescriptor implements Serializable, Comparable<Dimensions
   }
 
   /**
-   * Gets the {@link CustomTimeBucket} for this {@link DimensionsDescriptor} object.
+   * Gets the {@link CustomTimeBucket} for this {@link DimensionsDescriptor}
+   * object.
    *
-   * @return The {@link CustomTimeBucket} for this {@link DimensionsDescriptor} object.
+   * @return The {@link CustomTimeBucket} for this {@link DimensionsDescriptor}
+   *         object.
    */
   public CustomTimeBucket getCustomTimeBucket()
   {
@@ -285,10 +306,12 @@ public class DimensionsDescriptor implements Serializable, Comparable<Dimensions
   }
 
   /**
-   * This is a helper method which sets and validates the set of key fields for this
-   * {@link DimensionsDescriptor} object.
+   * This is a helper method which sets and validates the set of key fields for
+   * this {@link DimensionsDescriptor} object.
    *
-   * @param fields The set of key fields for this {@link DimensionsDescriptor} object.
+   * @param fields
+   *          The set of key fields for this {@link DimensionsDescriptor}
+   *          object.
    */
   private void setFields(Fields fields)
   {
@@ -307,15 +330,17 @@ public class DimensionsDescriptor implements Serializable, Comparable<Dimensions
   }
 
   /**
-   * This method is used to create a new {@link FieldsDescriptor} object representing this
-   * {@link DimensionsDescriptor} object from another {@link FieldsDescriptor} object which
-   * defines the names and types of all the available key fields.
+   * This method is used to create a new {@link FieldsDescriptor} object
+   * representing this {@link DimensionsDescriptor} object from another
+   * {@link FieldsDescriptor} object which defines the names and types of all
+   * the available key fields.
    *
-   * @param parentDescriptor The {@link FieldsDescriptor} object which defines the name and
-   *                         type of all the available key fields.
-   * @return A {@link FieldsDescriptor} object which represents this {@link DimensionsDescriptor} (dimensions
-   * combination)
-   * derived from the given {@link FieldsDescriptor} object.
+   * @param parentDescriptor
+   *          The {@link FieldsDescriptor} object which defines the name and
+   *          type of all the available key fields.
+   * @return A {@link FieldsDescriptor} object which represents this
+   *         {@link DimensionsDescriptor} (dimensions combination) derived from
+   *         the given {@link FieldsDescriptor} object.
    */
   public FieldsDescriptor createFieldsDescriptor(FieldsDescriptor parentDescriptor)
   {
