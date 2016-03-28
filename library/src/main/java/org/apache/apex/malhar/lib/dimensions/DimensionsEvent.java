@@ -16,28 +16,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.dimensions;
+package org.apache.apex.malhar.lib.dimensions;
 
 import java.io.Serializable;
 import java.util.List;
+
+import org.apache.apex.malhar.lib.dimensions.aggregator.AggregateEvent;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
-import com.datatorrent.lib.dimensions.aggregator.AggregateEvent;
 
 /**
  * <p>
- * This is the base class for the events that are used for internal processing in the subclasses of
- * {@link AbstractDimensionsComputationFlexible} and {@link DimensionsStoreHDHT}.
+ * This is the base class for the events that are used for internal processing
+ * in the subclasses of {@link AbstractDimensionsComputationFlexible} and
+ * {@link DimensionsStoreHDHT}.
  * </p>
  * <p>
- * A {@link DimensionsEvent} is constructed from two parts: an {@link EventKey} and a {@link GPOMutable} object
- * which contains the values of aggregate fields. The {@link EventKey} is used to identify the dimension combination
- * an event belongs to, and consequently determines what input values should be aggregated together. The aggregates
- * are the actual data payload of the event which are to be aggregated.
+ * A {@link DimensionsEvent} is constructed from two parts: an {@link EventKey}
+ * and a {@link GPOMutable} object which contains the values of aggregate
+ * fields. The {@link EventKey} is used to identify the dimension combination an
+ * event belongs to, and consequently determines what input values should be
+ * aggregated together. The aggregates are the actual data payload of the event
+ * which are to be aggregated.
  * </p>
  *
  * @since 3.1.0
@@ -64,13 +68,15 @@ public class DimensionsEvent implements Serializable
   }
 
   /**
-   * This creates a {@link DimensionsEvent} from the given event key and aggregates.
+   * This creates a {@link DimensionsEvent} from the given event key and
+   * aggregates.
    *
-   * @param eventKey   The key from which to create a {@link DimensionsEvent}.
-   * @param aggregates The aggregates from which to create {@link DimensionsEvent}.
+   * @param eventKey
+   *          The key from which to create a {@link DimensionsEvent}.
+   * @param aggregates
+   *          The aggregates from which to create {@link DimensionsEvent}.
    */
-  public DimensionsEvent(EventKey eventKey,
-      GPOMutable aggregates)
+  public DimensionsEvent(EventKey eventKey, GPOMutable aggregates)
   {
     setEventKey(eventKey);
     setAggregates(aggregates);
@@ -79,55 +85,54 @@ public class DimensionsEvent implements Serializable
   /**
    * Creates a DimensionsEvent with the given key values, aggregates and ids.
    *
-   * @param keys                  The values for fields in the key.
-   * @param aggregates            The values for fields in the aggregate.
-   * @param bucketID              The bucketID
-   * @param schemaID              The schemaID.
-   * @param dimensionDescriptorID The dimensionsDescriptorID.
-   * @param aggregatorIndex       The aggregatorIndex assigned to this event by the unifier.
+   * @param keys
+   *          The values for fields in the key.
+   * @param aggregates
+   *          The values for fields in the aggregate.
+   * @param bucketID
+   *          The bucketID
+   * @param schemaID
+   *          The schemaID.
+   * @param dimensionDescriptorID
+   *          The dimensionsDescriptorID.
+   * @param aggregatorIndex
+   *          The aggregatorIndex assigned to this event by the unifier.
    */
-  public DimensionsEvent(GPOMutable keys,
-      GPOMutable aggregates,
-      int bucketID,
-      int schemaID,
-      int dimensionDescriptorID,
+  public DimensionsEvent(GPOMutable keys, GPOMutable aggregates, int bucketID, int schemaID, int dimensionDescriptorID,
       int aggregatorIndex)
   {
-    this.eventKey = new EventKey(bucketID,
-        schemaID,
-        dimensionDescriptorID,
-        aggregatorIndex,
-        keys);
+    this.eventKey = new EventKey(bucketID, schemaID, dimensionDescriptorID, aggregatorIndex, keys);
     setAggregates(aggregates);
   }
 
   /**
-   * This creates an event with the given data. Note, this constructor assumes that the bucketID will be 0.
+   * This creates an event with the given data. Note, this constructor assumes
+   * that the bucketID will be 0.
    *
-   * @param keys                  The value for fields in the key.
-   * @param aggregates            The value for fields in the aggregate.
-   * @param schemaID              The schemaID.
-   * @param dimensionDescriptorID The dimensionsDescriptorID.
-   * @param aggregatorIndex       The aggregatorIndex assigned to this event by the unifier.
+   * @param keys
+   *          The value for fields in the key.
+   * @param aggregates
+   *          The value for fields in the aggregate.
+   * @param schemaID
+   *          The schemaID.
+   * @param dimensionDescriptorID
+   *          The dimensionsDescriptorID.
+   * @param aggregatorIndex
+   *          The aggregatorIndex assigned to this event by the unifier.
    */
-  public DimensionsEvent(GPOMutable keys,
-      GPOMutable aggregates,
-      int schemaID,
-      int dimensionDescriptorID,
+  public DimensionsEvent(GPOMutable keys, GPOMutable aggregates, int schemaID, int dimensionDescriptorID,
       int aggregatorIndex)
   {
-    this.eventKey = new EventKey(schemaID,
-        dimensionDescriptorID,
-        aggregatorIndex,
-        keys);
+    this.eventKey = new EventKey(schemaID, dimensionDescriptorID, aggregatorIndex, keys);
     setAggregates(aggregates);
   }
 
   /**
-   * This is a helper method which sets the {@link EventKey} of the event to
-   * be the same as the given {@link EventKey}.
+   * This is a helper method which sets the {@link EventKey} of the event to be
+   * the same as the given {@link EventKey}.
    *
-   * @param eventKey The {@link EventKey} to set on this event.
+   * @param eventKey
+   *          The {@link EventKey} to set on this event.
    */
   protected final void setEventKey(EventKey eventKey)
   {
@@ -137,7 +142,8 @@ public class DimensionsEvent implements Serializable
   /**
    * This is a helper method which sets the aggregates for this event.
    *
-   * @param aggregates The aggregates for this event.
+   * @param aggregates
+   *          The aggregates for this event.
    */
   protected final void setAggregates(GPOMutable aggregates)
   {
@@ -166,8 +172,8 @@ public class DimensionsEvent implements Serializable
   }
 
   /**
-   * This is a convenience method which returns the values of the key fields in this event's
-   * {@link EventKey}.
+   * This is a convenience method which returns the values of the key fields in
+   * this event's {@link EventKey}.
    *
    * @return The values of the key fields in this event's {@link EventKey}.
    */
@@ -177,7 +183,8 @@ public class DimensionsEvent implements Serializable
   }
 
   /**
-   * This is a convenience method which returns the schemaID of this event's {@link EventKey}.
+   * This is a convenience method which returns the schemaID of this event's
+   * {@link EventKey}.
    *
    * @return The schemaID of this event's {@link EventKey}.
    */
@@ -187,9 +194,11 @@ public class DimensionsEvent implements Serializable
   }
 
   /**
-   * Returns the id of the dimension descriptor (key combination) for which this event contains data.
+   * Returns the id of the dimension descriptor (key combination) for which this
+   * event contains data.
    *
-   * @return The id of the dimension descriptor (key combination) for which this event contains data.
+   * @return The id of the dimension descriptor (key combination) for which this
+   *         event contains data.
    */
   public int getDimensionDescriptorID()
   {
@@ -199,7 +208,8 @@ public class DimensionsEvent implements Serializable
   /**
    * Returns the id of the aggregator which is applied to this event's data.
    *
-   * @return Returns the id of the aggregator which is applied to this event's data.
+   * @return Returns the id of the aggregator which is applied to this event's
+   *         data.
    */
   public int getAggregatorID()
   {
@@ -207,9 +217,10 @@ public class DimensionsEvent implements Serializable
   }
 
   /**
-   * Returns the bucketID assigned to this event. The bucketID is useful for this event in the case that the event
-   * is sent to a partitioned HDHT operator. Each partitioned HDHT operator can use the bucketIDs for the buckets it
-   * writes to as a partition key.
+   * Returns the bucketID assigned to this event. The bucketID is useful for
+   * this event in the case that the event is sent to a partitioned HDHT
+   * operator. Each partitioned HDHT operator can use the bucketIDs for the
+   * buckets it writes to as a partition key.
    *
    * @return The bucketID assigned to this event.
    */
@@ -219,10 +230,13 @@ public class DimensionsEvent implements Serializable
   }
 
   /**
-   * This is a utility method which copies the given src event to the given destination event.
+   * This is a utility method which copies the given src event to the given
+   * destination event.
    *
-   * @param aeDest The destination event.
-   * @param aeSrc  The source event.
+   * @param aeDest
+   *          The destination event.
+   * @param aeSrc
+   *          The source event.
    */
   public static void copy(DimensionsEvent aeDest, DimensionsEvent aeSrc)
   {
@@ -267,26 +281,30 @@ public class DimensionsEvent implements Serializable
 
   /**
    * <p>
-   * The {@link EventKey} represents a dimensions combination for a dimensions event. It contains the keys and values
-   * which define a dimensions combination. It's very similar to a {@link DimensionsDescriptor} which is also used to
-   * define part of a dimensions combination. The difference between the two is that a {@link DimensionsDescriptor}
-   * only contains what
-   * keys are included in the combination, not the values of those keys (which the {@link EventKey} has.
+   * The {@link EventKey} represents a dimensions combination for a dimensions
+   * event. It contains the keys and values which define a dimensions
+   * combination. It's very similar to a {@link DimensionsDescriptor} which is
+   * also used to define part of a dimensions combination. The difference
+   * between the two is that a {@link DimensionsDescriptor} only contains what
+   * keys are included in the combination, not the values of those keys (which
+   * the {@link EventKey} has.
    * </p>
    * <p>
-   * In addition to holding the keys in a dimensions combination and their values, the event key holds some meta
-   * information.
-   * The meta information included and their purposes are the following:
+   * In addition to holding the keys in a dimensions combination and their
+   * values, the event key holds some meta information. The meta information
+   * included and their purposes are the following:
    * <ul>
-   * <li><b>bucketID:</b> This is set when the dimension store responsible for storing the data is partitioned. In that
-   * case the bucketID is used as the partitionID.</li>
-   * <li><b>schemaID:</b> This is the id of the {@link DimensionalSchema} that this {@link EventKey} corresponds to
-   * .</li>
-   * <li><b>dimensionDescriptorID:</b> This is the id of the {@link DimensionsDescriptor} that this {@link EventKey}
-   * corresponds to.</li>
-   * <li><b>aggregatorID:</b> This is the id of the aggregator that is used to aggregate the values associated with
-   * this {@link EventKey}
-   * in a {@link DimensionsEvent}.</li>
+   * <li><b>bucketID:</b> This is set when the dimension store responsible for
+   * storing the data is partitioned. In that case the bucketID is used as the
+   * partitionID.</li>
+   * <li><b>schemaID:</b> This is the id of the {@link DimensionalSchema} that
+   * this {@link EventKey} corresponds to .</li>
+   * <li><b>dimensionDescriptorID:</b> This is the id of the
+   * {@link DimensionsDescriptor} that this {@link EventKey} corresponds to.
+   * </li>
+   * <li><b>aggregatorID:</b> This is the id of the aggregator that is used to
+   * aggregate the values associated with this {@link EventKey} in a
+   * {@link DimensionsEvent}.</li>
    * </ul>
    * </p>
    */
@@ -299,17 +317,18 @@ public class DimensionsEvent implements Serializable
      */
     private int bucketID;
     /**
-     * The schemaID corresponding to the {@link DimensionalSchema} that this {@link EventKey}
-     * corresponds to.
+     * The schemaID corresponding to the {@link DimensionalSchema} that this
+     * {@link EventKey} corresponds to.
      */
     private int schemaID;
     /**
-     * The dimensionsDescriptorID of the {@link DimensionDescriptor} in the corresponding {@link DimensionalSchema}.
+     * The dimensionsDescriptorID of the {@link DimensionDescriptor} in the
+     * corresponding {@link DimensionalSchema}.
      */
     private int dimensionDescriptorID;
     /**
-     * The id of the aggregator which should be used to aggregate the values corresponding to this
-     * {@link EventKey}.
+     * The id of the aggregator which should be used to aggregate the values
+     * corresponding to this {@link EventKey}.
      */
     private int aggregatorID;
     /**
@@ -328,7 +347,8 @@ public class DimensionsEvent implements Serializable
     /**
      * Copy constructor.
      *
-     * @param eventKey The {@link EventKey} whose data will be copied.
+     * @param eventKey
+     *          The {@link EventKey} whose data will be copied.
      */
     public EventKey(EventKey eventKey)
     {
@@ -343,20 +363,20 @@ public class DimensionsEvent implements Serializable
     /**
      * Creates an event key with the given data.
      *
-     * @param bucketID              The bucketID assigned to this {@link EventKey}.
-     * @param schemaID              The schemaID of the corresponding {@link DimensionalSchema}.
-     * @param dimensionDescriptorID The dimensionDescriptorID of the corresponding
-     * {@link DimensionDescriptor} in the {@link DimensionalSchema}.
-     * @param aggregatorID          The id of the aggregator which should be used to aggregate the values
-     *                              corresponding to this
-     *                              {@link EventKey}.
-     * @param key                   The values of the keys.
+     * @param bucketID
+     *          The bucketID assigned to this {@link EventKey}.
+     * @param schemaID
+     *          The schemaID of the corresponding {@link DimensionalSchema}.
+     * @param dimensionDescriptorID
+     *          The dimensionDescriptorID of the corresponding
+     *          {@link DimensionDescriptor} in the {@link DimensionalSchema}.
+     * @param aggregatorID
+     *          The id of the aggregator which should be used to aggregate the
+     *          values corresponding to this {@link EventKey}.
+     * @param key
+     *          The values of the keys.
      */
-    public EventKey(int bucketID,
-        int schemaID,
-        int dimensionDescriptorID,
-        int aggregatorID,
-        GPOMutable key)
+    public EventKey(int bucketID, int schemaID, int dimensionDescriptorID, int aggregatorID, GPOMutable key)
     {
       setBucketID(bucketID);
       setSchemaID(schemaID);
@@ -366,19 +386,21 @@ public class DimensionsEvent implements Serializable
     }
 
     /**
-     * Creates an event key with the given data. This constructor assumes that the bucketID will be 0.
+     * Creates an event key with the given data. This constructor assumes that
+     * the bucketID will be 0.
      *
-     * @param schemaID              The schemaID of the corresponding {@link DimensionalSchema}.
-     * @param dimensionDescriptorID The dimensionDescriptorID of the corresponding {@link DimensionDescriptor}.
-     * @param aggregatorID          The id of the aggregator which should be used to aggregate the values
-     *                              corresponding to this
-     *                              {@link EventKey}.
-     * @param key                   The values of the keys.
+     * @param schemaID
+     *          The schemaID of the corresponding {@link DimensionalSchema}.
+     * @param dimensionDescriptorID
+     *          The dimensionDescriptorID of the corresponding
+     *          {@link DimensionDescriptor}.
+     * @param aggregatorID
+     *          The id of the aggregator which should be used to aggregate the
+     *          values corresponding to this {@link EventKey}.
+     * @param key
+     *          The values of the keys.
      */
-    public EventKey(int schemaID,
-        int dimensionDescriptorID,
-        int aggregatorID,
-        GPOMutable key)
+    public EventKey(int schemaID, int dimensionDescriptorID, int aggregatorID, GPOMutable key)
     {
       setSchemaID(schemaID);
       setDimensionDescriptorID(dimensionDescriptorID);
@@ -389,7 +411,8 @@ public class DimensionsEvent implements Serializable
     /**
      * Sets the dimension descriptor ID.
      *
-     * @param dimensionDescriptorID The dimension descriptor ID to set.
+     * @param dimensionDescriptorID
+     *          The dimension descriptor ID to set.
      */
     private void setDimensionDescriptorID(int dimensionDescriptorID)
     {
@@ -419,7 +442,8 @@ public class DimensionsEvent implements Serializable
     /**
      * Sets the aggregatorID.
      *
-     * @param aggregatorID The aggregatorID to set.
+     * @param aggregatorID
+     *          The aggregatorID to set.
      */
     private void setAggregatorID(int aggregatorID)
     {
@@ -439,7 +463,8 @@ public class DimensionsEvent implements Serializable
     /**
      * Sets the schemaID.
      *
-     * @param schemaID The schemaID to set.
+     * @param schemaID
+     *          The schemaID to set.
      */
     private void setSchemaID(int schemaID)
     {
@@ -459,7 +484,8 @@ public class DimensionsEvent implements Serializable
     /**
      * Sets the bucektID.
      *
-     * @param bucketID The bucketID.
+     * @param bucketID
+     *          The bucketID.
      */
     private void setBucketID(int bucketID)
     {
@@ -479,7 +505,8 @@ public class DimensionsEvent implements Serializable
     /**
      * Sets the key values.
      *
-     * @param key The key values to set.
+     * @param key
+     *          The key values to set.
      */
     private void setKey(GPOMutable key)
     {
@@ -538,13 +565,11 @@ public class DimensionsEvent implements Serializable
     @Override
     public String toString()
     {
-      return "EventKey{" + "schemaID=" + schemaID + ", dimensionDescriptorID=" + dimensionDescriptorID +
-          ", aggregatorIndex=" + aggregatorID + ", key=" + key + '}';
+      return "EventKey{" + "schemaID=" + schemaID + ", dimensionDescriptorID=" + dimensionDescriptorID
+          + ", aggregatorIndex=" + aggregatorID + ", key=" + key + '}';
     }
 
-    public static List<EventKey> createEventKeys(int schemaId,
-        int dimensionsDescriptorId,
-        int aggregatorId,
+    public static List<EventKey> createEventKeys(int schemaId, int dimensionsDescriptorId, int aggregatorId,
         List<GPOMutable> keys)
     {
       List<EventKey> eventKeys = Lists.newArrayList();
@@ -595,13 +620,15 @@ public class DimensionsEvent implements Serializable
     }
 
     /**
-     * This creates a {@link DimensionsEvent} from the given event key and aggregates.
+     * This creates a {@link DimensionsEvent} from the given event key and
+     * aggregates.
      *
-     * @param eventKey   The key from which to create a {@link DimensionsEvent}.
-     * @param aggregates The aggregates from which to create {@link DimensionsEvent}.
+     * @param eventKey
+     *          The key from which to create a {@link DimensionsEvent}.
+     * @param aggregates
+     *          The aggregates from which to create {@link DimensionsEvent}.
      */
-    public InputEvent(EventKey eventKey,
-        GPOMutable aggregates)
+    public InputEvent(EventKey eventKey, GPOMutable aggregates)
     {
       setEventKey(eventKey);
       setAggregates(aggregates);
@@ -610,47 +637,45 @@ public class DimensionsEvent implements Serializable
     /**
      * Creates a DimensionsEvent with the given key values, aggregates and ids.
      *
-     * @param keys                  The values for fields in the key.
-     * @param aggregates            The values for fields in the aggregate.
-     * @param bucketID              The bucketID
-     * @param schemaID              The schemaID.
-     * @param dimensionDescriptorID The dimensionsDescriptorID.
-     * @param aggregatorIndex       The aggregatorIndex assigned to this event by the unifier.
+     * @param keys
+     *          The values for fields in the key.
+     * @param aggregates
+     *          The values for fields in the aggregate.
+     * @param bucketID
+     *          The bucketID
+     * @param schemaID
+     *          The schemaID.
+     * @param dimensionDescriptorID
+     *          The dimensionsDescriptorID.
+     * @param aggregatorIndex
+     *          The aggregatorIndex assigned to this event by the unifier.
      */
-    public InputEvent(GPOMutable keys,
-        GPOMutable aggregates,
-        int bucketID,
-        int schemaID,
-        int dimensionDescriptorID,
+    public InputEvent(GPOMutable keys, GPOMutable aggregates, int bucketID, int schemaID, int dimensionDescriptorID,
         int aggregatorIndex)
     {
-      this.eventKey = new EventKey(bucketID,
-          schemaID,
-          dimensionDescriptorID,
-          aggregatorIndex,
-          keys);
+      this.eventKey = new EventKey(bucketID, schemaID, dimensionDescriptorID, aggregatorIndex, keys);
       setAggregates(aggregates);
     }
 
     /**
-     * This creates an event with the given data. Note, this constructor assumes that the bucketID will be 0.
+     * This creates an event with the given data. Note, this constructor assumes
+     * that the bucketID will be 0.
      *
-     * @param keys                  The value for fields in the key.
-     * @param aggregates            The value for fields in the aggregate.
-     * @param schemaID              The schemaID.
-     * @param dimensionDescriptorID The dimensionsDescriptorID.
-     * @param aggregatorIndex       The aggregatorIndex assigned to this event by the unifier.
+     * @param keys
+     *          The value for fields in the key.
+     * @param aggregates
+     *          The value for fields in the aggregate.
+     * @param schemaID
+     *          The schemaID.
+     * @param dimensionDescriptorID
+     *          The dimensionsDescriptorID.
+     * @param aggregatorIndex
+     *          The aggregatorIndex assigned to this event by the unifier.
      */
-    public InputEvent(GPOMutable keys,
-        GPOMutable aggregates,
-        int schemaID,
-        int dimensionDescriptorID,
+    public InputEvent(GPOMutable keys, GPOMutable aggregates, int schemaID, int dimensionDescriptorID,
         int aggregatorIndex)
     {
-      this.eventKey = new EventKey(schemaID,
-          dimensionDescriptorID,
-          aggregatorIndex,
-          keys);
+      this.eventKey = new EventKey(schemaID, dimensionDescriptorID, aggregatorIndex, keys);
       setAggregates(aggregates);
     }
 
@@ -694,24 +719,23 @@ public class DimensionsEvent implements Serializable
     }
 
     /**
-     * This creates a {@link DimensionsEvent} from the given event key and aggregates.
+     * This creates a {@link DimensionsEvent} from the given event key and
+     * aggregates.
      *
-     * @param eventKey   The key from which to create a {@link DimensionsEvent}.
-     * @param aggregates The aggregates from which to create {@link DimensionsEvent}.
+     * @param eventKey
+     *          The key from which to create a {@link DimensionsEvent}.
+     * @param aggregates
+     *          The aggregates from which to create {@link DimensionsEvent}.
      */
-    public Aggregate(EventKey eventKey,
-        GPOMutable aggregates)
+    public Aggregate(EventKey eventKey, GPOMutable aggregates)
     {
       setEventKey(eventKey);
       setAggregates(aggregates);
     }
 
-    public Aggregate(EventKey eventKey,
-        GPOMutable aggregates,
-        GPOMutable metaData)
+    public Aggregate(EventKey eventKey, GPOMutable aggregates, GPOMutable metaData)
     {
-      super(eventKey,
-          aggregates);
+      super(eventKey, aggregates);
 
       this.metaData = metaData;
     }
@@ -719,80 +743,60 @@ public class DimensionsEvent implements Serializable
     /**
      * Creates a DimensionsEvent with the given key values, aggregates and ids.
      *
-     * @param keys                  The values for fields in the key.
-     * @param aggregates            The values for fields in the aggregate.
-     * @param bucketID              The bucketID
-     * @param schemaID              The schemaID.
-     * @param dimensionDescriptorID The dimensionsDescriptorID.
-     * @param aggregatorIndex       The aggregatorIndex assigned to this event by the unifier.
+     * @param keys
+     *          The values for fields in the key.
+     * @param aggregates
+     *          The values for fields in the aggregate.
+     * @param bucketID
+     *          The bucketID
+     * @param schemaID
+     *          The schemaID.
+     * @param dimensionDescriptorID
+     *          The dimensionsDescriptorID.
+     * @param aggregatorIndex
+     *          The aggregatorIndex assigned to this event by the unifier.
      */
-    public Aggregate(GPOMutable keys,
-        GPOMutable aggregates,
-        int bucketID,
-        int schemaID,
-        int dimensionDescriptorID,
+    public Aggregate(GPOMutable keys, GPOMutable aggregates, int bucketID, int schemaID, int dimensionDescriptorID,
         int aggregatorIndex)
     {
-      this.eventKey = new EventKey(bucketID,
-          schemaID,
-          dimensionDescriptorID,
-          aggregatorIndex,
-          keys);
+      this.eventKey = new EventKey(bucketID, schemaID, dimensionDescriptorID, aggregatorIndex, keys);
       setAggregates(aggregates);
     }
 
-    public Aggregate(GPOMutable keys,
-        GPOMutable aggregates,
-        GPOMutable metaData,
-        int bucketID,
-        int schemaID,
-        int dimensionDescriptorID,
-        int aggregatorIndex)
+    public Aggregate(GPOMutable keys, GPOMutable aggregates, GPOMutable metaData, int bucketID, int schemaID,
+        int dimensionDescriptorID, int aggregatorIndex)
     {
-      this(keys,
-          aggregates,
-          bucketID,
-          schemaID,
-          dimensionDescriptorID,
-          aggregatorIndex);
+      this(keys, aggregates, bucketID, schemaID, dimensionDescriptorID, aggregatorIndex);
 
       this.metaData = metaData;
     }
 
     /**
-     * This creates an event with the given data. Note, this constructor assumes that the bucketID will be 0.
+     * This creates an event with the given data. Note, this constructor assumes
+     * that the bucketID will be 0.
      *
-     * @param keys                  The value for fields in the key.
-     * @param aggregates            The value for fields in the aggregate.
-     * @param schemaID              The schemaID.
-     * @param dimensionDescriptorID The dimensionsDescriptorID.
-     * @param aggregatorIndex       The aggregatorIndex assigned to this event by the unifier.
+     * @param keys
+     *          The value for fields in the key.
+     * @param aggregates
+     *          The value for fields in the aggregate.
+     * @param schemaID
+     *          The schemaID.
+     * @param dimensionDescriptorID
+     *          The dimensionsDescriptorID.
+     * @param aggregatorIndex
+     *          The aggregatorIndex assigned to this event by the unifier.
      */
-    public Aggregate(GPOMutable keys,
-        GPOMutable aggregates,
-        int schemaID,
-        int dimensionDescriptorID,
+    public Aggregate(GPOMutable keys, GPOMutable aggregates, int schemaID, int dimensionDescriptorID,
         int aggregatorIndex)
     {
-      this.eventKey = new EventKey(schemaID,
-          dimensionDescriptorID,
-          aggregatorIndex,
-          keys);
+      this.eventKey = new EventKey(schemaID, dimensionDescriptorID, aggregatorIndex, keys);
       setAggregates(aggregates);
     }
 
-    public Aggregate(GPOMutable keys,
-        GPOMutable aggregates,
-        GPOMutable metaData,
-        int schemaID,
-        int dimensionDescriptorID,
-        int aggregatorIndex)
+    public Aggregate(GPOMutable keys, GPOMutable aggregates, GPOMutable metaData, int schemaID,
+        int dimensionDescriptorID, int aggregatorIndex)
     {
-      this(keys,
-          aggregates,
-          schemaID,
-          dimensionDescriptorID,
-          aggregatorIndex);
+      this(keys, aggregates, schemaID, dimensionDescriptorID, aggregatorIndex);
 
       this.metaData = metaData;
     }

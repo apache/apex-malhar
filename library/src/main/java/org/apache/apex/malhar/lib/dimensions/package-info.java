@@ -16,23 +16,5 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.dimensions.aggregator;
-
-import it.unimi.dsi.fastutil.Hash;
-
-/**
- * @since 3.3.0
- */
-public interface AggregateEvent
-{
-  int getAggregatorIndex();
-
-  public static interface Aggregator<EVENT, AGGREGATE extends AggregateEvent> extends Hash.Strategy<EVENT>
-  {
-    AGGREGATE getGroup(EVENT src, int aggregatorIndex);
-
-    void aggregate(AGGREGATE dest, EVENT src);
-
-    void aggregate(AGGREGATE dest, AGGREGATE src);
-  }
-}
+@org.apache.hadoop.classification.InterfaceStability.Evolving
+package org.apache.apex.malhar.lib.dimensions;

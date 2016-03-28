@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.dimensions.aggregator;
+package org.apache.apex.malhar.lib.dimensions.aggregator;
 
 import java.io.Serializable;
 
@@ -29,7 +29,7 @@ import com.datatorrent.lib.appdata.schemas.Type;
  * <p>
  * This interface represents an On The Fly Aggregator. On the fly aggregators represent a class
  * of aggregations which use the results of incremental aggregators, which implement the
- * {@link com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator} interface. An example of an aggregation which
+ * {@link org.apache.apex.malhar.lib.dimensions.aggregator.IncrementalAggregator} interface. An example of an aggregation which
  * needs to be performed on the fly is average. Average needs to be performed on the fly because average cannot be
  * computed with just an existing average and a new data item, an average required the sum of all data items, and the
  * count of all data items. An example implementation of average is {@link AggregatorAverage}. Also note
