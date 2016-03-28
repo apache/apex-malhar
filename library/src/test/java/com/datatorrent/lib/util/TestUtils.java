@@ -18,18 +18,21 @@
  */
 package com.datatorrent.lib.util;
 
-import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
+import org.apache.commons.io.FileUtils;
 
-import com.datatorrent.api.*;
+import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.OutputPort;
+import com.datatorrent.api.Sink;
+import com.datatorrent.api.Stats;
+import com.datatorrent.api.StatsListener;
 
 public class TestUtils
 {
@@ -48,6 +51,15 @@ public class TestUtils
     protected void starting(org.junit.runner.Description description)
     {
       this.desc = description;
+    }
+  }
+
+  public static void deleteTargetTestClassFolder(Description description)
+  {
+    try {
+      FileUtils.deleteDirectory(new File("target/" + description.getClassName()));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
