@@ -60,7 +60,7 @@ public class JdbcPOJOInsertOutputOperator extends AbstractJdbcPOJOOutputOperator
     // Populate columnNames and columnDataTypes
     try {
       if (getFieldInfos() == null) { // then assume direct mapping
-        LOG.info("Assuming direct mapping between POJO fields and DB columns");
+        LOG.info("FieldInfo missing. Assuming direct mapping between POJO fields and DB columns");
         populateColumnDataTypes(null);
       } else {
         // FieldInfo supplied by user
@@ -94,7 +94,7 @@ public class JdbcPOJOInsertOutputOperator extends AbstractJdbcPOJOOutputOperator
 
         if (columnNullabilities.get(i) == ResultSetMetaData.columnNoNulls &&
             (pojoField == null || pojoField.length() == 0)) {
-          throw new RuntimeException("Data for a non-nullable field not found in POJO");
+          throw new RuntimeException("Data for a non-nullable field: " + columnName + " not found in POJO");
         } else {
           if (pojoField != null && pojoField.length() != 0) {
             JdbcFieldInfo fi = new JdbcFieldInfo(columnName, pojoField, null, null);

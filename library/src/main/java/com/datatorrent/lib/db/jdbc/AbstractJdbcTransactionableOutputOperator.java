@@ -18,8 +18,10 @@
  */
 package com.datatorrent.lib.db.jdbc;
 
+import java.sql.BatchUpdateException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 import javax.validation.constraints.Min;
@@ -130,10 +132,41 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T>
       }
       updateCommand.executeBatch();
       updateCommand.clearBatch();
+      batchStartIdx += tuples.size() - batchStartIdx;
+    } catch (BatchUpdateException bue) {
+      logger.error(bue.getMessage());
+      processUpdateCounts(bue.getUpdateCounts(), tuples.size() - batchStartIdx);
     } catch (SQLException e) {
       throw new RuntimeException("processing batch", e);
-    } finally {
-      batchStartIdx += tuples.size() - batchStartIdx;
+    }
+  }
+
+  /**
+   * Identify which commands in the batch failed and redirect these on the error port.
+   * See https://docs.oracle.com/javase/7/docs/api/java/sql/BatchUpdateException.html for more details
+   *
+   * @param updateCounts
+   * @param commandsInBatch
+   */
+  private void processUpdateCounts(int[] updateCounts, int commandsInBatch)
+  {
+    if (updateCounts.length < commandsInBatch) {
+      // Driver chose not to continue processing after failure.
+      error.emit(tuples.get(updateCounts.length + batchStartIdx));
+    } else {
+      // Driver processed all batch statements in spite of failures.
+      // Pick out the failures and send on error port.
+      for (int i = 0; i < commandsInBatch; i++) {
+        if (updateCounts[i] == Statement.EXECUTE_FAILED) {
+          error.emit(tuples.get(i + batchStartIdx));
+        }
+      }
+    }
+    // Skip the error record
+    batchStartIdx += updateCounts.length + 1;
+    // And process the remaining if any
+    if ((tuples.size() - batchStartIdx) > 0) {
+      processBatch();
     }
   }
 

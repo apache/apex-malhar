@@ -41,6 +41,7 @@ import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.helper.TestPortContext;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.FieldInfo;
+import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
@@ -405,6 +406,7 @@ public class JdbcOperatorTest
 
   /**
    * This test will assume direct mapping for POJO fields to DB columns
+   * All fields in DB present in POJO
    */
   @Test
   public void testJdbcPojoInsertOutputOperator()
@@ -432,12 +434,21 @@ public class JdbcOperatorTest
     TestPortContext tpc = new TestPortContext(portAttributes);
     outputOperator.input.setup(tpc);
 
+    CollectorTestSink<Object> errorSink = new CollectorTestSink<>();
+    TestUtils.setSink(outputOperator.error, errorSink);
+
     outputOperator.activate(context);
 
     List<TestPOJOEvent> events = Lists.newArrayList();
     for (int i = 0; i < 10; i++) {
       events.add(new TestPOJOEvent(i, "test" + i));
     }
+    events.add(new TestPOJOEvent(0, "test0")); // Records violating PK constraint
+    events.add(new TestPOJOEvent(2, "test2")); // Records violating PK constraint
+    events.add(new TestPOJOEvent(10, "test10")); // Clean record
+    events.add(new TestPOJOEvent(11, "test11")); // Clean record
+    events.add(new TestPOJOEvent(3, "test3")); // Records violating PK constraint
+    events.add(new TestPOJOEvent(12, "test12")); // Clean record
 
     outputOperator.beginWindow(0);
     for (TestPOJOEvent event : events) {
@@ -445,11 +456,15 @@ public class JdbcOperatorTest
     }
     outputOperator.endWindow();
 
-    Assert.assertEquals("rows in db", 10, outputOperator.getNumOfEventsInStore(TABLE_POJO_NAME));
+    Assert.assertEquals("rows in db", 13, outputOperator.getNumOfEventsInStore(TABLE_POJO_NAME));
+    Assert.assertEquals("Error tuples", 3, errorSink.collectedTuples.size());
   }
 
   /**
    * This test will assume direct mapping for POJO fields to DB columns
+   * Nullable DB field missing in POJO
+   * name1 field, which is nullable in DB is missing from POJO
+   * POJO(id, name) -> DB(id, name1)
    */
   @Test
   public void testJdbcPojoInsertOutputOperatorNullName()
@@ -493,6 +508,49 @@ public class JdbcOperatorTest
     Assert.assertEquals("rows in db", 10, outputOperator.getNumOfEventsInStore(TABLE_POJO_NAME_NAME_DIFF));
     Assert.assertEquals("null name rows in db", 10,
         outputOperator.getNumOfNullEventsInStore(TABLE_POJO_NAME_NAME_DIFF));
+  }
+
+  /**
+   * This test will assume direct mapping for POJO fields to DB columns.
+   * Non-Nullable DB field missing in POJO
+   * id1 field which is non-nullable in DB is missing from POJO
+   * POJO(id, name) -> DB(id1, name)
+   */
+  @Test
+  public void testJdbcPojoInsertOutputOperatorNullId()
+  {
+    JdbcTransactionalStore transactionalStore = new JdbcTransactionalStore();
+    transactionalStore.setDatabaseDriver(DB_DRIVER);
+    transactionalStore.setDatabaseUrl(URL);
+
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap =
+        new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
+    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
+        OPERATOR_ID, attributeMap);
+
+    TestPOJOOutputOperator outputOperator = new TestPOJOOutputOperator();
+    outputOperator.setBatchSize(3);
+    outputOperator.setTablename(TABLE_POJO_NAME_ID_DIFF);
+
+    outputOperator.setStore(transactionalStore);
+
+    outputOperator.setup(context);
+
+    Attribute.AttributeMap.DefaultAttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();
+    portAttributes.put(Context.PortContext.TUPLE_CLASS, TestPOJOEvent.class);
+    TestPortContext tpc = new TestPortContext(portAttributes);
+    outputOperator.input.setup(tpc);
+
+    boolean exceptionOccurred = false;
+    try {
+      outputOperator.activate(context);
+    } catch (Exception e) {
+      exceptionOccurred = true;
+      Assert.assertTrue(e instanceof RuntimeException);
+      Assert.assertTrue(e.getMessage().toLowerCase().contains("id1 not found in pojo"));
+    }
+    Assert.assertTrue(exceptionOccurred);
   }
 
   @Test
@@ -546,7 +604,9 @@ public class JdbcOperatorTest
     }
     updateOperator.endWindow();
 
+    // Expect 10 unique ids: 0 - 9
     Assert.assertEquals("rows in db", 10, updateOperator.getNumOfEventsInStore());
+    // Expect 6 unique name: test-100, test-5, test-6, test-7, test-8, test-9
     Assert.assertEquals("rows in db", 6, updateOperator.getDistinctNonUnique());
   }
 

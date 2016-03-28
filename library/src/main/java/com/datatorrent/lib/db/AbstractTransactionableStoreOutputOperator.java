@@ -24,6 +24,7 @@ import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 /**
@@ -66,6 +67,8 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
     }
 
   };
+
+  public final transient DefaultOutputPort<T> error = new DefaultOutputPort<>();
 
   /**
    * Gets the store
