@@ -47,19 +47,6 @@ import com.datatorrent.netlet.util.Slice;
 
 public class ManagedStateTestUtils
 {
-
-  static void cleanTargetDir(Description description)
-  {
-    try {
-      File out = new File("target/" + description.getClassName());
-      if (out.exists()) {
-        FileUtils.deleteDirectory(out);
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   static void transferBucketHelper(FileAccess fileAccess, long bucketId, Map<Slice, Bucket.BucketedValue> unsavedBucket,
       int keysPerTimeBucket) throws IOException
   {

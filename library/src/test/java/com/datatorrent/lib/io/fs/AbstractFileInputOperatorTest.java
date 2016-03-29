@@ -65,6 +65,7 @@ public class AbstractFileInputOperatorTest
     @Override
     protected void starting(org.junit.runner.Description description)
     {
+      TestUtils.deleteTargetTestClassFolder(description);
       String methodName = description.getMethodName();
       String className = description.getClassName();
       this.dir = "target/" + className + "/" + methodName;
@@ -76,12 +77,7 @@ public class AbstractFileInputOperatorTest
     @Override
     protected void finished(Description description)
     {
-      try {
-        FileUtils.deleteDirectory(new File("target/" + description.getClassName()));
-      }
-      catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+      TestUtils.deleteTargetTestClassFolder(description);
     }
   }
 
