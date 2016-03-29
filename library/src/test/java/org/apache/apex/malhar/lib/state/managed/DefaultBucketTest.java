@@ -30,6 +30,7 @@ import org.junit.runner.Description;
 
 import com.datatorrent.lib.fileaccess.FileAccess;
 import com.datatorrent.lib.fileaccess.FileAccessFSImpl;
+import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.netlet.util.Slice;
 
 public class DefaultBucketTest
@@ -44,7 +45,7 @@ public class DefaultBucketTest
     @Override
     protected void starting(Description description)
     {
-      ManagedStateTestUtils.cleanTargetDir(description);
+      TestUtils.deleteTargetTestClassFolder(description);
       managedStateContext = new MockManagedStateContext(ManagedStateTestUtils.getOperatorContext(9));
       applicationPath = "target/" + description.getClassName() + "/" + description.getMethodName();
       ((FileAccessFSImpl)managedStateContext.getFileAccess()).setBasePath(applicationPath + "/" + "bucket_data");
@@ -58,7 +59,7 @@ public class DefaultBucketTest
     protected void finished(Description description)
     {
       managedStateContext.getBucketsFileSystem().teardown();
-      ManagedStateTestUtils.cleanTargetDir(description);
+      TestUtils.deleteTargetTestClassFolder(description);
     }
   }
 

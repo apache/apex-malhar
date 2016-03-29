@@ -92,7 +92,7 @@ public class FileSplitterInputTest
     @Override
     protected void starting(org.junit.runner.Description description)
     {
-
+      TestUtils.deleteTargetTestClassFolder(description);
       String methodName = description.getMethodName();
       String className = description.getClassName();
       this.dataDirectory = "target/" + className + "/" + methodName + "/data";
@@ -128,7 +128,7 @@ public class FileSplitterInputTest
     protected void finished(Description description)
     {
       this.fileSplitterInput.teardown();
-      FileUtils.deleteQuietly(new File("target/" + description.getClassName() + "/" + description.getMethodName()));
+      TestUtils.deleteTargetTestClassFolder(description);
     }
   }
 
