@@ -31,7 +31,6 @@ import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Attribute;
@@ -59,7 +58,7 @@ public class FileSplitterBaseTest
 {
   class BastTestMeta extends TestWatcher
   {
-    public String dataDirectory;
+    String dataDirectory;
 
     FileSplitterBase fileSplitter;
     CollectorTestSink<FileSplitterInput.FileMetadata> fileMetadataSink;
@@ -70,7 +69,7 @@ public class FileSplitterBaseTest
     @Override
     protected void starting(org.junit.runner.Description description)
     {
-
+      TestUtils.deleteTargetTestClassFolder(description);
       String methodName = description.getMethodName();
       String className = description.getClassName();
       this.dataDirectory = "target/" + className + "/" + methodName;
@@ -87,7 +86,6 @@ public class FileSplitterBaseTest
       attributes.put(Context.OperatorContext.SPIN_MILLIS, 500);
 
       context = new OperatorContextTestHelper.TestIdOperatorContext(0, attributes);
-      fileSplitter.setup(context);
 
       fileMetadataSink = new CollectorTestSink<>();
       TestUtils.setSink(fileSplitter.filesMetadataOutput, fileMetadataSink);
@@ -99,7 +97,7 @@ public class FileSplitterBaseTest
     @Override
     protected void finished(Description description)
     {
-      this.fileSplitter.teardown();
+      TestUtils.deleteTargetTestClassFolder(description);
     }
   }
 
@@ -109,6 +107,8 @@ public class FileSplitterBaseTest
   @Test
   public void testFileMetadata() throws InterruptedException
   {
+    baseTestMeta.fileSplitter.setup(baseTestMeta.context);
+
     baseTestMeta.fileSplitter.beginWindow(1);
     for (String filePath : baseTestMeta.filePaths) {
       baseTestMeta.fileSplitter.input.process(new FileSplitterInput.FileInfo(null, filePath));
@@ -122,11 +122,13 @@ public class FileSplitterBaseTest
     }
 
     baseTestMeta.fileMetadataSink.collectedTuples.clear();
+    baseTestMeta.fileSplitter.teardown();
   }
 
   @Test
   public void testBlockMetadataNoSplit() throws InterruptedException
   {
+    baseTestMeta.fileSplitter.setup(baseTestMeta.context);
     baseTestMeta.fileSplitter.beginWindow(1);
     for (String filePath : baseTestMeta.filePaths) {
       baseTestMeta.fileSplitter.input.process(new FileSplitterInput.FileInfo(null, filePath));
@@ -136,11 +138,13 @@ public class FileSplitterBaseTest
       BlockMetadata.FileBlockMetadata metadata = (BlockMetadata.FileBlockMetadata)blockMetadata;
       Assert.assertTrue("path: " + metadata.getFilePath(), baseTestMeta.filePaths.contains(metadata.getFilePath()));
     }
+    baseTestMeta.fileSplitter.teardown();
   }
 
   @Test
   public void testBlockMetadataWithSplit() throws InterruptedException
   {
+    baseTestMeta.fileSplitter.setup(baseTestMeta.context);
     baseTestMeta.fileSplitter.setBlockSize(2L);
     baseTestMeta.fileSplitter.beginWindow(1);
     for (String filePath : baseTestMeta.filePaths) {
@@ -155,11 +159,13 @@ public class FileSplitterBaseTest
       noOfBlocks += (int)Math.ceil(testFile.length() / (2 * 1.0));
     }
     Assert.assertEquals("Blocks", noOfBlocks, baseTestMeta.blockMetadataSink.collectedTuples.size());
+    baseTestMeta.fileSplitter.teardown();
   }
 
   @Test
   public void testBlocksThreshold() throws InterruptedException
   {
+    baseTestMeta.fileSplitter.setup(baseTestMeta.context);
     int noOfBlocks = 0;
     for (int i = 0; i < 12; i++) {
       File testFile = new File(baseTestMeta.dataDirectory, "file" + i + ".txt");
@@ -185,6 +191,7 @@ public class FileSplitterBaseTest
 
     Assert.assertEquals("Files", 12, baseTestMeta.fileMetadataSink.collectedTuples.size());
     Assert.assertEquals("Blocks", noOfBlocks, baseTestMeta.blockMetadataSink.collectedTuples.size());
+    baseTestMeta.fileSplitter.teardown();
   }
 
   @Test
@@ -198,7 +205,7 @@ public class FileSplitterBaseTest
     lc.runAsync();
     app.receiver.latch.await();
     Assert.assertEquals("no. of metadata", 12, app.receiver.count);
-    FileUtils.deleteQuietly(new File("target/SplitterInApp"));
+    lc.shutdown();
   }
 
   @ApplicationAnnotation(name = "TestApp")
@@ -209,7 +216,7 @@ public class FileSplitterBaseTest
     @Override
     public void populateDAG(DAG dag, Configuration configuration)
     {
-      dag.setAttribute(DAG.APPLICATION_PATH, "target/SplitterInApp");
+      dag.setAttribute(DAG.APPLICATION_PATH, baseTestMeta.dataDirectory);
       MockFileInput fileInput = dag.addOperator("Input", new MockFileInput());
       fileInput.filePaths = baseTestMeta.filePaths;
 
