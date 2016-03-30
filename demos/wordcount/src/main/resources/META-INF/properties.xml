@@ -95,4 +95,10 @@
     <description>Specify container locality for the viewtuplecount stream
     </description>
   </property>
+
+  <!-- properties for scala application -->
+  <property>
+    <name>dt.application.WordCountScala.operator.input.directory</name>
+    <value>/tmp/test/input-dir</value>
+  </property>
 </configuration>

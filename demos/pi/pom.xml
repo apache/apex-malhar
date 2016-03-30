@@ -34,7 +34,30 @@
     <version>3.4.0-incubating-SNAPSHOT</version>
   </parent>
 
+  <build>
+  <plugins>
+    <plugin>
+      <groupId>net.alchim31.maven</groupId>
+      <artifactId>scala-maven-plugin</artifactId>
+      <version>3.2.1</version>
+      <executions>
+        <execution>
+          <goals>
+            <goal>compile</goal>
+            <goal>testCompile</goal>
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
+  </plugins>
+  </build>
+
   <dependencies>
+    <dependency>
+      <groupId>org.scala-lang</groupId>
+      <artifactId>scala-library</artifactId>
+      <version>2.11.2</version>
+    </dependency>
     <dependency>
       <groupId>it.unimi.dsi</groupId>
       <artifactId>fastutil</artifactId>
