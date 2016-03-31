@@ -24,19 +24,18 @@ import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-
 import com.datatorrent.lib.helper.TestPortContext;
 import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.google.common.collect.Lists;
+
 import java.util.*;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.junit.AfterClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -219,6 +218,32 @@ public class CassandraOperatorTest
   }
 
   @Test
+  public void testCassandraProtocolVersion()
+  {
+    CassandraTransactionalStore transactionalStore = new CassandraTransactionalStore();
+    transactionalStore.setNode(NODE);
+    transactionalStore.setKeyspace(KEYSPACE);
+    transactionalStore.setProtocolVersion("v2");
+
+    AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
+    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+
+    TestOutputOperator outputOperator = new TestOutputOperator();
+
+    outputOperator.setTablename(TABLE_NAME);
+    List<FieldInfo> fieldInfos = Lists.newArrayList();
+    fieldInfos.add(new FieldInfo("id", "id", null));
+
+    outputOperator.setStore(transactionalStore);
+    outputOperator.setFieldInfos(fieldInfos);
+    outputOperator.setup(context);
+
+    Configuration config = outputOperator.getStore().getCluster().getConfiguration();
+    Assert.assertEquals("Procotol version was not set to V2.", ProtocolVersion.V2, config.getProtocolOptions().getProtocolVersionEnum());
+  }
+
+  @Test
   public void testCassandraOutputOperator()
   {
     CassandraTransactionalStore transactionalStore = new CassandraTransactionalStore();
@@ -333,27 +358,27 @@ public class CassandraOperatorTest
 
     String query2 = "SELECT * FROM " + KEYSPACE + "." + "%t where token(%p) > %v;";
     inputOperator.setQuery(query2);
+    inputOperator.setStartRow(10);
     inputOperator.setup(context);
     inputOperator.outputPort.setup(tpc);
     inputOperator.activate(context);
 
-    inputOperator.setStartRow(10);
     inputOperator.beginWindow(1);
     inputOperator.emitTuples();
     inputOperator.endWindow();
-    Assert.assertEquals("rows from db", 14, sink.collectedTuples.size());
+    Assert.assertEquals("rows from db", 26, sink.collectedTuples.size());
 
     sink.clear();
     inputOperator.columnDataTypes.clear();
 
     String query3 = "SELECT * FROM " + KEYSPACE + "." + "%t where token(%p) > %v LIMIT %l;";
     inputOperator.setQuery(query3);
+    inputOperator.setStartRow(1);
+    inputOperator.setLimit(10);
     inputOperator.setup(context);
     inputOperator.outputPort.setup(tpc);
     inputOperator.activate(context);
 
-    inputOperator.setStartRow(1);
-    inputOperator.setLimit(10);
     inputOperator.beginWindow(2);
     inputOperator.emitTuples();
     inputOperator.endWindow();

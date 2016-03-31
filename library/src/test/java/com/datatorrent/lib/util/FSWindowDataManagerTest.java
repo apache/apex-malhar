@@ -49,7 +49,7 @@ import com.datatorrent.lib.helper.OperatorContextTestHelper;
 /**
  * Tests for {@link WindowDataManager}
  */
-public class WindowDataManagerTest
+public class FSWindowDataManagerTest
 {
   private static class TestMeta extends TestWatcher
   {
@@ -61,6 +61,7 @@ public class WindowDataManagerTest
     @Override
     protected void starting(Description description)
     {
+      TestUtils.deleteTargetTestClassFolder(description);
       super.starting(description);
       storageManager = new WindowDataManager.FSWindowDataManager();
       applicationPath = "target/" + description.getClassName() + "/" + description.getMethodName();
@@ -68,19 +69,12 @@ public class WindowDataManagerTest
       Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(DAG.APPLICATION_PATH, applicationPath);
       context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
-
-      storageManager.setup(context);
     }
 
     @Override
     protected void finished(Description description)
     {
-      storageManager.teardown();
-      try {
-        FileUtils.deleteDirectory(new File("target/" + description.getClassName()));
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+      TestUtils.deleteTargetTestClassFolder(description);
     }
   }
 
@@ -90,12 +84,15 @@ public class WindowDataManagerTest
   @Test
   public void testLargestRecoveryWindow()
   {
+    testMeta.storageManager.setup(testMeta.context);
     Assert.assertEquals("largest recovery", Stateless.WINDOW_ID, testMeta.storageManager.getLargestRecoveryWindow());
+    testMeta.storageManager.teardown();
   }
 
   @Test
   public void testSave() throws IOException
   {
+    testMeta.storageManager.setup(testMeta.context);
     Map<Integer, String> data = Maps.newHashMap();
     data.put(1, "one");
     data.put(2, "two");
@@ -105,11 +102,13 @@ public class WindowDataManagerTest
     @SuppressWarnings("unchecked")
     Map<Integer, String> decoded = (Map<Integer, String>)testMeta.storageManager.load(1, 1);
     Assert.assertEquals("dataOf1", data, decoded);
+    testMeta.storageManager.teardown();
   }
 
   @Test
   public void testLoad() throws IOException
   {
+    testMeta.storageManager.setup(testMeta.context);
     Map<Integer, String> dataOf1 = Maps.newHashMap();
     dataOf1.put(1, "one");
     dataOf1.put(2, "two");
@@ -132,11 +131,13 @@ public class WindowDataManagerTest
         Assert.assertEquals("data of 2", dataOf2, decodedStates.get(2));
       }
     }
+    testMeta.storageManager.teardown();
   }
 
   @Test
   public void testRecovery() throws IOException
   {
+    testMeta.storageManager.setup(testMeta.context);
     Map<Integer, String> dataOf1 = Maps.newHashMap();
     dataOf1.put(1, "one");
     dataOf1.put(2, "two");
@@ -152,11 +153,13 @@ public class WindowDataManagerTest
 
     testMeta.storageManager.setup(testMeta.context);
     Assert.assertEquals("largest recovery window", 2, testMeta.storageManager.getLargestRecoveryWindow());
+    testMeta.storageManager.teardown();
   }
 
   @Test
   public void testDelete() throws IOException
   {
+    testMeta.storageManager.setup(testMeta.context);
     Map<Integer, String> dataOf1 = Maps.newHashMap();
     dataOf1.put(1, "one");
     dataOf1.put(2, "two");
@@ -192,9 +195,22 @@ public class WindowDataManagerTest
     for (FileStatus fileStatus : fileStatuses) {
       windows.add(fileStatus.getPath().getName());
     }
-    Assert.assertEquals("window list for 1", Sets.newLinkedHashSet(Arrays.asList("7", "8", "9")), windows);
+    Assert.assertEquals("window list for 1", Sets.newTreeSet(Arrays.asList("7", "8", "9")), windows);
     Assert.assertEquals("no data for 2", false, fs.exists(new Path(appPath, Integer.toString(2))));
     Assert.assertEquals("no data for 3", false, fs.exists(new Path(appPath, Integer.toString(3))));
+    testMeta.storageManager.teardown();
+  }
+
+  @Test
+  public void testAbsoluteRecoveryPath() throws IOException
+  {
+    testMeta.storageManager.setRecoveryPathRelativeToAppPath(false);
+    long time = System.currentTimeMillis();
+    testMeta.storageManager.setRecoveryPath("target/" + time);
+    testSave();
+    File recoveryDir = new File("target/" + time);
+    Assert.assertTrue("recover path exist", recoveryDir.isDirectory());
+    FileUtils.deleteDirectory(recoveryDir);
   }
 
 }

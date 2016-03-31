@@ -46,6 +46,7 @@ import org.apache.hadoop.fs.FileSystem;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.RandomWordGenerator;
+import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 
 import com.datatorrent.api.*;
@@ -71,6 +72,7 @@ public class AbstractFileOutputOperatorTest
     protected void starting(Description description)
     {
       super.starting(description);
+      TestUtils.deleteTargetTestClassFolder(description);
       try {
         FileUtils.forceMkdir(new File(getDir()));
         Attribute.AttributeMap.DefaultAttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
@@ -87,7 +89,7 @@ public class AbstractFileOutputOperatorTest
     protected void finished(Description description)
     {
       super.finished(description);
-      FileUtils.deleteQuietly(new File(getDir()));
+      TestUtils.deleteTargetTestClassFolder(description);
     }
   }
 

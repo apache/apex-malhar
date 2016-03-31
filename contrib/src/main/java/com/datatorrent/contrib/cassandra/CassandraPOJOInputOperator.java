@@ -28,16 +28,17 @@ import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.ColumnDefinitions;
 import com.datastax.driver.core.DataType;
+import com.datastax.driver.core.PreparedStatement;
+import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
-
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-
 import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.*;
@@ -62,7 +63,8 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
 {
   @NotNull
   private List<FieldInfo> fieldInfos;
-  private Number startRow = 0;
+  private Number startRow;
+  private Long startRowToken = Long.MIN_VALUE;
   @NotNull
   private String tablename;
   @NotNull
@@ -73,6 +75,7 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
   @Min(1)
   private int limit = 10;
 
+  private String TOKEN_QUERY;
   private transient DataType primaryKeyColumnType;
   private transient Row lastRowInBatch;
 
@@ -186,6 +189,17 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
     columnDataTypes = new ArrayList<DataType>();
     setters = new ArrayList<Object>();
     this.store = new CassandraStore();
+  }
+
+  @Override
+  public void setup(OperatorContext context)
+  {
+    super.setup(context);
+    Long keyToken;
+    if ((keyToken = fetchKeyTokenFromDB(startRow)) != null) {
+      startRowToken = keyToken;
+    }
+    TOKEN_QUERY = "select token(" + primaryKeyColumn + ") from " + store.keyspace + "." + tablename + " where " + primaryKeyColumn + " =  ?";
   }
 
   @Override
@@ -348,7 +362,7 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
   public String queryToRetrieveData()
   {
     if (query.contains("%v")) {
-      return query.replace("%v", startRow + "");
+      return query.replace("%v", startRowToken + "");
     }
     return query;
   }
@@ -362,24 +376,43 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
   {
     super.emitTuples();
     if (lastRowInBatch != null) {
-      switch (primaryKeyColumnType.getName()) {
-        case INT:
-          startRow = lastRowInBatch.getInt(primaryKeyColumn);
-          break;
-        case COUNTER:
-          startRow = lastRowInBatch.getLong(primaryKeyColumn);
-          break;
-        case FLOAT:
-          startRow = lastRowInBatch.getFloat(primaryKeyColumn);
-          break;
-        case DOUBLE:
-          startRow = lastRowInBatch.getDouble(primaryKeyColumn);
-          break;
-        default:
-          throw new RuntimeException("unsupported data type " + primaryKeyColumnType.getName());
-      }
+      startRowToken = getPrimaryKeyToken(primaryKeyColumnType.getName());
     }
+  }
 
+  private Long getPrimaryKeyToken(DataType.Name primaryKeyDataType)
+  {
+    Object keyValue;
+    switch (primaryKeyDataType) {
+      case UUID:
+        keyValue = lastRowInBatch.getUUID(primaryKeyColumn);
+        break;
+      case INT:
+        keyValue = lastRowInBatch.getInt(primaryKeyColumn);
+        break;
+      case COUNTER:
+        keyValue = lastRowInBatch.getLong(primaryKeyColumn);
+        break;
+      case FLOAT:
+        keyValue = lastRowInBatch.getFloat(primaryKeyColumn);
+        break;
+      case DOUBLE:
+        keyValue = lastRowInBatch.getDouble(primaryKeyColumn);
+        break;
+      default:
+        throw new RuntimeException("unsupported data type " + primaryKeyColumnType.getName());
+    }
+    return fetchKeyTokenFromDB(keyValue);
+  }
+
+  private Long fetchKeyTokenFromDB(Object keyValue)
+  {
+    PreparedStatement statement = store.getSession().prepare(TOKEN_QUERY);
+    BoundStatement boundStatement = new BoundStatement(statement);
+    boundStatement.bind(keyValue);
+    ResultSet rs = store.getSession().execute(boundStatement);
+    Long keyTokenValue = rs.one().getLong(0);
+    return keyTokenValue;
   }
 
   @Override

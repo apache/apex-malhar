@@ -20,15 +20,16 @@ package com.datatorrent.lib.appdata.dimensions;
 
 import java.util.Map;
 
-import com.google.common.collect.Maps;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.EventKey;
+
+import com.google.common.collect.Maps;
 
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
-import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
 
 public class DimensionsEventTest
 {

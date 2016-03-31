@@ -32,6 +32,7 @@ import org.junit.runner.Description;
 import com.datatorrent.api.Context;
 import com.datatorrent.lib.fileaccess.FileAccessFSImpl;
 import com.datatorrent.lib.util.KryoCloneUtils;
+import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.netlet.util.Slice;
 
 public class ManagedStateImplTest
@@ -46,7 +47,7 @@ public class ManagedStateImplTest
     @Override
     protected void starting(Description description)
     {
-      ManagedStateTestUtils.cleanTargetDir(description);
+      TestUtils.deleteTargetTestClassFolder(description);
       managedState = new ManagedStateImpl();
       applicationPath = "target/" + description.getClassName() + "/" + description.getMethodName();
       ((FileAccessFSImpl)managedState.getFileAccess()).setBasePath(applicationPath + "/" + "bucket_data");
@@ -57,7 +58,7 @@ public class ManagedStateImplTest
     @Override
     protected void finished(Description description)
     {
-      ManagedStateTestUtils.cleanTargetDir(description);
+      TestUtils.deleteTargetTestClassFolder(description);
     }
   }
 

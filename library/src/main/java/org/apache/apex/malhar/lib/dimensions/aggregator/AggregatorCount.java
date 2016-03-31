@@ -16,10 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.dimensions.aggregator;
+package org.apache.apex.malhar.lib.dimensions.aggregator;
 
 import java.util.Collections;
 import java.util.Map;
+
+import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.Aggregate;
+import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.EventKey;
+import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.InputEvent;
 
 import com.google.common.collect.Maps;
 
@@ -28,9 +32,6 @@ import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
-import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
-import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
-import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 
 /**
  * This {@link IncrementalAggregator} performs a count of the number of times an input is encountered.

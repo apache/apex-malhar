@@ -16,21 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.dimensions;
+package org.apache.apex.malhar.lib.dimensions;
 
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.collect.Sets;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import org.apache.apex.malhar.lib.dimensions.DimensionsDescriptor;
+
+import com.google.common.collect.Sets;
 
 import com.datatorrent.lib.appdata.schemas.CustomTimeBucket;
 import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.TimeBucket;
 import com.datatorrent.lib.appdata.schemas.Type;
-import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 
 public class DimensionsDescriptorTest
 {

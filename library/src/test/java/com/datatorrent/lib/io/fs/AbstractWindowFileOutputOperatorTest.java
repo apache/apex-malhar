@@ -44,6 +44,7 @@ public class AbstractWindowFileOutputOperatorTest
       oper.setAlwaysWriteToTmp(false);
       oper.setup(testOperatorContext);
     }
+
   }
 
   public static OperatorContextTestHelper.TestIdOperatorContext testOperatorContext =
