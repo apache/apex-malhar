@@ -113,6 +113,8 @@ public interface WindowDataManager extends StorageAgent, Component<Context.Opera
     @NotNull
     private String recoveryPath;
 
+    private boolean isRecoveryPathRelativeToAppPath = true;
+
     /**
      * largest window for which there is recovery data across all physical operator instances.
      */
@@ -144,7 +146,11 @@ public interface WindowDataManager extends StorageAgent, Component<Context.Opera
     public void setup(Context.OperatorContext context)
     {
       Configuration configuration = new Configuration();
-      appPath = new Path(context.getValue(DAG.APPLICATION_PATH) + Path.SEPARATOR + recoveryPath);
+      if (isRecoveryPathRelativeToAppPath) {
+        appPath = new Path(context.getValue(DAG.APPLICATION_PATH) + Path.SEPARATOR + recoveryPath);
+      } else {
+        appPath = new Path(recoveryPath);
+      }
 
       try {
         storageAgent = new FSStorageAgent(appPath.toString(), configuration);
@@ -333,14 +339,41 @@ public interface WindowDataManager extends StorageAgent, Component<Context.Opera
       }
     }
 
+    /**
+     * @return recovery path
+     */
     public String getRecoveryPath()
     {
       return recoveryPath;
     }
 
+    /**
+     * Sets the recovery path. If {@link #isRecoveryPathRelativeToAppPath} is true then this path is handled relative
+     * to the application path; otherwise it is handled as an absolute path.
+     *
+     * @param recoveryPath recovery path
+     */
     public void setRecoveryPath(String recoveryPath)
     {
       this.recoveryPath = recoveryPath;
+    }
+
+    /**
+     * @return true if recovery path is relative to app path; false otherwise.
+     */
+    public boolean isRecoveryPathRelativeToAppPath()
+    {
+      return isRecoveryPathRelativeToAppPath;
+    }
+
+    /**
+     * Specifies whether the recovery path is relative to application path.
+     *
+     * @param recoveryPathRelativeToAppPath true if recovery path is relative to application path; false otherwise.
+     */
+    public void setRecoveryPathRelativeToAppPath(boolean recoveryPathRelativeToAppPath)
+    {
+      isRecoveryPathRelativeToAppPath = recoveryPathRelativeToAppPath;
     }
   }
 

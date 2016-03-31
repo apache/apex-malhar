@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.dimensions;
+package org.apache.apex.malhar.lib.dimensions;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -58,14 +58,12 @@ public class CustomTimeBucketRegistry implements Serializable
     initialize(idToTimeBucket);
   }
 
-  public CustomTimeBucketRegistry(Int2ObjectMap<CustomTimeBucket> idToTimeBucket,
-      int startingId)
+  public CustomTimeBucketRegistry(Int2ObjectMap<CustomTimeBucket> idToTimeBucket, int startingId)
   {
     int tempId = initialize(idToTimeBucket);
 
     Preconditions.checkArgument(tempId < startingId, "The statingId " + startingId
-        + " must be larger than the largest ID " + tempId
-        + " in the given idToTimeBucket mapping");
+        + " must be larger than the largest ID " + tempId + " in the given idToTimeBucket mapping");
 
     this.idToTimeBucket = Preconditions.checkNotNull(idToTimeBucket);
     this.currentId = startingId;

@@ -16,27 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.dimensions.aggregator;
+package org.apache.apex.malhar.lib.dimensions.aggregator;
+
+import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.Aggregate;
+import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.InputEvent;
 
 import com.datatorrent.api.annotation.Name;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
-import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
-import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 
 /**
- * This {@link IncrementalAggregator} takes the min of the fields provided in the {@link InputEvent}.
+ * This {@link IncrementalAggregator} takes the max of the fields provided in the {@link InputEvent}.
  *
  * @since 3.1.0
  */
-@Name("MIN")
-public class AggregatorMin extends AbstractIncrementalAggregator
+@Name("MAX")
+public class AggregatorMax extends AbstractIncrementalAggregator
 {
-  private static final long serialVersionUID = 20154301648L;
+  private static final long serialVersionUID = 201503120332L;
 
-  public AggregatorMin()
+  public AggregatorMax()
   {
     //Do nothing
   }
@@ -66,7 +67,7 @@ public class AggregatorMin extends AbstractIncrementalAggregator
             index < destByte.length;
             index++) {
           byte tempVal = srcByte[srcIndices[index]];
-          if (destByte[index] > tempVal) {
+          if (destByte[index] < tempVal) {
             destByte[index] = tempVal;
           }
         }
@@ -82,7 +83,7 @@ public class AggregatorMin extends AbstractIncrementalAggregator
             index < destShort.length;
             index++) {
           short tempVal = srcShort[srcIndices[index]];
-          if (destShort[index] > tempVal) {
+          if (destShort[index] < tempVal) {
             destShort[index] = tempVal;
           }
         }
@@ -98,7 +99,7 @@ public class AggregatorMin extends AbstractIncrementalAggregator
             index < destInteger.length;
             index++) {
           int tempVal = srcInteger[srcIndices[index]];
-          if (destInteger[index] > tempVal) {
+          if (destInteger[index] < tempVal) {
             destInteger[index] = tempVal;
           }
         }
@@ -114,7 +115,7 @@ public class AggregatorMin extends AbstractIncrementalAggregator
             index < destLong.length;
             index++) {
           long tempVal = srcLong[srcIndices[index]];
-          if (destLong[index] > tempVal) {
+          if (destLong[index] < tempVal) {
             destLong[index] = tempVal;
           }
         }
@@ -130,7 +131,7 @@ public class AggregatorMin extends AbstractIncrementalAggregator
             index < destFloat.length;
             index++) {
           float tempVal = srcFloat[srcIndices[index]];
-          if (destFloat[index] > tempVal) {
+          if (destFloat[index] < tempVal) {
             destFloat[index] = tempVal;
           }
         }
@@ -146,7 +147,7 @@ public class AggregatorMin extends AbstractIncrementalAggregator
             index < destDouble.length;
             index++) {
           double tempVal = srcDouble[srcIndices[index]];
-          if (destDouble[index] > tempVal) {
+          if (destDouble[index] < tempVal) {
             destDouble[index] = tempVal;
           }
         }
@@ -168,7 +169,7 @@ public class AggregatorMin extends AbstractIncrementalAggregator
         for (int index = 0;
             index < destByte.length;
             index++) {
-          if (destByte[index] > srcByte[index]) {
+          if (destByte[index] < srcByte[index]) {
             destByte[index] = srcByte[index];
           }
         }
@@ -183,7 +184,7 @@ public class AggregatorMin extends AbstractIncrementalAggregator
         for (int index = 0;
             index < destShort.length;
             index++) {
-          if (destShort[index] > srcShort[index]) {
+          if (destShort[index] < srcShort[index]) {
             destShort[index] = srcShort[index];
           }
         }
@@ -198,7 +199,7 @@ public class AggregatorMin extends AbstractIncrementalAggregator
         for (int index = 0;
             index < destInteger.length;
             index++) {
-          if (destInteger[index] > srcInteger[index]) {
+          if (destInteger[index] < srcInteger[index]) {
             destInteger[index] = srcInteger[index];
           }
         }
@@ -213,7 +214,7 @@ public class AggregatorMin extends AbstractIncrementalAggregator
         for (int index = 0;
             index < destLong.length;
             index++) {
-          if (destLong[index] > srcLong[index]) {
+          if (destLong[index] < srcLong[index]) {
             destLong[index] = srcLong[index];
           }
         }
@@ -228,7 +229,7 @@ public class AggregatorMin extends AbstractIncrementalAggregator
         for (int index = 0;
             index < destFloat.length;
             index++) {
-          if (destFloat[index] > srcFloat[index]) {
+          if (destFloat[index] < srcFloat[index]) {
             destFloat[index] = srcFloat[index];
           }
         }
@@ -243,7 +244,7 @@ public class AggregatorMin extends AbstractIncrementalAggregator
         for (int index = 0;
             index < destDouble.length;
             index++) {
-          if (destDouble[index] > srcDouble[index]) {
+          if (destDouble[index] < srcDouble[index]) {
             destDouble[index] = srcDouble[index];
           }
         }

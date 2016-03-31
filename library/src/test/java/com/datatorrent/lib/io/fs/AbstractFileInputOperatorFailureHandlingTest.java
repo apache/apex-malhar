@@ -22,6 +22,7 @@ import com.datatorrent.api.*;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 import com.google.common.collect.*;
 import java.io.*;
@@ -120,6 +121,7 @@ public class AbstractFileInputOperatorFailureHandlingTest
 
     Assert.assertEquals("number tuples", 100, queryResults.collectedTuples.size());
     Assert.assertEquals("lines", allLines, new HashSet<String>(queryResults.collectedTuples));
+    TestUtils.deleteTargetTestClassFolder(testMeta.desc);
 
   }
 }

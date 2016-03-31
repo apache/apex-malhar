@@ -44,6 +44,7 @@ import com.google.common.base.Preconditions;
 import com.datatorrent.api.Context;
 import com.datatorrent.lib.fileaccess.FileAccessFSImpl;
 import com.datatorrent.lib.util.KryoCloneUtils;
+import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.netlet.util.Slice;
 
 public class IncrementalCheckpointManagerTest
@@ -58,7 +59,7 @@ public class IncrementalCheckpointManagerTest
     @Override
     protected void starting(Description description)
     {
-      ManagedStateTestUtils.cleanTargetDir(description);
+      TestUtils.deleteTargetTestClassFolder(description);
       applicationPath = "target/" + description.getClassName() + "/" + description.getMethodName();
 
       Context.OperatorContext operatorContext = ManagedStateTestUtils.getOperatorContext(operatorId, applicationPath);
@@ -78,7 +79,7 @@ public class IncrementalCheckpointManagerTest
     {
       managedStateContext.getTimeBucketAssigner().teardown();
       managedStateContext.getBucketsFileSystem().teardown();
-      ManagedStateTestUtils.cleanTargetDir(description);
+      TestUtils.deleteTargetTestClassFolder(description);
     }
   }
 

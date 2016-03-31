@@ -24,23 +24,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
-import org.codehaus.jettison.json.JSONArray;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.codehaus.jettison.json.JSONArray;
+
+import org.apache.apex.malhar.lib.dimensions.DimensionsDescriptor;
+import org.apache.apex.malhar.lib.dimensions.aggregator.AggregatorIncrementalType;
+import org.apache.apex.malhar.lib.dimensions.aggregator.AggregatorRegistry;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema.DimensionsCombination;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema.Key;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema.Value;
-import com.datatorrent.lib.dimensions.DimensionsDescriptor;
-import com.datatorrent.lib.dimensions.aggregator.AggregatorIncrementalType;
-import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
 
 public class DimensionalConfigurationSchemaTest
 {
@@ -56,9 +57,9 @@ public class DimensionalConfigurationSchemaTest
   public void noEnumTest()
   {
     //Test if loading of no enums works
-    DimensionalConfigurationSchema des =
-    new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaNoEnums.json"),
-    AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
+    DimensionalConfigurationSchema des = new DimensionalConfigurationSchema(
+        SchemaUtils.jarResourceFileToString("adsGenericEventSchemaNoEnums.json"),
+        AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
     DimensionalSchema dimensionalSchema = new DimensionalSchema(des);
     dimensionalSchema.getSchemaJSON();
