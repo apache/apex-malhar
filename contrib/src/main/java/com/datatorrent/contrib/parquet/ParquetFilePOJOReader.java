@@ -18,27 +18,21 @@
  */
 package com.datatorrent.contrib.parquet;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+
+import javax.activation.UnsupportedDataTypeException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang3.ClassUtils;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.lib.util.FieldInfo.SupportType;
 import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Setter;
 
 import parquet.example.data.Group;
 import parquet.io.InvalidRecordException;
@@ -62,7 +56,6 @@ import parquet.schema.PrimitiveType.PrimitiveTypeName;
  *
  * @displayName ParquetFilePOJOReader
  * @tags parquet,input adapter
- * @since 3.3.0
  */
 public class ParquetFilePOJOReader extends AbstractParquetFileReader<Object>
 {
@@ -71,10 +64,6 @@ public class ParquetFilePOJOReader extends AbstractParquetFileReader<Object>
    * POJO class
    */
   protected transient Class<?> pojoClass;
-  /**
-   * Map containing setters for fields in POJO
-   */
-  protected transient Map<String, Setter> pojoSetters;
   /**
    * String representing Parquet TO POJO field mapping. If not provided, then
    * reflection is used to determine the mapping. Format :
@@ -85,8 +74,7 @@ public class ParquetFilePOJOReader extends AbstractParquetFileReader<Object>
    * FLOAT,double_val:double_val_v2:DOUBLE
    */
   protected transient String groupToPOJOFieldsMapping = null;
-  protected transient List<FieldInfo> fieldInfos;
-  protected transient List<ActiveFieldInfo> columnFieldSetters = null;
+  protected transient List<ActiveFieldInfo> activeFieldInfos = null;
   protected static final String FIELD_SEPARATOR = ":";
   protected static final String RECORD_SEPARATOR = ",";
   private static final Logger logger = LoggerFactory.getLogger(ParquetFilePOJOReader.class);
@@ -94,29 +82,16 @@ public class ParquetFilePOJOReader extends AbstractParquetFileReader<Object>
   @OutputPortFieldAnnotation(schemaRequired = true)
   public final transient DefaultOutputPort<Object> output = new DefaultOutputPort<Object>()
   {
-
     @Override
     public void setup(Context.PortContext context)
     {
       pojoClass = context.getValue(Context.PortContext.TUPLE_CLASS);
-      pojoSetters = Maps.newHashMap();
-      for (Field f : pojoClass.getDeclaredFields()) {
-        try {
-          pojoSetters.put(f.getName(), generateSettersForField(pojoClass, f.getName()));
-        } catch (NoSuchFieldException | SecurityException e) {
-          logger.error("Failed to generate setters. Exception {}", e);
-          throw new RuntimeException(e);
-        }
-      }
-
       if (groupToPOJOFieldsMapping == null) {
-        fieldInfos = createFieldInfoMap(generateFieldInfoInputs());
+        initialiseActiveFieldInfo(generateFieldInfoInputs());
       } else {
-        fieldInfos = createFieldInfoMap(groupToPOJOFieldsMapping);
+        initialiseActiveFieldInfo(groupToPOJOFieldsMapping);
       }
-      initColumnFieldSetters();
     }
-
   };
 
   /**
@@ -131,45 +106,44 @@ public class ParquetFilePOJOReader extends AbstractParquetFileReader<Object>
     } catch (InstantiationException | IllegalAccessException ex) {
       throw new RuntimeException(ex);
     }
-    for (int i = 0; i < columnFieldSetters.size(); i++) {
-      try {
-        ParquetFilePOJOReader.ActiveFieldInfo afi = columnFieldSetters.get(i);
-        int fieldIndex = schema.getFieldIndex(afi.fieldInfo.getColumnName());
-        PrimitiveTypeName primitiveTypeName = schema.getType(fieldIndex).asPrimitiveType().getPrimitiveTypeName();
 
-        switch (primitiveTypeName) {
+    for (int i = 0; i < activeFieldInfos.size(); i++) {
+      try {
+        ParquetFilePOJOReader.ActiveFieldInfo afi = activeFieldInfos.get(i);
+
+        switch (afi.primitiveTypeName) {
 
           case BOOLEAN:
-            Boolean booleanVal = Boolean.parseBoolean(group.getValueToString(fieldIndex, 0));
-            pojoSetters.get(afi.fieldInfo.getPojoFieldExpression()).set(obj, booleanVal);
+            Boolean booleanVal = Boolean.parseBoolean(group.getValueToString(afi.fieldIndex, 0));
+            ((PojoUtils.SetterBoolean<Object>)afi.setter).set(obj, booleanVal);
             break;
 
           case INT32:
-            Integer intVal = Integer.parseInt(group.getValueToString(fieldIndex, 0));
-            pojoSetters.get(afi.fieldInfo.getPojoFieldExpression()).set(obj, intVal);
+            Integer intVal = Integer.parseInt(group.getValueToString(afi.fieldIndex, 0));
+            ((PojoUtils.SetterInt<Object>)afi.setter).set(obj, intVal);
             break;
 
           case INT64:
-            Long longVal = Long.parseLong(group.getValueToString(fieldIndex, 0));
-            pojoSetters.get(afi.fieldInfo.getPojoFieldExpression()).set(obj, longVal);
+            Long longVal = Long.parseLong(group.getValueToString(afi.fieldIndex, 0));
+            ((PojoUtils.SetterLong<Object>)afi.setter).set(obj, longVal);
             break;
 
           case FLOAT:
-            Float floatVal = Float.parseFloat(group.getValueToString(fieldIndex, 0));
-            pojoSetters.get(afi.fieldInfo.getPojoFieldExpression()).set(obj, floatVal);
+            Float floatVal = Float.parseFloat(group.getValueToString(afi.fieldIndex, 0));
+            ((PojoUtils.SetterFloat<Object>)afi.setter).set(obj, floatVal);
             break;
 
           case DOUBLE:
-            Double doubleVal = Double.parseDouble(group.getValueToString(fieldIndex, 0));
-            pojoSetters.get(afi.fieldInfo.getPojoFieldExpression()).set(obj, doubleVal);
+            Double doubleVal = Double.parseDouble(group.getValueToString(afi.fieldIndex, 0));
+            ((PojoUtils.SetterDouble<Object>)afi.setter).set(obj, doubleVal);
             break;
 
           case BINARY:
-            pojoSetters.get(afi.fieldInfo.getPojoFieldExpression()).set(obj, group.getValueToString(fieldIndex, 0));
+            ((PojoUtils.Setter<Object, String>)afi.setter).set(obj, group.getValueToString(afi.fieldIndex, 0));
             break;
 
           default:
-            throw new ParquetEncodingException("Unsupported column type: " + primitiveTypeName);
+            throw new ParquetEncodingException("Unsupported column type: " + afi.primitiveTypeName);
 
         }
       } catch (InvalidRecordException e) {
@@ -186,58 +160,49 @@ public class ParquetFilePOJOReader extends AbstractParquetFileReader<Object>
   }
 
   /**
-   * Sets the {@link FieldInfo}s. A {@link FieldInfo} maps a store column to a
-   * pojo field name.<br/>
-   * The value from fieldInfo.column is assigned to
-   * fieldInfo.pojoFieldExpression.
-   *
-   * @description $[].columnName name of the Output Field in POJO
-   * @description $[].pojoFieldExpression expression to get the respective field
-   *              from generic record
-   * @useSchema $[].pojoFieldExpression outputPort.fields[].name
-   */
-  public void setFieldInfos(List<FieldInfo> fieldInfos)
-  {
-    this.fieldInfos = fieldInfos;
-  }
-
-  /**
-   * Creates a map representing fieldName in POJO:field in Generic Record:Data
-   * type
+   * Initializes {@link ActiveFieldInfo#} by adding fields represented by
+   * fieldMapping
    * 
-   * @return List of FieldInfo
+   * @param fieldMapping
+   *          String representing Parquet TO POJO field mapping
    */
-  public List<FieldInfo> createFieldInfoMap(String str)
+  private void initialiseActiveFieldInfo(String fieldMapping)
   {
-    fieldInfos = new ArrayList<FieldInfo>();
-
-    StringTokenizer strtok = new StringTokenizer(str, RECORD_SEPARATOR);
-
-    while (strtok.hasMoreTokens()) {
-      String[] token = strtok.nextToken().split(FIELD_SEPARATOR);
-
-      fieldInfos.add(new FieldInfo(token[0], token[1], SupportType.valueOf(token[2])));
+    String[] fields = fieldMapping.split(RECORD_SEPARATOR);
+    activeFieldInfos = new ArrayList<ActiveFieldInfo>(fields.length);
+    for (String field : fields) {
+      String[] token = field.split(FIELD_SEPARATOR);
+      try {
+        int fieldIndex = schema.getFieldIndex(token[0]);
+        PrimitiveTypeName primitiveTypeName = schema.getType(fieldIndex).asPrimitiveType().getPrimitiveTypeName();
+        activeFieldInfos.add(
+            new ActiveFieldInfo(getSetter(token[1], SupportType.valueOf(token[2])), primitiveTypeName, fieldIndex));
+      } catch (InvalidRecordException e) {
+        logger.error("{} not present in schema ", token[0]);
+      } catch (UnsupportedOperationException e) {
+        logger.error("{} not yet supported ", e.getMessage());
+      }
     }
-
-    return fieldInfos;
   }
 
-  /**
-   * Generates setter for given field and POJO class
-   * 
-   * @param klass
-   * @param inputFieldName
-   * @return Setter
-   * @throws NoSuchFieldException
-   * @throws SecurityException
-   */
-  private Setter generateSettersForField(Class<?> klass, String inputFieldName)
-      throws NoSuchFieldException, SecurityException
+  private Object getSetter(String pojoFieldExpression, SupportType supportType) throws UnsupportedOperationException
   {
-    Field f = klass.getDeclaredField(inputFieldName);
-    Class c = ClassUtils.primitiveToWrapper(f.getType());
-    Setter classSetter = PojoUtils.createSetter(klass, inputFieldName, c);
-    return classSetter;
+    switch (supportType) {
+      case BOOLEAN:
+        return PojoUtils.createSetterBoolean(pojoClass, pojoFieldExpression);
+      case DOUBLE:
+        return PojoUtils.createSetterDouble(pojoClass, pojoFieldExpression);
+      case FLOAT:
+        return PojoUtils.createSetterFloat(pojoClass, pojoFieldExpression);
+      case INTEGER:
+        return PojoUtils.createSetterInt(pojoClass, pojoFieldExpression);
+      case LONG:
+        return PojoUtils.createSetterLong(pojoClass, pojoFieldExpression);
+      case STRING:
+        return PojoUtils.createSetter(pojoClass, pojoFieldExpression, String.class);
+      default:
+        throw new UnsupportedOperationException("Unsupported data type" + supportType);
+    }
   }
 
   /**
@@ -261,38 +226,21 @@ public class ParquetFilePOJOReader extends AbstractParquetFileReader<Object>
   }
 
   /**
-   * Class that maps fieldInfo to its getters or setters
+   * Class representing parquet field information. Each object contains setter
+   * for the field, index of the field in parque schema and primitive type of
+   * the field
    */
   protected static class ActiveFieldInfo
   {
-    final FieldInfo fieldInfo;
-    Object setterOrGetter;
+    Object setter;
+    PrimitiveTypeName primitiveTypeName;
+    int fieldIndex;
 
-    ActiveFieldInfo(FieldInfo fieldInfo)
+    ActiveFieldInfo(Object setter, PrimitiveTypeName primitiveTypeName, int fieldIndex)
     {
-      this.fieldInfo = fieldInfo;
-    }
-  }
-
-  /**
-   * A list of {@link FieldInfo}s where each item maps a column name to a pojo
-   * field name.
-   */
-  public List<FieldInfo> getFieldInfos()
-  {
-    return fieldInfos;
-  }
-
-  /**
-   * Add the Active Fields to the columnFieldSetters {@link ActiveFieldInfo}s
-   */
-  private void initColumnFieldSetters()
-  {
-    for (FieldInfo fi : fieldInfos) {
-      if (columnFieldSetters == null) {
-        columnFieldSetters = Lists.newArrayList();
-      }
-      columnFieldSetters.add(new ParquetFilePOJOReader.ActiveFieldInfo(fi));
+      this.setter = setter;
+      this.primitiveTypeName = primitiveTypeName;
+      this.fieldIndex = fieldIndex;
     }
   }
 

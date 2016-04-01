@@ -38,13 +38,18 @@ import parquet.schema.MessageTypeParser;
  * {@link #convertGroup(Group)} method to convert Group to other type. Example
  * of such implementation is {@link ParquetFilePOJOReader} that converts Group
  * to POJO.
- * 
- * @since 3.3.3
  */
 public abstract class AbstractParquetFileReader<T> extends AbstractFileInputOperator<T>
 {
   private transient ParquetReader<Group> reader;
   protected transient MessageType schema;
+  /**
+   * Parquet Schema as a string. E.g: message
+   * com.datatorrent.contrib.parquet.eventsEventRecord {required INT32
+   * event_id;required BINARY org_id (UTF8);required INT64 long_id;optional
+   * BOOLEAN css_file_loaded;optional FLOAT float_val;optional DOUBLE
+   * double_val;}
+   */
   protected String parquetSchema;
 
   @Override
@@ -85,7 +90,7 @@ public abstract class AbstractParquetFileReader<T> extends AbstractFileInputOper
    * Converts Group to object of type T. Derived classes need to provide
    * implementation for conversion
    * 
-   * @param Group
+   * @param group
    * @return object of type T
    */
   protected abstract T convertGroup(Group group);
