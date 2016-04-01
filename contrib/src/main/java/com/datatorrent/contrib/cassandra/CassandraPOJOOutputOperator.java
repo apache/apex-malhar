@@ -18,23 +18,22 @@
  */
 package com.datatorrent.contrib.cassandra;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.*;
-
-import javax.validation.constraints.NotNull;
 
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
+
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.exceptions.DriverException;
-
+import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-
 import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.*;
@@ -50,16 +49,20 @@ import com.datatorrent.lib.util.PojoUtils.*;
  * @since 2.1.0
  */
 @Evolving
-public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionableOutputOperatorPS<Object> implements Operator.ActivationListener<Context.OperatorContext>
+public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionableOutputOperatorPS<Object>
 {
-  @NotNull
   private List<FieldInfo> fieldInfos;
-  @NotNull
   private String tablename;
+  private String query;
 
   protected final transient ArrayList<DataType> columnDataTypes;
   protected final transient ArrayList<Object> getters;
   protected transient Class<?> pojoClass;
+
+  @AutoMetric
+  private long recordsProcessed;
+  @AutoMetric
+  private long errorRecords;
 
   /**
    * The input port on which tuples are received for writing.
@@ -81,19 +84,6 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
 
   };
 
-  /*
-   * Tablename in cassandra.
-   */
-  public String getTablename()
-  {
-    return tablename;
-  }
-
-  public void setTablename(String tablename)
-  {
-    this.tablename = tablename;
-  }
-
   public CassandraPOJOOutputOperator()
   {
     super();
@@ -102,20 +92,31 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
   }
 
   @Override
+  public void beginWindow(long windowId)
+  {
+    super.beginWindow(windowId);
+    recordsProcessed = 0;
+    errorRecords = 0;
+  }
+
+  @Override
   public void activate(Context.OperatorContext context)
   {
+    // clear if it had anything
+    columnDataTypes.clear();
     com.datastax.driver.core.ResultSet rs = store.getSession().execute("select * from " + store.keyspace + "." + tablename);
-
     final ColumnDefinitions rsMetaData = rs.getColumnDefinitions();
 
-    final int numberOfColumns = rsMetaData.size();
+    if(fieldInfos == null) {
+      populateFieldInfosFromPojo(rsMetaData);
+    }
 
-    for (int i = 0; i < numberOfColumns; i++) {
+    for (FieldInfo fieldInfo : getFieldInfos()) {
       // get the designated column's data type.
-      final DataType type = rsMetaData.getType(i);
+      final DataType type = rsMetaData.getType(fieldInfo.getColumnName());
       columnDataTypes.add(type);
       final Object getter;
-      final String getterExpr = fieldInfos.get(i).getPojoFieldExpression();
+      final String getterExpr = fieldInfo.getPojoFieldExpression();
       switch (type.getName()) {
         case ASCII:
         case TEXT:
@@ -162,6 +163,30 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
       }
       getters.add(getter);
     }
+    super.activate(context);
+  }
+
+  private void populateFieldInfosFromPojo(ColumnDefinitions rsMetaData)
+  {
+    fieldInfos = Lists.newArrayList();
+    Field[] fields = pojoClass.getDeclaredFields();
+    for (int i = 0; i < rsMetaData.size(); i++) {
+      String columnName = rsMetaData.getName(i);
+      String pojoField = getMatchingField(fields, columnName);
+      if (pojoField != null && pojoField.length() != 0) {
+        fieldInfos.add(new FieldInfo(columnName, pojoField, null));
+      }
+    }
+  }
+
+  private String getMatchingField(Field[] fields, String columnName)
+  {
+    for (Field f : fields) {
+      if (f.getName().equalsIgnoreCase(columnName)) {
+        return f.getName();
+      }
+    }
+    return null;
   }
 
   @Override
@@ -172,25 +197,32 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
   @Override
   protected PreparedStatement getUpdateCommand()
   {
+    PreparedStatement statement;
+    if (query == null) {
+      statement = prepareStatementFromFieldsAndTableName();
+    } else {
+      statement = store.getSession().prepare(query);
+    }
+    LOG.debug("Statement is: " + statement.getQueryString());
+    return statement;
+  }
+
+  private PreparedStatement prepareStatementFromFieldsAndTableName()
+  {
     StringBuilder queryfields = new StringBuilder();
     StringBuilder values = new StringBuilder();
-    for (FieldInfo fieldInfo: fieldInfos) {
+    for (FieldInfo fieldInfo : fieldInfos) {
       if (queryfields.length() == 0) {
         queryfields.append(fieldInfo.getColumnName());
         values.append("?");
-      }
-      else {
+      } else {
         queryfields.append(",").append(fieldInfo.getColumnName());
         values.append(",").append("?");
       }
     }
-    String statement
-            = "INSERT INTO " + store.keyspace + "."
-            + tablename
-            + " (" + queryfields.toString() + ") "
-            + "VALUES (" + values.toString() + ");";
-    LOG.debug("statement is {}", statement);
+    String statement = "INSERT INTO " + store.keyspace + "." + tablename + " (" + queryfields.toString() + ") " + "VALUES (" + values.toString() + ");";
     return store.getSession().prepare(statement);
+
   }
 
   @Override
@@ -260,6 +292,17 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
     return boundStmnt;
   }
 
+  @Override
+  public void processTuple(Object tuple)
+  {
+    try {
+      super.processTuple(tuple);
+      recordsProcessed++;
+    } catch (RuntimeException e) {
+      //super.error.emit(tuple);
+      errorRecords++;
+    }
+  }
   /**
    * A list of {@link FieldInfo}s where each item maps a column name to a pojo field name.
    */
@@ -279,6 +322,42 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
   public void setFieldInfos(List<FieldInfo> fieldInfos)
   {
     this.fieldInfos = fieldInfos;
+  }
+
+  /**
+   * Gets cassandra table name
+   * @return tableName
+   */
+  public String getTablename()
+  {
+    return tablename;
+  }
+
+  /**
+   * Sets cassandra table name (optional if query is specified)
+   * @param tablename
+   */
+  public void setTablename(String tablename)
+  {
+    this.tablename = tablename;
+  }
+
+  /**
+   * Gets cql Query
+   * @return query
+   */
+  public String getQuery()
+  {
+    return query;
+  }
+
+  /**
+   * Sets cql Query
+   * @param query
+   */
+  public void setQuery(String query)
+  {
+    this.query = query;
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(CassandraPOJOOutputOperator.class);

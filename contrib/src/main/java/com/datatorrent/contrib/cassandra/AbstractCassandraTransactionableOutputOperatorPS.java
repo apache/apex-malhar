@@ -22,6 +22,8 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.exceptions.DriverException;
 import com.datatorrent.api.Context;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.Context.OperatorContext;
 
 import javax.annotation.Nonnull;
 
@@ -49,7 +51,8 @@ import javax.annotation.Nonnull;
  * @param <T>type of tuple</T>
  * @since 1.0.2
  */
-public abstract class AbstractCassandraTransactionableOutputOperatorPS<T> extends AbstractCassandraTransactionableOutputOperator<T>{
+public abstract class AbstractCassandraTransactionableOutputOperatorPS<T> extends AbstractCassandraTransactionableOutputOperator<T> implements Operator.ActivationListener<Context.OperatorContext>
+{
 
   private transient PreparedStatement updateCommand;
 
@@ -65,7 +68,13 @@ public abstract class AbstractCassandraTransactionableOutputOperatorPS<T> extend
   public void setup(Context.OperatorContext context)
   {
     super.setup(context);
+  }
+
+  @Override
+  public void activate(OperatorContext context)
+  {
     updateCommand = getUpdateCommand();
+
   }
 
   /**
