@@ -140,6 +140,13 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.apex</groupId>
+              <artifactId>apex-codestyle-config</artifactId>
+              <version>1.0.0-incubating</version>
+            </dependency>
+          </dependencies>
           <configuration>
             <consoleOutput>true</consoleOutput>
           </configuration>

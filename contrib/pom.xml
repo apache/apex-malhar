@@ -220,7 +220,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
-          <maxAllowedViolations>2754</maxAllowedViolations>
+          <maxAllowedViolations>2791</maxAllowedViolations>
           <consoleOutput>false</consoleOutput>
         </configuration>
       </plugin>
