@@ -34,6 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
+import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -83,6 +84,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   @NotNull
   protected final transient LinkedList<ScannedFileInfo> currentWindowRecoveryState;
 
+  @Valid
   @NotNull
   private TimeBasedDirectoryScanner scanner;
   @NotNull
