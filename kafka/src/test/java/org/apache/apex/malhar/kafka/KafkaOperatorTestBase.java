@@ -24,8 +24,8 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.util.Properties;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.slf4j.LoggerFactory;
 
 import org.apache.commons.io.FileUtils;
@@ -51,6 +51,7 @@ public class KafkaOperatorTestBase
   public static final int[] TEST_ZOOKEEPER_PORT;
   public static final int[][] TEST_KAFKA_BROKER_PORT;
   public static final String TEST_TOPIC = "testtopic";
+  public static int testCounter = 0;
 
   // get available ports
   static {
@@ -81,27 +82,27 @@ public class KafkaOperatorTestBase
   // since Kafka 0.8 use KafkaServerStatble instead of KafkaServer
 
   // multiple brokers in multiple cluster
-  private KafkaServerStartable[][] broker = new KafkaServerStartable[2][2];
+  private static KafkaServerStartable[][] broker = new KafkaServerStartable[2][2];
 
   // multiple cluster
-  private ServerCnxnFactory[] zkFactory = new ServerCnxnFactory[2];
+  private static ServerCnxnFactory[] zkFactory = new ServerCnxnFactory[2];
 
-  private ZooKeeperServer[] zkServer = new ZooKeeperServer[2];
+  private static ZooKeeperServer[] zkServer = new ZooKeeperServer[2];
 
-  public String baseDir = "target";
+  public static String baseDir = "target";
 
-  private final String zkBaseDir = "zookeeper-server-data";
-  private final String kafkaBaseDir = "kafka-server-data";
-  private final String[] zkdir = new String[] { "zookeeper-server-data/1", "zookeeper-server-data/2" };
-  private final String[][] kafkadir = new String[][] { new String[] { "kafka-server-data/1/1", "kafka-server-data/1/2" }, new String[] { "kafka-server-data/2/1", "kafka-server-data/2/2" } };
+  private static final String zkBaseDir = "zookeeper-server-data";
+  private static final String kafkaBaseDir = "kafka-server-data";
+  private static final String[] zkdir = new String[] { "zookeeper-server-data/1", "zookeeper-server-data/2" };
+  private static final String[][] kafkadir = new String[][] { new String[] { "kafka-server-data/1/1", "kafka-server-data/1/2" }, new String[] { "kafka-server-data/2/1", "kafka-server-data/2/2" } };
   protected boolean hasMultiPartition = false;
   protected boolean hasMultiCluster = false;
 
-  public void startZookeeper(final int clusterId)
+  public static void startZookeeper(final int clusterId)
   {
     try {
 
-      int numConnections = 10;
+      int numConnections = 100;
       int tickTime = 2000;
       File dir = new File(baseDir, zkdir[clusterId]);
 
@@ -117,7 +118,7 @@ public class KafkaOperatorTestBase
     }
   }
 
-  public void stopZookeeper()
+  public static void stopZookeeper()
   {
     for (ZooKeeperServer zs : zkServer) {
       if (zs != null) {
@@ -135,44 +136,37 @@ public class KafkaOperatorTestBase
     zkFactory =  new ServerCnxnFactory[2];
   }
 
-  public void startKafkaServer(int clusterid, int brokerid)
+  public static void startKafkaServer(int clusterid, int brokerid)
   {
     Properties props = new Properties();
-    props.setProperty("broker.id", "" + brokerid);
+    props.setProperty("broker.id", "" + clusterid * 10 + brokerid);
     props.setProperty("log.dirs", new File(baseDir, kafkadir[clusterid][brokerid]).toString());
     props.setProperty("zookeeper.connect", "localhost:" + TEST_ZOOKEEPER_PORT[clusterid]);
     props.setProperty("port", "" + TEST_KAFKA_BROKER_PORT[clusterid][brokerid]);
     props.setProperty("default.replication.factor", "1");
     // set this to 50000 to boost the performance so most test data are in memory before flush to disk
     props.setProperty("log.flush.interval.messages", "50000");
-    if (hasMultiPartition) {
-      props.setProperty("num.partitions", "2");
-    } else {
-      props.setProperty("num.partitions", "1");
-    }
 
     broker[clusterid][brokerid] = new KafkaServerStartable(new KafkaConfig(props));
     broker[clusterid][brokerid].startup();
 
   }
 
-  public void startKafkaServer()
+  public static void startKafkaServer()
   {
 
     FileUtils.deleteQuietly(new File(baseDir, kafkaBaseDir));
-    boolean[][] startable = new boolean[][] { new boolean[] { true, hasMultiPartition }, new boolean[] { hasMultiCluster, hasMultiCluster && hasMultiPartition } };
-    for (int i = 0; i < startable.length; i++) {
-      for (int j = 0; j < startable[i].length; j++) {
-        if (startable[i][j])
-          startKafkaServer(i, j);
-      }
-    }
+    //boolean[][] startable = new boolean[][] { new boolean[] { true, hasMultiPartition }, new boolean[] { hasMultiCluster, hasMultiCluster && hasMultiPartition } };
+    startKafkaServer(0, 0);
+    startKafkaServer(0, 1);
+    startKafkaServer(1, 0);
+    startKafkaServer(1, 1);
 
     // startup is asynch operation. wait 2 sec for server to startup
 
   }
 
-  public void stopKafkaServer()
+  public static void stopKafkaServer()
   {
     for (int i = 0; i < broker.length; i++) {
       for (int j = 0; j < broker[i].length; j++) {
@@ -185,28 +179,22 @@ public class KafkaOperatorTestBase
     }
   }
 
-  @Before
-  public void beforeTest()
+  @BeforeClass
+  public static void beforeTest()
   {
     try {
       startZookeeper();
       startKafkaServer();
-      createTopic(0, TEST_TOPIC);
-      if (hasMultiCluster) {
-        createTopic(1, TEST_TOPIC);
-      }
     } catch (java.nio.channels.CancelledKeyException ex) {
       logger.debug("LSHIL {}", ex.getLocalizedMessage());
     }
   }
 
-  public void startZookeeper()
+  public static void startZookeeper()
   {
     FileUtils.deleteQuietly(new File(baseDir, zkBaseDir));
     startZookeeper(0);
-    if (hasMultiCluster) {
-      startZookeeper(1);
-    }
+    startZookeeper(1);
   }
 
   public void createTopic(int clusterid, String topicName)
@@ -229,19 +217,10 @@ public class KafkaOperatorTestBase
     ZkUtils zu = ZkUtils.apply("localhost:" + TEST_ZOOKEEPER_PORT[clusterid], 30000, 30000, false);
     TopicCommand.createTopic(zu, new TopicCommand.TopicCommandOptions(args));
 
-    // Right now, there is no programmatic synchronized way to create the topic. have to wait 2 sec to make sure the
-    // topic is created
-    // So the tests will not hit any bizarre failure
-    try {
-      Thread.sleep(5000);
-      zu.close();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
   }
 
-  @After
-  public void afterTest()
+  @AfterClass
+  public static void afterTest()
   {
     try {
       stopKafkaServer();

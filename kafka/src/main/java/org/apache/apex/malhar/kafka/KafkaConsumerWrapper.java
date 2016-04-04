@@ -22,6 +22,7 @@ package org.apache.apex.malhar.kafka;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,10 @@ import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * This is the wrapper class for new Kafka consumer API
@@ -83,6 +87,8 @@ public class KafkaConsumerWrapper implements Closeable
 
   private final Map<String, Map<TopicPartition, OffsetAndMetadata>> offsetsToCommit = new HashMap<>();
 
+  private boolean waitForReplay = false;
+
   /**
    *
    * Only put the offset needs to be committed in the ConsumerThread.offsetToCommit map
@@ -109,6 +115,52 @@ public class KafkaConsumerWrapper implements Closeable
 
   }
 
+  public void emitImmediately(Map<AbstractKafkaPartitioner.PartitionMeta, Pair<Long, Long>> windowData)
+  {
+    for (Map.Entry<AbstractKafkaPartitioner.PartitionMeta, Pair<Long, Long>> windowEntry : windowData.entrySet()) {
+      AbstractKafkaPartitioner.PartitionMeta meta = windowEntry.getKey();
+      Pair<Long, Long> replayOffsetSize = windowEntry.getValue();
+      KafkaConsumer<byte[], byte[]> kc = consumers.get(meta.getCluster());
+      if (kc == null && kc.assignment().contains(windowEntry.getKey().getTopicPartition())) {
+        throw new RuntimeException("Coundn't find consumer to replay the message PartitionMeta : " + meta);
+      }
+      //pause other partition
+      for (TopicPartition tp : kc.assignment()) {
+        if (meta.getTopicPartition().equals(tp)) {
+          kc.resume(tp);
+        } else {
+          kc.pause(tp);
+        }
+      }
+      // set the offset to window start offset
+      kc.seek(meta.getTopicPartition(), replayOffsetSize.getLeft());
+      long windowCount = replayOffsetSize.getRight();
+      while (windowCount > 0) {
+        try {
+          ConsumerRecords<byte[], byte[]> records = kc.poll(ownerOperator.getConsumerTimeout());
+          for (Iterator<ConsumerRecord<byte[], byte[]>> cri = records.iterator(); cri.hasNext() && windowCount > 0;) {
+            ownerOperator.emitTuple(meta.getCluster(), cri.next());
+            windowCount--;
+          }
+        } catch (NoOffsetForPartitionException e) {
+          throw new RuntimeException("Couldn't replay the offset", e);
+        }
+      }
+      // set the offset after window
+      kc.seek(meta.getTopicPartition(), replayOffsetSize.getLeft() + replayOffsetSize.getRight());
+    }
+
+    // resume all topics
+    for (KafkaConsumer<byte[], byte[]> kc : consumers.values()) {
+      kc.resume(Iterables.toArray(kc.assignment(), TopicPartition.class));
+    }
+
+  }
+
+  public void afterReplay()
+  {
+    waitForReplay = false;
+  }
 
   static final class ConsumerThread implements Runnable
   {
@@ -137,6 +189,10 @@ public class KafkaConsumerWrapper implements Closeable
 
 
         while (wrapper.isAlive) {
+          if (wrapper.waitForReplay) {
+            Thread.sleep(100);
+            continue;
+          }
           if (!this.offsetToCommit.isEmpty()) {
             // in each fetch cycle commit the offset if needed
             if (logger.isDebugEnabled()) {
@@ -170,6 +226,8 @@ public class KafkaConsumerWrapper implements Closeable
         }
       } catch (WakeupException we) {
         logger.info("The consumer is being stopped");
+      } catch (InterruptedException e) {
+        DTThrowable.rethrow(e);
       } finally {
         consumer.close();
       }
@@ -194,10 +252,10 @@ public class KafkaConsumerWrapper implements Closeable
   /**
    * This method is called in the activate method of the operator
    */
-  public void start()
+  public void start(boolean waitForReplay)
   {
+    this.waitForReplay = waitForReplay;
     isAlive = true;
-
 
     // thread to consume the kafka data
     // create thread pool for consumer threads

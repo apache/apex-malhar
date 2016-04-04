@@ -18,6 +18,7 @@
  */
 package org.apache.apex.malhar.kafka;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,6 +34,7 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -50,6 +52,8 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StatsListener;
+import com.datatorrent.lib.util.WindowDataManager;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * The abstract kafka input operator using kafka 0.9.0 new consumer API
@@ -94,6 +98,10 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
    */
   private final Map<AbstractKafkaPartitioner.PartitionMeta, Long> offsetTrack = new HashMap<>();
 
+  private final transient Map<AbstractKafkaPartitioner.PartitionMeta, Long> windowStartOffset = new HashMap<>();
+
+  private transient int operatorId;
+
   private int initialPartitionCount = 1;
 
   private long repartitionInterval = 30000L;
@@ -127,7 +135,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
    * Wrapper consumer object
    * It wraps KafkaConsumer, maintains consumer thread and store messages in a queue
    */
-  private transient final KafkaConsumerWrapper consumerWrapper = new KafkaConsumerWrapper();
+  private final transient KafkaConsumerWrapper consumerWrapper = new KafkaConsumerWrapper();
 
   /**
    * By default the strategy is one to one
@@ -144,7 +152,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   /**
    * store offsets with window id, only keep offsets with windows that have not been committed
    */
-  private transient final List<Pair<Long, Map<AbstractKafkaPartitioner.PartitionMeta, Long>>> offsetHistory = new LinkedList<>();
+  private final transient List<Pair<Long, Map<AbstractKafkaPartitioner.PartitionMeta, Long>>> offsetHistory = new LinkedList<>();
 
   /**
    * Application name is used as group.id for kafka consumer
@@ -162,10 +170,12 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   @AutoMetric
   private transient KafkaMetrics metrics;
 
+  private WindowDataManager windowDataManager = new WindowDataManager.NoopWindowDataManager();
+
   @Override
   public void activate(Context.OperatorContext context)
   {
-    consumerWrapper.start();
+    consumerWrapper.start(isIdempotent());
   }
 
   @Override
@@ -183,8 +193,9 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   @Override
   public void committed(long windowId)
   {
-    if (initialOffset == InitialOffset.LATEST || initialOffset == InitialOffset.EARLIEST)
+    if (initialOffset == InitialOffset.LATEST || initialOffset == InitialOffset.EARLIEST) {
       return;
+    }
     //ask kafka consumer wrapper to store the committed offsets
     for (Iterator<Pair<Long, Map<AbstractKafkaPartitioner.PartitionMeta, Long>>> iter = offsetHistory.iterator(); iter.hasNext(); ) {
       Pair<Long, Map<AbstractKafkaPartitioner.PartitionMeta, Long>> item = iter.next();
@@ -193,6 +204,13 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
           consumerWrapper.commitOffsets(item.getRight());
         }
         iter.remove();
+      }
+    }
+    if (isIdempotent()) {
+      try {
+        windowDataManager.deleteUpTo(operatorId, windowId);
+      } catch (IOException e) {
+        DTThrowable.rethrow(e);
       }
     }
   }
@@ -211,6 +229,9 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
       AbstractKafkaPartitioner.PartitionMeta pm = new AbstractKafkaPartitioner.PartitionMeta(tuple.getLeft(),
           msg.topic(), msg.partition());
       offsetTrack.put(pm, msg.offset() + 1);
+      if (isIdempotent() && !windowStartOffset.containsKey(pm)) {
+        windowStartOffset.put(pm, msg.offset());
+      }
     }
     emitCount += count;
   }
@@ -222,6 +243,23 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   {
     emitCount = 0;
     currentWindowId = wid;
+    windowStartOffset.clear();
+    if (isIdempotent() && wid <= windowDataManager.getLargestRecoveryWindow()) {
+      replay(wid);
+    } else {
+      consumerWrapper.afterReplay();
+    }
+  }
+
+  private void replay(long windowId)
+  {
+    try {
+      Map<AbstractKafkaPartitioner.PartitionMeta, Pair<Long, Long>> windowData =
+          (Map<AbstractKafkaPartitioner.PartitionMeta, Pair<Long, Long>>)windowDataManager.load(operatorId, windowId);
+      consumerWrapper.emitImmediately(windowData);
+    } catch (IOException e) {
+      DTThrowable.rethrow(e);
+    }
   }
 
   @Override
@@ -233,6 +271,19 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
 
     //update metrics
     metrics.updateMetrics(clusters, consumerWrapper.getAllConsumerMetrics());
+
+    //update the windowDataManager
+    if (isIdempotent()) {
+      try {
+        Map<AbstractKafkaPartitioner.PartitionMeta, Pair<Long, Long>> windowData = new HashMap<>();
+        for (Map.Entry<AbstractKafkaPartitioner.PartitionMeta, Long> e : windowStartOffset.entrySet()) {
+          windowData.put(e.getKey(), new MutablePair<>(e.getValue(), offsetTrack.get(e.getKey()) - e.getValue()));
+        }
+        windowDataManager.save(windowData, operatorId, currentWindowId);
+      } catch (IOException e) {
+        DTThrowable.rethrow(e);
+      }
+    }
   }
 
 
@@ -243,13 +294,15 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
     applicationName = context.getValue(Context.DAGContext.APPLICATION_NAME);
     consumerWrapper.create(this);
     metrics = new KafkaMetrics(metricsRefreshInterval);
+    windowDataManager.setup(context);
+    operatorId = context.getId();
   }
 
 
   @Override
   public void teardown()
   {
-
+    windowDataManager.teardown();
   }
 
   private void initPartitioner()
@@ -325,7 +378,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
     }
     if (e != null) {
       logger.warn("Exceptions in committing offsets {} : {} ",
-        Joiner.on(';').withKeyValueSeparator("=").join(map), e);
+          Joiner.on(';').withKeyValueSeparator("=").join(map), e);
     }
   }
 
@@ -337,6 +390,11 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   public Set<AbstractKafkaPartitioner.PartitionMeta> assignment()
   {
     return assignment;
+  }
+
+  private boolean isIdempotent()
+  {
+    return windowDataManager != null && !(windowDataManager instanceof WindowDataManager.NoopWindowDataManager);
   }
 
   //---------------------------------------------setters and getters----------------------------------------
@@ -523,6 +581,16 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   public long getRepartitionInterval()
   {
     return repartitionInterval;
+  }
+
+  public void setWindowDataManager(WindowDataManager windowDataManager)
+  {
+    this.windowDataManager = windowDataManager;
+  }
+
+  public WindowDataManager getWindowDataManager()
+  {
+    return windowDataManager;
   }
 
   /**
