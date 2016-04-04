@@ -20,7 +20,13 @@ package com.datatorrent.lib.io.fs;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Rule;
@@ -28,6 +34,7 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import org.apache.apex.malhar.fs.LineByLineFileInputOperator;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -41,19 +48,18 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.IdempotentStorageManager;
-import com.datatorrent.lib.io.fs.AbstractFileInputOperator.DirectoryScanner;
-import com.datatorrent.lib.io.fs.AbstractFileInputOperator.FileLineInputOperator;
-import com.datatorrent.lib.partitioner.StatelessPartitionerTest.PartitioningContextImpl;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.TestUtils;
-
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner.Partition;
 import com.datatorrent.api.StatsListener;
+
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.io.IdempotentStorageManager;
+import com.datatorrent.lib.io.fs.AbstractFileInputOperator.DirectoryScanner;
+import com.datatorrent.lib.partitioner.StatelessPartitionerTest.PartitioningContextImpl;
+import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.TestUtils;
 
 public class AbstractFileInputOperatorTest
 {
@@ -97,7 +103,7 @@ public class AbstractFileInputOperatorTest
       FileUtils.write(new File(testMeta.dir, "file"+file), StringUtils.join(lines, '\n'));
     }
 
-    FileLineInputOperator oper = new FileLineInputOperator();
+    LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -147,7 +153,7 @@ public class AbstractFileInputOperatorTest
   @Test
   public void testPartitioning() throws Exception
   {
-    FileLineInputOperator oper = new FileLineInputOperator();
+    LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
     oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
 
@@ -186,12 +192,12 @@ public class AbstractFileInputOperatorTest
   public void testPartitioningStateTransfer() throws Exception
   {
 
-    FileLineInputOperator oper = new FileLineInputOperator();
+    LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
     oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
     oper.setScanIntervalMillis(0);
 
-    FileLineInputOperator initialState = new Kryo().copy(oper);
+    LineByLineFileInputOperator initialState = new Kryo().copy(oper);
 
     // Create 4 files with 3 records each.
     Path path = new Path(new File(testMeta.dir).getAbsolutePath());
@@ -241,7 +247,7 @@ public class AbstractFileInputOperatorTest
     /* Collect all operators in a list */
     List<AbstractFileInputOperator<String>> opers = Lists.newArrayList();
     for (Partition<AbstractFileInputOperator<String>> p : newPartitions) {
-      FileLineInputOperator oi = (FileLineInputOperator)p.getPartitionedInstance();
+      LineByLineFileInputOperator oi = (LineByLineFileInputOperator)p.getPartitionedInstance();
       oi.setup(testMeta.context);
       oi.output.setSink(sink);
       opers.add(oi);
@@ -289,13 +295,13 @@ public class AbstractFileInputOperatorTest
   @Test
   public void testPartitioningStateTransferInterrupted() throws Exception
   {
-    FileLineInputOperator oper = new FileLineInputOperator();
+    LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
     oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
     oper.setScanIntervalMillis(0);
     oper.setEmitBatchSize(2);
 
-    FileLineInputOperator initialState = new Kryo().copy(oper);
+    LineByLineFileInputOperator initialState = new Kryo().copy(oper);
 
     // Create 4 files with 3 records each.
     Path path = new Path(new File(testMeta.dir).getAbsolutePath());
@@ -345,7 +351,7 @@ public class AbstractFileInputOperatorTest
     /* Collect all operators in a list */
     List<AbstractFileInputOperator<String>> opers = Lists.newArrayList();
     for (Partition<AbstractFileInputOperator<String>> p : newPartitions) {
-      FileLineInputOperator oi = (FileLineInputOperator)p.getPartitionedInstance();
+      LineByLineFileInputOperator oi = (LineByLineFileInputOperator)p.getPartitionedInstance();
       oi.setup(testMeta.context);
       oi.output.setSink(sink);
       opers.add(oi);
@@ -374,13 +380,13 @@ public class AbstractFileInputOperatorTest
   @Test
   public void testPartitioningStateTransferFailure() throws Exception
   {
-    FileLineInputOperator oper = new FileLineInputOperator();
+    LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
     oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
     oper.setScanIntervalMillis(0);
     oper.setEmitBatchSize(2);
 
-    FileLineInputOperator initialState = new Kryo().copy(oper);
+    LineByLineFileInputOperator initialState = new Kryo().copy(oper);
 
     // Create 4 files with 3 records each.
     Path path = new Path(new File(testMeta.dir).getAbsolutePath());
@@ -430,7 +436,7 @@ public class AbstractFileInputOperatorTest
     /* Collect all operators in a list */
     List<AbstractFileInputOperator<String>> opers = Lists.newArrayList();
     for (Partition<AbstractFileInputOperator<String>> p : newPartitions) {
-      FileLineInputOperator oi = (FileLineInputOperator)p.getPartitionedInstance();
+      LineByLineFileInputOperator oi = (LineByLineFileInputOperator)p.getPartitionedInstance();
       oi.setup(testMeta.context);
       oi.output.setSink(sink);
       opers.add(oi);
@@ -464,7 +470,7 @@ public class AbstractFileInputOperatorTest
     FileUtils.write(testFile, StringUtils.join(lines, '\n'));
 
 
-    FileLineInputOperator oper = new FileLineInputOperator();
+    LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     oper.scanner = null;
     oper.failedFiles.add(new AbstractFileInputOperator.FailedFile(testFile.getAbsolutePath(), 1));
 
@@ -499,7 +505,7 @@ public class AbstractFileInputOperatorTest
     File testFile = new File(testMeta.dir, "file0");
     FileUtils.write(testFile, StringUtils.join(lines, '\n'));
 
-    FileLineInputOperator oper = new FileLineInputOperator();
+    LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     oper.scanner = null;
     oper.unfinishedFiles.add(new AbstractFileInputOperator.FailedFile(testFile.getAbsolutePath(), 2));
 
@@ -534,7 +540,7 @@ public class AbstractFileInputOperatorTest
     File testFile = new File(testMeta.dir, "file0");
     FileUtils.write(testFile, StringUtils.join(lines, '\n'));
 
-    FileLineInputOperator oper = new FileLineInputOperator();
+    LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     oper.scanner = null;
     oper.pendingFiles.add(testFile.getAbsolutePath());
 
@@ -569,7 +575,7 @@ public class AbstractFileInputOperatorTest
     File testFile = new File(testMeta.dir, "file0");
     FileUtils.write(testFile, StringUtils.join(lines, '\n'));
 
-    FileLineInputOperator oper = new FileLineInputOperator();
+    LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     oper.scanner = null;
     oper.currentFile = testFile.getAbsolutePath();
     oper.offset = 1;
@@ -607,7 +613,7 @@ public class AbstractFileInputOperatorTest
       FileUtils.write(new File(testMeta.dir, "file" + file), StringUtils.join(lines, '\n'));
     }
 
-    FileLineInputOperator oper = new FileLineInputOperator();
+    LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     IdempotentStorageManager.FSIdempotentStorageManager manager = new IdempotentStorageManager.FSIdempotentStorageManager();
     manager.setRecoveryPath(testMeta.dir + "/recovery");
 
@@ -656,7 +662,7 @@ public class AbstractFileInputOperatorTest
       FileUtils.write(new File(testMeta.dir, "file" + file), StringUtils.join(lines, '\n'));
     }
 
-    FileLineInputOperator oper = new FileLineInputOperator();
+    LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     IdempotentStorageManager.FSIdempotentStorageManager manager = new IdempotentStorageManager.FSIdempotentStorageManager();
     manager.setRecoveryPath(testMeta.dir + "/recovery");
 
@@ -699,7 +705,7 @@ public class AbstractFileInputOperatorTest
     }
     FileUtils.write(new File(testMeta.dir, "file0"), StringUtils.join(lines, '\n'));
 
-    FileLineInputOperator oper = new FileLineInputOperator();
+    LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     IdempotentStorageManager.FSIdempotentStorageManager manager = new IdempotentStorageManager.FSIdempotentStorageManager();
     manager.setRecoveryPath(testMeta.dir + "/recovery");
     oper.setEmitBatchSize(5);
@@ -761,7 +767,7 @@ public class AbstractFileInputOperatorTest
       FileUtils.write(new File(testMeta.dir, "file" + file), StringUtils.join(lines, '\n'));
     }
 
-    FileLineInputOperator oper = new FileLineInputOperator();
+    LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
 
     IdempotentStorageManager.FSIdempotentStorageManager manager = new IdempotentStorageManager.FSIdempotentStorageManager();
     manager.setRecoveryPath(testMeta.dir + "/recovery");
@@ -811,7 +817,7 @@ public class AbstractFileInputOperatorTest
   @Test
   public void testIdempotentStorageManagerPartitioning() throws Exception
   {
-    FileLineInputOperator oper = new FileLineInputOperator();
+    LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
     oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
     oper.setIdempotentStorageManager(new TestStorageManager());

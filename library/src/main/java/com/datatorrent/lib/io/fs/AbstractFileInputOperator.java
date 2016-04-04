@@ -18,30 +18,52 @@
  */
 package com.datatorrent.lib.io.fs;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.validation.constraints.NotNull;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.fs.LineByLineFileInputOperator;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-import com.datatorrent.lib.counters.BasicCounters;
-import com.datatorrent.lib.io.IdempotentStorageManager;
-import com.datatorrent.api.*;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import com.datatorrent.api.Context.CountersAggregator;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.Partitioner;
+import com.datatorrent.api.StatsListener;
+
+import com.datatorrent.lib.counters.BasicCounters;
+import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.util.KryoCloneUtils;
 
 /**
@@ -1154,11 +1176,15 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   }
 
   /**
+   * This class is deprecated, use {@link LineByLineFileInputOperator}
+   * <p>
    * This is an implementation of the {@link AbstractFileInputOperator} that outputs the lines in a file.&nbsp;
    * Each line is emitted as a separate tuple.&nbsp; It is emitted as a String.
+   * </p>
    * <p>
    * The directory path where to scan and read files from should be specified using the {@link #directory} property.
    * </p>
+   * @deprecated
    * @displayName File Line Input
    * @category Input
    * @tags fs, file, line, lines, input operator
