@@ -51,7 +51,6 @@
     <maven.deploy.skip>false</maven.deploy.skip>
     <apex.core.version>3.3.0-incubating</apex.core.version>
     <semver.plugin.skip>false</semver.plugin.skip>
-    <checkstyle.console>false</checkstyle.console>
   </properties>
 
   <build>
@@ -147,9 +146,6 @@
               <version>1.0.0-incubating</version>
             </dependency>
           </dependencies>
-          <configuration>
-            <consoleOutput>true</consoleOutput>
-          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>

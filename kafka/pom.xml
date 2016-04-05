@@ -32,6 +32,10 @@
   <name>Apache Apex Malhar (incubating) Kafka Support</name>
   <packaging>jar</packaging>
 
+  <properties>
+    <checkstyle.console>false</checkstyle.console>
+  </properties>
+
   <build>
     <plugins>
       <!-- Publish tests jar -->
@@ -178,7 +182,7 @@
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
           <maxAllowedViolations>35</maxAllowedViolations>
-          <consoleOutput>false</consoleOutput>
+          <logViolationsToConsole>${checkstyle.console}</logViolationsToConsole>
         </configuration>
       </plugin>
      <plugin>
