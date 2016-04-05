@@ -35,6 +35,7 @@
   <name>Apache Apex Malhar (incubating) Library</name>
 
   <properties>
+    <checkstyle.console>false</checkstyle.console>
   </properties>
 
   <build>
@@ -187,7 +188,7 @@
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
           <maxAllowedViolations>15995</maxAllowedViolations>
-          <consoleOutput>false</consoleOutput>
+          <logViolationsToConsole>${checkstyle.console}</logViolationsToConsole>
         </configuration>
       </plugin>
     </plugins>

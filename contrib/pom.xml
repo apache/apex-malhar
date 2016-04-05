@@ -36,6 +36,7 @@
     <!-- skip tests by default as they depend on manual setup -->
     <skip.contrib.module.tests>false</skip.contrib.module.tests>
     <skipTests>true</skipTests>
+    <checkstyle.console>false</checkstyle.console>
   </properties>
   <repositories>
     <repository>
@@ -221,7 +222,7 @@
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
           <maxAllowedViolations>2791</maxAllowedViolations>
-          <consoleOutput>false</consoleOutput>
+          <logViolationsToConsole>${checkstyle.console}</logViolationsToConsole>
         </configuration>
       </plugin>
     </plugins>
