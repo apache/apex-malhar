@@ -1,0 +1,100 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.apex.malhar.lib.spillable;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+
+import com.google.common.collect.ListMultimap;
+
+import com.datatorrent.api.Component;
+import com.datatorrent.api.Context.OperatorContext;
+
+/**
+ * This is a marker interface for a spillable data structure.
+ */
+public interface Spillable
+{
+  /**
+   * This represents a spillable {@link java.util.List}. The underlying implementation
+   * of this list is similar to that of an {@link java.util.ArrayList}. User's that receive an
+   * implementation of this interface don't need to worry about propagating operator call-backs
+   * to the data structure.
+   * @param <T> The type of the data stored in the {@link SpillableArrayList}.
+   */
+  interface SpillableArrayList<T> extends List<T>
+  {
+  }
+
+  /**
+   * This represents a spillable {@link java.util.Map}. The underlying implementation
+   * of this map uses the serialized representation of the key object as a key. User's that receive an
+   * implementation of this interface don't need to worry about propagating operator call-backs
+   * to the data structure.
+   * @param <K> The type of the keys.
+   * @param <V> The type of the values.
+   */
+  interface SpillableByteMap<K, V> extends Map<K, V>
+  {
+  }
+
+  /**
+   * This represents a spillable {@link com.google.common.collect.ListMultimap} implementation. User's that receive an
+   * implementation of this interface don't need to worry about propagating operator call-backs
+   * to the data structure.
+   * @param <K> The type of the keys.
+   * @param <V> The type of the values.
+   */
+  interface SpillableByteArrayListMultimap<K, V> extends ListMultimap<K, V>
+  {
+  }
+
+  /**
+   * This represents a spillable {@link java.util.Queue} implementation. User's that receive an
+   * implementation of this interface don't need to worry about propagating operator call-backs
+   * to the data structure.
+   * @param <T> The type of the data stored in the queue.
+   */
+  interface SpillableQueue<T> extends Queue<T>
+  {
+  }
+
+  /**
+   * This represents a spillable data structure that needs to be aware of the operator
+   * callbacks. All concrete or abstract implementations of spillable data structures
+   * should implement this interface. A user working with an implementation of this interface needs
+   * to make sure that the {@link com.datatorrent.api.Operator} call-backs are propagated to it.
+   */
+  interface SpillableComponent extends Component<OperatorContext>, Spillable
+  {
+    /**
+     * This signals that the parent {@link com.datatorrent.api.Operator}'s
+     * {@link com.datatorrent.api.Operator#beginWindow(long)} method has been called.
+     * @param windowId The next windowId of the parent operator.
+     */
+    void beginWindow(long windowId);
+
+    /**
+     * This signals that the parent {@link com.datatorrent.api.Operator}'s
+     * {@link com.datatorrent.api.Operator#endWindow()} method has been called.
+     */
+    void endWindow();
+  }
+}
