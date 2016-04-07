@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.exceptions.DriverException;
 import com.datatorrent.api.AutoMetric;
@@ -60,7 +59,7 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
   protected transient Class<?> pojoClass;
 
   @AutoMetric
-  private long recordsProcessed;
+  private long successfulRecords;
   @AutoMetric
   private long errorRecords;
 
@@ -95,15 +94,13 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
   public void beginWindow(long windowId)
   {
     super.beginWindow(windowId);
-    recordsProcessed = 0;
+    successfulRecords = 0;
     errorRecords = 0;
   }
 
   @Override
   public void activate(Context.OperatorContext context)
   {
-    // clear if it had anything
-    columnDataTypes.clear();
     com.datastax.driver.core.ResultSet rs = store.getSession().execute("select * from " + store.keyspace + "." + tablename);
     final ColumnDefinitions rsMetaData = rs.getColumnDefinitions();
 
@@ -175,6 +172,8 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
       String pojoField = getMatchingField(fields, columnName);
       if (pojoField != null && pojoField.length() != 0) {
         fieldInfos.add(new FieldInfo(columnName, pojoField, null));
+      } else {
+        LOG.error("Couldn't find corrosponding pojo field for column: " + columnName);
       }
     }
   }
@@ -194,6 +193,10 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
   {
   }
 
+  /**
+   * {@inheritDoc} <br/>
+   * If statement/query is not specified by user, insert query is constructed from fileInfo object and table name.
+   */
   @Override
   protected PreparedStatement getUpdateCommand()
   {
@@ -209,6 +212,9 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
 
   private PreparedStatement prepareStatementFromFieldsAndTableName()
   {
+    if (tablename == null || tablename.length() == 0) {
+      throw new RuntimeException("Please sepcify query or table name.");
+    }
     StringBuilder queryfields = new StringBuilder();
     StringBuilder values = new StringBuilder();
     for (FieldInfo fieldInfo : fieldInfos) {
@@ -297,9 +303,10 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
   {
     try {
       super.processTuple(tuple);
-      recordsProcessed++;
+      successfulRecords++;
     } catch (RuntimeException e) {
-      //super.error.emit(tuple);
+      LOG.error(e.getMessage());
+      super.error.emit(tuple);
       errorRecords++;
     }
   }

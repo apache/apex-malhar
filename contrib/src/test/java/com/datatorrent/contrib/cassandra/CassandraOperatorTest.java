@@ -270,8 +270,8 @@ public class CassandraOperatorTest
     fieldInfos.add(new FieldInfo("test", "test", null));
 
     outputOperator.setFieldInfos(fieldInfos);
-    outputOperator.input.setup(tpc);
     outputOperator.setup(context);
+    outputOperator.input.setup(tpc);
     outputOperator.activate(context);
 
     List<TestPojo> events = Lists.newArrayList();
@@ -299,8 +299,8 @@ public class CassandraOperatorTest
   public void testPopulateFieldInfo()
   {
     TestOutputOperator outputOperator = setupForOutputOperatorTest();
-    outputOperator.input.setup(tpc);
     outputOperator.setup(context);
+    outputOperator.input.setup(tpc);
     outputOperator.activate(context);
 
     List<TestPojo> events = Lists.newArrayList();
@@ -325,20 +325,18 @@ public class CassandraOperatorTest
   }
 
   @Test
-  public void testupdateQueryWithParameters()
+  public void testupdateQueryWithParameters() throws InterruptedException
   {
-    TestOutputOperator outputOperator = setupForOutputOperatorTest();
-    outputOperator.input.setup(tpc);
-    outputOperator.setup(context);
-    outputOperator.activate(context);
-
-    UUID id = UUID.randomUUID();
+    UUID id = UUID.fromString("94ab597c-a5ff-4997-8343-68993d446b14");
+    System.out.println(id);
     TestPojo testPojo = new TestPojo(id, 20, "Laura", true, 10, 2.0, new HashSet<Integer>(), new ArrayList<Integer>(), null, new Date(System.currentTimeMillis()));
-    // insert record
-    outputOperator.beginWindow(0);
-    outputOperator.input.process(testPojo);
-    outputOperator.endWindow();
-    Assert.assertEquals("rows in db", 1, outputOperator.getNumOfEventsInStore());
+    String insert = "INSERT INTO " + KEYSPACE + "." + TABLE_NAME + " (ID, age, lastname, test, floatValue, doubleValue)" + " VALUES (94ab597c-a5ff-4997-8343-68993d446b14, 20, 'Laura', true, 10, 2.0);";
+    session.execute(insert);
+    String recordsQuery = "SELECT * from " + TABLE_NAME + ";";
+    ResultSet resultSetRecords = session.execute(recordsQuery);
+    Row row = resultSetRecords.iterator().next();
+    Assert.assertEquals("Updated last name", "Laura", row.getString("lastname"));
+    Thread.sleep(1000); // wait till cassandra writes the record
 
     // update record
     String updateLastName = "Laurel";
@@ -348,20 +346,21 @@ public class CassandraOperatorTest
     fieldInfos.add(new FieldInfo("id", "id", null));
 
     // reset the operator to run new query
+    TestOutputOperator outputOperator = setupForOutputOperatorTest();
     outputOperator.setQuery(updateQuery);
     outputOperator.setFieldInfos(fieldInfos);
     outputOperator.setup(context);
+    outputOperator.input.setup(tpc);
     outputOperator.activate(context);
 
     outputOperator.beginWindow(1);
     outputOperator.input.process(testPojo);
     outputOperator.endWindow();
 
-    String recordsQuery = "SELECT * from " + TABLE_NAME + ";";
-    ResultSet resultSetRecords = session.execute(recordsQuery);
-    for (Row row : resultSetRecords) {
-      Assert.assertEquals("Updated last name", updateLastName, row.getString("lastname"));
-    }
+    recordsQuery = "SELECT * from " + TABLE_NAME + ";";
+    resultSetRecords = session.execute(recordsQuery);
+    row = resultSetRecords.iterator().next();
+    Assert.assertEquals("Updated last name", updateLastName, row.getString("lastname"));
   }
 
   private TestOutputOperator setupForOutputOperatorTest()
