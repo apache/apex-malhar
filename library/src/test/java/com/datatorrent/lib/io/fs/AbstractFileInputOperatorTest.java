@@ -19,7 +19,6 @@
 package com.datatorrent.lib.io.fs;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -34,7 +33,7 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-import org.apache.apex.malhar.fs.LineByLineFileInputOperator;
+import org.apache.apex.malhar.lib.fs.LineByLineFileInputOperator;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
