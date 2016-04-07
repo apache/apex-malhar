@@ -42,7 +42,7 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.apex.malhar.fs.LineByLineFileInputOperator;
+import org.apache.apex.malhar.lib.fs.LineByLineFileInputOperator;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;

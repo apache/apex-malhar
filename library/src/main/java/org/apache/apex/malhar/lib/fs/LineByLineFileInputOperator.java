@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.fs;
+package org.apache.apex.malhar.lib.fs;
 
 import java.io.BufferedReader;
 import java.io.IOException;
