@@ -122,7 +122,7 @@ class StateTracker extends TimerTask
             synchronized (bucket) {
               long sizeFreed;
               try {
-                sizeFreed = bucket.freeMemory();
+                sizeFreed = bucket.freeMemory(managedStateImpl.checkpointManager.getLastTransferredWindow());
                 LOG.debug("size freed {} {}", bucketId, sizeFreed);
               } catch (IOException e) {
                 managedStateImpl.throwable.set(e);

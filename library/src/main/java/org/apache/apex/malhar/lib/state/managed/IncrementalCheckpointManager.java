@@ -37,6 +37,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Queues;
 
 import com.datatorrent.api.Context;
+import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.NameableThreadFactory;
 import com.datatorrent.lib.util.WindowDataManager;
 import com.datatorrent.netlet.util.Slice;
@@ -67,7 +68,7 @@ public class IncrementalCheckpointManager extends WindowDataManager.FSWindowData
   private final transient AtomicLong latestExpiredTimeBucket = new AtomicLong(-1);
 
   private transient int waitMillis;
-
+  private volatile long lastTransferredWindow = Stateless.WINDOW_ID;
 
   public IncrementalCheckpointManager()
   {
@@ -132,6 +133,8 @@ public class IncrementalCheckpointManager extends WindowDataManager.FSWindowData
           LOG.debug("transfer window {}", windowId, t);
           Throwables.propagate(t);
         }
+
+        this.lastTransferredWindow = windowId;
       } else {
         Thread.sleep(waitMillis);
       }
@@ -173,8 +176,6 @@ public class IncrementalCheckpointManager extends WindowDataManager.FSWindowData
     }
   }
 
-
-
   /**
    * Transfers the data which has been committed till windowId to data files.
    *
@@ -206,6 +207,15 @@ public class IncrementalCheckpointManager extends WindowDataManager.FSWindowData
   public void setLatestExpiredTimeBucket(long timeBucket)
   {
     latestExpiredTimeBucket.set(timeBucket);
+  }
+
+  /**
+   * Gets the last windowId for which data was successfully merged with a bucket data file.
+   * @return The last windowId for which data was successfully merged with a bucket data file.
+   */
+  public long getLastTransferredWindow()
+  {
+    return lastTransferredWindow;
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(IncrementalCheckpointManager.class);

@@ -195,7 +195,7 @@ public class DefaultBucketTest
 
     Assert.assertEquals("size", initSize + (two.length * 2 + 64), testMeta.defaultBucket.getSizeInBytes());
 
-    long sizeFreed = testMeta.defaultBucket.freeMemory();
+    long sizeFreed = testMeta.defaultBucket.freeMemory(Long.MAX_VALUE);
     Assert.assertEquals("size freed", initSize, sizeFreed);
     Assert.assertEquals("existing size", (two.length * 2 + 64), testMeta.defaultBucket.getSizeInBytes());
     testMeta.defaultBucket.teardown();
