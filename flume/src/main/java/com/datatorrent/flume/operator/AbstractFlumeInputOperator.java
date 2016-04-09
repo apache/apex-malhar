@@ -7,24 +7,33 @@ package com.datatorrent.flume.operator;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
-
-import static java.lang.Thread.sleep;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.apache.flume.Event;
 
-import com.datatorrent.api.*;
+import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Partitioner.PartitioningContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.Stats.OperatorStats;
-import com.datatorrent.netlet.util.Slice;
+import com.datatorrent.api.StreamCodec;
 import com.datatorrent.flume.discovery.Discovery.Service;
 import com.datatorrent.flume.discovery.ZKAssistedDiscovery;
 import com.datatorrent.flume.sink.Server;
@@ -32,6 +41,9 @@ import com.datatorrent.flume.sink.Server.Command;
 import com.datatorrent.flume.sink.Server.Request;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
+import com.datatorrent.netlet.util.Slice;
+
+import static java.lang.Thread.sleep;
 
 /**
  * <p>
@@ -42,8 +54,8 @@ import com.datatorrent.netlet.DefaultEventLoop;
  * @since 0.9.2
  */
 public abstract class AbstractFlumeInputOperator<T>
-        implements InputOperator, Operator.ActivationListener<OperatorContext>, Operator.IdleTimeHandler, Operator.CheckpointListener,
-        Partitioner<AbstractFlumeInputOperator<T>>
+    implements InputOperator, Operator.ActivationListener<OperatorContext>, Operator.IdleTimeHandler,
+    Operator.CheckpointListener, Partitioner<AbstractFlumeInputOperator<T>>
 {
   public final transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
   public final transient DefaultOutputPort<Slice> drop = new DefaultOutputPort<Slice>();
@@ -78,15 +90,15 @@ public abstract class AbstractFlumeInputOperator<T>
   @Override
   public void setup(OperatorContext context)
   {
-    long windowDurationMillis = context.getValue(OperatorContext.APPLICATION_WINDOW_COUNT) * context.getValue(Context.DAGContext.STREAMING_WINDOW_SIZE_MILLIS);
+    long windowDurationMillis = context.getValue(OperatorContext.APPLICATION_WINDOW_COUNT) *
+        context.getValue(Context.DAGContext.STREAMING_WINDOW_SIZE_MILLIS);
     maxEventsPerWindow = (long)(windowDurationMillis / 1000.0 * maxEventsPerSecond);
     logger.debug("max-events per-second {} per-window {}", maxEventsPerSecond, maxEventsPerWindow);
 
     try {
       eventloop = new DefaultEventLoop("EventLoop-" + context.getId());
       eventloop.start();
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -97,16 +109,16 @@ public abstract class AbstractFlumeInputOperator<T>
   {
     if (connectionSpecs.length == 0) {
       logger.info("Discovered zero DTFlumeSink");
-    }
-    else if (connectionSpecs.length == 1) {
+    } else if (connectionSpecs.length == 1) {
       for (String connectAddresse: connectionSpecs) {
         logger.debug("Connection spec is {}", connectAddresse);
         String[] parts = connectAddresse.split(":");
         eventloop.connect(new InetSocketAddress(parts[1], Integer.parseInt(parts[2])), client = new Client(parts[0]));
       }
-    }
-    else {
-      throw new IllegalArgumentException(String.format("A physical %s operator cannot connect to more than 1 addresses!", this.getClass().getSimpleName()));
+    } else {
+      throw new IllegalArgumentException(
+          String.format("A physical %s operator cannot connect to more than 1 addresses!",
+              this.getClass().getSimpleName()));
     }
 
     context = ctx;
@@ -133,8 +145,7 @@ public abstract class AbstractFlumeInputOperator<T>
         T convert = convert((Event)codec.fromByteArray(slice));
         if (convert == null) {
           drop.emit(slice);
-        }
-        else {
+        } else {
           output.emit(convert);
         }
         eventCounter++;
@@ -146,8 +157,7 @@ public abstract class AbstractFlumeInputOperator<T>
       T convert = convert((Event)codec.fromByteArray(slice));
       if (convert == null) {
         drop.emit(slice);
-      }
-      else {
+      } else {
         output.emit(convert);
       }
       eventCounter++;
@@ -165,7 +175,7 @@ public abstract class AbstractFlumeInputOperator<T>
       array[0] = Command.WINDOWED.getOrdinal();
       Server.writeInt(array, 1, eventCounter);
       Server.writeInt(array, 5, idleCounter);
-      Server.writeLong(array, Request.TIME_OFFSET , System.currentTimeMillis());
+      Server.writeLong(array, Request.TIME_OFFSET, System.currentTimeMillis());
 
       logger.debug("wrote {} with eventCounter = {} and idleCounter = {}", Command.WINDOWED, eventCounter, idleCounter);
       client.write(array);
@@ -202,8 +212,7 @@ public abstract class AbstractFlumeInputOperator<T>
     idleCounter++;
     try {
       sleep(context.getValue(OperatorContext.SPIN_MILLIS));
-    }
-    catch (InterruptedException ex) {
+    } catch (InterruptedException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -322,8 +331,8 @@ public abstract class AbstractFlumeInputOperator<T>
         }
 
         int arraySize = 1/* for the type of the message */
-                        + 8 /* for the location to commit */
-                        + 8 /* for storing the current time stamp*/;
+            + 8 /* for the location to commit */
+            + 8 /* for storing the current time stamp*/;
         byte[] array = new byte[arraySize];
 
         array[0] = Command.COMMITTED.getOrdinal();
@@ -336,7 +345,8 @@ public abstract class AbstractFlumeInputOperator<T>
   }
 
   @Override
-  public Collection<Partition<AbstractFlumeInputOperator<T>>> definePartitions(Collection<Partition<AbstractFlumeInputOperator<T>>> partitions, PartitioningContext context)
+  public Collection<Partition<AbstractFlumeInputOperator<T>>> definePartitions(
+      Collection<Partition<AbstractFlumeInputOperator<T>>> partitions, PartitioningContext context)
   {
     Collection<Service<byte[]>> discovered = discoveredFlumeSinks.get();
     if (discovered == null) {
@@ -360,8 +370,7 @@ public abstract class AbstractFlumeInputOperator<T>
       String newspec = service.getId() + ':' + service.getHost() + ':' + service.getPort();
       if (previousSpec == null) {
         connections.put(service.getId(), newspec);
-      }
-      else {
+      } else {
         boolean found = false;
         for (ConnectionStatus cs: partitionedInstanceStatus.get().values()) {
           if (previousSpec.equals(cs.spec) && !cs.connected) {
@@ -383,8 +392,7 @@ public abstract class AbstractFlumeInputOperator<T>
       String connection = connections.remove(parts[0]);
       if (connection == null) {
         allConnectAddresses.remove(i);
-      }
-      else {
+      } else {
         allConnectAddresses.set(i, connection);
       }
     }
@@ -408,9 +416,8 @@ public abstract class AbstractFlumeInputOperator<T>
         }
 
         partitions.add(new DefaultPartition<AbstractFlumeInputOperator<T>>(operator));
-      }
-      else {
-        long maxEventsPerSecondPerOperator = maxEventsPerSecond/allConnectAddresses.size();
+      } else {
+        long maxEventsPerSecondPerOperator = maxEventsPerSecond / allConnectAddresses.size();
         for (int i = allConnectAddresses.size(); i-- > 0;) {
           @SuppressWarnings("unchecked")
           AbstractFlumeInputOperator<T> operator = getClass().newInstance();
@@ -428,11 +435,9 @@ public abstract class AbstractFlumeInputOperator<T>
           partitions.add(new DefaultPartition<AbstractFlumeInputOperator<T>>(operator));
         }
       }
-    }
-    catch (IllegalAccessException ex) {
+    } catch (IllegalAccessException ex) {
       throw new RuntimeException(ex);
-    }
-    catch (InstantiationException ex) {
+    } catch (InstantiationException ex) {
       throw new RuntimeException(ex);
     }
 
@@ -449,8 +454,7 @@ public abstract class AbstractFlumeInputOperator<T>
     for (Entry<Integer, Partition<AbstractFlumeInputOperator<T>>> entry: partitions.entrySet()) {
       if (map.containsKey(entry.getKey())) {
         // what can be done here?
-      }
-      else {
+      } else {
         map.put(entry.getKey(), null);
       }
     }
@@ -459,7 +463,8 @@ public abstract class AbstractFlumeInputOperator<T>
   @Override
   public String toString()
   {
-    return "AbstractFlumeInputOperator{" + "connected=" + connected + ", connectionSpecs=" + (connectionSpecs.length == 0 ? "empty" : connectionSpecs[0]) + ", recoveryAddresses=" + recoveryAddresses + '}';
+    return "AbstractFlumeInputOperator{" + "connected=" + connected + ", connectionSpecs=" +
+        (connectionSpecs.length == 0 ? "empty" : connectionSpecs[0]) + ", recoveryAddresses=" + recoveryAddresses + '}';
   }
 
   class Client extends AbstractLengthPrependerClient
@@ -476,8 +481,7 @@ public abstract class AbstractFlumeInputOperator<T>
     {
       try {
         handoverBuffer.put(new Slice(buffer, offset, size));
-      }
-      catch (InterruptedException ex) {
+      } catch (InterruptedException ex) {
         handleException(ex, eventloop);
       }
     }
@@ -491,15 +495,14 @@ public abstract class AbstractFlumeInputOperator<T>
       synchronized (recoveryAddresses) {
         if (recoveryAddresses.size() > 0) {
           address = recoveryAddresses.get(recoveryAddresses.size() - 1).address;
-        }
-        else {
+        } else {
           address = new byte[8];
         }
       }
 
       int len = 1 /* for the message type SEEK */
-                + 8 /* for the address */
-                + 8 /* for storing the current time stamp*/;
+          + 8 /* for the address */
+          + 8 /* for storing the current time stamp*/;
 
       byte[] array = new byte[len];
       array[0] = Command.SEEK.getOrdinal();
@@ -535,7 +538,8 @@ public abstract class AbstractFlumeInputOperator<T>
 
   }
 
-  public static class ZKStatsListner extends ZKAssistedDiscovery implements com.datatorrent.api.StatsListener, Serializable
+  public static class ZKStatsListner extends ZKAssistedDiscovery implements com.datatorrent.api.StatsListener,
+      Serializable
   {
     /*
      * In the current design, one input operator is able to connect
@@ -587,8 +591,7 @@ public abstract class AbstractFlumeInputOperator<T>
           Collection<Service<byte[]>> addresses;
           try {
             addresses = discover();
-          }
-          finally {
+          } finally {
             super.teardown();
           }
           AbstractFlumeInputOperator.discoveredFlumeSinks.set(addresses);
@@ -606,20 +609,16 @@ public abstract class AbstractFlumeInputOperator<T>
                     break;
                   }
                 }
-              }
-              else {
+              } else {
                 response.repartitionRequired = true;
               }
               break;
           }
-        }
-        catch (Error er) {
+        } catch (Error er) {
           throw er;
-        }
-        catch (Throwable cause) {
+        } catch (Throwable cause) {
           logger.warn("Unable to discover services, using values from last successful discovery", cause);
-        }
-        finally {
+        } finally {
           nextMillis = System.currentTimeMillis() + intervalMillis;
           logger.debug("Proposed NextMillis = {}", nextMillis);
         }
@@ -681,20 +680,22 @@ public abstract class AbstractFlumeInputOperator<T>
     private static final long serialVersionUID = 201312261615L;
   }
 
-  private static final transient ThreadLocal<HashMap<Integer, ConnectionStatus>> partitionedInstanceStatus = new ThreadLocal<HashMap<Integer, ConnectionStatus>>()
-  {
-    @Override
-    protected HashMap<Integer, ConnectionStatus> initialValue()
+  private static final transient ThreadLocal<HashMap<Integer, ConnectionStatus>> partitionedInstanceStatus =
+      new ThreadLocal<HashMap<Integer, ConnectionStatus>>()
     {
-      return new HashMap<Integer, ConnectionStatus>();
-    }
+      @Override
+      protected HashMap<Integer, ConnectionStatus> initialValue()
+      {
+        return new HashMap<Integer, ConnectionStatus>();
+      }
 
-  };
+    };
   /**
    * When a sink goes away and a replacement sink is not found, we stash the recovery addresses associated
    * with the sink in a hope that the new sink may show up in near future.
    */
-  private static final transient ThreadLocal<HashMap<String, ArrayList<RecoveryAddress>>> abandonedRecoveryAddresses = new ThreadLocal<HashMap<String, ArrayList<RecoveryAddress>>>()
+  private static final transient ThreadLocal<HashMap<String, ArrayList<RecoveryAddress>>> abandonedRecoveryAddresses =
+      new ThreadLocal<HashMap<String, ArrayList<RecoveryAddress>>>()
   {
     @Override
     protected HashMap<String, ArrayList<RecoveryAddress>> initialValue()
@@ -703,7 +704,8 @@ public abstract class AbstractFlumeInputOperator<T>
     }
 
   };
-  private static final transient ThreadLocal<Collection<Service<byte[]>>> discoveredFlumeSinks = new ThreadLocal<Collection<Service<byte[]>>>();
+  private static final transient ThreadLocal<Collection<Service<byte[]>>> discoveredFlumeSinks =
+      new ThreadLocal<Collection<Service<byte[]>>>();
 
   @Override
   public boolean equals(Object o)

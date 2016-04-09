@@ -4,11 +4,24 @@
  */
 package com.datatorrent.flume.source;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.annotation.Nonnull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -17,8 +30,6 @@ import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.source.AbstractSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -69,15 +80,12 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
       BufferedReader lineReader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
       try {
         buildCache(lineReader);
-      }
-      finally {
+      } finally {
         lineReader.close();
       }
-    }
-    catch (FileNotFoundException e) {
+    } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException(e);
     }
 
@@ -109,8 +117,7 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
             lastIndex -= cacheSize;
           }
           processBatch(channel, cache.subList(0, lastIndex));
-        }
-        else {
+        } else {
           processBatch(channel, cache.subList(startIndex, lastIndex));
         }
         startIndex = lastIndex;
@@ -142,14 +149,13 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
     for (int i = 0; i < rows.size(); i++) {
       Row eventRow = rows.get(i);
       if (pastIndices.contains(i)) {
-        long pastTime = (long) ((Math.random() * (high - low)) + low);
+        long pastTime = (long)((Math.random() * (high - low)) + low);
         byte[] pastDateField = dateFormat.format(pastTime).getBytes();
         byte[] pastTimeField = timeFormat.format(pastTime).getBytes();
 
         System.arraycopy(pastDateField, 0, eventRow.bytes, eventRow.dateFieldStart, pastDateField.length);
         System.arraycopy(pastTimeField, 0, eventRow.bytes, eventRow.timeFieldStart, pastTimeField.length);
-      }
-      else {
+      } else {
         calendar.setTimeInMillis(System.currentTimeMillis());
         byte[] currentDateField = dateFormat.format(calendar.getTime()).getBytes();
         byte[] currentTimeField = timeFormat.format(calendar.getTime()).getBytes();

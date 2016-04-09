@@ -10,16 +10,17 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.flume.channel.MemoryChannel;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.netlet.util.Slice;
+import org.apache.flume.channel.MemoryChannel;
+
 import com.datatorrent.flume.discovery.Discovery;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
+import com.datatorrent.netlet.util.Slice;
 
 /**
  * @author Chetan Narsude <chetan@datatorrent.com>
@@ -55,8 +56,7 @@ public class DTFlumeSinkTest
       {
         try {
           wait();
-        }
-        catch (InterruptedException ie) {
+        } catch (InterruptedException ie) {
           throw new RuntimeException(ie);
         }
         return Collections.EMPTY_LIST;
@@ -81,7 +81,8 @@ public class DTFlumeSinkTest
       {
         Slice received = new Slice(buffer, offset, size);
         logger.debug("Client Received = {}", received);
-        Assert.assertEquals(received, new Slice(Arrays.copyOfRange(array, this.offset, array.length), 0, Server.Request.FIXED_SIZE));
+        Assert.assertEquals(received,
+            new Slice(Arrays.copyOfRange(array, this.offset, array.length), 0, Server.Request.FIXED_SIZE));
         synchronized (DTFlumeSinkTest.this) {
           DTFlumeSinkTest.this.notify();
         }
@@ -116,12 +117,10 @@ public class DTFlumeSinkTest
         synchronized (this) {
           this.wait();
         }
-      }
-      finally {
+      } finally {
         eventloop.disconnect(client);
       }
-    }
-    finally {
+    } finally {
       eventloop.stop();
     }
 

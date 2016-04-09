@@ -29,8 +29,7 @@ public class DebugWrapper implements Storage, Configurable, Component<com.datato
 
     try {
       ret = storage.store(bytes);
-    }
-    finally {
+    } finally {
       logger.debug("storage.store(new byte[]{{}});", bytes);
     }
 
@@ -44,8 +43,7 @@ public class DebugWrapper implements Storage, Configurable, Component<com.datato
 
     try {
       ret = storage.retrieve(identifier);
-    }
-    finally {
+    } finally {
       logger.debug("storage.retrieve(new byte[]{{}});", identifier);
     }
 
@@ -58,8 +56,7 @@ public class DebugWrapper implements Storage, Configurable, Component<com.datato
     byte[] ret = null;
     try {
       ret = storage.retrieveNext();
-    }
-    finally {
+    } finally {
       logger.debug("storage.retrieveNext();");
     }
 
@@ -71,8 +68,7 @@ public class DebugWrapper implements Storage, Configurable, Component<com.datato
   {
     try {
       storage.clean(identifier);
-    }
-    finally {
+    } finally {
       logger.debug("storage.clean(new byte[]{{}});", identifier);
     }
   }
@@ -82,8 +78,7 @@ public class DebugWrapper implements Storage, Configurable, Component<com.datato
   {
     try {
       storage.flush();
-    }
-    finally {
+    } finally {
       logger.debug("storage.flush();");
     }
   }
@@ -93,8 +88,7 @@ public class DebugWrapper implements Storage, Configurable, Component<com.datato
   {
     try {
       storage.configure(cntxt);
-    }
-    finally {
+    } finally {
       logger.debug("storage.configure({});", cntxt);
     }
   }
@@ -104,8 +98,7 @@ public class DebugWrapper implements Storage, Configurable, Component<com.datato
   {
     try {
       storage.setup(t1);
-    }
-    finally {
+    } finally {
       logger.debug("storage.setup({});", t1);
     }
 
@@ -116,8 +109,7 @@ public class DebugWrapper implements Storage, Configurable, Component<com.datato
   {
     try {
       storage.teardown();
-    }
-    finally {
+    } finally {
       logger.debug("storage.teardown();");
     }
   }

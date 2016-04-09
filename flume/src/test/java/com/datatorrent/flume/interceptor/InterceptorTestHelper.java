@@ -4,7 +4,11 @@
  */
 package com.datatorrent.flume.interceptor;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
@@ -15,14 +19,15 @@ import java.util.Properties;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNotNull;
 
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.interceptor.Interceptor;
 
 import com.datatorrent.netlet.util.Slice;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Chetan Narsude <chetan@datatorrent.com>
@@ -81,52 +86,52 @@ public class InterceptorTestHelper
     Interceptor interceptor = builder.build();
 
     assertArrayEquals("Empty Bytes",
-      "\001\001\001".getBytes(),
-      interceptor.intercept(new MyEvent("".getBytes())).getBody());
+        "\001\001\001".getBytes(),
+        interceptor.intercept(new MyEvent("".getBytes())).getBody());
 
     assertArrayEquals("One Separator",
-      "\001\001\001".getBytes(),
-      interceptor.intercept(new MyEvent("\002".getBytes())).getBody());
+        "\001\001\001".getBytes(),
+        interceptor.intercept(new MyEvent("\002".getBytes())).getBody());
 
     assertArrayEquals("Two Separators",
-      "\001\001\001".getBytes(),
-      interceptor.intercept(new MyEvent("\002\002".getBytes())).getBody());
+        "\001\001\001".getBytes(),
+        interceptor.intercept(new MyEvent("\002\002".getBytes())).getBody());
 
     assertArrayEquals("One Field",
-      "\001\001\001".getBytes(),
-      interceptor.intercept(new MyEvent("First".getBytes())).getBody());
+        "\001\001\001".getBytes(),
+        interceptor.intercept(new MyEvent("First".getBytes())).getBody());
 
     assertArrayEquals("Two Fields",
-      "First\001\001\001".getBytes(),
-      interceptor.intercept(new MyEvent("\002First".getBytes())).getBody());
+        "First\001\001\001".getBytes(),
+        interceptor.intercept(new MyEvent("\002First".getBytes())).getBody());
 
     assertArrayEquals("Two Fields",
-      "\001\001\001".getBytes(),
-      interceptor.intercept(new MyEvent("First\001".getBytes())).getBody());
+        "\001\001\001".getBytes(),
+        interceptor.intercept(new MyEvent("First\001".getBytes())).getBody());
 
     assertArrayEquals("Two Fields",
-      "Second\001\001\001".getBytes(),
-      interceptor.intercept(new MyEvent("First\002Second".getBytes())).getBody());
+        "Second\001\001\001".getBytes(),
+        interceptor.intercept(new MyEvent("First\002Second".getBytes())).getBody());
 
     assertArrayEquals("Three Fields",
-      "Second\001\001\001".getBytes(),
-      interceptor.intercept(new MyEvent("First\002Second\002".getBytes())).getBody());
+        "Second\001\001\001".getBytes(),
+        interceptor.intercept(new MyEvent("First\002Second\002".getBytes())).getBody());
 
     assertArrayEquals("Three Fields",
-      "\001Second\001\001".getBytes(),
-      interceptor.intercept(new MyEvent("First\002\002Second".getBytes())).getBody());
+        "\001Second\001\001".getBytes(),
+        interceptor.intercept(new MyEvent("First\002\002Second".getBytes())).getBody());
 
     assertArrayEquals("Four Fields",
-      "\001Second\001\001".getBytes(),
-      interceptor.intercept(new MyEvent("First\002\002Second\002".getBytes())).getBody());
+        "\001Second\001\001".getBytes(),
+        interceptor.intercept(new MyEvent("First\002\002Second\002".getBytes())).getBody());
 
     assertArrayEquals("Five Fields",
-      "\001Second\001\001".getBytes(),
-      interceptor.intercept(new MyEvent("First\002\002Second\002\002".getBytes())).getBody());
+        "\001Second\001\001".getBytes(),
+        interceptor.intercept(new MyEvent("First\002\002Second\002\002".getBytes())).getBody());
 
     assertArrayEquals("Six Fields",
-      "\001Second\001\001".getBytes(),
-      interceptor.intercept(new MyEvent("First\002\002Second\002\002\002".getBytes())).getBody());
+        "\001Second\001\001".getBytes(),
+        interceptor.intercept(new MyEvent("First\002\002Second\002\002\002".getBytes())).getBody());
   }
 
   public void testFiles() throws IOException, URISyntaxException

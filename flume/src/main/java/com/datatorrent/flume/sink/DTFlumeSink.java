@@ -6,21 +6,24 @@ package com.datatorrent.flume.sink;
 
 import java.io.IOError;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.ServiceConfigurationError;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.flume.*;
+import org.apache.flume.Context;
+import org.apache.flume.Event;
+import org.apache.flume.EventDeliveryException;
+import org.apache.flume.Transaction;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
 
 import com.datatorrent.api.Component;
 import com.datatorrent.api.StreamCodec;
-
-import com.datatorrent.netlet.util.Slice;
 import com.datatorrent.flume.discovery.Discovery;
-import com.datatorrent.flume.discovery.Discovery.Service;
 import com.datatorrent.flume.sink.Server.Client;
 import com.datatorrent.flume.sink.Server.Request;
 import com.datatorrent.flume.storage.EventCodec;
@@ -28,6 +31,7 @@ import com.datatorrent.flume.storage.Storage;
 import com.datatorrent.netlet.DefaultEventLoop;
 import com.datatorrent.netlet.NetletThrowable;
 import com.datatorrent.netlet.NetletThrowable.NetletRuntimeException;
+import com.datatorrent.netlet.util.Slice;
 
 /**
  * DTFlumeSink is a flume sink developed to ingest the data into DataTorrent DAG
@@ -41,10 +45,13 @@ import com.datatorrent.netlet.NetletThrowable.NetletRuntimeException;
  * id - string unique value identifying this sink <br />
  * hostname - string value indicating the fqdn or ip address of the interface on which the server should listen <br />
  * port - integer value indicating the numeric port to which the server should bind <br />
- * sleepMillis - integer value indicating the number of milliseconds the process should sleep when there are no events before checking for next event again <br />
- * throughputAdjustmentPercent - integer value indicating by what percentage the flume transaction size should be adjusted upward or downward at a time <br />
+ * sleepMillis - integer value indicating the number of milliseconds the process should sleep when there are no events
+ * before checking for next event again <br />
+ * throughputAdjustmentPercent - integer value indicating by what percentage the flume transaction size should be
+ * adjusted upward or downward at a time <br />
  * minimumEventsPerTransaction - integer value indicating the minimum number of events per transaction <br />
- * maximumEventsPerTransaction - integer value indicating the maximum number of events per transaction. This value can not be more than channel's transaction capacity.<br />
+ * maximumEventsPerTransaction - integer value indicating the maximum number of events per transaction. This value can
+ * not be more than channel's transaction capacity.<br />
  *
  * @author Chetan Narsude <chetan@datatorrent.com>
  * @since 0.9.2
@@ -130,9 +137,9 @@ public class DTFlumeSink extends AbstractSink implements Configurable
     if (client == null) {
       logger.info("No client expressed interest yet to consume the events.");
       return Status.BACKOFF;
-    }
-    else if (System.currentTimeMillis() - lastCommitEventTimeMillis > commitEventTimeoutMillis) {
-      logger.info("Client has not processed the workload given for the last {} milliseconds, so backing off.", System.currentTimeMillis() - lastCommitEventTimeMillis);
+    } else if (System.currentTimeMillis() - lastCommitEventTimeMillis > commitEventTimeoutMillis) {
+      logger.info("Client has not processed the workload given for the last {} milliseconds, so backing off.",
+          System.currentTimeMillis() - lastCommitEventTimeMillis);
       return Status.BACKOFF;
     }
 
@@ -141,30 +148,25 @@ public class DTFlumeSink extends AbstractSink implements Configurable
     if (outstandingEventsCount < 0) {
       if (idleCount > 1) {
         maxTuples = (int)((1 + throughputAdjustmentFactor * idleCount) * lastConsumedEventsCount);
-      }
-      else {
+      } else {
         maxTuples = (int)((1 + throughputAdjustmentFactor) * lastConsumedEventsCount);
       }
-    }
-    else if (outstandingEventsCount > lastConsumedEventsCount) {
+    } else if (outstandingEventsCount > lastConsumedEventsCount) {
       maxTuples = (int)((1 - throughputAdjustmentFactor) * lastConsumedEventsCount);
-    }
-    else {
+    } else {
       if (idleCount > 0) {
         maxTuples = (int)((1 + throughputAdjustmentFactor * idleCount) * lastConsumedEventsCount);
         if (maxTuples <= 0) {
           maxTuples = minimumEventsPerTransaction;
         }
-      }
-      else {
+      } else {
         maxTuples = lastConsumedEventsCount;
       }
     }
 
     if (maxTuples >= maximumEventsPerTransaction) {
       maxTuples = maximumEventsPerTransaction;
-    }
-    else if (maxTuples <= 0) {
+    } else if (maxTuples <= 0) {
       maxTuples = minimumEventsPerTransaction;
     }
 
@@ -180,22 +182,19 @@ public class DTFlumeSink extends AbstractSink implements Configurable
             playback = storage.retrieveNext();
           }
           while (++i < maxTuples && playback != null);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
           logger.warn("Playback Failed", ex);
           if (ex instanceof NetletThrowable) {
             try {
               eventloop.disconnect(client);
-            }
-            finally {
+            } finally {
               client = null;
               outstandingEventsCount = 0;
             }
           }
           return Status.BACKOFF;
         }
-      }
-      else {
+      } else {
         int storedTuples = 0;
 
         Transaction t = getChannel().getTransaction();
@@ -211,8 +210,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
                 retryWrite(address, event);
               }
               outstandingEventsCount++;
-            }
-            else {
+            } else {
               logger.debug("Detected the condition of recovery from flume crash!");
             }
             storedTuples++;
@@ -225,28 +223,25 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           t.commit();
 
           if (storedTuples > 0) { /* log less frequently */
-            logger.debug("Transaction details maxTuples = {}, storedTuples = {}, outstanding = {}", maxTuples, storedTuples, outstandingEventsCount);
+            logger.debug("Transaction details maxTuples = {}, storedTuples = {}, outstanding = {}",
+                maxTuples, storedTuples, outstandingEventsCount);
           }
-        }
-        catch (Error er) {
+        } catch (Error er) {
           t.rollback();
           throw er;
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
           logger.error("Transaction Failed", ex);
           if (ex instanceof NetletRuntimeException && client != null) {
             try {
               eventloop.disconnect(client);
-            }
-            finally {
+            } finally {
               client = null;
               outstandingEventsCount = 0;
             }
           }
           t.rollback();
           return Status.BACKOFF;
-        }
-        finally {
+        } finally {
           t.close();
         }
 
@@ -263,8 +258,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   {
     try {
       Thread.sleep(sleepMillis);
-    }
-    catch (InterruptedException ex) {
+    } catch (InterruptedException ex) {
       Thread.currentThread().interrupt();
     }
   }
@@ -290,14 +284,11 @@ public class DTFlumeSink extends AbstractSink implements Configurable
       }
       eventloop = new DefaultEventLoop("EventLoop-" + id);
       server = new Server(id, discovery,acceptedTolerance);
-    }
-    catch (Error error) {
+    } catch (Error error) {
       throw error;
-    }
-    catch (RuntimeException re) {
+    } catch (RuntimeException re) {
       throw re;
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
 
@@ -311,8 +302,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   {
     try {
       super.stop();
-    }
-    finally {
+    } finally {
       try {
         if (client != null) {
           eventloop.disconnect(client);
@@ -322,7 +312,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         eventloop.stop(server);
         eventloop.stop();
 
-        if (codec instanceof Component){
+        if (codec instanceof Component) {
           @SuppressWarnings("unchecked")
           Component<com.datatorrent.api.Context> component = (Component<com.datatorrent.api.Context>)codec;
           component.teardown();
@@ -337,8 +327,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           Component<com.datatorrent.api.Context> component = (Component<com.datatorrent.api.Context>)storage;
           component.teardown();
         }
-      }
-      catch (Throwable cause) {
+      } catch (Throwable cause) {
         throw new ServiceConfigurationError("Failed Stop", cause);
       }
     }
@@ -389,8 +378,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         }
 
       };
-    }
-    else {
+    } else {
       discovery = ldiscovery;
     }
 
@@ -434,8 +422,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
     StreamCodec<Event> lCodec = configure("codec", StreamCodec.class, context);
     if (lCodec == null) {
       codec = new EventCodec();
-    }
-    else {
+    } else {
       codec = lCodec;
     }
 
@@ -468,19 +455,15 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         }
 
         return object;
-      }
-      else {
+      } else {
         logger.error("key class {} does not implement {} interface", classname, Storage.class.getCanonicalName());
         throw new Error("Invalid storage " + classname);
       }
-    }
-    catch (Error error) {
+    } catch (Error error) {
       throw error;
-    }
-    catch (RuntimeException re) {
+    } catch (RuntimeException re) {
       throw re;
-    }
-    catch (Throwable t) {
+    } catch (Throwable t) {
       throw new RuntimeException(t);
     }
   }
@@ -560,8 +543,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           return;
         }
       }
-    }
-    else {  /* this happens when the events are taken from the flume channel and writing first time failed */
+    } else {  /* this happens when the events are taken from the flume channel and writing first time failed */
       while (client.isConnected()) {
         sleep();
         if (client.write(address, event)) {

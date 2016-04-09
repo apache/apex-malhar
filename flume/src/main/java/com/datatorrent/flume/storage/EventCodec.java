@@ -8,18 +8,17 @@ import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.flume.Event;
 import org.apache.flume.event.EventBuilder;
 
-import com.datatorrent.api.StreamCodec;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 
+import com.datatorrent.api.StreamCodec;
 import com.datatorrent.netlet.util.Slice;
 
 /**
@@ -30,7 +29,7 @@ import com.datatorrent.netlet.util.Slice;
  */
 public class EventCodec implements StreamCodec<Event>
 {
-  private transient final Kryo kryo;
+  private final transient Kryo kryo;
 
   public EventCodec()
   {

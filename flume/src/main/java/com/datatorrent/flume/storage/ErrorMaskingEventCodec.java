@@ -1,9 +1,11 @@
 package com.datatorrent.flume.storage;
 
-import com.datatorrent.netlet.util.Slice;
-import org.apache.flume.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.flume.Event;
+
+import com.datatorrent.netlet.util.Slice;
 
 /**
  * <p>ErrorMaskingEventCodec class.</p>
@@ -19,8 +21,7 @@ public class ErrorMaskingEventCodec extends EventCodec
   {
     try {
       return super.fromByteArray(fragment);
-    }
-    catch (RuntimeException re) {
+    } catch (RuntimeException re) {
       logger.warn("Cannot deserialize event {}", fragment, re);
     }
 
@@ -32,8 +33,7 @@ public class ErrorMaskingEventCodec extends EventCodec
   {
     try {
       return super.toByteArray(event);
-    }
-    catch (RuntimeException re) {
+    } catch (RuntimeException re) {
       logger.warn("Cannot serialize event {}", event, re);
     }
 

@@ -14,12 +14,12 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.netlet.util.Slice;
 import com.datatorrent.flume.discovery.Discovery;
 import com.datatorrent.flume.discovery.Discovery.Service;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.AbstractServer;
 import com.datatorrent.netlet.EventLoop;
+import com.datatorrent.netlet.util.Slice;
 
 /**
  * <p>
@@ -50,19 +50,19 @@ public class Server extends AbstractServer
       @Override
       public Slice getAddress()
       {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet.");
       }
 
       @Override
       public int getEventCount()
       {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet.");
       }
 
       @Override
       public int getIdleCount()
       {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet.");
       }
 
     };
@@ -100,7 +100,8 @@ public class Server extends AbstractServer
     @Override
     public String toString()
     {
-      return "Server.Service{id=" + id + ", host=" + getHost() + ", port=" + getPort() + ", payload=" + Arrays.toString(getPayload()) + '}';
+      return "Server.Service{id=" + id + ", host=" + getHost() + ", port=" + getPort() + ", payload=" +
+          Arrays.toString(getPayload()) + '}';
     }
 
   };
@@ -204,13 +205,15 @@ public class Server extends AbstractServer
     public void onMessage(byte[] buffer, int offset, int size)
     {
       if (size != Request.FIXED_SIZE) {
-        logger.warn("Invalid Request Received: {} from {}", Arrays.copyOfRange(buffer, offset, offset + size), key.channel());
+        logger.warn("Invalid Request Received: {} from {}", Arrays.copyOfRange(buffer, offset, offset + size),
+            key.channel());
         return;
       }
 
       long requestTime = Server.readLong(buffer, offset + Request.TIME_OFFSET);
       if (System.currentTimeMillis() > (requestTime + acceptedTolerance)) {
-        logger.warn("Expired Request Received: {} from {}", Arrays.copyOfRange(buffer, offset, offset + size), key.channel());
+        logger.warn("Expired Request Received: {} from {}", Arrays.copyOfRange(buffer, offset, offset + size),
+            key.channel());
         return;
       }
 
@@ -219,9 +222,9 @@ public class Server extends AbstractServer
           write(buffer, offset, size);
           return;
         }
-      }
-      catch (IllegalArgumentException ex) {
-        logger.warn("Invalid Request Received: {} from {}!", Arrays.copyOfRange(buffer, offset, offset + size), key.channel(), ex);
+      } catch (IllegalArgumentException ex) {
+        logger.warn("Invalid Request Received: {} from {}!", Arrays.copyOfRange(buffer, offset, offset + size),
+            key.channel(), ex);
         return;
       }
 
@@ -235,7 +238,8 @@ public class Server extends AbstractServer
     public void disconnected()
     {
       synchronized (requests) {
-        requests.add(Request.getRequest(new byte[] {Command.DISCONNECTED.getOrdinal(), 0, 0, 0, 0, 0, 0, 0, 0}, 0, this));
+        requests.add(Request.getRequest(
+            new byte[] {Command.DISCONNECTED.getOrdinal(), 0, 0, 0, 0, 0, 0, 0, 0}, 0, this));
       }
       super.disconnected();
     }
@@ -252,7 +256,7 @@ public class Server extends AbstractServer
 
   }
 
-  public static abstract class Request
+  public abstract static class Request
   {
     public static final int FIXED_SIZE = 17;
     public static final int TIME_OFFSET = 9;

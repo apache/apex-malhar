@@ -74,8 +74,7 @@ public class HDFSStoragePerformanceTest
       if (b == null) {
         logger.debug(" end time for retrieve {}/{}/{}", System.currentTimeMillis(), index, org_index);
         return;
-      }
-      else {
+      } else {
         if (!match(b, index)) {
           throw new RuntimeException("failed : " + index);
         }

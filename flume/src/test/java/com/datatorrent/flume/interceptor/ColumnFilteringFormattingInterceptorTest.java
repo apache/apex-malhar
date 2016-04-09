@@ -8,10 +8,11 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 
-import org.apache.flume.Context;
-import org.apache.flume.interceptor.Interceptor;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import org.apache.flume.Context;
+import org.apache.flume.interceptor.Interceptor;
 
 import static org.junit.Assert.assertArrayEquals;
 
@@ -26,7 +27,7 @@ public class ColumnFilteringFormattingInterceptorTest
   public static void startUp()
   {
     HashMap<String, String> contextMap = new HashMap<String, String>();
-    contextMap.put(ColumnFilteringInterceptor.Constants.SRC_SEPARATOR, Byte.toString((byte) 2));
+    contextMap.put(ColumnFilteringInterceptor.Constants.SRC_SEPARATOR, Byte.toString((byte)2));
     contextMap.put(ColumnFilteringFormattingInterceptor.Constants.COLUMNS_FORMATTER, "{1}\001{2}\001{3}\001");
 
     helper = new InterceptorTestHelper(new ColumnFilteringFormattingInterceptor.Builder(), contextMap);
@@ -48,7 +49,7 @@ public class ColumnFilteringFormattingInterceptorTest
   public void testInterceptEventWithPrefix()
   {
     HashMap<String, String> contextMap = new HashMap<String, String>();
-    contextMap.put(ColumnFilteringInterceptor.Constants.SRC_SEPARATOR, Byte.toString((byte) 2));
+    contextMap.put(ColumnFilteringInterceptor.Constants.SRC_SEPARATOR, Byte.toString((byte)2));
     contextMap.put(ColumnFilteringFormattingInterceptor.Constants.COLUMNS_FORMATTER, "\001{1}\001{2}\001{3}\001");
 
     ColumnFilteringFormattingInterceptor.Builder builder = new ColumnFilteringFormattingInterceptor.Builder();
@@ -56,21 +57,23 @@ public class ColumnFilteringFormattingInterceptorTest
     Interceptor interceptor = builder.build();
 
     assertArrayEquals("Six Fields",
-      "\001\001Second\001\001".getBytes(),
-      interceptor.intercept(new InterceptorTestHelper.MyEvent("First\002\002Second\002\002\002".getBytes())).getBody());
+        "\001\001Second\001\001".getBytes(),
+        interceptor.intercept(
+        new InterceptorTestHelper.MyEvent("First\002\002Second\002\002\002".getBytes())).getBody());
   }
 
   @Test
   public void testInterceptEventWithLongSeparator()
   {
     HashMap<String, String> contextMap = new HashMap<String, String>();
-    contextMap.put(ColumnFilteringInterceptor.Constants.SRC_SEPARATOR, Byte.toString((byte) 2));
+    contextMap.put(ColumnFilteringInterceptor.Constants.SRC_SEPARATOR, Byte.toString((byte)2));
     contextMap.put(ColumnFilteringFormattingInterceptor.Constants.COLUMNS_FORMATTER, "a{1}bc{2}def{3}ghi");
 
     ColumnFilteringFormattingInterceptor.Builder builder = new ColumnFilteringFormattingInterceptor.Builder();
     builder.configure(new Context(contextMap));
     Interceptor interceptor = builder.build();
-    byte[] body = interceptor.intercept(new InterceptorTestHelper.MyEvent("First\002\002Second\002\002\002".getBytes())).getBody();
+    byte[] body = interceptor.intercept(
+        new InterceptorTestHelper.MyEvent("First\002\002Second\002\002\002".getBytes())).getBody();
 
     assertArrayEquals("Six Fields, " + new String(body), "abcSeconddefghi".getBytes(), body);
   }
@@ -79,13 +82,14 @@ public class ColumnFilteringFormattingInterceptorTest
   public void testInterceptEventWithTerminatingSeparator()
   {
     HashMap<String, String> contextMap = new HashMap<String, String>();
-    contextMap.put(ColumnFilteringInterceptor.Constants.SRC_SEPARATOR, Byte.toString((byte) 2));
+    contextMap.put(ColumnFilteringInterceptor.Constants.SRC_SEPARATOR, Byte.toString((byte)2));
     contextMap.put(ColumnFilteringFormattingInterceptor.Constants.COLUMNS_FORMATTER, "a{1}bc{2}def{3}");
 
     ColumnFilteringFormattingInterceptor.Builder builder = new ColumnFilteringFormattingInterceptor.Builder();
     builder.configure(new Context(contextMap));
     Interceptor interceptor = builder.build();
-    byte[] body = interceptor.intercept(new InterceptorTestHelper.MyEvent("First\002\002Second\002\002\002".getBytes())).getBody();
+    byte[] body = interceptor.intercept(
+        new InterceptorTestHelper.MyEvent("First\002\002Second\002\002\002".getBytes())).getBody();
 
     assertArrayEquals("Six Fields, " + new String(body), "abcSeconddef".getBytes(), body);
   }
@@ -94,7 +98,7 @@ public class ColumnFilteringFormattingInterceptorTest
   public void testInterceptEventWithColumnZero()
   {
     HashMap<String, String> contextMap = new HashMap<String, String>();
-    contextMap.put(ColumnFilteringInterceptor.Constants.SRC_SEPARATOR, Byte.toString((byte) 2));
+    contextMap.put(ColumnFilteringInterceptor.Constants.SRC_SEPARATOR, Byte.toString((byte)2));
     contextMap.put(ColumnFilteringFormattingInterceptor.Constants.COLUMNS_FORMATTER, "{0}\001");
 
     ColumnFilteringFormattingInterceptor.Builder builder = new ColumnFilteringFormattingInterceptor.Builder();
@@ -102,15 +106,15 @@ public class ColumnFilteringFormattingInterceptorTest
     Interceptor interceptor = builder.build();
 
     assertArrayEquals("Empty Bytes",
-      "\001".getBytes(),
-      interceptor.intercept(new InterceptorTestHelper.MyEvent("".getBytes())).getBody());
+        "\001".getBytes(),
+        interceptor.intercept(new InterceptorTestHelper.MyEvent("".getBytes())).getBody());
 
     assertArrayEquals("One Field",
-      "First\001".getBytes(),
-      interceptor.intercept(new InterceptorTestHelper.MyEvent("First".getBytes())).getBody());
+        "First\001".getBytes(),
+        interceptor.intercept(new InterceptorTestHelper.MyEvent("First".getBytes())).getBody());
 
     assertArrayEquals("Two Fields",
-      "\001".getBytes(),
-      interceptor.intercept(new InterceptorTestHelper.MyEvent("\002First".getBytes())).getBody());
+        "\001".getBytes(),
+        interceptor.intercept(new InterceptorTestHelper.MyEvent("\002First".getBytes())).getBody());
   }
 }
