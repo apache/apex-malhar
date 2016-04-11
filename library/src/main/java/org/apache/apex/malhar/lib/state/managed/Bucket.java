@@ -92,10 +92,12 @@ public interface Bucket extends ManagedStateComponent
   /**
    * Triggers bucket to free memory which is already persisted in bucket data files.
    *
+   * @param windowId All the data corresponding to windowId's less than or equal to this winowId
+   * will be freed.
    * @return amount of memory freed in bytes.
    * @throws IOException
    */
-  long freeMemory() throws IOException;
+  long freeMemory(long windowId) throws IOException;
 
   /**
    * Allows the bucket to process/cache data which is recovered (from window files) after failure.
@@ -186,7 +188,8 @@ public interface Bucket extends ManagedStateComponent
         new ConcurrentSkipListMap<>();
 
     //Data persisted in bucket data files
-    private final transient Map<Slice, BucketedValue> committedData = Maps.newConcurrentMap();
+    private final transient ConcurrentSkipListMap<Long, Map<Slice, BucketedValue>> committedData =
+        new ConcurrentSkipListMap<>();
 
     //Data serialized/deserialized from bucket data files: key -> value from latest time bucket on file
     private final transient Map<Slice, BucketedValue> fileCache = Maps.newConcurrentMap();
@@ -247,9 +250,12 @@ public interface Bucket extends ManagedStateComponent
         }
       }
 
-      bucketedValue = committedData.get(key);
-      if (bucketedValue != null) {
-        return bucketedValue.getValue();
+      for (Long window : committedData.descendingKeySet()) {
+        //traverse the committed data in reverse order
+        bucketedValue = committedData.get(window).get(key);
+        if (bucketedValue != null) {
+          return bucketedValue.getValue();
+        }
       }
 
       bucketedValue = fileCache.get(key);
@@ -392,14 +398,27 @@ public interface Bucket extends ManagedStateComponent
     }
 
     @Override
-    public long freeMemory() throws IOException
+    public long freeMemory(long windowId) throws IOException
     {
       LOG.debug("free space {}", bucketId);
       long memoryFreed = 0;
-      for (Map.Entry<Slice, BucketedValue> entry : committedData.entrySet()) {
-        memoryFreed += entry.getKey().length + entry.getValue().getValue().length;
+
+      for (Map.Entry<Long, Map<Slice, BucketedValue>> windowEntry : committedData.entrySet()) {
+        for (Map.Entry<Slice, BucketedValue> entry: windowEntry.getValue().entrySet()) {
+          memoryFreed += entry.getKey().length + entry.getValue().getValue().length;
+        }
       }
-      committedData.clear();
+
+      Long clearWindowId = null;
+
+      while ((clearWindowId = committedData.floorKey(windowId)) != null) {
+        Map<Slice, BucketedValue> windowData = committedData.remove(clearWindowId);
+
+        for (Map.Entry<Slice, BucketedValue> entry: windowData.entrySet()) {
+          memoryFreed += entry.getKey().length + entry.getValue().getValue().length;
+        }
+      }
+
       fileCache.clear();
       if (cachedBucketMetas != null) {
 
@@ -462,7 +481,8 @@ public interface Bucket extends ManagedStateComponent
               break;
             }
           }
-          committedData.putAll(bucketData);
+
+          committedData.put(savedWindow, bucketData);
           stateIterator.remove();
         } else {
           break;
@@ -509,7 +529,7 @@ public interface Bucket extends ManagedStateComponent
     }
 
     @VisibleForTesting
-    Map<Slice, BucketedValue> getCommittedData()
+    ConcurrentSkipListMap<Long, Map<Slice, BucketedValue>> getCommittedData()
     {
       return committedData;
     }

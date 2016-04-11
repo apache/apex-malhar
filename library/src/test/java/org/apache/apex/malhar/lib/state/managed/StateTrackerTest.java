@@ -146,9 +146,9 @@ public class StateTrackerTest
     }
 
     @Override
-    public long freeMemory() throws IOException
+    public long freeMemory(long windowId) throws IOException
     {
-      long freedBytes = super.freeMemory();
+      long freedBytes = super.freeMemory(windowId);
       ((MockManagedStateImpl)managedStateContext).freedBuckets.add(getBucketId());
       ((MockManagedStateImpl)managedStateContext).latch.countDown();
       return freedBytes;
