@@ -22,12 +22,12 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
+import com.datatorrent.api.StorageAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.DAGContext;
-import com.datatorrent.lib.util.StorageAgent.ApplicationAwareStorageAgent;
 
 /**
  * Abstract implementation of {@link ApplicationAwareStorageAgent} which can be
@@ -40,7 +40,7 @@ import com.datatorrent.lib.util.StorageAgent.ApplicationAwareStorageAgent;
  *          Store implementation
  */
 public abstract class AbstractKeyValueStorageAgent<S extends StorageAgentKeyValueStore>
-    implements ApplicationAwareStorageAgent, Serializable
+    implements StorageAgent.ApplicationAwareStorageAgent, Serializable
 {
 
   protected S store;
