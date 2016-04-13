@@ -92,13 +92,17 @@
           </excludes>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
     </plugins>
     <pluginManagement>
       <plugins>
         <plugin>
           <groupId>com.github.siom79.japicmp</groupId>
           <artifactId>japicmp-maven-plugin</artifactId>
-          <version>0.6.2</version>
+          <version>0.7.0</version>
           <configuration>
             <oldVersion>
               <dependency>
@@ -115,8 +119,7 @@
             <parameter>
               <onlyModified>true</onlyModified>
               <accessModifier>protected</accessModifier>
-              <breakBuildOnModifications>false</breakBuildOnModifications>
-              <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
+              <breakBuildBasedOnSemanticVersioning>true</breakBuildBasedOnSemanticVersioning>
               <onlyBinaryIncompatible>false</onlyBinaryIncompatible>
               <includeSynthetic>false</includeSynthetic>
               <ignoreMissingClasses>true</ignoreMissingClasses>
