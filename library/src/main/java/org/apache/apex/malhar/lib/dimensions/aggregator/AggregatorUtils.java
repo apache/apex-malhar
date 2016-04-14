@@ -23,6 +23,8 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
+import com.datatorrent.lib.appdata.gpo.Serde;
+import com.datatorrent.lib.appdata.gpo.SerdeMapPrimitive;
 import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
@@ -145,4 +147,22 @@ public final class AggregatorUtils
 
     return new FieldsDescriptor(fieldToType);
   }
+
+  public static FieldsDescriptor getOutputFieldsDescriptor(FieldsDescriptor inputFieldsDescriptor,
+      CompositeAggregator compositeAggregator)
+  {
+    Map<String, Type> fieldToType = Maps.newHashMap();
+    Map<String, Serde> fieldToSerde = Maps.newHashMap();
+
+    for (Map.Entry<String, Type> entry : inputFieldsDescriptor.getFieldToType().entrySet()) {
+      String fieldName = entry.getKey();
+      Type outputType = compositeAggregator.getOutputType();
+      fieldToType.put(fieldName, outputType);
+
+      fieldToSerde.put(fieldName, SerdeMapPrimitive.INSTANCE);
+    }
+
+    return new FieldsDescriptor(fieldToType, fieldToSerde);
+  }
+        
 }
