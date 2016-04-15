@@ -19,7 +19,6 @@
 package com.datatorrent.lib.util;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import org.junit.rules.TestWatcher;
@@ -55,15 +54,6 @@ public class TestUtils
   }
 
   public static void deleteTargetTestClassFolder(Description description)
-  {
-    try {
-      FileUtils.deleteDirectory(new File("target/" + description.getClassName()));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public static void deleteTargetTestClassFolderQuietly(Description description)
   {
     FileUtils.deleteQuietly(new File("target/" + description.getClassName()));
   }
