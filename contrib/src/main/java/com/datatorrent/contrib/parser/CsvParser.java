@@ -182,7 +182,7 @@ public class CsvParser extends Parser<byte[], KeyValPair<String, String>>
         emittedObjectCount++;
       }
 
-    } catch (SuperCsvException | IOException e) {
+    } catch (SuperCsvException | IOException | IllegalArgumentException e) {
       if (err.isConnected()) {
         err.emit(new KeyValPair<String, String>(incomingString, e.getMessage()));
       }

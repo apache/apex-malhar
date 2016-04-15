@@ -306,12 +306,37 @@ public class CsvPOJOParserTest
   }
 
   @Test
+  public void TestParserLessFieldsOnlyPOJOPortConnected()
+  {
+    parser.parsedOutput.setSink(null);
+    parser.beginWindow(0);
+    parser.in.process("1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,OPTIMIZATION".getBytes());
+    parser.endWindow();
+    Assert.assertEquals(0, objectPort.collectedTuples.size());
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(1, error.collectedTuples.size());
+  }
+
+  @Test
   public void TestParserMoreFields()
   {
 
     parser.beginWindow(0);
     parser.in.process("1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,OPTIMIZATION,CAMP_AD,Y,yes,ExtraField"
         .getBytes());
+    parser.endWindow();
+    Assert.assertEquals(0, objectPort.collectedTuples.size());
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(1, error.collectedTuples.size());
+  }
+
+  @Test
+  public void TestParserMoreFieldsOnlyPOJOPortConnected()
+  {
+    parser.parsedOutput.setSink(null);
+    parser.beginWindow(0);
+    parser.in.process(
+        "1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,OPTIMIZATION,CAMP_AD,Y,yes,ExtraField".getBytes());
     parser.endWindow();
     Assert.assertEquals(0, objectPort.collectedTuples.size());
     Assert.assertEquals(0, pojoPort.collectedTuples.size());
