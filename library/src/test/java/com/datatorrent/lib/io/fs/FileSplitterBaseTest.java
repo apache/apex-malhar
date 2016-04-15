@@ -97,7 +97,7 @@ public class FileSplitterBaseTest
     @Override
     protected void finished(Description description)
     {
-      TestUtils.deleteTargetTestClassFolderQuietly(description);
+      TestUtils.deleteTargetTestClassFolder(description);
     }
   }
 
