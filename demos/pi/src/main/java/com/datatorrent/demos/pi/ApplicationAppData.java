@@ -108,19 +108,20 @@ public class ApplicationAppData implements StreamingApplication
 
     URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
 
-    AppDataSnapshotServerMap snapshotServer
-      = dag.addOperator("Snapshot Server", new AppDataSnapshotServerMap());
+    AppDataSnapshotServerMap snapshotServer = dag.addOperator("SnapshotServer", new AppDataSnapshotServerMap());
 
     String snapshotServerJSON = SchemaUtils.jarResourceFileToString(SNAPSHOT_SCHEMA);
 
     snapshotServer.setSnapshotSchemaJSON(snapshotServerJSON);
 
-    PubSubWebSocketAppDataQuery wsQuery = dag.addOperator("Query", new PubSubWebSocketAppDataQuery());
+    PubSubWebSocketAppDataQuery wsQuery = new PubSubWebSocketAppDataQuery();
+    wsQuery.enableEmbeddedMode();
+    snapshotServer.setEmbeddableQueryInfoProvider(wsQuery);
+
     PubSubWebSocketAppDataResult wsResult = dag.addOperator("QueryResult", new PubSubWebSocketAppDataResult());
 
     wsQuery.setUri(uri);
     wsResult.setUri(uri);
-    Operator.OutputPort<String> queryPort = wsQuery.outputPort;
     Operator.InputPort<String> queryResultPort = wsResult.input;
 
     NamedValueList<Object> adaptor = dag.addOperator("adaptor", new NamedValueList<Object>());
@@ -128,7 +129,6 @@ public class ApplicationAppData implements StreamingApplication
 
     dag.addStream("PiValues", calc.output, adaptor.inPort, console.input).setLocality(locality);;
     dag.addStream("NamedPiValues", adaptor.outPort, snapshotServer.input);
-    dag.addStream("Query", queryPort, snapshotServer.query);
     dag.addStream("Result", snapshotServer.queryResult, queryResultPort);
   }
 
