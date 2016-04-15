@@ -22,6 +22,7 @@ import org.apache.apex.malhar.lib.spillable.Spillable.SpillableComponent;
 
 import com.datatorrent.api.Component;
 import com.datatorrent.api.Context.OperatorContext;
+import org.apache.apex.malhar.lib.utils.Serde;
 
 /**
  * This is a composite component containing spillable data structures. This should be used as
