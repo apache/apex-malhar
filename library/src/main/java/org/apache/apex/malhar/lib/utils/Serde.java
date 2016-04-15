@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.spillable;
+package org.apache.apex.malhar.lib.utils;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
@@ -50,4 +50,12 @@ public interface Serde<OBJ, SER>
    * @return The deserialized object.
    */
   OBJ deserialize(SER object, MutableInt offset);
+
+  /**
+   * Deserializes the given serialized representation of an object.
+   * @param object The serialized representation of an object.
+   *
+   * @return The deserialized object.
+   */
+  OBJ deserialize(SER object);
 }
