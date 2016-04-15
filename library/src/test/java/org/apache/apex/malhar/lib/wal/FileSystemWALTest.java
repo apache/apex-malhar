@@ -34,10 +34,10 @@ import com.google.common.collect.Sets;
 
 import com.datatorrent.lib.fileaccess.FileAccessFSImpl;
 
-public class WALTest
+public class FileSystemWALTest
 {
   static final Random rand = new Random();
-  private static final Logger logger = LoggerFactory.getLogger(WALTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(FileSystemWALTest.class);
   File file = new File("target/hds");
 
   static byte[] genRandomByteArray(int len)
@@ -139,9 +139,9 @@ public class WALTest
     bfs.setBasePath(file.getAbsolutePath());
     bfs.init();
 
-    RollingFSWal<byte[]> wal = new RollingFSWal<>(bfs, new ByteArraySerde(), 1);
+    FileSystemWAL<byte[]> wal = new FileSystemWAL<>(bfs, new ByteArraySerde(), 1);
     wal.setBaseDir(file.getAbsoluteFile().toString());
-    RollingFSWal<byte[]>.RollingFSWALWriter writer = (RollingFSWal<byte[]>.RollingFSWALWriter)wal.getWriter();
+    FileSystemWAL<byte[]>.RollingFSWALWriter writer = (FileSystemWAL<byte[]>.RollingFSWALWriter)wal.getWriter();
     writer.setMaxSegmentSize(32 * 1024);
 
     /* write each record of size 1K, each file will have 32 records, last file will have
@@ -153,8 +153,8 @@ public class WALTest
     writer.close();
 
     /** Read from start till the end */
-    RollingFSWal<byte[]>.RollingFSWalReader reader = (RollingFSWal<byte[]>.RollingFSWalReader)wal.getReader();
-    reader.seek(new RollingFSWal.WalPointer(0, 0));
+    FileSystemWAL<byte[]>.RollingFSWalReader reader = (FileSystemWAL<byte[]>.RollingFSWalReader)wal.getReader();
+    reader.seek(new FileSystemWAL.WalPointer(0, 0));
 
     int read = 0;
     while (reader.advance()) {
@@ -165,7 +165,7 @@ public class WALTest
     Assert.assertEquals("Number of records read from start ", wrote, read);
 
     /* skip first file for reading, and then read other entries till the end */
-    reader.seek(new RollingFSWal.WalPointer(1, 0));
+    reader.seek(new FileSystemWAL.WalPointer(1, 0));
 
     read = 0;
     while (reader.advance()) {
@@ -175,7 +175,7 @@ public class WALTest
     Assert.assertEquals("Number of record read after skipping one file ", wrote - 32, read);
 
     /* skip first file and few records from the next file, and read till the end */
-    reader.seek(new RollingFSWal.WalPointer(1, 16 * 1024));
+    reader.seek(new FileSystemWAL.WalPointer(1, 16 * 1024));
     read = 0;
     while (reader.advance()) {
       Object o = reader.get();

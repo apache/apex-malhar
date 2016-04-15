@@ -22,7 +22,7 @@ import java.io.IOException;
 
 import com.datatorrent.lib.fileaccess.FileAccess;
 
-public class RollingFSWal<T> implements WAL<T, RollingFSWal.WalPointer>
+public class FileSystemWAL<T> implements WAL<T, FileSystemWAL.WalPointer>
 {
   private final String WAL_FILE_PREFIX = "wal";
   private final FileAccess bfs;
@@ -30,7 +30,7 @@ public class RollingFSWal<T> implements WAL<T, RollingFSWal.WalPointer>
   private final long bucketKey;
   private String baseDir;
 
-  public RollingFSWal(FileAccess bfs, WAL.Serde<T> serializer, long bucketKey)
+  public FileSystemWAL(FileAccess bfs, WAL.Serde<T> serializer, long bucketKey)
   {
     this.bfs = bfs;
     this.serializer = serializer;
