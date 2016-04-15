@@ -63,6 +63,11 @@ public class TestUtils
     }
   }
 
+  public static void deleteTargetTestClassFolderQuietly(Description description)
+  {
+    FileUtils.deleteQuietly(new File("target/" + description.getClassName()));
+  }
+  
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public static <S extends Sink, T> S setSink(OutputPort<T> port, S sink)
   {
