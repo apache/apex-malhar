@@ -81,6 +81,10 @@
     <name>dt.application.PiDemoAppData.operator.QueryResult.topic</name>
     <value>PiDemoQueryResult</value>
   </property>
+  <property>
+    <name>dt.application.PiDemoAppData.operator.SnapshotServer.embeddableQueryInfoProvider.topic</name>
+    <value>PiDemoQuery</value>
+  </property>
 
   <!-- PiLibraryDemo -->
   <property>
