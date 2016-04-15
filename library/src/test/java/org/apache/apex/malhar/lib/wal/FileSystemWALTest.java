@@ -21,30 +21,63 @@ package org.apache.apex.malhar.lib.wal;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
-import java.util.Set;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.apex.malhar.lib.utils.FileContextUtils;
+import org.apache.hadoop.fs.FileContext;
+import org.apache.hadoop.fs.Path;
 
-import com.google.common.collect.Sets;
-
-import com.datatorrent.lib.fileaccess.FileAccessFSImpl;
+import com.datatorrent.lib.util.KryoCloneUtils;
+import com.datatorrent.lib.util.TestUtils;
+import com.datatorrent.netlet.util.Slice;
 
 public class FileSystemWALTest
 {
-  static final Random rand = new Random();
-  private static final Logger logger = LoggerFactory.getLogger(FileSystemWALTest.class);
-  File file = new File("target/hds");
+  private static final Random RAND = new Random();
 
-  static byte[] genRandomByteArray(int len)
+  private static Slice getRandomSlice(int len)
   {
     byte[] val = new byte[len];
-    rand.nextBytes(val);
-    return val;
+    RAND.nextBytes(val);
+    return new Slice(val);
+  }
+
+  private class TestMeta extends TestWatcher
+  {
+    private String targetDir;
+    FileSystemWAL fsWAL = new FileSystemWAL();
+
+    @Override
+    protected void starting(Description description)
+    {
+      TestUtils.deleteTargetTestClassFolder(description);
+      targetDir = "target/" + description.getClassName() + "/" + description.getMethodName();
+      fsWAL = new FileSystemWAL();
+      fsWAL.setFilePath(targetDir + "/WAL");
+    }
+
+    @Override
+    protected void finished(Description description)
+    {
+      TestUtils.deleteTargetTestClassFolder(description);
+    }
+  }
+
+  @Rule
+  public TestMeta testMeta = new TestMeta();
+
+  @Test
+  public void testSerde() throws IOException
+  {
+    FileSystemWAL deserialized = KryoCloneUtils.cloneObject(testMeta.fsWAL);
+    Assert.assertNotNull("File System WAL", deserialized);
   }
 
   /**
@@ -56,33 +89,24 @@ public class FileSystemWALTest
   @Test
   public void testWalWriteAndRead() throws IOException
   {
-    FileUtils.deleteDirectory(file);
-    FileAccessFSImpl bfs = new MockFileAccess();
-    bfs.setBasePath(file.getAbsolutePath());
-    bfs.init();
-
+    testMeta.fsWAL.setup();
     int numTuples = 100;
 
-    FSWal<byte[]> fsWal = new FSWal<>(bfs, new ByteArraySerde(), 1, file.getAbsoluteFile().toString() + "/1/WAL-0");
-
-    WAL.WALWriter wWriter = fsWal.getWriter();
+    FileSystemWAL.FileSystemWALWriter fsWALWriter = testMeta.fsWAL.getWriter();
     for (int i = 0; i < numTuples; i++) {
-      int len = rand.nextInt(100);
-      wWriter.append(genRandomByteArray(len));
+      int len = RAND.nextInt(100);
+      fsWALWriter.append(getRandomSlice(len));
     }
-    wWriter.close();
+    fsWALWriter.rotate(true);
+    testMeta.fsWAL.beforeCheckpoint(0);
+    testMeta.fsWAL.committed(0);
+    File walFile = new File(testMeta.fsWAL.getPartFilePath(0));
+    Assert.assertEquals("WAL file created ", true, walFile.exists());
 
-    File wal0 = new File(file.getAbsoluteFile().toString() + "/1/WAL-0");
-    Assert.assertEquals("WAL file created ", true, wal0.exists());
+    FileSystemWAL.FileSystemWALReader fsWALReader = testMeta.fsWAL.getReader();
+    assertNumTuplesRead(fsWALReader, numTuples);
 
-    WAL.WALReader wReader = fsWal.getReader();
-    int tuples = 0;
-    while (wReader.advance()) {
-      byte[] data = (byte[])wReader.get();
-      tuples++;
-    }
-    wReader.close();
-    Assert.assertEquals("Write and read same number of tuples ", numTuples, tuples);
+    testMeta.fsWAL.teardown();
   }
 
   /**
@@ -92,35 +116,33 @@ public class FileSystemWALTest
   @Test
   public void testWalSkip() throws IOException
   {
-    FileUtils.deleteDirectory(file);
-    FileAccessFSImpl bfs = new MockFileAccess();
-    bfs.setBasePath(file.getAbsolutePath());
-    bfs.init();
+    testMeta.fsWAL.setup();
 
-    long offset = 0;
-    FSWal<byte[]> wal = new FSWal<>(bfs, new ByteArraySerde(), 1, file.getAbsoluteFile().toString() + "WAL-0");
-    WAL.WALWriter wWriter = wal.getWriter();
+    FileSystemWAL.FileSystemWALWriter fsWALWriter = testMeta.fsWAL.getWriter();
+
     int totalTuples = 100;
-    int recoveryTuples = 30;
+    int totalBytes = 0;
+    long offset = 0;
     for (int i = 0; i < totalTuples; i++) {
-      wWriter.append(genRandomByteArray(100));
-      if (i == recoveryTuples) {
-        offset = (long)wWriter.getOffset();
+      if (i == 30) {
+        offset = totalBytes;
       }
+      totalBytes += fsWALWriter.append(getRandomSlice(100));
     }
-    logger.info("total file size is " + wWriter.getOffset() + " recovery offset is " + offset);
-    wWriter.close();
 
-    WAL.WALReader wReader = wal.getReader();
-    wReader.seek(offset);
-    int read = 0;
-    while (wReader.advance()) {
-      read++;
-      wReader.get();
-    }
-    wReader.close();
+    fsWALWriter.rotate(true);
+    testMeta.fsWAL.beforeCheckpoint(0);
+    testMeta.fsWAL.committed(0);
 
-    Assert.assertEquals("Number of tuples read after skipping", read, (totalTuples - recoveryTuples - 1));
+    File walFile = new File(testMeta.fsWAL.getPartFilePath(0));
+    Assert.assertEquals("WAL file size ", totalBytes, walFile.length());
+
+    FileSystemWAL.FileSystemWALReader fsWALReader = testMeta.fsWAL.getReader();
+
+    fsWALReader.seek(new FileSystemWAL.FileSystemWALPointer(0, offset));
+    assertNumTuplesRead(fsWALReader, totalTuples - 30);
+
+    testMeta.fsWAL.teardown();
   }
 
   /**
@@ -132,105 +154,312 @@ public class FileSystemWALTest
   @Test
   public void testWalRolling() throws IOException
   {
-    File file = new File("target/hds");
-    FileUtils.deleteDirectory(file);
 
-    FileAccessFSImpl bfs = new MockFileAccess();
-    bfs.setBasePath(file.getAbsolutePath());
-    bfs.init();
+    testMeta.fsWAL.setMaxLength(32 * 1024);
+    testMeta.fsWAL.setup();
 
-    FileSystemWAL<byte[]> wal = new FileSystemWAL<>(bfs, new ByteArraySerde(), 1);
-    wal.setBaseDir(file.getAbsoluteFile().toString());
-    FileSystemWAL<byte[]>.RollingFSWALWriter writer = (FileSystemWAL<byte[]>.RollingFSWALWriter)wal.getWriter();
-    writer.setMaxSegmentSize(32 * 1024);
+    FileSystemWAL.FileSystemWALWriter fsWALWriter = testMeta.fsWAL.getWriter();
 
     /* write each record of size 1K, each file will have 32 records, last file will have
      * (count % 32) records. */
-    int wrote = 100;
-    for (int i = 0; i < wrote; i++) {
-      writer.append(genRandomByteArray(1020));
-    }
-    writer.close();
+    int numRecords = 100;
+    write1KRecords(fsWALWriter, numRecords);
+
+    testMeta.fsWAL.beforeCheckpoint(0);
+    testMeta.fsWAL.committed(0);
 
     /** Read from start till the end */
-    FileSystemWAL<byte[]>.RollingFSWalReader reader = (FileSystemWAL<byte[]>.RollingFSWalReader)wal.getReader();
-    reader.seek(new FileSystemWAL.WalPointer(0, 0));
-
-    int read = 0;
-    while (reader.advance()) {
-      Object o = reader.get();
-      read++;
-    }
-
-    Assert.assertEquals("Number of records read from start ", wrote, read);
+    FileSystemWAL.FileSystemWALReader reader = testMeta.fsWAL.getReader();
+    assertNumTuplesRead(reader, numRecords);
 
     /* skip first file for reading, and then read other entries till the end */
-    reader.seek(new FileSystemWAL.WalPointer(1, 0));
-
-    read = 0;
-    while (reader.advance()) {
-      Object o = reader.get();
-      read++;
-    }
-    Assert.assertEquals("Number of record read after skipping one file ", wrote - 32, read);
+    reader.seek(new FileSystemWAL.FileSystemWALPointer(1, 0));
+    assertNumTuplesRead(reader, numRecords - 32);
 
     /* skip first file and few records from the next file, and read till the end */
-    reader.seek(new FileSystemWAL.WalPointer(1, 16 * 1024));
-    read = 0;
-    while (reader.advance()) {
-      Object o = reader.get();
-      read++;
-    }
-    Assert.assertEquals("Number of record read after skipping one file ", wrote - (32 + 16), read);
+    reader.seek(new FileSystemWAL.FileSystemWALPointer(1, 16 * 1024));
+    assertNumTuplesRead(reader, numRecords - (32 + 16));
 
+    testMeta.fsWAL.teardown();
   }
 
-  static class ByteArraySerde implements WAL.Serde<byte[]>
+  @Test
+  public void testWalRollingWithPartialFiles() throws IOException
   {
-    @Override
-    public byte[] toBytes(byte[] tuple)
-    {
-      return tuple;
-    }
+    testMeta.fsWAL.setMaxLength(1024);
+    testMeta.fsWAL.setup();
 
-    @Override
-    public byte[] fromBytes(byte[] data)
-    {
-      return data;
-    }
+    FileSystemWAL.FileSystemWALWriter fsWALWriter = testMeta.fsWAL.getWriter();
+
+    Slice first = getRandomSlice(1000);
+    fsWALWriter.append(first);
+
+    Slice second = getRandomSlice(1000);
+    fsWALWriter.append(second);
+
+    testMeta.fsWAL.beforeCheckpoint(0);
+
+    /** Read from start till the end */
+    FileSystemWAL.FileSystemWALReader reader = testMeta.fsWAL.getReader();
+    assertNumTuplesRead(reader, 2);
+
+    testMeta.fsWAL.teardown();
   }
 
-  /**
-   * File storage for testing.
-   */
-  public static class MockFileAccess extends FileAccessFSImpl
+
+  @Test
+  public void testFinalizeAfterDelay() throws IOException
   {
-    private final Set<String> deletedFiles = Sets.newHashSet();
+    testMeta.fsWAL.setMaxLength(32 * 1024);
+    testMeta.fsWAL.setup();
 
-    public void disableChecksum()
-    {
-      fs.setVerifyChecksum(false);
-    }
+    FileSystemWAL.FileSystemWALWriter fsWALWriter = testMeta.fsWAL.getWriter();
 
-    @Override
-    public void delete(long bucketKey, String fileName) throws IOException
-    {
-      super.delete(bucketKey, fileName);
-      deletedFiles.add("" + bucketKey + fileName);
-    }
+    // write 32 records of size 1K
+    write1KRecords(fsWALWriter, 32);
+    testMeta.fsWAL.beforeCheckpoint(0);
 
-    @Override
-    public FileReader getReader(final long bucketKey, final String fileName) throws IOException
-    {
-      return null;
-    }
+    write1KRecords(fsWALWriter, 32);
+    testMeta.fsWAL.beforeCheckpoint(1);
 
-    @Override
-    public FileWriter getWriter(final long bucketKey, final String fileName) throws IOException
-    {
-      return null;
-    }
+    write1KRecords(fsWALWriter, 32);
+    testMeta.fsWAL.beforeCheckpoint(2);
 
+    testMeta.fsWAL.committed(2);
+
+    /** Read from start till the end */
+    FileSystemWAL.FileSystemWALReader reader = testMeta.fsWAL.getReader();
+    assertNumTuplesRead(reader, 32 * 3);
   }
+
+  @Test
+  public void testRecovery() throws IOException
+  {
+    testMeta.fsWAL.setMaxLength(2 * 1024);
+    testMeta.fsWAL.setup();
+
+    FileSystemWAL.FileSystemWALWriter fsWALWriter = testMeta.fsWAL.getWriter();
+
+    /* Write each record of size 1K, each complete file will have 2 records.
+     * If we write 3 records the first tmp file will get rotated with 2 records but the next one will just have 1
+     * entry.
+     */
+    write1KRecords(fsWALWriter, 3);
+
+    testMeta.fsWAL.beforeCheckpoint(0);
+    testMeta.fsWAL.committed(0);
+
+    FileSystemWAL.FileSystemWALReader fsWALReader = testMeta.fsWAL.getReader();
+    assertNumTuplesRead(fsWALReader, 3);
+
+    // a failure occurred
+    fsWALWriter.close();
+    testMeta.fsWAL.setup();
+    write1KRecords(fsWALWriter, 1); //2nd part is completed and rotated
+    testMeta.fsWAL.beforeCheckpoint(1);
+    testMeta.fsWAL.committed(1);
+
+    fsWALReader.seek(new FileSystemWAL.FileSystemWALPointer(1, 0));
+    assertNumTuplesRead(fsWALReader, 2);
+
+    testMeta.fsWAL.teardown();
+  }
+
+  @Test
+  public void testDeleteOfTmpFiles() throws IOException
+  {
+    testMeta.fsWAL.setMaxLength(2 * 1024);
+    testMeta.fsWAL.setup();
+
+    FileSystemWAL.FileSystemWALWriter fsWALWriter = testMeta.fsWAL.getWriter();
+
+    write1KRecords(fsWALWriter, 2);
+    testMeta.fsWAL.beforeCheckpoint(0);
+    FileSystemWAL fsWalCheckpointed = KryoCloneUtils.cloneObject(testMeta.fsWAL);
+
+    write1KRecords(fsWALWriter, 2);
+    testMeta.fsWAL.beforeCheckpoint(1);
+
+    // a failure occurred
+    fsWALWriter.close();
+
+    fsWalCheckpointed.setup();
+    fsWALWriter = fsWalCheckpointed.getWriter();
+    write1KRecords(fsWALWriter, 2);
+    fsWalCheckpointed.beforeCheckpoint(1);
+    fsWalCheckpointed.committed(1);
+
+    FileSystemWAL.FileSystemWALReader fsWALReader = fsWalCheckpointed.getReader();
+    assertNumTuplesRead(fsWALReader, 4);
+
+    fsWalCheckpointed.teardown();
+  }
+
+  @Test
+  public void testReadWithInterceptingFinalize() throws IOException
+  {
+    testMeta.fsWAL.setMaxLength(2 * 1024);
+    testMeta.fsWAL.setup();
+
+    FileSystemWAL.FileSystemWALWriter fsWALWriter = testMeta.fsWAL.getWriter();
+
+    write1KRecords(fsWALWriter, 1);
+    testMeta.fsWAL.beforeCheckpoint(0);
+
+    FileSystemWAL.FileSystemWALReader fsWALReader = testMeta.fsWAL.getReader();
+    Assert.assertNotNull("one entry", fsWALReader.next());
+
+    write1KRecords(fsWALWriter, 1);
+    testMeta.fsWAL.beforeCheckpoint(1);
+    testMeta.fsWAL.committed(1);
+    assertNumTuplesRead(fsWALReader, 1);
+
+    testMeta.fsWAL.teardown();
+  }
+
+  @Test
+  public void testDeleteEverything() throws IOException
+  {
+    testMeta.fsWAL.setMaxLength(2 * 1024);
+    testMeta.fsWAL.setup();
+
+    FileSystemWAL.FileSystemWALWriter fsWALWriter = testMeta.fsWAL.getWriter();
+
+    write1KRecords(fsWALWriter, 10);
+    testMeta.fsWAL.beforeCheckpoint(0);
+    testMeta.fsWAL.committed(0);
+
+    FileSystemWAL.FileSystemWALReader fsWALReader = testMeta.fsWAL.getReader();
+    assertNumTuplesRead(fsWALReader, 10);
+
+    FileSystemWAL.FileSystemWALPointer writerPointer = fsWALWriter.getPointer();
+    fsWALWriter.delete(writerPointer);
+
+    FileContext fileContext = FileContextUtils.getFileContext(testMeta.fsWAL.getFilePath());
+    for (int i = 0; i < 5; i++) {
+      Assert.assertTrue("part exists " + i,
+          !fileContext.util().exists(new Path(testMeta.fsWAL.getPartFilePath(i))));
+    }
+
+    testMeta.fsWAL.teardown();
+  }
+
+  @Test
+  public void testDeleteFullParts() throws IOException
+  {
+    testMeta.fsWAL.setMaxLength(2 * 1024);
+    testMeta.fsWAL.setup();
+
+    FileSystemWAL.FileSystemWALWriter fsWALWriter = testMeta.fsWAL.getWriter();
+
+    write1KRecords(fsWALWriter, 10);
+    testMeta.fsWAL.beforeCheckpoint(0);
+    testMeta.fsWAL.committed(0);
+
+    FileSystemWAL.FileSystemWALReader fsWALReader = testMeta.fsWAL.getReader();
+    assertNumTuplesRead(fsWALReader, 10);
+
+    fsWALWriter.delete(new FileSystemWAL.FileSystemWALPointer(3, 0));
+    fsWALReader.seek(fsWALReader.getStartPointer());
+
+    assertNumTuplesRead(fsWALReader, 4);
+  }
+
+  @Test
+  public void testDeletePartialParts() throws IOException
+  {
+    testMeta.fsWAL.setMaxLength(2 * 1024);
+    testMeta.fsWAL.setup();
+
+    FileSystemWAL.FileSystemWALWriter fsWALWriter = testMeta.fsWAL.getWriter();
+
+    write1KRecords(fsWALWriter, 4);
+    testMeta.fsWAL.beforeCheckpoint(0);
+    testMeta.fsWAL.committed(0);
+
+    FileSystemWAL.FileSystemWALReader fsWALReader = testMeta.fsWAL.getReader();
+    assertNumTuplesRead(fsWALReader, 4);
+
+    fsWALWriter.delete(new FileSystemWAL.FileSystemWALPointer(1, 1024));
+
+    fsWALReader.seek(fsWALReader.getStartPointer());
+    assertNumTuplesRead(fsWALReader, 1);
+  }
+
+  @Test
+  public void testFinalizeWithDelete() throws IOException
+  {
+    testMeta.fsWAL.setMaxLength(2 * 1024);
+    testMeta.fsWAL.setup();
+
+    FileSystemWAL.FileSystemWALWriter fsWALWriter = testMeta.fsWAL.getWriter();
+
+    write1KRecords(fsWALWriter, 2);
+    testMeta.fsWAL.beforeCheckpoint(0);
+
+    write1KRecords(fsWALWriter, 2);
+    testMeta.fsWAL.beforeCheckpoint(1);
+
+    write1KRecords(fsWALWriter, 2);
+    testMeta.fsWAL.beforeCheckpoint(2);
+
+    FileSystemWAL.FileSystemWALReader fsWALReader = testMeta.fsWAL.getReader();
+    assertNumTuplesRead(fsWALReader, 6);
+
+    testMeta.fsWAL.committed(0);
+
+    fsWALWriter.delete(new FileSystemWAL.FileSystemWALPointer(2, 0));
+
+    FileContext fileContext = FileContextUtils.getFileContext(testMeta.fsWAL.getFilePath());
+    Assert.assertTrue("part 0 exists ", !fileContext.util().exists(new Path(testMeta.fsWAL.getPartFilePath(0))));
+
+    testMeta.fsWAL.committed(1);
+    Assert.assertTrue("part 1 exists ", !fileContext.util().exists(new Path(testMeta.fsWAL.getPartFilePath(1))));
+
+    fsWALReader.seek(fsWALReader.getStartPointer());
+    assertNumTuplesRead(fsWALReader, 2);
+  }
+
+  @Test
+  public void testPointerComparisons()
+  {
+    FileSystemWAL.FileSystemWALPointer pointer1 = new FileSystemWAL.FileSystemWALPointer(0, 10);
+    FileSystemWAL.FileSystemWALPointer pointer2 = new FileSystemWAL.FileSystemWALPointer(0, 10);
+
+    Assert.assertTrue("equal", pointer1.compareTo(pointer2) == 0);
+
+    pointer1 = new FileSystemWAL.FileSystemWALPointer(0, 11);
+    Assert.assertTrue("offset greater", pointer1.compareTo(pointer2) == 1);
+
+    pointer1 = new FileSystemWAL.FileSystemWALPointer(0, 3);
+    Assert.assertTrue("offset smaller", pointer1.compareTo(pointer2) == -1);
+
+    pointer1 = new FileSystemWAL.FileSystemWALPointer(1, 10);
+    Assert.assertTrue("part greater", pointer1.compareTo(pointer2) == 1);
+
+    pointer1 = new FileSystemWAL.FileSystemWALPointer(0, 10);
+    pointer2 = new FileSystemWAL.FileSystemWALPointer(3, 10);
+    Assert.assertTrue("part smaller", pointer1.compareTo(pointer2) == -1);
+  }
+
+  private static void assertNumTuplesRead(FileSystemWAL.FileSystemWALReader reader, int expectedTuples)
+      throws IOException
+  {
+    int tuples = 0;
+    while (reader.next() != null) {
+      tuples++;
+    }
+    Assert.assertEquals("num tuples", expectedTuples, tuples);
+  }
+
+  private static void write1KRecords(FileSystemWAL.FileSystemWALWriter writer, int numRecords)
+      throws IOException
+  {
+    for (int i = 0; i < numRecords; i++) {
+      writer.append(getRandomSlice(1020));
+    }
+  }
+
+  private static final Logger LOG = LoggerFactory.getLogger(FileSystemWALTest.class);
 
 }

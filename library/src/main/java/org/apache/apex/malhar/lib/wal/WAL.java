@@ -18,113 +18,84 @@
  */
 package org.apache.apex.malhar.lib.wal;
 
-import java.io.Closeable;
 import java.io.IOException;
+
+import com.datatorrent.netlet.util.Slice;
 
 /**
  * This interface represents a write ahead log that can be used by operator.
  * the WAL is split into two interfaces, a WALWriter which allows writing
  * data, and WALReader which provides iterator like interface to read entries
- * writen to the WAL.
+ * written to the WAL.
  *
- * @param <T> Tuple type
- * @param <P> WAL Pointer Type.
+ * @param <READER> Type of WAL Reader
+ * @param <WRITER> WAL Pointer Type.
  */
-public interface WAL<T, P>
+public interface WAL<READER extends WAL.WALReader, WRITER extends WAL.WALWriter>
 {
-  WALReader<T, P> getReader() throws IOException;
+  void setup();
 
-  WALWriter<T, P> getWriter() throws IOException;
+  void teardown();
+
+  void beforeCheckpoint(long window);
+
+  void committed(long window);
+
+  READER getReader();
+
+  WRITER getWriter();
 
   /**
    * Provides iterator like interface to read entries from the WAL.
-   * @param <T> type of WAL entries
    * @param <P> type of Pointer in the WAL
    */
-  interface WALReader<T, P> extends Closeable
+  interface WALReader<P>
   {
-    /**
-     * Close WAL after read.
-     *
-     * @param offset seek offset.
-     * @throws IOException
-     */
-    @Override
-    void close() throws IOException;
-
     /**
      * Seek to middle of the WAL. This is used primarily during recovery,
      * when we need to start recovering data from middle of WAL file.
      */
-    void seek(P offset) throws IOException;
+    void seek(P pointer) throws IOException;
 
     /**
-     * Advance WAL by one entry, returns true if it can advance, else false
-     * in case of any other error throws an Exception.
+     * Returns the next entry from WAL. It returns null if data isn't available.
+     * @return next entry when available; null otherwise.
+     */
+    Slice next() throws IOException;
+
+    /**
+     * Returns the start pointer from which data is available to read.<br/>
+     * WAL Writer supports purging of aged data so the start pointer will change over time.
      *
-     * @return true if next data item is read successfully, false if data can not be read.
-     * @throws IOException
+     * @return the start pointer from which the data is available to read.
      */
-    boolean advance() throws IOException;
-
-    /**
-     * Return current entry from WAL, returns null if end of file has reached.
-     *
-     * @return MutableKeyValue
-     */
-    T get();
-
-    /**
-     * Return the offset corresponding to the last read entry.
-     * @return
-     */
-    P getOffset();
+    P getStartPointer();
   }
 
   /**
    * Provide method to write entries to the WAL.
-   * @param <T>
-   * @param <P>
+   * @param <P> type of Pointer in the WAL
    */
-  interface WALWriter<T, P>
+  interface WALWriter<P>
   {
     /**
-     * flush pending data to disk and close file.
+     * Write an entry to the WAL
+     */
+    int append(Slice entry) throws IOException;
+
+    /**
      *
+     * @return current pointer in the WAL.
+     */
+    P getPointer();
+
+    /**
+     * Deletes the WAL data till the given pointer.<br/>
+     *
+     * @param pointer pointer in the WAL
      * @throws IOException
      */
-    void close() throws IOException;
+    void delete(P pointer) throws IOException;
 
-    /**
-     * Write an entry to the WAL, this operation need not flush the data.
-     */
-    int append(T entry) throws IOException;
-
-    /**
-     * Flush data to persistent storage.
-     *
-     * @throws IOException
-     */
-    void flush() throws IOException;
-
-    /**
-     * Returns size of the WAL, last part of the log may not be persisted on disk.
-     * In case of file backed WAL this will be the size of file, in case of kafka
-     * like log, this will be similar to the message offset.
-     *
-     * @return The log size
-     */
-    P getOffset();
-  }
-
-  /**
-   * Serializer interface used while reading and writing entries to the WAL.
-   * @param <T>
-   */
-  interface Serde<T>
-  {
-    byte[] toBytes(T tuple);
-
-    T fromBytes(byte[] data);
   }
 }
