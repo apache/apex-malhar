@@ -51,6 +51,7 @@
     <maven.deploy.skip>false</maven.deploy.skip>
     <apex.core.version>3.3.0-incubating</apex.core.version>
     <semver.plugin.skip>false</semver.plugin.skip>
+    <surefire.args>-Xmx2048m</surefire.args>
   </properties>
 
   <build>
@@ -78,8 +79,8 @@
       	<groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-    		<argLine>-Xmx512m</argLine>
-  		</configuration>
+          <argLine>${surefire.args}</argLine>
+        </configuration>
       </plugin>      
       <plugin>
         <groupId>org.apache.rat</groupId>
