@@ -33,19 +33,9 @@
   <packaging>jar</packaging>
 
   <name>Apache Apex Malhar (incubating) Samples</name>
-  <build>
-    <plugins>    
-      <plugin>
-         <groupId>org.apache.maven.plugins</groupId>
-         <artifactId>maven-checkstyle-plugin</artifactId>
-         <configuration>
-           <skip>true</skip>
-         </configuration>
-       </plugin>
-    </plugins>  
-  </build>
   <properties>
     <maven.deploy.skip>true</maven.deploy.skip>
+    <checkstyle.skip>true</checkstyle.skip>
   </properties>
 
   <dependencies>
