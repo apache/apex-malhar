@@ -142,6 +142,14 @@
            <skip>true</skip>
          </configuration>
        </plugin>
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-checkstyle-plugin</artifactId>
+         <configuration>
+           <maxAllowedViolations>281</maxAllowedViolations>
+           <consoleOutput>false</consoleOutput>
+         </configuration>
+       </plugin>
     </plugins>
   </build>
 
