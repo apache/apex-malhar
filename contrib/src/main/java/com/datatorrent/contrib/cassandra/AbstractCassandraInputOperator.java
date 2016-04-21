@@ -19,16 +19,14 @@
 package com.datatorrent.contrib.cassandra;
 
 
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.db.AbstractStoreInputOperator;
-
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
+import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.DefaultOutputPort;
-
+import com.datatorrent.lib.db.AbstractStoreInputOperator;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
@@ -46,9 +44,17 @@ import com.datatorrent.netlet.util.DTThrowable;
 public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInputOperator<T, CassandraStore> {
 
   private static final Logger logger = LoggerFactory.getLogger(AbstractCassandraInputOperator.class);
+  @AutoMetric
+  protected long tuplesRead;
 
   int waitForDataTimeout = 100;
 
+  @Override
+  public void beginWindow(long l)
+  {
+    super.beginWindow(l);
+    tuplesRead = 0;
+  }
   /**
    * Get the amount of time to wait for data in milliseconds.
    * When there is no data available this timeout is used to throttle requests to the store so as to not continuously
@@ -109,6 +115,7 @@ public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInp
       if (!result.isExhausted()) {
         for (Row row : result) {
           T tuple = getTuple(row);
+          tuplesRead++;
           emit(tuple);
         }
       } else {
