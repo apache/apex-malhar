@@ -24,13 +24,13 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.nifi.remote.Transaction;
 import org.apache.nifi.remote.TransferDirection;
 import org.apache.nifi.remote.client.SiteToSiteClient;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.util.WindowDataManager;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**

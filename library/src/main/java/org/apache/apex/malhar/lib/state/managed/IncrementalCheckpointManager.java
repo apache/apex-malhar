@@ -32,6 +32,8 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Queues;
@@ -39,7 +41,6 @@ import com.google.common.collect.Queues;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.NameableThreadFactory;
-import com.datatorrent.lib.util.WindowDataManager;
 import com.datatorrent.netlet.util.Slice;
 
 /**

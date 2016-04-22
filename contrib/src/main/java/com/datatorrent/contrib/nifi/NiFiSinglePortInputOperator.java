@@ -22,11 +22,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.nifi.remote.client.SiteToSiteClient;
 import org.apache.nifi.remote.protocol.DataPacket;
 import org.apache.nifi.stream.io.StreamUtils;
-
-import com.datatorrent.lib.util.WindowDataManager;
 
 /**
  * Input adapter operator which consumes data from NiFi and produces NiFiDataPackets

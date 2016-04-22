@@ -33,7 +33,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.apache.nifi.remote.client.SiteToSiteClient;
 import org.apache.nifi.remote.protocol.DataPacket;
 import org.apache.nifi.stream.io.ByteArrayInputStream;
 import org.apache.nifi.util.file.FileUtils;
@@ -45,7 +44,7 @@ import com.datatorrent.contrib.nifi.mock.MockDataPacket;
 import com.datatorrent.contrib.nifi.mock.MockSiteToSiteClient;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.WindowDataManager;
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
 
 public class NiFiSinglePortInputOperatorTest
 {
