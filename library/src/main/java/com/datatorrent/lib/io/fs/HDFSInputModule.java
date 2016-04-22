@@ -96,6 +96,7 @@ public class HDFSInputModule implements Module
     blockReader.setUri(files);
     if (readersCount != 0) {
       dag.setAttribute(blockReader, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<BlockReader>(readersCount));
+      fileSplitter.setBlocksThreshold(readersCount);
     }
   }
 
