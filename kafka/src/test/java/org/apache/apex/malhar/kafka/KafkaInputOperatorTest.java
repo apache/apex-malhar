@@ -40,6 +40,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.commons.io.FileUtils;
 
 import com.datatorrent.api.Context;
@@ -48,7 +49,6 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.util.WindowDataManager;
 import com.datatorrent.stram.StramLocalCluster;
 
 /**

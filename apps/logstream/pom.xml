@@ -35,6 +35,7 @@
     <maven.deploy.skip>true</maven.deploy.skip>
     <skipTests>false</skipTests>
     <semver.plugin.skip>true</semver.plugin.skip>
+    <checkstyle.console>false</checkstyle.console>
   </properties>
 
   <name>Apache Apex Malhar (incubating) Logstream Application</name>
@@ -71,7 +72,7 @@
          <artifactId>maven-checkstyle-plugin</artifactId>
          <configuration>
            <maxAllowedViolations>104</maxAllowedViolations>
-           <consoleOutput>false</consoleOutput>
+           <logViolationsToConsole>${checkstyle.console}</logViolationsToConsole>
          </configuration>
        </plugin>
     </plugins>

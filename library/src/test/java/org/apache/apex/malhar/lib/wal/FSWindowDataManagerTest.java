@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.util;
+package org.apache.apex.malhar.lib.wal;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +45,7 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.util.TestUtils;
 
 /**
  * Tests for {@link WindowDataManager}

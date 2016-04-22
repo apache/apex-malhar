@@ -20,10 +20,10 @@ package com.datatorrent.contrib.nifi;
 
 import java.util.List;
 
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.nifi.remote.client.SiteToSiteClient;
 
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.util.WindowDataManager;
 
 /**
  * This is the base implementation of a NiFi input operator with a single output port.&nbsp;
