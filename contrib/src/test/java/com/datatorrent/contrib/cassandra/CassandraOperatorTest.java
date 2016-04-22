@@ -358,27 +358,27 @@ public class CassandraOperatorTest
 
     String query2 = "SELECT * FROM " + KEYSPACE + "." + "%t where token(%p) > %v;";
     inputOperator.setQuery(query2);
+    inputOperator.setStartRow(10);
     inputOperator.setup(context);
     inputOperator.outputPort.setup(tpc);
     inputOperator.activate(context);
 
-    inputOperator.setStartRow(10);
     inputOperator.beginWindow(1);
     inputOperator.emitTuples();
     inputOperator.endWindow();
-    Assert.assertEquals("rows from db", 14, sink.collectedTuples.size());
+    Assert.assertEquals("rows from db", 26, sink.collectedTuples.size());
 
     sink.clear();
     inputOperator.columnDataTypes.clear();
 
     String query3 = "SELECT * FROM " + KEYSPACE + "." + "%t where token(%p) > %v LIMIT %l;";
     inputOperator.setQuery(query3);
+    inputOperator.setStartRow(1);
+    inputOperator.setLimit(10);
     inputOperator.setup(context);
     inputOperator.outputPort.setup(tpc);
     inputOperator.activate(context);
 
-    inputOperator.setStartRow(1);
-    inputOperator.setLimit(10);
     inputOperator.beginWindow(2);
     inputOperator.emitTuples();
     inputOperator.endWindow();
