@@ -19,10 +19,15 @@
 package com.datatorrent.lib.io;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -52,7 +57,7 @@ import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
  * application window boundaries.
  *
  * @since 2.0.0
- * @deprecated use {@link com.datatorrent.lib.util.WindowDataManager}
+ * @deprecated use {@link WindowDataManager}
  */
 @Deprecated
 public interface IdempotentStorageManager extends StorageAgent, Component<Context.OperatorContext>
