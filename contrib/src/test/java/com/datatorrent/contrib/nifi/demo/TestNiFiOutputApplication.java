@@ -33,7 +33,7 @@ import com.datatorrent.contrib.nifi.NiFiDataPacketBuilder;
 import com.datatorrent.contrib.nifi.NiFiSinglePortOutputOperator;
 import com.datatorrent.contrib.nifi.StandardNiFiDataPacket;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
-import com.datatorrent.lib.util.WindowDataManager;
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
 
 /**
  * A sample application that shows how to send data to a NiFi Input Port.
