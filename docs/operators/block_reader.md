@@ -5,7 +5,7 @@ This is a scalable operator that reads and parses blocks of data sources into re
 
 ## Why is it needed?
 
-A Block Reader is needed to parallelize reading and parsing of a single data source, for example a file. Simple parallelism of reading data sources can be achieved by multiple partitions reading different source of same type (for files see [AbstractFileInputOperator](https://github.com/apache/incubator-apex-malhar/blob/devel-3/library/src/main/java/com/datatorrent/lib/io/fs/AbstractFileInputOperator.java)) but Block Reader partitions can read blocks of same source in parallel and parse them for records ensuring that no record is duplicated or missed.
+A Block Reader is needed to parallelize reading and parsing of a single data source, for example a file. Simple parallelism of reading data sources can be achieved by multiple partitions reading different source of same type (for files see [AbstractFileInputOperator](https://github.com/apache/apex-malhar/blob/master/library/src/main/java/com/datatorrent/lib/io/fs/AbstractFileInputOperator.java)) but Block Reader partitions can read blocks of same source in parallel and parse them for records ensuring that no record is duplicated or missed.
 
 ## Class Diagram
 
@@ -223,4 +223,4 @@ Collection<Partition<AbstractBlockReader<...>>> definePartitions(Collection<Part
 ```
 on the logical instance which is also the partitioner instance. The implementation calculates the difference between required partitions and the existing count of partitions. If this difference is negative, then equivalent number of partitions are removed otherwise new partitions are created. 
 
-Please note auto-scaling can be disabled by setting [`collectStats`](#collectStats) to `false`. If the use-case requires only static partitioning, then that can be achieved by setting [`StatelessPartitioner`](https://github.com/chandnisingh/incubator-apex-core/blob/master/common/src/main/java/com/datatorrent/common/partitioner/StatelessPartitioner.java) as the operator attribute- `PARTITIONER` on the block reader.
+Please note auto-scaling can be disabled by setting [`collectStats`](#collectStats) to `false`. If the use-case requires only static partitioning, then that can be achieved by setting [`StatelessPartitioner`](https://github.com/chandnisingh/apex-core/blob/master/common/src/main/java/com/datatorrent/common/partitioner/StatelessPartitioner.java) as the operator attribute- `PARTITIONER` on the block reader.
