@@ -158,6 +158,25 @@ public class FSWindowDataManagerTest
   }
 
   @Test
+  public void testGetWindowIds() throws IOException
+  {
+    testMeta.storageManager.setup(testMeta.context);
+    Map<Integer, String> data = Maps.newHashMap();
+    data.put(1, "one");
+    data.put(2, "two");
+    data.put(3, "three");
+
+    testMeta.storageManager.save(data, 1, 1);
+    testMeta.storageManager.save(data, 2, 2);
+
+    testMeta.storageManager.setup(testMeta.context);
+
+    Assert.assertArrayEquals(new long[] {1, 2}, testMeta.storageManager.getWindowIds());
+
+    testMeta.storageManager.teardown();
+  }
+
+  @Test
   public void testDelete() throws IOException
   {
     testMeta.storageManager.setup(testMeta.context);
