@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 
 import javax.validation.constraints.NotNull;
 
@@ -98,6 +99,15 @@ public interface WindowDataManager extends StorageAgent, Component<Context.Opera
    */
   void partitioned(Collection<WindowDataManager> newManagers, Set<Integer> removedOperatorIds);
 
+  /**
+   * Returns an array of windowIds for which data was stored by atleast one partition. The array
+   * of winodwIds is sorted.
+   *
+   * @return An array of windowIds for which data was stored by atleast one partition. The array
+   * of winodwIds is sorted.
+   * @throws IOException
+   */
+  long[] getWindowIds() throws IOException;
   /**
    * An {@link WindowDataManager} that uses FS to persist state.
    */
@@ -225,6 +235,22 @@ public interface WindowDataManager extends StorageAgent, Component<Context.Opera
         return null;
       }
       return storageAgent.getWindowIds(operatorId);
+    }
+
+    @Override
+    public long[] getWindowIds() throws IOException
+    {
+      SortedSet<Long> windowIds = replayState.keySet();
+      long[] windowIdsArray = new long[windowIds.size()];
+
+      int index = 0;
+
+      for (Long windowId: windowIds) {
+        windowIdsArray[index] = windowId;
+        index++;
+      }
+
+      return windowIdsArray;
     }
 
     /**
@@ -433,6 +459,12 @@ public interface WindowDataManager extends StorageAgent, Component<Context.Opera
 
     @Override
     public long[] getWindowIds(int operatorId) throws IOException
+    {
+      return new long[0];
+    }
+
+    @Override
+    public long[] getWindowIds() throws IOException
     {
       return new long[0];
     }
