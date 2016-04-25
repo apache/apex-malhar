@@ -25,13 +25,13 @@
   <artifactId>machinedata-demo</artifactId>
   <packaging>jar</packaging>
 
-  <name>Apache Apex Malhar (incubating) MachineData Demo</name>
+  <name>Apache Apex Malhar MachineData Demo</name>
   <description></description>
 
   <parent>
     <groupId>org.apache.apex</groupId>
     <artifactId>malhar-demos</artifactId>
-    <version>3.4.0-incubating-SNAPSHOT</version>
+    <version>3.4.0-SNAPSHOT</version>
   </parent>
 
   <dependencies>

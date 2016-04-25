@@ -25,13 +25,13 @@
   <artifactId>twitter-demo</artifactId>
   <packaging>jar</packaging>
 
-  <name>Apache Apex Malhar (incubating) Twitter Demo</name>
+  <name>Apache Apex Malhar Twitter Demo</name>
   <description>Twitter Rolling Top Words application demonstrates real-time computations over a sliding window.</description>
 
   <parent>
     <groupId>org.apache.apex</groupId>
     <artifactId>malhar-demos</artifactId>
-    <version>3.4.0-incubating-SNAPSHOT</version>
+    <version>3.4.0-SNAPSHOT</version>
   </parent>
 
   <properties>
