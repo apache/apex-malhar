@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-
+import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
@@ -72,6 +72,11 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T>
   private transient int batchStartIdx;
   private transient PreparedStatement updateCommand;
 
+  @AutoMetric
+  private int tuplesWrittenSuccessfully;
+  @AutoMetric
+  private int errorTuples;
+
   public AbstractJdbcTransactionableOutputOperator()
   {
     tuples = Lists.newArrayList();
@@ -95,6 +100,14 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T>
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public void beginWindow(long windowId)
+  {
+    super.beginWindow(windowId);
+    tuplesWrittenSuccessfully = 0;
+    errorTuples = 0;
   }
 
   @Override
@@ -153,20 +166,26 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T>
     if (updateCounts.length < commandsInBatch) {
       // Driver chose not to continue processing after failure.
       error.emit(tuples.get(updateCounts.length + batchStartIdx));
+      errorTuples++;
+      // In this case, updateCounts is the number of successful queries
+      tuplesWrittenSuccessfully += updateCounts.length;
+      // Skip the error record
+      batchStartIdx += updateCounts.length + 1;
+      // And process the remaining if any
+      if ((tuples.size() - batchStartIdx) > 0) {
+        processBatch();
+      }
     } else {
       // Driver processed all batch statements in spite of failures.
       // Pick out the failures and send on error port.
+      tuplesWrittenSuccessfully = commandsInBatch;
       for (int i = 0; i < commandsInBatch; i++) {
         if (updateCounts[i] == Statement.EXECUTE_FAILED) {
           error.emit(tuples.get(i + batchStartIdx));
+          errorTuples++;
+          tuplesWrittenSuccessfully--;
         }
       }
-    }
-    // Skip the error record
-    batchStartIdx += updateCounts.length + 1;
-    // And process the remaining if any
-    if ((tuples.size() - batchStartIdx) > 0) {
-      processBatch();
     }
   }
 
@@ -197,6 +216,20 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T>
    * @throws SQLException
    */
   protected abstract void setStatementParameters(PreparedStatement statement, T tuple) throws SQLException;
+
+  public int getTuplesWrittenSuccessfully()
+  {
+    return tuplesWrittenSuccessfully;
+  }
+
+  /**
+   * Setter for metric tuplesWrittenSuccessfully
+   * @param tuplesWrittenSuccessfully
+   */
+  public void setTuplesWrittenSuccessfully(int tuplesWrittenSuccessfully)
+  {
+    this.tuplesWrittenSuccessfully = tuplesWrittenSuccessfully;
+  }
 
   private static final Logger logger = LoggerFactory.getLogger(AbstractJdbcTransactionableOutputOperator.class);
 
