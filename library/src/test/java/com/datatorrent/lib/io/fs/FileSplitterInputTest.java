@@ -108,7 +108,6 @@ public class FileSplitterInputTest
       fileSplitterInput.getScanner().setScanIntervalMillis(500);
       fileSplitterInput.getScanner().setFilePatternRegularExp(".*[.]txt");
       fileSplitterInput.getScanner().setFiles(dataDirectory);
-      fileSplitterInput.setIdempotentStorageManager(new IdempotentStorageManager.NoopIdempotentStorageManager());
 
       Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(Context.DAGContext.APPLICATION_PATH,

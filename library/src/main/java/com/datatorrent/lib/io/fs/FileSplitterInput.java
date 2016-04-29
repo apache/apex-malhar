@@ -96,7 +96,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   {
     super();
     currentWindowRecoveryState = Lists.newLinkedList();
-    idempotentStorageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
+    idempotentStorageManager = new IdempotentStorageManager.NoopIdempotentStorageManager();
     referenceTimes = Maps.newHashMap();
     scanner = new TimeBasedDirectoryScanner();
   }
