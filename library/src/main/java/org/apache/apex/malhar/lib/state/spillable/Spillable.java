@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multiset;
 
 import com.datatorrent.api.Component;
 import com.datatorrent.api.Context.OperatorContext;
@@ -44,8 +45,9 @@ public interface Spillable
   }
 
   /**
-   * This represents a spillable {@link java.util.Map}. The underlying implementation
-   * of this map uses the serialized representation of the key object as a key. User's that receive an
+   * This represents a spillable {@link java.util.Map}. Implementations make
+   * some assumptions about serialization and equality. Consider two keys K1 and K2. The assumption is
+   * that K1.equals(K2) should be consistent with K1.toByteArray().equals(K2.toByteArray()). User's that receive an
    * implementation of this interface don't need to worry about propagating operator call-backs
    * to the data structure.
    * @param <K> The type of the keys.
@@ -56,13 +58,25 @@ public interface Spillable
   }
 
   /**
-   * This represents a spillable {@link com.google.common.collect.ListMultimap} implementation. User's that receive an
+   * This represents a spillable {@link com.google.common.collect.ListMultimap} implementation. Implementations make
+   * some assumptions about serialization and equality. Consider two keys K1 and K2. The assumption is
+   * that K1.equals(K2) should be consistent with K1.toByteArray().equals(K2.toByteArray()). User's that receive an
    * implementation of this interface don't need to worry about propagating operator call-backs
    * to the data structure.
    * @param <K> The type of the keys.
    * @param <V> The type of the values.
    */
   interface SpillableByteArrayListMultimap<K, V> extends ListMultimap<K, V>
+  {
+  }
+
+  /**
+   * This represents a spillable {@link com.google.common.collect.Multiset} implementation. Implementations make
+   * some assumptions about serialization and equality. Consider two elements T1 and T2. The assumption is
+   * that T1.equals(T2) should be consistent with T1.toByteArray().equals(T2.toByteArray()). User's that receive an
+   * implementation of this interface don't need to worry about propagating operator call-backs to the data structure.
+   */
+  interface SpillableByteMultiset<T> extends Multiset<T>
   {
   }
 
