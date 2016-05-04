@@ -160,4 +160,4 @@ Idempotency ensures that the operator will process the same set of files/blocks 
 ## Handling of split records
 Splitting of files to create tasks for downstream operator needs to be a simple operation that doesn't consume a lot of resources and is fast. This is why the file splitter doesn't open files to read. The downside of that is if the file contains records then a record may split across adjacent blocks. Handling of this is left to the downstream operator.
 
-We have created Block readers in Apex-malhar library that handle line splits efficiently. The 2 line readers- `AbstractFSLineReader` and `AbstractFSReadAheadLineReader` can be found here [AbstractFSBlockReader](https://github.com/apache/incubator-apex-malhar/blob/master/library/src/main/java/com/datatorrent/lib/io/block/AbstractFSBlockReader.java).
+We have created Block readers in Apex-malhar library that handle line splits efficiently. The 2 line readers- `AbstractFSLineReader` and `AbstractFSReadAheadLineReader` can be found here [AbstractFSBlockReader](https://github.com/apache/apex-malhar/blob/master/library/src/main/java/com/datatorrent/lib/io/block/AbstractFSBlockReader.java).

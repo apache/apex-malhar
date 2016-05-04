@@ -1,6 +1,6 @@
 # Apex Malhar Documentation
 
-Repository for Malhar docs available on http://apex.incubator.apache.org/docs.html
+Repository for Malhar docs available on http://apex.apache.org/docs.html
 
 Documentation is written in [Markdown](https://guides.github.com/features/mastering-markdown/) format and statically generated into HTML using [MkDocs](http://www.mkdocs.org/).  All documentation is located in the [docs](docs) directory, and [mkdocs.yml](mkdocs.yml) file describes the navigation structure of the published documentation.
 
@@ -34,12 +34,12 @@ APEX_MALHAR_VERSION=3.4
 mkdocs build --clean
 
 # copy docs from site into target folder on apex-site
-cd ../incubator-apex-site
+cd ../apex-site
 git checkout asf-site
-cp -r ../incubator-apex-malhar/site docs/malhar-${APEX_MALHAR_VERSION}
+cp -r ../apex-malhar/site docs/malhar-${APEX_MALHAR_VERSION}
 git add -A
 git commit -m "Adding apex-${APEX_MALHAR_VERSION} documentation"
 git push
 ```
 
-2.  Go to [apex-site repository](https://github.com/apache/incubator-apex-site#contributing) and add the new link to the [docs.md](https://github.com/apache/incubator-apex-site/blob/master/src/md/docs.md) and follow committer steps to commit and push these changes, and deploy the site.
+2.  Go to [apex-site repository](https://github.com/apache/apex-site#contributing) and add the new link to the [docs.md](https://github.com/apache/apex-site/blob/master/src/md/docs.md) and follow committer steps to commit and push these changes, and deploy the site.
