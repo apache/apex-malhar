@@ -257,7 +257,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
    * operations, or during occasional read operations if writes are rare.<br/>
    * This isn't the most effective way but adds a little bit of optimization.
    */
-  private Long expireStreamAfterAcessMillis;
+  private Long expireStreamAfterAccessMillis;
   private final Set<String> filesWithOpenStreams;
 
   /**
@@ -321,8 +321,8 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   public void setup(Context.OperatorContext context)
   {
     LOG.debug("setup initiated");
-    if (expireStreamAfterAcessMillis == null) {
-      expireStreamAfterAcessMillis = (long)(context.getValue(OperatorContext.SPIN_MILLIS) *
+    if (expireStreamAfterAccessMillis == null) {
+      expireStreamAfterAccessMillis = (long)(context.getValue(Context.DAGContext.STREAMING_WINDOW_SIZE_MILLIS) *
         context.getValue(Context.DAGContext.CHECKPOINT_WINDOW_COUNT));
     }
     rollingFile = (maxLength < Long.MAX_VALUE) || (rotationWindows > 0);
@@ -343,7 +343,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
     //building cache
     RemovalListener<String, FSFilterStreamContext> removalListener = createCacheRemoveListener();
     CacheLoader<String, FSFilterStreamContext> loader = createCacheLoader();
-    streamsCache = CacheBuilder.newBuilder().maximumSize(maxOpenFiles).expireAfterAccess(expireStreamAfterAcessMillis,
+    streamsCache = CacheBuilder.newBuilder().maximumSize(maxOpenFiles).expireAfterAccess(expireStreamAfterAccessMillis,
       TimeUnit.MILLISECONDS).removalListener(removalListener).build(loader);
 
     LOG.debug("File system class: {}", fs.getClass());
@@ -608,7 +608,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
             String filename = notification.getKey();
             String partFileName = getPartFileNamePri(filename);
 
-            LOG.debug("closing {}", partFileName);
+            LOG.info("closing {}", partFileName);
             long start = System.currentTimeMillis();
 
             closeStream(streamContext);
@@ -616,6 +616,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
 
             totalWritingTime += System.currentTimeMillis() - start;
           } catch (IOException e) {
+            LOG.error("removing {}", notification.getValue(), e);
             throw new RuntimeException(e);
           }
         }
@@ -1292,7 +1293,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
 
   public Long getExpireStreamAfterAccessMillis()
   {
-    return expireStreamAfterAcessMillis;
+    return expireStreamAfterAccessMillis;
   }
 
   /**
@@ -1303,7 +1304,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
    */
   public void setExpireStreamAfterAccessMillis(Long millis)
   {
-    this.expireStreamAfterAcessMillis = millis;
+    this.expireStreamAfterAccessMillis = millis;
   }
 
 /**
