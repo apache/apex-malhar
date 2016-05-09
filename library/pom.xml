@@ -334,7 +334,12 @@
       <artifactId>fastutil</artifactId>
       <version>7.0.6</version>
     </dependency>
-
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>1.8.5</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <profiles>
