@@ -20,6 +20,8 @@ package com.datatorrent.lib.util;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.ClassUtils;
+
 @SuppressWarnings("rawtypes")
 /**
  * @since 3.3.0
@@ -114,7 +116,7 @@ public class FieldInfo
   }
 
   public static enum SupportType {
-    BOOLEAN(Boolean.class), SHORT(Short.class), INTEGER(Integer.class), LONG(Long.class), FLOAT(Float.class), DOUBLE(Double.class), STRING(String.class);
+    BOOLEAN(Boolean.class), SHORT(Short.class), INTEGER(Integer.class), LONG(Long.class), FLOAT(Float.class), DOUBLE(Double.class), STRING(String.class), OBJECT(Object.class);
 
     private Class javaType;
 
@@ -126,6 +128,17 @@ public class FieldInfo
     public Class getJavaType()
     {
       return javaType;
+    }
+
+    public static SupportType getFromJavaType(Class type)
+    {
+      for (SupportType supportType : SupportType.values()) {
+        if (supportType.getJavaType() == ClassUtils.primitiveToWrapper(type)) {
+          return supportType;
+        }
+      }
+
+      return OBJECT;
     }
   }
 
