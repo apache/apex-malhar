@@ -54,7 +54,7 @@ public class TransformOperator extends BaseOperator implements Operator.Activati
 {
   @NotNull
   private Map<String, String> expressionMap = new HashMap<>();
-  private List<String> expressionFuntions = new LinkedList<>();
+  private List<String> expressionFunctions = new LinkedList<>();
   private boolean copyMatchingFields = true;
 
   private transient Map<PojoUtils.Setter, Expression> transformationMap = new HashMap<>();
@@ -63,11 +63,11 @@ public class TransformOperator extends BaseOperator implements Operator.Activati
 
   public TransformOperator()
   {
-    expressionFuntions.add("java.lang.Math.*");
-    expressionFuntions.add("org.apache.commons.lang3.StringUtils.*");
-    expressionFuntions.add("org.apache.commons.lang3.StringEscapeUtils.*");
-    expressionFuntions.add("org.apache.commons.lang3.time.DurationFormatUtils.*");
-    expressionFuntions.add("org.apache.commons.lang3.time.DateFormatUtils.*");
+    expressionFunctions.add("java.lang.Math.*");
+    expressionFunctions.add("org.apache.commons.lang3.StringUtils.*");
+    expressionFunctions.add("org.apache.commons.lang3.StringEscapeUtils.*");
+    expressionFunctions.add("org.apache.commons.lang3.time.DurationFormatUtils.*");
+    expressionFunctions.add("org.apache.commons.lang3.time.DateFormatUtils.*");
   }
 
   @InputPortFieldAnnotation(schemaRequired = true)
@@ -156,7 +156,7 @@ public class TransformOperator extends BaseOperator implements Operator.Activati
       // Generate evaluated expression
 
       Expression expression = PojoUtils
-          .createExpression(inputClass, expr, c, expressionFuntions.toArray(new String[expressionFuntions.size()]));
+          .createExpression(inputClass, expr, c, expressionFunctions.toArray(new String[expressionFunctions.size()]));
 
       transformationMap.put(setter, expression);
     }
@@ -184,7 +184,7 @@ public class TransformOperator extends BaseOperator implements Operator.Activati
    *
    * @description $(key) Output field for which expression should be evaluated
    * @description $(value) Expression to be evaluated for output field.
-   * @useSchema $(key) input.fields[].name
+   * @useSchema $(key) output.fields[].name
    */
   public void setExpressionMap(Map<String, String> expressionMap)
   {
@@ -196,9 +196,9 @@ public class TransformOperator extends BaseOperator implements Operator.Activati
    *
    * @return List of function that are available in expression.
    */
-  public List<String> getExpressionFuntions()
+  public List<String> getExpressionFunctions()
   {
-    return expressionFuntions;
+    return expressionFunctions;
   }
 
   /**
@@ -207,70 +207,11 @@ public class TransformOperator extends BaseOperator implements Operator.Activati
    * used directly.
    * This is an optional property. See constructor to see defaults that are included.
    *
-   * @param expressionFuntions List of qualified class/method that needs to be imported to expression.
+   * @param expressionFunctions List of qualified class/method that needs to be imported to expression.
    */
-  public void setExpressionFuntions(List<String> expressionFuntions)
+  public void setExpressionFunctions(List<String> expressionFunctions)
   {
-    this.expressionFuntions = expressionFuntions;
-  }
-
-  /**
-   * Returns expression to be evaluated for given output field.
-   * This method is meant to be used for properties.xml file where map should be set using BeanUtils constructs.
-   *
-   * @param field Field for which expression needs to be evaluated.
-   * @return Expression that will be evaluated for given field.
-   * @omitFromUI
-   */
-  public String getExpressionMap(String field)
-  {
-    return (this.expressionMap != null) ? this.expressionMap.get(field) : null;
-  }
-
-  /**
-   * Set expression for given field.
-   * This is a mandatory property.
-   * This method is meant to be used for properties.xml file where map should be set using BeanUtils constructs.
-   *
-   * @param field Output field for which expression should be set.
-   * @param expression Expression that should be evaluated for given output field.
-   * @omitFromUI
-   */
-  public void setExpressionMap(String field, String expression)
-  {
-    if (this.expressionMap == null) {
-      this.expressionMap = new HashMap<>();
-    }
-    this.expressionMap.put(field, expression);
-  }
-
-  /**
-   * Return expression function for given index.
-   * This method is meant to be used for setting indexed property using BeanUtils constructs.
-   *
-   * @param index Index at which expression function should be returned.
-   * @return Qualified Expression function at given index.
-   * @omitFromUI
-   */
-  public String getExpressionFunctions(int index)
-  {
-    return (index < this.expressionFuntions.size()) ? this.expressionFuntions.get(index) : null;
-  }
-
-  /**
-   * Sets expression function are given index.
-   * This method is meant to be used for setting indexed property using BeanUtils constructs.
-   *
-   * @param index Index at which expression should be set.
-   * @param expressionFunction Qualified expression function that should be made available to expression.
-   * @omitFromUI
-   */
-  public void setExpressionFunctions(int index, String expressionFunction)
-  {
-    for (int i = this.expressionFuntions.size(); i <= index; i++) {
-      this.expressionFuntions.add(null);
-    }
-    this.expressionFuntions.set(index, expressionFunction);
+    this.expressionFunctions = expressionFunctions;
   }
 
   /**
