@@ -20,8 +20,11 @@ package com.datatorrent.contrib.hive;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 
 import javax.validation.constraints.Min;
@@ -31,25 +34,26 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang3.mutable.MutableInt;
 
-import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
-
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.CheckpointListener;
 import com.datatorrent.api.annotation.Stateless;
-
+import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
- * An implementation of FS Writer that writes text files to hdfs which are inserted
- * into hive on committed window callback. HiveStreamCodec is used to make sure that data being sent to a particular hive partition
- * goes to a specific operator partition by passing FSRollingOutputOperator to the stream codec.
- * Also filename is determined uniquely for each tuple going to a specific hive partition.
+ * An implementation of FS Writer that writes text files to hdfs which are
+ * inserted into hive on committed window callback. HiveStreamCodec is used to
+ * make sure that data being sent to a particular hive partition goes to a
+ * specific operator partition by passing FSRollingOutputOperator to the stream
+ * codec. Also filename is determined uniquely for each tuple going to a
+ * specific hive partition.
  *
  * @since 2.1.0
  */
-public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOutputOperator<T> implements CheckpointListener
+public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOutputOperator<T>
+    implements CheckpointListener
 {
   private transient String outputFilePath;
   protected MutableInt partNumber;
@@ -68,8 +72,9 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
   private long maxWindowsWithNoData = 100;
 
   /**
-   * The output port that will emit a POJO containing file which is committed and specific hive partitions
-   * in which this file should be loaded to HiveOperator.
+   * The output port that will emit a POJO containing file which is committed
+   * and specific hive partitions in which this file should be loaded to
+   * HiveOperator.
    */
   public final transient DefaultOutputPort<FilePartitionMapping> outputPort = new DefaultOutputPort<FilePartitionMapping>();
 
@@ -107,8 +112,7 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
     isEmptyWindow = false;
     if (mapFilenames.containsKey(windowIDOfCompletedPart)) {
       mapFilenames.get(windowIDOfCompletedPart).add(finishedFile);
-    }
-    else {
+    } else {
       ArrayList<String> listFileNames = new ArrayList<String>();
       listFileNames.add(finishedFile);
       mapFilenames.put(windowIDOfCompletedPart, listFileNames);
@@ -139,7 +143,6 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
     return output.toString();
   }
 
-
   /*
    * Moving completed files into hive on committed window callback.
    * Criteria for moving them is that the windowId in which they are completed
@@ -157,12 +160,12 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
         logger.debug("list is {}", mapFilenames.get(windowId));
         list = mapFilenames.get(windowId);
         FilePartitionMapping partMap = new FilePartitionMapping();
-        if(list!=null){
-        for (int i = 0; i < list.size(); i++) {
-          partMap.setFilename(list.get(i));
-          partMap.setPartition(mapPartition.get(list.get(i)));
-          outputPort.emit(partMap);
-        }
+        if (list != null) {
+          for (int i = 0; i < list.size(); i++) {
+            partMap.setFilename(list.get(i));
+            partMap.setPartition(mapPartition.get(list.get(i)));
+            outputPort.emit(partMap);
+          }
         }
         mapFilenames.remove(windowId);
         iterWindows.remove();
@@ -182,12 +185,10 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
   {
     try {
       this.rotate(lastFile);
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       logger.debug(ex.getMessage());
       DTThrowable.rethrow(ex);
-    }
-    catch (ExecutionException ex) {
+    } catch (ExecutionException ex) {
       logger.debug(ex.getMessage());
       DTThrowable.rethrow(ex);
     }
@@ -201,16 +202,17 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
       lastFile = iterFileNames.next();
       partNumber = this.openPart.get(lastFile);
     }
-    return getPartFileName(lastFile,
-                           partNumber.intValue());
+    return getPartFileName(lastFile, partNumber.intValue());
   }
 
   /**
-   * This method gets a List of Hive Partitions in which the tuple needs to be written to.
-   * Example: If hive partitions are date='2014-12-12',country='USA' then
-   * this method returns {"2014-12-12","USA"}
-   * The implementation is left to the user.
-   * @param tuple A received tuple to be written to a hive partition.
+   * This method gets a List of Hive Partitions in which the tuple needs to be
+   * written to. Example: If hive partitions are date='2014-12-12',country='USA'
+   * then this method returns {"2014-12-12","USA"} The implementation is left to
+   * the user.
+   * 
+   * @param tuple
+   *          A received tuple to be written to a hive partition.
    * @return ArrayList containing hive partition values.
    */
   public abstract ArrayList<String> getHivePartition(T tuple);
