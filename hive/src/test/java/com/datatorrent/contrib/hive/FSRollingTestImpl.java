@@ -18,15 +18,22 @@
  */
 package com.datatorrent.contrib.hive;
 
-import org.junit.Assert;
-import org.junit.Test;
+import java.util.ArrayList;
 
-public class HiveStoreTest
+public class FSRollingTestImpl extends AbstractFSRollingOutputOperator<String>
 {
-  @Test
-  public void defaultDriverTest()
+  @Override
+  public ArrayList<String> getHivePartition(String tuple)
   {
-    HiveStore hiveStore = new HiveStore();
-    Assert.assertEquals("Test default driver", HiveStore.HIVE_DRIVER,hiveStore.getDatabaseDriver());
+    ArrayList<String> hivePartitions = new ArrayList<String>();
+    hivePartitions.add(tuple);
+    return (hivePartitions);
   }
+
+  @Override
+  protected byte[] getBytesForTuple(String tuple)
+  {
+    return (tuple + "\n").getBytes();
+  }
+
 }

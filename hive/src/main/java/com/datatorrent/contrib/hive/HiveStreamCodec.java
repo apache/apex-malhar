@@ -18,7 +18,12 @@
  */
 package com.datatorrent.contrib.hive;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -26,9 +31,10 @@ import com.esotericsoftware.kryo.io.Output;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 
 /**
- * Stream codec for uniform distribution of tuples on upstream operator.
- * This is used to make sure that data being sent to a particular hive partition
- * goes to a specific operator partition by passing FSRollingOutputOperator to the stream codec.
+ * Stream codec for uniform distribution of tuples on upstream operator. This is
+ * used to make sure that data being sent to a particular hive partition goes to
+ * a specific operator partition by passing FSRollingOutputOperator to the
+ * stream codec.
  *
  * @since 2.1.0
  */
@@ -64,12 +70,10 @@ public class HiveStreamCodec<T> extends KryoSerializableStreamCodec<T> implement
     rollingOperator = (AbstractFSRollingOutputOperator)kryo.readClassAndObject(input);
   }
 
-
   @Override
   public int getPartition(T o)
   {
     return rollingOperator.getHivePartition(o).hashCode();
   }
-
 
 }

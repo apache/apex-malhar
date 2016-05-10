@@ -197,6 +197,7 @@
       <id>all-modules</id>
       <modules>
         <module>kafka</module>
+        <module>hive</module>
         <module>stream</module>
         <module>benchmark</module>
         <module>apps</module>
