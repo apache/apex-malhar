@@ -62,9 +62,9 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
 
   private static final String META_CONSUMER_GROUP_NAME = AbstractKafkaInputOperator.class.getName() + "META_GROUP";
 
-  protected final String[] clusters;
+  protected final List<String> clusters;
 
-  protected final String[] topics;
+  protected final List<String> topics;
 
   protected final AbstractKafkaInputOperator prototypeOperator;
 
@@ -73,7 +73,7 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
 
   private final List<Set<AbstractKafkaPartitioner.PartitionMeta>> currentPartitions = new LinkedList<>(); // prevent null
 
-  public AbstractKafkaPartitioner(String[] clusters, String[] topics, AbstractKafkaInputOperator prototypeOperator)
+  public AbstractKafkaPartitioner(List<String> clusters, List<String> topics, AbstractKafkaInputOperator prototypeOperator)
   {
     this.clusters = clusters;
     this.topics = topics;
@@ -93,14 +93,14 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
     Map<String, Map<String, List<PartitionInfo>>> metadata = new HashMap<>();
 
 
-    for (int i = 0; i < clusters.length; i++) {
-      metadata.put(clusters[i], new HashMap<String, List<PartitionInfo>>());
+    for (int i = 0; i < clusters.size(); i++) {
+      metadata.put(clusters.get(i), new HashMap<String, List<PartitionInfo>>());
       for (String topic : topics) {
         List<PartitionInfo> ptis = metadataRefreshClients.get(i).partitionsFor(topic);
         if (logger.isDebugEnabled()) {
           logger.debug("Partition metadata for topic {} : {}", topic, Joiner.on(';').join(ptis));
         }
-        metadata.get(clusters[i]).put(topic, ptis);
+        metadata.get(clusters.get(i)).put(topic, ptis);
       }
       metadataRefreshClients.get(i).close();
     }
@@ -169,16 +169,16 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
    */
   private void initMetadataClients()
   {
-    if (metadataRefreshClients != null && metadataRefreshClients.size() == clusters.length) {
+    if (metadataRefreshClients != null && metadataRefreshClients.size() == clusters.size()) {
       // The metadata client is active
       return;
     }
 
-    if (clusters == null || clusters.length == 0) {
+    if (clusters == null || clusters.size() == 0) {
       throw new IllegalStateException("clusters can not be null");
     }
 
-    metadataRefreshClients = new ArrayList<>(clusters.length);
+    metadataRefreshClients = new ArrayList<>(clusters.size());
     int index = 0;
     for (String c : clusters) {
       Properties prop = new Properties();

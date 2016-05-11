@@ -38,7 +38,7 @@ import com.google.common.collect.Sets;
 public class OneToOnePartitioner extends AbstractKafkaPartitioner
 {
 
-  public OneToOnePartitioner(String[] clusters, String[] topics, AbstractKafkaInputOperator prototypeOperator)
+  public OneToOnePartitioner(List<String> clusters, List<String> topics, AbstractKafkaInputOperator prototypeOperator)
   {
     super(clusters, topics, prototypeOperator);
   }

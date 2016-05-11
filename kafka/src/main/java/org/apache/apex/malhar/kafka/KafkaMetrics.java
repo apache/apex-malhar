@@ -21,6 +21,7 @@ package org.apache.apex.malhar.kafka;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.classification.InterfaceStability;
@@ -48,7 +49,7 @@ public class KafkaMetrics implements Serializable
     this.metricsRefreshInterval = metricsRefreshInterval;
   }
 
-  void updateMetrics(String[] clusters, Map<String, Map<MetricName, ? extends Metric>> metricsMap)
+  void updateMetrics(List<String> clusters, Map<String, Map<MetricName, ? extends Metric>> metricsMap)
   {
     long current = System.currentTimeMillis();
     if (current - lastMetricSampleTime < metricsRefreshInterval) {
@@ -58,15 +59,15 @@ public class KafkaMetrics implements Serializable
     lastMetricSampleTime = current;
 
     if (stats == null) {
-      stats = new KafkaConsumerStats[clusters.length];
+      stats = new KafkaConsumerStats[clusters.size()];
     }
 
-    for (int i = 0; i < clusters.length; i++) {
+    for (int i = 0; i < clusters.size(); i++) {
       if (stats[i] == null) {
         stats[i] = new KafkaConsumerStats();
-        stats[i].cluster = clusters[i];
+        stats[i].cluster = clusters.get(i);
       }
-      Map<MetricName, ? extends Metric> cMetrics = metricsMap.get(clusters[i]);
+      Map<MetricName, ? extends Metric> cMetrics = metricsMap.get(clusters.get(i));
       if (cMetrics == null || cMetrics.isEmpty()) {
         stats[i].bytesPerSec = 0;
         stats[i].msgsPerSec = 0;

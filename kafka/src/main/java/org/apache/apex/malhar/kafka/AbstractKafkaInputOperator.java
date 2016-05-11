@@ -19,6 +19,7 @@
 package org.apache.apex.malhar.kafka;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,8 +45,6 @@ import org.apache.kafka.clients.consumer.OffsetCommitCallback;
 import org.apache.kafka.common.TopicPartition;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 
 import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
@@ -88,10 +87,10 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   }
 
   @NotNull
-  private String[] clusters;
+  private List<String> clusters;
 
   @NotNull
-  private String[] topics;
+  private List<String> topics;
 
   /**
    *  offset track for checkpoint
@@ -413,33 +412,45 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
     return initialPartitionCount;
   }
 
-  public void setClusters(String clusters)
-  {
-    this.clusters = clusters.split(";");
-  }
-
   /**
-   *  Same setting as bootstrap.servers property to KafkaConsumer
-   *  refer to http://kafka.apache.org/documentation.html#newconsumerconfigs
-   *  To support multi cluster, you can have multiple bootstrap.servers separated by ";"
+   * The list of host:port pairs for establishing connection with the kafka cluster
+   * @param clusters
    */
-  public String getClusters()
+  public void setClusters(List<String> clusters)
   {
-    return Joiner.on(';').join(clusters);
-  }
-
-  public void setTopics(String topics)
-  {
-    this.topics = Iterables.toArray(Splitter.on(',').trimResults().omitEmptyStrings().split(topics), String.class);
+    this.clusters = clusters;
   }
 
   /**
-   * The topics the operator consumes, separate by','
+   * The list of host:port pairs for establishing connection with the kafka cluster
+   */
+  public List<String> getClusters()
+  {
+    return clusters;
+  }
+
+  /**
+   * The list of topics to be consumed by the operator
+   * Topic name can only contain ASCII alphanumerics, '.', '_' and '-'
+   * @param topics
+   */
+  public void setTopics(List<String> topics)
+  {
+    this.topics = new ArrayList<>();
+    for(String topic: topics) {
+      if(topic != null && topic.length() > 0) {
+        topics.add(topic);
+      }
+    }
+  }
+
+  /**
+   * The list of topics the operator consumes
    * Topic name can only contain ASCII alphanumerics, '.', '_' and '-'
    */
-  public String getTopics()
+  public List<String> getTopics()
   {
-    return Joiner.on(", ").join(topics);
+    return topics;
   }
 
   public void setStrategy(String policy)

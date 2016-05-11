@@ -37,7 +37,7 @@ import org.apache.kafka.common.PartitionInfo;
 public class OneToManyPartitioner extends AbstractKafkaPartitioner
 {
 
-  public OneToManyPartitioner(String[] clusters, String[] topics, AbstractKafkaInputOperator protoTypeOperator)
+  public OneToManyPartitioner(List<String> clusters, List<String> topics, AbstractKafkaInputOperator protoTypeOperator)
   {
     super(clusters, topics, protoTypeOperator);
   }
