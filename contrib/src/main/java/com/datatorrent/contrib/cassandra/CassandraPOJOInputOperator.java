@@ -61,7 +61,7 @@ import com.datatorrent.lib.util.PojoUtils.*;
 @Evolving
 public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<Object> implements Operator.ActivationListener<OperatorContext>
 {
-  private String TOKEN_QUERY;
+  private String tokenQuery;
   @NotNull
   private List<FieldInfo> fieldInfos;
   private Number startRow;
@@ -196,7 +196,7 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
   public void setup(OperatorContext context)
   {
     super.setup(context);
-    TOKEN_QUERY = "select token(" + primaryKeyColumn + ") from " + store.keyspace + "." + tablename + " where " + primaryKeyColumn + " =  ?";
+    tokenQuery = "select token(" + primaryKeyColumn + ") from " + store.keyspace + "." + tablename + " where " + primaryKeyColumn + " =  ?";
   }
 
   @Override
@@ -371,7 +371,7 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
 
   private Long fetchKeyTokenFromDB(Object keyValue)
   {
-    PreparedStatement statement = store.getSession().prepare(TOKEN_QUERY);
+    PreparedStatement statement = store.getSession().prepare(tokenQuery);
     BoundStatement boundStatement = new BoundStatement(statement);
     boundStatement.bind(keyValue);
     ResultSet rs = store.getSession().execute(boundStatement);
