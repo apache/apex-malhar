@@ -19,6 +19,8 @@
 package org.apache.apex.malhar.kafka;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,8 +46,6 @@ import org.apache.kafka.clients.consumer.OffsetCommitCallback;
 import org.apache.kafka.common.TopicPartition;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 
 import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
@@ -413,33 +413,39 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
     return initialPartitionCount;
   }
 
-  public void setClusters(String clusters)
-  {
-    this.clusters = clusters.split(";");
-  }
-
   /**
    *  Same setting as bootstrap.servers property to KafkaConsumer
    *  refer to http://kafka.apache.org/documentation.html#newconsumerconfigs
-   *  To support multi cluster, you can have multiple bootstrap.servers separated by ";"
+   *  To support multi cluster, you can have multiple elements in the array
    */
-  public String getClusters()
+  public void setClusters(String[] clusters)
   {
-    return Joiner.on(';').join(clusters);
+    this.clusters = clusters;
   }
 
-  public void setTopics(String topics)
+  public String[] getClusters()
   {
-    this.topics = Iterables.toArray(Splitter.on(',').trimResults().omitEmptyStrings().split(topics), String.class);
+    return clusters;
   }
 
   /**
-   * The topics the operator consumes, separate by','
+   * The topics the operator consumes
    * Topic name can only contain ASCII alphanumerics, '.', '_' and '-'
    */
-  public String getTopics()
+  public void setTopics(String[] topics)
   {
-    return Joiner.on(", ").join(topics);
+    List<String> temp = new ArrayList<>();
+    for (String topic: topics) {
+      if (topic != null && topic.length() != 0) {
+        temp.add(topic);
+      }
+    }
+    this.topics = temp.toArray(new String[temp.size()]);
+  }
+
+  public String[] getTopics()
+  {
+    return topics;
   }
 
   public void setStrategy(String policy)
