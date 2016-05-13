@@ -31,7 +31,7 @@ import org.apache.commons.io.FileUtils;
 import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest;
 import com.datatorrent.netlet.util.DTThrowable;
 
-public class HDFSOutputOperatorTest extends AbstractFileOutputOperatorTest
+public class BytesFileOutputOperatorTest extends AbstractFileOutputOperatorTest
 {
 
   /**
@@ -42,8 +42,8 @@ public class HDFSOutputOperatorTest extends AbstractFileOutputOperatorTest
   @Test
   public void testIdleWindowsFinalize() throws IOException
   {
-    HDFSOutputOperator writer = new HDFSOutputOperator();
-    writer.setFileName("output.txt");
+    BytesFileOutputOperator writer = new BytesFileOutputOperator();
+    writer.setOutputFileName("output.txt");
     writer.setFilePath(testMeta.getDir());
     writer.setAlwaysWriteToTmp(true);
     writer.setMaxIdleWindows(5);
@@ -88,8 +88,8 @@ public class HDFSOutputOperatorTest extends AbstractFileOutputOperatorTest
   @Test
   public void testTupleCountFinalize() throws IOException
   {
-    HDFSOutputOperator writer = new HDFSOutputOperator();
-    writer.setFileName("output.txt");
+    BytesFileOutputOperator writer = new BytesFileOutputOperator();
+    writer.setOutputFileName("output.txt");
     writer.setFilePath(testMeta.getDir());
     writer.setAlwaysWriteToTmp(true);
     writer.setMaxTupleCount(10);

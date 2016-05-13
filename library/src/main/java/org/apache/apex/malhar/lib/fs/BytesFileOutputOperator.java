@@ -23,16 +23,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-import javax.validation.constraints.NotNull;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.AutoMetric;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.StreamCodec;
-import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
+import com.datatorrent.lib.io.fs.AbstractSingleFileOutputOperator;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
@@ -43,30 +40,8 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @param <T>
  */
 
-class HDFSOutputOperator extends AbstractFileOutputOperator<byte[]>
+class BytesFileOutputOperator extends AbstractSingleFileOutputOperator<byte[]>
 {
-
-  /**
-   * Name of the file to write the output. Directory for the output file should
-   * be specified in the filePath 
-   */
-  @NotNull
-  private String fileName;
-
-  /**
-   * currentPartName can be of the form fileName_physicalPartionId.partNumber
-   */
-  private String currentPartNameformat = "%s_%d";
-
-  /**
-   * currentPartName is of the form fileName_physicalPartionId.partNumber
-   */
-  private transient String currentPartName;
-
-  /**
-   * Physical partition id for the current partition.
-   */
-  private transient int physicalPartitionId;
 
   /**
    * Flag to mark if new data in current application window
@@ -131,31 +106,11 @@ class HDFSOutputOperator extends AbstractFileOutputOperator<byte[]>
    * Initializing default values for tuple separator, stream expiry, rotation
    * windows
    */
-  public HDFSOutputOperator()
+  public BytesFileOutputOperator()
   {
     setTupleSeparator(System.getProperty("line.separator"));
     setExpireStreamAfterAccessMillis(DEFAULT_STREAM_EXPIRY_ACCESS_MILL);
     setRotationWindows(DEFAULT_ROTATION_WINDOWS);
-  }
-
-  /**
-   * Initializing current partition id, part name etc. {@inheritDoc}
-   */
-  @Override
-  public void setup(OperatorContext context)
-  {
-    super.setup(context);
-    physicalPartitionId = context.getId();
-    currentPartName = String.format(currentPartNameformat, fileName, physicalPartitionId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected String getFileName(byte[] tuple)
-  {
-    return currentPartName;
   }
 
   /**
@@ -172,7 +127,7 @@ class HDFSOutputOperator extends AbstractFileOutputOperator<byte[]>
     @Override
     public StreamCodec<String> getStreamCodec()
     {
-      if (HDFSOutputOperator.this.stringStreamCodec == null) {
+      if (BytesFileOutputOperator.this.stringStreamCodec == null) {
         return super.getStreamCodec();
       } else {
         return stringStreamCodec;
@@ -229,7 +184,7 @@ class HDFSOutputOperator extends AbstractFileOutputOperator<byte[]>
     isNewDataInCurrentWindow = true;
 
     if (++currentPartTupleCount == maxTupleCount) {
-      rotateCall(currentPartName);
+      rotateCall(getPartitionedFileName());
     }
   }
 
@@ -249,7 +204,7 @@ class HDFSOutputOperator extends AbstractFileOutputOperator<byte[]>
     }
 
     if (checkEndWindowFinalization()) {
-      rotateCall(currentPartName);
+      rotateCall(getPartitionedFileName());
     }
   }
 
@@ -273,7 +228,6 @@ class HDFSOutputOperator extends AbstractFileOutputOperator<byte[]>
   {
     try {
       this.rotate(lastFile);
-      currentPartName = String.format(currentPartNameformat, fileName, physicalPartitionId);
       currentPartIdleWindows = 0;
       currentPartTupleCount = 0;
     } catch (IOException ex) {
@@ -285,58 +239,6 @@ class HDFSOutputOperator extends AbstractFileOutputOperator<byte[]>
     }
   }
 
-  /**
-   * @return File name for writing output. All tuples are written to the same
-   *         file.
-   */
-  public String getFileName()
-  {
-    return fileName;
-  }
-
-  /**
-   * @param fileName
-   *          File name for writing output. All tuples are written to the same
-   *          file.
-   */
-  public void setFileName(String fileName)
-  {
-    this.fileName = fileName;
-  }
-
-  /**
-   * @return string format specifier for current part name
-   */
-  public String getCurrentPartNameformat()
-  {
-    return currentPartNameformat;
-  }
-
-  /**
-   * @param currentPartNameformat
-   *          string format specifier for current part name
-   */
-  public void setCurrentPartNameformat(String currentPartNameformat)
-  {
-    this.currentPartNameformat = currentPartNameformat;
-  }
-
-  /**
-   * @return name of the current part file
-   */
-  public String getCurrentPartName()
-  {
-    return currentPartName;
-  }
-
-  /**
-   * @param currentPartName
-   *          name of the current part file
-   */
-  public void setCurrentPartName(String currentPartName)
-  {
-    this.currentPartName = currentPartName;
-  }
 
   /**
    * @return Separator between the tuples
@@ -382,13 +284,12 @@ class HDFSOutputOperator extends AbstractFileOutputOperator<byte[]>
   }
 
   /**
-   * @param maxIdleWindows
-   *          max number of idle windows for rollover
+   * @param maxIdleWindows max number of idle windows for rollover
    */
   public void setMaxIdleWindows(long maxIdleWindows)
   {
     this.maxIdleWindows = maxIdleWindows;
   }
 
-  private static final Logger LOG = LoggerFactory.getLogger(HDFSOutputOperator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(BytesFileOutputOperator.class);
 }
