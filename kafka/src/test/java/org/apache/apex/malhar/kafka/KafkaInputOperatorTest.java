@@ -250,7 +250,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     KafkaSinglePortInputOperator node = dag.addOperator("Kafka input", KafkaSinglePortInputOperator.class);
     node.setInitialPartitionCount(1);
     // set topic
-    node.setTopics(testName);
+    node.setTopics(new String[]{testName});
     node.setInitialOffset(AbstractKafkaInputOperator.InitialOffset.EARLIEST.name());
     node.setClusters(getClusterConfig());
     node.setStrategy(partition);
@@ -306,12 +306,13 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     operator.setMaxTuplesPerWindow(500);
   }
 
-  private String getClusterConfig() {
+  private String[] getClusterConfig() {
     String l = "localhost:";
-    return l + TEST_KAFKA_BROKER_PORT[0][0] +
-      (hasMultiPartition ? "," + l + TEST_KAFKA_BROKER_PORT[0][1] : "") +
-      (hasMultiCluster ? ";" + l + TEST_KAFKA_BROKER_PORT[1][0] : "") +
-      (hasMultiCluster && hasMultiPartition ? "," + l  + TEST_KAFKA_BROKER_PORT[1][1] : "");
+    String returnVal = l + TEST_KAFKA_BROKER_PORT[0][0] +
+        (hasMultiPartition ? "," + l + TEST_KAFKA_BROKER_PORT[0][1] : "") +
+        (hasMultiCluster ? ";" + l + TEST_KAFKA_BROKER_PORT[1][0] : "") +
+        (hasMultiCluster && hasMultiPartition ? "," + l  + TEST_KAFKA_BROKER_PORT[1][1] : "");
+    return returnVal.split(";");
   }
 
 
