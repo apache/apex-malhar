@@ -34,6 +34,7 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
 import org.apache.apex.malhar.lib.fs.LineByLineFileInputOperator;
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -54,7 +55,6 @@ import com.datatorrent.api.Partitioner.Partition;
 import com.datatorrent.api.StatsListener;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.io.fs.AbstractFileInputOperator.DirectoryScanner;
 import com.datatorrent.lib.partitioner.StatelessPartitionerTest.PartitioningContextImpl;
 import com.datatorrent.lib.testbench.CollectorTestSink;
@@ -615,10 +615,10 @@ public class AbstractFileInputOperatorTest
     }
 
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
-    IdempotentStorageManager.FSIdempotentStorageManager manager = new IdempotentStorageManager.FSIdempotentStorageManager();
+    FSWindowDataManager manager = new FSWindowDataManager();
     manager.setRecoveryPath(testMeta.dir + "/recovery");
 
-    oper.setIdempotentStorageManager(manager);
+    oper.setWindowDataManager(manager);
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
     TestUtils.setSink(oper.output, queryResults);
@@ -664,10 +664,10 @@ public class AbstractFileInputOperatorTest
     }
 
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
-    IdempotentStorageManager.FSIdempotentStorageManager manager = new IdempotentStorageManager.FSIdempotentStorageManager();
+    FSWindowDataManager manager = new FSWindowDataManager();
     manager.setRecoveryPath(testMeta.dir + "/recovery");
 
-    oper.setIdempotentStorageManager(manager);
+    oper.setWindowDataManager(manager);
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
     TestUtils.setSink(oper.output, queryResults);
@@ -707,11 +707,11 @@ public class AbstractFileInputOperatorTest
     FileUtils.write(new File(testMeta.dir, "file0"), StringUtils.join(lines, '\n'));
 
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
-    IdempotentStorageManager.FSIdempotentStorageManager manager = new IdempotentStorageManager.FSIdempotentStorageManager();
+    FSWindowDataManager manager = new FSWindowDataManager();
     manager.setRecoveryPath(testMeta.dir + "/recovery");
     oper.setEmitBatchSize(5);
 
-    oper.setIdempotentStorageManager(manager);
+    oper.setWindowDataManager(manager);
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -770,10 +770,10 @@ public class AbstractFileInputOperatorTest
 
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
 
-    IdempotentStorageManager.FSIdempotentStorageManager manager = new IdempotentStorageManager.FSIdempotentStorageManager();
+    FSWindowDataManager manager = new FSWindowDataManager();
     manager.setRecoveryPath(testMeta.dir + "/recovery");
 
-    oper.setIdempotentStorageManager(manager);
+    oper.setWindowDataManager(manager);
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -821,7 +821,7 @@ public class AbstractFileInputOperatorTest
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
     oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
-    oper.setIdempotentStorageManager(new TestStorageManager());
+    oper.setWindowDataManager(new TestStorageManager());
     oper.operatorId = 7;
 
     Path path = new Path(new File(testMeta.dir).getAbsolutePath());
@@ -839,7 +839,7 @@ public class AbstractFileInputOperatorTest
 
     List<TestStorageManager> storageManagers = Lists.newLinkedList();
     for (Partition<AbstractFileInputOperator<String>> p : newPartitions) {
-      storageManagers.add((TestStorageManager)p.getPartitionedInstance().idempotentStorageManager);
+      storageManagers.add((TestStorageManager)p.getPartitionedInstance().getWindowDataManager());
     }
     Assert.assertEquals("count of storage managers", 2, storageManagers.size());
 
@@ -857,7 +857,7 @@ public class AbstractFileInputOperatorTest
     Assert.assertEquals("deleted operators", Sets.newHashSet(7), deleteManager.getDeletedOperators());
   }
 
-  private static class TestStorageManager extends IdempotentStorageManager.FSIdempotentStorageManager
+  private static class TestStorageManager extends FSWindowDataManager
   {
     Set<Integer> getDeletedOperators()
     {

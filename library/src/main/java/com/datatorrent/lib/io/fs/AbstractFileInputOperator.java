@@ -43,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.apex.malhar.lib.fs.LineByLineFileInputOperator;
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -63,7 +64,6 @@ import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StatsListener;
 
 import com.datatorrent.lib.counters.BasicCounters;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.util.KryoCloneUtils;
 
 /**
@@ -127,7 +127,7 @@ public abstract class AbstractFileInputOperator<T>
   protected transient MutableLong pendingFileCount = new MutableLong();
 
   @NotNull
-  protected IdempotentStorageManager idempotentStorageManager = new IdempotentStorageManager.NoopIdempotentStorageManager();
+  private WindowDataManager windowDataManager = new WindowDataManager.NoopWindowDataManager();
   protected transient long currentWindowId;
   protected final transient LinkedList<RecoveryEntry> currentWindowRecoveryState = Lists.newLinkedList();
   protected int operatorId; //needed in partitioning
@@ -388,11 +388,11 @@ public abstract class AbstractFileInputOperator<T>
 
   /**
    * Sets the idempotent storage manager on the operator.
-   * @param idempotentStorageManager  an {@link IdempotentStorageManager}
+   * @param windowDataManager  an {@link WindowDataManager}
    */
-  public void setIdempotentStorageManager(IdempotentStorageManager idempotentStorageManager)
+  public void setWindowDataManager(WindowDataManager windowDataManager)
   {
-    this.idempotentStorageManager = idempotentStorageManager;
+    this.windowDataManager = windowDataManager;
   }
 
   /**
@@ -400,9 +400,9 @@ public abstract class AbstractFileInputOperator<T>
    *
    * @return the idempotent storage manager.
    */
-  public IdempotentStorageManager getIdempotentStorageManager()
+  public WindowDataManager getWindowDataManager()
   {
-    return idempotentStorageManager;
+    return windowDataManager;
   }
 
   /**
@@ -456,8 +456,8 @@ public abstract class AbstractFileInputOperator<T>
     fileCounters.setCounter(FileCounters.LOCAL_NUMBER_OF_RETRIES, localNumberOfRetries);
     fileCounters.setCounter(FileCounters.PENDING_FILES, pendingFileCount);
 
-    idempotentStorageManager.setup(context);
-    if (context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) < idempotentStorageManager.getLargestRecoveryWindow()) {
+    windowDataManager.setup(context);
+    if (context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) < windowDataManager.getLargestRecoveryWindow()) {
       //reset current file and offset in case of replay
       currentFile = null;
       offset = 0;
@@ -512,14 +512,14 @@ public abstract class AbstractFileInputOperator<T>
 
       throw new RuntimeException(errorMessage, savedException);
     }
-    idempotentStorageManager.teardown();
+    windowDataManager.teardown();
   }
 
   @Override
   public void beginWindow(long windowId)
   {
     currentWindowId = windowId;
-    if (windowId <= idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (windowId <= windowDataManager.getLargestRecoveryWindow()) {
       replay(windowId);
     }
   }
@@ -527,9 +527,9 @@ public abstract class AbstractFileInputOperator<T>
   @Override
   public void endWindow()
   {
-    if (currentWindowId > idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (currentWindowId > windowDataManager.getLargestRecoveryWindow()) {
       try {
-        idempotentStorageManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
+        windowDataManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
       } catch (IOException e) {
         throw new RuntimeException("saving recovery", e);
       }
@@ -553,7 +553,7 @@ public abstract class AbstractFileInputOperator<T>
     //all the recovery data for a window and then processes only those files which would be hashed
     //to it in the current run.
     try {
-      Map<Integer, Object> recoveryDataPerOperator = idempotentStorageManager.load(windowId);
+      Map<Integer, Object> recoveryDataPerOperator = windowDataManager.load(windowId);
 
       for (Object recovery : recoveryDataPerOperator.values()) {
         @SuppressWarnings("unchecked")
@@ -615,7 +615,7 @@ public abstract class AbstractFileInputOperator<T>
   @Override
   public void emitTuples()
   {
-    if (currentWindowId <= idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (currentWindowId <= windowDataManager.getLargestRecoveryWindow()) {
       return;
     }
 
@@ -836,7 +836,7 @@ public abstract class AbstractFileInputOperator<T>
     List<DirectoryScanner> scanners = scanner.partition(totalCount, oldscanners);
 
     Collection<Partition<AbstractFileInputOperator<T>>> newPartitions = Lists.newArrayListWithExpectedSize(totalCount);
-    Collection<IdempotentStorageManager> newManagers = Lists.newArrayListWithExpectedSize(totalCount);
+    Collection<WindowDataManager> newManagers = Lists.newArrayListWithExpectedSize(totalCount);
 
     KryoCloneUtils<AbstractFileInputOperator<T>> cloneUtils = KryoCloneUtils.createCloneUtils(this);
     for (int i = 0; i < scanners.size(); i++) {
@@ -889,10 +889,10 @@ public abstract class AbstractFileInputOperator<T>
         }
       }
       newPartitions.add(new DefaultPartition<AbstractFileInputOperator<T>>(oper));
-      newManagers.add(oper.idempotentStorageManager);
+      newManagers.add(oper.windowDataManager);
     }
 
-    idempotentStorageManager.partitioned(newManagers, deletedOperators);
+    windowDataManager.partitioned(newManagers, deletedOperators);
     LOG.info("definePartitions called returning {} partitions", newPartitions.size());
     return newPartitions;
   }
@@ -917,7 +917,7 @@ public abstract class AbstractFileInputOperator<T>
   public void committed(long windowId)
   {
     try {
-      idempotentStorageManager.deleteUpTo(operatorId, windowId);
+      windowDataManager.deleteUpTo(operatorId, windowId);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

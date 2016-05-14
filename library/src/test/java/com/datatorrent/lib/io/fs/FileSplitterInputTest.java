@@ -37,6 +37,8 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.fs.FileContext;
@@ -49,7 +51,6 @@ import com.google.common.collect.Sets;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.io.block.BlockMetadata;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KryoCloneUtils;
@@ -189,9 +190,8 @@ public class FileSplitterInputTest
   @Test
   public void testIdempotency() throws InterruptedException
   {
-    IdempotentStorageManager.FSIdempotentStorageManager fsIdempotentStorageManager = new IdempotentStorageManager
-        .FSIdempotentStorageManager();
-    testMeta.fileSplitterInput.setIdempotentStorageManager(fsIdempotentStorageManager);
+    FSWindowDataManager fsIdempotentStorageManager = new FSWindowDataManager();
+    testMeta.fileSplitterInput.setWindowDataManager(fsIdempotentStorageManager);
 
     testMeta.fileSplitterInput.setup(testMeta.context);
     //will emit window 1 from data directory
@@ -294,9 +294,8 @@ public class FileSplitterInputTest
   @Test
   public void testIdempotencyWithBlocksThreshold() throws InterruptedException
   {
-    IdempotentStorageManager.FSIdempotentStorageManager fsIdempotentStorageManager = new IdempotentStorageManager
-        .FSIdempotentStorageManager();
-    testMeta.fileSplitterInput.setIdempotentStorageManager(fsIdempotentStorageManager);
+    FSWindowDataManager fsWindowDataManager = new FSWindowDataManager();
+    testMeta.fileSplitterInput.setWindowDataManager(fsWindowDataManager);
     testMeta.fileSplitterInput.setBlocksThreshold(10);
     testMeta.fileSplitterInput.getScanner().setScanIntervalMillis(500);
     testMeta.fileSplitterInput.setup(testMeta.context);
@@ -341,9 +340,8 @@ public class FileSplitterInputTest
   @Ignore
   public void testRecoveryOfPartialFile() throws InterruptedException
   {
-    IdempotentStorageManager.FSIdempotentStorageManager fsIdempotentStorageManager = new IdempotentStorageManager
-        .FSIdempotentStorageManager();
-    testMeta.fileSplitterInput.setIdempotentStorageManager(fsIdempotentStorageManager);
+    FSWindowDataManager fsIdempotentStorageManager = new FSWindowDataManager();
+    testMeta.fileSplitterInput.setWindowDataManager(fsIdempotentStorageManager);
     testMeta.fileSplitterInput.setBlockSize(2L);
     testMeta.fileSplitterInput.setBlocksThreshold(2);
     testMeta.fileSplitterInput.getScanner().setScanIntervalMillis(500);
@@ -460,10 +458,9 @@ public class FileSplitterInputTest
   @Test
   public void testRecoveryOfBlockMetadataIterator() throws InterruptedException
   {
-    IdempotentStorageManager.FSIdempotentStorageManager fsIdempotentStorageManager =
-        new IdempotentStorageManager.FSIdempotentStorageManager();
+    FSWindowDataManager fsWindowDataManager = new FSWindowDataManager();
 
-    testMeta.fileSplitterInput.setIdempotentStorageManager(fsIdempotentStorageManager);
+    testMeta.fileSplitterInput.setWindowDataManager(fsWindowDataManager);
     testMeta.fileSplitterInput.setBlockSize(2L);
     testMeta.fileSplitterInput.setBlocksThreshold(2);
     testMeta.fileSplitterInput.getScanner().setScanIntervalMillis(500);

@@ -29,8 +29,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
+
 import com.datatorrent.contrib.helper.SourceModule;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.LocalMode;
@@ -144,7 +145,7 @@ public class RabbitMQOutputOperatorTest
     SourceModule source = dag.addOperator("source", new SourceModule());
     source.setTestNum(testNum);
     RabbitMQOutputOperator collector = dag.addOperator("generator", new RabbitMQOutputOperator());
-    collector.setIdempotentStorageManager(new IdempotentStorageManager.FSIdempotentStorageManager());
+    collector.setWindowDataManager(new FSWindowDataManager());
 
     collector.setExchange("testEx");
     dag.addStream("Stream", source.outPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);

@@ -40,7 +40,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.LoggerFactory;
 
-import org.apache.apex.malhar.lib.wal.WindowDataManager;
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.commons.io.FileUtils;
 
 import com.datatorrent.api.Context;
@@ -255,7 +255,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     node.setClusters(getClusterConfig());
     node.setStrategy(partition);
     if(idempotent) {
-      node.setWindowDataManager(new WindowDataManager.FSWindowDataManager());
+      node.setWindowDataManager(new FSWindowDataManager());
     }
 
 

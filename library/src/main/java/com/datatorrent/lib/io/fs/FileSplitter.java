@@ -40,6 +40,7 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -61,7 +62,6 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.counters.BasicCounters;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.io.block.BlockMetadata.FileBlockMetadata;
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -99,7 +99,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
   protected TimeBasedDirectoryScanner scanner;
 
   @NotNull
-  protected IdempotentStorageManager idempotentStorageManager;
+  protected WindowDataManager windowDataManager;
 
   @NotNull
   protected final transient LinkedList<FileInfo> currentWindowRecoveryState;
@@ -118,7 +118,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
   {
     currentWindowRecoveryState = Lists.newLinkedList();
     fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
-    idempotentStorageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
+    windowDataManager = new WindowDataManager.NoopWindowDataManager();
     scanner = new TimeBasedDirectoryScanner();
     blocksThreshold = Integer.MAX_VALUE;
   }
@@ -133,7 +133,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
     this.context = context;
 
     fileCounters.setCounter(Counters.PROCESSED_FILES, new MutableLong());
-    idempotentStorageManager.setup(context);
+    windowDataManager.setup(context);
 
     try {
       fs = scanner.getFSInstance();
@@ -145,8 +145,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
       blockSize = fs.getDefaultBlockSize(new Path(scanner.files.iterator().next()));
     }
 
-    if (context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID) <
-        idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID) < windowDataManager.getLargestRecoveryWindow()) {
       blockMetadataIterator = null;
     } else {
       //don't setup scanner while recovery
@@ -176,7 +175,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
   {
     blockCount = 0;
     currentWindowId = windowId;
-    if (windowId <= idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (windowId <= windowDataManager.getLargestRecoveryWindow()) {
       replay(windowId);
     }
   }
@@ -185,7 +184,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
   {
     try {
       @SuppressWarnings("unchecked")
-      LinkedList<FileInfo> recoveredData = (LinkedList<FileInfo>)idempotentStorageManager.load(operatorId, windowId);
+      LinkedList<FileInfo> recoveredData = (LinkedList<FileInfo>)windowDataManager.load(operatorId, windowId);
       if (recoveredData == null) {
         //This could happen when there are multiple physical instances and one of them is ahead in processing windows.
         return;
@@ -210,7 +209,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
         }
       }
 
-      if (windowId == idempotentStorageManager.getLargestRecoveryWindow()) {
+      if (windowId == windowDataManager.getLargestRecoveryWindow()) {
         scanner.setup(context);
       }
     } catch (IOException e) {
@@ -221,7 +220,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
   @Override
   public void emitTuples()
   {
-    if (currentWindowId <= idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (currentWindowId <= windowDataManager.getLargestRecoveryWindow()) {
       return;
     }
 
@@ -260,9 +259,9 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
   @Override
   public void endWindow()
   {
-    if (currentWindowId > idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (currentWindowId > windowDataManager.getLargestRecoveryWindow()) {
       try {
-        idempotentStorageManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
+        windowDataManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
       } catch (IOException e) {
         throw new RuntimeException("saving recovery", e);
       }
@@ -370,14 +369,14 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
     return this.scanner;
   }
 
-  public void setIdempotentStorageManager(IdempotentStorageManager idempotentStorageManager)
+  public void setWindowDataManager(WindowDataManager windowDataManager)
   {
-    this.idempotentStorageManager = idempotentStorageManager;
+    this.windowDataManager = windowDataManager;
   }
 
-  public IdempotentStorageManager getIdempotentStorageManager()
+  public WindowDataManager getWindowDataManager()
   {
-    return this.idempotentStorageManager;
+    return this.windowDataManager;
   }
 
   @Override
@@ -389,7 +388,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
   public void committed(long l)
   {
     try {
-      idempotentStorageManager.deleteUpTo(operatorId, l);
+      windowDataManager.deleteUpTo(operatorId, l);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

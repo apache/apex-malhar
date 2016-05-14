@@ -25,13 +25,14 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.*;
 import com.datatorrent.api.Operator.ActivationListener;
 import com.datatorrent.common.util.Pair;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.util.KryoCloneUtils;
 
 import com.esotericsoftware.kryo.DefaultSerializer;
 import com.esotericsoftware.kryo.serializers.JavaSerializer;
 import com.google.common.collect.Sets;
 
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +86,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
 
   private String endPoint;
 
-  protected IdempotentStorageManager idempotentStorageManager;
+  protected WindowDataManager windowDataManager;
   protected transient long currentWindowId;
   protected transient int operatorId;
   protected final transient Map<String, KinesisPair<String, Integer>> currentWindowRecoveryState;
@@ -132,7 +133,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
 
   public AbstractKinesisInputOperator()
   {
-    idempotentStorageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
+    windowDataManager = new FSWindowDataManager();
     currentWindowRecoveryState = new HashMap<String, KinesisPair<String, Integer>>();
   }
   /**
@@ -167,7 +168,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
 
     // Operator partitions
     List<Partition<AbstractKinesisInputOperator>> newPartitions = null;
-    Collection<IdempotentStorageManager> newManagers = Sets.newHashSet();
+    Collection<WindowDataManager> newManagers = Sets.newHashSet();
     Set<Integer> deletedOperators =  Sets.newHashSet();
 
     // initialize the shard positions
@@ -198,7 +199,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
           partitions.add(createPartition(Sets.newHashSet(pid), null, newManagers));
         }
         newWaitingPartition.clear();
-        idempotentStorageManager.partitioned(newManagers, deletedOperators);
+        windowDataManager.partitioned(newManagers, deletedOperators);
         return partitions;
       }
       break;
@@ -250,7 +251,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
     default:
       break;
     }
-    idempotentStorageManager.partitioned(newManagers, deletedOperators);
+    windowDataManager.partitioned(newManagers, deletedOperators);
     return newPartitions;
   }
 
@@ -370,10 +371,10 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   }
   // Create a new partition with the shardIds and initial shard positions
   private
-  Partition<AbstractKinesisInputOperator> createPartition(Set<String> shardIds, Map<String, String> initShardPos, Collection<IdempotentStorageManager> newManagers)
+  Partition<AbstractKinesisInputOperator> createPartition(Set<String> shardIds, Map<String, String> initShardPos, Collection<WindowDataManager> newManagers)
   {
     Partition<AbstractKinesisInputOperator> p = new DefaultPartition<AbstractKinesisInputOperator>(KryoCloneUtils.cloneObject(this));
-    newManagers.add(p.getPartitionedInstance().idempotentStorageManager);
+    newManagers.add(p.getPartitionedInstance().windowDataManager);
     p.getPartitionedInstance().getConsumer().setShardIds(shardIds);
     p.getPartitionedInstance().getConsumer().resetShardPositions(initShardPos);
 
@@ -400,9 +401,9 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
     }
     consumer.create();
     operatorId = context.getId();
-    idempotentStorageManager.setup(context);
+    windowDataManager.setup(context);
     shardPosition.clear();
-    if (context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) < idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) < windowDataManager.getLargestRecoveryWindow()) {
       isReplayState = true;
     }
   }
@@ -413,7 +414,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   @Override
   public void teardown()
   {
-    idempotentStorageManager.teardown();
+    windowDataManager.teardown();
     consumer.teardown();
   }
 
@@ -425,7 +426,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   {
     emitCount = 0;
     currentWindowId = windowId;
-    if (windowId <= idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (windowId <= windowDataManager.getLargestRecoveryWindow()) {
       replay(windowId);
     }
   }
@@ -434,7 +435,8 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   {
     try {
       @SuppressWarnings("unchecked")
-      Map<String, KinesisPair<String, Integer>> recoveredData = (Map<String, KinesisPair<String, Integer>>) idempotentStorageManager.load(operatorId, windowId);
+      Map<String, KinesisPair<String, Integer>> recoveredData =
+          (Map<String, KinesisPair<String, Integer>>)windowDataManager.load(operatorId, windowId);
       if (recoveredData == null) {
         return;
       }
@@ -464,10 +466,10 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   @Override
   public void endWindow()
   {
-    if (currentWindowId > idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (currentWindowId > windowDataManager.getLargestRecoveryWindow()) {
       context.setCounters(getConsumer().getConsumerStats(shardPosition));
       try {
-        idempotentStorageManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
+        windowDataManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
       }
       catch (IOException e) {
         throw new RuntimeException("saving recovery", e);
@@ -495,7 +497,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   public void committed(long windowId)
   {
     try {
-      idempotentStorageManager.deleteUpTo(operatorId, windowId);
+      windowDataManager.deleteUpTo(operatorId, windowId);
     }
     catch (IOException e) {
       throw new RuntimeException("deleting state", e);
@@ -521,7 +523,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   @Override
   public void emitTuples()
   {
-    if (currentWindowId <= idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (currentWindowId <= windowDataManager.getLargestRecoveryWindow()) {
       return;
     }
     int count = consumer.getQueueSize();
@@ -707,13 +709,13 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
     this.endPoint = endPoint;
   }
 
-  public IdempotentStorageManager getIdempotentStorageManager()
+  public WindowDataManager getWindowDataManager()
   {
-    return idempotentStorageManager;
+    return windowDataManager;
   }
 
-  public void setIdempotentStorageManager(IdempotentStorageManager idempotentStorageManager)
+  public void setWindowDataManager(WindowDataManager windowDataManager)
   {
-    this.idempotentStorageManager = idempotentStorageManager;
+    this.windowDataManager = windowDataManager;
   }
 }

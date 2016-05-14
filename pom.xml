@@ -136,6 +136,9 @@
                 <exclude>@org.apache.hadoop.classification.InterfaceStability$Unstable</exclude>
                 <exclude>com.datatorrent.lib.io.WebSocketInputOperator</exclude>
                 <exclude>com.datatorrent.lib.io.WebSocketOutputOperator</exclude>
+                <exclude>*#idempotentStorageManager</exclude>
+                <exclude>*#setIdempotentStorageManager(com.datatorrent.lib.io.IdempotentStorageManager)</exclude>
+                <exclude>*#getIdempotentStorageManager()</exclude>
               </excludes>
             </parameter>
             <skip>${semver.plugin.skip}</skip>

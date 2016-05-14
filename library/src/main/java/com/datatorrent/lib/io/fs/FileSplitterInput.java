@@ -42,6 +42,8 @@ import javax.validation.constraints.Size;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -60,7 +62,6 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
@@ -79,7 +80,7 @@ import com.datatorrent.netlet.util.DTThrowable;
 public class FileSplitterInput extends AbstractFileSplitter implements InputOperator, Operator.CheckpointListener
 {
   @NotNull
-  private IdempotentStorageManager idempotentStorageManager;
+  private WindowDataManager windowDataManager;
   @NotNull
   protected final transient LinkedList<ScannedFileInfo> currentWindowRecoveryState;
 
@@ -95,7 +96,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   {
     super();
     currentWindowRecoveryState = Lists.newLinkedList();
-    idempotentStorageManager = new IdempotentStorageManager.NoopIdempotentStorageManager();
+    windowDataManager = new WindowDataManager.NoopWindowDataManager();
     referenceTimes = Maps.newHashMap();
     scanner = new TimeBasedDirectoryScanner();
   }
@@ -105,10 +106,10 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   {
     sleepMillis = context.getValue(Context.OperatorContext.SPIN_MILLIS);
     scanner.setup(context);
-    idempotentStorageManager.setup(context);
+    windowDataManager.setup(context);
     super.setup(context);
 
-    long largestRecoveryWindow = idempotentStorageManager.getLargestRecoveryWindow();
+    long largestRecoveryWindow = windowDataManager.getLargestRecoveryWindow();
     if (largestRecoveryWindow == Stateless.WINDOW_ID || context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID) >
         largestRecoveryWindow) {
       scanner.startScanning(Collections.unmodifiableMap(referenceTimes));
@@ -119,7 +120,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   public void beginWindow(long windowId)
   {
     super.beginWindow(windowId);
-    if (windowId <= idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (windowId <= windowDataManager.getLargestRecoveryWindow()) {
       replay(windowId);
     }
   }
@@ -128,8 +129,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   {
     try {
       @SuppressWarnings("unchecked")
-      LinkedList<ScannedFileInfo> recoveredData = (LinkedList<ScannedFileInfo>)idempotentStorageManager
-          .load(operatorId, windowId);
+      LinkedList<ScannedFileInfo> recoveredData = (LinkedList<ScannedFileInfo>)windowDataManager.load(operatorId, windowId);
       if (recoveredData == null) {
         //This could happen when there are multiple physical instances and one of them is ahead in processing windows.
         return;
@@ -150,7 +150,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
     } catch (IOException e) {
       throw new RuntimeException("replay", e);
     }
-    if (windowId == idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (windowId == windowDataManager.getLargestRecoveryWindow()) {
       scanner.startScanning(Collections.unmodifiableMap(referenceTimes));
     }
   }
@@ -158,7 +158,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   @Override
   public void emitTuples()
   {
-    if (currentWindowId <= idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (currentWindowId <= windowDataManager.getLargestRecoveryWindow()) {
       return;
     }
 
@@ -204,9 +204,9 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   @Override
   public void endWindow()
   {
-    if (currentWindowId > idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (currentWindowId > windowDataManager.getLargestRecoveryWindow()) {
       try {
-        idempotentStorageManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
+        windowDataManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
       } catch (IOException e) {
         throw new RuntimeException("saving recovery", e);
       }
@@ -235,7 +235,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   public void committed(long l)
   {
     try {
-      idempotentStorageManager.deleteUpTo(operatorId, l);
+      windowDataManager.deleteUpTo(operatorId, l);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -247,14 +247,14 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
     scanner.teardown();
   }
 
-  public void setIdempotentStorageManager(IdempotentStorageManager idempotentStorageManager)
+  public void setWindowDataManager(WindowDataManager windowDataManager)
   {
-    this.idempotentStorageManager = idempotentStorageManager;
+    this.windowDataManager = windowDataManager;
   }
 
-  public IdempotentStorageManager getIdempotentStorageManager()
+  public WindowDataManager getWindowDataManager()
   {
-    return this.idempotentStorageManager;
+    return this.windowDataManager;
   }
 
   public void setScanner(TimeBasedDirectoryScanner scanner)

@@ -30,6 +30,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.commons.io.IOUtils;
 import org.apache.nifi.remote.protocol.DataPacket;
@@ -65,7 +66,7 @@ public class NiFiSinglePortOutputOperatorTest
 
     context = new OperatorContextTestHelper.TestIdOperatorContext(12345, attributeMap);
 
-    windowDataManager = new WindowDataManager.FSWindowDataManager();
+    windowDataManager = new FSWindowDataManager();
 
     stsBuilder = new MockSiteToSiteClient.Builder();
     dpBuilder = new StringNiFiDataPacketBuilder();

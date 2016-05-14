@@ -28,6 +28,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
@@ -49,7 +50,6 @@ import com.datatorrent.api.Partitioner;
 import com.datatorrent.common.util.FSStorageAgent;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.partitioner.StatelessPartitionerTest;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.stram.StramLocalCluster;
@@ -141,7 +141,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     }
 
     if(idempotent) {
-      node.setIdempotentStorageManager(new IdempotentStorageManager.FSIdempotentStorageManager());
+      node.setWindowDataManager(new FSWindowDataManager());
     }
     consumer.setTopic(TEST_TOPIC);
 
@@ -304,7 +304,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     operator.deactivate();
 
     operator = createAndDeployOperator();
-    Assert.assertEquals("largest recovery window", 2, operator.getIdempotentStorageManager().getLargestRecoveryWindow());
+    Assert.assertEquals("largest recovery window", 2, operator.getWindowDataManager().getLargestRecoveryWindow());
 
     operator.beginWindow(1);
     operator.emitTuples();
@@ -339,9 +339,9 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     consumer.setTopic(TEST_TOPIC);
     consumer.setInitialOffset("earliest");
 
-    IdempotentStorageManager.FSIdempotentStorageManager storageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
+    FSWindowDataManager storageManager = new FSWindowDataManager();
     storageManager.setRecoveryPath(testMeta.recoveryDir);
-    testMeta.operator.setIdempotentStorageManager(storageManager);
+    testMeta.operator.setWindowDataManager(storageManager);
     testMeta.operator.setConsumer(consumer);
     testMeta.operator.setZookeeper("localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT[0]);
     testMeta.operator.setMaxTuplesPerWindow(500);
