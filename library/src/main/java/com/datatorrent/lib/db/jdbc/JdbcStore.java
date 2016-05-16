@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import javax.validation.constraints.NotNull;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -183,6 +184,7 @@ public class JdbcStore implements Connectable
   }
 
   @Override
+  @JsonIgnore
   public boolean isConnected()
   {
     try {
