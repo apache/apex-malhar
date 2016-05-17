@@ -174,7 +174,6 @@ public class ManagedStateImplTest
   {
     testMeta.managedState.setMaxMemorySize(1);
     testMeta.managedState.setCheckStateSizeInterval(Duration.millis(1L));
-    testMeta.managedState.setCheckStateSizeInterval(Duration.millis(1L));
     testMeta.managedState.setup(testMeta.operatorContext);
 
     int numKeys = 300;
