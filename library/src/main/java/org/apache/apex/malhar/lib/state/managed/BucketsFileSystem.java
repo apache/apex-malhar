@@ -150,7 +150,11 @@ public class BucketsFileSystem implements ManagedStateComponent
     }
 
     for (long timeBucket : timeBucketedKeys.rowKeySet()) {
-      BucketsFileSystem.MutableTimeBucketMeta tbm = getOrCreateTimeBucketMeta(bucketId, timeBucket);
+      BucketsFileSystem.MutableTimeBucketMeta tbm = getMutableTimeBucketMeta(bucketId, timeBucket);
+      if (tbm == null) {
+        tbm = new MutableTimeBucketMeta(bucketId, timeBucket);
+      }
+
       addBucketName(bucketId);
 
       long dataSize = 0;
@@ -202,6 +206,7 @@ public class BucketsFileSystem implements ManagedStateComponent
       fileWriter.close();
       rename(bucketId, tmpFileName, getFileName(timeBucket));
       tbm.updateTimeBucketMeta(windowId, dataSize, firstKey);
+      updateTimeBuckets(tbm);
     }
 
     updateBucketMetaFile(bucketId);
@@ -217,15 +222,19 @@ public class BucketsFileSystem implements ManagedStateComponent
    * @throws IOException
    */
   @NotNull
-  MutableTimeBucketMeta getOrCreateTimeBucketMeta(long bucketId, long timeBucketId) throws IOException
+  private MutableTimeBucketMeta getMutableTimeBucketMeta(long bucketId, long timeBucketId) throws IOException
   {
     synchronized (timeBucketsMeta) {
-      MutableTimeBucketMeta tbm = timeBucketMetaHelper(bucketId, timeBucketId);
-      if (tbm == null) {
-        tbm = new MutableTimeBucketMeta(bucketId, timeBucketId);
-        timeBucketsMeta.put(bucketId, timeBucketId, tbm);
-      }
-      return tbm;
+      return timeBucketMetaHelper(bucketId, timeBucketId);
+    }
+  }
+
+  void updateTimeBuckets(@NotNull MutableTimeBucketMeta mutableTimeBucketMeta)
+  {
+    Preconditions.checkNotNull(mutableTimeBucketMeta, "mutable time bucket meta");
+    synchronized (timeBucketsMeta) {
+      timeBucketsMeta.put(mutableTimeBucketMeta.getBucketId(), mutableTimeBucketMeta.getTimeBucketId(),
+          mutableTimeBucketMeta);
     }
   }
 
@@ -320,6 +329,7 @@ public class BucketsFileSystem implements ManagedStateComponent
    */
   private void loadBucketMetaFile(long bucketId, DataInputStream dis) throws IOException
   {
+    LOG.debug("Loading bucket meta-file {}", bucketId);
     int metaDataVersion = dis.readInt();
 
     if (metaDataVersion == META_FILE_VERSION) {

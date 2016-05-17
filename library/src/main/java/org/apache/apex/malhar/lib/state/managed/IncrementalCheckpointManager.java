@@ -71,6 +71,8 @@ public class IncrementalCheckpointManager extends WindowDataManager.FSWindowData
   private transient int waitMillis;
   private volatile long lastTransferredWindow = Stateless.WINDOW_ID;
 
+  private transient long largestWindowAddedToTransferQueue = Stateless.WINDOW_ID;
+
   public IncrementalCheckpointManager()
   {
     super();
@@ -188,8 +190,12 @@ public class IncrementalCheckpointManager extends WindowDataManager.FSWindowData
   {
     LOG.debug("data manager committed {}", windowId);
     for (Long currentWindow : savedWindows.keySet()) {
+      if (currentWindow <= largestWindowAddedToTransferQueue) {
+        continue;
+      }
       if (currentWindow <= windowId) {
-        LOG.debug("to transfer {}", windowId);
+        LOG.debug("to transfer {}", currentWindow);
+        largestWindowAddedToTransferQueue = currentWindow;
         windowsToTransfer.add(currentWindow);
       } else {
         break;
