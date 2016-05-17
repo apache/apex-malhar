@@ -96,7 +96,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   {
     super();
     currentWindowRecoveryState = Lists.newLinkedList();
-    idempotentStorageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
+    idempotentStorageManager = new IdempotentStorageManager.NoopIdempotentStorageManager();
     referenceTimes = Maps.newHashMap();
     scanner = new TimeBasedDirectoryScanner();
   }
@@ -266,6 +266,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   public static class TimeBasedDirectoryScanner implements Runnable, Component<Context.OperatorContext>
   {
     private static long DEF_SCAN_INTERVAL_MILLIS = 5000;
+    private static String FILE_BEING_COPIED = "_COPYING_";
 
     private boolean recursive;
 
@@ -279,6 +280,8 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
     private long scanIntervalMillis;
     private String filePatternRegularExp;
 
+    private String ignoreFilePatternRegularExp;
+
     protected transient long lastScanMillis;
     protected transient FileSystem fs;
     protected final transient LinkedBlockingDeque<ScannedFileInfo> discoveredFiles;
@@ -287,7 +290,10 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
 
     private transient volatile boolean running;
     protected final transient HashSet<String> ignoredFiles;
+
     protected transient Pattern regex;
+    private transient Pattern ignoreRegex;
+
     protected transient long sleepMillis;
     protected transient Map<String, Long> referenceTimes;
 
@@ -316,6 +322,10 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
       if (filePatternRegularExp != null) {
         regex = Pattern.compile(filePatternRegularExp);
       }
+      if (ignoreFilePatternRegularExp != null) {
+        ignoreRegex = Pattern.compile(this.ignoreFilePatternRegularExp);
+      }
+
       try {
         fs = getFSInstance();
       } catch (IOException e) {
@@ -516,9 +526,18 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
      */
     protected boolean acceptFile(String filePathStr)
     {
+      if (fs.getScheme().equalsIgnoreCase("hdfs") && filePathStr.endsWith(FILE_BEING_COPIED)) {
+        return false;
+      }
       if (regex != null) {
         Matcher matcher = regex.matcher(filePathStr);
         if (!matcher.matches()) {
+          return false;
+        }
+      }
+      if (ignoreRegex != null) {
+        Matcher matcher = ignoreRegex.matcher(filePathStr);
+        if (matcher.matches()) {
           return false;
         }
       }
@@ -553,6 +572,24 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
     public void setFilePatternRegularExp(String filePatternRegexp)
     {
       this.filePatternRegularExp = filePatternRegexp;
+    }
+
+    /**
+     * @return the regular expression for ignored files.
+     */
+    public String getIgnoreFilePatternRegularExp()
+    {
+      return ignoreFilePatternRegularExp;
+    }
+
+    /**
+     * Sets the regular expression for files that should be ignored.
+     *
+     * @param ignoreFilePatternRegex regular expression for files that will be ignored.
+     */
+    public void setIgnoreFilePatternRegularExp(String ignoreFilePatternRegex)
+    {
+      this.ignoreFilePatternRegularExp = ignoreFilePatternRegex;
     }
 
     /**

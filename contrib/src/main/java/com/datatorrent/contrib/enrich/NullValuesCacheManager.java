@@ -16,51 +16,45 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io.block;
+package com.datatorrent.contrib.enrich;
 
-import java.io.IOException;
-import java.net.URI;
+import org.apache.hadoop.classification.InterfaceStability;
 
-import org.apache.hadoop.fs.FileSystem;
-
-import com.datatorrent.api.AutoMetric;
+import com.datatorrent.lib.db.cache.CacheManager;
 
 /**
- * BlockReader extends {@link FSSliceReader} to accept case insensitive uri
+ * Null Values Cache Manager. Using this NULL entries can be specified explicitly.
  */
-public class BlockReader extends FSSliceReader
+@InterfaceStability.Evolving
+public class NullValuesCacheManager extends CacheManager
 {
-  @AutoMetric
-  private long bytesRead;
 
-  protected String uri;
+  private static final NullObject NULL = new NullObject();
 
   @Override
-  public void beginWindow(long windowId)
+  public Object get(Object key)
   {
-    super.beginWindow(windowId);
-    bytesRead = 0;
+    Object primaryVal = primary.get(key);
+    if (primaryVal != null) {
+      if (primaryVal == NULL) {
+        return null;
+      }
+
+      return primaryVal;
+    }
+
+    Object backupVal = backup.get(key);
+    if (backupVal != null) {
+      primary.put(key, backupVal);
+    } else {
+      primary.put(key, NULL);
+    }
+
+    return backupVal;
   }
 
-  @Override
-  protected FileSystem getFSInstance() throws IOException
+  private static class NullObject
   {
-    return FileSystem.newInstance(URI.create(uri), configuration);
   }
-
-  /**
-   * Sets the uri
-   *
-   * @param uri of form hdfs://hostname:port/path/to/input
-   */
-  public void setUri(String uri)
-  {
-    this.uri = uri;
-  }
-
-  public String getUri()
-  {
-    return uri;
-  }
-
 }
+

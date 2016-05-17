@@ -144,6 +144,7 @@ public class AbstractSingleFileOutputOperatorTest
   public void testSingleFileCompletedWrite()
   {
     writer.setOutputFileName(SINGLE_FILE);
+    writer.setPartitionedFileNameformat(null);
 
     writer.setFilePath(testMeta.getDir());
 
@@ -177,7 +178,8 @@ public class AbstractSingleFileOutputOperatorTest
   public void testSingleFileFailedWrite()
   {
     writer.setOutputFileName(SINGLE_FILE);
-
+    writer.setPartitionedFileNameformat("");
+    
     File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
 

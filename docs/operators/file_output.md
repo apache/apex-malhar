@@ -1,7 +1,7 @@
 AbstractFileOutputOperator
 ===========================
 
-The abstract file output operator in Apache Apex Malhar library &mdash; [`AbstractFileOutputOperator`](https://github.com/apache/incubator-apex-malhar/blob/devel-3/library/src/main/java/com/datatorrent/lib/io/fs/AbstractFileOutputOperator.java) writes streaming data to files. The main features of this operator are:
+The abstract file output operator in Apache Apex Malhar library &mdash; [`AbstractFileOutputOperator`](https://github.com/apache/incubator-apex-malhar/blob/master/library/src/main/java/com/datatorrent/lib/io/fs/AbstractFileOutputOperator.java) writes streaming data to files. The main features of this operator are:
 
 1. Persisting data to files.
 2. Automatic rotation of files based on:  

@@ -86,6 +86,12 @@ public class HBaseTransactionalPutOperatorTest {
         public void sendMetrics(Collection<String> collection)
         {
         }
+
+        @Override
+        public int getWindowsFromCheckpoint()
+        {
+          return 0;
+        }
       });
       thop.beginWindow(0);
       thop.input.process(t1);
@@ -149,6 +155,12 @@ public class HBaseTransactionalPutOperatorTest {
         @Override
         public void sendMetrics(Collection<String> collection)
         {
+        }
+
+        @Override
+        public int getWindowsFromCheckpoint()
+        {
+          return 0;
         }
       });
       thop.beginWindow(0);
@@ -217,6 +229,12 @@ public class HBaseTransactionalPutOperatorTest {
         @Override
         public void sendMetrics(Collection<String> collection)
         {
+        }
+
+        @Override
+        public int getWindowsFromCheckpoint()
+        {
+          return 0;
         }
       });
 

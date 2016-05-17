@@ -21,24 +21,20 @@ package com.datatorrent.lib.io.fs;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
 import org.apache.hadoop.conf.Configuration;
-
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Module;
 import com.datatorrent.common.partitioner.StatelessPartitioner;
-import com.datatorrent.lib.io.block.AbstractBlockReader.ReaderRecord;
-import com.datatorrent.lib.io.block.BlockMetadata.FileBlockMetadata;
-import com.datatorrent.lib.io.block.BlockReader;
-import com.datatorrent.lib.io.fs.AbstractFileSplitter.FileMetadata;
-import com.datatorrent.lib.io.fs.HDFSFileSplitter.HDFSScanner;
+import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
+import com.datatorrent.lib.io.block.AbstractBlockReader;
+import com.datatorrent.lib.io.block.BlockMetadata;
+import com.datatorrent.lib.io.block.FSSliceReader;
 import com.datatorrent.netlet.util.Slice;
 
 /**
- * HDFSInputModule is used to read files/list of files (or directory) from HDFS. <br/>
- * Module emits, <br/>
- * 1. FileMetadata 2. BlockMetadata 3. Block Bytes.<br/><br/>
+ * FSInputModule is an abstract class used to read files from file systems like HDFS, NFS, S3, etc. <br/>
+ * FSInputModule emits FileMetadata, BlockMetadata, BlockBytes. <br/>
  * The module reads data in parallel, following parameters can be configured<br/>
  * 1. files: list of file(s)/directories to read<br/>
  * 2. filePatternRegularExp: Files names matching given regex will be read<br/>
@@ -48,9 +44,9 @@ import com.datatorrent.netlet.util.Slice;
  * 6. readersCount: count of readers to read input file<br/>
  * 7. sequencialFileRead: If emit file blocks in sequence?
  */
-public class HDFSInputModule implements Module
-{
 
+public class FSInputModule implements Module
+{
   @NotNull
   @Size(min = 1)
   private String files;
@@ -62,15 +58,25 @@ public class HDFSInputModule implements Module
   private boolean sequencialFileRead = false;
   private int readersCount;
 
-  public final transient ProxyOutputPort<FileMetadata> filesMetadataOutput = new ProxyOutputPort<>();
-  public final transient ProxyOutputPort<FileBlockMetadata> blocksMetadataOutput = new ProxyOutputPort<>();
-  public final transient ProxyOutputPort<ReaderRecord<Slice>> messages = new ProxyOutputPort<>();
+  public final transient ProxyOutputPort<AbstractFileSplitter.FileMetadata> filesMetadataOutput = new ProxyOutputPort<>();
+  public final transient ProxyOutputPort<BlockMetadata.FileBlockMetadata> blocksMetadataOutput = new ProxyOutputPort<>();
+  public final transient ProxyOutputPort<AbstractBlockReader.ReaderRecord<Slice>> messages = new ProxyOutputPort<>();
+
+  public FileSplitterInput createFileSplitter()
+  {
+    return new FileSplitterInput();
+  }
+
+  public FSSliceReader createBlockReader()
+  {
+    return new FSSliceReader();
+  }
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    HDFSFileSplitter fileSplitter = dag.addOperator("FileSplitter", new HDFSFileSplitter());
-    BlockReader blockReader = dag.addOperator("BlockReader", new BlockReader());
+    FileSplitterInput fileSplitter = dag.addOperator("FileSplitter", createFileSplitter());
+    FSSliceReader blockReader = dag.addOperator("BlockReader", createBlockReader());
 
     dag.addStream("BlockMetadata", fileSplitter.blocksMetadataOutput, blockReader.blocksMetadataInput);
 
@@ -78,12 +84,15 @@ public class HDFSInputModule implements Module
     blocksMetadataOutput.set(blockReader.blocksMetadataOutput);
     messages.set(blockReader.messages);
 
-    fileSplitter.setSequencialFileRead(sequencialFileRead);
+    if (sequencialFileRead) {
+      dag.setInputPortAttribute(blockReader.blocksMetadataInput, Context.PortContext.STREAM_CODEC,
+          new SequentialFileBlockMetadataCodec());
+    }
     if (blockSize != 0) {
       fileSplitter.setBlockSize(blockSize);
     }
 
-    HDFSScanner fileScanner = (HDFSScanner)fileSplitter.getScanner();
+    FileSplitterInput.TimeBasedDirectoryScanner fileScanner = fileSplitter.getScanner();
     fileScanner.setFiles(files);
     if (scanIntervalMillis != 0) {
       fileScanner.setScanIntervalMillis(scanIntervalMillis);
@@ -93,9 +102,9 @@ public class HDFSInputModule implements Module
       fileSplitter.getScanner().setFilePatternRegularExp(filePatternRegularExp);
     }
 
-    blockReader.setUri(files);
+    blockReader.setBasePath(files);
     if (readersCount != 0) {
-      dag.setAttribute(blockReader, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<BlockReader>(readersCount));
+      dag.setAttribute(blockReader, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<FSSliceReader>(readersCount));
       fileSplitter.setBlocksThreshold(readersCount);
     }
   }
@@ -223,7 +232,7 @@ public class HDFSInputModule implements Module
 
   /**
    * Gets is sequencial file read
-   * 
+   *
    * @return sequencialFileRead
    */
   public boolean isSequencialFileRead()
@@ -241,4 +250,13 @@ public class HDFSInputModule implements Module
     this.sequencialFileRead = sequencialFileRead;
   }
 
+  public static class SequentialFileBlockMetadataCodec
+      extends KryoSerializableStreamCodec<BlockMetadata.FileBlockMetadata>
+  {
+    @Override
+    public int getPartition(BlockMetadata.FileBlockMetadata fileBlockMetadata)
+    {
+      return fileBlockMetadata.hashCode();
+    }
+  }
 }

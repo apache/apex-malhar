@@ -31,11 +31,11 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang3.ClassUtils;
 
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfigBean;
-import com.ning.http.client.websocket.WebSocket;
-import com.ning.http.client.websocket.WebSocketTextListener;
-import com.ning.http.client.websocket.WebSocketUpgradeHandler;
+import org.apache.apex.shaded.ning19.com.ning.http.client.AsyncHttpClient;
+import org.apache.apex.shaded.ning19.com.ning.http.client.AsyncHttpClientConfigBean;
+import org.apache.apex.shaded.ning19.com.ning.http.client.ws.WebSocket;
+import org.apache.apex.shaded.ning19.com.ning.http.client.ws.WebSocketTextListener;
+import org.apache.apex.shaded.ning19.com.ning.http.client.ws.WebSocketUpgradeHandler;
 
 import com.datatorrent.api.Context.OperatorContext;
 
@@ -220,12 +220,6 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
           catch (IOException ex) {
             LOG.error("Got exception: ", ex);
           }
-        }
-
-        @Override
-        public void onFragment(String string, boolean bln)
-        {
-          LOG.debug("onFragment");
         }
 
         @Override

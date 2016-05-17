@@ -45,7 +45,7 @@ import com.datatorrent.lib.io.fs.AbstractFileSplitter.FileMetadata;
 import com.datatorrent.lib.stream.DevNull;
 import com.datatorrent.netlet.util.Slice;
 
-public class HDFSInputModuleAppTest
+public class FSInputModuleAppTest
 {
   private String inputDir;
   static String outputDir;
@@ -139,20 +139,20 @@ public class HDFSInputModuleAppTest
     Assert.assertTrue("File data doesn't contain expected text" , filesData.indexOf(expectedData) > -1);
   }
 
-  private static Logger LOG = LoggerFactory.getLogger(HDFSInputModuleAppTest.class);
+  private static Logger LOG = LoggerFactory.getLogger(FSInputModuleAppTest.class);
 
   private static class Application implements StreamingApplication
   {
     public void populateDAG(DAG dag, Configuration conf)
     {
-      HDFSInputModule module = dag.addModule("hdfsInputModule", HDFSInputModule.class);
+      FSInputModule module = dag.addModule("hdfsInputModule", FSInputModule.class);
 
-      AbstractFileOutputOperator<FileMetadata> metadataWriter = new MetadataWriter(HDFSInputModuleAppTest.OUT_METADATA_FILE);
-      metadataWriter.setFilePath(HDFSInputModuleAppTest.outputDir);
+      AbstractFileOutputOperator<FileMetadata> metadataWriter = new MetadataWriter(FSInputModuleAppTest.OUT_METADATA_FILE);
+      metadataWriter.setFilePath(FSInputModuleAppTest.outputDir);
       dag.addOperator("FileMetadataWriter", metadataWriter);
 
-      AbstractFileOutputOperator<ReaderRecord<Slice>> dataWriter = new HDFSFileWriter(HDFSInputModuleAppTest.OUT_DATA_FILE);
-      dataWriter.setFilePath(HDFSInputModuleAppTest.outputDir);
+      AbstractFileOutputOperator<ReaderRecord<Slice>> dataWriter = new HDFSFileWriter(FSInputModuleAppTest.OUT_DATA_FILE);
+      dataWriter.setFilePath(FSInputModuleAppTest.outputDir);
       dag.addOperator("FileDataWriter", dataWriter);
 
       DevNull<FileBlockMetadata> devNull = dag.addOperator("devNull", DevNull.class);

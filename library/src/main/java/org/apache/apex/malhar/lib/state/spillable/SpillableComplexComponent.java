@@ -16,10 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.spillable;
+package org.apache.apex.malhar.lib.state.spillable;
 
-import org.apache.apex.malhar.lib.spillable.Spillable.SpillableComponent;
-import org.apache.apex.malhar.lib.utils.Serde;
+import org.apache.apex.malhar.lib.state.spillable.Spillable.SpillableComponent;
+import org.apache.apex.malhar.lib.utils.serde.Serde;
 
 import com.datatorrent.api.Component;
 import com.datatorrent.api.Context.OperatorContext;

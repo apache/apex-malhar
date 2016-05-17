@@ -17,4 +17,4 @@
  * under the License.
  */
 @org.apache.hadoop.classification.InterfaceStability.Unstable
-package org.apache.apex.malhar.lib.spillable;
+package org.apache.apex.malhar.lib.state.spillable;

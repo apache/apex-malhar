@@ -25,13 +25,13 @@
   <artifactId>iteration-demo</artifactId>
   <packaging>jar</packaging>
 
-  <name>Apache Apex Malhar (incubating) Iteration Demo</name>
+  <name>Apache Apex Malhar Iteration Demo</name>
   <description>DataTorrent demo applications that demonstrates the iteration feature.</description>
 
   <parent>
     <groupId>org.apache.apex</groupId>
     <artifactId>malhar-demos</artifactId>
-    <version>3.4.0-incubating-SNAPSHOT</version>
+    <version>3.4.0-SNAPSHOT</version>
   </parent>
 
 </project>
