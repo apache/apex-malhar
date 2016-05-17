@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.db.AbstractStoreInputOperator;
-import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -50,14 +49,11 @@ public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInp
   private PagingState nextPageState;
   private int fetchSize;
   int waitForDataTimeout = 100;
-  @AutoMetric
-  protected long tuplesRead;
 
   @Override
   public void beginWindow(long l)
   {
     super.beginWindow(l);
-    tuplesRead = 0;
   }
 
   /**
@@ -128,7 +124,6 @@ public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInp
         for (Row row : result) {
           T tuple = getTuple(row);
           emit(tuple);
-          tuplesRead++;
         }
       } else {
         // No rows available wait for some time before retrying so as to not continuously slam the database
