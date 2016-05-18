@@ -38,6 +38,7 @@ import com.datatorrent.lib.io.fs.Synchronizer.OutputFileMetadata;
  * This uses fast merge from HDFS if destination filesystem is same as
  * application filesystem.
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class HDFSFileMerger extends FileMerger
 {
   /**
