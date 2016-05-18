@@ -44,63 +44,18 @@ import com.yahoo.sketches.quantiles.QuantilesSketch;
 @OperatorAnnotation(partitionable = false)
 public class QuantilesEstimator extends BaseOperator {
 
-  private boolean sendPerTuple = true;
+  /**
+   * This operator computes three different quantities which are output on separate output ports. If not using any of
+   * these quantities, these variables can be set to avoid unnecessary computation.
+   */
+  private boolean computeCdf = true;
+  private boolean computeQuantiles = true;
+  private boolean computePmf = true;
+
   private transient QuantilesSketch quantilesSketch = QuantilesSketch.builder().build();
 
   /**
-   * This field determines the specific quantiles to be calculated.
-   * Default is set to compute the standard quartiles.
-   */
-  private double[] fractions = {0.0, 0.25, 0.50, 0.75, 1.00};
-
-  public double[] getFractions() {
-    return fractions;
-  }
-
-  public void setFractions(double[] fractions) {
-    this.fractions = fractions;
-  }
-
-  /**
-   * Input port takes a number
-   */
-  public final transient DefaultInputPort<Number> data = new DefaultInputPort<Number>() {
-    @Override
-    public void process(Number input) {
-
-      double inputDouble = input.doubleValue();
-      quantilesSketch.update(inputDouble);
-
-      double[] valArr = {inputDouble};
-
-      /**
-       * (Estimate of the) cumulative distribution function evaluated at the input value, according to the probability
-       * distribution of the stream seen thus far.
-       */
-      double cdfValue = quantilesSketch.getCDF(valArr)[0];
-
-      /**
-       * Computes quantiles of the stream seen thus far
-       */
-      double[] quantiles = quantilesSketch.getQuantiles(fractions);
-
-      cdfOutput.emit(cdfValue);
-      quantilesOutput.emit(quantiles);
-    }
-  };
-
-  /**
-   * Output port that emits cdf estimated at the current data point
-   */
-  public final transient DefaultOutputPort<Double> cdfOutput = new DefaultOutputPort<>();
-
-  /**
-   *
-   */
-  public final transient DefaultOutputPort<double[]> quantilesOutput = new DefaultOutputPort<>();
-
-  /**
-   * Constructor for non-default initialization of the quantile sketch object
+   * Constructor that allows non-default initialization of the quantile sketch object
    * @param k: Parameter that determines accuracy and memory usage of quantile sketch. See QuantilesSketch documentation
    *         for details
    * @param seed: The quantile sketch algorithm is inherently random. Set seed to 0 for reproducibility in testing, but
@@ -110,8 +65,106 @@ public class QuantilesEstimator extends BaseOperator {
     quantilesSketch = QuantilesSketch.builder().setSeed(seed).build(k);
   }
 
+  public boolean isComputeCdf() {
+    return computeCdf;
+  }
+
+  public void setComputeCdf(boolean computeCdf) {
+    this.computeCdf = computeCdf;
+  }
+
+  public boolean isComputeQuantiles() {
+    return computeQuantiles;
+  }
+
+  public void setComputeQuantiles(boolean computeQuantiles) {
+    this.computeQuantiles = computeQuantiles;
+  }
+
+  public boolean isComputePmf() {
+    return computePmf;
+  }
+
+  public void setComputePmf(boolean computePmf) {
+    this.computePmf = computePmf;
+  }
+
   public int getK() {
     return quantilesSketch.getK();
   }
+
+  /**
+   * This field determines the specific quantiles to be calculated.
+   * Default is set to compute the standard quartiles.
+   */
+  private double[] fractions = {0.0, 0.25, 0.50, 0.75, 1.00};
+
+  /**
+   * This field determines the intervals on which the probability mass function is computed.
+   */
+  private double[] pmfIntervals = {};
+
+  public double[] getFractions() {
+    return fractions;
+  }
+
+  public void setFractions(double[] fractions) {
+    this.fractions = fractions;
+  }
+
+  public double[] getPmfIntervals() {
+    return pmfIntervals;
+  }
+
+  public void setPmfIntervals(double[] pmfIntervals) {
+    this.pmfIntervals = pmfIntervals;
+  }
+
+  /**
+   * Input port takes a number
+   */
+  public final transient DefaultInputPort<Double> data = new DefaultInputPort<Double>() {
+    @Override
+    public void process(Double input) {
+
+      quantilesSketch.update(input);
+
+      if (computeQuantiles) {
+        /**
+         * Computes and emit quantiles of the stream seen thus far
+         */
+        quantilesOutput.emit(quantilesSketch.getQuantiles(fractions));
+      }
+
+      if (computeCdf) {
+        /**
+         * Emit (estimate of the) cumulative distribution function evaluated at the input value, according to the
+         * sketched probability distribution of the stream seen thus far.
+         */
+        double[] valArr = {input};
+        cdfOutput.emit(quantilesSketch.getCDF(valArr)[0]);
+      }
+
+      if (computePmf) {
+        pmfOutput.emit(quantilesSketch.getPMF(pmfIntervals));
+      }
+
+    }
+  };
+
+  /**
+   * Output port that emits cdf estimated at the current data point
+   */
+  public final transient DefaultOutputPort<Double> cdfOutput = new DefaultOutputPort<>();
+
+  /**
+   * Emits quantiles of stream seen thus far
+   */
+  public final transient DefaultOutputPort<double[]> quantilesOutput = new DefaultOutputPort<>();
+
+  /**
+   * Emits probability masses on specified intervals
+   */
+  public final transient DefaultOutputPort<double[]> pmfOutput = new DefaultOutputPort<>();
 
 }
