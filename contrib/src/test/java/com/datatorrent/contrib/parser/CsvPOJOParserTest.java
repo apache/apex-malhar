@@ -28,6 +28,7 @@ import org.junit.runner.Description;
 
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.KeyValPair;
 
 public class CsvPOJOParserTest
 {
@@ -133,6 +134,8 @@ public class CsvPOJOParserTest
     Assert.assertEquals(0, objectPort.collectedTuples.size());
     Assert.assertEquals(0, pojoPort.collectedTuples.size());
     Assert.assertEquals(1, error.collectedTuples.size());
+    KeyValPair<String,String> errorTuple = (KeyValPair<String, String>)error.collectedTuples.get(0);
+    Assert.assertEquals(input, errorTuple.getKey());
   }
 
   @Test
@@ -160,6 +163,8 @@ public class CsvPOJOParserTest
     Assert.assertEquals(0, objectPort.collectedTuples.size());
     Assert.assertEquals(0, pojoPort.collectedTuples.size());
     Assert.assertEquals(1, error.collectedTuples.size());
+    KeyValPair<String,String> errorTuple = (KeyValPair<String, String>)error.collectedTuples.get(0);
+    Assert.assertEquals(input, errorTuple.getKey());
   }
 
   @Test
@@ -172,6 +177,8 @@ public class CsvPOJOParserTest
     Assert.assertEquals(0, objectPort.collectedTuples.size());
     Assert.assertEquals(0, pojoPort.collectedTuples.size());
     Assert.assertEquals(1, error.collectedTuples.size());
+    KeyValPair<String,String> errorTuple = (KeyValPair<String, String>)error.collectedTuples.get(0);
+    Assert.assertEquals(input, errorTuple.getKey());
   }
 
   @Test
@@ -184,6 +191,8 @@ public class CsvPOJOParserTest
     Assert.assertEquals(0, objectPort.collectedTuples.size());
     Assert.assertEquals(0, pojoPort.collectedTuples.size());
     Assert.assertEquals(1, error.collectedTuples.size());
+    KeyValPair<String,String> errorTuple = (KeyValPair<String, String>)error.collectedTuples.get(0);
+    Assert.assertEquals(input, errorTuple.getKey());
   }
 
   @Test
@@ -196,6 +205,8 @@ public class CsvPOJOParserTest
     Assert.assertEquals(0, objectPort.collectedTuples.size());
     Assert.assertEquals(0, pojoPort.collectedTuples.size());
     Assert.assertEquals(1, error.collectedTuples.size());
+    KeyValPair<String,String> errorTuple = (KeyValPair<String, String>)error.collectedTuples.get(0);
+    Assert.assertEquals(input, errorTuple.getKey());
   }
 
   @Test
@@ -208,6 +219,8 @@ public class CsvPOJOParserTest
     Assert.assertEquals(0, objectPort.collectedTuples.size());
     Assert.assertEquals(0, pojoPort.collectedTuples.size());
     Assert.assertEquals(1, error.collectedTuples.size());
+    KeyValPair<String,String> errorTuple = (KeyValPair<String, String>)error.collectedTuples.get(0);
+    Assert.assertEquals(input, errorTuple.getKey());
   }
 
   @Test
@@ -220,6 +233,8 @@ public class CsvPOJOParserTest
     Assert.assertEquals(0, objectPort.collectedTuples.size());
     Assert.assertEquals(0, pojoPort.collectedTuples.size());
     Assert.assertEquals(1, error.collectedTuples.size());
+    KeyValPair<String,String> errorTuple = (KeyValPair<String, String>)error.collectedTuples.get(0);
+    Assert.assertEquals(input, errorTuple.getKey());
   }
 
   @Test
@@ -232,6 +247,8 @@ public class CsvPOJOParserTest
     Assert.assertEquals(0, objectPort.collectedTuples.size());
     Assert.assertEquals(0, pojoPort.collectedTuples.size());
     Assert.assertEquals(1, error.collectedTuples.size());
+    KeyValPair<String,String> errorTuple = (KeyValPair<String, String>)error.collectedTuples.get(0);
+    Assert.assertEquals(input, errorTuple.getKey());
   }
 
   @Test
@@ -257,6 +274,8 @@ public class CsvPOJOParserTest
     Assert.assertEquals(0, objectPort.collectedTuples.size());
     Assert.assertEquals(0, pojoPort.collectedTuples.size());
     Assert.assertEquals(1, error.collectedTuples.size());
+    KeyValPair<String,String> errorTuple = (KeyValPair<String, String>)error.collectedTuples.get(0);
+    Assert.assertEquals(input, errorTuple.getKey());
   }
 
   @Test
@@ -269,6 +288,8 @@ public class CsvPOJOParserTest
     Assert.assertEquals(0, objectPort.collectedTuples.size());
     Assert.assertEquals(0, pojoPort.collectedTuples.size());
     Assert.assertEquals(1, error.collectedTuples.size());
+    KeyValPair<String,String> errorTuple = (KeyValPair<String, String>)error.collectedTuples.get(0);
+    Assert.assertEquals(input, errorTuple.getKey());
   }
 
   @Test
@@ -292,30 +313,67 @@ public class CsvPOJOParserTest
     Assert.assertEquals(0, objectPort.collectedTuples.size());
     Assert.assertEquals(0, pojoPort.collectedTuples.size());
     Assert.assertEquals(1, error.collectedTuples.size());
+    KeyValPair<String,String> errorTuple = (KeyValPair<String, String>)error.collectedTuples.get(0);
+    Assert.assertEquals(input, errorTuple.getKey());
   }
 
   @Test
   public void TestParserLessFields()
   {
+    String input = "1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,OPTIMIZATION";
     parser.beginWindow(0);
-    parser.in.process("1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,OPTIMIZATION".getBytes());
+    parser.in.process(input.getBytes());
     parser.endWindow();
     Assert.assertEquals(0, objectPort.collectedTuples.size());
     Assert.assertEquals(0, pojoPort.collectedTuples.size());
     Assert.assertEquals(1, error.collectedTuples.size());
+    KeyValPair<String,String> errorTuple = (KeyValPair<String, String>)error.collectedTuples.get(0);
+    Assert.assertEquals(input, errorTuple.getKey());
+  }
+
+  @Test
+  public void TestParserLessFieldsOnlyPOJOPortConnected()
+  {
+    String input = "1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,OPTIMIZATION";
+    parser.parsedOutput.setSink(null);
+    parser.beginWindow(0);
+    parser.in.process(input.getBytes());
+    parser.endWindow();
+    Assert.assertEquals(0, objectPort.collectedTuples.size());
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(1, error.collectedTuples.size());
+    KeyValPair<String, String> errorTuple = (KeyValPair<String, String>)error.collectedTuples.get(0);
+    Assert.assertEquals(input, errorTuple.getKey());
   }
 
   @Test
   public void TestParserMoreFields()
   {
 
+    String input = "1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,OPTIMIZATION,CAMP_AD,Y,yes,ExtraField";
     parser.beginWindow(0);
-    parser.in.process("1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,OPTIMIZATION,CAMP_AD,Y,yes,ExtraField"
-        .getBytes());
+    parser.in.process(input.getBytes());
     parser.endWindow();
     Assert.assertEquals(0, objectPort.collectedTuples.size());
     Assert.assertEquals(0, pojoPort.collectedTuples.size());
     Assert.assertEquals(1, error.collectedTuples.size());
+    KeyValPair<String, String> errorTuple = (KeyValPair<String, String>)error.collectedTuples.get(0);
+    Assert.assertEquals(input, errorTuple.getKey());
+  }
+
+  @Test
+  public void TestParserMoreFieldsOnlyPOJOPortConnected()
+  {
+    String input = "1234,98233,adxyz,0.2,2015-03-08 03:37:12,11/12/2012,12,y,OPTIMIZATION,CAMP_AD,Y,yes,ExtraField";
+    parser.parsedOutput.setSink(null);
+    parser.beginWindow(0);
+    parser.in.process(input.getBytes());
+    parser.endWindow();
+    Assert.assertEquals(0, objectPort.collectedTuples.size());
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(1, error.collectedTuples.size());
+    KeyValPair<String, String> errorTuple = (KeyValPair<String, String>)error.collectedTuples.get(0);
+    Assert.assertEquals(input, errorTuple.getKey());
   }
 
   @Test
