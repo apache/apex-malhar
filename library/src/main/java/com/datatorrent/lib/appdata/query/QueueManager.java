@@ -33,6 +33,7 @@ import com.datatorrent.api.Context.OperatorContext;
  */
 public interface QueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> extends Component<OperatorContext>
 {
+
   /**
    * This method enqueues an AppData query.
    * @param query The query to queue.
@@ -42,6 +43,7 @@ public interface QueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> extends Com
    * @return True if the query was successfully queued. False otherwise.
    */
   public boolean enqueue(QUERY_TYPE query, META_QUERY metaQuery, QUEUE_CONTEXT queueContext);
+
   /**
    * <p>
    * This method dequeues a query, and returns a {@link QueryBundle} which includes the query,
@@ -53,12 +55,14 @@ public interface QueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> extends Com
    * @return The query bundle for a query.
    */
   public QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> dequeue();
+
   /**
    * This should be called in beginWindow of an operator so that the {@link QueueManager} can correctly update
    * its internal state for managing queries.
    * @param windowId The windowId of the current window.
    */
   public void beginWindow(long windowId);
+
   /**
    * This should be called in endWindow of an operator so that the {@link QueueManager} can correctly update its
    * internal state for managing queries.
@@ -80,5 +84,6 @@ public interface QueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> extends Com
   public int getNumLeft();
 
   public void haltEnqueue();
+
   public void resumeEnqueue();
 }

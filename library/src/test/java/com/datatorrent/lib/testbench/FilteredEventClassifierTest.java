@@ -18,14 +18,15 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.datatorrent.api.Sink;
-import com.datatorrent.lib.testbench.FilteredEventClassifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Sink;
 
 
 /**
@@ -61,9 +62,8 @@ public class FilteredEventClassifierTest
       for (Map.Entry<String, Double> e : tuple.entrySet()) {
         Integer ival = collectedTuples.get(e.getKey());
         if (ival == null) {
-          ival = new Integer(1);
-        }
-        else {
+          ival = 1;
+        } else {
           ival = ival + 1;
         }
         collectedTuples.put(e.getKey(), ival);
@@ -162,14 +162,15 @@ public class FilteredEventClassifierTest
       ival += e.getValue().intValue();
     }
 
-    LOG.info(String.format("\n*******************************************************\nFiltered %d out of %d intuples with %d and %d unique keys",
-                           ival,
-                           sentval,
-                           classifySink.collectedTuples.size(),
-                           classifySink.collectedTupleValues.size()));
-    for (Map.Entry<String, Double> ve: classifySink.collectedTupleValues.entrySet()) {
+    LOG.info(String.format(
+        "\n*******************************************************\nFiltered %d out of %d intuples with %d and %d " + "unique keys",
+        ival,
+        sentval,
+        classifySink.collectedTuples.size(),
+        classifySink.collectedTupleValues.size()));
+    for (Map.Entry<String, Double> ve : classifySink.collectedTupleValues.entrySet()) {
       Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
-      LOG.info(String.format("%d tuples of key \"%s\" has value %f", ieval.intValue(), ve.getKey(), ve.getValue()));
+      LOG.info(String.format("%d tuples of key \"%s\" has value %f", ieval, ve.getKey(), ve.getValue()));
     }
 
     // Now test a node with no weights
@@ -207,12 +208,13 @@ public class FilteredEventClassifierTest
       ival += e.getValue().intValue();
     }
 
-    LOG.info(String.format("\n*******************************************************\nFiltered %d out of %d intuples with %d and %d unique keys",
-                           ival,
-                           sentval,
-                           classifySink.collectedTuples.size(),
-                           classifySink.collectedTupleValues.size()));
-    for (Map.Entry<String, Double> ve: classifySink.collectedTupleValues.entrySet()) {
+    LOG.info(String.format(
+        "\n*******************************************************\nFiltered %d out of %d intuples with %d and %d " + "unique keys",
+        ival,
+        sentval,
+        classifySink.collectedTuples.size(),
+        classifySink.collectedTupleValues.size()));
+    for (Map.Entry<String, Double> ve : classifySink.collectedTupleValues.entrySet()) {
       Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
       LOG.info(String.format("%d tuples of key \"%s\" has value %f", ieval.intValue(), ve.getKey(), ve.getValue()));
     }
@@ -252,21 +254,22 @@ public class FilteredEventClassifierTest
     }
     nvnode.endWindow();
     ival = 0;
-    for (Map.Entry<String, Integer> e: classifySink.collectedTuples.entrySet()) {
-      ival += e.getValue().intValue();
+    for (Map.Entry<String, Integer> e : classifySink.collectedTuples.entrySet()) {
+      ival += e.getValue();
     }
-    LOG.info(String.format("\n*******************************************************\nFiltered %d out of %d intuples with %d and %d unique keys",
-                           ival,
-                           sentval,
-                           classifySink.collectedTuples.size(),
-                           classifySink.collectedTupleValues.size()));
+    LOG.info(String.format(
+        "\n*******************************************************\nFiltered %d out of %d intuples with %d and %d " + "unique keys",
+        ival,
+        sentval,
+        classifySink.collectedTuples.size(),
+        classifySink.collectedTupleValues.size()));
 
-    for (Map.Entry<String, Double> ve: classifySink.collectedTupleValues.entrySet()) {
+    for (Map.Entry<String, Double> ve : classifySink.collectedTupleValues.entrySet()) {
       Integer ieval = classifySink.collectedTuples.get(ve.getKey()); // ieval should not be null?
       LOG.info(String.format("%d tuples of key \"%s\" has value %f",
-                             ieval.intValue(),
-                             ve.getKey(),
-                             ve.getValue()));
+          ieval,
+          ve.getKey(),
+          ve.getValue()));
     }
   }
 }

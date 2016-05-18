@@ -18,13 +18,15 @@
  */
 package com.datatorrent.lib.converter;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.TestUtils;
 import java.io.UnsupportedEncodingException;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.TestUtils;
 
 public class ByteArrayToStringConverterTest
 {
@@ -69,5 +71,6 @@ public class ByteArrayToStringConverterTest
     Assert.assertEquals(test1, testsink.collectedTuples.get(0));
 
   }
+
   private static final Logger logger = LoggerFactory.getLogger(ByteArrayToStringConverterTest.class);
 }

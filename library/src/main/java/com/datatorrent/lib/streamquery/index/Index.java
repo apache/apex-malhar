@@ -35,5 +35,5 @@ public interface Index
   /**
    * Function can key/value hash map, does metric implemented by sub class.
    */
-	public void filter(@NotNull Map<String,Object> row, @NotNull Map<String, Object> collect);
+  public void filter(@NotNull Map<String, Object> row, @NotNull Map<String, Object> collect);
 }

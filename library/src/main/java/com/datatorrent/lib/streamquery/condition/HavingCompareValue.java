@@ -70,8 +70,8 @@ public class HavingCompareValue<T extends Comparable>   extends HavingCondition
   @Override
   public boolean isValidAggregate(@NotNull ArrayList<Map<String, Object>> rows) throws Exception
   {
-      Object computed = aggregateIndex.compute(rows);
-      return (compareType == compareValue.compareTo(computed));
+    Object computed = aggregateIndex.compute(rows);
+    return (compareType == compareValue.compareTo(computed));
   }
 
 }

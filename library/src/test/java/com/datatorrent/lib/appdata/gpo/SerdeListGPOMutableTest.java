@@ -21,13 +21,13 @@ package com.datatorrent.lib.appdata.gpo;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 import org.apache.commons.lang3.mutable.MutableInt;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
@@ -109,8 +109,7 @@ public class SerdeListGPOMutableTest
     MutableInt offset = new MutableInt(0);
 
     @SuppressWarnings("unchecked")
-    List<GPOMutable> newMutables =
-    (List<GPOMutable>) SerdeListGPOMutable.INSTANCE.deserializeObject(bytes, offset);
+    List<GPOMutable> newMutables = (List<GPOMutable>)SerdeListGPOMutable.INSTANCE.deserializeObject(bytes, offset);
 
     Assert.assertEquals(mutables, newMutables);
     Assert.assertEquals(bytes.length, offset.intValue());

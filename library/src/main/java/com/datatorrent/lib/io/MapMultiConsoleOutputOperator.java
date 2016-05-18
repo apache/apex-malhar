@@ -23,8 +23,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This operator writes tuples which are maps to standard out of the container.
@@ -57,7 +57,8 @@ public class MapMultiConsoleOutputOperator<K, V> extends BaseOperator
   }
 
   private static final Logger logger = LoggerFactory.getLogger(MapMultiConsoleOutputOperator.class);
-  public final transient DefaultInputPort<Map<K, V>> input = new DefaultInputPort<Map<K, V>>() {
+  public final transient DefaultInputPort<Map<K, V>> input = new DefaultInputPort<Map<K, V>>()
+  {
     @Override
     public void process(Map<K, V> t)
     {
@@ -66,8 +67,9 @@ public class MapMultiConsoleOutputOperator<K, V> extends BaseOperator
         if (!silent) {
           System.out.println(entry.getKey().toString() + "=" + entry.getValue().toString());
         }
-        if (debug)
+        if (debug) {
           logger.info(entry.getKey().toString() + "=" + entry.getValue().toString());
+        }
       }
       System.out.println("}");
     }

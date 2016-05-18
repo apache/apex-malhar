@@ -21,8 +21,6 @@ package org.apache.apex.malhar.lib.dimensions;
 import org.junit.Assert;
 import org.junit.Test;
 
-import org.apache.apex.malhar.lib.dimensions.CustomTimeBucketRegistry;
-
 import com.datatorrent.lib.appdata.schemas.CustomTimeBucket;
 import com.datatorrent.lib.appdata.schemas.TimeBucket;
 

@@ -95,7 +95,9 @@ public class SelectFunctionOperator implements Operator
   @Override
   public void endWindow()
   {
-    if (functions.size() == 0) return;
+    if (functions.size() == 0) {
+      return;
+    }
     Map<String, Object>  collect = new HashMap<String, Object>();
     for (FunctionIndex function : functions) {
       try {

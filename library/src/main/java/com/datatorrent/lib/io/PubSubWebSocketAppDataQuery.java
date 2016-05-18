@@ -161,23 +161,18 @@ public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<St
       JSONArray ja = jo.names();
 
       //Make sure that only the correct keys are in the first level of JSON
-      for(int keyIndex = 0;
-          keyIndex < ja.length();
-          keyIndex++) {
+      for (int keyIndex = 0; keyIndex < ja.length(); keyIndex++) {
         String key = ja.getString(keyIndex);
-        if(!(PubSubMessage.DATA_KEY.equals(key) ||
-           PubSubMessage.TOPIC_KEY.equals(key) ||
-           PubSubMessage.TYPE_KEY.equals(key))) {
-          logger.error("{} is not a valid key in the first level of the following pubsub message:\n{}",
-                       key,
-                       message);
+        if (!(PubSubMessage.DATA_KEY.equals(key) ||
+            PubSubMessage.TOPIC_KEY.equals(key) ||
+            PubSubMessage.TYPE_KEY.equals(key))) {
+          logger.error("{} is not a valid key in the first level of the following pubsub message:\n{}", key, message);
           return null;
         }
       }
 
       data = jo.getString(PubSubMessage.DATA_KEY);
-    }
-    catch(JSONException e) {
+    } catch (JSONException e) {
       return null;
     }
 

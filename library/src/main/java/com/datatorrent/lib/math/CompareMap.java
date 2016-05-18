@@ -18,10 +18,11 @@
  */
 package com.datatorrent.lib.math;
 
+import java.util.HashMap;
+
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.algo.MatchMap;
-import java.util.HashMap;
 
 /**
  * This operator compares tuples subclassed from Number based on the property "key", "value", and "cmp", and matching tuples are emitted.
@@ -78,8 +79,8 @@ import java.util.HashMap;
 @Stateless
 public class CompareMap<K, V extends Number> extends MatchMap<K,V>
 {
-    /**
-     * Output port that emits a hashmap of matching number tuples after comparison.
-     */
-    public final transient DefaultOutputPort<HashMap<K, V>> compare = match;
+  /**
+   * Output port that emits a hashmap of matching number tuples after comparison.
+   */
+  public final transient DefaultOutputPort<HashMap<K, V>> compare = match;
 }

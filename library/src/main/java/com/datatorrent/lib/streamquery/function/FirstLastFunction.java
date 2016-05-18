@@ -51,7 +51,7 @@ public class FirstLastFunction extends FunctionIndex
    * @param  alias   Alias name for output.
    * @param  isFirst return first value if true.
    */
-  public FirstLastFunction(@NotNull String column,String alias, boolean isLast)
+  public FirstLastFunction(@NotNull String column, String alias, boolean isLast)
   {
     super(column, alias);
     isFirst = !isLast;
@@ -63,14 +63,20 @@ public class FirstLastFunction extends FunctionIndex
   @Override
   public Object compute(@NotNull ArrayList<Map<String, Object>> rows) throws Exception
   {
-    if (rows.size() == 0) return null;
+    if (rows.size() == 0) {
+      return null;
+    }
     if (isFirst) {
-      for (int i=0; i < rows.size(); i++) {
-        if (rows.get(i).get(column) != null) return rows.get(i).get(column);
+      for (int i = 0; i < rows.size(); i++) {
+        if (rows.get(i).get(column) != null) {
+          return rows.get(i).get(column);
+        }
       }
     } else {
-      for (int i= (rows.size()-1); i >= 0;  i--) {
-        if (rows.get(i).get(column) != null) return rows.get(i).get(column);
+      for (int i = (rows.size() - 1); i >= 0; i--) {
+        if (rows.get(i).get(column) != null) {
+          return rows.get(i).get(column);
+        }
       }
     }
     return null;
@@ -83,9 +89,11 @@ public class FirstLastFunction extends FunctionIndex
   @Override
   protected String aggregateName()
   {
-    if (!StringUtils.isEmpty(alias)) return alias;
+    if (!StringUtils.isEmpty(alias)) {
+      return alias;
+    }
     if (isFirst) {
-        return "FIRST(" + column + ")";
+      return "FIRST(" + column + ")";
     }
     return "LAST(" + column + ")";
   }

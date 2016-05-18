@@ -18,10 +18,10 @@
  */
 package com.datatorrent.lib.util;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-
 import javax.validation.constraints.NotNull;
+
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This is an operator which consumes strings and splits them into tokens and sub-tokens.
@@ -168,13 +168,12 @@ public abstract class BaseLineTokenizer extends BaseOperator
     }
     beginProcessSubTokens();
     if (splitTokenBy.isEmpty()) {
-        processSubToken(tok);
-    }
-    else {
+      processSubToken(tok);
+    } else {
       String[] subtoks = tok.split(splitTokenBy);
       int i = 0;
       for (String subtok: subtoks) {
-        if ((i ==0) && !validSubTokenKey(subtok)) { // first subtoken is the key
+        if ((i == 0) && !validSubTokenKey(subtok)) { // first subtoken is the key
           break;
         }
         processSubToken(subtok);

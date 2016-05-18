@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.streamquery.condition.Condition;
 import com.datatorrent.lib.streamquery.index.Index;
 
@@ -89,8 +89,9 @@ public class SelectOperator extends BaseOperator
     @Override
     public void process(Map<String, Object> tuple)
     {
-      if ((condition != null) && (!condition.isValidRow(tuple)))
+      if ((condition != null) && (!condition.isValidRow(tuple))) {
         return;
+      }
       if (indexes.size() == 0) {
         outport.emit(tuple);
         return;

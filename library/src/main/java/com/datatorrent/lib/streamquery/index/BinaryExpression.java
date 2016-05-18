@@ -30,7 +30,7 @@ import javax.validation.constraints.NotNull;
  * @tags alias
  * @since 0.3.4
  */
-abstract public class BinaryExpression  implements Index
+public abstract class BinaryExpression  implements Index
 {
   /**
    * Left column name argument for expression.
@@ -50,9 +50,9 @@ abstract public class BinaryExpression  implements Index
   protected String alias;
 
   /**
-   * @param Left column name argument for expression.
-   * @param Right column name argument for expression.
-   * @param Alias name for output field.
+   * @param left column name argument for expression.
+   * @param right column name argument for expression.
+   * @param alias name for output field.
    */
   public BinaryExpression(@NotNull String left, @NotNull String right, String alias)
   {

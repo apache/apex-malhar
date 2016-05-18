@@ -21,9 +21,9 @@ package com.datatorrent.lib.streamquery;
 import java.util.ArrayList;
 import java.util.Map;
 
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.Unifier;
 
@@ -49,49 +49,49 @@ import com.datatorrent.api.Operator.Unifier;
  */
 public class OrderByOperator implements Operator, Unifier<Map<String, Object>>
 {
-	/**
-	 * Order by rules.
-	 */
-	ArrayList<OrderByRule<?>>	orderByRules	= new ArrayList<OrderByRule<?>>();
+  /**
+   * Order by rules.
+   */
+  ArrayList<OrderByRule<?>> orderByRules = new ArrayList<OrderByRule<?>>();
 
-	/**
-	 * Descending flag.
-	 */
-	private boolean isDescending;
+  /**
+   * Descending flag.
+   */
+  private boolean isDescending;
 
-	/**
-	 * collected rows.
-	 */
-	private ArrayList<Map<String, Object>> rows;
+  /**
+   * collected rows.
+   */
+  private ArrayList<Map<String, Object>> rows;
 
-	/**
-	 * Add order by rule.
-	 */
-	public void addOrderByRule(OrderByRule<?> rule)
-	{
-		orderByRules.add(rule);
-	}
+  /**
+   * Add order by rule.
+   */
+  public void addOrderByRule(OrderByRule<?> rule)
+  {
+    orderByRules.add(rule);
+  }
 
-	/**
+  /**
    * @return isDescending
    */
   public boolean isDescending()
   {
-	  return isDescending;
+    return isDescending;
   }
 
-	/**
-   * @param set isDescending
+  /**
+   * @param isDescending isDescending
    */
   public void setDescending(boolean isDescending)
   {
-	  this.isDescending = isDescending;
+    this.isDescending = isDescending;
   }
 
-	@Override
+  @Override
   public void process(Map<String, Object> tuple)
   {
-	  rows.add(tuple);
+    rows.add(tuple);
   }
 
   @Override
@@ -103,13 +103,17 @@ public class OrderByOperator implements Operator, Unifier<Map<String, Object>>
   @Override
   public void endWindow()
   {
-    for (int i=0; i < orderByRules.size(); i++) {
+    for (int i = 0; i < orderByRules.size(); i++) {
       rows = orderByRules.get(i).sort(rows);
     }
     if (isDescending) {
-      for (int i=0; i < rows.size(); i++)  outport.emit(rows.get(i));
+      for (int i = 0; i < rows.size(); i++) {
+        outport.emit(rows.get(i));
+      }
     } else {
-      for (int i=rows.size()-1; i >= 0;  i--)  outport.emit(rows.get(i));
+      for (int i = rows.size() - 1; i >= 0; i--) {
+        outport.emit(rows.get(i));
+      }
     }
   }
 
@@ -130,7 +134,8 @@ public class OrderByOperator implements Operator, Unifier<Map<String, Object>>
   /**
    * Input port that takes a map of &lt;string,object&gt;.
    */
-  public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>() {
+  public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>()
+  {
     @Override
     public void process(Map<String, Object> tuple)
     {
@@ -141,18 +146,19 @@ public class OrderByOperator implements Operator, Unifier<Map<String, Object>>
   /**
    * Output port that emits a map of &lt;string,object&gt;.
    */
-  public final transient DefaultOutputPort<Map<String, Object>> outport =  new DefaultOutputPort<Map<String, Object>>()
-      {
-         @Override
-         public Unifier<Map<String, Object>> getUnifier() {
-           OrderByOperator unifier = new OrderByOperator();
-           for (int i=0; i < getOrderByRules().size(); i++) {
-             unifier.addOrderByRule(getOrderByRules().get(i));
-           }
-           unifier.setDescending(isDescending);
-           return unifier;
-         }
-      };
+  public final transient DefaultOutputPort<Map<String, Object>> outport = new DefaultOutputPort<Map<String, Object>>()
+  {
+    @Override
+    public Unifier<Map<String, Object>> getUnifier()
+    {
+      OrderByOperator unifier = new OrderByOperator();
+      for (int i = 0; i < getOrderByRules().size(); i++) {
+        unifier.addOrderByRule(getOrderByRules().get(i));
+      }
+      unifier.setDescending(isDescending);
+      return unifier;
+    }
+  };
 
   /**
    * @return the orderByRules

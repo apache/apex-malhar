@@ -18,12 +18,12 @@
  */
 package com.datatorrent.lib.util;
 
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Operator.Unifier;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator.Unifier;
 
 /**
  * This unifier counts the number of times it consumes an input tuple within each application window.&nbsp;
@@ -38,9 +38,9 @@ import java.util.Map;
  */
 public class UnifierCountOccurKey<K> implements Unifier<KeyValPair<K, Integer>>
 {
-	/**
-	 * Key/Occurrence  map used for unifying key/occurrence values.
-	 */
+  /**
+   * Key/Occurrence  map used for unifying key/occurrence values.
+   */
   private HashMap<K, Integer> counts = new HashMap<K, Integer>();
 
   /**
@@ -56,12 +56,12 @@ public class UnifierCountOccurKey<K> implements Unifier<KeyValPair<K, Integer>>
   @Override
   public void process(KeyValPair<K, Integer> tuple)
   {
-  	if (counts.containsKey(tuple.getKey())) {
-  		Integer val = (Integer)counts.remove(tuple.getKey());
-  		counts.put(tuple.getKey(), val + tuple.getValue());
-  	} else {
-  		counts.put(tuple.getKey(), tuple.getValue());
-  	}
+    if (counts.containsKey(tuple.getKey())) {
+      Integer val = (Integer)counts.remove(tuple.getKey());
+      counts.put(tuple.getKey(), val + tuple.getValue());
+    } else {
+      counts.put(tuple.getKey(), tuple.getValue());
+    }
   }
 
   /**
@@ -82,7 +82,7 @@ public class UnifierCountOccurKey<K> implements Unifier<KeyValPair<K, Integer>>
   {
     if (!counts.isEmpty())  {
       for (Map.Entry<K, Integer> entry : counts.entrySet()) {
-      	outport.emit(new KeyValPair<K, Integer>(entry.getKey(), entry.getValue()));
+        outport.emit(new KeyValPair<K, Integer>(entry.getKey(), entry.getValue()));
       }
     }
     counts = new HashMap<K, Integer>();

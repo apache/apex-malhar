@@ -32,25 +32,25 @@ import com.datatorrent.lib.util.KeyValPair;
  */
 public class ConsolidatorKeyValTest
 {
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Test
-	public void testNodeProcessing() throws Exception
-	{
-		ConsolidatorKeyVal<String, Integer, Double, Integer, Integer, Integer> oper =
-				new ConsolidatorKeyVal<String, Integer, Double, Integer, Integer, Integer>();
-		CollectorTestSink cSink = new CollectorTestSink();
-		oper.out.setSink(cSink);
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @Test
+  public void testNodeProcessing() throws Exception
+  {
+    ConsolidatorKeyVal<String, Integer, Double, Integer, Integer, Integer> oper =
+        new ConsolidatorKeyVal<String, Integer, Double, Integer, Integer, Integer>();
+    CollectorTestSink cSink = new CollectorTestSink();
+    oper.out.setSink(cSink);
 
-		oper.beginWindow(0);
-		KeyValPair<String, Integer> m1 = new KeyValPair<String, Integer>("a",1);
-		oper.in1.process(m1);
-		KeyValPair<String, Double> m2 = new KeyValPair<String, Double>("a",1.0);
-		oper.in2.process(m2);
-		oper.endWindow();
-		Assert.assertEquals("number emitted tuples", 1, cSink.collectedTuples.size());
+    oper.beginWindow(0);
+    KeyValPair<String, Integer> m1 = new KeyValPair<String, Integer>("a",1);
+    oper.in1.process(m1);
+    KeyValPair<String, Double> m2 = new KeyValPair<String, Double>("a",1.0);
+    oper.in2.process(m2);
+    oper.endWindow();
+    Assert.assertEquals("number emitted tuples", 1, cSink.collectedTuples.size());
 
 
-		HashMap<String, ArrayList<Object>> map = (HashMap<String, ArrayList<Object>>) cSink.collectedTuples.get(0);
-		Assert.assertEquals("size of sink map", 1, map.size());
-	}
+    HashMap<String, ArrayList<Object>> map = (HashMap<String, ArrayList<Object>>)cSink.collectedTuples.get(0);
+    Assert.assertEquals("size of sink map", 1, map.size());
+  }
 }

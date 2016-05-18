@@ -570,13 +570,13 @@ public class FileSplitterInputTest
     testMeta.fileSplitterInput.setup(testMeta.context);
 
     testMeta.fileSplitterInput.beginWindow(1);
-    ((MockScanner) testMeta.fileSplitterInput.getScanner()).semaphore.acquire();
+    ((MockScanner)testMeta.fileSplitterInput.getScanner()).semaphore.acquire();
 
     testMeta.fileSplitterInput.emitTuples();
     testMeta.fileSplitterInput.endWindow();
     Assert.assertEquals("File metadata", 15, testMeta.fileMetadataSink.collectedTuples.size());
     for (Object fileMetadata : testMeta.fileMetadataSink.collectedTuples) {
-      FileSplitterInput.FileMetadata metadata = (FileSplitterInput.FileMetadata) fileMetadata;
+      FileSplitterInput.FileMetadata metadata = (FileSplitterInput.FileMetadata)fileMetadata;
       Assert.assertTrue("path: " + metadata.getFilePath(), expectedFiles.contains(metadata.getFilePath()));
       Assert.assertNotNull("name: ", metadata.getFileName());
     }
@@ -596,11 +596,12 @@ public class FileSplitterInputTest
 
     testMeta.fileSplitterInput.setup(testMeta.context);
     testMeta.fileSplitterInput.beginWindow(1);
-    ((MockScanner) testMeta.fileSplitterInput.getScanner()).semaphore.acquire();
+    ((MockScanner)testMeta.fileSplitterInput.getScanner()).semaphore.acquire();
     testMeta.fileSplitterInput.emitTuples();
     testMeta.fileSplitterInput.endWindow();
     Assert.assertEquals("File metadata count", 1, testMeta.fileMetadataSink.collectedTuples.size());
-    Assert.assertEquals("Empty directory not copied.", emptyDir.getName(), testMeta.fileMetadataSink.collectedTuples.get(0).getFileName());
+    Assert.assertEquals("Empty directory not copied.", emptyDir.getName(),
+        testMeta.fileMetadataSink.collectedTuples.get(0).getFileName());
   }
 
   private static class MockScanner extends FileSplitterInput.TimeBasedDirectoryScanner

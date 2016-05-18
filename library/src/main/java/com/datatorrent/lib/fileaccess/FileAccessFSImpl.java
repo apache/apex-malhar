@@ -61,7 +61,8 @@ public abstract class FileAccessFSImpl implements FileAccess
     this.basePath = path;
   }
 
-  protected Path getFilePath(long bucketKey, String fileName) {
+  protected Path getFilePath(long bucketKey, String fileName)
+  {
     return new Path(getBucketPath(bucketKey), fileName);
   }
 
@@ -71,7 +72,8 @@ public abstract class FileAccessFSImpl implements FileAccess
   }
 
   @Override
-  public long getFileSize(long bucketKey, String fileName) throws IOException {
+  public long getFileSize(long bucketKey, String fileName) throws IOException
+  {
     return fs.getFileStatus(getFilePath(bucketKey, fileName)).getLen();
   }
 

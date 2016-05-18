@@ -18,11 +18,12 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.datatorrent.api.Sink;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import org.apache.commons.lang.mutable.MutableInt;
+
+import com.datatorrent.api.Sink;
 
 /**
  * A sink implementation to collect expected test results in a HashMap.
@@ -61,7 +62,7 @@ public class ArrayListTestSink<T> implements Sink<T>
   {
     this.count++;
     @SuppressWarnings("unchecked")
-    ArrayList<Object> list = (ArrayList<Object>) tuple;
+    ArrayList<Object> list = (ArrayList<Object>)tuple;
     for (Object o: list) {
       MutableInt val = map.get(o);
       if (val == null) {

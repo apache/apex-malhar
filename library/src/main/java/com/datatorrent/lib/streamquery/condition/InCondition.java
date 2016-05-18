@@ -50,16 +50,19 @@ public class InCondition extends Condition
   private Set<Object> inValues = new HashSet<Object>();
 
   /**
-   * @param  column Column name for which value is checked in values set.
+   * @param column Column name for which value is checked in values set.
    */
-  public InCondition(@NotNull String column) {
+  public InCondition(@NotNull String column)
+  {
     this.column = column;
   }
 
   @Override
   public boolean isValidRow(@NotNull Map<String, Object> row)
   {
-    if (!row.containsKey(column)) return false;
+    if (!row.containsKey(column)) {
+      return false;
+    }
     return inValues.contains(row.get(column));
   }
 
@@ -79,7 +82,8 @@ public class InCondition extends Condition
     this.column = column;
   }
 
-  public void addInValue(Object value) {
+  public void addInValue(Object value)
+  {
     this.inValues.add(value);
   }
 

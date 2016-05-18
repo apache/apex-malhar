@@ -45,8 +45,7 @@ public class SimpleDataSerializer implements CustomMessageSerializer
   {
     try {
       return om.writeValueAsString(result);
-    }
-    catch(IOException ex) {
+    } catch (IOException ex) {
       ex.printStackTrace();
       return null;
     }

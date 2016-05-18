@@ -74,7 +74,7 @@ public class ChangeAlertMap<K, V extends Number> extends BaseNumberKeyValueOpera
           continue;
         }
         double change = e.getValue().doubleValue() - val.doubleValue();
-        double percent = (change/val.doubleValue())*100;
+        double percent = (change / val.doubleValue()) * 100;
         if (percent < 0.0) {
           percent = 0.0 - percent;
         }

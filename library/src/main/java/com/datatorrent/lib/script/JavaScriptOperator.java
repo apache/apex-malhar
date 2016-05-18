@@ -18,13 +18,21 @@
  */
 package com.datatorrent.lib.script;
 
-import com.datatorrent.api.Context.OperatorContext;
-
 import java.util.HashMap;
 import java.util.Map;
-import javax.script.*;
+
+import javax.script.Invocable;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import javax.script.SimpleBindings;
+import javax.script.SimpleScriptContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * An implementation of ScriptOperator that executes JavaScript on tuples input for Map &lt;String, Object&gt;.
@@ -46,7 +54,7 @@ import org.slf4j.LoggerFactory;
  *
  * // Connect to output console operator
  * ConsoleOutputOperator console = dag.addOperator(&quot;console&quot;,
- * 		new ConsoleOutputOperator());
+ *   new ConsoleOutputOperator());
  * dag.addStream(&quot;rand_console&quot;, script.result, console.input);
  *
  * </pre>
@@ -54,17 +62,17 @@ import org.slf4j.LoggerFactory;
  * <b> Sample Input Operator(emit)</b>
  *
  * <pre>
- *  	.
- * 		.
- * 		public void emitTuples() {
- * 			HashMap<String, Object> map = new HashMap<String, Object>();
- * 			map.put("val", random.nextInt());
- * 			outport.emit(map);
- * 			.
- * 			.
- * 		}
- * 		.
- * 		.
+ * .
+ * .
+ * public void emitTuples() {
+ *    HashMap<String, Object> map = new HashMap<String, Object>();
+ *    map.put("val", random.nextInt());
+ *    outport.emit(map);
+ *    .
+ *    .
+ * }
+ * .
+ * .
  * </pre>
  *
  * This operator does not checkpoint interpreted functions in the variable bindings because they are not serializable
@@ -80,9 +88,8 @@ public class JavaScriptOperator extends ScriptOperator
 
   public enum Type
   {
-
     EVAL, INVOKE
-  };
+  }
 
   protected transient ScriptEngineManager sem = new ScriptEngineManager();
   protected transient ScriptEngine engine = sem.getEngineByName("JavaScript");
@@ -108,6 +115,8 @@ public class JavaScriptOperator extends ScriptOperator
         case INVOKE:
           evalResult = ((Invocable)engine).invokeFunction(script);
           break;
+        default:
+          //fallthru
       }
 
       if (isPassThru && result.isConnected()) {

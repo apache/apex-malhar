@@ -18,11 +18,13 @@
  */
 package com.datatorrent.lib.testbench;
 
+import java.util.Random;
+
+import javax.validation.constraints.Min;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
-import java.util.Random;
-import javax.validation.constraints.Min;
 
 /**
  * This is an input operator which generates random tuples that are an array of bytes.
@@ -87,10 +89,7 @@ public class RandomWordGenerator implements InputOperator
   @Override
   public void emitTuples()
   {
-    for(;
-        tupleCounter < tuplesPerWindow;
-        tupleCounter++)
-    {
+    for (; tupleCounter < tuplesPerWindow; tupleCounter++) {
       byte[] bytes = new byte[tupleSize];
       random.nextBytes(bytes);
       output.emit(bytes);

@@ -18,14 +18,15 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.datatorrent.api.Sink;
-import com.datatorrent.lib.testbench.EventIncrementer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Sink;
 
 /**
  * Functional test for {@link com.datatorrent.lib.testbench.EventIncrementer}<p>
@@ -139,19 +140,20 @@ public class EventIncrementerTest
     int numtuples = 1000;
     String seed1 = "a";
     ArrayList val = new ArrayList();
-    val.add(new Integer(10));
-    val.add(new Integer(20));
+    val.add(10);
+    val.add(20);
     stuple.put(seed1, val);
     for (int i = 0; i < numtuples; i++) {
       seedSink.put(stuple);
     }
     oper.endWindow();
 
-    LOG.debug(String.format("\n*************************\nEmitted %d tuples, Processed %d tuples, Received %d tuples\n******************\n",
-                            numtuples,
-                            oper.tuple_count,
-                            dataSink.count));
-    for (Map.Entry<String, String> e: dataSink.collectedTuples.entrySet()) {
+    LOG.debug(String.format(
+        "\n*************************\nEmitted %d tuples, Processed %d tuples, Received %d tuples\n******************\n",
+        numtuples,
+        oper.tuple_count,
+        dataSink.count));
+    for (Map.Entry<String, String> e : dataSink.collectedTuples.entrySet()) {
       LOG.debug(String.format("Got key (%s) and value (%s)", e.getKey(), e.getValue()));
     }
 
@@ -159,12 +161,12 @@ public class EventIncrementerTest
 
     HashMap<String, Object> ixtuple = new HashMap<String, Object>(1);
     HashMap<String, Integer> ixval = new HashMap<String, Integer>(1);
-    ixval.put("x", new Integer(10));
+    ixval.put("x", 10);
     ixtuple.put("a", ixval);
 
     HashMap<String, Object> iytuple = new HashMap<String, Object>(1);
     HashMap<String, Integer> iyval = new HashMap<String, Integer>(1);
-    iyval.put("y", new Integer(10));
+    iyval.put("y", 10);
     iytuple.put("a", iyval);
 
     for (int i = 0; i < numtuples; i++) {
@@ -174,11 +176,12 @@ public class EventIncrementerTest
 
     oper.endWindow();
 
-    LOG.debug(String.format("\n*************************\nEmitted %d tuples, Processed %d tuples, Received %d tuples\n******************\n",
-                            numtuples*2,
-                            oper.tuple_count,
-                            countSink.count));
-     for (Map.Entry<String, String> e: dataSink.collectedTuples.entrySet()) {
+    LOG.debug(String.format(
+        "\n*************************\nEmitted %d tuples, Processed %d tuples, Received %d tuples\n******************\n",
+        numtuples * 2,
+        oper.tuple_count,
+        countSink.count));
+    for (Map.Entry<String, String> e : dataSink.collectedTuples.entrySet()) {
       LOG.debug(String.format("Got key (%s) and value (%s)", e.getKey(), e.getValue()));
     }
   }

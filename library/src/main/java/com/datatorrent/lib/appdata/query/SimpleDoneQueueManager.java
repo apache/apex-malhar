@@ -31,8 +31,8 @@ import com.datatorrent.lib.appdata.query.QueueList.QueueListNode;
  * @param <META_QUERY> The type of any meta data associated with the queries.
  * @since 3.0.0
  */
-public class SimpleDoneQueueManager<QUERY_TYPE, META_QUERY> extends
-AbstractWindowEndQueueManager<QUERY_TYPE, META_QUERY, MutableBoolean>
+public class SimpleDoneQueueManager<QUERY_TYPE, META_QUERY>
+    extends AbstractWindowEndQueueManager<QUERY_TYPE, META_QUERY, MutableBoolean>
 {
   private QueueList<QueryBundle<QUERY_TYPE, META_QUERY, MutableBoolean>> queryQueue;
   private Semaphore semaphore = new Semaphore(1);

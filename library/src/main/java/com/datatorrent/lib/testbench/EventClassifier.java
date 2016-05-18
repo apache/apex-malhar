@@ -18,15 +18,15 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * An implementation of BaseOperator that creates a load with pair of keys by taking in an input stream event and adding to incoming keys
@@ -72,51 +72,47 @@ public class EventClassifier extends BaseOperator
     @Override
     public void process(HashMap<String, Double> tuple)
     {
-    for (Map.Entry<String, Double> e: tuple.entrySet()) {
-      String inkey = e.getKey();
-      ArrayList<Integer> alist = null;
-      if (inkeys != null) {
-        alist = inkeys.get(e.getKey());
-      }
-      if (alist == null) {
-        alist = noweight;
-      }
+      for (Map.Entry<String, Double> e : tuple.entrySet()) {
+        String inkey = e.getKey();
+        ArrayList<Integer> alist = null;
+        if (inkeys != null) {
+          alist = inkeys.get(e.getKey());
+        }
+        if (alist == null) {
+          alist = noweight;
+        }
 
-      // now alist are the weights
-      int rval = random.nextInt(alist.get(alist.size() - 1));
-      int j = 0;
-      int wval = 0;
-      for (Integer ew: alist) {
-        wval += ew.intValue();
-        if (wval >= rval) {
-          break;
+        // now alist are the weights
+        int rval = random.nextInt(alist.get(alist.size() - 1));
+        int j = 0;
+        int wval = 0;
+        for (Integer ew : alist) {
+          wval += ew.intValue();
+          if (wval >= rval) {
+            break;
+          }
+          j++;
         }
-        j++;
-      }
-      HashMap<String, Double> otuple = new HashMap<String, Double>(1);
-      String key = wtostr_index.get(j); // the key
-      Double keyval = null;
-      if (hasvalues) {
-        if (voper == value_operation.VOPR_REPLACE) { // replace the incoming value
-          keyval = keys.get(key);
-        }
-        else if (voper == value_operation.VOPR_ADD) {
-          keyval = keys.get(key) + e.getValue();
-        }
-        else if (voper == value_operation.VOPR_MULT) {
-          keyval = keys.get(key) * e.getValue();
+        HashMap<String, Double> otuple = new HashMap<String, Double>(1);
+        String key = wtostr_index.get(j); // the key
+        Double keyval = null;
+        if (hasvalues) {
+          if (voper == value_operation.VOPR_REPLACE) { // replace the incoming value
+            keyval = keys.get(key);
+          } else if (voper == value_operation.VOPR_ADD) {
+            keyval = keys.get(key) + e.getValue();
+          } else if (voper == value_operation.VOPR_MULT) {
+            keyval = keys.get(key) * e.getValue();
 
+          } else if (voper == value_operation.VOPR_APPEND) { // not supported yet
+            keyval = keys.get(key);
+          }
+        } else { // pass on the value from incoming tuple
+          keyval = e.getValue();
         }
-        else if (voper == value_operation.VOPR_APPEND) { // not supported yet
-          keyval = keys.get(key);
-        }
+        otuple.put(key + "," + inkey, keyval);
+        data.emit(otuple);
       }
-      else { // pass on the value from incoming tuple
-        keyval = e.getValue();
-      }
-      otuple.put(key + "," + inkey, keyval);
-      data.emit(otuple);
-    }
     }
   };
 
@@ -124,7 +120,6 @@ public class EventClassifier extends BaseOperator
    * Output data port that emits a hashmap of &lt;string,double&gt;.
    */
   public final transient DefaultOutputPort<HashMap<String, Double>> data = new DefaultOutputPort<HashMap<String, Double>>();
-;
 
   HashMap<String, Double> keys = new HashMap<String, Double>();
   HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
@@ -139,7 +134,8 @@ public class EventClassifier extends BaseOperator
   enum value_operation
   {
     VOPR_REPLACE, VOPR_ADD, VOPR_MULT, VOPR_APPEND
-  };
+  }
+
   value_operation voper = value_operation.VOPR_REPLACE;
 
 
@@ -163,7 +159,7 @@ public class EventClassifier extends BaseOperator
     voper = value_operation.VOPR_MULT;
   }
 
-   public void setKeyWeights(HashMap<String, ArrayList<Integer>> map)
+  public void setKeyWeights(HashMap<String, ArrayList<Integer>> map)
   {
     if (inkeys == null) {
       inkeys = new HashMap<String, ArrayList<Integer>>();
@@ -183,7 +179,7 @@ public class EventClassifier extends BaseOperator
     }
   }
 
-   @Override
+  @Override
   public void setup(OperatorContext context)
   {
     noweight = new ArrayList<Integer>();

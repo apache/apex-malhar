@@ -78,6 +78,6 @@ public class InsertSortTest
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 1, sortSink.collectedTuples.size());
-    input = (ArrayList) sortSink.collectedTuples.get(0);
+    input = (ArrayList)sortSink.collectedTuples.get(0);
   }
 }

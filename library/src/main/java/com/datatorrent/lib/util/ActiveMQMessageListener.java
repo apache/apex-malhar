@@ -19,10 +19,20 @@
 package com.datatorrent.lib.util;
 
 import java.util.HashMap;
-import javax.jms.*;
-import org.apache.activemq.ActiveMQConnectionFactory;
+
+import javax.jms.Connection;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.Session;
+import javax.jms.Topic;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.activemq.ActiveMQConnectionFactory;
 
 /**
  *  This is the AcctiveMQ message listener (consumer) outside of Malhar/Hadoop.
@@ -154,8 +164,7 @@ public class ActiveMQMessageListener implements MessageListener, Runnable
       try {
         logger.warn("Reached maximum receive messages of {}", maximumReceiveMessages);
         consumer.setMessageListener(null);
-      }
-      catch (JMSException ex) {
+      } catch (JMSException ex) {
         logger.debug(ex.getLocalizedMessage());
       }
       return;
@@ -167,8 +176,7 @@ public class ActiveMQMessageListener implements MessageListener, Runnable
   {
     try {
       Thread.sleep(2000);  // how long this should be?
-    }
-    catch (InterruptedException ex) {
+    } catch (InterruptedException ex) {
       logger.debug(ex.getLocalizedMessage());
     }
   }
@@ -179,8 +187,7 @@ public class ActiveMQMessageListener implements MessageListener, Runnable
       consumer.close();
       session.close();
       connection.close();
-    }
-    catch (JMSException ex) {
+    } catch (JMSException ex) {
       logger.debug(ex.getLocalizedMessage());
     }
   }

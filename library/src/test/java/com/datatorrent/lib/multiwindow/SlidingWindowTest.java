@@ -37,23 +37,24 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 public class SlidingWindowTest
 {
 
-	public class TestSlidingWindow extends AbstractSlidingWindow<String, List<String>>
-	{
-		public final transient DefaultOutputPort<ArrayList<String>> out = new DefaultOutputPort<ArrayList<String>>();
+  public class TestSlidingWindow extends AbstractSlidingWindow<String, List<String>>
+  {
+    public final transient DefaultOutputPort<ArrayList<String>> out = new DefaultOutputPort<ArrayList<String>>();
 
-		ArrayList<String> tuples = new ArrayList<String>();
+    ArrayList<String> tuples = new ArrayList<String>();
 
-		@Override protected void processDataTuple(String tuple)
-		{
-			tuples.add(tuple);
-		}
+    @Override
+    protected void processDataTuple(String tuple)
+    {
+      tuples.add(tuple);
+    }
 
-		@Override
-		public void endWindow()
-		{
-			out.emit(tuples);
-			tuples = new ArrayList<String>();
-		}
+    @Override
+    public void endWindow()
+    {
+      out.emit(tuples);
+      tuples = new ArrayList<String>();
+    }
 
     @Override
     public List<String> createWindowState()
@@ -61,47 +62,46 @@ public class SlidingWindowTest
       return tuples;
     }
 
-	};
+  }
 
-	/**
-	 * Test functional logic
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+  /**
+   * Test functional logic
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
-	public void testNodeProcessing() throws InterruptedException
-	{
-	  TestSlidingWindow oper = new TestSlidingWindow();
+  public void testNodeProcessing() throws InterruptedException
+  {
+    TestSlidingWindow oper = new TestSlidingWindow();
 
-		CollectorTestSink swinSink = new CollectorTestSink();
-		oper.out.setSink(swinSink);
-		oper.setWindowSize(3);
-		oper.setup(null);
+    CollectorTestSink swinSink = new CollectorTestSink();
+    oper.out.setSink(swinSink);
+    oper.setWindowSize(3);
+    oper.setup(null);
 
-		oper.beginWindow(0);
-		oper.data.process("a0");
-		oper.data.process("b0");
-		oper.endWindow();
+    oper.beginWindow(0);
+    oper.data.process("a0");
+    oper.data.process("b0");
+    oper.endWindow();
 
-		oper.beginWindow(1);
-		oper.data.process("a1");
-		oper.data.process("b1");
-		oper.endWindow();
+    oper.beginWindow(1);
+    oper.data.process("a1");
+    oper.data.process("b1");
+    oper.endWindow();
 
-		oper.beginWindow(2);
-		oper.data.process("a2");
-		oper.data.process("b2");
-		oper.endWindow();
+    oper.beginWindow(2);
+    oper.data.process("a2");
+    oper.data.process("b2");
+    oper.endWindow();
 
-		oper.beginWindow(3);
-		oper.data.process("a3");
-		oper.data.process("b3");
-		oper.endWindow();
+    oper.beginWindow(3);
+    oper.data.process("a3");
+    oper.data.process("b3");
+    oper.endWindow();
 
-		Assert.assertEquals("number emitted tuples", 4,
-      swinSink.collectedTuples.size());
-		
-		Assert.assertEquals("Invalid second stream window state.", oper.getStreamingWindowState(1), Lists.newArrayList("a2", "b2"));
-		Assert.assertEquals("Invalid expired stream window state.", oper.lastExpiredWindowState, Lists.newArrayList("a0", "b0"));
+    Assert.assertEquals("number emitted tuples", 4, swinSink.collectedTuples.size());
 
-	}
+    Assert.assertEquals("Invalid second stream window state.", oper.getStreamingWindowState(1), Lists.newArrayList("a2", "b2"));
+    Assert.assertEquals("Invalid expired stream window state.", oper.lastExpiredWindowState, Lists.newArrayList("a0", "b0"));
+
+  }
 }

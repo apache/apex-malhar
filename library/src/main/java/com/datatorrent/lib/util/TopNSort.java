@@ -160,8 +160,7 @@ public class TopNSort<E>
 
     if (ascending) { // means head is the lowest value due to inversion
       insert = head.compareTo(e) <= 0; // e >= head
-    }
-    else { // means head is the highest value due to inversion
+    } else { // means head is the highest value due to inversion
       insert = head.compareTo(e) >= 0; // head is <= e
     }
     if (insert && q.offer(e)) {

@@ -23,11 +23,10 @@ import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
-
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 
@@ -66,28 +65,24 @@ public class MaxKeyValTest
     int numtuples = 10000;
     if (type.equals("integer")) {
       for (int i = 0; i < numtuples; i++) {
-        oper.data.process(new KeyValPair("a", new Integer(i)));
+        oper.data.process(new KeyValPair("a", i));
       }
-    }
-    else if (type.equals("double")) {
+    } else if (type.equals("double")) {
       for (int i = 0; i < numtuples; i++) {
-        oper.data.process(new KeyValPair("a", new Double(i)));
+        oper.data.process(new KeyValPair("a", (double)i));
       }
-    }
-    else if (type.equals("long")) {
+    } else if (type.equals("long")) {
       for (int i = 0; i < numtuples; i++) {
-        oper.data.process(new KeyValPair("a", new Long(i)));
+        oper.data.process(new KeyValPair("a", (long)i));
       }
-    }
-    else if (type.equals("short")) {
+    } else if (type.equals("short")) {
       int count = numtuples / 1000; // cannot cross 64K
       for (short j = 0; j < count; j++) {
-        oper.data.process(new KeyValPair("a", new Short(j)));
+        oper.data.process(new KeyValPair("a", j));
       }
-    }
-    else if (type.equals("float")) {
+    } else if (type.equals("float")) {
       for (int i = 0; i < numtuples; i++) {
-        oper.data.process(new KeyValPair("a", new Float(i)));
+        oper.data.process(new KeyValPair("a", (float)i));
       }
     }
 
@@ -97,8 +92,7 @@ public class MaxKeyValTest
     Number val = ((KeyValPair<String, Number>)maxSink.tuple).getValue().intValue();
     if (type.equals("short")) {
       Assert.assertEquals("emitted max value was ", (new Double(numtuples / 1000 - 1)).intValue(), val);
-    }
-    else {
+    } else {
       Assert.assertEquals("emitted max value was ", (new Double(numtuples - 1)).intValue(), val);
     }
   }

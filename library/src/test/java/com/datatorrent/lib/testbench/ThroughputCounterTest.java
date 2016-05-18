@@ -18,12 +18,13 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.datatorrent.api.Sink;
-import com.datatorrent.lib.testbench.ThroughputCounter;
 import java.util.HashMap;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Sink;
 
 /**
  *
@@ -38,9 +39,10 @@ import org.slf4j.LoggerFactory;
  * DRC checks are validated<br>
  *
  */
-public class ThroughputCounterTest {
+public class ThroughputCounterTest
+{
 
-    private static Logger log = LoggerFactory.getLogger(ThroughputCounterTest.class);
+  private static Logger log = LoggerFactory.getLogger(ThroughputCounterTest.class);
 
   @SuppressWarnings("rawtypes")
   class TestCountSink implements Sink
@@ -56,8 +58,8 @@ public class ThroughputCounterTest {
     public void put(Object payload)
     {
       HashMap<String, Number> tuples = (HashMap<String, Number>)payload;
-      average = ((Long)tuples.get(ThroughputCounter.OPORT_COUNT_TUPLE_AVERAGE)).longValue();
-      count += ((Long)tuples.get(ThroughputCounter.OPORT_COUNT_TUPLE_COUNT)).longValue();
+      average = (Long)tuples.get(ThroughputCounter.OPORT_COUNT_TUPLE_AVERAGE);
+      count += (Long)tuples.get(ThroughputCounter.OPORT_COUNT_TUPLE_COUNT);
     }
 
     @Override
@@ -85,8 +87,8 @@ public class ThroughputCounterTest {
     HashMap<String, Integer> input;
     int aint = 1000;
     int bint = 100;
-    Integer aval = new Integer(aint);
-    Integer bval = new Integer(bint);
+    Integer aval = aint;
+    Integer bval = bint;
     long ntot = aint + bint;
     long numtuples = 1000;
     long sentval = 0;
@@ -99,10 +101,11 @@ public class ThroughputCounterTest {
     }
     node.endWindow();
 
-    log.info(String.format("\n*******************************************************\nGot average per sec(%d), count(got %d, expected %d), numtuples(%d)",
-                           countSink.average,
-                           countSink.count,
-                           ntot * numtuples,
-                           sentval));
+    log.info(String.format(
+        "\n*******************************************************\nGot average per sec(%d), count(got %d, expected " + "%d), numtuples(%d)",
+        countSink.average,
+        countSink.count,
+        ntot * numtuples,
+        sentval));
   }
 }

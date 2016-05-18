@@ -54,12 +54,13 @@ public class ReusableByteArrayInputStream extends ByteArrayInputStream
     mark = 0;
   }
   
-  
-  public int getPos(){
+  public int getPos()
+  {
     return pos;
   }
   
-  public byte[] getBuf(){
+  public byte[] getBuf()
+  {
     return buf;
   }
 

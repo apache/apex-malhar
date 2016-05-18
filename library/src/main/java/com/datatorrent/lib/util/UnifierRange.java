@@ -18,8 +18,8 @@
  */
 package com.datatorrent.lib.util;
 
-import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
 
 
@@ -51,8 +51,7 @@ public class UnifierRange<V extends Number> implements Unifier<HighLow<V>>
   {
     if (mergedTuple == null) {
       mergedTuple = new HighLow(tuple.getHigh(), tuple.getLow());
-    }
-    else {
+    } else {
       if (mergedTuple.getHigh().doubleValue() < tuple.getHigh().doubleValue()) {
         mergedTuple.setHigh(tuple.getHigh());
       }

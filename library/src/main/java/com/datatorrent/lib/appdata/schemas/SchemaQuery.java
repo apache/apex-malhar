@@ -33,9 +33,9 @@ import com.datatorrent.lib.appdata.query.serde.SimpleDataValidator;
  * This class represents a schema query.
  * @since 3.0.0
  */
-@MessageType(type=SchemaQuery.TYPE)
-@MessageDeserializerInfo(clazz=SchemaQueryDeserializer.class)
-@MessageValidatorInfo(clazz=SimpleDataValidator.class)
+@MessageType(type = SchemaQuery.TYPE)
+@MessageDeserializerInfo(clazz = SchemaQueryDeserializer.class)
+@MessageValidatorInfo(clazz = SimpleDataValidator.class)
 public class SchemaQuery extends Query
 {
   public static final String FIELD_CONTEXT = "context";
@@ -70,15 +70,12 @@ public class SchemaQuery extends Query
    * @param id The id of the query.
    * @param schemaKeys The schema keys for the requested schema.
    */
-  public SchemaQuery(String id,
-                     Map<String, String> schemaKeys)
+  public SchemaQuery(String id, Map<String, String> schemaKeys)
   {
     super(id, TYPE, schemaKeys);
   }
 
-  public SchemaQuery(String id,
-                     Map<String, String> schemaKeys,
-                     Map<String, String> contextKeys)
+  public SchemaQuery(String id, Map<String, String> schemaKeys, Map<String, String> contextKeys)
   {
     super(id, TYPE);
     this.schemaKeys = schemaKeys;

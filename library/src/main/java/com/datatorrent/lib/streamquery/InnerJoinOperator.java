@@ -94,38 +94,37 @@ public class InnerJoinOperator implements Operator
     {
       table1.add(tuple);
       for (int j = 0; j < table2.size(); j++) {
-        if ((joinCondition == null)
-                || (joinCondition.isValidJoin(tuple, table2.get(j)))) {
+        if ((joinCondition == null) || (joinCondition.isValidJoin(tuple, table2.get(j)))) {
           joinRows(tuple, table2.get(j));
         }
       }
-		}
-	};
+    }
+  };
 
-	/**
-	 * Input port 2 that takes a map of &lt;string,object&gt;.
-	 */
-	public final transient DefaultInputPort<Map<String, Object>> inport2 = new DefaultInputPort<Map<String, Object>>() {
-		@Override
-		public void process(Map<String, Object> tuple)
-		{
-	    table2.add(tuple);
+  /**
+   * Input port 2 that takes a map of &lt;string,object&gt;.
+   */
+  public final transient DefaultInputPort<Map<String, Object>> inport2 = new DefaultInputPort<Map<String, Object>>()
+  {
+    @Override
+    public void process(Map<String, Object> tuple)
+    {
+      table2.add(tuple);
       for (int j = 0; j < table1.size(); j++) {
-        if ((joinCondition == null)
-                || (joinCondition.isValidJoin(table1.get(j), tuple))) {
+        if ((joinCondition == null) || (joinCondition.isValidJoin(table1.get(j), tuple))) {
           joinRows(table1.get(j), tuple);
         }
       }
-		}
-	};
+    }
+  };
 
-	/**
-	 * Output port that emits a map of &lt;string,object&gt;.
-	 */
-	public final transient DefaultOutputPort<Map<String, Object>> outport =
-			new DefaultOutputPort<Map<String, Object>>();
+  /**
+   * Output port that emits a map of &lt;string,object&gt;.
+   */
+  public final transient DefaultOutputPort<Map<String, Object>> outport =
+      new DefaultOutputPort<Map<String, Object>>();
 
-	@Override
+  @Override
   public void setup(OperatorContext arg0)
   {
     table1 = new ArrayList<Map<String, Object>>();
@@ -159,7 +158,7 @@ public class InnerJoinOperator implements Operator
 
   /**
    * Pick the supported condition. Currently only equal join is supported.
-   * @param set joinCondition
+   * @param joinCondition joinCondition
    */
   public void setJoinCondition(Condition joinCondition)
   {

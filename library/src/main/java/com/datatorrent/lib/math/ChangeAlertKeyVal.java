@@ -52,78 +52,78 @@ import com.datatorrent.lib.util.KeyValPair;
  * @since 0.3.3
  */
 public class ChangeAlertKeyVal<K, V extends Number> extends
-		BaseNumberKeyValueOperator<K, V>
+    BaseNumberKeyValueOperator<K, V>
 {
-	/**
-	 * Base map is a StateFull field. It is retained across windows
-	 */
-	private HashMap<K, MutableDouble> basemap = new HashMap<K, MutableDouble>();
+  /**
+   * Base map is a StateFull field. It is retained across windows
+   */
+  private HashMap<K, MutableDouble> basemap = new HashMap<K, MutableDouble>();
 
-	/**
-	 * Input data port that takes a key value pair.
-	 */
-	public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
-	{
-		/**
-		 * Process each key, compute change or percent, and emit it.
-		 */
-		@Override
-		public void process(KeyValPair<K, V> tuple)
-		{
-			K key = tuple.getKey();
-			double tval = tuple.getValue().doubleValue();
-			MutableDouble val = basemap.get(key);
-			if (!doprocessKey(key)) {
-				return;
-			}
-			if (val == null) { // Only process keys that are in the basemap
-				val = new MutableDouble(tval);
-				basemap.put(cloneKey(key), val);
-				return;
-			}
-			double change = tval - val.doubleValue();
-			double percent = (change / val.doubleValue()) * 100;
-			if (percent < 0.0) {
-				percent = 0.0 - percent;
-			}
-			if (percent > percentThreshold) {
-				KeyValPair<V, Double> dmap = new KeyValPair<V, Double>(
-						cloneValue(tuple.getValue()), percent);
-				KeyValPair<K, KeyValPair<V, Double>> otuple = new KeyValPair<K, KeyValPair<V, Double>>(
-						cloneKey(key), dmap);
-				alert.emit(otuple);
-			}
-			val.setValue(tval);
-		}
-	};
+  /**
+   * Input data port that takes a key value pair.
+   */
+  public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
+  {
+    /**
+     * Process each key, compute change or percent, and emit it.
+     */
+    @Override
+    public void process(KeyValPair<K, V> tuple)
+    {
+      K key = tuple.getKey();
+      double tval = tuple.getValue().doubleValue();
+      MutableDouble val = basemap.get(key);
+      if (!doprocessKey(key)) {
+        return;
+      }
+      if (val == null) { // Only process keys that are in the basemap
+        val = new MutableDouble(tval);
+        basemap.put(cloneKey(key), val);
+        return;
+      }
+      double change = tval - val.doubleValue();
+      double percent = (change / val.doubleValue()) * 100;
+      if (percent < 0.0) {
+        percent = 0.0 - percent;
+      }
+      if (percent > percentThreshold) {
+        KeyValPair<V, Double> dmap = new KeyValPair<V, Double>(
+            cloneValue(tuple.getValue()), percent);
+        KeyValPair<K, KeyValPair<V, Double>> otuple = new KeyValPair<K, KeyValPair<V, Double>>(
+            cloneKey(key), dmap);
+        alert.emit(otuple);
+      }
+      val.setValue(tval);
+    }
+  };
 
-	/**
-	 * Key,Percent Change output port.
-	 */
-	public final transient DefaultOutputPort<KeyValPair<K, KeyValPair<V, Double>>> alert = new DefaultOutputPort<KeyValPair<K, KeyValPair<V, Double>>>();
+  /**
+   * Key,Percent Change output port.
+   */
+  public final transient DefaultOutputPort<KeyValPair<K, KeyValPair<V, Double>>> alert = new DefaultOutputPort<KeyValPair<K, KeyValPair<V, Double>>>();
 
-	/**
-	 * Alert thresh hold percentage set by application.
-	 */
-	@Min(1)
-	private double percentThreshold = 0.0;
+  /**
+   * Alert thresh hold percentage set by application.
+   */
+  @Min(1)
+  private double percentThreshold = 0.0;
 
-	/**
-	 * getter function for threshold value
-	 *
-	 * @return threshold value
-	 */
-	@Min(1)
-	public double getPercentThreshold()
-	{
-		return percentThreshold;
-	}
+  /**
+   * getter function for threshold value
+   *
+   * @return threshold value
+   */
+  @Min(1)
+  public double getPercentThreshold()
+  {
+    return percentThreshold;
+  }
 
-	/**
-	 * setter function for threshold value
-	 */
-	public void setPercentThreshold(double d)
-	{
-		percentThreshold = d;
-	}
+  /**
+   * setter function for threshold value
+   */
+  public void setPercentThreshold(double d)
+  {
+    percentThreshold = d;
+  }
 }

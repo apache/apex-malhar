@@ -53,7 +53,9 @@ public class ColumnIndex implements Index
   public void filter(@NotNull  Map<String, Object> row, @NotNull  Map<String, Object> collect)
   {
     String name = getColumn();
-    if (alias != null) name = alias;
+    if (alias != null) {
+      name = alias;
+    }
     collect.put(name, row.get(name));
   }
 

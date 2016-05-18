@@ -88,7 +88,7 @@ public class MostFrequentKeyMap<K,V> extends AbstractBaseFrequentKey<K>
     public Unifier<HashMap<K, Integer>> getUnifier()
     {
       Unifier<HashMap<K, Integer>> ret = new UnifierHashMapFrequent<K>();
-      ((UnifierHashMapFrequent<K>) ret).setLeast(false);
+      ((UnifierHashMapFrequent<K>)ret).setLeast(false);
       return ret;
     }
   };
@@ -101,7 +101,7 @@ public class MostFrequentKeyMap<K,V> extends AbstractBaseFrequentKey<K>
     public Unifier<ArrayList<HashMap<K, Integer>>> getUnifier()
     {
       Unifier<ArrayList<HashMap<K, Integer>>> ret = new UnifierArrayHashMapFrequent<K>();
-      ((UnifierHashMapFrequent) ret).setLeast(false);
+      ((UnifierHashMapFrequent)ret).setLeast(false);
       return ret;
     }
   };

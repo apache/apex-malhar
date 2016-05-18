@@ -91,14 +91,14 @@ public class MostFrequentKeyValueMapTest
         if (key.equals("a")) {
           vcount = e.getValue().get(1);
           Assert.assertEquals("Key \"a\" has value ", 5, vcount);
-        }
-        else if (key.equals("b")) {
+
+        } else if (key.equals("b")) {
           vcount = e.getValue().get(2);
           Assert.assertEquals("Key \"a\" has value ", 3, vcount);
           vcount = e.getValue().get(4);
           Assert.assertEquals("Key \"a\" has value ", 3, vcount);
-        }
-        else if (key.equals("c")) {
+
+        } else if (key.equals("c")) {
           vcount = e.getValue().get(3);
           Assert.assertEquals("Key \"a\" has value ", 10, vcount);
         }

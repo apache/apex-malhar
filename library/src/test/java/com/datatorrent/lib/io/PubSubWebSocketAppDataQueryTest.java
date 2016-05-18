@@ -22,13 +22,11 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
-
 import com.datatorrent.common.experimental.AppData.ConnectionInfoProvider;
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
 public class PubSubWebSocketAppDataQueryTest extends PubSubWebSocketAppDataOperatorTest
 {

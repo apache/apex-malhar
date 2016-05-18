@@ -18,9 +18,10 @@
  */
 package com.datatorrent.lib.io.jms;
 
-import com.datatorrent.api.DefaultInputPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.DefaultInputPort;
 
 /**
  * This is the base implementation of a single port JMS output operator.&nbsp;

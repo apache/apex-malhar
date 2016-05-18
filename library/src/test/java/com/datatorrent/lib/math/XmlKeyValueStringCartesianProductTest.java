@@ -112,7 +112,8 @@ public class XmlKeyValueStringCartesianProductTest
     Assert.assertEquals("Output 4", "g=vg1,k=vk1", collectedTuples.get(7));
   }
 
-  List<String> testOperator(String xml, String config) {
+  List<String> testOperator(String xml, String config)
+  {
     XmlKeyValueStringCartesianProduct operator = new XmlKeyValueStringCartesianProduct();
     operator.setConfig(config);
     operator.setup(null);
@@ -123,7 +124,7 @@ public class XmlKeyValueStringCartesianProductTest
       public void put(Object o)
       {
         if (o instanceof String) {
-          collectedTuples.add((String) o);
+          collectedTuples.add((String)o);
         }
       }
 

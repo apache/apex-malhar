@@ -90,7 +90,7 @@ public class LeastFrequentKeyMap<K, V> extends AbstractBaseFrequentKey<K>
     public Unifier<HashMap<K, Integer>> getUnifier()
     {
       Unifier<HashMap<K, Integer>> ret = new UnifierHashMapFrequent<K>();
-      ((UnifierHashMapFrequent<K>) ret).setLeast(true);
+      ((UnifierHashMapFrequent<K>)ret).setLeast(true);
       return ret;
     }
   };
@@ -102,12 +102,12 @@ public class LeastFrequentKeyMap<K, V> extends AbstractBaseFrequentKey<K>
    */
   @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>()
-      {
+  {
     @Override
     public Unifier<ArrayList<HashMap<K, Integer>>> getUnifier()
     {
       Unifier<ArrayList<HashMap<K, Integer>>> ret = new UnifierArrayHashMapFrequent<K>();
-      ((UnifierArrayHashMapFrequent<K>) ret).setLeast(true);
+      ((UnifierArrayHashMapFrequent<K>)ret).setLeast(true);
       return ret;
     }
   };

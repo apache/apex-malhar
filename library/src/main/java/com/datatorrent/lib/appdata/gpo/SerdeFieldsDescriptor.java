@@ -20,9 +20,9 @@ package com.datatorrent.lib.appdata.gpo;
 
 import java.util.Map;
 
-import com.google.common.collect.Maps;
-
 import org.apache.commons.lang3.mutable.MutableInt;
+
+import com.google.common.collect.Maps;
 
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
@@ -44,9 +44,9 @@ public class SerdeFieldsDescriptor implements Serde
   @Override
   public synchronized byte[] serializeObject(Object object)
   {
-    FieldsDescriptor fd = (FieldsDescriptor) object;
+    FieldsDescriptor fd = (FieldsDescriptor)object;
 
-    for(Map.Entry<String, Type> entry: fd.getFieldToType().entrySet()) {
+    for (Map.Entry<String, Type> entry : fd.getFieldToType().entrySet()) {
       bal.add(GPOUtils.serializeInt(entry.getValue().ordinal()));
       bal.add(GPOUtils.serializeString(entry.getKey()));
     }
@@ -68,7 +68,7 @@ public class SerdeFieldsDescriptor implements Serde
     int length = GPOUtils.deserializeInt(object, offset);
     int startIndex = offset.intValue();
 
-    while(startIndex + length > offset.intValue()) {
+    while (startIndex + length > offset.intValue()) {
       Type type = Type.values()[GPOUtils.deserializeInt(object, offset)];
       String value = GPOUtils.deserializeString(object, offset);
 

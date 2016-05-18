@@ -21,12 +21,11 @@ package com.datatorrent.lib.math;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
-import com.datatorrent.lib.util.KeyValPair;
-
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.StreamCodec;
+import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  *
@@ -48,9 +47,9 @@ import com.datatorrent.api.StreamCodec;
  */
 public class MinKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
-	/**
-	 * Input port which takes a key vaue pair and updates the value for each key if there is a new min.
-	 */
+  /**
+   * Input port which takes a key vaue pair and updates the value for each key if there is a new min.
+   */
   public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
   {
     /**
@@ -67,8 +66,7 @@ public class MinKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
       V val = mins.get(key);
       if (val == null) {
         mins.put(cloneKey(key), tval);
-      }
-      else if (val.doubleValue() > tval.doubleValue()) {
+      } else if (val.doubleValue() > tval.doubleValue()) {
         mins.put(key, tval);
       }
     }
@@ -94,7 +92,7 @@ public class MinKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
    * Clears internal data. Node only works in windowed mode.
    */
   @SuppressWarnings({ "unchecked", "rawtypes" })
-	@Override
+  @Override
   public void endWindow()
   {
     if (!mins.isEmpty()) {

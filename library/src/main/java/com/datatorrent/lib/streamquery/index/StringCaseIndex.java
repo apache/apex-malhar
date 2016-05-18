@@ -42,13 +42,17 @@ public class StringCaseIndex extends  ColumnIndex
   @Override
   public void filter(@NotNull  Map<String, Object> row, @NotNull  Map<String, Object> collect)
   {
-    if (!row.containsKey(column)) return;
+    if (!row.containsKey(column)) {
+      return;
+    }
     if (!(row.get(column) instanceof String)) {
-      assert(false);
+      assert (false);
     }
 
     String name = getColumn();
-    if (alias != null) name = alias;
+    if (alias != null) {
+      name = alias;
+    }
     if (toUpperCase) {
       collect.put(name, ((String)row.get(column)).toUpperCase());
     } else {

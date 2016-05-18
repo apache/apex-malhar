@@ -31,13 +31,14 @@ import javax.validation.constraints.NotNull;
  * @tags sql condition, filter
  * @since 0.3.3
  */
-abstract public class Condition
+public abstract class Condition
 {
-	/**
-	 * Row containing column/value map.
-	 * @return row validation status.
-	 */
-  abstract public boolean isValidRow(@NotNull Map<String, Object> row);
+  /**
+   * Row containing column/value map.
+   *
+   * @return row validation status.
+   */
+  public abstract boolean isValidRow(@NotNull Map<String, Object> row);
 
   /**
    * Filter valid rows only.

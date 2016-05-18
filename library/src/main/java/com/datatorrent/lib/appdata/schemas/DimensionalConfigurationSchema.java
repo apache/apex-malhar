@@ -27,6 +27,12 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.apex.malhar.lib.dimensions.CustomTimeBucketRegistry;
 import org.apache.apex.malhar.lib.dimensions.DimensionsDescriptor;
 import org.apache.apex.malhar.lib.dimensions.aggregator.AbstractCompositeAggregator;
@@ -38,11 +44,6 @@ import org.apache.apex.malhar.lib.dimensions.aggregator.CompositeAggregatorFacto
 import org.apache.apex.malhar.lib.dimensions.aggregator.DefaultCompositeAggregatorFactory;
 import org.apache.apex.malhar.lib.dimensions.aggregator.IncrementalAggregator;
 import org.apache.apex.malhar.lib.dimensions.aggregator.OTFAggregator;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;

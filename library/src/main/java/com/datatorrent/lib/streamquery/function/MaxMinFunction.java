@@ -67,8 +67,10 @@ public class MaxMinFunction extends FunctionIndex
     double minMax = 0.0;
     for (Map<String, Object> row : rows) {
       double value = ((Number)row.get(column)).doubleValue();
-      if ((isMax && (minMax < value))||(!isMax && (minMax > value))) minMax = value;
-     }
+      if ((isMax && (minMax < value)) || (!isMax && (minMax > value))) {
+        minMax = value;
+      }
+    }
     return minMax;
   }
 
@@ -79,8 +81,12 @@ public class MaxMinFunction extends FunctionIndex
   @Override
   protected String aggregateName()
   {
-    if (!StringUtils.isEmpty(alias)) return alias;
-    if (isMax) return "MAX(" + column + ")";
+    if (!StringUtils.isEmpty(alias)) {
+      return alias;
+    }
+    if (isMax) {
+      return "MAX(" + column + ")";
+    }
     return "MIN(" + column + ")";
   }
 

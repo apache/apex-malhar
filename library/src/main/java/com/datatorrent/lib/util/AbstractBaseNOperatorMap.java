@@ -52,7 +52,7 @@ import com.datatorrent.api.StreamCodec;
  * @tags rank, key value
  * @since 0.3.2
  */
-abstract public class AbstractBaseNOperatorMap<K,V> extends BaseKeyValueOperator<K,V>
+public abstract class AbstractBaseNOperatorMap<K,V> extends BaseKeyValueOperator<K,V>
 {
   /**
    * This is the input port that receives key value pairs.
@@ -86,7 +86,7 @@ abstract public class AbstractBaseNOperatorMap<K,V> extends BaseKeyValueOperator
    *
    * @param tuple
    */
-  abstract public void processTuple(Map<K,V> tuple);
+  public abstract void processTuple(Map<K,V> tuple);
 
   /**
    * Sets value of N (depth)

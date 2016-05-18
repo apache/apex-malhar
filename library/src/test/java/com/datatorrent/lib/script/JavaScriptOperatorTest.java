@@ -56,7 +56,7 @@ public class JavaScriptOperatorTest
     // Validate value.
     Assert.assertEquals("number emitted tuples", 1, sink.collectedTuples.size());
     for (Object o : sink.collectedTuples) { // count is 12
-      Assert.assertEquals("4.0 is expected", (Double) o, 4.0, 0);
+      Assert.assertEquals("4.0 is expected", (Double)o, 4.0, 0);
     }
   }
 }

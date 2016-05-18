@@ -60,33 +60,29 @@ public class RangeKeyValTest<V extends Number>
     int numtuples = 1000;
     if (type.equals("integer")) {
       for (int i = -10; i < numtuples; i++) {
-        node.data.process(new KeyValPair<String, Integer>("a", new Integer(i)));
+        node.data.process(new KeyValPair<String, Integer>("a", i));
       }
-    }
-    else if (type.equals("double")) {
+    } else if (type.equals("double")) {
       for (int i = -10; i < numtuples; i++) {
-        node.data.process(new KeyValPair<String, Double>("a", new Double(i)));
+        node.data.process(new KeyValPair<String, Double>("a", (double)i));
       }
-    }
-    else if (type.equals("long")) {
+    } else if (type.equals("long")) {
       for (int i = -10; i < numtuples; i++) {
-        node.data.process(new KeyValPair<String, Long>("a", new Long(i)));
+        node.data.process(new KeyValPair<String, Long>("a", (long)i));
       }
-    }
-    else if (type.equals("short")) {
+    } else if (type.equals("short")) {
       for (short i = -10; i < numtuples; i++) {
-        node.data.process(new KeyValPair<String, Short>("a", new Short(i)));
+        node.data.process(new KeyValPair<String, Short>("a", i));
       }
-    }
-    else if (type.equals("float")) {
+    } else if (type.equals("float")) {
       for (int i = -10; i < numtuples; i++) {
-        node.data.process(new KeyValPair<String, Float>("a", new Float(i)));
+        node.data.process(new KeyValPair<String, Float>("a", (float)i));
       }
     }
 
     node.endWindow();
-    Assert.assertEquals("high was ", new Double(999.0), rangeSink.high, 0);
-    Assert.assertEquals("low was ", new Double(-10.0), rangeSink.low, 0);
+    Assert.assertEquals("high was ", 999.0, rangeSink.high, 0);
+    Assert.assertEquals("low was ", -10.0, rangeSink.low, 0);
     log.debug(String.format("\nTested %d tuples", numtuples));
   }
 
@@ -100,8 +96,8 @@ public class RangeKeyValTest<V extends Number>
     @Override
     public void put(Object payload)
     {
-      KeyValPair<String, Object> tuple = (KeyValPair<String, Object>) payload;
-      HighLow<V> hl = (HighLow<V>) tuple.getValue();
+      KeyValPair<String, Object> tuple = (KeyValPair<String, Object>)payload;
+      HighLow<V> hl = (HighLow<V>)tuple.getValue();
       high = hl.getHigh().doubleValue();
       low = hl.getLow().doubleValue();
     }

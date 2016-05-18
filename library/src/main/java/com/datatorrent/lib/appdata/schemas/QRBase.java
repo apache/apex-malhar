@@ -80,8 +80,7 @@ public abstract class QRBase extends Message
    * @param id The query id.
    * @param type The type of the query.
    */
-  public QRBase(String id,
-                String type)
+  public QRBase(String id, String type)
   {
     super(type);
     this.id = Preconditions.checkNotNull(id);
@@ -93,9 +92,7 @@ public abstract class QRBase extends Message
    * @param type The type of the query.
    * @param countdown The countdown for the query.
    */
-  public QRBase(String id,
-                String type,
-                long countdown)
+  public QRBase(String id, String type, long countdown)
   {
     this(id, type);
     setCountdown(countdown);

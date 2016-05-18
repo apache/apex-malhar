@@ -93,9 +93,10 @@ public class FieldInfo
   @Override
   public boolean equals(Object obj)
   {
-    if (obj == null || !(obj instanceof FieldInfo))
+    if (obj == null || !(obj instanceof FieldInfo)) {
       return false;
-    return columnName.equalsIgnoreCase(((FieldInfo) obj).getColumnName());
+    }
+    return columnName.equalsIgnoreCase(((FieldInfo)obj).getColumnName());
   }
 
   /**
@@ -115,8 +116,10 @@ public class FieldInfo
     this.type = type;
   }
 
-  public static enum SupportType {
-    BOOLEAN(Boolean.class), SHORT(Short.class), INTEGER(Integer.class), LONG(Long.class), FLOAT(Float.class), DOUBLE(Double.class), STRING(String.class), OBJECT(Object.class);
+  public static enum SupportType
+  {
+    BOOLEAN(Boolean.class), SHORT(Short.class), INTEGER(Integer.class), LONG(Long.class),
+    FLOAT(Float.class), DOUBLE(Double.class), STRING(String.class), OBJECT(Object.class);
 
     private Class javaType;
 

@@ -21,12 +21,11 @@ package com.datatorrent.lib.math;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
-import com.datatorrent.lib.util.KeyValPair;
-
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.StreamCodec;
+import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  *
@@ -68,8 +67,7 @@ public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
       if (val == null) {
         val = tval;
         highs.put(cloneKey(key), val);
-      }
-      else if (val.doubleValue() < tval.doubleValue()) {
+      } else if (val.doubleValue() < tval.doubleValue()) {
         highs.put(key, tval);
       }
     }
@@ -97,7 +95,7 @@ public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
    * Clears internal data. Node only works in windowed mode.
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
+  @Override
   public void endWindow()
   {
     if (!highs.isEmpty()) {

@@ -43,8 +43,10 @@ public class DimensionAggregationUnifier implements Operator
 
   private Map<String, Map<String, MutableDouble>> dataMap = new HashMap<String, Map<String, MutableDouble>>();
 
-  public final transient DefaultOutputPort<Map<String, DimensionObject<String>>> output = new DefaultOutputPort<Map<String, DimensionObject<String>>>();
-  public final transient DefaultInputPort<Map<String, DimensionObject<String>>> input = new DefaultInputPort<Map<String, DimensionObject<String>>>() {
+  public final transient DefaultOutputPort<Map<String, DimensionObject<String>>> output = new DefaultOutputPort<>();
+
+  public final transient DefaultInputPort<Map<String, DimensionObject<String>>> input = new DefaultInputPort<Map<String, DimensionObject<String>>>()
+  {
 
     @Override
     public void process(Map<String, DimensionObject<String>> tuple)

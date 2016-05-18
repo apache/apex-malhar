@@ -22,9 +22,9 @@ import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 
-import com.sun.jersey.api.client.WebResource;
-
 import org.codehaus.jettison.json.JSONObject;
+
+import com.sun.jersey.api.client.WebResource;
 
 import com.datatorrent.api.Context.OperatorContext;
 
@@ -51,8 +51,7 @@ public class HttpPostOutputOperator<T> extends AbstractHttpOperator<T>
   {
     if (t instanceof Map) {
       resource.type(MediaType.APPLICATION_JSON).post(new JSONObject((Map<?, ?>)t).toString());
-    }
-    else {
+    } else {
       resource.post(t.toString());
     }
   }

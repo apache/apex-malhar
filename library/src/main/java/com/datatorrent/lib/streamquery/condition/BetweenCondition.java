@@ -74,11 +74,19 @@ public class BetweenCondition  extends Condition
   @Override
   public boolean isValidRow(@NotNull Map<String, Object> row)
   {
-    if (!row.containsKey(column)) return false;
+    if (!row.containsKey(column)) {
+      return false;
+    }
     Object value = row.get(column);
-    if (value == null) return false;
-    if (((Comparable)value).compareTo((Comparable)leftValue) < 0) return false;
-    if (((Comparable)value).compareTo((Comparable)rightValue) > 0) return false;
+    if (value == null) {
+      return false;
+    }
+    if (((Comparable)value).compareTo((Comparable)leftValue) < 0) {
+      return false;
+    }
+    if (((Comparable)value).compareTo((Comparable)rightValue) > 0) {
+      return false;
+    }
     return true;
   }
 
@@ -88,7 +96,7 @@ public class BetweenCondition  extends Condition
   @Override
   public boolean isValidJoin(@NotNull Map<String, Object> row1, Map<String, Object> row2)
   {
-    assert(false);
+    assert (false);
     return false;
   }
 

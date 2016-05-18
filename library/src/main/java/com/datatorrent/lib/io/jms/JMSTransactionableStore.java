@@ -20,7 +20,14 @@ package com.datatorrent.lib.io.jms;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import javax.jms.*;
+
+import javax.jms.BytesMessage;
+import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.QueueBrowser;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +67,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
     try {
 
       beginTransaction();
-      BytesMessage message = (BytesMessage) consumer.receive();
+      BytesMessage message = (BytesMessage)consumer.receive();
       logger.debug("Retrieved committed window message id {}", message.getJMSMessageID());
       long windowId = message.readLong();
 
@@ -71,8 +78,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
 
       logger.debug("Retrieved windowId {}", windowId);
       return windowId;
-    }
-    catch (JMSException ex) {
+    } catch (JMSException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -80,20 +86,19 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
   @Override
   public void storeCommittedWindowId(String appId, int operatorId, long windowId)
   {
-    if(!inTransaction) {
+    if (!inTransaction) {
       throw new RuntimeException("This should be called while you are in an existing transaction");
     }
 
     logger.debug("storing window appId {} operatorId {} windowId {}",
-                 appId, operatorId, windowId);
+        appId, operatorId, windowId);
     try {
       removeCommittedWindowId(appId, operatorId);
       BytesMessage bytesMessage = this.getBase().getSession().createBytesMessage();
       bytesMessage.writeLong(windowId);
       producer.send(bytesMessage);
       logger.debug("Retrieved committed window message id {}", bytesMessage.getJMSMessageID());
-    }
-    catch (JMSException ex) {
+    } catch (JMSException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -103,8 +108,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
   {
     try {
       consumer.receive();
-    }
-    catch (JMSException ex) {
+    } catch (JMSException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -114,8 +118,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
   {
     logger.debug("beginning transaction");
 
-    if(inTransaction)
-    {
+    if (inTransaction) {
       throw new RuntimeException("Cannot start a transaction twice.");
     }
 
@@ -127,15 +130,13 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
   {
     logger.debug("committing transaction.");
 
-    if(!inTransaction)
-    {
+    if (!inTransaction) {
       throw new RuntimeException("Cannot commit a transaction if you are not in one.");
     }
 
     try {
       getBase().getSession().commit();
-    }
-    catch (JMSException ex) {
+    } catch (JMSException ex) {
       throw new RuntimeException(ex);
     }
 
@@ -146,12 +147,9 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
   @Override
   public void rollbackTransaction()
   {
-    try
-    {
+    try {
       getBase().getSession().rollback();
-    }
-    catch (JMSException ex)
-    {
+    } catch (JMSException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -168,12 +166,11 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
     logger.debug("Entering connect. is in transaction: {}", inTransaction);
 
     try {
-      String queueName = getQueueName(getAppId(),
-                                      getOperatorId());
+      String queueName = getQueueName(getAppId(), getOperatorId());
 
       logger.debug("Base is null: {}", getBase() == null);
 
-      if(getBase() != null) {
+      if (getBase() != null) {
         logger.debug("Session is null: {}", getBase().getSession() == null);
       }
 
@@ -184,8 +181,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
       try {
         Enumeration enumeration = browser.getEnumeration();
         hasStore = enumeration.hasMoreElements();
-      }
-      catch (JMSException ex) {
+      } catch (JMSException ex) {
         throw new RuntimeException(ex);
       }
 
@@ -195,15 +191,14 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
       connected = true;
       logger.debug("Connected. is in transaction: {}", inTransaction);
 
-      if(!hasStore) {
+      if (!hasStore) {
         beginTransaction();
         BytesMessage message = getBase().getSession().createBytesMessage();
         message.writeLong(-1L);
         producer.send(message);
         commitTransaction();
       }
-    }
-    catch (JMSException ex) {
+    } catch (JMSException ex) {
       throw new RuntimeException(ex);
     }
 
@@ -217,8 +212,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
     try {
       producer.close();
       consumer.close();
-    }
-    catch (JMSException ex) {
+    } catch (JMSException ex) {
       throw new RuntimeException(ex);
     }
 

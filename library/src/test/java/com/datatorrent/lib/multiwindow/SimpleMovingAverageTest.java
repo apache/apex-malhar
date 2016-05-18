@@ -54,11 +54,10 @@ public class SimpleMovingAverageTest
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 2, sink.collectedTuples.size());
     for (int i = 0; i < 2; i++) {
-      KeyValPair<String, Double> pair = (KeyValPair<String, Double>) sink.collectedTuples.get(i);
+      KeyValPair<String, Double> pair = (KeyValPair<String, Double>)sink.collectedTuples.get(i);
       if (pair.getKey().equals("a")) {
         Assert.assertEquals("a SMA", 31.5, pair.getValue(), 0);
-      }
-      else {
+      } else {
         Assert.assertEquals("b SMA", 52.5, pair.getValue(), 0);
       }
     }
@@ -71,11 +70,10 @@ public class SimpleMovingAverageTest
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 4, sink.collectedTuples.size());
     for (int i = 2; i < 4; i++) {
-      KeyValPair<String, Double> pair = (KeyValPair<String, Double>) sink.collectedTuples.get(i);
+      KeyValPair<String, Double> pair = (KeyValPair<String, Double>)sink.collectedTuples.get(i);
       if (pair.getKey().equals("a")) {
         Assert.assertEquals("a SMA", 32.5, pair.getValue(), 0);
-      }
-      else {
+      } else {
         Assert.assertEquals("b SMA", 53.5, pair.getValue(), 0);
       }
     }
@@ -88,11 +86,10 @@ public class SimpleMovingAverageTest
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 6, sink.collectedTuples.size());
     for (int i = 4; i < 6; i++) {
-      KeyValPair<String, Double> pair = (KeyValPair<String, Double>) sink.collectedTuples.get(i);
+      KeyValPair<String, Double> pair = (KeyValPair<String, Double>)sink.collectedTuples.get(i);
       if (pair.getKey().equals("a")) {
         Assert.assertEquals("a SMA", 33.5, pair.getValue(), 0);
-      }
-      else {
+      } else {
         Assert.assertEquals("b SMA", 54.5, pair.getValue(), 0);
       }
     }
@@ -105,11 +102,10 @@ public class SimpleMovingAverageTest
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 8, sink.collectedTuples.size());
     for (int i = 6; i < 8; i++) {
-      KeyValPair<String, Double> pair = (KeyValPair<String, Double>) sink.collectedTuples.get(i);
+      KeyValPair<String, Double> pair = (KeyValPair<String, Double>)sink.collectedTuples.get(i);
       if (pair.getKey().equals("a")) {
         Assert.assertEquals("a SMA", 35.5, pair.getValue(), 0);
-      }
-      else {
+      } else {
         Assert.assertEquals("b SMA", 56.5, pair.getValue(), 0);
       }
     }

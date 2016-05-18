@@ -30,36 +30,35 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
  */
 public class ArrayListAggregatorTest
 {
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
-	public void testNodeProcessing() throws Exception
-	{
-		ArrayListAggregator<Integer> oper = new ArrayListAggregator<Integer>();
-		CollectorTestSink cSink = new CollectorTestSink();
+  public void testNodeProcessing() throws Exception
+  {
+    ArrayListAggregator<Integer> oper = new ArrayListAggregator<Integer>();
+    CollectorTestSink cSink = new CollectorTestSink();
 
-		oper.output.setSink(cSink);
-		oper.setSize(10);
-		int numtuples = 100;
+    oper.output.setSink(cSink);
+    oper.setSize(10);
+    int numtuples = 100;
 
-		oper.beginWindow(0);
-		for (int i = 0; i < numtuples; i++) {
-			oper.input.process(i);
-		}
-		oper.endWindow();
-		Assert.assertEquals("number emitted tuples", 10,
-				cSink.collectedTuples.size());
+    oper.beginWindow(0);
+    for (int i = 0; i < numtuples; i++) {
+      oper.input.process(i);
+    }
+    oper.endWindow();
+    Assert.assertEquals("number emitted tuples", 10,
+        cSink.collectedTuples.size());
 
-		cSink.clear();
-		oper.setSize(0);
+    cSink.clear();
+    oper.setSize(0);
 
-		oper.beginWindow(1);
-		for (int i = 0; i < numtuples; i++) {
-			oper.input.process(i);
-		}
-		oper.endWindow();
-		Assert.assertEquals("number emitted tuples", 1,
-				cSink.collectedTuples.size());
-		ArrayList<?> list = (ArrayList<?>) cSink.collectedTuples.get(0);
-		Assert.assertEquals("number emitted tuples", numtuples, list.size());
-	}
+    oper.beginWindow(1);
+    for (int i = 0; i < numtuples; i++) {
+      oper.input.process(i);
+    }
+    oper.endWindow();
+    Assert.assertEquals("number emitted tuples", 1, cSink.collectedTuples.size());
+    ArrayList<?> list = (ArrayList<?>)cSink.collectedTuples.get(0);
+    Assert.assertEquals("number emitted tuples", numtuples, list.size());
+  }
 }

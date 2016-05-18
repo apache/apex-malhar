@@ -61,57 +61,57 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
 public class Change<V extends Number> extends BaseNumberValueOperator<V>
 {
         /**
-	 * Input data port that takes a number.
-	 */
-	public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
-	{
-		/**
-		 * Process each key, compute change or percent, and emit it.
-		 */
-		@Override
-		public void process(V tuple)
-		{
-			if (baseValue != 0) { // Avoid divide by zero, Emit an error tuple?
-				double cval = tuple.doubleValue() - baseValue;
-				change.emit(getValue(cval));
-				percent.emit((cval / baseValue) * 100);
-			}
-		}
-	};
+   * Input data port that takes a number.
+   */
+  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
+  {
+    /**
+     * Process each key, compute change or percent, and emit it.
+     */
+    @Override
+    public void process(V tuple)
+    {
+      if (baseValue != 0) { // Avoid divide by zero, Emit an error tuple?
+        double cval = tuple.doubleValue() - baseValue;
+        change.emit(getValue(cval));
+        percent.emit((cval / baseValue) * 100);
+      }
+    }
+  };
         
         /**
-	 * Input port that takes a number&nbsp; It stores the value for base comparison. 
-	 */
-	public final transient DefaultInputPort<V> base = new DefaultInputPort<V>()
-	{
-		/**
-		 * Process each key to store the value. If same key appears again update
-		 * with latest value.
-		 */
-		@Override
-		public void process(V tuple)
-		{
-			if (tuple.doubleValue() != 0.0) { // Avoid divide by zero, Emit an error
-																				// tuple?
-				baseValue = tuple.doubleValue();
-			}
-		}
-	};
-	
-	/**
-	 * Output port that emits change in value compared to base value.
-	 */
-	@OutputPortFieldAnnotation(optional = true)
-	public final transient DefaultOutputPort<V> change = new DefaultOutputPort<V>();
-	
-	/**
-	 * Output port that emits percent change in data value compared to base value.
-	 */
-	@OutputPortFieldAnnotation(optional = true)
-	public final transient DefaultOutputPort<Double> percent = new DefaultOutputPort<Double>();
-	
-	/**
-	 * baseValue is a state full field. It is retained across windows.
-	 */
-	private double baseValue = 0;
+   * Input port that takes a number&nbsp; It stores the value for base comparison.
+   */
+  public final transient DefaultInputPort<V> base = new DefaultInputPort<V>()
+  {
+    /**
+     * Process each key to store the value. If same key appears again update
+     * with latest value.
+     */
+    @Override
+    public void process(V tuple)
+    {
+      if (tuple.doubleValue() != 0.0) { // Avoid divide by zero, Emit an error
+                                        // tuple?
+        baseValue = tuple.doubleValue();
+      }
+    }
+  };
+
+  /**
+   * Output port that emits change in value compared to base value.
+   */
+  @OutputPortFieldAnnotation(optional = true)
+  public final transient DefaultOutputPort<V> change = new DefaultOutputPort<V>();
+
+  /**
+   * Output port that emits percent change in data value compared to base value.
+   */
+  @OutputPortFieldAnnotation(optional = true)
+  public final transient DefaultOutputPort<Double> percent = new DefaultOutputPort<Double>();
+
+  /**
+   * baseValue is a state full field. It is retained across windows.
+   */
+  private double baseValue = 0;
 }

@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.codehaus.jettison.json.JSONArray;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.codehaus.jettison.json.JSONArray;
 
 import org.apache.apex.malhar.lib.dimensions.DimensionsDescriptor;
 import org.apache.apex.malhar.lib.dimensions.aggregator.AggregatorIncrementalType;
@@ -80,21 +80,22 @@ public class DimensionalConfigurationSchemaTest
     final String valueName1Type = "double";
     final String valueName2Type = "integer";
 
-    final String jsonSchema =
-    "{\"keys\":\n" +
-      "[{\"name\":\"" + keyName1 + "\",\"type\":\"" + keyName1Type + "\"},\n" +
-       "{\"name\":\"" + keyName2 + "\",\"type\":\"" + keyName2Type + "\"}],\n" +
-      "\"values\":\n" +
-      "[{\"name\":\"" + valueName1 + "\",\"type\":\"" + valueName1Type + "\"},\n" +
-       "{\"name\":\"" + valueName2 + "\",\"type\":\"" + valueName2Type + "\"}],\n" +
-      "\"timeBuckets\":[all]," +
-      "\"dimensions\":\n" +
-      "[{\"combination\":[\"" + keyName1 + "\",\"" + keyName2 + "\"],\"additionalValues\":[\"" + valueName1 + ":MIN\"," + "\"" + valueName1 + ":MAX\"]},\n" +
-       "{\"combination\":[\"" + keyName1 + "\"],\"additionalValues\":[\"" + valueName2 + ":SUM\"," + "\"" + valueName2 + ":COUNT\"]}]\n" +
-    "}";
+    final String jsonSchema = "{\"keys\":\n" +
+        "[{\"name\":\"" + keyName1 + "\",\"type\":\"" + keyName1Type + "\"},\n" +
+        "{\"name\":\"" + keyName2 + "\",\"type\":\"" + keyName2Type + "\"}],\n" +
+        "\"values\":\n" +
+        "[{\"name\":\"" + valueName1 + "\",\"type\":\"" + valueName1Type + "\"},\n" +
+        "{\"name\":\"" + valueName2 + "\",\"type\":\"" + valueName2Type + "\"}],\n" +
+        "\"timeBuckets\":[all]," +
+        "\"dimensions\":\n" +
+        "[{\"combination\":[\"" + keyName1 + "\",\"" + keyName2 + "\"],\"additionalValues\":[\"" + valueName1 +
+        ":MIN\"," + "\"" + valueName1 + ":MAX\"]},\n" +
+        "{\"combination\":[\"" + keyName1 + "\"],\"additionalValues\":[\"" + valueName2 + ":SUM\"," + "\"" +
+        valueName2 + ":COUNT\"]}]\n" +
+        "}";
 
     DimensionalConfigurationSchema des = new DimensionalConfigurationSchema(jsonSchema,
-                                                            AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
+        AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
     FieldsDescriptor allKeysDescriptor = des.getKeyDescriptor();
 
@@ -128,13 +129,13 @@ public class DimensionalConfigurationSchemaTest
     logger.debug("map: {}", des.getDimensionsDescriptorIDToAggregatorToAggregateDescriptor().get(0));
 
     Assert.assertTrue("Incorrect aggregate fields.",
-                        des.getDimensionsDescriptorIDToAggregatorToAggregateDescriptor().get(0).get("MIN").getFields().getFields().equals(minAggFields));
+        des.getDimensionsDescriptorIDToAggregatorToAggregateDescriptor().get(0).get("MIN").getFields().getFields().equals(minAggFields));
     Assert.assertTrue("Incorrect aggregate fields.",
-                        des.getDimensionsDescriptorIDToAggregatorToAggregateDescriptor().get(0).get("MAX").getFields().getFields().equals(maxAggFields));
+        des.getDimensionsDescriptorIDToAggregatorToAggregateDescriptor().get(0).get("MAX").getFields().getFields().equals(maxAggFields));
     Assert.assertTrue("Incorrect aggregate fields.",
-                        des.getDimensionsDescriptorIDToAggregatorToAggregateDescriptor().get(1).get("SUM").getFields().getFields().equals(sumAggFields));
+        des.getDimensionsDescriptorIDToAggregatorToAggregateDescriptor().get(1).get("SUM").getFields().getFields().equals(sumAggFields));
     Assert.assertTrue("Incorrect aggregate fields.",
-                        des.getDimensionsDescriptorIDToAggregatorToAggregateDescriptor().get(1).get("COUNT").getFields().getFields().equals(countAggFields));
+        des.getDimensionsDescriptorIDToAggregatorToAggregateDescriptor().get(1).get("COUNT").getFields().getFields().equals(countAggFields));
 
     final Map<String, Integer> aggToId = Maps.newHashMap();
     aggToId.put("min", 0);
@@ -158,24 +159,26 @@ public class DimensionalConfigurationSchemaTest
     final String valueName1Type = "double";
     final String valueName2Type = "integer";
 
-    final String jsonSchema =
-    "{\"keys\":\n" +
-      "[{\"name\":\"" + keyName1 + "\",\"type\":\"" + keyName1Type + "\"},\n" +
-       "{\"name\":\"" + keyName2 + "\",\"type\":\"" + keyName2Type + "\"}],\n" +
-      "\"values\":\n" +
-      "[{\"name\":\"" + valueName1 + "\",\"type\":\"" + valueName1Type + "\"},\n" +
-       "{\"name\":\"" + valueName2 + "\",\"type\":\"" + valueName2Type + "\"}],\n" +
-      "\"timeBuckets\":[\"1m\"]," +
-      "\"dimensions\":\n" +
-      "[{\"combination\":[\"" + keyName1 + "\",\"" + keyName2 + "\"],\"additionalValues\":[\"" + valueName1 + ":COUNT\"" + "]},\n" + "]\n" +
-    "}";
+    final String jsonSchema = "{\"keys\":\n" +
+        "[{\"name\":\"" + keyName1 + "\",\"type\":\"" + keyName1Type + "\"},\n" +
+        "{\"name\":\"" + keyName2 + "\",\"type\":\"" + keyName2Type + "\"}],\n" +
+        "\"values\":\n" +
+        "[{\"name\":\"" + valueName1 + "\",\"type\":\"" + valueName1Type + "\"},\n" +
+        "{\"name\":\"" + valueName2 + "\",\"type\":\"" + valueName2Type + "\"}],\n" +
+        "\"timeBuckets\":[\"1m\"]," +
+        "\"dimensions\":\n" +
+        "[{\"combination\":[\"" + keyName1 + "\",\"" + keyName2 + "\"],\"additionalValues\":[\"" + valueName1 +
+        ":COUNT\"" + "]},\n" + "]\n" +
+        "}";
 
     DimensionalConfigurationSchema des = new DimensionalConfigurationSchema(jsonSchema,
-                                                            AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
+        AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
-    FieldsDescriptor fd = des.getDimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor().get(0).get(AggregatorIncrementalType.NAME_TO_ORDINAL.get("COUNT"));
+    FieldsDescriptor fd = des.getDimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor().get(0).get(
+        AggregatorIncrementalType.NAME_TO_ORDINAL.get("COUNT"));
 
-    Assert.assertEquals("Indexes for type compress fields should be 0", 0, (int) fd.getTypeToFieldToIndex().get(Type.LONG).get("valueName1"));
+    Assert.assertEquals("Indexes for type compress fields should be 0", 0,
+        (int)fd.getTypeToFieldToIndex().get(Type.LONG).get("valueName1"));
   }
 
   @Test
@@ -188,17 +191,17 @@ public class DimensionalConfigurationSchemaTest
     final String valueName1Type = "double";
 
     final String jsonSchema = "{\"keys\":\n" +
-                                "[{\"name\":\"" + keyName1 + "\",\"type\":\"" + keyName1Type + "\"}],\n" +
-                                "\"values\":\n" +
-                                "[{\"name\":\"" + valueName1 + "\",\"type\":\"" + valueName1Type + "\",\"aggregators\":[\"AVG\"]}],\n" +
-                                "\"timeBuckets\":[\"1m\"]," +
-                                "\"dimensions\":\n" +
-                                "[{\"combination\":[\"" + keyName1 + "\"]}]}";
+        "[{\"name\":\"" + keyName1 + "\",\"type\":\"" + keyName1Type + "\"}],\n" +
+        "\"values\":\n" +
+        "[{\"name\":\"" + valueName1 + "\",\"type\":\"" + valueName1Type + "\",\"aggregators\":[\"AVG\"]}],\n" +
+        "\"timeBuckets\":[\"1m\"]," +
+        "\"dimensions\":\n" +
+        "[{\"combination\":[\"" + keyName1 + "\"]}]}";
 
     logger.debug("test schema:\n{}", jsonSchema);
 
     DimensionalConfigurationSchema des = new DimensionalConfigurationSchema(jsonSchema,
-                                                            AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
+        AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
     Assert.assertEquals(1, des.getDimensionsDescriptorIDToDimensionsDescriptor().size());
 
@@ -222,8 +225,9 @@ public class DimensionalConfigurationSchemaTest
   @Test
   public void getAllKeysDescriptorTest()
   {
-    DimensionalConfigurationSchema des = new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchema.json"),
-                                                            AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
+    DimensionalConfigurationSchema des = new DimensionalConfigurationSchema(
+        SchemaUtils.jarResourceFileToString("adsGenericEventSchema.json"),
+        AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
     Set<String> keys = Sets.newHashSet("publisher", "advertiser", "location");
 
@@ -233,8 +237,9 @@ public class DimensionalConfigurationSchemaTest
   @Test
   public void aggregationSchemaTest()
   {
-    DimensionalConfigurationSchema des = new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaAggregations.json"),
-                                                            AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
+    DimensionalConfigurationSchema des = new DimensionalConfigurationSchema(
+        SchemaUtils.jarResourceFileToString("adsGenericEventSchemaAggregations.json"),
+        AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
     Set<String> keys = Sets.newHashSet();
 
@@ -256,8 +261,9 @@ public class DimensionalConfigurationSchemaTest
   @Test
   public void simpleOTFTest()
   {
-    DimensionalConfigurationSchema des = new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaOTF.json"),
-                                                            AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
+    DimensionalConfigurationSchema des = new DimensionalConfigurationSchema(
+        SchemaUtils.jarResourceFileToString("adsGenericEventSchemaOTF.json"),
+        AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
     Assert.assertEquals(4, des.getDimensionsDescriptorIDToAggregatorIDs().get(0).size());
   }
@@ -265,31 +271,29 @@ public class DimensionalConfigurationSchemaTest
   @Test
   public void testConstructorAgreement()
   {
-    DimensionalConfigurationSchema expectedEventSchema = new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaAdditional.json"),
-                                                                            AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
+    DimensionalConfigurationSchema expectedEventSchema = new DimensionalConfigurationSchema(
+        SchemaUtils.jarResourceFileToString("adsGenericEventSchemaAdditional.json"),
+        AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
     @SuppressWarnings("unchecked")
-    List<Object> publisherEnumVals = (List<Object>) ((List) Lists.newArrayList("twitter","facebook","yahoo","google","bing","amazon"));
+    List<Object> publisherEnumVals = (List<Object>)((List)Lists.newArrayList("twitter", "facebook", "yahoo", "google",
+        "bing", "amazon"));
     @SuppressWarnings("unchecked")
-    List<Object> advertiserEnumVals = (List<Object>) ((List) Lists.newArrayList("starbucks","safeway","mcdonalds","macys","taco bell","walmart","khol's","san diego zoo","pandas","jack in the box","tomatina","ron swanson"));
+    List<Object> advertiserEnumVals = (List<Object>)((List)Lists.newArrayList("starbucks", "safeway", "mcdonalds",
+        "macys", "taco bell", "walmart", "khol's", "san diego zoo", "pandas", "jack in the box", "tomatina",
+        "ron swanson"));
     @SuppressWarnings("unchecked")
-    List<Object> locationEnumVals = (List<Object>) ((List) Lists.newArrayList("N","LREC","SKY","AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID"));
+    List<Object> locationEnumVals = (List<Object>)((List)Lists.newArrayList("N", "LREC", "SKY", "AL", "AK", "AZ", "AR",
+        "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID"));
 
     List<Key> keys = Lists.newArrayList(new Key("publisher", Type.STRING, publisherEnumVals),
-                                        new Key("advertiser", Type.STRING, advertiserEnumVals),
-                                        new Key("location", Type.STRING, locationEnumVals));
+        new Key("advertiser", Type.STRING, advertiserEnumVals), new Key("location", Type.STRING, locationEnumVals));
+
     List<TimeBucket> timeBuckets = Lists.newArrayList(TimeBucket.MINUTE, TimeBucket.HOUR, TimeBucket.DAY);
-    List<Value> values = Lists.newArrayList(new Value("impressions",
-                                                      Type.LONG,
-                                                      Sets.newHashSet("SUM", "COUNT")),
-                                            new Value("clicks",
-                                                      Type.LONG,
-                                                      Sets.newHashSet("SUM", "COUNT")),
-                                            new Value("cost",
-                                                      Type.DOUBLE,
-                                                      Sets.newHashSet("SUM", "COUNT")),
-                                            new Value("revenue",
-                                                      Type.DOUBLE,
-                                                      Sets.newHashSet("SUM", "COUNT")));
+
+    List<Value> values = Lists.newArrayList(new Value("impressions", Type.LONG, Sets.newHashSet("SUM", "COUNT")),
+        new Value("clicks", Type.LONG, Sets.newHashSet("SUM", "COUNT")),
+        new Value("cost", Type.DOUBLE, Sets.newHashSet("SUM", "COUNT")),
+        new Value("revenue", Type.DOUBLE, Sets.newHashSet("SUM", "COUNT")));
 
     Map<String, Set<String>> valueToAggregators = Maps.newHashMap();
     valueToAggregators.put("impressions", Sets.newHashSet("MIN", "MAX"));
@@ -300,29 +304,18 @@ public class DimensionalConfigurationSchemaTest
     Set<String> emptySet = Sets.newHashSet();
     Map<String, Set<String>> emptyMap = Maps.newHashMap();
 
-    List<DimensionsCombination> dimensionsCombinations =
-    Lists.newArrayList(new DimensionsCombination(new Fields(emptySet),
-                                                 emptyMap),
-                       new DimensionsCombination(new Fields(Sets.newHashSet("location")),
-                                                 emptyMap),
-                       new DimensionsCombination(new Fields(Sets.newHashSet("advertiser")),
-                                                 valueToAggregators),
-                       new DimensionsCombination(new Fields(Sets.newHashSet("publisher")),
-                                                 valueToAggregators),
-                       new DimensionsCombination(new Fields(Sets.newHashSet("advertiser", "location")),
-                                                 emptyMap),
-                       new DimensionsCombination(new Fields(Sets.newHashSet("publisher", "location")),
-                                                 emptyMap),
-                       new DimensionsCombination(new Fields(Sets.newHashSet("publisher", "advertiser")),
-                                                 emptyMap),
-                       new DimensionsCombination(new Fields(Sets.newHashSet("publisher", "advertiser", "location")),
-                                                 emptyMap));
+    List<DimensionsCombination> dimensionsCombinations = Lists.newArrayList(
+        new DimensionsCombination(new Fields(emptySet), emptyMap),
+        new DimensionsCombination(new Fields(Sets.newHashSet("location")), emptyMap),
+        new DimensionsCombination(new Fields(Sets.newHashSet("advertiser")), valueToAggregators),
+        new DimensionsCombination(new Fields(Sets.newHashSet("publisher")), valueToAggregators),
+        new DimensionsCombination(new Fields(Sets.newHashSet("advertiser", "location")), emptyMap),
+        new DimensionsCombination(new Fields(Sets.newHashSet("publisher", "location")), emptyMap),
+        new DimensionsCombination(new Fields(Sets.newHashSet("publisher", "advertiser")), emptyMap),
+        new DimensionsCombination(new Fields(Sets.newHashSet("publisher", "advertiser", "location")), emptyMap));
 
     DimensionalConfigurationSchema eventSchema = new DimensionalConfigurationSchema(keys,
-                                                                    values,
-                                                                    timeBuckets,
-                                                                    dimensionsCombinations,
-                                                                    AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
+        values, timeBuckets, dimensionsCombinations, AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
     logger.debug("expected {}", expectedEventSchema.getDimensionsDescriptorIDToValueToOTFAggregator());
     logger.debug("actual   {}", eventSchema.getDimensionsDescriptorIDToValueToOTFAggregator());
@@ -333,8 +326,9 @@ public class DimensionalConfigurationSchemaTest
   @Test
   public void testOTFAggregatorMap()
   {
-    DimensionalConfigurationSchema schema = new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaOTF.json"),
-                                                                                            AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
+    DimensionalConfigurationSchema schema = new DimensionalConfigurationSchema(
+        SchemaUtils.jarResourceFileToString("adsGenericEventSchemaOTF.json"),
+        AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
     Set<String> otfAggregator = Sets.newHashSet("AVG");
     Set<String> valueSet = Sets.newHashSet("impressions", "clicks", "cost", "revenue");
@@ -342,16 +336,14 @@ public class DimensionalConfigurationSchemaTest
     List<Map<String, FieldsDescriptor>> aggregatorToDescriptor = schema.getDimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor();
     List<Map<String, Set<String>>> valueToAggregator = schema.getDimensionsDescriptorIDToValueToOTFAggregator();
 
-    for(int ddId = 0;
-        ddId < aggregatorToDescriptor.size();
-        ddId++) {
+    for (int ddId = 0; ddId < aggregatorToDescriptor.size(); ddId++) {
       Assert.assertEquals(otfAggregator, aggregatorToDescriptor.get(ddId).keySet());
       Assert.assertNotNull(aggregatorToDescriptor.get(ddId).get("AVG"));
 
       Assert.assertEquals(valueSet, valueToAggregator.get(ddId).keySet());
       Map<String, Set<String>> tempValueToAgg = valueToAggregator.get(ddId);
 
-      for(Map.Entry<String, Set<String>> entry: tempValueToAgg.entrySet()) {
+      for (Map.Entry<String, Set<String>> entry : tempValueToAgg.entrySet()) {
         Assert.assertEquals(otfAggregator, entry.getValue());
       }
     }
@@ -366,12 +358,11 @@ public class DimensionalConfigurationSchemaTest
 
     Assert.assertEquals(5, schema.getCustomTimeBuckets().size());
     List<CustomTimeBucket> customTimeBuckets = Lists.newArrayList(new CustomTimeBucket(TimeBucket.MINUTE),
-                                                                  new CustomTimeBucket(TimeBucket.HOUR),
-                                                                  new CustomTimeBucket(TimeBucket.DAY),
-                                                                  new CustomTimeBucket(TimeBucket.MINUTE, 5),
-                                                                  new CustomTimeBucket(TimeBucket.HOUR, 3));
-    Assert.assertEquals(customTimeBuckets,
-                        schema.getCustomTimeBuckets());
+        new CustomTimeBucket(TimeBucket.HOUR),
+        new CustomTimeBucket(TimeBucket.DAY),
+        new CustomTimeBucket(TimeBucket.MINUTE, 5),
+        new CustomTimeBucket(TimeBucket.HOUR, 3));
+    Assert.assertEquals(customTimeBuckets, schema.getCustomTimeBuckets());
 
     Assert.assertEquals(40, schema.getDimensionsDescriptorIDToKeyDescriptor().size());
 
@@ -436,8 +427,9 @@ public class DimensionalConfigurationSchemaTest
 
   public void testLoadingSchemaWithNoTimeBucket()
   {
-    DimensionalConfigurationSchema schema = new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaNoTime.json"),
-                                                                               AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
+    DimensionalConfigurationSchema schema = new DimensionalConfigurationSchema(
+        SchemaUtils.jarResourceFileToString("adsGenericEventSchemaNoTime.json"),
+        AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
     Assert.assertEquals(1, schema.getTimeBuckets().size());
     Assert.assertEquals(TimeBucket.ALL, schema.getTimeBuckets().get(0));

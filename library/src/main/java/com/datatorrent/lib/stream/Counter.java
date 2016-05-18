@@ -42,59 +42,59 @@ import com.datatorrent.api.Operator.Unifier;
  */
 public class Counter implements Operator, Unifier<Integer>
 {
-        /**
-	 * Input port that takes objects to be counted in each window.
-	 */
-	public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
-	{
-		@Override
-		public void process(Object tuple)
-		{
-			count++;
-		}
+  /**
+   * Input port that takes objects to be counted in each window.
+   */
+  public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
+  {
+    @Override
+    public void process(Object tuple)
+    {
+      count++;
+    }
 
-	};
+  };
 
-          /**
-	 * Output port that takes emits count in each window.
-	 */
-	public final transient DefaultOutputPort<Integer> output = new DefaultOutputPort<Integer>()
-	{
-		@Override
-		public Unifier<Integer> getUnifier()
-		{
-			return Counter.this;
-		}
+  /**
+   * Output port that takes emits count in each window.
+   */
+  public final transient DefaultOutputPort<Integer> output = new DefaultOutputPort<Integer>()
+  {
+    @Override
+    public Unifier<Integer> getUnifier()
+    {
+      return Counter.this;
+    }
 
-	};
+  };
 
-	@Override
-	public void beginWindow(long windowId)
-	{
-		count = 0;
-	}
+  @Override
+  public void beginWindow(long windowId)
+  {
+    count = 0;
+  }
 
-	@Override
-	public void process(Integer tuple)
-	{
-		count += tuple;
-	}
+  @Override
+  public void process(Integer tuple)
+  {
+    count += tuple;
+  }
 
-	@Override
-	public void endWindow()
-	{
-		output.emit(count);
-	}
+  @Override
+  public void endWindow()
+  {
+    output.emit(count);
+  }
 
-	@Override
-	public void setup(OperatorContext context)
-	{
-	}
+  @Override
+  public void setup(OperatorContext context)
+  {
+  }
 
-	@Override
-	public void teardown()
-	{
-	}
+  @Override
+  public void teardown()
+  {
+  }
 
-	private transient int count;
+  private transient int count;
 }

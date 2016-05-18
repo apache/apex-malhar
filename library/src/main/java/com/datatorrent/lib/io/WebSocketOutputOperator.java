@@ -38,9 +38,9 @@ import org.apache.apex.shaded.ning19.com.ning.http.client.ws.WebSocketTextListen
 import org.apache.apex.shaded.ning19.com.ning.http.client.ws.WebSocketUpgradeHandler;
 import org.apache.commons.lang3.ClassUtils;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * Reads via WebSocket from given URL as input stream.&nbsp;Incoming data is interpreted as JSONObject and converted to {@link java.util.Map}.
@@ -59,8 +59,8 @@ public class WebSocketOutputOperator<T> extends BaseOperator
   //Do not make this @NotNull since null is a valid value for some child classes
   private URI uri;
   private transient AsyncHttpClient client;
-  private transient final JsonFactory jsonFactory = new JsonFactory();
-  protected transient final ObjectMapper mapper = new ObjectMapper(jsonFactory);
+  private final transient JsonFactory jsonFactory = new JsonFactory();
+  protected final transient ObjectMapper mapper = new ObjectMapper(jsonFactory);
   protected transient WebSocket connection;
   private int ioThreadMultiplier = 1;
   private int numRetries = 3;

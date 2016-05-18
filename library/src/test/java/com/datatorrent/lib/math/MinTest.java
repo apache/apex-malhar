@@ -34,7 +34,7 @@ public class MinTest
    * Test oper logic emits correct results
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-	@Test
+  @Test
   public void testNodeSchemaProcessing()
   {
     Min<Double> oper = new Min<Double>();
@@ -43,9 +43,9 @@ public class MinTest
 
     oper.beginWindow(0); //
 
-    Double a = new Double(2.0);
-    Double b = new Double(20.0);
-    Double c = new Double(1000.0);
+    Double a = 2.0;
+    Double b = 20.0;
+    Double c = 1000.0;
 
     oper.data.process(a);
     oper.data.process(b);
@@ -74,6 +74,6 @@ public class MinTest
     oper.endWindow(); //
 
     Assert.assertEquals("number emitted tuples", 1, minSink.count);
-    Assert.assertEquals("emitted high value was ", new Double(1.0), minSink.tuple);
+    Assert.assertEquals("emitted high value was ", 1.0, minSink.tuple);
   }
 }

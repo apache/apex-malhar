@@ -36,7 +36,5 @@ public interface QueryExecutor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT>
    * @param queueContext Additoinal information required to queue the query properly.
    * @return The result of the query if it's available. False otherwise.
    */
-  public RESULT executeQuery(QUERY_TYPE query,
-                             META_QUERY metaQuery,
-                             QUEUE_CONTEXT queueContext);
+  public RESULT executeQuery(QUERY_TYPE query, META_QUERY metaQuery, QUEUE_CONTEXT queueContext);
 }

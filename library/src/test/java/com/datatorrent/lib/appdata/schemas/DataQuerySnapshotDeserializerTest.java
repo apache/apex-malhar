@@ -19,17 +19,16 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import java.io.IOException;
-
 import java.util.Map;
 import java.util.Set;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import com.datatorrent.lib.appdata.query.serde.DataQuerySnapshotDeserializer;
 import com.datatorrent.lib.appdata.query.serde.MessageDeserializerFactory;
@@ -61,7 +60,7 @@ public class DataQuerySnapshotDeserializerTest
 
     String queryJSON = SchemaUtils.jarResourceFileToString("snapshotquery_deserialize1.json");
 
-    DataQuerySnapshot gQuery = (DataQuerySnapshot) deserializer.deserialize(queryJSON, DataQuerySnapshot.class, null);
+    DataQuerySnapshot gQuery = (DataQuerySnapshot)deserializer.deserialize(queryJSON, DataQuerySnapshot.class, null);
 
     Assert.assertEquals("The id must equal.", "1", gQuery.getId());
     Assert.assertEquals("The type must equal.", DataQuerySnapshot.TYPE, gQuery.getType());
@@ -83,7 +82,7 @@ public class DataQuerySnapshotDeserializerTest
 
     String queryJSON = SchemaUtils.jarResourceFileToString("snapshotquery_deserialize2.json");
 
-    DataQuerySnapshot gQuery = (DataQuerySnapshot) deserializer.deserialize(queryJSON, DataQuerySnapshot.class, null);
+    DataQuerySnapshot gQuery = (DataQuerySnapshot)deserializer.deserialize(queryJSON, DataQuerySnapshot.class, null);
 
     Assert.assertEquals("The id must equal.", "1", gQuery.getId());
     Assert.assertEquals("The type must equal.", DataQuerySnapshot.TYPE, gQuery.getType());
@@ -98,7 +97,7 @@ public class DataQuerySnapshotDeserializerTest
   public void noFieldsSpecified() throws Exception
   {
     String snapshotQuery = SchemaUtils.jarResourceFileToString("snapshotquery_deserialize3.json");
-    DataQuerySnapshot query = (DataQuerySnapshot) testMeta.queryDeserializerFactory.deserialize(snapshotQuery);
+    DataQuerySnapshot query = (DataQuerySnapshot)testMeta.queryDeserializerFactory.deserialize(snapshotQuery);
 
     Set<String> expectedFields = Sets.newHashSet("boolField", "intField", "doubleField");
 
@@ -170,7 +169,7 @@ public class DataQuerySnapshotDeserializerTest
   private void testValid(String validResourceJSON) throws Exception
   {
     String snapshotQuery = SchemaUtils.jarResourceFileToString(validResourceJSON);
-    DataQuerySnapshot query = (DataQuerySnapshot) testMeta.queryDeserializerFactory.deserialize(snapshotQuery);
+    DataQuerySnapshot query = (DataQuerySnapshot)testMeta.queryDeserializerFactory.deserialize(snapshotQuery);
     Assert.assertNotNull(query);
   }
 }

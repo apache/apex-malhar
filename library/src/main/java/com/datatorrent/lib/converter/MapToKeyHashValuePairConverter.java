@@ -21,9 +21,9 @@ package com.datatorrent.lib.converter;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.util.KeyHashValPair;
 
 /**
@@ -36,7 +36,8 @@ import com.datatorrent.lib.util.KeyHashValPair;
  *
  * @since 3.0.0
  */
-public class MapToKeyHashValuePairConverter<K, V> extends BaseOperator {
+public class MapToKeyHashValuePairConverter<K, V> extends BaseOperator
+{
 
   /**
    * Input port which accepts Map<K, V>.
@@ -46,8 +47,7 @@ public class MapToKeyHashValuePairConverter<K, V> extends BaseOperator {
     @Override
     public void process(Map<K, V> tuple)
     {
-      for(Entry<K, V> entry:tuple.entrySet())
-      {
+      for (Entry<K, V> entry : tuple.entrySet()) {
         output.emit(new KeyHashValPair<K, V>(entry.getKey(), entry.getValue()));
       }
     }

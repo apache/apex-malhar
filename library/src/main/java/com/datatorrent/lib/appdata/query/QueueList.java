@@ -60,11 +60,11 @@ public class QueueList<T>
    */
   public void enqueue(QueueListNode<T> node)
   {
-    synchronized(lock) {
+    synchronized (lock) {
       Preconditions.checkNotNull(node);
       size++;
 
-      if(head == null) {
+      if (head == null) {
         head = node;
         tail = node;
         node.setNext(null);
@@ -85,7 +85,7 @@ public class QueueList<T>
    */
   public QueueListNode<T> getHead()
   {
-    synchronized(lock) {
+    synchronized (lock) {
       return head;
     }
   }
@@ -96,27 +96,24 @@ public class QueueList<T>
    */
   public void removeNode(QueueListNode<T> node)
   {
-    synchronized(lock) {
+    synchronized (lock) {
       size--;
 
-    //Handle the case when adding to the end of list and
+      //Handle the case when adding to the end of list and
       //removing a node in parallel
-      if(head == node) {
-        if(tail == node) {
+      if (head == node) {
+        if (tail == node) {
           head = null;
           tail = null;
-        }
-        else {
+        } else {
           head = node.getNext();
           head.setPrev(null);
         }
-      }
-      else {
-        if(tail == node) {
+      } else {
+        if (tail == node) {
           tail = node.getPrev();
           tail.setNext(null);
-        }
-        else {
+        } else {
           node.getPrev().setNext(node.getNext());
           node.getNext().setPrev(node.getPrev());
         }

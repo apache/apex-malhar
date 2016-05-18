@@ -21,9 +21,9 @@ package com.datatorrent.lib.appdata.gpo;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.Lists;
-
 import org.apache.commons.lang3.mutable.MutableInt;
+
+import com.google.common.collect.Lists;
 
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 
@@ -45,9 +45,9 @@ public class SerdeListGPOMutable implements Serde
   public synchronized byte[] serializeObject(Object object)
   {
     @SuppressWarnings("unchecked")
-    List<GPOMutable> mutables = (List<GPOMutable>) object;
+    List<GPOMutable> mutables = (List<GPOMutable>)object;
 
-    if(mutables.isEmpty()) {
+    if (mutables.isEmpty()) {
       return GPOUtils.serializeInt(0);
     }
 
@@ -55,9 +55,7 @@ public class SerdeListGPOMutable implements Serde
 
     bytes.add(SerdeFieldsDescriptor.INSTANCE.serializeObject(fd));
 
-    for(int index = 0;
-        index < mutables.size();
-        index++) {
+    for (int index = 0; index < mutables.size(); index++) {
       bytes.add(GPOUtils.serialize(mutables.get(index), bytes));
     }
 
@@ -76,15 +74,14 @@ public class SerdeListGPOMutable implements Serde
     int length = GPOUtils.deserializeInt(object, offset);
     int startIndex = offset.intValue();
 
-    if(length == 0) {
+    if (length == 0) {
       return new ArrayList<GPOMutable>();
     }
 
-    FieldsDescriptor fd =
-    (FieldsDescriptor) SerdeFieldsDescriptor.INSTANCE.deserializeObject(object, offset);
+    FieldsDescriptor fd = (FieldsDescriptor)SerdeFieldsDescriptor.INSTANCE.deserializeObject(object, offset);
 
     List<GPOMutable> mutables = Lists.newArrayList();
-    while(startIndex + length > offset.intValue()) {
+    while (startIndex + length > offset.intValue()) {
       GPOMutable value = GPOUtils.deserialize(fd, object, offset);
       mutables.add(value);
     }

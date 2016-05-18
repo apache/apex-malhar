@@ -18,15 +18,17 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
-
 import java.util.HashMap;
+
 import javax.validation.constraints.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * An implementation of BaseOperator that creates a load with pair of keys by taking in an input stream event and adding to incoming keys
@@ -95,7 +97,7 @@ public class EventClassifierNumberToHashDouble<K extends Number> extends BaseOpe
   int seed = 0;
   int seed_size = 1;
 
-  String [] keys = null;
+  String[] keys = null;
 
   /**
    * setup before dag is run (pre-runtime, and post compile time)
@@ -116,8 +118,7 @@ public class EventClassifierNumberToHashDouble<K extends Number> extends BaseOpe
         Integer ival = i;
         keys[i] = getKey() + ival.toString();
       }
-    }
-    else {
+    } else {
       for (int i = s_end; i <= s_start; i++) {
         Integer ival = i;
         keys[i] = getKey() + ival.toString();

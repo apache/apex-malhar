@@ -18,7 +18,6 @@
  */
 package com.datatorrent.lib.io;
 
-import com.sun.jersey.api.client.ClientResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,11 +26,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.io.IOUtils;
+
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.commons.io.IOUtils;
+
+import com.sun.jersey.api.client.ClientResponse;
 
 /**
  * This operator reads in JSON data and outputs it as a map.
@@ -75,8 +78,7 @@ public class HttpJsonChunksInputOperator extends AbstractHttpInputOperator<Map<S
           response.close();
           break;
         }
-      }
-      catch (JSONException ex) {
+      } catch (JSONException ex) {
         LOG.error("Caught JSON error:", ex);
       }
       if (bytesRead == -1) {
@@ -108,8 +110,7 @@ public class HttpJsonChunksInputOperator extends AbstractHttpInputOperator<Map<S
         currentChunkLength = nextLength;
 
         //LOG.debug("chunk length: " + line);
-      }
-      catch (NumberFormatException e) {
+      } catch (NumberFormatException e) {
         // add to chunk
         chunkStr.append(line);
         chunkStr.append("\n");

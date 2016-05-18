@@ -18,9 +18,10 @@
  */
 package com.datatorrent.lib.logs;
 
+import java.util.HashMap;
+
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
-import java.util.HashMap;
 
 /**
  * <p>
@@ -53,7 +54,7 @@ import java.util.HashMap;
  * @since 0.3.2
  */
 @Stateless
-@OperatorAnnotation(partitionable=true)
+@OperatorAnnotation(partitionable = true)
 public class FilteredLineToTokenArrayList extends LineToTokenArrayList
 {
   HashMap<String, Object> filterBy = new HashMap<String, Object>();

@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.io.IOUtils;
 import org.codehaus.jettison.json.JSONObject;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
@@ -39,6 +38,8 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.Assert;
 import org.junit.Test;
+
+import org.apache.commons.io.IOUtils;
 
 /**
  * Functional test for {@link com.datatorrent.lib.io.HttpPostOutputOperator}.
@@ -75,8 +76,6 @@ public class HttpPostOutputOperatorTest
     server.start();
 
     String url = "http://localhost:" + server.getConnectors()[0].getLocalPort() + "/somecontext";
-    System.out.println("url: " + url);
-
 
     HttpPostOutputOperator<Object> node = new HttpPostOutputOperator<Object>();
     node.setUrl(url);
@@ -95,7 +94,6 @@ public class HttpPostOutputOperatorTest
     }
 
     Assert.assertEquals("number requests", 1, receivedMessages.size());
-    System.out.println(receivedMessages.get(0));
     JSONObject json = new JSONObject(data);
     Assert.assertTrue("request body " + receivedMessages.get(0), receivedMessages.get(0).contains(json.toString()));
 

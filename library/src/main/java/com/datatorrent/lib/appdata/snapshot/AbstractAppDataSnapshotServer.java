@@ -111,8 +111,8 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
   private Set<String> tags;
   
   @AppData.QueryPort
-  @InputPortFieldAnnotation(optional=true)
-  public transient final DefaultInputPort<String> query = new DefaultInputPort<String>()
+  @InputPortFieldAnnotation(optional = true)
+  public final transient DefaultInputPort<String> query = new DefaultInputPort<String>()
   {
     @Override
     public void process(String queryJSON)
@@ -151,7 +151,7 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
     }
   }
 
-  public transient final DefaultInputPort<List<INPUT_EVENT>> input = new DefaultInputPort<List<INPUT_EVENT>>()
+  public final transient DefaultInputPort<List<INPUT_EVENT>> input = new DefaultInputPort<List<INPUT_EVENT>>()
   {
     @Override
     public void process(List<INPUT_EVENT> rows)
@@ -187,7 +187,7 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
 
 
   @Override
-  final public void activate(OperatorContext ctx)
+  public final void activate(OperatorContext ctx)
   {
     if (embeddableQueryInfoProvider != null) {
       embeddableQueryInfoProvider.activate(ctx);
@@ -213,8 +213,7 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
     if (embeddableQueryInfoProvider != null) {
       embeddableQueryInfoProvider.enableEmbeddedMode();
       LOG.info("An embeddable query operator is being used of class {}.", embeddableQueryInfoProvider.getClass().getName());
-      StoreUtils.attachOutputPortToInputPort(embeddableQueryInfoProvider.getOutputPort(),
-                                             query);
+      StoreUtils.attachOutputPortToInputPort(embeddableQueryInfoProvider.getOutputPort(), query);
       embeddableQueryInfoProvider.setup(context);
     }
   }
@@ -222,8 +221,9 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
   protected void setupSchema()
   {
     schema = new SnapshotSchema(snapshotSchemaJSON);
-    if (tags != null && !tags.isEmpty())
+    if (tags != null && !tags.isEmpty()) {
       schema.setTags(tags);
+    }
   }
 
   protected void setupQueryProcessor()
@@ -252,7 +252,7 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
     {
       Result result;
 
-      while((result = queryProcessor.process()) != null) {
+      while ((result = queryProcessor.process()) != null) {
         String resultJSON = resultSerializerFactory.serialize(result);
         LOG.debug("emitting {}", resultJSON);
         queryResult.emit(resultJSON);

@@ -21,10 +21,10 @@ package com.datatorrent.lib.statistics;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * An implementation of BaseOperator that calculates most frequent value occurring in incoming data. <br>
@@ -63,7 +63,7 @@ public class ModeOperator<V extends Comparable<?>> extends BaseOperator
     {
       if (values.containsKey(tuple)) {
         Integer count = values.remove(tuple);
-        values.put(tuple, count+1);
+        values.put(tuple, count + 1);
       } else {
         values.put(tuple, 1);
       }

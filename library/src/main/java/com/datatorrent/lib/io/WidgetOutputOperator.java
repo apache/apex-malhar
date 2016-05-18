@@ -25,17 +25,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.google.common.collect.Maps;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+
+import com.google.common.collect.Maps;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.common.util.PubSubMessageCodec;
 
@@ -60,16 +59,15 @@ import com.datatorrent.common.util.PubSubMessageCodec;
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public class WidgetOutputOperator extends BaseOperator
 {
-  protected transient WebSocketOutputOperator<Pair<String, Object>> wsoo = new WebSocketOutputOperator<Pair<String,Object>>(){
-
+  protected transient WebSocketOutputOperator<Pair<String, Object>> wsoo = new WebSocketOutputOperator<Pair<String, Object>>()
+  {
     private transient PubSubMessageCodec<Object> codec = new PubSubMessageCodec<>(mapper);
 
     @Override
-    public String convertMapToMessage(Pair<String,Object> t) throws IOException
+    public String convertMapToMessage(Pair<String, Object> t) throws IOException
     {
       return PubSubMessageCodec.constructPublishMessage(t.getLeft(), t.getRight(), codec);
     }
-
   };
 
   protected transient ConsoleOutputOperator coo = new ConsoleOutputOperator();
@@ -99,31 +97,31 @@ public class WidgetOutputOperator extends BaseOperator
   /**
    * Tuples received on this input port will be sent to a Simple Widget for display.
    */
-  @InputPortFieldAnnotation(optional=true)
+  @InputPortFieldAnnotation(optional = true)
   public final transient SimpleInputPort simpleInput = new SimpleInputPort(this);
 
   /**
    * Tuples received on this input port will be sent to a Time Series Widget for display.
    */
-  @InputPortFieldAnnotation(optional=true)
+  @InputPortFieldAnnotation(optional = true)
   public final transient TimeseriesInputPort timeSeriesInput = new TimeseriesInputPort(this);
 
   /**
    * Tuples received on this input port will be sent to a Percentage Widget.
    */
-  @InputPortFieldAnnotation(optional=true)
+  @InputPortFieldAnnotation(optional = true)
   public final transient PercentageInputPort percentageInput = new PercentageInputPort(this);
 
   /**
    * Tuples received on this input port will be sent to a Top N Widget for display.
    */
-  @InputPortFieldAnnotation(optional=true)
+  @InputPortFieldAnnotation(optional = true)
   public final transient TopNInputPort topNInput = new TopNInputPort(this);
 
   /**
    * Tuples received on this input port will be sent to a Pie Chart Widget for display.
    */
-  @InputPortFieldAnnotation(optional=true)
+  @InputPortFieldAnnotation(optional = true)
   public final transient PiechartInputPort pieChartInput = new PiechartInputPort(this);
 
   protected transient boolean isWebSocketConnected = true;
@@ -132,7 +130,7 @@ public class WidgetOutputOperator extends BaseOperator
   public void setup(OperatorContext context)
   {
     String gatewayAddress = context.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
-    if(!StringUtils.isEmpty(gatewayAddress)){
+    if (!StringUtils.isEmpty(gatewayAddress)) {
       wsoo.setUri(URI.create("ws://" + gatewayAddress + "/pubsub"));
       wsoo.setup(context);
     } else {
@@ -205,8 +203,8 @@ public class WidgetOutputOperator extends BaseOperator
 
   }
 
-  public static class TopNInputPort extends DefaultInputPort<HashMap<String, Number>>{
-
+  public static class TopNInputPort extends DefaultInputPort<HashMap<String, Number>>
+  {
     private final WidgetOutputOperator operator;
 
     public TopNInputPort(WidgetOutputOperator oper)

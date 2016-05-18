@@ -23,11 +23,11 @@ import java.util.Map;
 
 import javax.validation.constraints.Min;
 
-import com.datatorrent.api.annotation.OperatorAnnotation;
 import org.apache.commons.lang.mutable.MutableDouble;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 
 /**
@@ -63,175 +63,175 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  */
 @OperatorAnnotation(partitionable = false)
 public class QuotientMap<K, V extends Number> extends
-		BaseNumberKeyValueOperator<K, V>
+    BaseNumberKeyValueOperator<K, V>
 {
-	/**
-	 * Numerator key/sum value map.
-	 */
-	protected HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
+  /**
+   * Numerator key/sum value map.
+   */
+  protected HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
 
-	/**
-	 * Denominator key/sum value map.
-	 */
-	protected HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
+  /**
+   * Denominator key/sum value map.
+   */
+  protected HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
 
-	/**
-	 * Count occurrence of keys if set to true.
-	 */
-	boolean countkey = false;
+  /**
+   * Count occurrence of keys if set to true.
+   */
+  boolean countkey = false;
 
-	/**
-	 * Quotient multiply by value.
-	 */
-	int mult_by = 1;
+  /**
+   * Quotient multiply by value.
+   */
+  int mult_by = 1;
 
-	/**
-	 * Numerator input port.
-	 */
-	public final transient DefaultInputPort<Map<K, V>> numerator = new DefaultInputPort<Map<K, V>>()
-	{
-		/**
-		 * Added tuple to the numerator hash
-		 */
-		@Override
-		public void process(Map<K, V> tuple)
-		{
-			addTuple(tuple, numerators);
-		}
-	};
+  /**
+   * Numerator input port.
+   */
+  public final transient DefaultInputPort<Map<K, V>> numerator = new DefaultInputPort<Map<K, V>>()
+  {
+    /**
+     * Added tuple to the numerator hash
+     */
+    @Override
+    public void process(Map<K, V> tuple)
+    {
+      addTuple(tuple, numerators);
+    }
+  };
 
-	/**
-	 * Denominator input port.
-	 */
-	public final transient DefaultInputPort<Map<K, V>> denominator = new DefaultInputPort<Map<K, V>>()
-	{
-		/**
-		 * Added tuple to the denominator hash
-		 */
-		@Override
-		public void process(Map<K, V> tuple)
-		{
-			addTuple(tuple, denominators);
-		}
-	};
+  /**
+   * Denominator input port.
+   */
+  public final transient DefaultInputPort<Map<K, V>> denominator = new DefaultInputPort<Map<K, V>>()
+  {
+    /**
+     * Added tuple to the denominator hash
+     */
+    @Override
+    public void process(Map<K, V> tuple)
+    {
+      addTuple(tuple, denominators);
+    }
+  };
 
-	/**
-	 * Quotient output port.
-	 */
-	public final transient DefaultOutputPort<HashMap<K, Double>> quotient = new DefaultOutputPort<HashMap<K, Double>>();
+  /**
+   * Quotient output port.
+   */
+  public final transient DefaultOutputPort<HashMap<K, Double>> quotient = new DefaultOutputPort<HashMap<K, Double>>();
 
-	/**
-	 * Add tuple to nval/dval map.
-	 * 
-	 * @param tuple
-	 *          key/value map on input port.
-	 * @param map
-	 *          key/summed value map.
-	 */
-	public void addTuple(Map<K, V> tuple, Map<K, MutableDouble> map)
-	{
-		for (Map.Entry<K, V> e : tuple.entrySet()) {
-			addEntry(e.getKey(), e.getValue(), map);
-		}
-	}
+  /**
+   * Add tuple to nval/dval map.
+   *
+   * @param tuple
+   *          key/value map on input port.
+   * @param map
+   *          key/summed value map.
+   */
+  public void addTuple(Map<K, V> tuple, Map<K, MutableDouble> map)
+  {
+    for (Map.Entry<K, V> e : tuple.entrySet()) {
+      addEntry(e.getKey(), e.getValue(), map);
+    }
+  }
 
-	/**
-	 * Add/Update entry to key/sum value map.
-	 * 
-	 * @param key
-	 *          name.
-	 * @param value
-	 *          value for key.
-	 * @param map
-	 *          numerator/denominator key/sum map.
-	 */
-	public void addEntry(K key, V value, Map<K, MutableDouble> map)
-	{
-		if (!doprocessKey(key) || (value == null)) {
-			return;
-		}
-		MutableDouble val = map.get(key);
-		if (val == null) {
-			if (countkey) {
-				val = new MutableDouble(1.00);
-			} else {
-				val = new MutableDouble(value.doubleValue());
-			}
-		} else {
-			if (countkey) {
-				val.increment();
-			} else {
-				val.add(value.doubleValue());
-			}
-		}
-		map.put(cloneKey(key), val);
-	}
+  /**
+   * Add/Update entry to key/sum value map.
+   *
+   * @param key
+   *          name.
+   * @param value
+   *          value for key.
+   * @param map
+   *          numerator/denominator key/sum map.
+   */
+  public void addEntry(K key, V value, Map<K, MutableDouble> map)
+  {
+    if (!doprocessKey(key) || (value == null)) {
+      return;
+    }
+    MutableDouble val = map.get(key);
+    if (val == null) {
+      if (countkey) {
+        val = new MutableDouble(1.00);
+      } else {
+        val = new MutableDouble(value.doubleValue());
+      }
+    } else {
+      if (countkey) {
+        val.increment();
+      } else {
+        val.add(value.doubleValue());
+      }
+    }
+    map.put(cloneKey(key), val);
+  }
 
-	/**
-	 * getter for mult_by
-	 * 
-	 * @return mult_by
-	 */
+  /**
+   * getter for mult_by
+   *
+   * @return mult_by
+   */
 
-	@Min(0)
-	public int getMult_by()
-	{
-		return mult_by;
-	}
+  @Min(0)
+  public int getMult_by()
+  {
+    return mult_by;
+  }
 
-	/**
-	 * getter for countkey
-	 * 
-	 * @return countkey
-	 */
-	public boolean getCountkey()
-	{
-		return countkey;
-	}
+  /**
+   * getter for countkey
+   *
+   * @return countkey
+   */
+  public boolean getCountkey()
+  {
+    return countkey;
+  }
 
-	/**
-	 * Setter for mult_by
-	 * 
-	 * @param i
-	 */
-	public void setMult_by(int i)
-	{
-		mult_by = i;
-	}
+  /**
+   * Setter for mult_by
+   *
+   * @param i
+   */
+  public void setMult_by(int i)
+  {
+    mult_by = i;
+  }
 
-	/**
-	 * setter for countkey
-	 * 
-	 * @param i
-	 *          sets countkey
-	 */
-	public void setCountkey(boolean i)
-	{
-		countkey = i;
-	}
+  /**
+   * setter for countkey
+   *
+   * @param i
+   *          sets countkey
+   */
+  public void setCountkey(boolean i)
+  {
+    countkey = i;
+  }
 
-	/**
-	 * Generates tuples for each key and emits them. Only keys that are in the
-	 * denominator are iterated on If the key is only in the numerator, it gets
-	 * ignored (cannot do divide by 0) Clears internal data
-	 */
-	@Override
-	public void endWindow()
-	{
-		HashMap<K, Double> tuples = new HashMap<K, Double>();
-		for (Map.Entry<K, MutableDouble> e : denominators.entrySet()) {
-			MutableDouble nval = numerators.get(e.getKey());
-			if (nval == null) {
-				tuples.put(e.getKey(), new Double(0.0));
-			} else {
-				tuples.put(e.getKey(), new Double((nval.doubleValue() / e.getValue()
-						.doubleValue()) * mult_by));
-			}
-		}
-		if (!tuples.isEmpty()) {
-			quotient.emit(tuples);
-		}
-		numerators.clear();
-		denominators.clear();
-	}
+  /**
+   * Generates tuples for each key and emits them. Only keys that are in the
+   * denominator are iterated on If the key is only in the numerator, it gets
+   * ignored (cannot do divide by 0) Clears internal data
+   */
+  @Override
+  public void endWindow()
+  {
+    HashMap<K, Double> tuples = new HashMap<K, Double>();
+    for (Map.Entry<K, MutableDouble> e : denominators.entrySet()) {
+      MutableDouble nval = numerators.get(e.getKey());
+      if (nval == null) {
+        tuples.put(e.getKey(), new Double(0.0));
+      } else {
+        tuples.put(e.getKey(), new Double((nval.doubleValue() / e.getValue()
+            .doubleValue()) * mult_by));
+      }
+    }
+    if (!tuples.isEmpty()) {
+      quotient.emit(tuples);
+    }
+    numerators.clear();
+    denominators.clear();
+  }
 }

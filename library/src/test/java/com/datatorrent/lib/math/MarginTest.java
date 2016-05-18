@@ -45,7 +45,7 @@ public class MarginTest
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-	public void testNodeProcessingSchema(Margin oper)
+  public void testNodeProcessingSchema(Margin oper)
   {
     CountAndLastTupleTestSink marginSink = new CountAndLastTupleTestSink();
 

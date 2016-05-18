@@ -37,15 +37,14 @@ public class MockResultSerializer implements CustomMessageSerializer
   {
     try {
       return serializeHelper(message, resultFormatter);
-    }
-    catch(JSONException e) {
+    } catch (JSONException e) {
       throw new RuntimeException(e);
     }
   }
 
   private String serializeHelper(Message message, ResultFormatter resultFormatter) throws JSONException
   {
-    MockResult result = (MockResult) message;
+    MockResult result = (MockResult)message;
 
     JSONObject jo = new JSONObject();
 

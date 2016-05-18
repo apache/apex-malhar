@@ -22,12 +22,12 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -118,8 +118,7 @@ public class SnapshotSchema implements Schema
    * @param schemaJSON The JSON defining this schema.
    * @param schemaKeys The schema keys tied to this schema.
    */
-  public SnapshotSchema(String schemaJSON,
-                       Map<String, String> schemaKeys)
+  public SnapshotSchema(String schemaJSON, Map<String, String> schemaKeys)
   {
     this(schemaJSON);
 
@@ -133,12 +132,9 @@ public class SnapshotSchema implements Schema
    * @param schemaJSON The schemaJSON this schema is built from.
    * @param schemaKeys The schemaKeys associated with this schema.
    */
-  public SnapshotSchema(int schemaID,
-                       String schemaJSON,
-                       Map<String, String> schemaKeys)
+  public SnapshotSchema(int schemaID, String schemaJSON, Map<String, String> schemaKeys)
   {
-    this(schemaJSON,
-         schemaKeys);
+    this(schemaJSON, schemaKeys);
 
     this.schemaID = schemaID;
   }
@@ -153,8 +149,7 @@ public class SnapshotSchema implements Schema
 
     try {
       initialize();
-    }
-    catch(Exception ex) {
+    } catch (Exception ex) {
       DTThrowable.rethrow(ex);
     }
   }
@@ -165,8 +160,7 @@ public class SnapshotSchema implements Schema
    * @param schemaID The schemaID associated with this schema.
    * @param schemaJSON The JSON that this schema is constructed from.
    */
-  public SnapshotSchema(int schemaID,
-                       String schemaJSON)
+  public SnapshotSchema(int schemaID, String schemaJSON)
   {
     this(schemaJSON);
     this.schemaID = schemaID;
@@ -177,12 +171,12 @@ public class SnapshotSchema implements Schema
   {
     changed = true;
 
-    if(schemaKeys == null) {
+    if (schemaKeys == null) {
       this.schemaKeys = null;
       return;
     }
 
-    for(Map.Entry<String, String> entry: schemaKeys.entrySet()) {
+    for (Map.Entry<String, String> entry : schemaKeys.entrySet()) {
       Preconditions.checkNotNull(entry.getKey());
       Preconditions.checkNotNull(entry.getValue());
     }
@@ -199,9 +193,8 @@ public class SnapshotSchema implements Schema
   {
     schema = new JSONObject(schemaJSON);
 
-    if(schemaKeys != null) {
-      schema.put(Schema.FIELD_SCHEMA_KEYS,
-                 SchemaUtils.createJSONObject(schemaKeys));
+    if (schemaKeys != null) {
+      schema.put(Schema.FIELD_SCHEMA_KEYS, SchemaUtils.createJSONObject(schemaKeys));
     }
 
     valueToType = Maps.newHashMap();
@@ -209,12 +202,9 @@ public class SnapshotSchema implements Schema
     JSONArray values = schema.getJSONArray(FIELD_VALUES);
 
     Preconditions.checkState(values.length() > 0,
-                             "The schema does not specify any values.");
+        "The schema does not specify any values.");
 
-    for(int index = 0;
-        index < values.length();
-        index++)
-    {
+    for (int index = 0; index < values.length(); index++) {
       JSONObject value = values.getJSONObject(index);
       String name = value.getString(FIELD_VALUES_NAME);
       String typeName = value.getString(FIELD_VALUES_TYPE);
@@ -222,9 +212,7 @@ public class SnapshotSchema implements Schema
       Type type = Type.NAME_TO_TYPE.get(typeName);
       valueToType.put(name, type);
 
-      Preconditions.checkArgument(type != null,
-                                  typeName
-                                  + " is not a valid type.");
+      Preconditions.checkArgument(type != null, typeName + " is not a valid type.");
     }
 
     valueToType = Collections.unmodifiableMap(valueToType);
@@ -233,8 +221,7 @@ public class SnapshotSchema implements Schema
     try {
       schema.put(FIELD_SCHEMA_TYPE, SCHEMA_TYPE);
       schema.put(FIELD_SCHEMA_VERSION, SCHEMA_VERSION);
-    }
-    catch(JSONException e) {
+    } catch (JSONException e) {
       throw new RuntimeException(e);
     }
 
@@ -243,8 +230,9 @@ public class SnapshotSchema implements Schema
 
   public void setTags(Set<String> tags)
   {
-    if (tags == null || tags.isEmpty())
+    if (tags == null || tags.isEmpty()) {
       throw new IllegalArgumentException("tags can't be null or empty.");
+    }
 
     try {
       JSONArray tagArray = new JSONArray(tags);
@@ -270,19 +258,16 @@ public class SnapshotSchema implements Schema
   @Override
   public String getSchemaJSON()
   {
-    if(!changed && schemaJSON != null) {
+    if (!changed && schemaJSON != null) {
       return schemaJSON;
     }
 
-    if(schemaKeys == null) {
+    if (schemaKeys == null) {
       schema.remove(Schema.FIELD_SCHEMA_KEYS);
-    }
-    else {
+    } else {
       try {
-        schema.put(Schema.FIELD_SCHEMA_KEYS,
-                        SchemaUtils.createJSONObject(schemaKeys));
-      }
-      catch(JSONException ex) {
+        schema.put(Schema.FIELD_SCHEMA_KEYS, SchemaUtils.createJSONObject(schemaKeys));
+      } catch (JSONException ex) {
         throw new RuntimeException(ex);
       }
     }

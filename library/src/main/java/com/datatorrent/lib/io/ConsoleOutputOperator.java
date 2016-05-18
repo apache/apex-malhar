@@ -18,12 +18,12 @@
  */
 package com.datatorrent.lib.io;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.annotation.Stateless;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.annotation.Stateless;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * Writes tuples to stdout of the container.
@@ -55,8 +55,7 @@ public class ConsoleOutputOperator extends BaseOperator
       String s;
       if (stringFormat == null) {
         s = t.toString();
-      }
-      else {
+      } else {
         s = String.format(stringFormat, t);
       }
       if (!silent) {

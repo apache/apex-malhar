@@ -21,7 +21,12 @@ package com.datatorrent.lib.io.fs;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.Maps;
 
@@ -37,7 +42,7 @@ public interface FilterStreamProvider<F extends FilterOutputStream, S extends Ou
   
   public void reclaimFilterStreamContext(FilterStreamContext<F> filterStreamContext);
   
-  public static abstract class SimpleFilterReusableStreamProvider<F extends FilterOutputStream, S extends OutputStream> implements FilterStreamProvider<F, S>
+  abstract class SimpleFilterReusableStreamProvider<F extends FilterOutputStream, S extends OutputStream> implements FilterStreamProvider<F, S>
   {
 
     private transient Map<OutputStream, FilterStreamContext<F>> reusableContexts = Maps.newHashMap();
@@ -112,7 +117,9 @@ public interface FilterStreamProvider<F extends FilterOutputStream, S extends Ou
       }
     }
 
-    private class FilterChainStreamContext extends FilterStreamContext.BaseFilterStreamContext implements FilterStreamContext {
+    private class FilterChainStreamContext extends FilterStreamContext.BaseFilterStreamContext
+        implements FilterStreamContext
+    {
       
       private List<FilterStreamContext<?>> streamContexts = new ArrayList<FilterStreamContext<?>>();
 

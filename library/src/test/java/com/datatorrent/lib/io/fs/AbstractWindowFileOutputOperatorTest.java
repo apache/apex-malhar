@@ -18,18 +18,21 @@
  */
 package com.datatorrent.lib.io.fs;
 
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.Description;
+
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest.FSTestWatcher;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
-import org.junit.*;
-import org.junit.runner.Description;
 
 /**
  * Functional Test for {@link AbstractWindowFileOutputOperator}
  */
 public class AbstractWindowFileOutputOperatorTest
 {
-  @Rule public TestInfo testMeta = new PrivateTestWatcher();
+  @Rule
+  public TestInfo testMeta = new PrivateTestWatcher();
 
   private static WindowFileOutputOperatorString oper;
 
@@ -48,7 +51,7 @@ public class AbstractWindowFileOutputOperatorTest
   }
 
   public static OperatorContextTestHelper.TestIdOperatorContext testOperatorContext =
-                new OperatorContextTestHelper.TestIdOperatorContext(0);
+      new OperatorContextTestHelper.TestIdOperatorContext(0);
 
   public static class WindowFileOutputOperatorString extends AbstractWindowFileOutputOperator<String>
   {
@@ -89,20 +92,11 @@ public class AbstractWindowFileOutputOperatorTest
 
     oper.teardown();
 
-    AbstractFileOutputOperatorTest.checkOutput(-1,
-      testMeta.getDir() + "/" + "0",
-      "window 0\n" +
-        "window 0\n");
+    AbstractFileOutputOperatorTest.checkOutput(-1, testMeta.getDir() + "/" + "0", "window 0\n" + "window 0\n");
 
-    AbstractFileOutputOperatorTest.checkOutput(-1,
-      testMeta.getDir() + "/" + "1",
-      "window_new 1\n" +
-        "window_new 1\n");
+    AbstractFileOutputOperatorTest.checkOutput(-1, testMeta.getDir() + "/" + "1", "window_new 1\n" + "window_new 1\n");
 
-    AbstractFileOutputOperatorTest.checkOutput(-1,
-      testMeta.getDir() + "/" + "2",
-      "window_new 2\n" +
-        "window_new 2\n");
+    AbstractFileOutputOperatorTest.checkOutput(-1, testMeta.getDir() + "/" + "2", "window_new 2\n" + "window_new 2\n");
   }
 
   @Test
@@ -136,20 +130,10 @@ public class AbstractWindowFileOutputOperatorTest
 
     oper.teardown();
 
-    AbstractFileOutputOperatorTest.checkOutput(-1,
-      testMeta.getDir() + "/" + "0",
-      "0\n" +
-        "0\n");
+    AbstractFileOutputOperatorTest.checkOutput(-1, testMeta.getDir() + "/" + "0", "0\n" + "0\n");
 
-    AbstractFileOutputOperatorTest.checkOutput(-1,
-      testMeta.getDir() + "/" + "1",
-      "1\n" +
-        "1\n" +
-        "1\n");
+    AbstractFileOutputOperatorTest.checkOutput(-1, testMeta.getDir() + "/" + "1", "1\n" + "1\n" + "1\n");
 
-    AbstractFileOutputOperatorTest.checkOutput(-1,
-      testMeta.getDir() + "/" + "2",
-      "2\n" +
-        "2\n");
+    AbstractFileOutputOperatorTest.checkOutput(-1, testMeta.getDir() + "/" + "2", "2\n" + "2\n");
   }
 }

@@ -97,12 +97,11 @@ public class MostFrequentKeyMapTest
     list = (ArrayList<HashMap<String, Integer>>)listSink.tuple;
     int acount = 0;
     int ccount = 0;
-    for (HashMap<String, Integer> h: list) {
+    for (HashMap<String, Integer> h : list) {
       val = h.get("a");
       if (val == null) {
         ccount = h.get("c");
-      }
-      else {
+      } else {
         acount = val;
       }
     }

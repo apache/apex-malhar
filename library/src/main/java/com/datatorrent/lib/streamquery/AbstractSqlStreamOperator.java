@@ -18,14 +18,14 @@
  */
 package com.datatorrent.lib.streamquery;
 
-import com.datatorrent.common.util.BaseOperator;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-
-import java.util.ArrayList;
-import java.util.HashMap;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * A base implementation of a BaseOperator that is a sql stream operator.&nbsp;  Subclasses should provide the
@@ -58,7 +58,8 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
      */
     public HashMap<String, ColumnInfo> columnInfoMap = new HashMap<String, ColumnInfo>();
 
-    public InputSchema() {
+    public InputSchema()
+    {
     }
 
     public InputSchema(String name)

@@ -21,9 +21,8 @@ package com.datatorrent.lib.algo;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.junit.Test;
-
 import org.junit.Assert;
+import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
@@ -31,10 +30,11 @@ public class BottomNUnifierTest
 {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
-  public void testUnifier() {
+  public void testUnifier()
+  {
     
     // Instantiate unifier
-    BottomNUnifier<String, Integer> oper = new BottomNUnifier<String, Integer> ();
+    BottomNUnifier<String, Integer> oper = new BottomNUnifier<>();
     oper.setN(2);
     CollectorTestSink sink = new CollectorTestSink();
     oper.mergedport.setSink(sink);
@@ -55,7 +55,7 @@ public class BottomNUnifierTest
     oper.endWindow();
     
     Assert.assertEquals("Tuples in sink", sink.collectedTuples.size(), 1);
-    tuple = (HashMap<String, ArrayList<Integer>>) sink.collectedTuples.get(0);
+    tuple = (HashMap<String, ArrayList<Integer>>)sink.collectedTuples.get(0);
     values = tuple.get("a");
     Assert.assertEquals(2, values.size());
     Assert.assertEquals(true, values.indexOf(2) >= 0);

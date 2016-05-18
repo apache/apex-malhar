@@ -18,17 +18,19 @@
  */
 package com.datatorrent.lib.io;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.netlet.util.DTThrowable;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketServlet;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.netlet.util.DTThrowable;
 
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 /**
@@ -75,8 +77,7 @@ public abstract class WebSocketServerInputOperator implements InputOperator
 
     try {
       server.start();
-    }
-    catch(Exception ex) {
+    } catch (Exception ex) {
       DTThrowable.rethrow(ex);
     }
   }
@@ -86,8 +87,7 @@ public abstract class WebSocketServerInputOperator implements InputOperator
   {
     try {
       server.stop();
-    }
-    catch(Exception ex) {
+    } catch (Exception ex) {
       DTThrowable.rethrow(ex);
     }
   }

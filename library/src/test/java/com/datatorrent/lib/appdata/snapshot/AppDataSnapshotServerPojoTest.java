@@ -21,14 +21,14 @@ package com.datatorrent.lib.appdata.snapshot;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import com.datatorrent.lib.appdata.schemas.DataQuerySnapshot;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;

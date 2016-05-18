@@ -60,8 +60,7 @@ public class JdbcNonTransactionalStore extends JdbcTransactionalStore
 
     try {
       connection.setAutoCommit(true);
-    }
-    catch(SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException(e);
     }
   }
@@ -71,10 +70,9 @@ public class JdbcNonTransactionalStore extends JdbcTransactionalStore
   {
     Long lastWindowCommit = getCommittedWindowIdHelper(appId, operatorId);
 
-    if(lastWindowCommit == null) {
+    if (lastWindowCommit == null) {
       return -1L;
-    }
-    else {
+    } else {
       return lastWindowCommit;
     }
   }
@@ -87,8 +85,7 @@ public class JdbcNonTransactionalStore extends JdbcTransactionalStore
 
       lastWindowFetchCommand.close();
       lastWindowInsertCommand.close();
-    }
-    catch (SQLException ex) {
+    } catch (SQLException ex) {
       throw new RuntimeException(ex);
     }
   }

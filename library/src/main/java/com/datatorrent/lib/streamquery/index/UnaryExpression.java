@@ -31,7 +31,7 @@ import javax.validation.constraints.NotNull;
  * @tags unary, alias
  * @since 0.3.4
  */
-abstract public class UnaryExpression  implements Index
+public abstract class UnaryExpression  implements Index
 {
   /**
    * Column name argument for unary expression.
@@ -45,8 +45,8 @@ abstract public class UnaryExpression  implements Index
   protected String alias;
 
   /**
-   * @param Column name argument for unary expression.
-   * @param Alias name for output field.
+   * @param column name argument for unary expression.
+   * @param alias name for output field.
    */
   public UnaryExpression(@NotNull String column, String alias)
   {

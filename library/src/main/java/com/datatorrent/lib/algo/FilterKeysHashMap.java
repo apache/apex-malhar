@@ -99,10 +99,10 @@ public class FilterKeysHashMap<K, V> extends BaseKeyOperator<K>
             dtuple2.put(cloneKey(e2.getKey()), cloneValue(e2.getValue()));
           }
         }
-        if (dtuple == null && dtuple2 != null){
+        if (dtuple == null && dtuple2 != null) {
           dtuple = new HashMap<K, HashMap<K, V>>();
         }
-        if (dtuple != null && dtuple2 != null){
+        if (dtuple != null && dtuple2 != null) {
           dtuple.put(cloneKey(e.getKey()), dtuple2);
         }
       }

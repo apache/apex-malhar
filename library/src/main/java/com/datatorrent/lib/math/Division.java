@@ -20,10 +20,10 @@ package com.datatorrent.lib.math;
 
 import java.util.ArrayList;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This operator does division metric on consecutive tuples on ports.
@@ -54,9 +54,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  */
 public class Division extends BaseOperator
 {
-	/**
-	 * Array to store numerator inputs during window.
-	 */
+  /**
+   * Array to store numerator inputs during window.
+   */
   private ArrayList<Number> numer = new ArrayList<Number>();
   
   /**
@@ -83,7 +83,7 @@ public class Division extends BaseOperator
         if (loc > numer.size()) {
           loc = numer.size();
         }
-        emit(numer.get(loc-1), denom.get(loc-1));
+        emit(numer.get(loc - 1), denom.get(loc - 1));
         index++;
       }
     }
@@ -107,7 +107,7 @@ public class Division extends BaseOperator
         if (loc > numer.size()) {
           loc = numer.size();
         }
-        emit(numer.get(loc-1), denom.get(loc-1));
+        emit(numer.get(loc - 1), denom.get(loc - 1));
         index++;
       }
     }

@@ -20,11 +20,11 @@ package com.datatorrent.lib.statistics;
 
 import java.util.ArrayList;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * An implementation of BaseOperator that computes variance and standard deviation over incoming data. <br>
@@ -67,7 +67,7 @@ public class StandardDeviation extends BaseOperator
   /**
    * Variance output port.
    */
-  @OutputPortFieldAnnotation(optional=true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Number> variance = new DefaultOutputPort<Number>();
 
   /**
@@ -82,19 +82,21 @@ public class StandardDeviation extends BaseOperator
   public void endWindow()
   {
     // no values.
-    if (values.size() == 0) return;
+    if (values.size() == 0) {
+      return;
+    }
 
     // get mean first.
     double mean = 0.0;
     for (Double value : values) {
       mean += value;
     }
-    mean = mean/values.size();
+    mean = mean / values.size();
 
     // get variance
     double outVal = 0.0;
     for (Double value : values) {
-      outVal += (value-mean)*(value-mean);
+      outVal += (value - mean) * (value - mean);
     }
     outVal = outVal / values.size();
     if (variance.isConnected()) {

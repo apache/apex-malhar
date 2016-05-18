@@ -24,13 +24,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.base.Preconditions;
-
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
 
 import com.datatorrent.api.Component;
 import com.datatorrent.api.Context.OperatorContext;
-
 import com.datatorrent.common.util.NameableThreadFactory;
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -69,11 +68,9 @@ public class WindowBoundedService implements Component<OperatorContext>
     this.runnable = Preconditions.checkNotNull(runnable);
   }
 
-  public WindowBoundedService(long executeIntervalMillis,
-                              Runnable runnable)
+  public WindowBoundedService(long executeIntervalMillis, Runnable runnable)
   {
-    Preconditions.checkArgument(executeIntervalMillis > 0,
-                                "The executeIntervalMillis must be positive");
+    Preconditions.checkArgument(executeIntervalMillis > 0, "The executeIntervalMillis must be positive");
     this.executeIntervalMillis = executeIntervalMillis;
     this.runnable = Preconditions.checkNotNull(runnable);
   }

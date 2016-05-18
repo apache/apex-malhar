@@ -37,7 +37,7 @@ public class FilteredLineTokenizerKeyValTest
    * Test oper logic emits correct results
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-	@Test
+  @Test
   public void testNodeProcessing()
   {
 
@@ -47,7 +47,7 @@ public class FilteredLineTokenizerKeyValTest
     oper.setSplitBy(",");
     oper.setSplitTokenBy("=");
     oper.tokens.setSink(tokenSink);
-    String [] filters = new String[2];
+    String[] filters = new String[2];
     filters[0] = "a";
     filters[1] = "c";
     oper.setFilterBy(filters);
@@ -66,17 +66,16 @@ public class FilteredLineTokenizerKeyValTest
     oper.endWindow(); //
     Assert.assertEquals("number emitted tuples", 2, tokenSink.map.size());
     HashMap<Object, Object> smap = tokenSink.map;
-    for (Map.Entry<Object, Object> e: smap.entrySet()) {
+    for (Map.Entry<Object, Object> e : smap.entrySet()) {
       HashMap<String, String> kmap = (HashMap<String, String>)e.getKey();
-      for (Map.Entry<String, String> o: kmap.entrySet()) {
+      for (Map.Entry<String, String> o : kmap.entrySet()) {
         String key = o.getKey();
         String val = o.getValue();
         Assert.assertTrue(!key.equals("b"));
         Assert.assertTrue(!key.equals("d"));
         if (key.equals("a")) {
           Assert.assertEquals("value of \"a\"", "2", val);
-        }
-        else if (key.equals("c")) {
+        } else if (key.equals("c")) {
           Assert.assertEquals("value of \"c\"", "4", val);
         }
       }

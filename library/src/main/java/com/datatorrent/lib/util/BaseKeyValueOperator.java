@@ -22,9 +22,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.datatorrent.lib.codec.JavaSerializationStreamCodec;
-
 import com.datatorrent.api.StreamCodec;
+import com.datatorrent.lib.codec.JavaSerializationStreamCodec;
 
 /**
  * This is an abstract operator that allows cloneKey and cloneValue to allow users to use mutable objects.

@@ -24,11 +24,11 @@ import java.util.Map;
 
 import org.junit.Assert;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-
-import com.datatorrent.api.*;
-
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.LocalMode;
 import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
 /**
  * @param <S>
@@ -55,7 +55,7 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
       public void process(T t)
       {
         @SuppressWarnings("unchecked")
-        Map<String, String> map = (Map<String, String>) t;
+        Map<String, String> map = (Map<String, String>)t;
         resultMap.putAll(map);
         resultCount++;
       }
@@ -69,7 +69,7 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
     @SuppressWarnings("unchecked")
     public Map<String, String> convertToTuple(Map<Object, Object> o)
     {
-      return (Map<String, String>) (Map<?, ?>) o;
+      return (Map<String, String>)(Map<?, ?>)o;
     }
 
   }
@@ -80,7 +80,7 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
     @SuppressWarnings("unchecked")
     public void processTuple(Map<String, String> tuple)
     {
-      store.putAll((Map<Object, Object>) (Map<?, ?>) tuple);
+      store.putAll((Map<Object, Object>)(Map<?, ?>)tuple);
     }
 
   }
@@ -109,8 +109,7 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
       Assert.assertEquals("456", CollectorModule.resultMap.get("test_def"));
       Assert.assertEquals("123", CollectorModule.resultMap.get("test_ghi"));
 
-    }
-    finally {
+    } finally {
       testStore.remove("test_abc");
       testStore.remove("test_def");
       testStore.remove("test_ghi");
@@ -140,8 +139,8 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
       Assert.assertEquals("123", testStore.get("test_abc"));
       Assert.assertEquals("456", testStore.get("test_def"));
       Assert.assertEquals("789", testStore.get("test_ghi"));
-    }
-    finally {
+
+    } finally {
       testStore.remove("test_abc");
       testStore.remove("test_def");
       testStore.remove("test_ghi");

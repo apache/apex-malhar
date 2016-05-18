@@ -20,14 +20,14 @@ package com.datatorrent.lib.io;
 
 import javax.validation.constraints.NotNull;
 
-import com.sun.jersey.api.client.Client;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.common.util.BaseOperator;
+import com.sun.jersey.api.client.Client;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This is the base implementation for HTTP operators.&nbsp;

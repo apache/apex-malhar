@@ -55,7 +55,8 @@ public class TransformOperatorAppTest
 
   public static class Application implements StreamingApplication
   {
-    @Override public void populateDAG(DAG dag, Configuration configuration)
+    @Override
+    public void populateDAG(DAG dag, Configuration configuration)
     {
       DummyInputGenerator input = dag.addOperator("Input", new DummyInputGenerator());
       TransformOperator transform = dag.addOperator("Transform", new TransformOperator());
@@ -106,24 +107,29 @@ public class TransformOperatorAppTest
   {
     public final transient DefaultOutputPort<TestPojo> output = new DefaultOutputPort<>();
 
-    @Override public void emitTuples()
+    @Override
+    public void emitTuples()
     {
       output.emit(new TestPojo("FirstName", "LastName"));
     }
 
-    @Override public void beginWindow(long l)
+    @Override
+    public void beginWindow(long l)
     {
     }
 
-    @Override public void endWindow()
+    @Override
+    public void endWindow()
     {
     }
 
-    @Override public void setup(Context.OperatorContext context)
+    @Override
+    public void setup(Context.OperatorContext context)
     {
     }
 
-    @Override public void teardown()
+    @Override
+    public void teardown()
     {
     }
   }

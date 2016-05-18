@@ -143,14 +143,14 @@ public abstract class TFileImpl extends FileAccessFSImpl
   
   /**
    * Return {@link TFile} {@link Reader}
-   *
    */
-  public static class DefaultTFileImpl extends TFileImpl{
+  public static class DefaultTFileImpl extends TFileImpl
+  {
     
     @Override
     public FileReader getReader(long bucketKey, String fileName) throws IOException
     {
-      FSDataInputStream fsdis =  getInputStream(bucketKey, fileName);
+      FSDataInputStream fsdis = getInputStream(bucketKey, fileName);
       long fileLength = getFileSize(bucketKey, fileName);
       super.setupConfig(fs.getConf());
       return new TFileReader(fsdis, fileLength, fs.getConf());
@@ -158,17 +158,16 @@ public abstract class TFileImpl extends FileAccessFSImpl
     
   }
   
-  
   /**
    * Return {@link DTFile} {@link org.apache.hadoop.io.file.tfile.DTFile.Reader}
-   *
    */
-  public static class DTFileImpl extends TFileImpl {
+  public static class DTFileImpl extends TFileImpl
+  {
     
     @Override
     public FileReader getReader(long bucketKey, String fileName) throws IOException
     {
-      FSDataInputStream fsdis =  getInputStream(bucketKey, fileName);
+      FSDataInputStream fsdis = getInputStream(bucketKey, fileName);
       long fileLength = getFileSize(bucketKey, fileName);
       super.setupConfig(fs.getConf());
       return new DTFileReader(fsdis, fileLength, fs.getConf());

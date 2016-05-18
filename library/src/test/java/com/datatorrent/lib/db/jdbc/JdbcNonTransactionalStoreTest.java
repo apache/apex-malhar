@@ -32,8 +32,7 @@ public class JdbcNonTransactionalStoreTest
     JdbcNonTransactionalStore jdbcNonTransactionalStore = new JdbcNonTransactionalStore();
     try {
       jdbcNonTransactionalStore.beginTransaction();
-    }
-    catch(RuntimeException e) {
+    } catch (RuntimeException e) {
       return;
     }
     Assert.fail("Exception should be thrown");
@@ -45,8 +44,7 @@ public class JdbcNonTransactionalStoreTest
     JdbcNonTransactionalStore jdbcNonTransactionalStore = new JdbcNonTransactionalStore();
     try {
       jdbcNonTransactionalStore.commitTransaction();
-    }
-    catch(RuntimeException e) {
+    } catch (RuntimeException e) {
       return;
     }
     Assert.fail("Exception should be thrown");
@@ -58,8 +56,7 @@ public class JdbcNonTransactionalStoreTest
     JdbcNonTransactionalStore jdbcNonTransactionalStore = new JdbcNonTransactionalStore();
     try {
       jdbcNonTransactionalStore.rollbackTransaction();
-    }
-    catch(RuntimeException e) {
+    } catch (RuntimeException e) {
       return;
     }
     Assert.fail("Exception should be thrown");
@@ -71,8 +68,7 @@ public class JdbcNonTransactionalStoreTest
     JdbcNonTransactionalStore jdbcNonTransactionalStore = new JdbcNonTransactionalStore();
     try {
       jdbcNonTransactionalStore.isInTransaction();
-    }
-    catch(RuntimeException e) {
+    } catch (RuntimeException e) {
       return;
     }
     Assert.fail("Exception should be thrown");

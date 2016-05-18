@@ -55,12 +55,14 @@ public class AverageFunction  extends FunctionIndex
   @Override
   public Object compute(@NotNull ArrayList<Map<String, Object>> rows) throws Exception
   {
-    if (rows.size() == 0) return 0.0;
+    if (rows.size() == 0) {
+      return 0.0;
+    }
     double sum = 0.0;
     for (Map<String, Object> row : rows) {
       sum += ((Number)row.get(column)).doubleValue();
     }
-    return sum/rows.size();
+    return sum / rows.size();
   }
 
   /**
@@ -70,7 +72,9 @@ public class AverageFunction  extends FunctionIndex
   @Override
   protected String aggregateName()
   {
-    if (!StringUtils.isEmpty(alias)) return alias;
+    if (!StringUtils.isEmpty(alias)) {
+      return alias;
+    }
     return "AVG(" + column + ")";
   }
 }

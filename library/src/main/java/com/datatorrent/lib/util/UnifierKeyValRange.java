@@ -18,12 +18,12 @@
  */
 package com.datatorrent.lib.util;
 
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Operator.Unifier;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator.Unifier;
 
 /**
  * This unifier consumes key value pairs, where the key is an object and the value is a number.&nbsp;

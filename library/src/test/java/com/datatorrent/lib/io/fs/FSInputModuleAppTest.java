@@ -136,7 +136,7 @@ public class FSInputModuleAppTest
     for (File file : files) {
       filesData.append(FileUtils.readFileToString(file));
     }
-    Assert.assertTrue("File data doesn't contain expected text" , filesData.indexOf(expectedData) > -1);
+    Assert.assertTrue("File data doesn't contain expected text", filesData.indexOf(expectedData) > -1);
   }
 
   private static Logger LOG = LoggerFactory.getLogger(FSInputModuleAppTest.class);

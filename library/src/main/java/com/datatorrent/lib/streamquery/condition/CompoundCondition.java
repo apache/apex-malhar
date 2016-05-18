@@ -59,10 +59,12 @@ public class CompoundCondition extends Condition
 
   /**
    * Constructor for logical or metric.
+   *
    * @param leftCondition  Left validate row condition, must be non null. <br>
-   * @param rightCondition  Right validate row condition, must be non null. <br>
+   * @param rightCondition Right validate row condition, must be non null. <br>
    */
-  public CompoundCondition(Condition leftCondition, Condition rightCondition) {
+  public CompoundCondition(Condition leftCondition, Condition rightCondition)
+  {
     this.leftCondition = leftCondition;
     this.rightCondition = rightCondition;
   }
@@ -70,11 +72,13 @@ public class CompoundCondition extends Condition
   /**
    * Constructor for logical and metric if logical and parameter is true.
    * <br>
+   *
    * @param leftCondition  Left validate row condition, must be non null. <br>
-   * @param rightCondition  Right validate row condition, must be non null. <br>
-   * @param isLogicalAnd  Logical AND if true.
+   * @param rightCondition Right validate row condition, must be non null. <br>
+   * @param isLogicalAnd   Logical AND if true.
    */
-  public CompoundCondition(Condition leftCondition, Condition rightCondition, boolean isLogicalAnd) {
+  public CompoundCondition(Condition leftCondition, Condition rightCondition, boolean isLogicalAnd)
+  {
     this.leftCondition = leftCondition;
     this.rightCondition = rightCondition;
     logicalOr = !isLogicalAnd;
@@ -84,7 +88,7 @@ public class CompoundCondition extends Condition
   public boolean isValidRow(Map<String, Object> row)
   {
     if (logicalOr) {
-       return leftCondition.isValidRow(row) || rightCondition.isValidRow(row);
+      return leftCondition.isValidRow(row) || rightCondition.isValidRow(row);
     } else {
       return leftCondition.isValidRow(row) && rightCondition.isValidRow(row);
     }
@@ -117,7 +121,8 @@ public class CompoundCondition extends Condition
     this.rightCondition = rightCondition;
   }
 
-  public void setLogicalAnd() {
+  public void setLogicalAnd()
+  {
     this.logicalOr = false;
   }
 }

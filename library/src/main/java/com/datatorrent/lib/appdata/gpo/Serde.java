@@ -31,6 +31,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
  */
 public interface Serde
 {
-  public byte[] serializeObject(Object object);
-  public Object deserializeObject(byte[] object, MutableInt offset);
+  byte[] serializeObject(Object object);
+
+  Object deserializeObject(byte[] object, MutableInt offset);
 }

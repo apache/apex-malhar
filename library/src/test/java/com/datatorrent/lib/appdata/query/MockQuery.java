@@ -18,9 +18,9 @@
  */
 package com.datatorrent.lib.appdata.query;
 
-import com.datatorrent.lib.appdata.schemas.Query;
-
 import java.util.Map;
+
+import com.datatorrent.lib.appdata.schemas.Query;
 
 public class MockQuery extends Query
 {
@@ -31,21 +31,17 @@ public class MockQuery extends Query
     super(id, TYPE);
   }
 
-  public MockQuery(String id,
-                   Map<String, String> schemaKeys)
+  public MockQuery(String id, Map<String, String> schemaKeys)
   {
     super(id, TYPE, schemaKeys);
   }
 
-  public MockQuery(String id,
-                   long countdown)
+  public MockQuery(String id, long countdown)
   {
     super(id, TYPE, countdown);
   }
 
-  public MockQuery(String id,
-                   long countdown,
-                   Map<String, String> schemaKeys)
+  public MockQuery(String id, long countdown, Map<String, String> schemaKeys)
   {
     super(id, TYPE, countdown, schemaKeys);
   }

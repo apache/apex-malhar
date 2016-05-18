@@ -29,76 +29,76 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
  */
 public class SumTest
 {
-	/**
-	 * Test operator logic emits correct results.
-	 */
-	@Test
-	public void testNodeTypeProcessing()
-	{
-		Sum<Double> doper = new Sum<Double>();
-		Sum<Float> foper = new Sum<Float>();
-		Sum<Integer> ioper = new Sum<Integer>();
-		Sum<Long> loper = new Sum<Long>();
-		Sum<Short> soper = new Sum<Short>();
-		doper.setType(Double.class);
-		foper.setType(Float.class);
-		ioper.setType(Integer.class);
-		loper.setType(Long.class);
-		soper.setType(Short.class);
+  /**
+   * Test operator logic emits correct results.
+   */
+  @Test
+  public void testNodeTypeProcessing()
+  {
+    Sum<Double> doper = new Sum<Double>();
+    Sum<Float> foper = new Sum<Float>();
+    Sum<Integer> ioper = new Sum<Integer>();
+    Sum<Long> loper = new Sum<Long>();
+    Sum<Short> soper = new Sum<Short>();
+    doper.setType(Double.class);
+    foper.setType(Float.class);
+    ioper.setType(Integer.class);
+    loper.setType(Long.class);
+    soper.setType(Short.class);
 
-		testNodeSchemaProcessing(doper);
-		testNodeSchemaProcessing(foper);
-		testNodeSchemaProcessing(ioper);
-		testNodeSchemaProcessing(loper);
-		testNodeSchemaProcessing(soper);
-	}
+    testNodeSchemaProcessing(doper);
+    testNodeSchemaProcessing(foper);
+    testNodeSchemaProcessing(ioper);
+    testNodeSchemaProcessing(loper);
+    testNodeSchemaProcessing(soper);
+  }
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void testNodeSchemaProcessing(Sum oper)
-	{
-		CollectorTestSink sumSink = new CollectorTestSink();
-		oper.sum.setSink(sumSink);
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public void testNodeSchemaProcessing(Sum oper)
+  {
+    CollectorTestSink sumSink = new CollectorTestSink();
+    oper.sum.setSink(sumSink);
 
-		oper.beginWindow(0); //
+    oper.beginWindow(0); //
 
-		Double a = new Double(2.0);
-		Double b = new Double(20.0);
-		Double c = new Double(1000.0);
+    Double a = 2.0;
+    Double b = 20.0;
+    Double c = 1000.0;
 
-		oper.data.process(a);
-		oper.data.process(b);
-		oper.data.process(c);
+    oper.data.process(a);
+    oper.data.process(b);
+    oper.data.process(c);
 
-		a = 1.0;
-		oper.data.process(a);
-		a = 10.0;
-		oper.data.process(a);
-		b = 5.0;
-		oper.data.process(b);
+    a = 1.0;
+    oper.data.process(a);
+    a = 10.0;
+    oper.data.process(a);
+    b = 5.0;
+    oper.data.process(b);
 
-		b = 12.0;
-		oper.data.process(b);
-		c = 22.0;
-		oper.data.process(c);
-		c = 14.0;
-		oper.data.process(c);
+    b = 12.0;
+    oper.data.process(b);
+    c = 22.0;
+    oper.data.process(c);
+    c = 14.0;
+    oper.data.process(c);
 
-		a = 46.0;
-		oper.data.process(a);
-		b = 2.0;
-		oper.data.process(b);
-		a = 23.0;
-		oper.data.process(a);
+    a = 46.0;
+    oper.data.process(a);
+    b = 2.0;
+    oper.data.process(b);
+    a = 23.0;
+    oper.data.process(a);
 
-		oper.endWindow(); //
+    oper.endWindow(); //
 
-		// payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
-		Assert.assertEquals("number emitted tuples", 1,
-				sumSink.collectedTuples.size());
-		for (Object o : sumSink.collectedTuples) { // sum is 1157
-			Double val = ((Number) o).doubleValue();
-			Assert
-					.assertEquals("emitted sum value was was ", new Double(1157.0), val);
-		}
-	}
+    // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
+    Assert.assertEquals("number emitted tuples", 1,
+        sumSink.collectedTuples.size());
+    for (Object o : sumSink.collectedTuples) { // sum is 1157
+
+      Double val = ((Number)o).doubleValue();
+      Assert.assertEquals("emitted sum value was was ", new Double(1157.0), val);
+    }
+  }
 }

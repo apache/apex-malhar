@@ -18,11 +18,12 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.api.DefaultOutputPort;
-import org.xml.sax.InputSource;
-
 import java.io.StringReader;
 import java.util.List;
+
+import org.xml.sax.InputSource;
+
+import com.datatorrent.api.DefaultOutputPort;
 
 /**
  * An implementation of the AbstractXmlKeyValueCartesianProduct operator that takes in the xml document

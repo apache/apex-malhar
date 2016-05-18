@@ -28,7 +28,7 @@ import com.datatorrent.lib.testbench.SumTestSink;
  */
 public class MultiplyByConstantTest
 {
-	/**
+  /**
    * Test oper logic emits correct results
    */
   @Test

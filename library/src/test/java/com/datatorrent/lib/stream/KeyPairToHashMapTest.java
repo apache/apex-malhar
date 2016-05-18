@@ -32,28 +32,28 @@ import com.datatorrent.lib.util.KeyValPair;
 public class KeyPairToHashMapTest
 {
 
-	/**
-	 * Test oper pass through. The Object passed is not relevant
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Test
-	public void testNodeProcessing() throws Exception
-	{
-		KeyValPairToHashMap oper = new KeyValPairToHashMap();
-		CountTestSink mapSink = new CountTestSink();
+  /**
+   * Test oper pass through. The Object passed is not relevant
+   */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @Test
+  public void testNodeProcessing() throws Exception
+  {
+    KeyValPairToHashMap oper = new KeyValPairToHashMap();
+    CountTestSink mapSink = new CountTestSink();
 
-		oper.map.setSink(mapSink);
+    oper.map.setSink(mapSink);
 
-		oper.beginWindow(0);
-		KeyValPair<String, String> input = new KeyValPair<String, String>("a", "1");
+    oper.beginWindow(0);
+    KeyValPair<String, String> input = new KeyValPair<String, String>("a", "1");
 
-		// Same input object can be used as the oper is just pass through
-		int numtuples = 1000;
-		for (int i = 0; i < numtuples; i++) {
-			oper.keyval.process(input);
-		}
-		oper.endWindow();
+    // Same input object can be used as the oper is just pass through
+    int numtuples = 1000;
+    for (int i = 0; i < numtuples; i++) {
+      oper.keyval.process(input);
+    }
+    oper.endWindow();
 
-		Assert.assertEquals("number emitted tuples", numtuples, mapSink.count);
-	}
+    Assert.assertEquals("number emitted tuples", numtuples, mapSink.count);
+  }
 }

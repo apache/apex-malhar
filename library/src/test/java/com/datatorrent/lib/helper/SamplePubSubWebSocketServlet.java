@@ -65,11 +65,9 @@ public class SamplePubSubWebSocketServlet extends WebSocketServlet
           if (topic != null) {
             subscriber = this;
           }
-        }
-        else if (type.equals("unsubscribe")) {
+        } else if (type.equals("unsubscribe")) {
           subscriber = null;
-        }
-        else if (type.equals("publish")) {
+        } else if (type.equals("publish")) {
           Object data = map.get("data");
           if (data != null) {
             if (subscriber != null) {
@@ -77,8 +75,7 @@ public class SamplePubSubWebSocketServlet extends WebSocketServlet
             }
           }
         }
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
         LOG.warn("Data read error", ex);
       }
     }
@@ -109,8 +106,7 @@ public class SamplePubSubWebSocketServlet extends WebSocketServlet
     map.put("data", data);
     try {
       webSocket.connection.sendMessage(mapper.writeValueAsString(map));
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       LOG.warn("Connection send error", ex);
     }
   }

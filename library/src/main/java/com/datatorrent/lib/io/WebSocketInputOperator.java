@@ -29,13 +29,12 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.commons.lang3.ClassUtils;
-
 import org.apache.apex.shaded.ning19.com.ning.http.client.AsyncHttpClient;
 import org.apache.apex.shaded.ning19.com.ning.http.client.AsyncHttpClientConfigBean;
 import org.apache.apex.shaded.ning19.com.ning.http.client.ws.WebSocket;
 import org.apache.apex.shaded.ning19.com.ning.http.client.ws.WebSocketTextListener;
 import org.apache.apex.shaded.ning19.com.ning.http.client.ws.WebSocketUpgradeHandler;
+import org.apache.commons.lang3.ClassUtils;
 
 import com.datatorrent.api.Context.OperatorContext;
 
@@ -60,8 +59,8 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
   //Do not make this @NotNull since null is a valid value for some child classes
   private URI uri;
   private transient AsyncHttpClient client;
-  private transient final JsonFactory jsonFactory = new JsonFactory();
-  protected transient final ObjectMapper mapper = new ObjectMapper(jsonFactory);
+  private final transient JsonFactory jsonFactory = new JsonFactory();
+  protected final transient ObjectMapper mapper = new ObjectMapper(jsonFactory);
   protected transient WebSocket connection;
   private transient boolean connectionClosed = false;
   private transient volatile boolean shutdown = false;
@@ -121,8 +120,7 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
       shutdown = false;
       monThread = new MonitorThread();
       monThread.start();
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -135,8 +133,7 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
       if (monThread != null) {
         monThread.join();
       }
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       LOG.error("Error joining monitor", ex);
     }
 
@@ -171,8 +168,8 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
             connection.close();
             WebSocketInputOperator.this.activate(null);
           }
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
+          //swallowing exception
         }
       }
     }
@@ -213,11 +210,10 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
           LOG.debug("Got: " + string);
           try {
             T o = convertMessage(string);
-            if(!(skipNull && o == null)) {
+            if (!(skipNull && o == null)) {
               outputPort.emit(o);
             }
-          }
-          catch (IOException ex) {
+          } catch (IOException ex) {
             LOG.error("Got exception: ", ex);
           }
         }
@@ -242,8 +238,7 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
         }
 
       }).build()).get(5, TimeUnit.SECONDS);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       LOG.error("Error reading from " + uri, ex);
       if (client != null) {
         client.close();

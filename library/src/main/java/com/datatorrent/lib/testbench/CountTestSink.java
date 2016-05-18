@@ -43,12 +43,11 @@ public class CountTestSink<T> extends CollectorTestSink<T>
   }
 
   /**
-   *
    * @param payload
    */
   @Override
   public void put(T payload)
   {
-      count++;
+    count++;
   }
 }

@@ -18,15 +18,17 @@
  */
 package com.datatorrent.lib.script;
 
-import com.datatorrent.common.util.BaseOperator;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.validation.constraints.NotNull;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import javax.validation.constraints.NotNull;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * A base implementation of a BaseOperator for language script operator.&nbsp; Subclasses should provide the 
@@ -96,5 +98,6 @@ public abstract class ScriptOperator extends BaseOperator
   }
 
   public abstract void process(Map<String, Object> tuple);
+
   public abstract Map<String, Object> getBindings();
 }

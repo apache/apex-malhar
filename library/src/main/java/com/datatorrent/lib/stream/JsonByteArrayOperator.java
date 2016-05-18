@@ -22,14 +22,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.datatorrent.api.annotation.Stateless;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.Stateless;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
@@ -70,8 +70,7 @@ public class JsonByteArrayOperator extends BaseOperator
         JSONObject value = jSONObject.optJSONObject(key);
         if (value == null) {
           map.put(insertKey, jSONObject.get(key));
-        }
-        else {
+        } else {
           getFlatMap(value, map, insertKey);
         }
       }
@@ -105,8 +104,7 @@ public class JsonByteArrayOperator extends BaseOperator
           outputFlatMap.emit(flatMap);
         }
 
-      }
-      catch (Throwable ex) {
+      } catch (Throwable ex) {
         DTThrowable.rethrow(ex);
       }
     }

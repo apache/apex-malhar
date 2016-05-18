@@ -44,77 +44,77 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  */
 public class Average<V extends Number> extends BaseNumberValueOperator<V>
 {
-	/**
-	 * Input port that takes a number.
-	 */
-	public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
-	{
-		/**
-		 * Computes sum and count with each tuple
-		 */
-		@Override
-		public void process(V tuple)
-		{
-			sums += tuple.doubleValue();
-			counts++;
-		}
-	};
+  /**
+   * Input port that takes a number.
+   */
+  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
+  {
+    /**
+     * Computes sum and count with each tuple
+     */
+    @Override
+    public void process(V tuple)
+    {
+      sums += tuple.doubleValue();
+      counts++;
+    }
+  };
 
-	/**
-	 * Output port that emits average as a number.
-	 */
-	public final transient DefaultOutputPort<V> average = new DefaultOutputPort<V>();
+  /**
+   * Output port that emits average as a number.
+   */
+  public final transient DefaultOutputPort<V> average = new DefaultOutputPort<V>();
 
-	protected double sums = 0;
-	protected long counts = 0;
+  protected double sums = 0;
+  protected long counts = 0;
 
-	/**
-	 * Emit average.
-	 */
-	@Override
-	public void endWindow()
-	{
-		// May want to send out only if count != 0
-		if (counts != 0) {
-			average.emit(getAverage());
-		}
-		sums = 0;
-		counts = 0;
-	}
+  /**
+   * Emit average.
+   */
+  @Override
+  public void endWindow()
+  {
+    // May want to send out only if count != 0
+    if (counts != 0) {
+      average.emit(getAverage());
+    }
+    sums = 0;
+    counts = 0;
+  }
 
-	/**
-	 * Calculate average based on number type.
-	 */
-	@SuppressWarnings("unchecked")
-	public V getAverage()
-	{
-		if (counts == 0) {
-			return null;
-		}
-		V num = getValue(sums);
-		Number val;
-		switch (getType()) {
-			case DOUBLE:
-				val = new Double(num.doubleValue() / counts);
-				break;
-			case INTEGER:
-				int icount = (int) (num.intValue() / counts);
-				val = new Integer(icount);
-				break;
-			case FLOAT:
-				val = new Float(num.floatValue() / counts);
-				break;
-			case LONG:
-				val = new Long(num.longValue() / counts);
-				break;
-			case SHORT:
-				short scount = (short) (num.shortValue() / counts);
-				val = new Short(scount);
-				break;
-			default:
-				val = new Double(num.doubleValue() / counts);
-				break;
-		}
-		return (V) val;
-	}
+  /**
+   * Calculate average based on number type.
+   */
+  @SuppressWarnings("unchecked")
+  public V getAverage()
+  {
+    if (counts == 0) {
+      return null;
+    }
+    V num = getValue(sums);
+    Number val;
+    switch (getType()) {
+      case DOUBLE:
+        val = new Double(num.doubleValue() / counts);
+        break;
+      case INTEGER:
+        int icount = (int)(num.intValue() / counts);
+        val = new Integer(icount);
+        break;
+      case FLOAT:
+        val = new Float(num.floatValue() / counts);
+        break;
+      case LONG:
+        val = new Long(num.longValue() / counts);
+        break;
+      case SHORT:
+        short scount = (short)(num.shortValue() / counts);
+        val = new Short(scount);
+        break;
+      default:
+        val = new Double(num.doubleValue() / counts);
+        break;
+    }
+    return (V)val;
+  }
 }

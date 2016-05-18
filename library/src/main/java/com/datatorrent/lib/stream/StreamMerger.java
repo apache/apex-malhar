@@ -18,10 +18,10 @@
  */
 package com.datatorrent.lib.stream;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.Stateless;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * An implementation of BaseOperator that merges two streams with identical schema and emits the tuples to the output port in order.
@@ -41,10 +41,10 @@ import com.datatorrent.api.annotation.Stateless;
 @Stateless
 public class StreamMerger<K> extends BaseOperator
 {
-	/**
-	 * Data input port 1.
-	 */
- public final transient DefaultInputPort<K> data1 = new DefaultInputPort<K>()
+  /**
+   * Data input port 1.
+   */
+  public final transient DefaultInputPort<K> data1 = new DefaultInputPort<K>()
   {
     /**
      * Emits to port "out"

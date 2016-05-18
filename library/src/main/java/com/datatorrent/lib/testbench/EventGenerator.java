@@ -105,7 +105,7 @@ public class EventGenerator implements InputOperator
   HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();
   ArrayList<Integer> weights;
   int total_weight = 0;
-  private transient final Random random = new Random();
+  private final transient Random random = new Random();
   public static final int ROLLING_WINDOW_COUNT_DEFAULT = 1;
   @Min(1)
   private int rolling_window_count = ROLLING_WINDOW_COUNT_DEFAULT;
@@ -157,14 +157,12 @@ public class EventGenerator implements InputOperator
         }
         weights.add(Integer.parseInt(weightsArray[i]));
         total_weight += Integer.parseInt(weightsArray[i]);
-      }
-      else {
+      } else {
         total_weight += 1;
       }
       if ((valuesArray != null) && valuesArray.length != 0) {
         keys.put(s, new Double(Double.parseDouble(valuesArray[i])));
-      }
-      else {
+      } else {
         keys.put(s, 0.0);
       }
       wtostr_index.put(i, s);
@@ -197,8 +195,7 @@ public class EventGenerator implements InputOperator
       long average;
       if (rolling_window_count == 1) {
         average = (tcount * 1000) / elapsedTime;
-      }
-      else { // use tuple_numbers
+      } else { // use tuple_numbers
         int slots;
         if (count_denominator == rolling_window_count) {
           tuple_numbers[tuple_index] = tcount;
@@ -208,8 +205,7 @@ public class EventGenerator implements InputOperator
           if (tuple_index == rolling_window_count) {
             tuple_index = 0;
           }
-        }
-        else {
+        } else {
           tuple_numbers[count_denominator - 1] = tcount;
           time_numbers[count_denominator - 1] = elapsedTime;
           slots = count_denominator;
@@ -259,7 +255,7 @@ public class EventGenerator implements InputOperator
 
   /**
    * Comma separated strings which can be used as keys
-   * @param value
+   * @param keys
    */
   public void setKeysHelper(String keys)
   {
@@ -275,14 +271,13 @@ public class EventGenerator implements InputOperator
 
   /**
    * Comma separated values which are used as weight for the same indexed keys.
-   * @param value
+   * @param weight
    */
   public void setWeightsHelper(String weight)
   {
     if (weight.isEmpty()) {
       weightsArray = null;
-    }
-    else {
+    } else {
       weightsArray = weight.split(",");
     }
   }
@@ -300,8 +295,7 @@ public class EventGenerator implements InputOperator
   {
     if (value.isEmpty()) {
       valuesArray = null;
-    }
-    else {
+    } else {
       valuesArray = value.split(",");
     }
   }
@@ -341,8 +335,7 @@ public class EventGenerator implements InputOperator
           }
           j++;
         }
-      }
-      else {
+      } else {
         j++;
         j = j % keys.size();
       }

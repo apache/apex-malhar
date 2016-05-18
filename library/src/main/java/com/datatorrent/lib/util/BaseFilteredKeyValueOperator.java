@@ -68,7 +68,7 @@ public class BaseFilteredKeyValueOperator<K, V> extends BaseKeyValueOperator<K, 
    * setter function for filterBy
    * @param list list of keys for subtoken filters
    */
-  public void setFilterBy(K [] list)
+  public void setFilterBy(K[] list)
   {
     if (list != null) {
       for (K s: list) {

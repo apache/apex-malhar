@@ -106,7 +106,7 @@ public enum Type implements Serializable
   static {
     Map<String, Type> nameToType = Maps.newHashMap();
 
-    for(Type type: Type.values()) {
+    for (Type type : Type.values()) {
       nameToType.put(type.getName(), type);
     }
 
@@ -114,7 +114,7 @@ public enum Type implements Serializable
 
     Map<Class<?>, Type> clazzToType = Maps.newHashMap();
 
-    for(Type type: Type.values()) {
+    for (Type type : Type.values()) {
       clazzToType.put(type.getClazz(), type);
     }
 
@@ -153,11 +153,7 @@ public enum Type implements Serializable
    * @param clazz The Class of the corresponding Java type.
    * @param higherTypes The set of types to which this type can be promoted.
    */
-  Type(String name,
-       int byteSize,
-       JSONType jsonType,
-       Class<?> clazz,
-       Set<Type> higherTypes)
+  Type(String name, int byteSize, JSONType jsonType, Class<?> clazz, Set<Type> higherTypes)
   {
     this.name = name;
     this.byteSize = byteSize;
@@ -247,8 +243,7 @@ public enum Type implements Serializable
   {
     Type type = getType(name);
 
-    Preconditions.checkArgument(type != null,
-                                name + " is not a valid type.");
+    Preconditions.checkArgument(type != null, name + " is not a valid type.");
 
     return type;
   }
@@ -262,50 +257,41 @@ public enum Type implements Serializable
    */
   public static Object promote(Type from, Type to, Object o)
   {
-    if(from == to) {
+    if (from == to) {
       return o;
     }
 
-    Preconditions.checkArgument(!(from == Type.BOOLEAN
-                                  || from == Type.CHAR
-                                  || from == Type.LONG
-                                  || from == Type.DOUBLE),
-                                "Cannot convert "
-                                + Type.BOOLEAN.getName() + ", "
-                                + Type.CHAR.getName() + ", "
-                                + Type.LONG.getName() + ", or "
-                                + Type.DOUBLE + " to a larger type.");
+    Preconditions.checkArgument(!(from == Type.BOOLEAN || from == Type.CHAR || from == Type.LONG
+        || from == Type.DOUBLE), "Cannot convert " + Type.BOOLEAN.getName() + ", " + Type.CHAR.getName()
+        + ", " + Type.LONG.getName() + ", or " + Type.DOUBLE + " to a larger type.");
 
     Preconditions.checkArgument(from.getHigherTypes().contains(to),
-                                from.getName() + " cannot be promoted to " + to.getName());
+        from.getName() + " cannot be promoted to " + to.getName());
 
-    if(from == Type.FLOAT && to == Type.DOUBLE) {
+    if (from == Type.FLOAT && to == Type.DOUBLE) {
       return (Double)((Float)o).doubleValue();
     }
 
-    if(from == Type.BYTE) {
-      if(to == Type.SHORT) {
+    if (from == Type.BYTE) {
+      if (to == Type.SHORT) {
         return (Short)((Byte)o).shortValue();
-      }
-      else if(to == Type.INTEGER) {
+      } else if (to == Type.INTEGER) {
         return (Integer)((Byte)o).intValue();
-      }
-      else if(to == Type.LONG) {
+      } else if (to == Type.LONG) {
         return (Long)((Byte)o).longValue();
       }
     }
 
-    if(from == Type.SHORT) {
-      if(to == Type.INTEGER) {
+    if (from == Type.SHORT) {
+      if (to == Type.INTEGER) {
         return (Integer)((Short)o).intValue();
-      }
-      else if(to == Type.LONG) {
+      } else if (to == Type.LONG) {
         return (Long)((Short)o).longValue();
       }
     }
 
-    if(from == Type.INTEGER
-       && to == Type.LONG) {
+    if (from == Type.INTEGER
+        && to == Type.LONG) {
       return (Long)((Integer)o).longValue();
     }
 

@@ -18,16 +18,15 @@
  */
 package com.datatorrent.lib.appdata;
 
-import com.google.common.base.Preconditions;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.io.SimpleSinglePortInputOperator.BufferingOutputPort;
+import com.google.common.base.Preconditions;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Sink;
+import com.datatorrent.lib.io.SimpleSinglePortInputOperator.BufferingOutputPort;
 
 /**
  * @since 3.3.0
@@ -44,25 +43,23 @@ public class StoreUtils
    */
   public static <T> void attachOutputPortToInputPort(DefaultOutputPort<T> outputPort, final DefaultInputPort<T> inputPort)
   {
-    outputPort.setSink(
-      new Sink<Object>()
+    outputPort.setSink(new Sink<Object>()
+    {
+      @Override
+      @SuppressWarnings("unchecked")
+      public void put(Object tuple)
       {
-        @Override
-        @SuppressWarnings("unchecked")
-        public void put(Object tuple)
-        {
-          LOG.debug("processing tuple");
-          inputPort.process((T)tuple);
-        }
-
-        @Override
-        public int getCount(boolean reset)
-        {
-          return 0;
-        }
-
+        LOG.debug("processing tuple");
+        inputPort.process((T)tuple);
       }
-    );
+
+      @Override
+      public int getCount(boolean reset)
+      {
+        return 0;
+      }
+
+    });
   }
 
   /**

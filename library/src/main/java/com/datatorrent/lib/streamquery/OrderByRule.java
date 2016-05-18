@@ -58,7 +58,7 @@ public class OrderByRule<T extends Comparable>
     for (int i = 0; i < rows.size(); i++) {
       Map<String, Object> row = rows.get(i);
       if (row.containsKey(columnName)) {
-        T value = (T) row.get(columnName);
+        T value = (T)row.get(columnName);
         ArrayList<Map<String, Object>> list;
         if (sorted.containsKey(value)) {
           list = sorted.get(value);

@@ -88,8 +88,7 @@ public class OuterJoinOperator extends InnerJoinOperator
       for (int i = 0; i < table2.size(); i++) {
         boolean merged = false;
         for (int j = 0; j < table1.size(); j++) {
-          if ((joinCondition == null)
-              || (joinCondition.isValidJoin(table1.get(j), table2.get(i)))) {
+          if ((joinCondition == null) || (joinCondition.isValidJoin(table1.get(j), table2.get(i)))) {
             merged = true;
           }
         }
@@ -104,6 +103,7 @@ public class OuterJoinOperator extends InnerJoinOperator
   {
     isLeftJoin = true;
   }
+
   public void setRighttJoin()
   {
     isLeftJoin = false;

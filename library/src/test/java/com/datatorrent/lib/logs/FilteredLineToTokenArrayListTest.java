@@ -50,7 +50,7 @@ public class FilteredLineToTokenArrayListTest
     oper.setSplitTokenBy(",");
     oper.tokens.setSink(tokenSink);
     oper.splittokens.setSink(stokenSink);
-    String [] filters = new String[2];
+    String[] filters = new String[2];
     filters[0] = "a";
     filters[1] = "c";
     oper.setFilterBy(filters);
@@ -73,9 +73,9 @@ public class FilteredLineToTokenArrayListTest
     Assert.assertEquals("number emitted tuples", numTuples, tokenSink.getCount("c,4,5,6"));
     Assert.assertEquals("number emitted tuples", numTuples, tokenSink.getCount("d"));
     HashMap<Object, Object> smap = stokenSink.map;
-    for (Map.Entry<Object, Object> e: smap.entrySet()) {
+    for (Map.Entry<Object, Object> e : smap.entrySet()) {
       HashMap<String, ArrayList<String>> item = (HashMap<String, ArrayList<String>>)e.getKey();
-      for (Map.Entry<String, ArrayList<String>> l: item.entrySet()) {
+      for (Map.Entry<String, ArrayList<String>> l : item.entrySet()) {
         String key = l.getKey();
         ArrayList<String> list = l.getValue();
         Assert.assertTrue(!key.equals("b"));
@@ -84,8 +84,7 @@ public class FilteredLineToTokenArrayListTest
           Assert.assertEquals("number emitted values for \"a\"", 2, list.size());
           Assert.assertEquals("first value for \"a\"", "2", list.get(0));
           Assert.assertEquals("second value for \"a\"", "3", list.get(1));
-        }
-        else if (key.equals("c")) {
+        } else if (key.equals("c")) {
           Assert.assertEquals("number emitted values for \"c\"", 3, list.size());
           Assert.assertEquals("first value for \"c\"", "4", list.get(0));
           Assert.assertEquals("second value for \"c\"", "5", list.get(1));

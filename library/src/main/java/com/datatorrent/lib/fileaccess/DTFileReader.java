@@ -19,7 +19,6 @@
 package com.datatorrent.lib.fileaccess;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.TreeMap;
 
 import org.apache.hadoop.classification.InterfaceStability;
@@ -97,7 +96,9 @@ public class DTFileReader implements FileAccess.FileReader
   @Override
   public boolean next(Slice key, Slice value) throws IOException
   {
-    if (scanner.atEnd()) return false;
+    if (scanner.atEnd()) {
+      return false;
+    }
     Entry en = scanner.entry();
 
     key.buffer = en.getBlockBuffer();

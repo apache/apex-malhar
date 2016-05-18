@@ -38,22 +38,26 @@ public class MidIndex extends ColumnIndex
   public MidIndex(@NotNull String column, String alias, int start)
   {
     super(column, alias);
-    assert(start >= 0);
+    assert (start >= 0);
     this.start = start;
   }
 
   @Override
   public void filter(@NotNull  Map<String, Object> row, @NotNull  Map<String, Object> collect)
   {
-    if (!row.containsKey(column)) return;
+    if (!row.containsKey(column)) {
+      return;
+    }
     if (!(row.get(column) instanceof String)) {
-      assert(false);
+      assert (false);
     }
     String name = getColumn();
-    if (alias != null) name = alias;
+    if (alias != null) {
+      name = alias;
+    }
 
     int endIndex = start + length;
-    if ((length == 0)||(endIndex > ((String)row.get(column)).length())) {
+    if ((length == 0) || (endIndex > ((String)row.get(column)).length())) {
       collect.put(name, row.get(column));
     } else {
       collect.put(name, ((String)row.get(column)).substring(start, endIndex));
@@ -67,7 +71,7 @@ public class MidIndex extends ColumnIndex
 
   public void setLength(int length)
   {
-    assert(length > 0);
+    assert (length > 0);
     this.length = length;
   }
 }

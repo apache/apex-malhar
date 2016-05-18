@@ -33,12 +33,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
-import com.datatorrent.lib.parser.XmlParser;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 
@@ -76,6 +77,7 @@ public class XmlFormatterTest
     }
 
   }
+
   @Test
   public void testOperatorSerialization()
   {
@@ -162,7 +164,7 @@ public class XmlFormatterTest
 
     operator.setup(null);
     operator.in.process(e);
-    System.out.println(validDataSink.collectedTuples.get(0));
+    LOG.debug("{}", validDataSink.collectedTuples.get(0));
     Assert.assertEquals(1, validDataSink.collectedTuples.size());
     Assert.assertEquals(0, invalidDataSink.collectedTuples.size());
     String expected = "<EmployeeBean>" + "<name>john</name>"
@@ -202,7 +204,7 @@ public class XmlFormatterTest
 
   }
 
-  @XmlType (propOrder={"name","dept","eid", "dateOfJoining", "address"})
+  @XmlType(propOrder = {"name", "dept", "eid", "dateOfJoining", "address"})
   public static class EmployeeBean
   {
 
@@ -291,5 +293,7 @@ public class XmlFormatterTest
     }
 
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(XmlFormatterTest.class);
 
 }

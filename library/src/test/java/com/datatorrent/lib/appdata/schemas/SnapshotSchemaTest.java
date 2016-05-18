@@ -20,19 +20,19 @@ package com.datatorrent.lib.appdata.schemas;
 
 import java.util.Map;
 
-import com.google.common.collect.Maps;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.common.collect.Maps;
 
 public class SnapshotSchemaTest
 {
   public static final String TEST_JSON = "{\n"
-                                        + " \"values\": [\n"
-                                        + "   {\"name\": \"url\", \"type\":\"string\"},\n"
-                                        + "   {\"name\": \"count\", \"type\":\"integer\"}\n"
-                                        + " ]\n"
-                                        + "}";
+      + " \"values\": [\n"
+      + "   {\"name\": \"url\", \"type\":\"string\"},\n"
+      + "   {\"name\": \"count\", \"type\":\"integer\"}\n"
+      + " ]\n"
+      + "}";
 
   @Test
   public void schemaSnapshotFieldTypeTest()

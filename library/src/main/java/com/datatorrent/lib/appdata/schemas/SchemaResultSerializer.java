@@ -43,14 +43,11 @@ public class SchemaResultSerializer implements CustomMessageSerializer
   @Override
   public String serialize(Message message, ResultFormatter resultFormatter)
   {
-    if(!(message instanceof SchemaResult))
-    {
-      throw new IllegalArgumentException("Must receive a "
-                                         + SchemaResult.class
-                                         + " object.");
+    if (!(message instanceof SchemaResult)) {
+      throw new IllegalArgumentException("Must receive a " + SchemaResult.class + " object.");
     }
 
-    SchemaResult genericSchemaResult = (SchemaResult) message;
+    SchemaResult genericSchemaResult = (SchemaResult)message;
 
     StringBuilder sb = new StringBuilder();
 
@@ -58,20 +55,16 @@ public class SchemaResultSerializer implements CustomMessageSerializer
     logger.debug("result id {}", genericSchemaResult.getId());
     logger.debug("result type {}", genericSchemaResult.getType());
 
-    sb.append("{\"").append(Result.FIELD_ID).
-    append("\":\"").append(genericSchemaResult.getId()).
-    append("\",\"").append(Result.FIELD_TYPE).
-    append("\":\"").append(genericSchemaResult.getType()).
-    append("\",\"").append(Result.FIELD_DATA).
-    append("\":");
+    sb.append("{\"").append(Result.FIELD_ID).append("\":\"").append(genericSchemaResult.getId())
+        .append("\",\"").append(Result.FIELD_TYPE).append("\":\"").append(genericSchemaResult.getType())
+        .append("\",\"").append(Result.FIELD_DATA).append("\":");
 
     JSONArray schemaArray = new JSONArray();
 
-    for(Schema schema: genericSchemaResult.getGenericSchemas()) {
+    for (Schema schema : genericSchemaResult.getGenericSchemas()) {
       try {
         schemaArray.put(new JSONObject(schema.getSchemaJSON()));
-      }
-      catch(JSONException ex) {
+      } catch (JSONException ex) {
         throw new RuntimeException(ex);
       }
     }

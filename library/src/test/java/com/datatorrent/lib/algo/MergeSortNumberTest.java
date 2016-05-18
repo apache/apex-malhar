@@ -18,8 +18,6 @@
  */
 package com.datatorrent.lib.algo;
 
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -27,6 +25,8 @@ import java.util.Random;
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -38,38 +38,40 @@ public class MergeSortNumberTest
    * Test node logic emits correct results
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-	@Test
+  @Test
   public void testNodeProcessing() throws Exception
   {
-  	MergeSortNumber<Integer> oper = new MergeSortNumber<Integer>();
-  	CollectorTestSink sink = new CollectorTestSink();
-  	oper.sort.setSink(sink);
+    MergeSortNumber<Integer> oper = new MergeSortNumber<Integer>();
+    CollectorTestSink sink = new CollectorTestSink();
+    oper.sort.setSink(sink);
 
-  	oper.setup(null);
-  	oper.beginWindow(1);
+    oper.setup(null);
+    oper.beginWindow(1);
 
-  	Random rand = new Random();
-  	ArrayList<Integer> tuple = new ArrayList<Integer>();
-  	tuple.add(rand.nextInt(50));
-  	tuple.add(50 + rand.nextInt(50));
-  	oper.process(tuple);
-  	tuple = new ArrayList<Integer>();
-  	tuple.add(rand.nextInt(50));
-  	tuple.add(50 + rand.nextInt(50));
-  	oper.process(tuple);
+    Random rand = new Random();
+    ArrayList<Integer> tuple = new ArrayList<Integer>();
+    tuple.add(rand.nextInt(50));
+    tuple.add(50 + rand.nextInt(50));
+    oper.process(tuple);
+    tuple = new ArrayList<Integer>();
+    tuple.add(rand.nextInt(50));
+    tuple.add(50 + rand.nextInt(50));
+    oper.process(tuple);
 
-  	oper.endWindow();
-  	oper.teardown();
+    oper.endWindow();
+    oper.teardown();
 
-  	assertTrue("Tuples in sink", sink.collectedTuples.size() == 1);
-  	Iterator iter = sink.collectedTuples.iterator();
-  	if (!iter.hasNext()) return;
-  	tuple = (ArrayList<Integer>) iter.next();
-  	assertTrue("Tuple size 4", tuple.size() == 4);
-  	Integer val = tuple.get(0);
-  	for(int i=1; i < 4; i++) {
-  		assertTrue("Values must be sorted " + tuple, val <= tuple.get(i));
-  		val = tuple.get(i);
-  	}
+    assertTrue("Tuples in sink", sink.collectedTuples.size() == 1);
+    Iterator iter = sink.collectedTuples.iterator();
+    if (!iter.hasNext()) {
+      return;
+    }
+    tuple = (ArrayList<Integer>)iter.next();
+    assertTrue("Tuple size 4", tuple.size() == 4);
+    Integer val = tuple.get(0);
+    for (int i = 1; i < 4; i++) {
+      assertTrue("Values must be sorted " + tuple, val <= tuple.get(i));
+      val = tuple.get(i);
+    }
   }
 }

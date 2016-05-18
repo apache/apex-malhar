@@ -18,13 +18,14 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.datatorrent.common.util.BaseOperator;
+import java.util.HashMap;
+
+import javax.validation.constraints.NotNull;
+
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
-
-import java.util.HashMap;
-import javax.validation.constraints.NotNull;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This operator receives data on two input ports (data1, and data2).&nbsp;
@@ -129,6 +130,7 @@ public class SeedEventClassifier<T> extends BaseOperator
       seed = s_start;
     }
   }
+
   /**
    * Data for classification values
    */

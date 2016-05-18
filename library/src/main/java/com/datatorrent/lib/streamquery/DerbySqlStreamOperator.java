@@ -18,14 +18,19 @@
  */
 package com.datatorrent.lib.streamquery;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.streamquery.AbstractSqlStreamOperator.InputSchema.ColumnInfo;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.lib.streamquery.AbstractSqlStreamOperator.InputSchema.ColumnInfo;
 
 /**
  * An implementation of AbstractSqlStreamOperator that provides embedded derby sql input operator.
@@ -38,13 +43,14 @@ import java.util.Map;
 public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
 {
   protected transient ArrayList<PreparedStatement> insertStatements = new ArrayList<PreparedStatement>(5);
-    protected List<String> execStmtStringList = new ArrayList<String>();
+  protected List<String> execStmtStringList = new ArrayList<String>();
   protected transient ArrayList<PreparedStatement> execStatements = new ArrayList<PreparedStatement>(5);
   protected transient ArrayList<PreparedStatement> deleteStatements = new ArrayList<PreparedStatement>(5);
   protected transient Connection db;
 
-  public void addExecStatementString(String stmt) {
-       this.execStmtStringList.add(stmt);
+  public void addExecStatementString(String stmt)
+  {
+    this.execStmtStringList.add(stmt);
   }
 
 
@@ -54,8 +60,7 @@ public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
     System.setProperty("derby.stream.error.file", "/dev/null");
     try {
       Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
 
@@ -74,7 +79,7 @@ public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
         String columnNames = "";
         String insertQuestionMarks = "";
         int j = 0;
-        for (Map.Entry<String, ColumnInfo> entry: inputSchema.columnInfoMap.entrySet()) {
+        for (Map.Entry<String, ColumnInfo> entry : inputSchema.columnInfoMap.entrySet()) {
           if (!columnSpec.isEmpty()) {
             columnSpec += ",";
             columnNames += ",";
@@ -87,21 +92,22 @@ public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
           insertQuestionMarks += "?";
           entry.getValue().bindIndex = ++j;
         }
-        String createTempTableStmt = "DECLARE GLOBAL TEMPORARY TABLE SESSION." + inputSchema.name + "(" + columnSpec + ") NOT LOGGED";
+        String createTempTableStmt =
+            "DECLARE GLOBAL TEMPORARY TABLE SESSION." + inputSchema.name + "(" + columnSpec + ") NOT LOGGED";
         st = db.prepareStatement(createTempTableStmt);
         st.execute();
         st.close();
 
-        String insertStmt = "INSERT INTO SESSION." + inputSchema.name + " (" + columnNames + ") VALUES (" + insertQuestionMarks + ")";
+        String insertStmt = "INSERT INTO SESSION." + inputSchema.name + " (" + columnNames + ") VALUES ("
+            + insertQuestionMarks + ")";
 
         insertStatements.add(i, db.prepareStatement(insertStmt));
         deleteStatements.add(i, db.prepareStatement("DELETE FROM SESSION." + inputSchema.name));
       }
-        for (String stmtStr: execStmtStringList) {
-            execStatements.add(db.prepareStatement(stmtStr));
-        }
-    }
-    catch (SQLException ex) {
+      for (String stmtStr : execStmtStringList) {
+        execStatements.add(db.prepareStatement(stmtStr));
+      }
+    } catch (SQLException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -111,8 +117,7 @@ public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
   {
     try {
       db.setAutoCommit(false);
-    }
-    catch (SQLException ex) {
+    } catch (SQLException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -124,18 +129,16 @@ public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
 
     PreparedStatement insertStatement = insertStatements.get(tableNum);
     try {
-      for (Map.Entry<String, Object> entry: tuple.entrySet()) {
+      for (Map.Entry<String, Object> entry : tuple.entrySet()) {
         ColumnInfo t = inputSchema.columnInfoMap.get(entry.getKey());
         if (t != null && t.bindIndex != 0) {
-          //System.out.println("Binding: "+entry.getValue().toString()+" to "+t.bindIndex);
           insertStatement.setString(t.bindIndex, entry.getValue().toString());
         }
       }
 
       insertStatement.executeUpdate();
       insertStatement.clearParameters();
-    }
-    catch (SQLException ex) {
+    } catch (SQLException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -147,48 +150,46 @@ public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
       db.commit();
       if (bindings != null) {
         for (int i = 0; i < bindings.size(); i++) {
-            for (PreparedStatement stmt: execStatements) {
-                stmt.setString(i, bindings.get(i).toString());
-            }
+          for (PreparedStatement stmt : execStatements) {
+            stmt.setString(i, bindings.get(i).toString());
+          }
         }
       }
 
-
-     for (PreparedStatement stmt: execStatements) {
-          executePreparedStatement(stmt);
+      for (PreparedStatement stmt : execStatements) {
+        executePreparedStatement(stmt);
       }
-      for (PreparedStatement st: deleteStatements) {
+      for (PreparedStatement st : deleteStatements) {
         st.executeUpdate();
         st.clearParameters();
       }
-    }
-    catch (SQLException ex) {
+    } catch (SQLException ex) {
       throw new RuntimeException(ex);
     }
     bindings = null;
   }
 
-    private void executePreparedStatement(PreparedStatement statement) throws SQLException {
-        ResultSet res = statement.executeQuery();
-        ResultSetMetaData resmeta = res.getMetaData();
-        int columnCount = resmeta.getColumnCount();
-        while (res.next()) {
-            HashMap<String, Object> resultRow = new HashMap<String, Object>();
-            for (int i = 1; i <= columnCount; i++) {
-                resultRow.put(resmeta.getColumnName(i), res.getObject(i));
-            }
-            this.result.emit(resultRow);
-        }
-        statement.clearParameters();
+  private void executePreparedStatement(PreparedStatement statement) throws SQLException
+  {
+    ResultSet res = statement.executeQuery();
+    ResultSetMetaData resmeta = res.getMetaData();
+    int columnCount = resmeta.getColumnCount();
+    while (res.next()) {
+      HashMap<String, Object> resultRow = new HashMap<String, Object>();
+      for (int i = 1; i <= columnCount; i++) {
+        resultRow.put(resmeta.getColumnName(i), res.getObject(i));
+      }
+      this.result.emit(resultRow);
     }
+    statement.clearParameters();
+  }
 
   @Override
   public void teardown()
   {
     try {
       db.close();
-    }
-    catch (SQLException ex) {
+    } catch (SQLException ex) {
       throw new RuntimeException(ex);
     }
   }

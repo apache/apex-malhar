@@ -23,12 +23,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 public class FieldsDescriptorTest
 {
@@ -59,15 +59,15 @@ public class FieldsDescriptorTest
     fieldToType.put(doubleField, Type.DOUBLE);
 
     final List<String> expectedFieldList = Lists.newArrayList(boolField,
-                                                              charField,
-                                                              stringField,
-                                                              objectField,
-                                                              byteField,
-                                                              shortField,
-                                                              integerField,
-                                                              longField,
-                                                              floatField,
-                                                              doubleField);
+        charField,
+        stringField,
+        objectField,
+        byteField,
+        shortField,
+        integerField,
+        longField,
+        floatField,
+        doubleField);
 
     final Fields expectedFields = new Fields(Sets.newHashSet(expectedFieldList));
     final Set<Type> expectedTypes = Sets.newHashSet(fieldToType.values());
@@ -80,10 +80,8 @@ public class FieldsDescriptorTest
     Assert.assertEquals(Sets.newHashSet(), fd.getCompressedTypes());
     Assert.assertEquals(expectedFields, fd.getFields());
     Assert.assertEquals(fieldToType, fd.getFieldToType());
-    Assert.assertTrue(expectedTypes.containsAll(fd.getTypes()) &&
-                      fd.getTypes().containsAll(expectedTypes));
-    Assert.assertTrue(fd.getTypesList().containsAll(expectedTypes) &&
-                      expectedTypes.containsAll(fd.getTypesList()));
+    Assert.assertTrue(expectedTypes.containsAll(fd.getTypes()) && fd.getTypes().containsAll(expectedTypes));
+    Assert.assertTrue(fd.getTypesList().containsAll(expectedTypes) && expectedTypes.containsAll(fd.getTypesList()));
   }
 
   @Test

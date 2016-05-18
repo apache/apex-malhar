@@ -23,13 +23,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.apex.malhar.lib.dimensions.aggregator.AggregatorRegistry;
-import org.apache.apex.malhar.lib.dimensions.aggregator.IncrementalAggregator;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.dimensions.aggregator.AggregatorRegistry;
+import org.apache.apex.malhar.lib.dimensions.aggregator.IncrementalAggregator;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;

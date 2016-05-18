@@ -20,10 +20,10 @@ package com.datatorrent.lib.db;
 
 import java.io.IOException;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This is the base implementation of an output operator,
@@ -80,8 +80,7 @@ public abstract class AbstractStoreOutputOperator<T, S extends Connectable> exte
   {
     try {
       store.connect();
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -96,8 +95,7 @@ public abstract class AbstractStoreOutputOperator<T, S extends Connectable> exte
   {
     try {
       store.disconnect();
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
   }

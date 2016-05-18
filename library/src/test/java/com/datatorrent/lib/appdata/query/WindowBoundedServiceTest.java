@@ -35,8 +35,7 @@ public class WindowBoundedServiceTest
   {
     CounterRunnable counterRunnable = new CounterRunnable();
 
-    WindowBoundedService wbs = new WindowBoundedService(1,
-                                                        counterRunnable);
+    WindowBoundedService wbs = new WindowBoundedService(1, counterRunnable);
     wbs.setup(null);
     Thread.sleep(500);
     Assert.assertEquals(0, counterRunnable.getCounter());
@@ -54,8 +53,7 @@ public class WindowBoundedServiceTest
   {
     CounterRunnable counterRunnable = new CounterRunnable();
 
-    WindowBoundedService wbs = new WindowBoundedService(1,
-                                                        counterRunnable);
+    WindowBoundedService wbs = new WindowBoundedService(1, counterRunnable);
     wbs.setup(null);
     wbs.beginWindow(0);
     Thread.sleep(500);
