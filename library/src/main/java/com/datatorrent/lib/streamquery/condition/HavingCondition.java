@@ -42,14 +42,15 @@ public abstract class HavingCondition
   protected FunctionIndex  aggregateIndex = null;
 
   /**
-   * @param aggregateIndex  Aggregate index to be validated.
+   * @param aggregateIndex Aggregate index to be validated.
    */
-  public HavingCondition(FunctionIndex  aggregateIndex) {
+  public HavingCondition(FunctionIndex aggregateIndex)
+  {
     this.aggregateIndex = aggregateIndex;
   }
 
   /**
    *  Check if aggregate is valid.
    */
-  abstract public boolean isValidAggregate(@NotNull ArrayList<Map<String, Object>> rows) throws Exception;
+  public abstract boolean isValidAggregate(@NotNull ArrayList<Map<String, Object>> rows) throws Exception;
 }

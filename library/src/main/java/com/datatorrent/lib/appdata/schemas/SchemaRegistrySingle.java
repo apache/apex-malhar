@@ -19,13 +19,12 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import java.io.Serializable;
-
 import java.util.Map;
-
-import com.google.common.base.Preconditions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
 
 /**
  * This schema registry holds a single schema. It is intended to be used in operators
@@ -61,10 +60,8 @@ public class SchemaRegistrySingle implements SchemaRegistry, Serializable
   private void setSchema(Schema schema)
   {
     Preconditions.checkNotNull(schema);
-    Preconditions.checkArgument(schema.getSchemaKeys() == null,
-                                "The provided schema should not have schema keys "
-                                + schema.getSchemaKeys()
-                                + " since they will never be used.");
+    Preconditions.checkArgument(schema.getSchemaKeys() == null, "The provided schema should not have schema keys "
+        + schema.getSchemaKeys() + " since they will never be used.");
 
     this.schema = schema;
   }
@@ -74,8 +71,9 @@ public class SchemaRegistrySingle implements SchemaRegistry, Serializable
   {
     Preconditions.checkNotNull(schemaQuery, "This should never happen.");
 
-    if(schemaQuery.getSchemaKeys() != null) {
-      logger.error("Schema keys in the given query don't apply for single schema registry: schemaKeys={}", schemaQuery.getSchemaKeys());
+    if (schemaQuery.getSchemaKeys() != null) {
+      logger.error("Schema keys in the given query don't apply for single schema registry: schemaKeys={}",
+          schemaQuery.getSchemaKeys());
       return null;
     }
 
@@ -104,6 +102,6 @@ public class SchemaRegistrySingle implements SchemaRegistry, Serializable
   @Override
   public int size()
   {
-    return schema == null ? 0: 1;
+    return schema == null ? 0 : 1;
   }
 }

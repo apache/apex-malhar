@@ -21,7 +21,6 @@ package com.datatorrent.lib.io;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.io.ApacheGenRandomLogs;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
@@ -29,37 +28,39 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
  */
 public class ApacheRandomLogsTest
 {
-	@SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
+  @SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
   @Test
-	public void test()
-	{
-		ApacheGenRandomLogs oper = new ApacheGenRandomLogs();
-		CollectorTestSink sink = new CollectorTestSink();
-		oper.outport.setSink(sink);
-		oper.setup(null);
+  public void test()
+  {
+    ApacheGenRandomLogs oper = new ApacheGenRandomLogs();
+    CollectorTestSink sink = new CollectorTestSink();
+    oper.outport.setSink(sink);
+    oper.setup(null);
 
-		Thread t = new EmitTuples(oper);
-		t.start();
-		try
-		{
-			Thread.sleep(1000);
-		} catch (InterruptedException e)
-		{
-		}
-		t.stop();
-		Assert.assertTrue("Tuples emitted", sink.collectedTuples.size() > 0);
-	}
+    Thread t = new EmitTuples(oper);
+    t.start();
+    try {
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+      //Fixme
+    }
+    t.stop();
+    Assert.assertTrue("Tuples emitted", sink.collectedTuples.size() > 0);
+  }
 
-	private class EmitTuples extends Thread {
-		private ApacheGenRandomLogs oper;
-		public EmitTuples(ApacheGenRandomLogs oper)
-		{
-			this.oper = oper;
-		}
-		@Override
-		public void run()
-		{
-			oper.emitTuples();
-		}
-	}
+  private class EmitTuples extends Thread
+  {
+    private ApacheGenRandomLogs oper;
+
+    public EmitTuples(ApacheGenRandomLogs oper)
+    {
+      this.oper = oper;
+    }
+
+    @Override
+    public void run()
+    {
+      oper.emitTuples();
+    }
+  }
 }

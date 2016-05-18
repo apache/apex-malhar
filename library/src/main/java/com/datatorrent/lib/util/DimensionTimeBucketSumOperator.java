@@ -20,9 +20,11 @@ package com.datatorrent.lib.util;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang.mutable.MutableDouble;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang.mutable.MutableDouble;
 
 /**
  * This operator accumulates the values of "value" fields for different time and dimensions and emits the accumulated values as a map.&nbsp;
@@ -51,8 +53,7 @@ public class DimensionTimeBucketSumOperator extends AbstractDimensionTimeBucketO
       m = new HashMap<String, Number>();
       m.put(field, new MutableDouble(value));
       dataMap.put(finalKey, m);
-    }
-    else {
+    } else {
       Number n = m.get(field);
       if (n == null) {
         m.put(field, new MutableDouble(value));

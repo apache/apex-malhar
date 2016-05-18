@@ -36,9 +36,7 @@ public class QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>
   {
   }
 
-  public QueryBundle(QUERY_TYPE query,
-                     META_QUERY metaQuery,
-                     QUEUE_CONTEXT queueContext)
+  public QueryBundle(QUERY_TYPE query, META_QUERY metaQuery, QUEUE_CONTEXT queueContext)
   {
     this.query = query;
     this.metaQuery = metaQuery;

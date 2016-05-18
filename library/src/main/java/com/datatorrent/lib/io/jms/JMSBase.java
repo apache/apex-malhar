@@ -315,17 +315,13 @@ public class JMSBase
   {
     if ("CLIENT_ACKNOWLEDGE".equals(ackMode)) {
       return Session.CLIENT_ACKNOWLEDGE;
-    }
-    else if ("AUTO_ACKNOWLEDGE".equals(ackMode)) {
+    } else if ("AUTO_ACKNOWLEDGE".equals(ackMode)) {
       return Session.AUTO_ACKNOWLEDGE;
-    }
-    else if ("DUPS_OK_ACKNOWLEDGE".equals(ackMode)) {
+    } else if ("DUPS_OK_ACKNOWLEDGE".equals(ackMode)) {
       return Session.DUPS_OK_ACKNOWLEDGE;
-    }
-    else if ("SESSION_TRANSACTED".equals(ackMode)) {
+    } else if ("SESSION_TRANSACTED".equals(ackMode)) {
       return Session.SESSION_TRANSACTED;
-    }
-    else {
+    } else {
       return Session.CLIENT_ACKNOWLEDGE; // default
     }
   }
@@ -372,8 +368,7 @@ public class JMSBase
       BeanUtils.populate(cf, connectionFactoryProperties);
       logger.debug("creation successful.");
       return cf;
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       throw new RuntimeException("Failed to create connection factory.", e);
     }
   }
@@ -388,8 +383,7 @@ public class JMSBase
       connection.close();
       session = null;
       connection = null;
-    }
-    catch (JMSException ex) {
+    } catch (JMSException ex) {
       logger.debug(ex.getLocalizedMessage());
     }
   }

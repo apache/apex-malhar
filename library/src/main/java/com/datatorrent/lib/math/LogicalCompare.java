@@ -18,10 +18,10 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.Stateless;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.common.util.Pair;
 
 /**
@@ -29,7 +29,7 @@ import com.datatorrent.common.util.Pair;
  * <p>
  * If the first value is equal to second value, then the pair is emitted on equalTo, greaterThanEqualTo, and lessThanEqualTo ports.
  * If the first value is less than second value, then the pair is emitted on notEqualTo, lessThan and lessThanEqualTo ports.
- * If the first value is greater than second value, then the pair is emitted on notEqualTo, greaterThan and greaterThanEqualTo ports. 
+ * If the first value is greater than second value, then the pair is emitted on notEqualTo, greaterThan and greaterThanEqualTo ports.
  * This is a pass through operator.
  * <br>
  * StateFull : No, output is computed during current window. <br>
@@ -51,61 +51,61 @@ import com.datatorrent.common.util.Pair;
  */
 @Stateless
 public abstract class LogicalCompare<T extends Comparable<? super T>> extends
-		BaseOperator
+    BaseOperator
 {
-	/**
-	 * Input port that takes a key, value pair for comparison.
-	 */
-	public final transient DefaultInputPort<Pair<T, T>> input = new DefaultInputPort<Pair<T, T>>()
-	{
-		@Override
-		public void process(Pair<T, T> tuple)
-		{
-			int i = tuple.first.compareTo(tuple.second);
-			if (i > 0) {
-				greaterThan.emit(tuple);
-				greaterThanOrEqualTo.emit(tuple);
-				notEqualTo.emit(tuple);
-			} else if (i < 0) {
-				lessThan.emit(tuple);
-				lessThanOrEqualTo.emit(tuple);
-				notEqualTo.emit(tuple);
-			} else {
-				equalTo.emit(tuple);
-				lessThanOrEqualTo.emit(tuple);
-				greaterThanOrEqualTo.emit(tuple);
-			}
-		}
+  /**
+   * Input port that takes a key, value pair for comparison.
+   */
+  public final transient DefaultInputPort<Pair<T, T>> input = new DefaultInputPort<Pair<T, T>>()
+  {
+    @Override
+    public void process(Pair<T, T> tuple)
+    {
+      int i = tuple.first.compareTo(tuple.second);
+      if (i > 0) {
+        greaterThan.emit(tuple);
+        greaterThanOrEqualTo.emit(tuple);
+        notEqualTo.emit(tuple);
+      } else if (i < 0) {
+        lessThan.emit(tuple);
+        lessThanOrEqualTo.emit(tuple);
+        notEqualTo.emit(tuple);
+      } else {
+        equalTo.emit(tuple);
+        lessThanOrEqualTo.emit(tuple);
+        greaterThanOrEqualTo.emit(tuple);
+      }
+    }
 
-	};
+  };
 
-	/**
-	 * Equal output port.
-	 */
-	public final transient DefaultOutputPort<Pair<T, T>> equalTo = new DefaultOutputPort<Pair<T, T>>();
+  /**
+   * Equal output port.
+   */
+  public final transient DefaultOutputPort<Pair<T, T>> equalTo = new DefaultOutputPort<Pair<T, T>>();
 
-	/**
-	 * Not Equal output port.
-	 */
-	public final transient DefaultOutputPort<Pair<T, T>> notEqualTo = new DefaultOutputPort<Pair<T, T>>();
+  /**
+   * Not Equal output port.
+   */
+  public final transient DefaultOutputPort<Pair<T, T>> notEqualTo = new DefaultOutputPort<Pair<T, T>>();
 
-	/**
-	 * Less than output port.
-	 */
-	public final transient DefaultOutputPort<Pair<T, T>> lessThan = new DefaultOutputPort<Pair<T, T>>();
+  /**
+   * Less than output port.
+   */
+  public final transient DefaultOutputPort<Pair<T, T>> lessThan = new DefaultOutputPort<Pair<T, T>>();
 
-	/**
-	 * Greater than output port.
-	 */
-	public final transient DefaultOutputPort<Pair<T, T>> greaterThan = new DefaultOutputPort<Pair<T, T>>();
+  /**
+   * Greater than output port.
+   */
+  public final transient DefaultOutputPort<Pair<T, T>> greaterThan = new DefaultOutputPort<Pair<T, T>>();
 
-	/**
-	 * Less than equal to output port.
-	 */
-	public final transient DefaultOutputPort<Pair<T, T>> lessThanOrEqualTo = new DefaultOutputPort<Pair<T, T>>();
+  /**
+   * Less than equal to output port.
+   */
+  public final transient DefaultOutputPort<Pair<T, T>> lessThanOrEqualTo = new DefaultOutputPort<Pair<T, T>>();
 
-	/**
-	 * Greater than equal to output port.
-	 */
-	public final transient DefaultOutputPort<Pair<T, T>> greaterThanOrEqualTo = new DefaultOutputPort<Pair<T, T>>();
+  /**
+   * Greater than equal to output port.
+   */
+  public final transient DefaultOutputPort<Pair<T, T>> greaterThanOrEqualTo = new DefaultOutputPort<Pair<T, T>>();
 }

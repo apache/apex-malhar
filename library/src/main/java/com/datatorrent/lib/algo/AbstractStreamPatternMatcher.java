@@ -27,10 +27,10 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.google.common.collect.Lists;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * <p>
@@ -114,8 +114,7 @@ public abstract class AbstractStreamPatternMatcher<T> extends BaseOperator
           tempInt.increment();
           if (!pattern.checkState(t, tempInt.intValue())) {
             itr.remove();
-          }
-          else if (tempInt.equals(patternLength)) {
+          } else if (tempInt.equals(patternLength)) {
             itr.remove();
             processPatternFound();
           }

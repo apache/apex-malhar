@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This operator collects integer tuples, then emits their sum at the end of the window.
@@ -37,46 +37,50 @@ import com.datatorrent.api.Context.OperatorContext;
  */
 public class RedisSumOper extends BaseOperator
 {
-	private ArrayList<Integer> collect;
+  private ArrayList<Integer> collect;
 
   /**
    * This is the input port which receives integer tuples to be summed.
    */
-	public final transient DefaultInputPort<Integer> inport = new DefaultInputPort<Integer>() {
-	    @Override
-	    public void process(Integer s) {
-	      collect.add(s);
-	    }
-	};
+  public final transient DefaultInputPort<Integer> inport = new DefaultInputPort<Integer>()
+  {
+    @Override
+    public void process(Integer s)
+    {
+      collect.add(s);
+    }
+  };
 
-	@Override
-	public void setup(OperatorContext context)
-	{
-	}
+  @Override
+  public void setup(OperatorContext context)
+  {
+  }
 
-	@Override
-	public void teardown()
-	{
-	}
+  @Override
+  public void teardown()
+  {
+  }
 
-	@Override
-	public void beginWindow(long windowId)
-	{
-		collect  = new ArrayList<Integer>();
-	}
+  @Override
+  public void beginWindow(long windowId)
+  {
+    collect  = new ArrayList<Integer>();
+  }
 
-	/**
+  /**
    * This is the output port which emits the summed tuples.
    */
-	public final transient DefaultOutputPort<Map<Integer, Integer>> outport = new DefaultOutputPort<Map<Integer, Integer>>();
+  public final transient DefaultOutputPort<Map<Integer, Integer>> outport = new DefaultOutputPort<Map<Integer, Integer>>();
 
-	@Override
-	public void endWindow()
-	{
-		Integer sum = 0;
-		for(Integer entry : collect) sum += entry;
-		Map<Integer, Integer> tuple = new HashMap<Integer, Integer>();
-		tuple.put(1, sum);
-		outport.emit(tuple);
-	}
+  @Override
+  public void endWindow()
+  {
+    Integer sum = 0;
+    for (Integer entry : collect) {
+      sum += entry;
+    }
+    Map<Integer, Integer> tuple = new HashMap<Integer, Integer>();
+    tuple.put(1, sum);
+    outport.emit(tuple);
+  }
 }

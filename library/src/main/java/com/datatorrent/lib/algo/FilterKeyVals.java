@@ -103,7 +103,8 @@ public class FilterKeyVals<K,V> extends BaseKeyOperator<K>
    * Gets the inverse property.
    * @return inverse
    */
-  public boolean getInverse() {
+  public boolean getInverse()
+  {
     return inverse;
   }
 
@@ -111,7 +112,8 @@ public class FilterKeyVals<K,V> extends BaseKeyOperator<K>
    * If true then only matches are emitted. If false then only non matches are emitted.
    * @param val
    */
-  public void setInverse(boolean val) {
+  public void setInverse(boolean val)
+  {
     inverse = val;
   }
 
@@ -120,7 +122,8 @@ public class FilterKeyVals<K,V> extends BaseKeyOperator<K>
    * @return keyvals hash
    */
   @NotNull()
-  public HashMap<HashMap<K,V>,Object> getKeyVals() {
+  public HashMap<HashMap<K,V>,Object> getKeyVals()
+  {
     return keyvals;
   }
 

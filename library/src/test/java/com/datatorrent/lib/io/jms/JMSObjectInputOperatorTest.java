@@ -20,23 +20,33 @@ package com.datatorrent.lib.io.jms;
 
 import java.io.File;
 
-import javax.jms.*;
+import javax.jms.BytesMessage;
+import javax.jms.Connection;
+import javax.jms.DeliveryMode;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
+import javax.jms.Session;
+import javax.jms.StreamMessage;
+import javax.jms.TextMessage;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.command.ActiveMQQueue;
-import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.commons.io.FileUtils;
+
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
-
-import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.netlet.util.DTThrowable;
 
 public class JMSObjectInputOperatorTest
 {
@@ -58,8 +68,7 @@ public class JMSObjectInputOperatorTest
       testBase = new JMSTestBase();
       try {
         testBase.beforTest();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         throw new RuntimeException(e);
       }
       String methodName = description.getMethodName();
@@ -87,8 +96,7 @@ public class JMSObjectInputOperatorTest
         // Clean up
         session.close();
         connection.close();
-      }
-      catch (JMSException ex) {
+      } catch (JMSException ex) {
         DTThrowable.rethrow(ex);
       }
       operator.deactivate();
@@ -96,8 +104,7 @@ public class JMSObjectInputOperatorTest
       try {
         FileUtils.deleteDirectory(new File("target/" + description.getClassName()));
         testBase.afterTest();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         DTThrowable.rethrow(e);
       }
     }
@@ -199,7 +206,7 @@ public class JMSObjectInputOperatorTest
   private void createStreamMsgs(int numMessages) throws Exception
   {
     Long value = 1013L;
-    StreamMessage message=testMeta.session.createStreamMessage();
+    StreamMessage message = testMeta.session.createStreamMessage();
     message.writeObject(value);
     for (int i = 0; i < numMessages; i++) {
       testMeta.producer.send(message);
@@ -208,10 +215,10 @@ public class JMSObjectInputOperatorTest
 
   private void createByteMsgs(int numMessages) throws Exception
   {
-    BytesMessage message=testMeta.session.createBytesMessage();
+    BytesMessage message = testMeta.session.createBytesMessage();
     for (int i = 0; i < numMessages; i++) {
       message.writeBytes(("Message: " + i).getBytes());
-      message.setIntProperty("counter",i);
+      message.setIntProperty("counter", i);
       message.setJMSCorrelationID("MyCorrelationID");
       message.setJMSReplyTo(new ActiveMQQueue("MyReplyTo"));
       message.setJMSType("MyType");
@@ -222,7 +229,7 @@ public class JMSObjectInputOperatorTest
 
   private void createObjectMsgs(int numMessages) throws Exception
   {
-    ObjectMessage message=testMeta.session.createObjectMessage();
+    ObjectMessage message = testMeta.session.createObjectMessage();
     message.setObject("Test for Object Messages");
     for (int i = 0; i < numMessages; i++) {
       testMeta.producer.send(message);

@@ -55,9 +55,10 @@ public class BaseMatchOperator<K, V> extends BaseKeyValueOperator<K, V>
   @Pattern(regexp = "lte|lt|eq|ne|gt|gte", message = "Value has to be one of lte, lt, eq, ne, gt, gte")
   private double value = 0.0;
 
-  public enum ComparatorFunction {
+  public enum ComparatorFunction
+  {
     LTE, LT, EQ, NEQ, GT, GTE
-  };
+  }
 
   ComparatorFunction comparator = ComparatorFunction.EQ;
 

@@ -21,10 +21,10 @@ package com.datatorrent.lib.testbench;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This operator consumes maps whose keys are strings and values are integers.&nbsp;
@@ -37,51 +37,51 @@ import com.datatorrent.api.Context.OperatorContext;
  */
 public class KeyValSum extends BaseOperator
 {
-	private Map<String, Integer> collect;
+  private Map<String, Integer> collect;
 
   /**
    * This input port on which tuples are received.
    */
-	public final transient DefaultInputPort<Map<String, Integer>> inport = new DefaultInputPort<Map<String, Integer>>() {
+  public final transient DefaultInputPort<Map<String, Integer>> inport = new DefaultInputPort<Map<String, Integer>>()
+  {
     @Override
-    public void process(Map<String, Integer> s) {
-    	for(Map.Entry<String, Integer> entry : s.entrySet())
-    	{
-	    	if (collect.containsKey(entry.getKey()))
-	    	{
-	    		Integer value = (Integer)collect.remove(entry.getKey());
-	    		collect.put(entry.getKey(), value + entry.getValue());
-	    	} else {
-	    		collect.put(entry.getKey(), entry.getValue());
-	    	}
-    	}
+    public void process(Map<String, Integer> s)
+    {
+      for (Map.Entry<String, Integer> entry : s.entrySet()) {
+        if (collect.containsKey(entry.getKey())) {
+          Integer value = (Integer)collect.remove(entry.getKey());
+          collect.put(entry.getKey(), value + entry.getValue());
+        } else {
+          collect.put(entry.getKey(), entry.getValue());
+        }
+      }
     }
-	};
+  };
 
-	@Override
-	public void setup(OperatorContext context)
-	{
-	}
+  @Override
+  public void setup(OperatorContext context)
+  {
+  }
 
-	@Override
-	public void teardown()
-	{
-	}
+  @Override
+  public void teardown()
+  {
+  }
 
-	@Override
-	public void beginWindow(long windowId)
-	{
-		collect  = new HashMap<String, Integer>();
-	}
+  @Override
+  public void beginWindow(long windowId)
+  {
+    collect  = new HashMap<String, Integer>();
+  }
 
-	/**
+  /**
    * The output port on which sums are emitted.
    */
-	public final transient DefaultOutputPort<Map<String, Integer>> outport = new DefaultOutputPort<Map<String, Integer>>();
+  public final transient DefaultOutputPort<Map<String, Integer>> outport = new DefaultOutputPort<Map<String, Integer>>();
 
-	@Override
-	public void endWindow()
-	{
-		outport.emit(collect);
-	}
+  @Override
+  public void endWindow()
+  {
+    outport.emit(collect);
+  }
 }

@@ -18,9 +18,10 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
-import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.common.collect.Sets;
 
 public class DataQuerySnapshotTest
 {
@@ -29,8 +30,7 @@ public class DataQuerySnapshotTest
   {
     Fields fields = new Fields(Sets.newHashSet("a", "b"));
 
-    DataQuerySnapshot query = new DataQuerySnapshot("1",
-                                                  fields);
+    DataQuerySnapshot query = new DataQuerySnapshot("1", fields);
 
     Assert.assertEquals("This query should be oneTime.", true, query.isOneTime());
   }
@@ -40,9 +40,7 @@ public class DataQuerySnapshotTest
   {
     Fields fields = new Fields(Sets.newHashSet("a", "b"));
 
-    DataQuerySnapshot query = new DataQuerySnapshot("1",
-                                                  fields,
-                                                  1L);
+    DataQuerySnapshot query = new DataQuerySnapshot("1", fields, 1L);
 
     Assert.assertEquals("This query should be oneTime.", false, query.isOneTime());
   }

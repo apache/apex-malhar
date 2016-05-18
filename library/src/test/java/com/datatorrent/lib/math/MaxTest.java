@@ -41,9 +41,9 @@ public class MaxTest
 
     oper.beginWindow(0); //
 
-    Double a = new Double(2.0);
-    Double b = new Double(20.0);
-    Double c = new Double(1000.0);
+    Double a = 2.0;
+    Double b = 20.0;
+    Double c = 1000.0;
 
     oper.data.process(a);
     oper.data.process(b);

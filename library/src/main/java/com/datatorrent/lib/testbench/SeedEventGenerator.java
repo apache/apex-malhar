@@ -18,15 +18,17 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.lib.util.KeyValPair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Generates a one time seed load based on the range provided by the keys,
@@ -135,8 +137,7 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
       for (int i = lstart; i < lend; i++) {
         emitTuple(i);
       }
-    }
-    else {
+    } else {
       for (int i = lstart; i > lend; i--) {
         emitTuple(i);
       }

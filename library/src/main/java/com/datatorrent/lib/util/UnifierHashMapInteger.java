@@ -18,12 +18,12 @@
  */
 package com.datatorrent.lib.util;
 
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Operator.Unifier;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator.Unifier;
 
 /**
  * This unifier consumes tuples which are maps from objects to integers.&nbsp;
@@ -55,8 +55,7 @@ public class UnifierHashMapInteger<K> implements Unifier<HashMap<K, Integer>>
       Integer val = mergedTuple.get(e.getKey());
       if (val == null) {
         val = e.getValue();
-      }
-      else {
+      } else {
         val += e.getValue();
       }
       mergedTuple.put(e.getKey(), val);

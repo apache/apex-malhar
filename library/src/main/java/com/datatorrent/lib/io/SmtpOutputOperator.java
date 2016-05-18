@@ -18,23 +18,31 @@
  */
 package com.datatorrent.lib.io;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.Context.OperatorContext;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Properties;
 
-import java.util.*;
-
-import javax.mail.*;
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.google.common.collect.Maps;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This operator outputs data to an smtp server.
@@ -90,8 +98,7 @@ public class SmtpOutputOperator extends BaseOperator
         message.setContent(mailContent, contentType);
         LOG.info("Sending email for tuple {}", t.toString());
         Transport.send(message);
-      }
-      catch (MessagingException ex) {
+      } catch (MessagingException ex) {
         LOG.error("Something wrong with sending email.", ex);
       }
     }
@@ -264,8 +271,7 @@ public class SmtpOutputOperator extends BaseOperator
       }
       message.setSubject(subject);
       LOG.debug("all recipients {}", Arrays.toString(message.getAllRecipients()));
-    }
-    catch (MessagingException ex) {
+    } catch (MessagingException ex) {
       throw new RuntimeException(ex);
     }
   }

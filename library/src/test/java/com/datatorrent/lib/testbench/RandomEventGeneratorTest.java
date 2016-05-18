@@ -65,8 +65,8 @@ public class RandomEventGeneratorTest
     testSchemaNodeProcessing();
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-	public void testSchemaNodeProcessing() throws Exception
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public void testSchemaNodeProcessing() throws Exception
   {
     RandomEventGenerator node = new RandomEventGenerator();
     node.setMinvalue(0);
@@ -82,7 +82,7 @@ public class RandomEventGeneratorTest
     node.emitTuples();
     node.endWindow();
     node.teardown();
-    assertTrue("tuple blast" , integer_data.collectedTuples.size() == 5000);
-    assertTrue("tuple blast" , string_data.collectedTuples.size() == 5000);
+    assertTrue("tuple blast", integer_data.collectedTuples.size() == 5000);
+    assertTrue("tuple blast", string_data.collectedTuples.size() == 5000);
   }
 }

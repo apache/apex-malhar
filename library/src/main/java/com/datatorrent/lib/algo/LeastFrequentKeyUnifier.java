@@ -21,8 +21,8 @@ package com.datatorrent.lib.algo;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
 
 /**

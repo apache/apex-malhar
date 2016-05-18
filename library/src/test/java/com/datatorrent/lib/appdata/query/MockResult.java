@@ -23,8 +23,8 @@ import com.datatorrent.lib.appdata.query.serde.MessageType;
 import com.datatorrent.lib.appdata.schemas.Query;
 import com.datatorrent.lib.appdata.schemas.Result;
 
-@MessageType(type=MockResult.TYPE)
-@MessageSerializerInfo(clazz=MockResultSerializer.class)
+@MessageType(type = MockResult.TYPE)
+@MessageSerializerInfo(clazz = MockResultSerializer.class)
 public class MockResult extends Result
 {
   public static final String TYPE = "dataResult";
@@ -34,10 +34,8 @@ public class MockResult extends Result
     super(query);
   }
 
-  public MockResult(Query query,
-                    long countdown)
+  public MockResult(Query query, long countdown)
   {
-    super(query,
-          countdown);
+    super(query, countdown);
   }
 }

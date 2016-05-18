@@ -29,7 +29,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.eclipse.jetty.server.Handler;
@@ -38,6 +37,8 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.Assert;
 import org.junit.Test;
+
+import org.apache.commons.io.IOUtils;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
@@ -74,8 +75,7 @@ public class HttpJsonChunksInputOperatorTest
           response.getOutputStream().println();
           response.getOutputStream().println(0);
           response.getOutputStream().flush();
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
           response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error generating response: " + e.toString());
         }
 
@@ -88,8 +88,6 @@ public class HttpJsonChunksInputOperatorTest
     server.start();
 
     String url = "http://localhost:" + server.getConnectors()[0].getLocalPort() + "/somecontext";
-    System.out.println(url);
-
     final AbstractHttpInputOperator operator = new HttpJsonChunksInputOperator();
 
     CollectorTestSink sink = new CollectorTestSink();

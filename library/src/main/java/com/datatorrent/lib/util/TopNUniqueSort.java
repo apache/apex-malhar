@@ -142,7 +142,7 @@ public class TopNUniqueSort<E>
       depth = n;
     }
     for (int i = 0; i < depth; i++) {
-      E o = (E) list.get(size - i - 1);
+      E o = (E)list.get(size - i - 1);
       HashMap<E, Integer> val = new HashMap<E, Integer>(1);
       MutableInt ival = hmap.get(o);
       val.put(o, ival.toInteger());
@@ -176,12 +176,11 @@ public class TopNUniqueSort<E>
 
     boolean ret = false;
     boolean insert;
-    Comparable<? super E> head = (Comparable<? super E>) q.peek();
+    Comparable<? super E> head = (Comparable<? super E>)q.peek();
 
     if (ascending) { // means head is the lowest value due to inversion
       insert = head.compareTo(e) < 0; // e > head
-    }
-    else { // means head is the highest value due to inversion
+    } else { // means head is the highest value due to inversion
       insert = head.compareTo(e) > 0; // head is < e
     }
 

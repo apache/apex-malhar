@@ -18,7 +18,11 @@
  */
 package com.datatorrent.lib.db;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This is the base implementation of an input operator which consumes data from a key value store.&nbsp;

@@ -53,25 +53,28 @@ public abstract class AbstractBaseFrequentKey<K> extends BaseKeyOperator<K>
     }
     count.increment();
   }
+
   protected HashMap<K, MutableInt> keycount = new HashMap<K, MutableInt>();
 
   /**
    * override emitTuple to decide the port to emit to
    * @param tuple
    */
-  abstract public void emitTuple(HashMap<K,Integer> tuple);
+  public abstract void emitTuple(HashMap<K,Integer> tuple);
+
   /**
    * Overide emitList to specify the emit schema
    * @param tlist
    */
-  abstract public void emitList(ArrayList<HashMap<K, Integer>> tlist);
+  public abstract void emitList(ArrayList<HashMap<K, Integer>> tlist);
+
   /**
    * Override compareCount to decide most vs least
    * @param val1
    * @param val2
    * @return result of compareCount to be done by subclass
    */
-  abstract public boolean compareCount(int val1, int val2);
+  public abstract boolean compareCount(int val1, int val2);
 
   /**
    * Emits the result.
@@ -88,14 +91,12 @@ public abstract class AbstractBaseFrequentKey<K> extends BaseKeyOperator<K>
         key = e.getKey();
         kval = e.getValue().intValue();
         map.put(key, null);
-      }
-      else if (compareCount(e.getValue().intValue(), kval)) {
+      } else if (compareCount(e.getValue().intValue(), kval)) {
         key = e.getKey();
         kval = e.getValue().intValue();
         map.clear();
         map.put(key, null);
-      }
-      else if (e.getValue().intValue() == kval) {
+      } else if (e.getValue().intValue() == kval) {
         map.put(e.getKey(), null);
       }
     }

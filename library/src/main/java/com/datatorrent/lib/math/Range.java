@@ -43,62 +43,62 @@ import com.datatorrent.lib.util.UnifierRange;
  */
 public class Range<V extends Number> extends BaseNumberValueOperator<V>
 {
-	/**
-	 * Highest value on input port.
-	 */
-	protected V high = null;
+  /**
+   * Highest value on input port.
+   */
+  protected V high = null;
 
-	/**
-	 * Lowest value on input port.
-	 */
-	protected V low = null;
+  /**
+   * Lowest value on input port.
+   */
+  protected V low = null;
 
-	/**
-	 * Input data port.
-	 */
-	public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
-	{
-		/**
-		 * Process each tuple to compute new high and low
-		 */
-		@Override
-		public void process(V tuple)
-		{
-			if ((low == null) || (low.doubleValue() > tuple.doubleValue())) {
-				low = tuple;
-			}
+  /**
+   * Input data port.
+   */
+  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
+  {
+    /**
+     * Process each tuple to compute new high and low
+     */
+    @Override
+    public void process(V tuple)
+    {
+      if ((low == null) || (low.doubleValue() > tuple.doubleValue())) {
+        low = tuple;
+      }
 
-			if ((high == null) || (high.doubleValue() < tuple.doubleValue())) {
-				high = tuple;
-			}
-		}
-	};
+      if ((high == null) || (high.doubleValue() < tuple.doubleValue())) {
+        high = tuple;
+      }
+    }
+  };
 
-	/**
-	 * Output range port, which emits high low unifier operator.
-	 */
-	public final transient DefaultOutputPort<HighLow<V>> range = new DefaultOutputPort<HighLow<V>>()
-	{
-		@Override
-		public Unifier<HighLow<V>> getUnifier()
-		{
-			return new UnifierRange<V>();
-		}
-	};
+  /**
+   * Output range port, which emits high low unifier operator.
+   */
+  public final transient DefaultOutputPort<HighLow<V>> range = new DefaultOutputPort<HighLow<V>>()
+  {
+    @Override
+    public Unifier<HighLow<V>> getUnifier()
+    {
+      return new UnifierRange<V>();
+    }
+  };
 
-	/**
-	 * Emits the range. If no tuple was received in the window, no emit is done
-	 * Clears the internal data before return
-	 */
-	@Override
-	public void endWindow()
-	{
-		if ((low != null) && (high != null)) {
-			HighLow tuple = new HighLow(getValue(high.doubleValue()),
-					getValue(low.doubleValue()));
-			range.emit(tuple);
-		}
-		high = null;
-		low = null;
-	}
+  /**
+   * Emits the range. If no tuple was received in the window, no emit is done
+   * Clears the internal data before return
+   */
+  @Override
+  public void endWindow()
+  {
+    if ((low != null) && (high != null)) {
+      HighLow tuple = new HighLow(getValue(high.doubleValue()),
+          getValue(low.doubleValue()));
+      range.emit(tuple);
+    }
+    high = null;
+    low = null;
+  }
 }

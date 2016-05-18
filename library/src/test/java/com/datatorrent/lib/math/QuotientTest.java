@@ -31,71 +31,72 @@ import com.datatorrent.api.Sink;
  */
 public class QuotientTest
 {
-	class TestSink implements Sink<Object>
-	{
-		List<Object> collectedTuples = new ArrayList<Object>();
 
-		@Override
-		public void put(Object payload)
-		{
-          collectedTuples.add(payload);
-		}
+  class TestSink implements Sink<Object>
+  {
+    List<Object> collectedTuples = new ArrayList<Object>();
 
-		@Override
-		public int getCount(boolean reset)
-		{
-			throw new UnsupportedOperationException("Not supported yet.");
-		}
-	}
+    @Override
+    public void put(Object payload)
+    {
+      collectedTuples.add(payload);
+    }
 
-	/**
-	 * Test oper logic emits correct results.
-	 */
-	@Test
-	public void testNodeSchemaProcessing()
-	{
-		Quotient<Double> oper = new Quotient<Double>();
-		TestSink quotientSink = new TestSink();
-		oper.quotient.setSink(quotientSink);
+    @Override
+    public int getCount(boolean reset)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+  }
 
-		oper.setMult_by(2);
+  /**
+   * Test oper logic emits correct results.
+   */
+  @Test
+  public void testNodeSchemaProcessing()
+  {
+    Quotient<Double> oper = new Quotient<Double>();
+    TestSink quotientSink = new TestSink();
+    oper.quotient.setSink(quotientSink);
 
-		oper.beginWindow(0); //
-		Double a = new Double(30.0);
-		Double b = new Double(20.0);
-		Double c = new Double(100.0);
-		oper.denominator.process(a);
-		oper.denominator.process(b);
-		oper.denominator.process(c);
+    oper.setMult_by(2);
 
-		a = 5.0;
-		oper.numerator.process(a);
-		a = 1.0;
-		oper.numerator.process(a);
-		b = 44.0;
-		oper.numerator.process(b);
+    oper.beginWindow(0); //
+    Double a = 30.0;
+    Double b = 20.0;
+    Double c = 100.0;
+    oper.denominator.process(a);
+    oper.denominator.process(b);
+    oper.denominator.process(c);
 
-		b = 10.0;
-		oper.numerator.process(b);
-		c = 22.0;
-		oper.numerator.process(c);
-		c = 18.0;
-		oper.numerator.process(c);
+    a = 5.0;
+    oper.numerator.process(a);
+    a = 1.0;
+    oper.numerator.process(a);
+    b = 44.0;
+    oper.numerator.process(b);
 
-		a = 0.5;
-		oper.numerator.process(a);
-		b = 41.5;
-		oper.numerator.process(b);
-		a = 8.0;
-		oper.numerator.process(a);
-		oper.endWindow(); //
+    b = 10.0;
+    oper.numerator.process(b);
+    c = 22.0;
+    oper.numerator.process(c);
+    c = 18.0;
+    oper.numerator.process(c);
 
-		// payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
-		Assert.assertEquals("number emitted tuples", 1,
-				quotientSink.collectedTuples.size());
-		for (Object o : quotientSink.collectedTuples) { // sum is 1157
-			Double val = (Double) o;
-			Assert.assertEquals("emitted quotient value was ", new Double(2.0), val);
-		}
-	}
+    a = 0.5;
+    oper.numerator.process(a);
+    b = 41.5;
+    oper.numerator.process(b);
+    a = 8.0;
+    oper.numerator.process(a);
+    oper.endWindow(); //
+
+    // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
+    Assert.assertEquals("number emitted tuples", 1,
+        quotientSink.collectedTuples.size());
+    for (Object o : quotientSink.collectedTuples) { // sum is 1157
+      Double val = (Double)o;
+      Assert.assertEquals("emitted quotient value was ", new Double(2.0), val);
+    }
+  }
 }

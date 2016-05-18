@@ -26,19 +26,21 @@ import javax.mail.Message;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.hadoop.conf.Configuration;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.api.StreamingApplication;
+import org.apache.hadoop.conf.Configuration;
+
 import com.google.common.collect.Maps;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.icegreen.greenmail.util.ServerSetupTest;
+
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.StreamingApplication;
 
 public class SmtpOutputOperatorTest
 {
@@ -97,7 +99,7 @@ public class SmtpOutputOperatorTest
     String expectedContent = content.replace("{}", data.toString()).trim();
 
     Assert.assertTrue(expectedContent.equals(receivedContent));
-    Assert.assertEquals(from, ((InternetAddress) messages[0].getFrom()[0]).getAddress());
+    Assert.assertEquals(from, ((InternetAddress)messages[0].getFrom()[0]).getAddress());
     Assert.assertEquals(to, messages[0].getRecipients(Message.RecipientType.TO)[0].toString());
     Assert.assertEquals(cc, messages[0].getRecipients(Message.RecipientType.TO)[1].toString());
     Assert.assertEquals(cc, messages[0].getRecipients(Message.RecipientType.CC)[0].toString());
@@ -121,7 +123,7 @@ public class SmtpOutputOperatorTest
     String expectedContent = content.replace("{}", data.toString()).trim();
 
     Assert.assertTrue(expectedContent.equals(receivedContent));
-    Assert.assertEquals(from, ((InternetAddress) messages[0].getFrom()[0]).getAddress());
+    Assert.assertEquals(from, ((InternetAddress)messages[0].getFrom()[0]).getAddress());
     Assert.assertEquals(to, messages[0].getAllRecipients()[0].toString());
   }
 
@@ -139,7 +141,8 @@ public class SmtpOutputOperatorTest
     conf.set(StreamingApplication.DT_PREFIX + "operator.o1.prop.recipients.CC", cc);
 
     final AtomicReference<SmtpOutputOperator> o1 = new AtomicReference<SmtpOutputOperator>();
-    StreamingApplication app = new StreamingApplication() {
+    StreamingApplication app = new StreamingApplication()
+    {
       @Override
       public void populateDAG(DAG dag, Configuration conf)
       {

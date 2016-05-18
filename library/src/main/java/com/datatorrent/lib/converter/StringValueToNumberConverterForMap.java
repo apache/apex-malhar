@@ -22,9 +22,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  *
@@ -36,7 +36,8 @@ import com.datatorrent.api.DefaultOutputPort;
  *
  * @since 3.0.0
  */
-public class StringValueToNumberConverterForMap<K> extends BaseOperator {
+public class StringValueToNumberConverterForMap<K> extends BaseOperator
+{
 
   /**
    * Input port which accepts Map<K, Numeric String>.
@@ -47,8 +48,7 @@ public class StringValueToNumberConverterForMap<K> extends BaseOperator {
     public void process(Map<K, String> tuple)
     {
       Map<K, Number> outputMap = new HashMap<K, Number>();
-      for(Entry<K, String> entry:tuple.entrySet())
-      {
+      for (Entry<K, String> entry : tuple.entrySet()) {
         String val = entry.getValue();
         if (val == null) {
           return;
@@ -57,12 +57,10 @@ public class StringValueToNumberConverterForMap<K> extends BaseOperator {
         boolean errortuple = false;
         try {
           tvalue = Double.parseDouble(val);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
           errortuple = true;
         }
-        if(!errortuple)
-        {
+        if (!errortuple) {
           outputMap.put(entry.getKey(), tvalue);
         }
       }

@@ -47,63 +47,63 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
 @OperatorAnnotation(partitionable = false)
 public class Quotient<V extends Number> extends BaseNumberValueOperator<V>
 {
-	protected double nval = 0.0;
-	protected double dval = 0.0;
-	int mult_by = 1;
+  protected double nval = 0.0;
+  protected double dval = 0.0;
+  int mult_by = 1;
 
-	/**
-	 * Numerator values input port.
-	 */
-	public final transient DefaultInputPort<V> numerator = new DefaultInputPort<V>()
-	{
-		/**
-		 * Adds to the numerator value
-		 */
-		@Override
-		public void process(V tuple)
-		{
-			nval += tuple.doubleValue();
-		}
-	};
+  /**
+   * Numerator values input port.
+   */
+  public final transient DefaultInputPort<V> numerator = new DefaultInputPort<V>()
+  {
+    /**
+     * Adds to the numerator value
+     */
+    @Override
+    public void process(V tuple)
+    {
+      nval += tuple.doubleValue();
+    }
+  };
 
-	/**
-	 * Denominator values input port.
-	 */
-	public final transient DefaultInputPort<V> denominator = new DefaultInputPort<V>()
-	{
-		/**
-		 * Adds to the denominator value
-		 */
-		@Override
-		public void process(V tuple)
-		{
-			dval += tuple.doubleValue();
-		}
-	};
+  /**
+   * Denominator values input port.
+   */
+  public final transient DefaultInputPort<V> denominator = new DefaultInputPort<V>()
+  {
+    /**
+     * Adds to the denominator value
+     */
+    @Override
+    public void process(V tuple)
+    {
+      dval += tuple.doubleValue();
+    }
+  };
 
-	/**
-	 * Quotient output port.
-	 */
-	public final transient DefaultOutputPort<V> quotient = new DefaultOutputPort<V>();
+  /**
+   * Quotient output port.
+   */
+  public final transient DefaultOutputPort<V> quotient = new DefaultOutputPort<V>();
 
-	public void setMult_by(int i)
-	{
-		mult_by = i;
-	}
+  public void setMult_by(int i)
+  {
+    mult_by = i;
+  }
 
-	/**
-	 * Generates tuple emits it as long as denominator is not 0. Clears internal
-	 * data
-	 */
-	@Override
-	public void endWindow()
-	{
-		if (dval == 0) {
-			return;
-		}
-		double val = (nval / dval) * mult_by;
-		quotient.emit(getValue(val));
-		nval = 0.0;
-		dval = 0.0;
-	}
+  /**
+   * Generates tuple emits it as long as denominator is not 0. Clears internal
+   * data
+   */
+  @Override
+  public void endWindow()
+  {
+    if (dval == 0) {
+      return;
+    }
+    double val = (nval / dval) * mult_by;
+    quotient.emit(getValue(val));
+    nval = 0.0;
+    dval = 0.0;
+  }
 }

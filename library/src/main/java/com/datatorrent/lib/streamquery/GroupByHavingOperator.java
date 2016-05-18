@@ -24,10 +24,10 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.streamquery.condition.Condition;
 import com.datatorrent.lib.streamquery.condition.HavingCondition;
 import com.datatorrent.lib.streamquery.function.FunctionIndex;
@@ -100,14 +100,14 @@ public class GroupByHavingOperator extends BaseOperator
   {
     columnGroupIndexes.add(index);
   }
+
   public void addHavingCondition(@NotNull HavingCondition condition)
   {
     havingConditions.add(condition);
   }
 
   /**
-   * @param set
-   *          condition
+   * @param condition condition
    */
   public void setCondition(Condition condition)
   {
@@ -123,8 +123,9 @@ public class GroupByHavingOperator extends BaseOperator
     @Override
     public void process(Map<String, Object> tuple)
     {
-      if ((condition != null) && (!condition.isValidRow(tuple)))
+      if ((condition != null) && (!condition.isValidRow(tuple))) {
         return;
+      }
       rows.add(tuple);
     }
   };
@@ -193,8 +194,9 @@ public class GroupByHavingOperator extends BaseOperator
           return;
         }
       }
-      if (isValidHaving)
+      if (isValidHaving) {
         outport.emit(result);
+      }
     }
 
     rows = new ArrayList<Map<String, Object>>();
@@ -215,13 +217,13 @@ public class GroupByHavingOperator extends BaseOperator
     @Override
     public boolean equals(Object other)
     {
-      if (other instanceof MultiKeyCompare)
-        if (compareKeys.size() != ((MultiKeyCompare) other).compareKeys.size()) {
+      if (other instanceof MultiKeyCompare) {
+        if (compareKeys.size() != ((MultiKeyCompare)other).compareKeys.size()) {
           return false;
         }
+      }
       for (int i = 0; i < compareKeys.size(); i++) {
-        if (!(compareKeys.get(i).equals(((MultiKeyCompare) other).compareKeys
-            .get(i)))) {
+        if (!(compareKeys.get(i).equals(((MultiKeyCompare)other).compareKeys.get(i)))) {
           return false;
         }
       }
@@ -241,8 +243,9 @@ public class GroupByHavingOperator extends BaseOperator
     @Override
     public int compareTo(Object other)
     {
-      if (this.equals(other))
+      if (this.equals(other)) {
         return 0;
+      }
       return -1;
     }
 

@@ -34,10 +34,6 @@
 
   <name>Apache Apex Malhar Library</name>
 
-  <properties>
-    <checkstyle.console>false</checkstyle.console>
-  </properties>
-
   <build>
     <plugins>
       <!-- Publish tests jar -->
@@ -187,8 +183,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
-          <maxAllowedViolations>15995</maxAllowedViolations>
-          <logViolationsToConsole>${checkstyle.console}</logViolationsToConsole>
+          <suppressionsLocation>library-checkstyle-suppressions.xml</suppressionsLocation>
         </configuration>
       </plugin>
     </plugins>

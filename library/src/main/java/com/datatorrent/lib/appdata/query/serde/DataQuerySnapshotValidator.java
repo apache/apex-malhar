@@ -45,15 +45,14 @@ public class DataQuerySnapshotValidator implements CustomMessageValidator
   @Override
   public boolean validate(Message query, Object context)
   {
-    DataQuerySnapshot gdqt = (DataQuerySnapshot) query;
-    SnapshotSchema schema = (SnapshotSchema) ((SchemaRegistry) context).getSchema(gdqt.getSchemaKeys());
+    DataQuerySnapshot gdqt = (DataQuerySnapshot)query;
+    SnapshotSchema schema = (SnapshotSchema)((SchemaRegistry)context).getSchema(gdqt.getSchemaKeys());
 
     Set<String> fields = schema.getValuesDescriptor().getFields().getFields();
 
-    if(!fields.containsAll(gdqt.getFields().getFields())) {
-      LOG.error("Some of the fields in the query {} are not one of the valid fields {}.",
-                fields,
-                gdqt.getFields().getFields());
+    if (!fields.containsAll(gdqt.getFields().getFields())) {
+      LOG.error("Some of the fields in the query {} are not one of the valid fields {}.", fields,
+          gdqt.getFields().getFields());
       return false;
     }
 

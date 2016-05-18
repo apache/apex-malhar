@@ -20,10 +20,10 @@ package com.datatorrent.lib.appdata.schemas;
 
 import java.util.Map;
 
-import com.google.common.collect.Maps;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.common.collect.Maps;
 
 import com.datatorrent.lib.appdata.query.serde.MessageDeserializerFactory;
 
@@ -34,14 +34,14 @@ public class SchemaQueryTest
   {
     final String id = "12345";
     final String schemaQueryJSON = "{" +
-                                      "\"id\":\"" + id + "\"," +
-                                      "\"type\":\"" + SchemaQuery.TYPE + "\"" +
-                                    "}";
+        "\"id\":\"" + id + "\"," +
+        "\"type\":\"" + SchemaQuery.TYPE + "\"" +
+        "}";
 
     @SuppressWarnings("unchecked")
     MessageDeserializerFactory qb = new MessageDeserializerFactory(SchemaQuery.class);
 
-    SchemaQuery schemaQuery = (SchemaQuery) qb.deserialize(schemaQueryJSON);
+    SchemaQuery schemaQuery = (SchemaQuery)qb.deserialize(schemaQueryJSON);
 
     Assert.assertEquals("Id's must match", id, schemaQuery.getId());
     Assert.assertEquals("Types must match", SchemaQuery.TYPE, schemaQuery.getType());
@@ -57,17 +57,17 @@ public class SchemaQueryTest
 
     final String id = "12345";
     final String schemaQueryJSON = "{" +
-                                      "\"id\":\"" + id + "\"," +
-                                      "\"type\":\"" + SchemaQuery.TYPE + "\"," +
-                                      "\"context\":{" +
-                                      "\"schemaKeys\":" +
-                                      "{\"publisher\":\"google\",\"advertiser\":\"microsoft\",\"location\":\"CA\"}" +
-                                   "}}";
+        "\"id\":\"" + id + "\"," +
+        "\"type\":\"" + SchemaQuery.TYPE + "\"," +
+        "\"context\":{" +
+        "\"schemaKeys\":" +
+        "{\"publisher\":\"google\",\"advertiser\":\"microsoft\",\"location\":\"CA\"}" +
+        "}}";
 
     @SuppressWarnings("unchecked")
     MessageDeserializerFactory qb = new MessageDeserializerFactory(SchemaQuery.class);
 
-    SchemaQuery schemaQuery = (SchemaQuery) qb.deserialize(schemaQueryJSON);
+    SchemaQuery schemaQuery = (SchemaQuery)qb.deserialize(schemaQueryJSON);
 
     Assert.assertEquals("Id's must match", id, schemaQuery.getId());
     Assert.assertEquals("Types must match", SchemaQuery.TYPE, schemaQuery.getType());
@@ -88,18 +88,18 @@ public class SchemaQueryTest
 
     final String id = "12345";
     final String schemaQueryJSON = "{" +
-                                      "\"id\":\"" + id + "\"," +
-                                      "\"type\":\"" + SchemaQuery.TYPE + "\"," +
-                                      "\"context\":{" +
-                                      "\"schemaKeys\":" +
-                                      "{\"publisher\":\"google\",\"advertiser\":\"microsoft\",\"location\":\"CA\"}," +
-                                      "\"keys\":{\"publisher\":\"google\",\"advertiser\":\"microsoft\"}" +
-                                   "}}";
+        "\"id\":\"" + id + "\"," +
+        "\"type\":\"" + SchemaQuery.TYPE + "\"," +
+        "\"context\":{" +
+        "\"schemaKeys\":" +
+        "{\"publisher\":\"google\",\"advertiser\":\"microsoft\",\"location\":\"CA\"}," +
+        "\"keys\":{\"publisher\":\"google\",\"advertiser\":\"microsoft\"}" +
+        "}}";
 
     @SuppressWarnings("unchecked")
     MessageDeserializerFactory qb = new MessageDeserializerFactory(SchemaQuery.class);
 
-    SchemaQuery schemaQuery = (SchemaQuery) qb.deserialize(schemaQueryJSON);
+    SchemaQuery schemaQuery = (SchemaQuery)qb.deserialize(schemaQueryJSON);
 
     Assert.assertEquals("Id's must match", id, schemaQuery.getId());
     Assert.assertEquals("Types must match", SchemaQuery.TYPE, schemaQuery.getType());

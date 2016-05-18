@@ -131,7 +131,8 @@ public class POJOTimeBasedJoinOperatorTest
     oper.setup(MapTimeBasedJoinOperator.context);
 
     CollectorTestSink<List<CustOrder>> sink = new CollectorTestSink<List<CustOrder>>();
-    @SuppressWarnings({"unchecked", "rawtypes"}) CollectorTestSink<Object> tmp = (CollectorTestSink)sink;
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    CollectorTestSink<Object> tmp = (CollectorTestSink)sink;
     oper.outputPort.setSink(tmp);
 
     oper.beginWindow(0);
@@ -185,7 +186,8 @@ public class POJOTimeBasedJoinOperatorTest
     oper.setup(MapTimeBasedJoinOperator.context);
 
     CollectorTestSink<List<CustOrder>> sink = new CollectorTestSink<List<CustOrder>>();
-    @SuppressWarnings({"unchecked", "rawtypes"}) CollectorTestSink<Object> tmp = (CollectorTestSink)sink;
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    CollectorTestSink<Object> tmp = (CollectorTestSink)sink;
     oper.outputPort.setSink(tmp);
 
     oper.beginWindow(0);
@@ -257,7 +259,8 @@ public class POJOTimeBasedJoinOperatorTest
     oper.setup(MapTimeBasedJoinOperator.context);
 
     CollectorTestSink<List<CustOrder>> sink = new CollectorTestSink<List<CustOrder>>();
-    @SuppressWarnings({"unchecked", "rawtypes"}) CollectorTestSink<Object> tmp = (CollectorTestSink)sink;
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    CollectorTestSink<Object> tmp = (CollectorTestSink)sink;
     oper.outputPort.setSink(tmp);
 
     oper.beginWindow(0);
@@ -326,7 +329,8 @@ public class POJOTimeBasedJoinOperatorTest
     oper.setup(MapTimeBasedJoinOperator.context);
 
     CollectorTestSink<List<CustOrder>> sink = new CollectorTestSink<List<CustOrder>>();
-    @SuppressWarnings({"unchecked", "rawtypes"}) CollectorTestSink<Object> tmp = (CollectorTestSink)sink;
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    CollectorTestSink<Object> tmp = (CollectorTestSink)sink;
     oper.outputPort.setSink(tmp);
 
     oper.beginWindow(0);

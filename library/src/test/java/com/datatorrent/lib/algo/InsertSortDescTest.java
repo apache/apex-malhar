@@ -86,10 +86,10 @@ public class InsertSortDescTest
 
     Assert.assertEquals("number emitted tuples", 1, sortSink.collectedTuples.size());
     Assert.assertEquals("number emitted tuples", 1, hashSink.collectedTuples.size());
-    HashMap map = (HashMap) hashSink.collectedTuples.get(0);
-    input = (ArrayList) sortSink.collectedTuples.get(0);
-    for (Object o: input) {
-     log.debug(String.format("%s : %s", o.toString(), map.get(o).toString()));
+    HashMap map = (HashMap)hashSink.collectedTuples.get(0);
+    input = (ArrayList)sortSink.collectedTuples.get(0);
+    for (Object o : input) {
+      log.debug(String.format("%s : %s", o.toString(), map.get(o).toString()));
     }
     log.debug(String.format("Tested %s type with %d tuples and %d uniques\n", debug, input.size(), map.size()));
   }

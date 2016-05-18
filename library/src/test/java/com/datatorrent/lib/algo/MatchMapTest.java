@@ -68,14 +68,12 @@ public class MatchMapTest
 
     // One for each key
     Assert.assertEquals("number emitted tuples", 1, matchSink.count);
-    for (Map.Entry<String, Number> e: ((HashMap<String, Number>) matchSink.tuple).entrySet()) {
+    for (Map.Entry<String, Number> e : ((HashMap<String, Number>)matchSink.tuple).entrySet()) {
       if (e.getKey().equals("a")) {
         Assert.assertEquals("emitted value for 'a' was ", new Double(2), new Double(e.getValue().doubleValue()));
-      }
-      else if (e.getKey().equals("b")) {
+      } else if (e.getKey().equals("b")) {
         Assert.assertEquals("emitted tuple for 'b' was ", new Double(20), new Double(e.getValue().doubleValue()));
-      }
-      else if (e.getKey().equals("c")) {
+      } else if (e.getKey().equals("c")) {
         Assert.assertEquals("emitted tuple for 'c' was ", new Double(1000), new Double(e.getValue().doubleValue()));
       }
     }

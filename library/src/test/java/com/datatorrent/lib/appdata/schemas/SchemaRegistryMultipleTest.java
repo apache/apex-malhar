@@ -21,11 +21,11 @@ package com.datatorrent.lib.appdata.schemas;
 import java.util.Collections;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import com.datatorrent.lib.util.KryoCloneUtils;
 
@@ -70,15 +70,13 @@ public class SchemaRegistryMultipleTest
     Assert.assertEquals(SCHEMA_SALES_KEYS, tempSalesSchema.getSchemaKeys());
 
     //Query schema for ads
-    SchemaQuery schemaQueryAds = new SchemaQuery(id,
-                                                 SCHEMA_ADS_KEYS);
+    SchemaQuery schemaQueryAds = new SchemaQuery(id, SCHEMA_ADS_KEYS);
     SchemaResult result = registry.getSchemaResult(schemaQueryAds);
     Assert.assertEquals(1, result.getGenericSchemas().length);
     Assert.assertEquals(SCHEMA_ADS_KEYS, result.getGenericSchemas()[0].getSchemaKeys());
 
     //Query schema for sales
-    SchemaQuery schemaQuerySales = new SchemaQuery(id,
-                                                   SCHEMA_SALES_KEYS);
+    SchemaQuery schemaQuerySales = new SchemaQuery(id, SCHEMA_SALES_KEYS);
     result = registry.getSchemaResult(schemaQuerySales);
     Assert.assertEquals(1, result.getGenericSchemas().length);
     Assert.assertEquals(SCHEMA_SALES_KEYS, result.getGenericSchemas()[0].getSchemaKeys());

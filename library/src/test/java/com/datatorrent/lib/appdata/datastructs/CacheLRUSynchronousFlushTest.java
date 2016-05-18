@@ -20,10 +20,10 @@ package com.datatorrent.lib.appdata.datastructs;
 
 import java.util.List;
 
-import com.google.common.collect.Lists;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
 
 import com.datatorrent.lib.appdata.datastructs.CacheLRUSynchronousFlush.CacheFlushListener;
 
@@ -35,8 +35,8 @@ public class CacheLRUSynchronousFlushTest
     final Integer key = 1;
     final Integer value = 1;
 
-    CacheLRUSynchronousFlush<Integer, Integer> cache =
-    new CacheLRUSynchronousFlush<Integer, Integer>(new NOPCacheFlushListener<Integer, Integer>());
+    CacheLRUSynchronousFlush<Integer, Integer> cache = new CacheLRUSynchronousFlush<>(
+        new NOPCacheFlushListener<Integer, Integer>());
 
     cache.put(key, value);
 
@@ -103,8 +103,7 @@ public class CacheLRUSynchronousFlushTest
 
     try {
       Thread.sleep(10);
-    }
-    catch(InterruptedException ex) {
+    } catch (InterruptedException ex) {
       throw new RuntimeException(ex);
     }
 

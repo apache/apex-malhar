@@ -78,17 +78,13 @@ public class AllAfterMatchMapTest
     Assert.assertEquals("number emitted tuples", 3,
         allSink.collectedTuples.size());
     for (Object o : allSink.collectedTuples) {
-      for (Map.Entry<String, Number> e : ((HashMap<String, Number>) o)
-              .entrySet()) {
+      for (Map.Entry<String, Number> e : ((HashMap<String, Number>)o).entrySet()) {
         if (e.getKey().equals("a")) {
-          Assert.assertEquals("emitted value for 'a' was ", new Double(3), new Double( e
-                  .getValue().doubleValue()));
+          Assert.assertEquals("emitted value for 'a' was ", new Double(3), new Double(e.getValue().doubleValue()));
         } else if (e.getKey().equals("b")) {
-          Assert.assertEquals("emitted tuple for 'b' was ", new Double(6), new Double(e
-                  .getValue().doubleValue()));
+          Assert.assertEquals("emitted tuple for 'b' was ", new Double(6), new Double(e.getValue().doubleValue()));
         } else if (e.getKey().equals("c")) {
-          Assert.assertEquals("emitted tuple for 'c' was ", new Double(9), new Double(e
-                  .getValue().doubleValue()));
+          Assert.assertEquals("emitted tuple for 'c' was ", new Double(9), new Double(e.getValue().doubleValue()));
         }
       }
     }

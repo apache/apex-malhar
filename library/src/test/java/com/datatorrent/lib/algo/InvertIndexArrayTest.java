@@ -38,7 +38,7 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
  */
 public class InvertIndexArrayTest
 {
-    private static Logger log = LoggerFactory.getLogger(InvertIndexArrayTest.class);
+  private static Logger log = LoggerFactory.getLogger(InvertIndexArrayTest.class);
 
   /**
    * Test oper logic emits correct results
@@ -83,13 +83,13 @@ public class InvertIndexArrayTest
           Assert.assertEquals("Index for \"str1\" contains \"a\"", true, alist.contains("a"));
           Assert.assertEquals("Index for \"str1\" contains \"b\"", true, alist.contains("b"));
           Assert.assertEquals("Index for \"str1\" contains \"c\"", true, alist.contains("c"));
-        }
-        else if (key.equals("str")) {
+
+        } else if (key.equals("str")) {
           Assert.assertEquals("Index for \"str1\" contains \"a\"", true, alist.contains("a"));
           Assert.assertEquals("Index for \"str1\" contains \"b\"", true, alist.contains("b"));
           Assert.assertEquals("Index for \"str1\" contains \"c\"", false, alist.contains("c"));
-        }
-        else if (key.equals("blah")) {
+
+        } else if (key.equals("blah")) {
           Assert.assertEquals("Index for \"str1\" contains \"a\"", false, alist.contains("a"));
           Assert.assertEquals("Index for \"str1\" contains \"b\"", false, alist.contains("b"));
           Assert.assertEquals("Index for \"str1\" contains \"c\"", true, alist.contains("c"));

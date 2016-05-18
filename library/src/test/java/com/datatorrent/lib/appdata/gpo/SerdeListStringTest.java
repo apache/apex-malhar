@@ -20,12 +20,12 @@ package com.datatorrent.lib.appdata.gpo;
 
 import java.util.List;
 
-import com.google.common.collect.Lists;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 import org.apache.commons.lang3.mutable.MutableInt;
+
+import com.google.common.collect.Lists;
 
 public class SerdeListStringTest
 {
@@ -49,7 +49,7 @@ public class SerdeListStringTest
 
     @SuppressWarnings("unchecked")
     List<String> deserializedList =
-    (List<String>) sls.deserializeObject(gpoBytes.toByteArray(), intVals);
+        (List<String>)sls.deserializeObject(gpoBytes.toByteArray(), intVals);
 
     Assert.assertEquals(testList, deserializedList);
   }

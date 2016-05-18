@@ -41,8 +41,7 @@ public class MessageDeserializerFactoryTest
 
     try {
       qdf.deserialize(malformed);
-    }
-    catch(IOException e) {
+    } catch (IOException e) {
       exception = true;
     }
 
@@ -62,8 +61,7 @@ public class MessageDeserializerFactoryTest
 
     try {
       data = qdf.deserialize(unsupportedQuery);
-    }
-    catch(IOException e) {
+    } catch (IOException e) {
       exception = true;
     }
 

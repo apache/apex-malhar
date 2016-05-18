@@ -18,26 +18,25 @@
  */
 package com.datatorrent.lib.stream;
 
-import com.datatorrent.lib.stream.DevNull;
-import com.datatorrent.lib.testbench.EventGenerator;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.lib.testbench.EventGenerator;
+
 /**
  * Functional tests for {@link com.datatorrent.lib.testbench.DevNull}. 
  */
-public class DevNullTest {
+public class DevNullTest
+{
 
-    private static Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
-
+  private static Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
 
   /**
    * Tests both string and non string schema
    */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-	@Test
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  @Test
   public void testSingleSchemaNodeProcessing() throws Exception
   {
     DevNull oper = new DevNull();
@@ -49,6 +48,6 @@ public class DevNullTest {
       oper.data.process(o);
     }
     oper.endWindow();
-    LOG.info(String.format("\n*******************************************************\nnumtuples(%d)",  numtuples));
+    LOG.info(String.format("\n*******************************************************\nnumtuples(%d)", numtuples));
   }
 }

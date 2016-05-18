@@ -40,7 +40,9 @@ public class NegateExpression extends UnaryExpression
   public NegateExpression(@Null String column, String alias)
   {
     super(column, alias);
-    if (this.alias == null)  this.alias = "NEGATE(" + column + ")";
+    if (this.alias == null) {
+      this.alias = "NEGATE(" + column + ")";
+    }
   }
 
   /* (non-Javadoc)
@@ -49,7 +51,9 @@ public class NegateExpression extends UnaryExpression
   @Override
   public void filter(Map<String, Object> row, Map<String, Object> collect)
   {
-    if (!row.containsKey(column)) return;
+    if (!row.containsKey(column)) {
+      return;
+    }
     collect.put(alias, -((Number)row.get(column)).doubleValue());
   }
 }

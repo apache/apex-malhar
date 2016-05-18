@@ -19,17 +19,16 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import java.io.Serializable;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This is a somewhat vacuous class for managing field names for AppData schemas and queries.
@@ -65,9 +64,9 @@ public class Fields implements Serializable
   {
     this.fields = Sets.newHashSet();
 
-    for(String field: fields) {
+    for (String field : fields) {
       Preconditions.checkNotNull(field);
-      if(!this.fields.add(field)) {
+      if (!this.fields.add(field)) {
         throw new IllegalArgumentException("Duplicate field: " + field);
       }
     }
@@ -111,14 +110,14 @@ public class Fields implements Serializable
   @Override
   public boolean equals(Object obj)
   {
-    if(obj == null) {
+    if (obj == null) {
       return false;
     }
-    if(getClass() != obj.getClass()) {
+    if (getClass() != obj.getClass()) {
       return false;
     }
     final Fields other = (Fields)obj;
-    if(this.fields != other.fields && (this.fields == null || !this.fields.equals(other.fields))) {
+    if (this.fields != other.fields && (this.fields == null || !this.fields.equals(other.fields))) {
       return false;
     }
     return true;

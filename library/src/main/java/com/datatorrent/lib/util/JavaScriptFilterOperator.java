@@ -20,7 +20,13 @@ package com.datatorrent.lib.util;
 
 import java.util.Map;
 
-import javax.script.*;
+import javax.script.Invocable;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import javax.script.SimpleBindings;
+import javax.script.SimpleScriptContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,8 +89,7 @@ public class JavaScriptFilterOperator extends FilterOperator
       if (setupScript != null) {
         engine.eval(setupScript, this.scriptContext);
       }
-    }
-    catch (ScriptException ex) {
+    } catch (ScriptException ex) {
       LOG.error("script \"{}\" has error", setupScript);
       throw new RuntimeException(ex);
     }
@@ -104,22 +109,18 @@ public class JavaScriptFilterOperator extends FilterOperator
       Object result = ((Invocable)engine).invokeFunction(functionName);
       if (result instanceof Boolean) {
         return (Boolean)result;
-      }
-      else if (result instanceof Integer) {
+      } else if (result instanceof Integer) {
         return ((Integer)result) != 0;
-      }
-      else if (result instanceof Long) {
+      } else if (result instanceof Long) {
         return ((Long)result) != 0;
-      }
-      else if (result instanceof String) {
+      } else if (result instanceof String) {
         return Boolean.getBoolean((String)result);
-      }
-      else {
-        LOG.warn("The script result (type: {}) cannot be converted to boolean. Returning false.", result == null ? "null" : result.getClass().getName());
+      } else {
+        LOG.warn("The script result (type: {}) cannot be converted to boolean. Returning false.",
+            result == null ? "null" : result.getClass().getName());
         return false;
       }
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
   }

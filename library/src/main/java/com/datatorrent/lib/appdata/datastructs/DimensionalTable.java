@@ -23,13 +23,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This is a {@link DimensionalTable}. A {@link DimensionalTable} is similar to a Map but is a hybrid
@@ -134,9 +134,7 @@ public class DimensionalTable<DATA>
    */
   private void initialize()
   {
-    for(int columnIndex = 0;
-        columnIndex < dimensionNameToIndex.size();
-        columnIndex++) {
+    for (int columnIndex = 0; columnIndex < dimensionNameToIndex.size(); columnIndex++) {
       dimensionColumns.add(Lists.newArrayList());
     }
   }
@@ -150,19 +148,16 @@ public class DimensionalTable<DATA>
     Preconditions.checkNotNull(headerNames);
     Preconditions.checkArgument(!headerNames.isEmpty(), "headerNames");
 
-    for(String headerName: headerNames) {
+    for (String headerName : headerNames) {
       Preconditions.checkNotNull(headerName);
     }
 
     Set<String> headerNameSet = Sets.newHashSet(headerNames);
 
     Preconditions.checkArgument(headerNameSet.size() == headerNames.size(),
-                                "The provided list of header names has duplicate names: " +
-                                headerNames);
+        "The provided list of header names has duplicate names: " + headerNames);
 
-    for(int index = 0;
-        index < headerNames.size();
-        index++) {
+    for (int index = 0; index < headerNames.size(); index++) {
       dimensionNameToIndex.put(headerNames.get(index), index);
     }
   }
@@ -179,25 +174,23 @@ public class DimensionalTable<DATA>
     Preconditions.checkNotNull(data);
     Preconditions.checkNotNull(keys);
     Preconditions.checkArgument(keys.length == dimensionNameToIndex.size(),
-                                "All the dimension keys should be specified.");
+        "All the dimension keys should be specified.");
 
     List<Object> keysList = Lists.newArrayList();
 
-    for(Object key: keys) {
+    for (Object key : keys) {
       keysList.add(key);
     }
 
     DATA prev = dimensionKeysToData.put(keysList, data);
 
-    if(prev != null) {
+    if (prev != null) {
       return;
     }
 
     dataColumn.add(data);
 
-    for(int index = 0;
-        index < keys.length;
-        index++) {
+    for (int index = 0; index < keys.length; index++) {
       Object key = keys[index];
       dimensionColumns.get(index).add(key);
     }
@@ -216,7 +209,7 @@ public class DimensionalTable<DATA>
 
     Object[] keysArray = new Object[keys.size()];
 
-    for(Map.Entry<String, ?> entry: keys.entrySet()) {
+    for (Map.Entry<String, ?> entry : keys.entrySet()) {
       String keyName = entry.getKey();
       Object value = entry.getValue();
 
@@ -240,8 +233,7 @@ public class DimensionalTable<DATA>
   public DATA getDataPoint(List<?> keys)
   {
     Preconditions.checkNotNull(keys);
-    Preconditions.checkArgument(keys.size() == dimensionNameToIndex.size(),
-                                "All the keys must be specified.");
+    Preconditions.checkArgument(keys.size() == dimensionNameToIndex.size(), "All the keys must be specified.");
 
     return dimensionKeysToData.get(keys);
   }
@@ -256,18 +248,15 @@ public class DimensionalTable<DATA>
   public DATA getDataPoint(Map<String, ?> keys)
   {
     Preconditions.checkNotNull(keys);
-    Preconditions.checkArgument(keys.size() == dimensionNameToIndex.size(),
-                                "All the keys must be specified.");
+    Preconditions.checkArgument(keys.size() == dimensionNameToIndex.size(), "All the keys must be specified.");
 
     List<Object> keysList = Lists.newArrayList();
 
-    for(int index = 0;
-        index < dimensionNameToIndex.size();
-        index++) {
+    for (int index = 0; index < dimensionNameToIndex.size(); index++) {
       keysList.add(null);
     }
 
-    for(Map.Entry<String, ?> entry: keys.entrySet()) {
+    for (Map.Entry<String, ?> entry : keys.entrySet()) {
       String key = entry.getKey();
       Object value = entry.getValue();
       Integer index = dimensionNameToIndex.get(key);
@@ -289,14 +278,14 @@ public class DimensionalTable<DATA>
     Preconditions.checkNotNull(keys);
 
     Preconditions.checkArgument(dimensionNameToIndex.keySet().containsAll(keys.keySet()),
-                                "The given keys contain names which are not valid keys.");
+        "The given keys contain names which are not valid keys.");
 
     List<Integer> indices = Lists.newArrayList();
     List<List<Object>> keyColumns = Lists.newArrayList();
 
     Map<Integer, Object> indexToKey = Maps.newHashMap();
 
-    for(Map.Entry<String, ?> entry: keys.entrySet()) {
+    for (Map.Entry<String, ?> entry : keys.entrySet()) {
       String dimensionName = entry.getKey();
       Object value = entry.getValue();
       Integer index = dimensionNameToIndex.get(dimensionName);
@@ -308,7 +297,7 @@ public class DimensionalTable<DATA>
     Collections.sort(indices);
     List<Object> tempKeys = Lists.newArrayList();
 
-    for(Integer index: indices) {
+    for (Integer index : indices) {
       tempKeys.add(indexToKey.get(index));
       keyColumns.add(dimensionColumns.get(index));
     }
@@ -316,27 +305,22 @@ public class DimensionalTable<DATA>
     int numRows = keyColumns.get(0).size();
     List<DATA> results = Lists.newArrayList();
 
-    for(int rowIndex = 0;
-        rowIndex < numRows;
-        rowIndex++)
-    {
+    for (int rowIndex = 0; rowIndex < numRows; rowIndex++) {
       boolean allEqual = true;
 
-      for(int columnIndex = 0;
-          columnIndex < tempKeys.size();
-          columnIndex++) {
+      for (int columnIndex = 0; columnIndex < tempKeys.size(); columnIndex++) {
         Object key = tempKeys.get(columnIndex);
         Object keyColumn = keyColumns.get(columnIndex).get(rowIndex);
 
-        if((key == null && keyColumn != null) ||
-           (key != null && keyColumn == null) ||
-           (key != null && keyColumn != null && !keyColumn.equals(key))) {
+        if ((key == null && keyColumn != null) ||
+            (key != null && keyColumn == null) ||
+            (key != null && !keyColumn.equals(key))) {
           allEqual = false;
           break;
         }
       }
 
-      if(allEqual) {
+      if (allEqual) {
         results.add(dataColumn.get(rowIndex));
       }
     }
@@ -357,7 +341,8 @@ public class DimensionalTable<DATA>
    * Returns the number of rows in the table.
    * @return The number of rows in the table.
    */
-  public int size() {
+  public int size()
+  {
     return dataColumn.size();
   }
 }

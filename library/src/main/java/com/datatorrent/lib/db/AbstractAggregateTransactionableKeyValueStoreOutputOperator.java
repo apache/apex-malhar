@@ -34,6 +34,6 @@ package com.datatorrent.lib.db;
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractAggregateTransactionableKeyValueStoreOutputOperator<T, S extends TransactionableKeyValueStore>
-        extends AbstractAggregateTransactionableStoreOutputOperator<T, S>
+    extends AbstractAggregateTransactionableStoreOutputOperator<T, S>
 {
 }

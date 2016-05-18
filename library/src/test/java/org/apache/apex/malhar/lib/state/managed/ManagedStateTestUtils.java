@@ -18,7 +18,6 @@
  */
 package org.apache.apex.malhar.lib.state.managed;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
@@ -26,11 +25,9 @@ import java.util.TreeMap;
 import javax.annotation.Nullable;
 
 import org.junit.Assert;
-import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.RemoteIterator;
 

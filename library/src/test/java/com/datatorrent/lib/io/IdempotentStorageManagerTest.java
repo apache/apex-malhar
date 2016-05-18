@@ -79,8 +79,7 @@ public class IdempotentStorageManagerTest
       storageManager.teardown();
       try {
         FileUtils.deleteDirectory(new File("target/" + description.getClassName()));
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         throw new RuntimeException(e);
       }
     }
@@ -105,7 +104,7 @@ public class IdempotentStorageManagerTest
     testMeta.storageManager.save(data, 1, 1);
     testMeta.storageManager.setup(testMeta.context);
     @SuppressWarnings("unchecked")
-    Map<Integer, String> decoded = (Map<Integer, String>) testMeta.storageManager.load(1, 1);
+    Map<Integer, String> decoded = (Map<Integer, String>)testMeta.storageManager.load(1, 1);
     Assert.assertEquals("dataOf1", data, decoded);
   }
 
@@ -130,8 +129,7 @@ public class IdempotentStorageManagerTest
     for (Integer operatorId : decodedStates.keySet()) {
       if (operatorId == 1) {
         Assert.assertEquals("data of 1", dataOf1, decodedStates.get(1));
-      }
-      else {
+      } else {
         Assert.assertEquals("data of 2", dataOf2, decodedStates.get(2));
       }
     }
@@ -182,8 +180,7 @@ public class IdempotentStorageManagerTest
     testMeta.storageManager.save(dataOf2, 2, 1);
     testMeta.storageManager.save(dataOf3, 3, 1);
 
-    testMeta.storageManager.partitioned(Lists.<IdempotentStorageManager>newArrayList(testMeta.storageManager),
-      Sets.newHashSet(2, 3));
+    testMeta.storageManager.partitioned(Lists.<IdempotentStorageManager>newArrayList(testMeta.storageManager), Sets.newHashSet(2, 3));
     testMeta.storageManager.setup(testMeta.context);
     testMeta.storageManager.deleteUpTo(1, 6);
 

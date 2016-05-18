@@ -24,8 +24,6 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Test;
 
-import org.apache.apex.malhar.lib.dimensions.DimensionsDescriptor;
-
 import com.google.common.collect.Sets;
 
 import com.datatorrent.lib.appdata.schemas.CustomTimeBucket;
@@ -60,9 +58,8 @@ public class DimensionsDescriptorTest
   @Test
   public void simpleTest2()
   {
-    DimensionsDescriptor ad = new DimensionsDescriptor(KEY_1_NAME +
-                                                       DimensionsDescriptor.DELIMETER_SEPERATOR +
-                                                       KEY_2_NAME);
+    DimensionsDescriptor ad = new DimensionsDescriptor(KEY_1_NAME + DimensionsDescriptor.DELIMETER_SEPERATOR +
+        KEY_2_NAME);
 
     Set<String> fields = Sets.newHashSet();
     fields.add(KEY_1_NAME);
@@ -75,11 +72,8 @@ public class DimensionsDescriptorTest
   @Test
   public void simpleTimeTest()
   {
-    DimensionsDescriptor ad = new DimensionsDescriptor(KEY_1_NAME +
-                                                       DimensionsDescriptor.DELIMETER_SEPERATOR +
-                                                       DimensionsDescriptor.DIMENSION_TIME +
-                                                       DimensionsDescriptor.DELIMETER_EQUALS +
-                                                       "DAYS");
+    DimensionsDescriptor ad = new DimensionsDescriptor(KEY_1_NAME + DimensionsDescriptor.DELIMETER_SEPERATOR +
+        DimensionsDescriptor.DIMENSION_TIME + DimensionsDescriptor.DELIMETER_EQUALS + "DAYS");
 
     Set<String> fields = Sets.newHashSet();
     fields.add(KEY_1_NAME);
@@ -92,10 +86,10 @@ public class DimensionsDescriptorTest
   public void equalsAndHashCodeTest()
   {
     DimensionsDescriptor ddA = new DimensionsDescriptor(new CustomTimeBucket(TimeBucket.MINUTE, 5L),
-                                                        new Fields(Sets.newHashSet("a", "b")));
+        new Fields(Sets.newHashSet("a", "b")));
 
     DimensionsDescriptor ddB = new DimensionsDescriptor(new CustomTimeBucket(TimeBucket.MINUTE, 5L),
-                                                        new Fields(Sets.newHashSet("a", "b")));
+        new Fields(Sets.newHashSet("a", "b")));
 
     Assert.assertTrue(ddB.equals(ddA));
   }

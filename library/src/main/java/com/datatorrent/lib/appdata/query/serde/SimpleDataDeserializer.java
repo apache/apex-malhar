@@ -48,8 +48,7 @@ public class SimpleDataDeserializer implements CustomMessageDeserializer
 
     try {
       data = om.readValue(json, clazz);
-    }
-    catch(IOException ex) {
+    } catch (IOException ex) {
       throw ex;
     }
 

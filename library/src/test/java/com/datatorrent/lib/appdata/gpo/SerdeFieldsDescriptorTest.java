@@ -20,12 +20,12 @@ package com.datatorrent.lib.appdata.gpo;
 
 import java.util.Map;
 
-import com.google.common.collect.Maps;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 import org.apache.commons.lang3.mutable.MutableInt;
+
+import com.google.common.collect.Maps;
 
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
@@ -43,7 +43,8 @@ public class SerdeFieldsDescriptorTest
     FieldsDescriptor fd = new FieldsDescriptor(fieldToType);
 
     byte[] bytes = SerdeFieldsDescriptor.INSTANCE.serializeObject(fd);
-    FieldsDescriptor newfd = (FieldsDescriptor) SerdeFieldsDescriptor.INSTANCE.deserializeObject(bytes, new MutableInt(0));
+    FieldsDescriptor newfd = (FieldsDescriptor)SerdeFieldsDescriptor.INSTANCE.deserializeObject(bytes,
+        new MutableInt(0));
 
     Assert.assertEquals(fd, newfd);
   }

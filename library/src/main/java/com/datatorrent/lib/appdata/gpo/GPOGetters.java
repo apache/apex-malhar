@@ -33,7 +33,9 @@ import com.datatorrent.lib.util.PojoUtils.GetterShort;
  * which need to take POJOs as input and convert them into GPOMutable objects.
  * @since 3.0.0
  */
-public class GPOGetters {
+public class GPOGetters
+{
+
   /**
    * Array of boolean getters.
    */

@@ -23,11 +23,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.mutable.MutableDouble;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang.mutable.MutableDouble;
 
 import com.datatorrent.lib.logs.MultiWindowDimensionAggregation.AggregateOperation;
 import com.datatorrent.lib.testbench.CollectorTestSink;
@@ -59,8 +60,8 @@ public class MultiWindowDimensionAggregationTest
 
     oper.setWindowSize(3);
     List<int[]> dimensionArrayList = new ArrayList<int[]>();
-    int[] dimensionArray = { 0, 1 };
-    int[] dimensionArray_2 = { 0 };
+    int[] dimensionArray = {0, 1};
+    int[] dimensionArray_2 = {0};
     dimensionArrayList.add(dimensionArray);
     dimensionArrayList.add(dimensionArray_2);
     oper.setDimensionArray(dimensionArrayList);

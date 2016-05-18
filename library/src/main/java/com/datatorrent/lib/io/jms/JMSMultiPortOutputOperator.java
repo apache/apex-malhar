@@ -18,13 +18,19 @@
  */
 package com.datatorrent.lib.io.jms;
 
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import java.io.Serializable;
 import java.util.Map;
-import javax.jms.*;
+
+import javax.jms.BytesMessage;
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.Message;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 /**
  * @since 2.1.0
@@ -108,28 +114,22 @@ public class JMSMultiPortOutputOperator extends AbstractJMSOutputOperator
     try {
       if (tuple instanceof Message) {
         return (Message)tuple;
-      }
-      else if (tuple instanceof String) {
+      } else if (tuple instanceof String) {
         return getSession().createTextMessage((String)tuple);
-      }
-      else if (tuple instanceof byte[]) {
+      } else if (tuple instanceof byte[]) {
         BytesMessage message = getSession().createBytesMessage();
         message.writeBytes((byte[])tuple);
         return message;
-      }
-      else if (tuple instanceof Map) {
+      } else if (tuple instanceof Map) {
         return createMessageForMap((Map)tuple);
-      }
-      else if (tuple instanceof Serializable) {
+      } else if (tuple instanceof Serializable) {
         return getSession().createObjectMessage((Serializable)tuple);
-      }
-      else {
+      } else {
         throw new RuntimeException("Cannot convert object of type "
-                + tuple.getClass() + "] to JMS message. Supported message "
-                + "payloads are: String, byte array, Map<String,?>, Serializable object.");
+            + tuple.getClass() + "] to JMS message. Supported message "
+            + "payloads are: String, byte array, Map<String,?>, Serializable object.");
       }
-    }
-    catch (JMSException ex) {
+    } catch (JMSException ex) {
       logger.error(ex.getLocalizedMessage());
       throw new RuntimeException(ex);
     }

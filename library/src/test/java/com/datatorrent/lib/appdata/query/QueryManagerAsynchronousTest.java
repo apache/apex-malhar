@@ -30,12 +30,11 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang3.mutable.MutableLong;
 
+import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.lib.appdata.query.serde.MessageSerializerFactory;
 import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
-
-import com.datatorrent.api.DefaultOutputPort;
 
 public class QueryManagerAsynchronousTest
 {
@@ -55,8 +54,8 @@ public class QueryManagerAsynchronousTest
     {
       try {
         Thread.sleep(200);
-      }
-      catch(InterruptedException ex) {
+      } catch (InterruptedException ex) {
+        //noop
       }
       Thread.interrupted();
     }
@@ -77,17 +76,11 @@ public class QueryManagerAsynchronousTest
 
     MessageSerializerFactory msf = new MessageSerializerFactory(new ResultFormatter());
 
-    QueryManagerAsynchronous<MockQuery, Void, MutableLong, MockResult> queryManagerAsynch = new
-    QueryManagerAsynchronous<MockQuery, Void, MutableLong, MockResult>(outputPort,
-                                                                       queueManager,
-                                                                       new NOPQueryExecutor(waitMillisProb),
-                                                                       msf,
-                                                                       Thread.currentThread());
+    QueryManagerAsynchronous<MockQuery, Void, MutableLong, MockResult> queryManagerAsynch =
+        new QueryManagerAsynchronous<>(outputPort, queueManager, new NOPQueryExecutor(waitMillisProb), msf,
+        Thread.currentThread());
 
-    Thread producerThread = new Thread(new ProducerThread(queueManager,
-                                                          totalTuples,
-                                                          batchSize,
-                                                          waitMillisProb));
+    Thread producerThread = new Thread(new ProducerThread(queueManager, totalTuples, batchSize, waitMillisProb));
     producerThread.start();
     producerThread.setName("Producer Thread");
 
@@ -96,10 +89,9 @@ public class QueryManagerAsynchronousTest
     queryManagerAsynch.setup(null);
 
     int numWindows = 0;
-    for(;
-        sink.collectedTuples.size() < totalTuples
-        && ((System.currentTimeMillis() - startTime) < 60000)
-        ;numWindows++) {
+
+    for (; sink.collectedTuples.size() < totalTuples && ((System.currentTimeMillis() - startTime) < 60000);
+        numWindows++) {
       queryManagerAsynch.beginWindow(numWindows);
       Thread.sleep(100);
       queryManagerAsynch.endWindow();
@@ -110,8 +102,7 @@ public class QueryManagerAsynchronousTest
 
     try {
       Thread.sleep(1000);
-    }
-    catch(InterruptedException e) {
+    } catch (InterruptedException e) {
       //Do Nothing
     }
 
@@ -131,11 +122,10 @@ public class QueryManagerAsynchronousTest
     @Override
     public MockResult executeQuery(MockQuery query, Void metaQuery, MutableLong queueContext)
     {
-      if(rand.nextDouble() < waitMillisProb) {
+      if (rand.nextDouble() < waitMillisProb) {
         try {
           Thread.sleep(1);
-        }
-        catch(InterruptedException ex) {
+        } catch (InterruptedException ex) {
           throw new RuntimeException(ex);
         }
       }
@@ -152,10 +142,8 @@ public class QueryManagerAsynchronousTest
     private final double waitMillisProb;
     private final Random rand = new Random();
 
-    public ProducerThread(AppDataWindowEndQueueManager<MockQuery, Void> queueManager,
-                          int totalTuples,
-                          int batchSize,
-                          double waitMillisProb)
+    public ProducerThread(AppDataWindowEndQueueManager<MockQuery, Void> queueManager, int totalTuples, int batchSize,
+        double waitMillisProb)
     {
       this.queueManager = queueManager;
       this.totalTuples = totalTuples;
@@ -168,20 +156,14 @@ public class QueryManagerAsynchronousTest
     {
       int numLoops = totalTuples / batchSize;
 
-      for(int loopCounter = 0, tupleCounter = 0;
-          loopCounter < numLoops;
-          loopCounter++, tupleCounter++) {
-        for(int batchCounter = 0;
-            batchCounter < batchSize;
-            batchCounter++,
-            tupleCounter++) {
+      for (int loopCounter = 0, tupleCounter = 0; loopCounter < numLoops; loopCounter++, tupleCounter++) {
+        for (int batchCounter = 0; batchCounter < batchSize; batchCounter++, tupleCounter++) {
           queueManager.enqueue(new MockQuery(tupleCounter + ""), null, new MutableLong(1L));
 
-          if(rand.nextDouble() < waitMillisProb) {
+          if (rand.nextDouble() < waitMillisProb) {
             try {
               Thread.sleep(1);
-            }
-            catch(InterruptedException ex) {
+            } catch (InterruptedException ex) {
               throw new RuntimeException(ex);
             }
           }

@@ -18,7 +18,6 @@
  */
 package com.datatorrent.lib.partitioner;
 
-import com.datatorrent.api.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +28,13 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import com.datatorrent.api.Context;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.Partitioner;
+import com.datatorrent.api.StatsListener;
 import com.datatorrent.lib.util.TestUtils;
 
 /**
@@ -150,8 +156,8 @@ public class StatelessThroughputBasedPartitionerTest
     partitions.clear();
     partitions.add(mockPartition);
 
-    Collection<Partitioner.Partition<DummyOperator>> newPartitions = statelessLatencyBasedPartitioner.definePartitions(partitions,
-                                                                                                                                                            new StatelessPartitionerTest.PartitioningContextImpl(ports, 5));
+    Collection<Partitioner.Partition<DummyOperator>> newPartitions = statelessLatencyBasedPartitioner.definePartitions(
+        partitions, new StatelessPartitionerTest.PartitioningContextImpl(ports, 5));
     Assert.assertEquals("after partition", 2, newPartitions.size());
   }
 

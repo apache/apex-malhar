@@ -18,12 +18,11 @@
  */
 package com.datatorrent.lib.stream;
 
-import com.datatorrent.lib.stream.DevNullCounter;
-import com.datatorrent.lib.testbench.EventGenerator;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.testbench.EventGenerator;
 
 /**
  * 
@@ -41,29 +40,26 @@ import org.slf4j.LoggerFactory;
 public class DevNullCounterTest
 {
 
-	private static Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
+  private static Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
 
-	/**
-	 * Tests both string and non string schema
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Test
-	public void testSingleSchemaNodeProcessing() throws Exception
-	{
-		DevNullCounter oper = new DevNullCounter();
-		oper.setRollingwindowcount(5);
-		oper.setup(null);
+  /**
+   * Tests both string and non string schema
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @Test
+  public void testSingleSchemaNodeProcessing() throws Exception
+  {
+    DevNullCounter oper = new DevNullCounter();
+    oper.setRollingwindowcount(5);
+    oper.setup(null);
 
-		oper.beginWindow(0);
-		long numtuples = 1000000;
-		Object o = new Object();
-		for (long i = 0; i < numtuples; i++) {
-			oper.data.process(o);
-		}
-		oper.endWindow();
-		LOG.info(String
-				.format(
-						"\n*******************************************************\nnumtuples(%d)",
-						numtuples));
-	}
+    oper.beginWindow(0);
+    long numtuples = 1000000;
+    Object o = new Object();
+    for (long i = 0; i < numtuples; i++) {
+      oper.data.process(o);
+    }
+    oper.endWindow();
+    LOG.info(String.format("\n*******************************************************\nnumtuples(%d)", numtuples));
+  }
 }

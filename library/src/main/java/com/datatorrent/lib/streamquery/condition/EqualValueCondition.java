@@ -57,23 +57,28 @@ public class EqualValueCondition extends Condition
   public boolean isValidRow(Map<String, Object> row)
   {
     // no conditions
-    if (equalMap.size() == 0)
+    if (equalMap.size() == 0) {
       return true;
+    }
 
     // compare each condition value
     for (Map.Entry<String, Object> entry : equalMap.entrySet()) {
-      if (!row.containsKey(entry.getKey()))
-        return false;
-      Object value = row.get(entry.getKey());
-      if (entry.getValue() == null) {
-        if (value == null)
-          return true;
+      if (!row.containsKey(entry.getKey())) {
         return false;
       }
-      if (value == null)
+      Object value = row.get(entry.getKey());
+      if (entry.getValue() == null) {
+        if (value == null) {
+          return true;
+        }
         return false;
-      if (!entry.getValue().equals(value))
+      }
+      if (value == null) {
         return false;
+      }
+      if (!entry.getValue().equals(value)) {
+        return false;
+      }
     }
     return true;
   }

@@ -57,7 +57,7 @@ public class FilterKeysMapTest
     oper.filter.setSink(sortSink);
     oper.setKey("b");
     oper.clearKeys();
-    String [] keys = new String[3];
+    String[] keys = new String[3];
     keys[0] = "e";
     keys[1] = "f";
     keys[2] = "blah";

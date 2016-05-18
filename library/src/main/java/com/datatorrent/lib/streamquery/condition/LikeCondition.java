@@ -54,7 +54,8 @@ public class LikeCondition extends Condition
    * @param column Column to be matched with regular expression, must be non-null.
    * @param pattern Regular expression pattern, must be non-null.
    */
-  public LikeCondition(@NotNull String column,@NotNull String pattern) {
+  public LikeCondition(@NotNull String column,@NotNull String pattern)
+  {
     setColumn(column);
     setPattern(pattern);
   }
@@ -66,10 +67,11 @@ public class LikeCondition extends Condition
   @Override
   public boolean isValidRow(Map<String, Object> row)
   {
-    if (!row.containsKey(column)) return false;
-    Matcher match = pattern.matcher((CharSequence) row.get(column));
-    if (!match.find()) return false;
-    return true;
+    if (!row.containsKey(column)) {
+      return false;
+    }
+    Matcher match = pattern.matcher((CharSequence)row.get(column));
+    return match.find();
   }
 
   /**
@@ -78,7 +80,7 @@ public class LikeCondition extends Condition
   @Override
   public boolean isValidJoin(Map<String, Object> row1, Map<String, Object> row2)
   {
-    assert(false);
+    assert (false);
     return false;
   }
 

@@ -50,65 +50,65 @@ import com.datatorrent.lib.util.UnifierCountOccurKey;
 public class CountKeyVal<K, V> extends BaseKeyValueOperator<K, V>
 {
 
-	/**
-	 * Key occurrence count map.
-	 */
-	protected HashMap<K, MutableInt> counts = new HashMap<K, MutableInt>();
+  /**
+   * Key occurrence count map.
+   */
+  protected HashMap<K, MutableInt> counts = new HashMap<K, MutableInt>();
 
-	/**
-	 * Input data port that takes key value pair.
-	 */
-	public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
-	{
-		/**
-		 * For each tuple (a key value pair): Adds the values for each key, Counts
-		 * the number of occurrence of each key
-		 */
-		@Override
-		public void process(KeyValPair<K, V> tuple)
-		{
-			K key = tuple.getKey();
-			MutableInt count = counts.get(key);
-			if (count == null) {
-				count = new MutableInt(0);
-				counts.put(cloneKey(key), count);
-			}
-			count.increment();
-		}
+  /**
+   * Input data port that takes key value pair.
+   */
+  public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
+  {
+    /**
+     * For each tuple (a key value pair): Adds the values for each key, Counts
+     * the number of occurrence of each key
+     */
+    @Override
+    public void process(KeyValPair<K, V> tuple)
+    {
+      K key = tuple.getKey();
+      MutableInt count = counts.get(key);
+      if (count == null) {
+        count = new MutableInt(0);
+        counts.put(cloneKey(key), count);
+      }
+      count.increment();
+    }
 
-		@Override
-		public StreamCodec<KeyValPair<K, V>> getStreamCodec()
-		{
-			return getKeyValPairStreamCodec();
-		}
-	};
+    @Override
+    public StreamCodec<KeyValPair<K, V>> getStreamCodec()
+    {
+      return getKeyValPairStreamCodec();
+    }
+  };
 
-	/**
-	 * Key, occurrence value pair output port.
-	 */
-	@OutputPortFieldAnnotation(optional = true)
-	public final transient DefaultOutputPort<KeyValPair<K, Integer>> count = new DefaultOutputPort<KeyValPair<K, Integer>>()
-	{
-		@Override
-		public UnifierCountOccurKey<K> getUnifier()
-		{
-			return new UnifierCountOccurKey<K>();
-		}
-	};
+  /**
+   * Key, occurrence value pair output port.
+   */
+  @OutputPortFieldAnnotation(optional = true)
+  public final transient DefaultOutputPort<KeyValPair<K, Integer>> count = new DefaultOutputPort<KeyValPair<K, Integer>>()
+  {
+    @Override
+    public UnifierCountOccurKey<K> getUnifier()
+    {
+      return new UnifierCountOccurKey<K>();
+    }
+  };
 
-	/**
-	 * Emits on all ports that are connected. Data is computed during process on
-	 * input port and endWindow just emits it for each key. Clears the internal
-	 * data if resetAtEndWindow is true.
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Override
-	public void endWindow()
-	{
-		for (Map.Entry<K, MutableInt> e : counts.entrySet()) {
-			count.emit(new KeyValPair(e.getKey(),
-					new Integer(e.getValue().intValue())));
-		}
-		counts.clear();
-	}
+  /**
+   * Emits on all ports that are connected. Data is computed during process on
+   * input port and endWindow just emits it for each key. Clears the internal
+   * data if resetAtEndWindow is true.
+   */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @Override
+  public void endWindow()
+  {
+    for (Map.Entry<K, MutableInt> e : counts.entrySet()) {
+      count.emit(new KeyValPair(e.getKey(),
+          new Integer(e.getValue().intValue())));
+    }
+    counts.clear();
+  }
 }

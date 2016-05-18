@@ -19,7 +19,8 @@
 package com.datatorrent.lib.logs;
 
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.*;
+import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.util.BaseLineTokenizer;
 
 /**
@@ -47,25 +48,25 @@ import com.datatorrent.lib.util.BaseLineTokenizer;
  * @since 0.3.3
  */
 @Stateless
-@OperatorAnnotation(partitionable=true)
+@OperatorAnnotation(partitionable = true)
 public class LineTokenizer extends BaseLineTokenizer
 {
   /**
    * The is the output port that emits string tokens.
    */
-	public final transient DefaultOutputPort<String> tokens = new DefaultOutputPort<String>();
+  public final transient DefaultOutputPort<String> tokens = new DefaultOutputPort<String>();
 
-	/**
-	 * emits tokens on port "tokens" if tok is not empty
-	 *
-	 * @param tok
-	 */
-	@Override
-	public void processToken(String tok)
-	{
-		if (!tok.isEmpty()) {
-			tokens.emit(tok);
-		}
-	}
+  /**
+   * emits tokens on port "tokens" if tok is not empty
+   *
+   * @param tok
+   */
+  @Override
+  public void processToken(String tok)
+  {
+    if (!tok.isEmpty()) {
+      tokens.emit(tok);
+    }
+  }
 }
 

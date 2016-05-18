@@ -115,10 +115,13 @@ public abstract class AbstractBaseSortOperator<K> extends BaseKeyOperator<K>
   }
 
 
-  abstract public boolean doEmitList();
-  abstract public boolean doEmitHash();
-  abstract public void emitToList(ArrayList<K> list);
-  abstract public void emitToHash(HashMap<K,Integer> map);
+  public abstract boolean doEmitList();
+
+  public abstract boolean doEmitHash();
+
+  public abstract void emitToList(ArrayList<K> list);
+
+  public abstract void emitToHash(HashMap<K,Integer> map);
 
   /**
    * Emit sorted tuple at end of window

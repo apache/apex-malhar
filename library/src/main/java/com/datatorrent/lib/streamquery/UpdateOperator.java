@@ -21,9 +21,9 @@ package com.datatorrent.lib.streamquery;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.streamquery.condition.Condition;
 
 /**
@@ -54,33 +54,36 @@ public class UpdateOperator extends BaseOperator
    */
   Map<String, Object> updates = new HashMap<String, Object>();
 
-	/**
-	 *  condition.
-	 */
-	private Condition condition = null;
+  /**
+   *  condition.
+   */
+  private Condition condition = null;
 
-	/**
-	 * set condition.
-	 */
-	public void setCondition(Condition condition)
-	{
-		this.condition = condition;
-	}
+  /**
+   * set condition.
+   */
+  public void setCondition(Condition condition)
+  {
+    this.condition = condition;
+  }
 
   /**
    * Input port that takes a map of &lt;string,object&gt;.
    */
-  public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>() {
+  public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>()
+  {
     @Override
     public void process(Map<String, Object> tuple)
     {
-      if ((condition != null)&&(!condition.isValidRow(tuple)))return;
+      if ((condition != null) && (!condition.isValidRow(tuple))) {
+        return;
+      }
       if (updates.size() == 0) {
         outport.emit(tuple);
         return;
       }
       Map<String, Object> result = new HashMap<String, Object>();
-      for(Map.Entry<String, Object> entry : tuple.entrySet()) {
+      for (Map.Entry<String, Object> entry : tuple.entrySet()) {
         if (updates.containsKey(entry.getKey())) {
           result.put(entry.getKey(), updates.get(entry.getKey()));
         } else {

@@ -18,11 +18,11 @@
  */
 package com.datatorrent.lib.statistics;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.TestUtils;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.TestUtils;
 
 /**
  * Functional Test for {@link com.datatorrent.lib.statistics.WeightedMeanOperator}. <br>

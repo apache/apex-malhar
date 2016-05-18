@@ -82,8 +82,7 @@ public class PubSubWebSocketInputOperator<T> extends WebSocketInputOperator<T>
     super.run();
     try {
       connection.sendMessage(PubSubMessageCodec.constructSubscribeMessage(topic, codec));
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       LOG.error("Exception caught", ex);
     }
   }

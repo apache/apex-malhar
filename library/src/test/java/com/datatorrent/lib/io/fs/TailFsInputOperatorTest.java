@@ -163,11 +163,12 @@ public class TailFsInputOperatorTest
     oper.activate(null);
     File file = new File(filePath);
     if (file.exists()) {
-      file.renameTo(new File(filePath+".bk"));      
+      file.renameTo(new File(filePath + ".bk"));
     }
     try {
       Thread.sleep(1000);
     } catch (InterruptedException e) {
+      //fixme
     }
     fstream = new FileWriter(filePath);
     out = new BufferedWriter(fstream);
@@ -213,11 +214,12 @@ public class TailFsInputOperatorTest
     oper.activate(null);
     File file = new File(filePath);
     if (file.exists()) {
-      file.renameTo(new File(filePath+".bk"));      
+      file.renameTo(new File(filePath + ".bk"));
     }
     try {
       Thread.sleep(1000);
     } catch (InterruptedException e) {
+      //fixme
     }
     fstream = new FileWriter(filePath);
     out = new BufferedWriter(fstream);

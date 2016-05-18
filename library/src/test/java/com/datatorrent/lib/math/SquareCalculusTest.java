@@ -28,35 +28,35 @@ import com.datatorrent.lib.testbench.SumTestSink;
  */
 public class SquareCalculusTest
 {
-	/**
-	 * Test oper logic emits correct results
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Test
-	public void testNodeSchemaProcessing()
-	{
-		SquareCalculus oper = new SquareCalculus();
-		SumTestSink lmultSink = new SumTestSink();
-		SumTestSink imultSink = new SumTestSink();
-		SumTestSink dmultSink = new SumTestSink();
-		SumTestSink fmultSink = new SumTestSink();
-		oper.longResult.setSink(lmultSink);
-		oper.integerResult.setSink(imultSink);
-		oper.doubleResult.setSink(dmultSink);
-		oper.floatResult.setSink(fmultSink);
+  /**
+   * Test oper logic emits correct results
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  @Test
+  public void testNodeSchemaProcessing()
+  {
+    SquareCalculus oper = new SquareCalculus();
+    SumTestSink lmultSink = new SumTestSink();
+    SumTestSink imultSink = new SumTestSink();
+    SumTestSink dmultSink = new SumTestSink();
+    SumTestSink fmultSink = new SumTestSink();
+    oper.longResult.setSink(lmultSink);
+    oper.integerResult.setSink(imultSink);
+    oper.doubleResult.setSink(dmultSink);
+    oper.floatResult.setSink(fmultSink);
 
-		oper.beginWindow(0); //
-		int sum = 0;
-		for (int i = 0; i < 50; i++) {
-			Integer t = i;
-			oper.input.process(t);
-			sum += i * i;
-		}
-		oper.endWindow(); //
+    oper.beginWindow(0); //
+    int sum = 0;
+    for (int i = 0; i < 50; i++) {
+      Integer t = i;
+      oper.input.process(t);
+      sum += i * i;
+    }
+    oper.endWindow(); //
 
-		Assert.assertEquals("sum was", sum, lmultSink.val.intValue());
-		Assert.assertEquals("sum was", sum, imultSink.val.intValue());
-		Assert.assertEquals("sum was", sum, dmultSink.val.intValue());
-		Assert.assertEquals("sum", sum, fmultSink.val.intValue());
-	}
+    Assert.assertEquals("sum was", sum, lmultSink.val.intValue());
+    Assert.assertEquals("sum was", sum, imultSink.val.intValue());
+    Assert.assertEquals("sum was", sum, dmultSink.val.intValue());
+    Assert.assertEquals("sum", sum, fmultSink.val.intValue());
+  }
 }

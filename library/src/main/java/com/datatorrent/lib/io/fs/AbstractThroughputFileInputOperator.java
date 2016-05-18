@@ -18,14 +18,15 @@
  */
 package com.datatorrent.lib.io.fs;
 
-import com.datatorrent.api.Stats.OperatorStats;
-import com.datatorrent.lib.counters.BasicCounters;
-
 import java.util.Collection;
 
-import org.apache.commons.lang.mutable.MutableLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang.mutable.MutableLong;
+
+import com.datatorrent.api.Stats.OperatorStats;
+import com.datatorrent.lib.counters.BasicCounters;
 
 /**
  * This is the base implementation for a file input operator, which scans a directory for files.&nbsp;
@@ -134,7 +135,7 @@ public abstract class AbstractThroughputFileInputOperator<T> extends AbstractFil
     int newOperatorCount;
     int totalFileCount = 0;
 
-    for(Partition<AbstractFileInputOperator<T>> partition : partitions) {
+    for (Partition<AbstractFileInputOperator<T>> partition : partitions) {
       AbstractFileInputOperator<T> oper = partition.getPartitionedInstance();
       totalFileCount += oper.failedFiles.size();
       totalFileCount += oper.pendingFiles.size();
@@ -145,11 +146,10 @@ public abstract class AbstractThroughputFileInputOperator<T> extends AbstractFil
       }
     }
 
-    if(!isInitialParitition) {
+    if (!isInitialParitition) {
       LOG.debug("definePartitions: Total File Count: {}", totalFileCount);
       newOperatorCount = computeOperatorCount(totalFileCount);
-    }
-    else {
+    } else {
       newOperatorCount = partitionCount;
     }
 
@@ -160,13 +160,13 @@ public abstract class AbstractThroughputFileInputOperator<T> extends AbstractFil
   {
     int newOperatorCount = totalFileCount / preferredMaxPendingFilesPerOperator;
 
-    if(totalFileCount % preferredMaxPendingFilesPerOperator > 0) {
+    if (totalFileCount % preferredMaxPendingFilesPerOperator > 0) {
       newOperatorCount++;
     }
-    if(newOperatorCount > partitionCount) {
+    if (newOperatorCount > partitionCount) {
       newOperatorCount = partitionCount;
     }
-    if(newOperatorCount == 0) {
+    if (newOperatorCount == 0) {
       newOperatorCount = 1;
     }
 
@@ -179,17 +179,17 @@ public abstract class AbstractThroughputFileInputOperator<T> extends AbstractFil
   {
     BasicCounters<MutableLong> fileCounters = null;
 
-    for(OperatorStats operatorStats: batchedOperatorStats.getLastWindowedStats()) {
-      if(operatorStats.counters != null) {
-        fileCounters = (BasicCounters<MutableLong>) operatorStats.counters;
+    for (OperatorStats operatorStats : batchedOperatorStats.getLastWindowedStats()) {
+      if (operatorStats.counters != null) {
+        fileCounters = (BasicCounters<MutableLong>)operatorStats.counters;
       }
     }
 
     Response response = new Response();
 
-    if(fileCounters != null &&
-       fileCounters.getCounter(FileCounters.PENDING_FILES).longValue() > 0L ||
-       System.currentTimeMillis() - repartitionInterval <= lastRepartition) {
+    if (fileCounters != null &&
+        fileCounters.getCounter(FileCounters.PENDING_FILES).longValue() > 0L ||
+        System.currentTimeMillis() - repartitionInterval <= lastRepartition) {
       response.repartitionRequired = false;
       return response;
     }

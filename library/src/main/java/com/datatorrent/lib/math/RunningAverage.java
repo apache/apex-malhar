@@ -18,10 +18,10 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * Calculate the running average of the input numbers and emit it at the end of the window. 
@@ -46,70 +46,70 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 @OperatorAnnotation(partitionable = false)
 public class RunningAverage extends BaseOperator
 {
-	/**
-	 * Computed average.
-	 */
-	double average;
+  /**
+   * Computed average.
+   */
+  double average;
 
-	/**
-	 * Number of values on input port.
-	 */
-	long count;
+  /**
+   * Number of values on input port.
+   */
+  long count;
 
-	/**
-	 * Input number port.
-	 */
-	public final transient DefaultInputPort<Number> input = new DefaultInputPort<Number>()
-	{
-		@Override
-		public void process(Number tuple)
-		{
-			double sum = (count * average) + tuple.doubleValue();
-			count++;
-			average = sum / count;
-		}
-	};
+  /**
+   * Input number port.
+   */
+  public final transient DefaultInputPort<Number> input = new DefaultInputPort<Number>()
+  {
+    @Override
+    public void process(Number tuple)
+    {
+      double sum = (count * average) + tuple.doubleValue();
+      count++;
+      average = sum / count;
+    }
+  };
 
-	/**
-	 * Double average output port.
-	 */
-	public final transient DefaultOutputPort<Double> doubleAverage = new DefaultOutputPort<Double>();
+  /**
+   * Double average output port.
+   */
+  public final transient DefaultOutputPort<Double> doubleAverage = new DefaultOutputPort<Double>();
 
-	/**
-	 * Float average output port.
-	 */
-	public final transient DefaultOutputPort<Float> floatAverage = new DefaultOutputPort<Float>();
+  /**
+   * Float average output port.
+   */
+  public final transient DefaultOutputPort<Float> floatAverage = new DefaultOutputPort<Float>();
 
-	/**
-	 * Long average output port.
-	 */
-	public final transient DefaultOutputPort<Long> longAverage = new DefaultOutputPort<Long>();
+  /**
+   * Long average output port.
+   */
+  public final transient DefaultOutputPort<Long> longAverage = new DefaultOutputPort<Long>();
 
-	/**
-	 * Integer average output port.
-	 */
-	public final transient DefaultOutputPort<Integer> integerAverage = new DefaultOutputPort<Integer>();
+  /**
+   * Integer average output port.
+   */
+  public final transient DefaultOutputPort<Integer> integerAverage = new DefaultOutputPort<Integer>();
 
-	/**
-	 * End window operator override.
-	 */
-	@Override
-	public void endWindow()
-	{
-		if (doubleAverage.isConnected()) {
-			doubleAverage.emit(average);
-		}
+  /**
+   * End window operator override.
+   */
+  @Override
+  public void endWindow()
+  {
+    if (doubleAverage.isConnected()) {
+      doubleAverage.emit(average);
+    }
 
-		if (floatAverage.isConnected()) {
-			floatAverage.emit((float) average);
-		}
+    if (floatAverage.isConnected()) {
+      floatAverage.emit((float)average);
+    }
 
-		if (longAverage.isConnected()) {
-			longAverage.emit((long) average);
-		}
+    if (longAverage.isConnected()) {
+      longAverage.emit((long)average);
+    }
 
-		if (integerAverage.isConnected()) {
-			integerAverage.emit((int) average);
-		}
-	}
+    if (integerAverage.isConnected()) {
+      integerAverage.emit((int)average);
+    }
+  }
 }

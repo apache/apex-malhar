@@ -23,11 +23,12 @@ import java.util.concurrent.Future;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.state.BucketedState;
+import org.apache.apex.malhar.lib.state.TimeSlicedBucketedState;
+
 import com.google.common.util.concurrent.Futures;
 
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import org.apache.apex.malhar.lib.state.BucketedState;
-import org.apache.apex.malhar.lib.state.TimeSlicedBucketedState;
 import com.datatorrent.netlet.util.Slice;
 
 /**

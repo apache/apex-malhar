@@ -27,9 +27,10 @@ import java.util.regex.Pattern;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang.mutable.MutableDouble;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang.mutable.MutableDouble;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
@@ -52,9 +53,10 @@ public class MultiWindowDimensionAggregation implements Operator
   @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(MultiWindowDimensionAggregation.class);
 
-  public enum AggregateOperation {
+  public enum AggregateOperation
+  {
     SUM, AVERAGE
-  };
+  }
 
   private int windowSize = 2;
   private int currentWindow = 0;
@@ -76,7 +78,8 @@ public class MultiWindowDimensionAggregation implements Operator
   /**
    * This is the input port which receives multi dimensional data.
    */
-  public final transient DefaultInputPort<Map<String, Map<String, Number>>> data = new DefaultInputPort<Map<String, Map<String, Number>>>() {
+  public final transient DefaultInputPort<Map<String, Map<String, Number>>> data = new DefaultInputPort<Map<String, Map<String, Number>>>()
+  {
     @Override
     public void process(Map<String, Map<String, Number>> tuple)
     {
@@ -169,12 +172,15 @@ public class MultiWindowDimensionAggregation implements Operator
   @Override
   public void setup(OperatorContext arg0)
   {
-    if (arg0 != null)
+    if (arg0 != null) {
       applicationWindowSize = arg0.getValue(OperatorContext.APPLICATION_WINDOW_COUNT);
-    if (cacheOject == null)
+    }
+    if (cacheOject == null) {
       cacheOject = new HashMap<Integer, Map<String, Map<String, Number>>>(windowSize);
-    if (outputMap == null)
+    }
+    if (outputMap == null) {
       outputMap = new HashMap<String, Map<String, KeyValPair<MutableDouble, Integer>>>();
+    }
     setUpPatternList();
 
   }
@@ -238,8 +244,9 @@ public class MultiWindowDimensionAggregation implements Operator
       }
     }
     currentWindowMap.clear();
-    if (patternList == null || patternList.isEmpty())
+    if (patternList == null || patternList.isEmpty()) {
       setUpPatternList();
+    }
 
   }
 
@@ -255,12 +262,13 @@ public class MultiWindowDimensionAggregation implements Operator
           outputData.put(e.getKey(), new DimensionObject<String>(keyVal.getKey(), dimensionValObj.getKey()));
         } else if (operationType == AggregateOperation.AVERAGE) {
           if (keyVal.getValue() != 0) {
-            double totalCount = ((double) (totalWindowsOccupied * applicationWindowSize)) / 1000;
+            double totalCount = ((double)(totalWindowsOccupied * applicationWindowSize)) / 1000;
             outputData.put(e.getKey(), new DimensionObject<String>(new MutableDouble(keyVal.getKey().doubleValue() / totalCount), dimensionValObj.getKey()));
           }
         }
-        if (!outputData.isEmpty())
+        if (!outputData.isEmpty()) {
           output.emit(outputData);
+        }
       }
     }
     currentWindow = (currentWindow + 1) % windowSize;

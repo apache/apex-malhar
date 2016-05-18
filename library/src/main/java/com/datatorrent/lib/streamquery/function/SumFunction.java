@@ -45,8 +45,10 @@ public class SumFunction extends FunctionIndex
   {
     Double result = 0.0;
     for (Map<String, Object> row : rows) {
-        if (!row.containsKey(column)) continue;
-        result += ((Number)row.get(column)).doubleValue();
+      if (!row.containsKey(column)) {
+        continue;
+      }
+      result += ((Number)row.get(column)).doubleValue();
     }
     return result;
   }
@@ -54,7 +56,7 @@ public class SumFunction extends FunctionIndex
   @Override
   protected String aggregateName()
   {
-   return "Sum(" + column;
+    return "Sum(" + column;
   }
 
 }

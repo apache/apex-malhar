@@ -20,9 +20,9 @@ package com.datatorrent.lib.streamquery;
 
 import java.util.Map;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.streamquery.condition.Condition;
 
 /**

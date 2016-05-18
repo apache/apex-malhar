@@ -91,14 +91,14 @@ public class LeastFrequentKeyValueMapTest
         if (key.equals("a")) {
           vcount = e.getValue().get(5);
           Assert.assertEquals("Key \"a\" has value ", 4, vcount);
-        }
-        else if (key.equals("b")) {
+
+        } else if (key.equals("b")) {
           vcount = e.getValue().get(2);
           Assert.assertEquals("Key \"a\" has value ", 3, vcount);
           vcount = e.getValue().get(4);
           Assert.assertEquals("Key \"a\" has value ", 3, vcount);
-        }
-        else if (key.equals("c")) {
+
+        } else if (key.equals("c")) {
           vcount = e.getValue().get(4);
           Assert.assertEquals("Key \"a\" has value ", 6, vcount);
         }

@@ -37,7 +37,7 @@ public class FilterValuesTest
   @SuppressWarnings({ "rawtypes", "unchecked" })
   int getTotal(List list)
   {
-    ArrayList<Integer> ilist = (ArrayList<Integer>) list;
+    ArrayList<Integer> ilist = (ArrayList<Integer>)list;
     int ret = 0;
     for (Integer i : ilist) {
       ret += i;
@@ -56,7 +56,7 @@ public class FilterValuesTest
 
     CollectorTestSink sortSink = new CollectorTestSink();
     oper.filter.setSink(sortSink);
-    Integer [] values = new Integer[2];
+    Integer[] values = new Integer[2];
     oper.setValue(5);
     oper.clearValues();
     values[0] = 200;

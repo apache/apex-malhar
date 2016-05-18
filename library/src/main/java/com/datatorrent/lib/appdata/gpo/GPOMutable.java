@@ -78,70 +78,70 @@ public class GPOMutable implements Serializable
 
     {
       boolean[] oldFieldsBoolean = gpo.getFieldsBoolean();
-      if(oldFieldsBoolean != null) {
+      if (oldFieldsBoolean != null) {
         System.arraycopy(oldFieldsBoolean, 0, fieldsBoolean, 0, fieldsBoolean.length);
       }
     }
 
     {
       char[] oldFieldsChar = gpo.getFieldsCharacter();
-      if(oldFieldsChar != null) {
+      if (oldFieldsChar != null) {
         System.arraycopy(oldFieldsChar, 0, fieldsCharacter, 0, fieldsCharacter.length);
       }
     }
 
     {
       byte[] oldFieldsByte = gpo.getFieldsByte();
-      if(oldFieldsByte != null) {
+      if (oldFieldsByte != null) {
         System.arraycopy(oldFieldsByte, 0, fieldsByte, 0, fieldsByte.length);
       }
     }
 
     {
       short[] oldFieldsShort = gpo.getFieldsShort();
-      if(oldFieldsShort != null) {
+      if (oldFieldsShort != null) {
         System.arraycopy(oldFieldsShort, 0, fieldsShort, 0, fieldsShort.length);
       }
     }
 
     {
       int[] oldFieldsInteger = gpo.getFieldsInteger();
-      if(oldFieldsInteger != null) {
+      if (oldFieldsInteger != null) {
         System.arraycopy(oldFieldsInteger, 0, fieldsInteger, 0, fieldsInteger.length);
       }
     }
 
     {
       long[] oldFieldsLong = gpo.getFieldsLong();
-      if(oldFieldsLong != null) {
+      if (oldFieldsLong != null) {
         System.arraycopy(oldFieldsLong, 0, fieldsLong, 0, fieldsLong.length);
       }
     }
 
     {
       float[] oldFieldsFloat = gpo.getFieldsFloat();
-      if(oldFieldsFloat != null) {
+      if (oldFieldsFloat != null) {
         System.arraycopy(oldFieldsFloat, 0, fieldsFloat, 0, fieldsFloat.length);
       }
     }
 
     {
       double[] oldFieldsDouble = gpo.getFieldsDouble();
-      if(oldFieldsDouble != null) {
+      if (oldFieldsDouble != null) {
         System.arraycopy(oldFieldsDouble, 0, fieldsDouble, 0, fieldsDouble.length);
       }
     }
 
     {
       String[] oldFieldsString = gpo.getFieldsString();
-      if(oldFieldsString != null) {
+      if (oldFieldsString != null) {
         System.arraycopy(oldFieldsString, 0, fieldsString, 0, fieldsString.length);
       }
     }
 
     {
       Object[] oldFieldsObject = gpo.getFieldsObject();
-      if(oldFieldsObject != null) {
+      if (oldFieldsObject != null) {
         System.arraycopy(oldFieldsObject, 0, fieldsObject, 0, fieldsObject.length);
       }
     }
@@ -152,14 +152,13 @@ public class GPOMutable implements Serializable
    * @param gpo The {@link GPOMutable} object to copy fields from.
    * @param subsetFields The fields to copy from the given GPOMutable object.
    */
-  public GPOMutable(GPOMutable gpo,
-                    Fields subsetFields)
+  public GPOMutable(GPOMutable gpo, Fields subsetFields)
   {
     this(gpo.getFieldDescriptor().getSubset(subsetFields));
 
     initialize();
 
-    for(String field: this.getFieldDescriptor().getFields().getFields()) {
+    for (String field : this.getFieldDescriptor().getFields().getFields()) {
       this.setFieldGeneric(field, gpo.getField(field));
     }
   }
@@ -182,9 +181,9 @@ public class GPOMutable implements Serializable
    */
   private void initialize()
   {
-    for(Type type: fieldDescriptor.getTypeToFields().keySet()) {
+    for (Type type : fieldDescriptor.getTypeToFields().keySet()) {
       int size = fieldDescriptor.getTypeToSize().get(type);
-      switch(type) {
+      switch (type) {
         case BOOLEAN: {
           fieldsBoolean = new boolean[size];
           break;
@@ -348,47 +347,47 @@ public class GPOMutable implements Serializable
   {
     Type type = fieldDescriptor.getType(field);
 
-    if(type == null) {
+    if (type == null) {
       throw new IllegalArgumentException(field + " is not a valid field of this object.");
     }
 
     int index = fieldDescriptor.getTypeToFieldToIndex().get(type).get(field);
 
-    switch(type) {
+    switch (type) {
       case BOOLEAN: {
-        fieldsBoolean[index] = (Boolean) val;
+        fieldsBoolean[index] = (Boolean)val;
         break;
       }
       case CHAR: {
-        fieldsCharacter[index] = (Character) val;
+        fieldsCharacter[index] = (Character)val;
         break;
       }
       case STRING: {
-        fieldsString[index] = (String) val;
+        fieldsString[index] = (String)val;
         break;
       }
       case BYTE: {
-        fieldsByte[index] = (Byte) val;
+        fieldsByte[index] = (Byte)val;
         break;
       }
       case SHORT: {
-        fieldsShort[index] = (Short) val;
+        fieldsShort[index] = (Short)val;
         break;
       }
       case INTEGER: {
-        fieldsInteger[index] = (Integer) val;
+        fieldsInteger[index] = (Integer)val;
         break;
       }
       case LONG: {
-        fieldsLong[index] = (Long) val;
+        fieldsLong[index] = (Long)val;
         break;
       }
       case FLOAT: {
-        fieldsFloat[index] = (Float) val;
+        fieldsFloat[index] = (Float)val;
         break;
       }
       case DOUBLE: {
-        fieldsDouble[index] = (Double) val;
+        fieldsDouble[index] = (Double)val;
         break;
       }
       case OBJECT: {
@@ -409,13 +408,13 @@ public class GPOMutable implements Serializable
   {
     Type type = fieldDescriptor.getType(field);
 
-    if(type == null) {
+    if (type == null) {
       throw new IllegalArgumentException(field + " is not a valid field of this object.");
     }
 
     int index = fieldDescriptor.getTypeToFieldToIndex().get(type).get(field);
 
-    switch(type) {
+    switch (type) {
       case BOOLEAN: {
         return fieldsBoolean[index];
       }
@@ -677,15 +676,14 @@ public class GPOMutable implements Serializable
   private void throwInvalidField(String field, Type type)
   {
     Type fieldType = fieldDescriptor.getType(field);
-    if(fieldType == null || !fieldType.equals(type)) {
-      throw new IllegalArgumentException(field + " is not a valid field of type " +
-                                         type + " on this object.");
+    if (fieldType == null || !fieldType.equals(type)) {
+      throw new IllegalArgumentException(field + " is not a valid field of type " + type + " on this object.");
     }
   }
 
   public void applyObjectPayloadFix()
   {
-    if(fieldDescriptor.getSerdePayloadFix() != null) {
+    if (fieldDescriptor.getSerdePayloadFix() != null) {
       fieldDescriptor.getSerdePayloadFix().fix(fieldsObject);
     }
   }
@@ -710,44 +708,45 @@ public class GPOMutable implements Serializable
   @Override
   public boolean equals(Object obj)
   {
-    if(obj == null) {
+    if (obj == null) {
       return false;
     }
-    if(!(obj instanceof GPOMutable)) {
+    if (!(obj instanceof GPOMutable)) {
       return false;
     }
     final GPOMutable other = (GPOMutable)obj;
-    if(!Arrays.equals(this.fieldsBoolean, other.fieldsBoolean)) {
+    if (!Arrays.equals(this.fieldsBoolean, other.fieldsBoolean)) {
       return false;
     }
-    if(!Arrays.equals(this.fieldsCharacter, other.fieldsCharacter)) {
+    if (!Arrays.equals(this.fieldsCharacter, other.fieldsCharacter)) {
       return false;
     }
-    if(!Arrays.equals(this.fieldsByte, other.fieldsByte)) {
+    if (!Arrays.equals(this.fieldsByte, other.fieldsByte)) {
       return false;
     }
-    if(!Arrays.equals(this.fieldsShort, other.fieldsShort)) {
+    if (!Arrays.equals(this.fieldsShort, other.fieldsShort)) {
       return false;
     }
-    if(!Arrays.equals(this.fieldsInteger, other.fieldsInteger)) {
+    if (!Arrays.equals(this.fieldsInteger, other.fieldsInteger)) {
       return false;
     }
-    if(!Arrays.equals(this.fieldsLong, other.fieldsLong)) {
+    if (!Arrays.equals(this.fieldsLong, other.fieldsLong)) {
       return false;
     }
-    if(!Arrays.equals(this.fieldsFloat, other.fieldsFloat)) {
+    if (!Arrays.equals(this.fieldsFloat, other.fieldsFloat)) {
       return false;
     }
-    if(!Arrays.equals(this.fieldsDouble, other.fieldsDouble)) {
+    if (!Arrays.equals(this.fieldsDouble, other.fieldsDouble)) {
       return false;
     }
-    if(!Arrays.deepEquals(this.fieldsString, other.fieldsString)) {
+    if (!Arrays.deepEquals(this.fieldsString, other.fieldsString)) {
       return false;
     }
-    if(!Arrays.deepEquals(this.fieldsObject, other.fieldsObject)) {
+    if (!Arrays.deepEquals(this.fieldsObject, other.fieldsObject)) {
       return false;
     }
-    if(this.fieldDescriptor != other.fieldDescriptor && (this.fieldDescriptor == null || !this.fieldDescriptor.equals(other.fieldDescriptor))) {
+    if (this.fieldDescriptor != other.fieldDescriptor && (this.fieldDescriptor == null
+        || !this.fieldDescriptor.equals(other.fieldDescriptor))) {
       return false;
     }
     return true;
@@ -756,6 +755,11 @@ public class GPOMutable implements Serializable
   @Override
   public String toString()
   {
-    return "GPOMutable{" + "fieldsBoolean=" + Arrays.toString(fieldsBoolean) + ", fieldsCharacter=" + Arrays.toString(fieldsCharacter) + ", fieldsByte=" + Arrays.toString(fieldsByte) + ", fieldsShort=" + Arrays.toString(fieldsShort) + ", fieldsInteger=" + Arrays.toString(fieldsInteger) + ", fieldsLong=" + Arrays.toString(fieldsLong) + ", fieldsFloat=" + Arrays.toString(fieldsFloat) + ", fieldsDouble=" + Arrays.toString(fieldsDouble) + ", fieldsString=" + Arrays.toString(fieldsString) + ", fieldDescriptor=" + fieldDescriptor + '}';
+    return "GPOMutable{" + "fieldsBoolean=" + Arrays.toString(fieldsBoolean) + ", fieldsCharacter="
+        + Arrays.toString(fieldsCharacter) + ", fieldsByte=" + Arrays.toString(fieldsByte) + ", fieldsShort="
+        + Arrays.toString(fieldsShort) + ", fieldsInteger=" + Arrays.toString(fieldsInteger) + ", fieldsLong="
+        + Arrays.toString(fieldsLong) + ", fieldsFloat=" + Arrays.toString(fieldsFloat) + ", fieldsDouble="
+        + Arrays.toString(fieldsDouble) + ", fieldsString=" + Arrays.toString(fieldsString) + ", fieldDescriptor="
+        + fieldDescriptor + '}';
   }
 }

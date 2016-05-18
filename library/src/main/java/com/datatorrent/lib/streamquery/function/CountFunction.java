@@ -57,10 +57,14 @@ public class CountFunction extends FunctionIndex
   @Override
   public Object compute(ArrayList<Map<String, Object>> rows) throws Exception
   {
-    if (column.equals("*")) return rows.size();
+    if (column.equals("*")) {
+      return rows.size();
+    }
     long count = 0;
     for (Map<String, Object> row : rows) {
-      if (row.containsKey(column) && (row.get(column) != null)) count++;
+      if (row.containsKey(column) && (row.get(column) != null)) {
+        count++;
+      }
     }
     return count;
   }
@@ -72,7 +76,9 @@ public class CountFunction extends FunctionIndex
   @Override
   protected String aggregateName()
   {
-    if (!StringUtils.isEmpty(alias)) return alias;
+    if (!StringUtils.isEmpty(alias)) {
+      return alias;
+    }
     return "COUNT(" + column + ")";
   }
 

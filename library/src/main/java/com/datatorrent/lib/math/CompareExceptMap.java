@@ -18,13 +18,14 @@
  */
 package com.datatorrent.lib.math;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.algo.MatchMap;
 import com.datatorrent.lib.util.UnifierHashMap;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Operator compares based on the property "key", "value", and "compare".
@@ -86,13 +87,13 @@ public class CompareExceptMap<K, V extends Number> extends MatchMap<K, V>
   /**
    * Output port that emits a hashmap of matched tuples after comparison.
    */
-  @OutputPortFieldAnnotation(optional=true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<HashMap<K, V>> compare = match;
   
   /**
    * Output port that emits a hashmap of non matching tuples after comparison.
    */
-  @OutputPortFieldAnnotation(optional=true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<HashMap<K, V>> except = new DefaultOutputPort<HashMap<K, V>>()
   {
     @Override

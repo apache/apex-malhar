@@ -23,13 +23,15 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.ObjectUtils.Null;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.commons.lang.ObjectUtils.Null;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  * A unit test to test SortedMovingWindow operator can either:
@@ -45,7 +47,8 @@ public class SortedMovingWindowTest
    * Test sorting simple comparable tuples within the sliding window
    */
   @Test
-  public void testSortingSimpleNumberTuple(){
+  public void testSortingSimpleNumberTuple()
+  {
     SortedMovingWindow<Integer, Null> smw = new SortedMovingWindow<Integer, Null>();
     CollectorTestSink<Object> testSink = new CollectorTestSink<Object>();
     smw.outputPort.setSink(testSink);
@@ -73,9 +76,10 @@ public class SortedMovingWindowTest
 
     SortedMovingWindow<Map<String, Integer>, Null> smw = new SortedMovingWindow<Map<String, Integer>, Null>();
 
-    final String[] keys = { "number" };
+    final String[] keys = {"number"};
 
-    smw.setComparator(new Comparator<Map<String, Integer>>() {
+    smw.setComparator(new Comparator<Map<String, Integer>>()
+    {
       @Override
       public int compare(Map<String, Integer> o1, Map<String, Integer> o2)
       {
@@ -89,15 +93,17 @@ public class SortedMovingWindowTest
     smw.setWindowSize(2);
 
     // The incoming 6 simple map tuples are disordered among 4 windows 
-    emitObjects(smw, new Map[][] { createHashMapTuples(keys, new Integer[][] { { 1 }, { 3 } }), createHashMapTuples(keys, new Integer[][] { { 2 }, { 5 } }), 
-        createHashMapTuples(keys, new Integer[][] { { 4 } }), createHashMapTuples(keys, new Integer[][] { { 6 } }) });
+    emitObjects(smw, new Map[][]{createHashMapTuples(keys, new Integer[][]{{1}, {3}}),
+        createHashMapTuples(keys, new Integer[][]{{2}, {5}}),
+        createHashMapTuples(keys, new Integer[][]{{4}}), createHashMapTuples(keys, new Integer[][]{{6}})});
     smw.beginWindow(4);
     smw.endWindow();
     smw.beginWindow(5);
     smw.endWindow();
 
     // The outcome is ordered by the value of the key "number"
-    Assert.assertEquals(Arrays.asList(createHashMapTuples(keys, new Integer[][] { { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 } })), testSink.collectedTuples);
+    Assert.assertEquals(Arrays.asList(createHashMapTuples(keys, new Integer[][]{{1}, {2}, {3}, {4}, {5}, {6}})),
+        testSink.collectedTuples);
   }
   
   
@@ -110,9 +116,10 @@ public class SortedMovingWindowTest
 
     SortedMovingWindow<Map<String, Object>, String> smw = new SortedMovingWindow<Map<String, Object>, String>();
 
-    final String[] keys = { "name", "number" };
+    final String[] keys = {"name", "number"};
 
-    smw.setComparator(new Comparator<Map<String, Object>>() {
+    smw.setComparator(new Comparator<Map<String, Object>>()
+    {
       @Override
       public int compare(Map<String, Object> o1, Map<String, Object> o2)
       {
@@ -121,12 +128,13 @@ public class SortedMovingWindowTest
       }
     });
     
-    smw.setFunction(new Function<Map<String,Object>, String>() {
+    smw.setFunction(new Function<Map<String,Object>, String>()
+    {
       @Override
       public String apply(Map<String, Object> input)
       {
         // order tuple with same key "name"
-        return (String) input.get(keys[0]);
+        return (String)input.get(keys[0]);
       }
     });
     CollectorTestSink<Object> testSink = new CollectorTestSink<Object>();
@@ -135,23 +143,23 @@ public class SortedMovingWindowTest
     smw.setWindowSize(2);
 
     // The incoming 9 complex map tuples are disordered with same name among 4 windows 
-    emitObjects(smw, new Map[][] { createHashMapTuples(keys, new Object[][] { {"bob", 1 }, {"jim", 1 } }), createHashMapTuples(keys, new Object[][] { {"jim", 2 }, { "bob", 3 } }), 
-        createHashMapTuples(keys, new Object[][] { { "bob", 2 }, { "jim", 4} }), createHashMapTuples(keys, new Object[][] { {"bob", 5}, {"jim", 3 }, {"bob", 4} }) });
+    emitObjects(smw, new Map[][]{createHashMapTuples(keys, new Object[][]{{"bob", 1}, {"jim", 1}}),
+        createHashMapTuples(keys, new Object[][]{{"jim", 2}, {"bob", 3}}),
+        createHashMapTuples(keys, new Object[][]{{"bob", 2}, {"jim", 4}}),
+        createHashMapTuples(keys, new Object[][]{{"bob", 5}, {"jim", 3}, {"bob", 4}})});
     smw.beginWindow(4);
     smw.endWindow();
     smw.beginWindow(5);
     smw.endWindow();
 
     // All tuples with same "name" are sorted by key "number"
-    Assert.assertEquals(Arrays.asList(createHashMapTuples(keys, new Object[][] { { "bob", 1 }, { "jim", 1 }, { "jim", 2 }, { "bob", 2 },
-        { "bob", 3 }, { "jim", 3 }, { "jim", 4 }, { "bob", 4 }, { "bob", 5 } })), testSink.collectedTuples);
+    Assert.assertEquals(Arrays.asList(createHashMapTuples(keys,
+        new Object[][]{{"bob", 1}, {"jim", 1}, {"jim", 2}, {"bob", 2}, {"bob", 3}, {"jim", 3}, {"jim", 4}, {"bob", 4}, {"bob", 5}})), testSink.collectedTuples);
   }
   
-  
-  
-  
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  private void emitObjects(SortedMovingWindow win, Object[][] obj){
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  private void emitObjects(SortedMovingWindow win, Object[][] obj)
+  {
     for (int i = 0; i < obj.length; i++) {
       win.beginWindow(i);
       for (int j = 0; j < obj[i].length; j++) {
@@ -161,8 +169,9 @@ public class SortedMovingWindowTest
     }
   }
   
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  private Map[] createHashMapTuples(String[] cols, Object[][] values){
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  private Map[] createHashMapTuples(String[] cols, Object[][] values)
+  {
     
     HashMap[] maps = new HashMap[values.length];
     int index = -1;

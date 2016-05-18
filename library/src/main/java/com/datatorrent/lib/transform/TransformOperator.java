@@ -89,7 +89,8 @@ public class TransformOperator extends BaseOperator implements Operator.Activati
   @OutputPortFieldAnnotation(schemaRequired = true)
   public final transient DefaultOutputPort<Object> output = new DefaultOutputPort<Object>()
   {
-    @Override public void setup(Context.PortContext context)
+    @Override
+    public void setup(Context.PortContext context)
     {
       outputClass = context.getValue(Context.PortContext.TUPLE_CLASS);
     }

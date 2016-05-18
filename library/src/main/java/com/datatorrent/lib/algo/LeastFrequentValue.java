@@ -79,7 +79,7 @@ public class LeastFrequentValue<K> extends AbstractBaseFrequentKey<K>
    * which occurred the least number of times,
    * is emitted.
    */
-  @OutputPortFieldAnnotation(optional=true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<HashMap<K, Integer>> least = new DefaultOutputPort<HashMap<K, Integer>>()
   {
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -95,7 +95,7 @@ public class LeastFrequentValue<K> extends AbstractBaseFrequentKey<K>
    * which occurred the least number of times,
    * is emitted.
    */
-  @OutputPortFieldAnnotation(optional=true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>()
   {
     @SuppressWarnings({ "rawtypes", "unchecked" })

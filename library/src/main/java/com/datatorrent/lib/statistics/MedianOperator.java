@@ -21,10 +21,10 @@ package com.datatorrent.lib.statistics;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * An implementation of BaseOperator that computes median of incoming data. <br>
@@ -77,7 +77,9 @@ public class MedianOperator extends BaseOperator
   @Override
   public void endWindow()
   {
-    if (values.size() == 0) return;
+    if (values.size() == 0) {
+      return;
+    }
     if (values.size() == 1) {
       median.emit(values.get(0));
       return;
@@ -86,9 +88,9 @@ public class MedianOperator extends BaseOperator
     // median value
     Collections.sort(values);
     int medianIndex = values.size() / 2;
-    if (values.size() %2 == 0) {
-      Double value = values.get(medianIndex-1);
-      value = (value + values.get(medianIndex))/2;
+    if (values.size() % 2 == 0) {
+      Double value = values.get(medianIndex - 1);
+      value = (value + values.get(medianIndex)) / 2;
       median.emit(value);
     } else {
       median.emit(values.get(medianIndex));

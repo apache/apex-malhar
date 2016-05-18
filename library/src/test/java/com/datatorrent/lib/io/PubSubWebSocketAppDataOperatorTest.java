@@ -34,8 +34,7 @@ public abstract class PubSubWebSocketAppDataOperatorTest
   public static final URI GATEWAY_CONNECT_ADDRESS;
   public static final URI URI_ADDRESS;
 
-  static
-  {
+  static {
     try {
       GATEWAY_CONNECT_ADDRESS = new URI("ws://" + GATEWAY_CONNECT_ADDRESS_STRING + "/pubsub");
       URI_ADDRESS = new URI(URI_ADDRESS_STRING);

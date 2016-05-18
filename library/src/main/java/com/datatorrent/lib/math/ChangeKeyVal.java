@@ -54,8 +54,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * @tags change, key value
  * @since 0.3.3
  */
-public class ChangeKeyVal<K, V extends Number> extends
-  BaseNumberKeyValueOperator<K, V>
+public class ChangeKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
   /**
    * basemap is a stateful field. It is retained across windows
@@ -81,8 +80,7 @@ public class ChangeKeyVal<K, V extends Number> extends
       if (bval != null) { // Only process keys that are in the basemap
         double cval = tuple.getValue().doubleValue() - bval.doubleValue();
         change.emit(new KeyValPair<K, V>(cloneKey(key), getValue(cval)));
-        percent.emit(new KeyValPair<K, Double>(cloneKey(key), (cval / bval
-          .doubleValue()) * 100));
+        percent.emit(new KeyValPair<K, Double>(cloneKey(key), (cval / bval.doubleValue()) * 100));
       }
     }
   };

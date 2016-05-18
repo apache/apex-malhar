@@ -21,14 +21,13 @@ package com.datatorrent.lib.logs;
 import java.util.HashMap;
 
 import org.junit.Assert;
-
-import org.apache.commons.lang.mutable.MutableDouble;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.commons.lang.mutable.MutableDouble;
+
 import com.datatorrent.lib.algo.TopNUnique;
-import com.datatorrent.lib.logs.DimensionObject;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
@@ -36,55 +35,58 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
  * This tests the integration between MultiWindowDimensionAggregationOperator and TopNUnique Operator
  *
  */
-public class TopNUniqueSiteStatsTest {
+public class TopNUniqueSiteStatsTest
+{
   private static Logger log = LoggerFactory.getLogger(TopNUniqueSiteStatsTest.class);
 
   /**
    * Test node logic emits correct results
    */
   @Test
-    public void testNodeProcessing() throws Exception {
-      testNodeProcessingSchema(new TopNUnique<String, DimensionObject<String>>());
+  public void testNodeProcessing() throws Exception
+  {
+    testNodeProcessingSchema(new TopNUnique<String, DimensionObject<String>>());
 
+  }
+
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public void testNodeProcessingSchema(TopNUnique oper)
+  {
+    CollectorTestSink sortSink = new CollectorTestSink();
+    oper.top.setSink(sortSink);
+    oper.setN(3);
+
+    oper.beginWindow(0);
+    HashMap<String, DimensionObject<String>> input = new HashMap<String, DimensionObject<String>>();
+
+    input.put("url", new DimensionObject<String>(new MutableDouble(10), "abc"));
+    oper.data.process(input);
+
+    input.clear();
+    input.put("url", new DimensionObject<String>(new MutableDouble(1), "def"));
+    input.put("url1", new DimensionObject<String>(new MutableDouble(1), "def"));
+    oper.data.process(input);
+
+    input.clear();
+    input.put("url", new DimensionObject<String>(new MutableDouble(101), "ghi"));
+    input.put("url1", new DimensionObject<String>(new MutableDouble(101), "ghi"));
+    oper.data.process(input);
+
+    input.clear();
+    input.put("url", new DimensionObject<String>(new MutableDouble(50), "jkl"));
+    oper.data.process(input);
+
+    input.clear();
+    input.put("url", new DimensionObject<String>(new MutableDouble(50), "jkl"));
+    input.put("url3", new DimensionObject<String>(new MutableDouble(50), "jkl"));
+    oper.data.process(input);
+    oper.endWindow();
+
+    Assert.assertEquals("number emitted tuples", 3, sortSink.collectedTuples.size());
+    for (Object o : sortSink.collectedTuples) {
+      log.debug(o.toString());
     }
-
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void testNodeProcessingSchema(TopNUnique oper) {
-      CollectorTestSink sortSink = new CollectorTestSink();
-      oper.top.setSink(sortSink);
-      oper.setN(3);
-
-      oper.beginWindow(0);
-      HashMap<String, DimensionObject<String>> input = new HashMap<String, DimensionObject<String>>();
-
-      input.put("url", new DimensionObject<String>(new MutableDouble(10), "abc"));
-      oper.data.process(input);
-
-      input.clear();
-      input.put("url", new DimensionObject<String>(new MutableDouble(1), "def"));
-      input.put("url1", new DimensionObject<String>(new MutableDouble(1), "def"));
-      oper.data.process(input);
-
-      input.clear();
-      input.put("url", new DimensionObject<String>(new MutableDouble(101), "ghi"));
-      input.put("url1", new DimensionObject<String>(new MutableDouble(101), "ghi"));
-      oper.data.process(input);
-
-      input.clear();
-      input.put("url", new DimensionObject<String>(new MutableDouble(50), "jkl"));
-      oper.data.process(input);
-
-      input.clear();
-      input.put("url", new DimensionObject<String>(new MutableDouble(50), "jkl"));
-      input.put("url3", new DimensionObject<String>(new MutableDouble(50), "jkl"));
-      oper.data.process(input);
-      oper.endWindow();
-
-      Assert.assertEquals("number emitted tuples", 3,	sortSink.collectedTuples.size());
-      for (Object o : sortSink.collectedTuples) {
-        log.debug(o.toString());
-      }
-      log.debug("Done testing round\n");
-    }
+    log.debug("Done testing round\n");
+  }
 
 }

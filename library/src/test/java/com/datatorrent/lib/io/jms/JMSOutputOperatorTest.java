@@ -18,6 +18,22 @@
  */
 package com.datatorrent.lib.io.jms;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Random;
+
+import javax.jms.JMSException;
+import javax.jms.Message;
+
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.commons.io.FileUtils;
+
 import com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
@@ -26,16 +42,6 @@ import com.datatorrent.api.Operator.ProcessingMode;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.helper.OperatorContextTestHelper.TestIdOperatorContext;
 import com.datatorrent.lib.util.ActiveMQMultiTypeMessageListener;
-import java.io.File;
-import java.io.IOException;
-import java.util.Random;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import org.apache.commons.io.FileUtils;
-import org.junit.*;
-import org.junit.rules.TestWatcher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Test to verify JMS output operator adapter.
@@ -72,8 +78,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
 
       try {
         FileUtils.deleteDirectory(new File(FSPsuedoTransactionableStore.DEFAULT_RECOVERY_DIRECTORY));
-      }
-      catch (IOException ex) {
+      } catch (IOException ex) {
         throw new RuntimeException(ex);
       }
     }
@@ -83,8 +88,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
     {
       try {
         FileUtils.deleteDirectory(new File(FSPsuedoTransactionableStore.DEFAULT_RECOVERY_DIRECTORY));
-      }
-      catch (IOException ex) {
+      } catch (IOException ex) {
         throw new RuntimeException(ex);
       }
     }
@@ -109,8 +113,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
       Message msg;
       try {
         msg = getSession().createTextMessage(tuple.toString());
-      }
-      catch (JMSException ex) {
+      } catch (JMSException ex) {
         throw new RuntimeException("Failed to create message.", ex);
       }
 
@@ -231,144 +234,87 @@ public class JMSOutputOperatorTest extends JMSTestBase
 
   //@Ignore
   @Test
-  public void testBatch()
+  public void testBatch() throws JMSException, InterruptedException
   {
     // Setup a message listener to receive the message
     final ActiveMQMultiTypeMessageListener listener = new ActiveMQMultiTypeMessageListener();
     listener.setTopic(false);
 
-    try {
-      listener.setupConnection();
-    }
-    catch (JMSException ex) {
-      throw new RuntimeException(ex);
-    }
-
+    listener.setupConnection();
     listener.run();
 
     createOperator(false, testOperatorContext);
 
     outputOperator.beginWindow(0);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.inputPort.put(Integer.toString(random.nextInt()));
     }
 
     outputOperator.endWindow();
+    Thread.sleep(200);
 
-    try {
-      Thread.sleep(200);
-    }
-    catch (InterruptedException ex) {
-      throw new RuntimeException(ex);
-    }
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        listener.receivedData.size());
+    Assert.assertEquals("Batch should be written", BATCH_SIZE, listener.receivedData.size());
 
     outputOperator.beginWindow(1);
 
-    for(int batchCounter = 0;
-        batchCounter < HALF_BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < HALF_BATCH_SIZE; batchCounter++) {
       outputOperator.inputPort.put(Integer.toString(random.nextInt()));
     }
 
     outputOperator.endWindow();
+    Thread.sleep(200);
 
-    try {
-      Thread.sleep(200);
-    }
-    catch (InterruptedException ex) {
-      throw new RuntimeException(ex);
-    }
-    Assert.assertEquals("Batch should not be written",
-                        BATCH_SIZE + HALF_BATCH_SIZE,
-                        listener.receivedData.size());
+    Assert.assertEquals("Batch should not be written", BATCH_SIZE + HALF_BATCH_SIZE, listener.receivedData.size());
 
     outputOperator.beginWindow(2);
 
-    for(int batchCounter = 0;
-        batchCounter < HALF_BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < HALF_BATCH_SIZE; batchCounter++) {
       outputOperator.inputPort.put(Integer.toString(random.nextInt()));
     }
 
     outputOperator.endWindow();
+    Thread.sleep(200);
 
-    try {
-      Thread.sleep(200);
-    }
-    catch (InterruptedException ex) {
-      throw new RuntimeException(ex);
-    }
-    Assert.assertEquals("Batch should not be written",
-                        2 * BATCH_SIZE,
-                        listener.receivedData.size());
+    Assert.assertEquals("Batch should not be written", 2 * BATCH_SIZE, listener.receivedData.size());
 
     outputOperator.teardown();
-
     listener.closeConnection();
   }
 
-  //@Ignore
   @Test
-  public void testAtLeastOnceFullBatch()
+  public void testAtLeastOnceFullBatch() throws JMSException, InterruptedException
   {
     // Setup a message listener to receive the message
     final ActiveMQMultiTypeMessageListener listener = new ActiveMQMultiTypeMessageListener();
     listener.setTopic(false);
 
-    try {
-      listener.setupConnection();
-    }
-    catch (JMSException ex) {
-      throw new RuntimeException(ex);
-    }
-
+    listener.setupConnection();
     listener.run();
 
     createOperator(false, testOperatorContext);
 
     outputOperator.beginWindow(0);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.inputPort.put(Integer.toString(random.nextInt()));
     }
 
     outputOperator.endWindow();
 
-    try {
-      Thread.sleep(200);
-    }
-    catch (InterruptedException ex) {
-      throw new RuntimeException(ex);
-    }
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        listener.receivedData.size());
+    Thread.sleep(200);
+
+    Assert.assertEquals("Batch should be written", BATCH_SIZE, listener.receivedData.size());
 
     outputOperator.beginWindow(1);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.inputPort.put(Integer.toString(random.nextInt()));
     }
 
-    try {
-      Thread.sleep(200);
-    }
-    catch (InterruptedException ex) {
-      throw new RuntimeException(ex);
-    }
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        listener.receivedData.size());
+    Thread.sleep(200);
+
+    Assert.assertEquals("Batch should be written", BATCH_SIZE, listener.receivedData.size());
 
     outputOperator.teardown();
 
@@ -376,115 +322,65 @@ public class JMSOutputOperatorTest extends JMSTestBase
 
     outputOperator.setup(testOperatorContext);
 
-    try {
-      Thread.sleep(200);
-    }
-    catch (InterruptedException ex) {
-      throw new RuntimeException(ex);
-    }
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        listener.receivedData.size());
+    Thread.sleep(200);
+    Assert.assertEquals("Batch should be written", BATCH_SIZE, listener.receivedData.size());
 
     outputOperator.beginWindow(0);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.inputPort.put(Integer.toString(random.nextInt()));
     }
 
     outputOperator.endWindow();
 
-    try {
-      Thread.sleep(200);
-    }
-    catch (InterruptedException ex) {
-      throw new RuntimeException(ex);
-    }
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        listener.receivedData.size());
+    Thread.sleep(200);
+    Assert.assertEquals("Batch should be written", BATCH_SIZE, listener.receivedData.size());
 
     outputOperator.beginWindow(1);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.inputPort.put(Integer.toString(random.nextInt()));
     }
 
     outputOperator.endWindow();
 
-    try {
-      Thread.sleep(200);
-    }
-    catch (InterruptedException ex) {
-      throw new RuntimeException(ex);
-    }
-    Assert.assertEquals("Batch should be written",
-                        2 * BATCH_SIZE,
-                        listener.receivedData.size());
+    Thread.sleep(200);
+    Assert.assertEquals("Batch should be written", 2 * BATCH_SIZE, listener.receivedData.size());
 
     listener.closeConnection();
   }
 
   //@Ignore
   @Test
-  public void testAtLeastOnceHalfBatch()
+  public void testAtLeastOnceHalfBatch() throws JMSException, InterruptedException
   {
     // Setup a message listener to receive the message
     final ActiveMQMultiTypeMessageListener listener = new ActiveMQMultiTypeMessageListener();
     listener.setTopic(false);
 
-    try {
-      listener.setupConnection();
-    }
-    catch (JMSException ex) {
-      throw new RuntimeException(ex);
-    }
-
+    listener.setupConnection();
     listener.run();
 
     createOperator(false, testOperatorContext);
 
     outputOperator.beginWindow(0);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.inputPort.put(Integer.toString(random.nextInt()));
     }
 
     outputOperator.endWindow();
 
-    try {
-      Thread.sleep(200);
-    }
-    catch (InterruptedException ex) {
-      throw new RuntimeException(ex);
-    }
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        listener.receivedData.size());
+    Thread.sleep(200);
+    Assert.assertEquals("Batch should be written", BATCH_SIZE, listener.receivedData.size());
 
     outputOperator.beginWindow(1);
-
-    for(int batchCounter = 0;
-        batchCounter < HALF_BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < HALF_BATCH_SIZE; batchCounter++) {
       outputOperator.inputPort.put(Integer.toString(random.nextInt()));
     }
 
-    try {
-      Thread.sleep(200);
-    }
-    catch (InterruptedException ex) {
-      throw new RuntimeException(ex);
-    }
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        listener.receivedData.size());
+    Thread.sleep(200);
+    Assert.assertEquals("Batch should be written", BATCH_SIZE, listener.receivedData.size());
 
     outputOperator.teardown();
 
@@ -492,56 +388,28 @@ public class JMSOutputOperatorTest extends JMSTestBase
 
     outputOperator.setup(testOperatorContext);
 
-    try {
-      Thread.sleep(200);
-    }
-    catch (InterruptedException ex) {
-      throw new RuntimeException(ex);
-    }
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        listener.receivedData.size());
+    Thread.sleep(200);
+    Assert.assertEquals("Batch should be written", BATCH_SIZE, listener.receivedData.size());
 
     outputOperator.beginWindow(0);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.inputPort.put(Integer.toString(random.nextInt()));
     }
 
     outputOperator.endWindow();
 
-    try {
-      Thread.sleep(200);
-    }
-    catch (InterruptedException ex) {
-      throw new RuntimeException(ex);
-    }
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        listener.receivedData.size());
+    Thread.sleep(200);
+    Assert.assertEquals("Batch should be written", BATCH_SIZE, listener.receivedData.size());
 
     outputOperator.beginWindow(1);
-
-    for(int batchCounter = 0;
-        batchCounter < HALF_BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < HALF_BATCH_SIZE; batchCounter++) {
       outputOperator.inputPort.put(Integer.toString(random.nextInt()));
     }
 
     outputOperator.endWindow();
-
-    try {
-      Thread.sleep(200);
-    }
-    catch (InterruptedException ex) {
-      throw new RuntimeException(ex);
-    }
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE + HALF_BATCH_SIZE,
-                        listener.receivedData.size());
-
+    Thread.sleep(200);
+    Assert.assertEquals("Batch should be written", BATCH_SIZE + HALF_BATCH_SIZE, listener.receivedData.size());
     listener.closeConnection();
   }
 
@@ -555,8 +423,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
 
     try {
       listener.setupConnection();
-    }
-    catch (JMSException ex) {
+    } catch (JMSException ex) {
       throw new RuntimeException(ex);
     }
 
@@ -566,9 +433,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
 
     outputOperator.beginWindow(0);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.inputPort.put(Integer.toString(random.nextInt()));
     }
 
@@ -576,31 +441,23 @@ public class JMSOutputOperatorTest extends JMSTestBase
 
     try {
       Thread.sleep(200);
-    }
-    catch (InterruptedException ex) {
+    } catch (InterruptedException ex) {
       throw new RuntimeException(ex);
     }
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        listener.receivedData.size());
+    Assert.assertEquals("Batch should be written", BATCH_SIZE, listener.receivedData.size());
 
     outputOperator.beginWindow(1);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.inputPort.put(Integer.toString(random.nextInt()));
     }
 
     try {
       Thread.sleep(200);
-    }
-    catch (InterruptedException ex) {
+    } catch (InterruptedException ex) {
       throw new RuntimeException(ex);
     }
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        listener.receivedData.size());
+    Assert.assertEquals("Batch should be written", BATCH_SIZE, listener.receivedData.size());
 
     outputOperator.teardown();
 
@@ -610,9 +467,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
 
     outputOperator.beginWindow(2);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.inputPort.put(Integer.toString(random.nextInt()));
     }
 
@@ -620,13 +475,10 @@ public class JMSOutputOperatorTest extends JMSTestBase
 
     try {
       Thread.sleep(200);
-    }
-    catch (InterruptedException ex) {
+    } catch (InterruptedException ex) {
       throw new RuntimeException(ex);
     }
-    Assert.assertEquals("Batch should be written",
-                        2 * BATCH_SIZE,
-                        listener.receivedData.size());
+    Assert.assertEquals("Batch should be written", 2 * BATCH_SIZE, listener.receivedData.size());
 
     listener.closeConnection();
   }
@@ -641,8 +493,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
 
     try {
       listener.setupConnection();
-    }
-    catch (JMSException ex) {
+    } catch (JMSException ex) {
       throw new RuntimeException(ex);
     }
 
@@ -652,9 +503,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
 
     outputOperator.beginWindow(0);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.inputPort.put(Integer.toString(random.nextInt()));
     }
 
@@ -662,31 +511,23 @@ public class JMSOutputOperatorTest extends JMSTestBase
 
     try {
       Thread.sleep(200);
-    }
-    catch (InterruptedException ex) {
+    } catch (InterruptedException ex) {
       throw new RuntimeException(ex);
     }
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        listener.receivedData.size());
+    Assert.assertEquals("Batch should be written", BATCH_SIZE, listener.receivedData.size());
 
     outputOperator.beginWindow(1);
 
-    for(int batchCounter = 0;
-        batchCounter < HALF_BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < HALF_BATCH_SIZE; batchCounter++) {
       outputOperator.inputPort.put(Integer.toString(random.nextInt()));
     }
 
     try {
       Thread.sleep(200);
-    }
-    catch (InterruptedException ex) {
+    } catch (InterruptedException ex) {
       throw new RuntimeException(ex);
     }
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        listener.receivedData.size());
+    Assert.assertEquals("Batch should be written", BATCH_SIZE, listener.receivedData.size());
 
     outputOperator.teardown();
 
@@ -696,19 +537,14 @@ public class JMSOutputOperatorTest extends JMSTestBase
 
     try {
       Thread.sleep(200);
-    }
-    catch (InterruptedException ex) {
+    } catch (InterruptedException ex) {
       throw new RuntimeException(ex);
     }
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        listener.receivedData.size());
+    Assert.assertEquals("Batch should be written", BATCH_SIZE, listener.receivedData.size());
 
     outputOperator.beginWindow(2);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.inputPort.put(Integer.toString(random.nextInt()));
     }
 
@@ -716,14 +552,10 @@ public class JMSOutputOperatorTest extends JMSTestBase
 
     try {
       Thread.sleep(200);
-    }
-    catch (InterruptedException ex) {
+    } catch (InterruptedException ex) {
       throw new RuntimeException(ex);
     }
-    Assert.assertEquals("Batch should be written",
-                        2 * BATCH_SIZE,
-                        listener.receivedData.size());
-
+    Assert.assertEquals("Batch should be written", 2 * BATCH_SIZE, listener.receivedData.size());
     listener.closeConnection();
   }
 
@@ -759,15 +591,14 @@ public class JMSOutputOperatorTest extends JMSTestBase
 
       try {
         msg = getSession().createTextMessage(tuple.toString());
-      }
-      catch (JMSException ex) {
+      } catch (JMSException ex) {
         throw new RuntimeException(ex);
       }
 
       return msg;
     }
   }
-  //@Ignore
+
   @Test
   public void testJMSMultiPortOutputOperator() throws Exception
   {

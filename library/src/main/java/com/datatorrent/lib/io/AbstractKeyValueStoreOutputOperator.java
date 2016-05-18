@@ -24,11 +24,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.DAGContext;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
@@ -62,7 +62,7 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
    * This input port receives tuples which are maps.
    * Each map may have many key value pairs.
    */
-  @InputPortFieldAnnotation(optional=true)
+  @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<Map<K, V>> input = new DefaultInputPort<Map<K, V>>()
   {
     @Override
@@ -78,7 +78,7 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
   /**
    * This input port receives tuples which are individual key value pairs.
    */
-  @InputPortFieldAnnotation(optional=true)
+  @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<KeyValPair<K, V>> inputInd = new DefaultInputPort<KeyValPair<K, V>>()
   {
     @Override
@@ -141,8 +141,7 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
         put(getEndWindowKey(), String.valueOf(currentWindowId));
         commitTransaction();
         committedWindowId = currentWindowId;
-      }
-      else {
+      } else {
         LOG.info("Discarding data for window id {} because committed window is {}", currentWindowId, committedWindowId);
       }
     } catch (RuntimeException se) {
@@ -163,7 +162,8 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
     return "_ew:" + appId + ":" + operatorId;
   }
 
-  private void logException(String message, Exception exception) {
+  private void logException(String message, Exception exception)
+  {
     if (continueOnError != 0) {
       LOG.warn(message, exception);
     } else {

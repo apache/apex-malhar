@@ -119,7 +119,8 @@ public class FilterKeysMap<K,V> extends BaseKeyOperator<K>
    * If true then only matches are emitted. If false then only non matches are emitted.
    * @return inverse
    */
-  public boolean getInverse() {
+  public boolean getInverse()
+  {
     return inverse;
   }
 
@@ -128,7 +129,8 @@ public class FilterKeysMap<K,V> extends BaseKeyOperator<K>
    * Sets the inverse property. If true then only matches are emitted. If false then only non matches are emitted.
    * @param val
    */
-  public void setInverse(boolean val) {
+  public void setInverse(boolean val)
+  {
     inverse = val;
   }
 
@@ -136,8 +138,9 @@ public class FilterKeysMap<K,V> extends BaseKeyOperator<K>
    * Adds a key to the filter list
    * @param str
    */
-  public void setKey(K str) {
-      keys.put(str, null);
+  public void setKey(K str)
+  {
+    keys.put(str, null);
   }
 
   /**

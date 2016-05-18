@@ -22,11 +22,11 @@ import java.util.HashMap;
 
 import javax.validation.constraints.NotNull;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This operator filters the incoming stream of values by the specified set of filter values.

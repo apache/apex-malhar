@@ -36,8 +36,7 @@ public interface Converter<INPUT, OUTPUT>
    * Provide the implementation for converting tuples from one format to the
    * other
    * 
-   * @param INPUT
-   *          tuple of certain format
+   * @param tuple tuple of certain format
    * @return OUTPUT tuple of converted format
    */
   public OUTPUT convert(INPUT tuple);

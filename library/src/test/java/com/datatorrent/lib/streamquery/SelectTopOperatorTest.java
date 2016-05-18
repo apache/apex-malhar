@@ -21,6 +21,8 @@ package com.datatorrent.lib.streamquery;
 import java.util.HashMap;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
@@ -54,7 +56,10 @@ public class SelectTopOperatorTest
     tuple.put("c", 6);
     oper.inport.process(tuple);
     oper.endWindow();
-    
-    System.out.println(sink.collectedTuples.toString());
+
+    LOG.debug("{}", sink.collectedTuples);
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(SelectTopOperatorTest.class);
+
 }

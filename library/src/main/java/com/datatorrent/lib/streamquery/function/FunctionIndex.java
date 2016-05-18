@@ -36,7 +36,7 @@ import javax.validation.constraints.NotNull;
  * @tags sql aggregate
  * @since 0.3.4
  */
-abstract public class FunctionIndex
+public abstract class FunctionIndex
 {
   /**
    * Column name.
@@ -64,13 +64,13 @@ abstract public class FunctionIndex
    * @param rows Tuple list over application window.
    * @return aggregate result object.
    */
-  abstract public Object compute(@NotNull ArrayList<Map<String, Object>> rows) throws Exception;
+  public abstract Object compute(@NotNull ArrayList<Map<String, Object>> rows) throws Exception;
 
   /**
    * Get aggregate output value name.
    * @return name string.
    */
-  abstract protected String aggregateName();
+  protected abstract String aggregateName();
 
   /**
    * Apply compute function to given rows and store result in collect by output value name.
@@ -78,10 +78,16 @@ abstract public class FunctionIndex
    */
   public void filter(ArrayList<Map<String, Object>> rows, Map<String, Object> collect) throws Exception
   {
-    if (rows == null) return;
+    if (rows == null) {
+      return;
+    }
     String name = column;
-    if (alias != null) name = alias;
-    if (name == null) name = aggregateName();
+    if (alias != null) {
+      name = alias;
+    }
+    if (name == null) {
+      name = aggregateName();
+    }
     collect.put(name, compute(rows));
   }
 }

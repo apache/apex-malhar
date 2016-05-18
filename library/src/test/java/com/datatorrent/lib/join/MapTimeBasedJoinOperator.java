@@ -56,7 +56,9 @@ public class MapTimeBasedJoinOperator
     oper.setup(context);
 
     CollectorTestSink<List<Map<String, Object>>> sink = new CollectorTestSink<List<Map<String, Object>>>();
-    @SuppressWarnings({"unchecked", "rawtypes"}) CollectorTestSink<Object> tmp = (CollectorTestSink)sink;
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    CollectorTestSink<Object> tmp = (CollectorTestSink)sink;
     oper.outputPort.setSink(tmp);
 
     oper.beginWindow(0);

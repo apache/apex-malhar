@@ -40,7 +40,7 @@ import com.datatorrent.lib.converter.Converter;
  * 
  * @displayName Parser
  * @tags parser converter
- * @param <INPUT>
+ * @param <OUTPUT>
  * @since 3.2.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving

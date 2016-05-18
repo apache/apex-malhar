@@ -37,7 +37,5 @@ public interface CustomMessageDeserializer
    * @return The deserialized message.
    * @throws IOException
    */
-  public abstract Message deserialize(String json,
-                                      Class<? extends Message> message,
-                                      Object context) throws IOException;
+  Message deserialize(String json, Class<? extends Message> message, Object context) throws IOException;
 }

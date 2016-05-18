@@ -49,15 +49,14 @@ public class DataResultSnapshotSerializer implements CustomMessageSerializer
   {
     try {
       return serializeHelper(result, resultFormatter);
-    }
-    catch(Exception ex) {
+    } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
   }
 
   private String serializeHelper(Message result, ResultFormatter resultFormatter) throws Exception
   {
-    DataResultSnapshot gResult = (DataResultSnapshot) result;
+    DataResultSnapshot gResult = (DataResultSnapshot)result;
 
     JSONObject jo = new JSONObject();
     jo.put(Result.FIELD_ID, gResult.getId());
@@ -65,16 +64,15 @@ public class DataResultSnapshotSerializer implements CustomMessageSerializer
 
     JSONArray ja = new JSONArray();
 
-    for(GPOMutable value: gResult.getValues()) {
-      JSONObject dataValue = GPOUtils.serializeJSONObject(value,
-                                                          ((DataQuerySnapshot) gResult.getQuery()).getFields(),
-                                                          resultFormatter);
+    for (GPOMutable value : gResult.getValues()) {
+      JSONObject dataValue = GPOUtils.serializeJSONObject(value, ((DataQuerySnapshot)gResult.getQuery()).getFields(),
+          resultFormatter);
       ja.put(dataValue);
     }
 
     jo.put(DataResultSnapshot.FIELD_DATA, ja);
 
-    if(!gResult.isOneTime()) {
+    if (!gResult.isOneTime()) {
       jo.put(Result.FIELD_COUNTDOWN, gResult.getCountdown());
     }
 

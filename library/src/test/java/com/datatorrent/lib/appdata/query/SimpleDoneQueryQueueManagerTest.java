@@ -18,14 +18,14 @@
  */
 package com.datatorrent.lib.appdata.query;
 
-import com.google.common.base.Preconditions;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
+
+import com.google.common.base.Preconditions;
 
 import com.datatorrent.lib.appdata.ThreadUtils.ExceptionSaverExceptionHandler;
 import com.datatorrent.lib.appdata.schemas.Query;
@@ -435,10 +435,10 @@ public class SimpleDoneQueryQueueManagerTest
     thread.stop();
   }
 
-  private Thread testBlockingNoStop(SimpleDoneQueueManager<Query, Void> sdqqm,
-                                    ExceptionSaverExceptionHandler eseh) throws InterruptedException
+  private Thread testBlockingNoStop(SimpleDoneQueueManager<Query, Void> sdqqm, ExceptionSaverExceptionHandler eseh)
+      throws InterruptedException
   {
-    Thread thread = new Thread(new BlockedThread<Query, Void, MutableBoolean>(sdqqm));
+    Thread thread = new Thread(new BlockedThread<>(sdqqm));
     thread.setUncaughtExceptionHandler(eseh);
     thread.start();
     Thread.sleep(100);

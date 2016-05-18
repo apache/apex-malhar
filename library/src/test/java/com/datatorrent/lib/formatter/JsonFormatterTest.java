@@ -25,18 +25,22 @@ import java.io.PrintStream;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.Description;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.commons.io.FileUtils;
+
+import com.google.common.collect.Lists;
 
 import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest.FSTestWatcher;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
-import com.google.common.collect.Lists;
 
 public class JsonFormatterTest
 {
@@ -150,7 +154,7 @@ public class JsonFormatterTest
     Assert.assertEquals(1, validDataSink.collectedTuples.size());
     Assert.assertEquals(0, invalidDataSink.collectedTuples.size());
     String expectedJSONString = "{\"a\":0,\"b\":0,\"c\":null,\"d\":null,\"date\":null}";
-    System.out.println(validDataSink.collectedTuples.get(0));
+    LOG.debug("{}", validDataSink.collectedTuples.get(0));
     Assert.assertEquals(expectedJSONString, validDataSink.collectedTuples.get(0));
   }
 
@@ -198,5 +202,7 @@ public class JsonFormatterTest
   public static class Test2Pojo
   {
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(JsonFormatterTest.class);
 
 }

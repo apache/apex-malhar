@@ -71,7 +71,7 @@ public class MultiWindowRangeKeyVal<K, V extends Number> extends RangeKeyVal<K, 
    * Clears the internal data before return
    */
   @SuppressWarnings({ "unchecked", "rawtypes" })
-	@Override
+  @Override
   public void endWindow()
   {
     boolean emit = (++windowCount) % windowSize == 0;

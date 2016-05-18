@@ -18,14 +18,15 @@
  */
 package com.datatorrent.lib.xml;
 
-
-import javax.xml.parsers.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import com.datatorrent.api.*;
-
+import com.datatorrent.api.Context;
+import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -69,7 +70,8 @@ public abstract class AbstractXmlDOMOperator<T> extends BaseOperator
     }
   };
 
-  protected void processTuple(T tuple) {
+  protected void processTuple(T tuple)
+  {
     try {
       InputSource source = getInputSource(tuple);
       Document document = docBuilder.parse(source);

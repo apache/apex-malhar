@@ -52,13 +52,13 @@ public abstract class AbstractBaseNNonUniqueOperatorMap<K, V> extends AbstractBa
    * Override to decide the direction (ascending vs descending)
    * @return true if ascending, to be done by sub-class
    */
-  abstract public boolean isAscending();
+  public abstract boolean isAscending();
 
   /**
    * Override to decide which port to emit to and its schema
    * @param tuple
    */
-  abstract public void emit(HashMap<K, ArrayList<V>> tuple);
+  public abstract void emit(HashMap<K, ArrayList<V>> tuple);
 
   /**
    *
@@ -75,8 +75,7 @@ public abstract class AbstractBaseNNonUniqueOperatorMap<K, V> extends AbstractBa
         pqueue = new TopNSort<V>(5, n, isAscending());
         kmap.put(cloneKey(e.getKey()), pqueue);
         pqueue.offer(cloneValue(e.getValue()));
-      }
-      else {
+      } else {
         pqueue.offer(e.getValue());
       }
     }

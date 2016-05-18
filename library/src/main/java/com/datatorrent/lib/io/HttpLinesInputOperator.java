@@ -18,11 +18,12 @@
  */
 package com.datatorrent.lib.io;
 
-import com.sun.jersey.api.client.ClientResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import com.sun.jersey.api.client.ClientResponse;
 
 /**
  * Incoming data is interpreted as lines of plain text and each tuple output is a line in the content.
@@ -47,8 +48,7 @@ public class HttpLinesInputOperator extends AbstractHttpInputOperator<String>
         rawOutput.emit(line);
         outputPort.emit(line);
       }
-    }
-    finally {
+    } finally {
       br.close();
     }
   }

@@ -61,126 +61,134 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 @OperatorAnnotation(partitionable = true)
 public abstract class MergeSort<K>  implements Operator, Unifier<ArrayList<K>>
 {
-	/**
-	 * Sorted merged list.
-	 */
-	private ArrayList<K> mergedList = null;
+  /**
+   * Sorted merged list.
+   */
+  private ArrayList<K> mergedList = null;
 
-	/**
-	 * The input port which receives lists to be merged and sorted.
-	 */
+  /**
+   * The input port which receives lists to be merged and sorted.
+   */
   public final transient DefaultInputPort<ArrayList<K>> data = new DefaultInputPort<ArrayList<K>>()
   {
-  	/**
-  	 * Merge incoming tuple.
-  	 */
+    /**
+     * Merge incoming tuple.
+     */
     @Override
     public void process(ArrayList<K> tuple)
     {
-    	mergedList = processMergeList(mergedList, tuple);
+      mergedList = processMergeList(mergedList, tuple);
     }
   };
 
   /**
    * The output port which emits merged and sorted lists.
    */
-  public final transient DefaultOutputPort<ArrayList<K>> sort = new DefaultOutputPort<ArrayList<K>>() {
-  		@Override
-  		public Unifier<ArrayList<K>> getUnifier()
-  		{
-  			return getUnifierInstance();
-  		}
+  public final transient DefaultOutputPort<ArrayList<K>> sort = new DefaultOutputPort<ArrayList<K>>()
+  {
+    @Override
+    public Unifier<ArrayList<K>> getUnifier()
+    {
+      return getUnifierInstance();
+    }
   };
 
-	@Override
-	public void setup(OperatorContext context)
-	{
-		// TODO Auto-generated method stub
+  @Override
+  public void setup(OperatorContext context)
+  {
+    // TODO Auto-generated method stub
 
-	}
+  }
 
-	@Override
-	public void teardown()
-	{
-		// TODO Auto-generated method stub
+  @Override
+  public void teardown()
+  {
+    // TODO Auto-generated method stub
+  }
 
-	}
-	@Override
-	public void beginWindow(long windowId)
-	{
-		mergedList = null;
-	}
-	@Override
-	public void endWindow()
-	{
-		sort.emit(mergedList);
-		mergedList = null;
-	}
+  @Override
+  public void beginWindow(long windowId)
+  {
+    mergedList = null;
+  }
 
-	/**
-	 *  Sorted parameter list are merged into sorted merged output list.
-	 *
-	 * @param list1 sorted list aggregated by operator
-	 * @param list2 Input port sorted list to be merged.
-	 * @return sorted merged output list.
-	 */
-	protected ArrayList<K> processMergeList(ArrayList<K> list1,
-			ArrayList<K> list2)
-	{
-		// null lists
-		if (list1 == null) return list2;
-		if (list2 == null) return list1;
+  @Override
+  public void endWindow()
+  {
+    sort.emit(mergedList);
+    mergedList = null;
+  }
 
-		// Create output list
-		ArrayList<K> result = new ArrayList<K>();
-		int index1 = 0;
-		int index2 = 0;
-	  while (true) {
+  /**
+   *  Sorted parameter list are merged into sorted merged output list.
+   *
+   * @param list1 sorted list aggregated by operator
+   * @param list2 Input port sorted list to be merged.
+   * @return sorted merged output list.
+   */
+  protected ArrayList<K> processMergeList(ArrayList<K> list1,
+      ArrayList<K> list2)
+  {
+    // null lists
+    if (list1 == null) {
+      return list2;
+    }
+    if (list2 == null) {
+      return list1;
+    }
 
-	  	// list1 is exhausted
-	  	if (index1 == list1.size()) {
-	  		while(index2 < list2.size()) {
-	  			result.add(list2.get(index2++));
-	  		}
-	  		break;
-	  	}
+    // Create output list
+    ArrayList<K> result = new ArrayList<K>();
+    int index1 = 0;
+    int index2 = 0;
+    while (true) {
 
-	  	// list2 is exhausted
-	  	if (index2 == list2.size()) {
-	  		while(index1 < list1.size()) {
-	  			result.add(list1.get(index1++));
-	  		}
-	  		break;
-	  	}
+      // list1 is exhausted
+      if (index1 == list1.size()) {
+        while (index2 < list2.size()) {
+          result.add(list2.get(index2++));
+        }
+        break;
+      }
 
-	  	// compare values
-	  	K val1 = list1.get(index1++);
-	  	K val2 = list2.get(index2++);
-	  	K[] vals = compare(val1, val2);
-	  	result.add(vals[0]);
-	  	if (vals[1] != null) result.add(vals[1]);
-	  }
+      // list2 is exhausted
+      if (index2 == list2.size()) {
+        while (index1 < list1.size()) {
+          result.add(list1.get(index1++));
+        }
+        break;
+      }
 
-	  // done
+      // compare values
+      K val1 = list1.get(index1++);
+      K val2 = list2.get(index2++);
+      K[] vals = compare(val1, val2);
+      result.add(vals[0]);
+      if (vals[1] != null) {
+        result.add(vals[1]);
+      }
+    }
+
+    // done
     return result;
-	}
+  }
 
-	/**
-	 * Unifier process function implementation.
-	 */
-	@Override
-	public void process(ArrayList<K> tuple)
-	{
-		mergedList = processMergeList(mergedList, tuple);
-	}
+  /**
+   * Unifier process function implementation.
+   */
+  @Override
+  public void process(ArrayList<K> tuple)
+  {
+    mergedList = processMergeList(mergedList, tuple);
+  }
 
-	/**
-	 * abstract sort function to be implemented by sub class.
-	 */
-	abstract public  K[] compare(K val1, K val2);
+  /**
+   * abstract sort function to be implemented by sub class.
+   */
+  public abstract K[] compare(K val1, K val2);
 
-	/**
-	 *  Get output port unifier instance, sub class should return new instance of itself.
-	 */
-	abstract public Unifier<ArrayList<K>> getUnifierInstance();
+  /**
+   *  Get output port unifier instance, sub class should return new instance of itself.
+   */
+  public abstract Unifier<ArrayList<K>> getUnifierInstance();
 }

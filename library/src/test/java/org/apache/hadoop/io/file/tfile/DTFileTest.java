@@ -18,25 +18,28 @@
  */
 package org.apache.hadoop.io.file.tfile;
 
-import org.junit.Assert;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.BytesWritable;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.BytesWritable;
+
 public class DTFileTest
 {
-   private static String ROOT =
+  private static String ROOT =
       System.getProperty("test.build.data", "target/tfile-test");
 
   private Configuration conf;
@@ -48,7 +51,8 @@ public class DTFileTest
   private KVGenerator kvGen;
 
 
-  static class TestConf {
+  static class TestConf
+  {
     public int minWordLen = 5;
     public int maxWordLen = 20;
     public int dictSize = 1000;
@@ -77,23 +81,18 @@ public class DTFileTest
     fs = path.getFileSystem(conf);
     timer = new NanoTimer(false);
     rng = new Random();
-    keyLenGen =
-        new RandomDistribution.Zipf(new Random(rng.nextLong()),
-            tconf.minKeyLen, tconf.maxKeyLen, 1.2);
-    RandomDistribution.DiscreteRNG valLenGen =
-        new RandomDistribution.Flat(new Random(rng.nextLong()),
-            tconf.minValLength, tconf.maxValLength);
-    RandomDistribution.DiscreteRNG wordLenGen =
-        new RandomDistribution.Flat(new Random(rng.nextLong()),
-            tconf.minWordLen, tconf.maxWordLen);
-    kvGen =
-        new KVGenerator(rng, true, keyLenGen, valLenGen, wordLenGen,
-            tconf.dictSize);
+    keyLenGen = new RandomDistribution.Zipf(new Random(rng.nextLong()), tconf.minKeyLen, tconf.maxKeyLen, 1.2);
+    RandomDistribution.DiscreteRNG valLenGen = new RandomDistribution.Flat(new Random(rng.nextLong()),
+        tconf.minValLength, tconf.maxValLength);
+    RandomDistribution.DiscreteRNG wordLenGen = new RandomDistribution.Flat(new Random(rng.nextLong()),
+        tconf.minWordLen, tconf.maxWordLen);
+    kvGen = new KVGenerator(rng, true, keyLenGen, valLenGen, wordLenGen,
+        tconf.dictSize);
   }
 
 
-  private static FSDataOutputStream createFSOutput(Path name, FileSystem fs)
-      throws IOException {
+  private static FSDataOutputStream createFSOutput(Path name, FileSystem fs) throws IOException
+  {
     if (fs.exists(name)) {
       fs.delete(name, true);
     }
@@ -110,9 +109,7 @@ public class DTFileTest
     byte[] key = new byte[16];
     ByteBuffer bb = ByteBuffer.wrap(key);
     try {
-      DTFile.Writer writer =
-          new DTFile.Writer(fout, tconf.minBlockSize, tconf.compress, "memcmp",
-              conf);
+      DTFile.Writer writer = new DTFile.Writer(fout, tconf.minBlockSize, tconf.compress, "memcmp", conf);
       try {
         BytesWritable tmpKey = new BytesWritable();
         BytesWritable val = new BytesWritable();
@@ -129,18 +126,16 @@ public class DTFileTest
               .getSize());
           tuples++;
         }
-      }
-      finally {
+      } finally {
         writer.close();
       }
-    }
-    finally {
+    } finally {
       fout.close();
     }
 
     long fsize = fs.getFileStatus(path).getLen();
 
-    System.out.println("Total tuple wrote " + tuples + " File size " + fsize / (1024.0 * 1024));
+    LOG.debug("Total tuple wrote {} File size {}", tuples, fsize / (1024.0 * 1024));
   }
 
 
@@ -180,13 +175,13 @@ public class DTFileTest
     long hit = CacheManager.getCache().stats().hitCount();
     scanner.lowerBound(key);
     Assert.assertEquals("Cache contains some blocks ", CacheManager.getCacheSize(), numBlocks);
-    Assert.assertEquals("Cache hit ", CacheManager.getCache().stats().hitCount(), hit+1);
+    Assert.assertEquals("Cache hit ", CacheManager.getCache().stats().hitCount(), hit + 1);
 
     /* test cache miss */
     scanner.close();
     hit = CacheManager.getCache().stats().hitCount();
     long oldmiss = CacheManager.getCache().stats().missCount();
-    ikey = tuples-1;
+    ikey = tuples - 1;
     bb.clear();
     bb.putLong(ikey);
     numBlocks = CacheManager.getCacheSize();
@@ -218,5 +213,7 @@ public class DTFileTest
     setUp();
     writeTFile();
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(DTFileTest.class);
 
 }

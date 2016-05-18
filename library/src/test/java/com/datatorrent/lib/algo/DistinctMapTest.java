@@ -96,11 +96,9 @@ public class DistinctMapTest
         String key = e.getKey();
         if (key.equals("a")) {
           aval += e.getValue();
-        }
-        else if (key.equals("b")) {
+        } else if (key.equals("b")) {
           bval += e.getValue();
-        }
-        else if (key.equals("c")) {
+        } else if (key.equals("c")) {
           cval += e.getValue();
         }
       }

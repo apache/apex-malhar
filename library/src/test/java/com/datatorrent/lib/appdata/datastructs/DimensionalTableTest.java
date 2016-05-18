@@ -21,12 +21,12 @@ package com.datatorrent.lib.appdata.datastructs;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 import com.datatorrent.lib.util.KryoCloneUtils;
 
@@ -56,7 +56,7 @@ public class DimensionalTableTest
     DimensionalTable<Integer> table = createTestTable();
 
     Integer point = table.getDataPoint(Lists.newArrayList("google", "taco bell", "Ukraine"));
-    Assert.assertEquals((Integer) 6, point);
+    Assert.assertEquals((Integer)6, point);
 
     Map<String, String> selectionValues = Maps.newHashMap();
     selectionValues.put("publisher", "amazon");
@@ -64,7 +64,7 @@ public class DimensionalTableTest
     selectionValues.put("location", "Czech");
 
     point = table.getDataPoint(selectionValues);
-    Assert.assertEquals((Integer) 7, point);
+    Assert.assertEquals((Integer)7, point);
   }
 
   @Test
@@ -103,9 +103,7 @@ public class DimensionalTableTest
   @Test
   public void duplicateAppendTest()
   {
-    DimensionalTable<Integer> table = new DimensionalTable<Integer>(Lists.newArrayList("publisher",
-                                                                                       "advertiser",
-                                                                                       "location"));
+    DimensionalTable<Integer> table = new DimensionalTable<Integer>(Lists.newArrayList("publisher", "advertiser", "location"));
 
     table.appendRow(1, "google", "starbucks", "CA");
     table.appendRow(2, "google", "starbucks", "CA");
@@ -146,9 +144,7 @@ public class DimensionalTableTest
 
   private DimensionalTable<Integer> createTestTable()
   {
-    DimensionalTable<Integer> table = new DimensionalTable<Integer>(Lists.newArrayList("publisher",
-                                                                                       "advertiser",
-                                                                                       "location"));
+    DimensionalTable<Integer> table = new DimensionalTable<Integer>(Lists.newArrayList("publisher", "advertiser", "location"));
 
     table.appendRow(1, "google", "starbucks", "CA");
     table.appendRow(2, "amazon", "walmart", "NY");

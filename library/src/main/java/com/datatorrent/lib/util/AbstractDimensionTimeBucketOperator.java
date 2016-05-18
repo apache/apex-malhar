@@ -20,18 +20,25 @@ package com.datatorrent.lib.util;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.DAGContext;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This is the base implementation of an operator.&nbsp;
@@ -79,7 +86,8 @@ public abstract class AbstractDimensionTimeBucketOperator extends BaseOperator
    * This is the input port which receives tuples that are maps from strings to objects.
    */
   @InputPortFieldAnnotation(optional = false)
-  public final transient DefaultInputPort<Map<String, Object>> in = new DefaultInputPort<Map<String, Object>>() {
+  public final transient DefaultInputPort<Map<String, Object>> in = new DefaultInputPort<Map<String, Object>>()
+  {
     @Override
     public void process(Map<String, Object> tuple)
     {
@@ -107,7 +115,6 @@ public abstract class AbstractDimensionTimeBucketOperator extends BaseOperator
           timeBucketList.add(String.format("m|%04d%02d%02d%02d%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE)));
         }
 
-        // System.out.println(dimensionCombinations.size()+ " testing");
         for (String timeBucket : timeBucketList) {
           for (int[] dimensionCombination : dimensionCombinations) {
             String field = "0";
@@ -146,7 +153,7 @@ public abstract class AbstractDimensionTimeBucketOperator extends BaseOperator
   private List<String> valueKeyNames = new ArrayList<String>();
   private String timeKeyName;
   private long currentWindowId;
-  private long windowWidth =500;
+  private long windowWidth = 500;
   private int timeBucketFlags;
   private transient TimeZone timeZone = TimeZone.getTimeZone("GMT");
   private transient Calendar calendar = new GregorianCalendar(timeZone);
@@ -166,7 +173,7 @@ public abstract class AbstractDimensionTimeBucketOperator extends BaseOperator
     if (timeKeyName == null) {
       time = (currentWindowId >>> 32) * 1000 + windowWidth * (currentWindowId & 0xffffffffL);
     } else {
-      time = (Long) tuple.get(timeKeyName);
+      time = (Long)tuple.get(timeKeyName);
     }
     return time;
   }
@@ -174,13 +181,14 @@ public abstract class AbstractDimensionTimeBucketOperator extends BaseOperator
   protected Number extractNumber(String valueKeyName, Object value)
   {
     if (value instanceof Number) {
-      return (Number) value;
+      return (Number)value;
     } else if (value == null) {
       return new Long(0);
     } else {
       try {
         return numberFormat.parse(value.toString());
       } catch (ParseException ex) {
+        //Fixme
       }
     }
     return new Long(0);
@@ -227,8 +235,9 @@ public abstract class AbstractDimensionTimeBucketOperator extends BaseOperator
   public void setup(OperatorContext context)
   {
     super.setup(context);
-    if(context != null)
+    if (context != null) {
       windowWidth = context.getValue(DAGContext.STREAMING_WINDOW_SIZE_MILLIS);
+    }
     if (dimensionCombinations.isEmpty() && dimensionCombinationsSet == null) {
       dimensionCombinations.add(null);
       for (int i = 1; i <= dimensionKeyNames.size(); i++) {
@@ -236,7 +245,7 @@ public abstract class AbstractDimensionTimeBucketOperator extends BaseOperator
       }
     } else if (dimensionCombinationsSet != null) {
       for (Set<String> keySet : dimensionCombinationsSet) {
-        int indexKeys[] = new int[keySet.size()];
+        int[] indexKeys = new int[keySet.size()];
         int i = 0;
         for (String key : keySet) {
           indexKeys[i] = -1;
@@ -247,7 +256,7 @@ public abstract class AbstractDimensionTimeBucketOperator extends BaseOperator
             }
           }
           if (indexKeys[i] < 0) {
-
+            //fixme
           }
           i++;
         }
@@ -385,7 +394,7 @@ public abstract class AbstractDimensionTimeBucketOperator extends BaseOperator
 
     public static void main(String[] args)
     {
-      String[] list = new String[] { "a", "b", "c", "d", "e" };
+      String[] list = new String[]{"a", "b", "c", "d", "e"};
       for (int i = 1; i <= list.length; i++) {
         logger.info("Combinations: {}", getCombinations(Arrays.asList(list), i));
       }

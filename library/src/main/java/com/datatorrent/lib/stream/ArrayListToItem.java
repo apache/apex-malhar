@@ -18,11 +18,12 @@
  */
 package com.datatorrent.lib.stream;
 
+import java.util.ArrayList;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.util.BaseKeyOperator;
-import java.util.ArrayList;
 
 /**
  * An implementation of BaseKeyOperator that breaks up an ArrayList tuple into Objects.
@@ -42,25 +43,25 @@ import java.util.ArrayList;
 @Stateless
 public class ArrayListToItem<K> extends BaseKeyOperator<K>
 {
-	/**
-	 * Input data port that takes an arraylist.
-	 */
-	public final transient DefaultInputPort<ArrayList<K>> data = new DefaultInputPort<ArrayList<K>>()
-	{
-		/**
-		 * Emit one item at a time
-		 */
-		@Override
-		public void process(ArrayList<K> tuple)
-		{
-			for (K k : tuple) {
-				item.emit(cloneKey(k));
-			}
-		}
-	};
+  /**
+   * Input data port that takes an arraylist.
+   */
+  public final transient DefaultInputPort<ArrayList<K>> data = new DefaultInputPort<ArrayList<K>>()
+  {
+    /**
+     * Emit one item at a time
+     */
+    @Override
+    public void process(ArrayList<K> tuple)
+    {
+      for (K k : tuple) {
+        item.emit(cloneKey(k));
+      }
+    }
+  };
 
-	/**
-	 * Output port that emits an array item.
-	 */
-	public final transient DefaultOutputPort<K> item = new DefaultOutputPort<K>();
+  /**
+   * Output port that emits an array item.
+   */
+  public final transient DefaultOutputPort<K> item = new DefaultOutputPort<K>();
 }

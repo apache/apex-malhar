@@ -56,8 +56,7 @@ public abstract class AbstractHttpGetOperator<INPUT, OUTPUT> extends AbstractHtt
     if (output.isConnected()) {
       ClientResponse response = wr.get(ClientResponse.class);
       processResponse(response);
-    }
-    else {
+    } else {
       wr.get(ClientResponse.class);
     }
   }

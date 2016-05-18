@@ -53,8 +53,7 @@ public abstract class Result extends QRBase
    * @param query The query that this result is a response to.
    * @param countdown The countdown for this result.
    */
-  public Result(Query query,
-                long countdown)
+  public Result(Query query, long countdown)
   {
     super(query.getId());
     setQuery(query);

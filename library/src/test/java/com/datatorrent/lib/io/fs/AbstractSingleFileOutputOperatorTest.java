@@ -18,31 +18,33 @@
  */
 package com.datatorrent.lib.io.fs;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest.FSTestWatcher;
 import java.io.File;
 import java.io.IOException;
-import org.apache.commons.lang.mutable.MutableLong;
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.Description;
 
+import org.apache.commons.lang.mutable.MutableLong;
+import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+
 import com.google.common.collect.Maps;
 
-
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest.FSTestWatcher;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 
 public class AbstractSingleFileOutputOperatorTest
 {
   private static final String SINGLE_FILE = "single.txt";
 
-  @Rule public TestInfo testMeta = new PrivateTestWatcher();
+  @Rule
+  public TestInfo testMeta = new PrivateTestWatcher();
 
   public static OperatorContextTestHelper.TestIdOperatorContext testOperatorContext =
-                new OperatorContextTestHelper.TestIdOperatorContext(0);
+      new OperatorContextTestHelper.TestIdOperatorContext(0);
 
   private static SimpleFileOutputOperator writer;
 
@@ -96,22 +98,20 @@ public class AbstractSingleFileOutputOperatorTest
     CheckPointOutputOperator checkPointWriter = new CheckPointOutputOperator();
     checkPointWriter.counts = Maps.newHashMap();
 
-    for(String keys: writer.counts.keySet()) {
-      checkPointWriter.counts.put(keys,
-                                  new MutableLong(writer.counts.get(keys).longValue()));
+    for (String keys : writer.counts.keySet()) {
+      checkPointWriter.counts.put(keys, new MutableLong(writer.counts.get(keys).longValue()));
     }
 
     checkPointWriter.endOffsets = Maps.newHashMap();
 
-    for(String keys: writer.endOffsets.keySet()) {
+    for (String keys : writer.endOffsets.keySet()) {
       checkPointWriter.endOffsets.put(keys, new MutableLong(writer.endOffsets.get(keys).longValue()));
     }
 
     checkPointWriter.openPart = Maps.newHashMap();
 
-    for(String keys: writer.openPart.keySet()) {
-      checkPointWriter.openPart.put(keys,
-                                    new MutableInt(writer.openPart.get(keys).intValue()));
+    for (String keys : writer.openPart.keySet()) {
+      checkPointWriter.openPart.put(keys, new MutableInt(writer.openPart.get(keys).intValue()));
     }
 
     checkPointWriter.filePath = writer.filePath;
@@ -126,7 +126,7 @@ public class AbstractSingleFileOutputOperatorTest
   }
 
   private void restoreCheckPoint(CheckPointOutputOperator checkPointWriter,
-                                 AbstractSingleFileOutputOperator<Integer> writer)
+      AbstractSingleFileOutputOperator<Integer> writer)
   {
     writer.counts = checkPointWriter.counts;
     writer.endOffsets = checkPointWriter.endOffsets;
@@ -164,14 +164,8 @@ public class AbstractSingleFileOutputOperatorTest
 
     String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
-    String correctContents = "0\n" +
-                             "1\n" +
-                             "2\n" +
-                             "3\n";
-
-    AbstractFileOutputOperatorTest.checkOutput(-1,
-      singleFileName,
-      correctContents);
+    String correctContents = "0\n" + "1\n" + "2\n" + "3\n";
+    AbstractFileOutputOperatorTest.checkOutput(-1, singleFileName, correctContents);
   }
 
   @Test
@@ -197,8 +191,7 @@ public class AbstractSingleFileOutputOperatorTest
 
     writer.teardown();
 
-    restoreCheckPoint(checkPointWriter,
-                      writer);
+    restoreCheckPoint(checkPointWriter, writer);
     writer.setup(testOperatorContext);
 
     writer.beginWindow(1);
@@ -215,15 +208,7 @@ public class AbstractSingleFileOutputOperatorTest
 
     String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
-    String correctContents = "0\n" +
-                             "1\n" +
-                             "4\n" +
-                             "5\n" +
-                             "6\n" +
-                             "7\n";
-
-    AbstractFileOutputOperatorTest.checkOutput(-1,
-      singleFileName,
-      correctContents);
+    String correctContents = "0\n" + "1\n" + "4\n" + "5\n" + "6\n" + "7\n";
+    AbstractFileOutputOperatorTest.checkOutput(-1, singleFileName, correctContents);
   }
 }

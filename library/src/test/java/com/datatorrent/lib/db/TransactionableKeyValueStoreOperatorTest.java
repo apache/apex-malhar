@@ -45,7 +45,7 @@ public class TransactionableKeyValueStoreOperatorTest<S extends TransactionableK
     @SuppressWarnings("unchecked")
     public void processTuple(Map<String, String> tuple)
     {
-      store.putAll((Map<Object, Object>) (Map<?, ?>) tuple);
+      store.putAll((Map<Object, Object>)(Map<?, ?>)tuple);
     }
 
   }
@@ -80,8 +80,7 @@ public class TransactionableKeyValueStoreOperatorTest<S extends TransactionableK
       Assert.assertEquals("123", testStore.get("test_abc"));
       Assert.assertEquals("456", testStore.get("test_def"));
       Assert.assertEquals("789", testStore.get("test_ghi"));
-    }
-    finally {
+    } finally {
       testStore.remove("test_abc");
       testStore.remove("test_def");
       testStore.remove("test_ghi");

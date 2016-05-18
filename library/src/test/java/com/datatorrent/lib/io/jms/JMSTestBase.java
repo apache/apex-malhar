@@ -27,11 +27,12 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import org.junit.After;
+import org.junit.Before;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 
 /**
  * Base class for JMS operators test. <br/>

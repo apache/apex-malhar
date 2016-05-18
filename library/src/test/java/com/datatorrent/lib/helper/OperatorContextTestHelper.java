@@ -34,7 +34,7 @@ import com.datatorrent.api.Context.OperatorContext;
  */
 public class OperatorContextTestHelper
 {
-  private final static ThreadLocal<DateFormat> DATE_FORMAT_THREAD_LOCAL = new ThreadLocal<DateFormat>()
+  private static final ThreadLocal<DateFormat> DATE_FORMAT_THREAD_LOCAL = new ThreadLocal<DateFormat>()
   {
     @Override
     protected DateFormat initialValue()

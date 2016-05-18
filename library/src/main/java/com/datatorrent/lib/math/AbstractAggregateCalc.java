@@ -18,9 +18,9 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.api.DefaultInputPort;
-
 import java.util.Collection;
+
+import com.datatorrent.api.DefaultInputPort;
 
 /**
  * Aggregates input tuples that are collections of longs and double and emits result on four ports.
@@ -49,54 +49,52 @@ import java.util.Collection;
  * @since 0.3.3
  */
 public abstract class AbstractAggregateCalc<T extends Number> extends
-		AbstractOutput
+    AbstractOutput
 {
-	/**
-	 * Input port, accepts collection of values of type 'T'.
-	 */
-	public final transient DefaultInputPort<Collection<T>> input = new DefaultInputPort<Collection<T>>()
-	{
-		/**
-		 * Aggregate calculation result is only emitted on output port if it is connected.
-		 */
-		@Override
-		public void process(Collection<T> collection)
-		{
-			Double dResult = null;
-			if (doubleResult.isConnected()) {
-				doubleResult.emit(dResult = aggregateDoubles(collection));
-			}
+  /**
+   * Input port, accepts collection of values of type 'T'.
+   */
+  public final transient DefaultInputPort<Collection<T>> input = new DefaultInputPort<Collection<T>>()
+  {
+    /**
+     * Aggregate calculation result is only emitted on output port if it is connected.
+     */
+    @Override
+    public void process(Collection<T> collection)
+    {
+      Double dResult = null;
+      if (doubleResult.isConnected()) {
+        doubleResult.emit(dResult = aggregateDoubles(collection));
+      }
 
-			if (floatResult.isConnected()) {
-				floatResult
-						.emit(dResult == null ? (float) (aggregateDoubles(collection))
-								: dResult.floatValue());
-			}
+      if (floatResult.isConnected()) {
+        floatResult.emit(dResult == null ? (float)(aggregateDoubles(collection)) : dResult.floatValue());
+      }
 
-			Long lResult = null;
-			if (longResult.isConnected()) {
-				longResult.emit(lResult = aggregateLongs(collection));
-			}
+      Long lResult = null;
+      if (longResult.isConnected()) {
+        longResult.emit(lResult = aggregateLongs(collection));
+      }
 
-			if (integerResult.isConnected()) {
-				integerResult.emit(lResult == null ? (int) aggregateLongs(collection)
-						: lResult.intValue());
-			}
-		}
+      if (integerResult.isConnected()) {
+        integerResult.emit(lResult == null ? (int)aggregateLongs(collection)
+            : lResult.intValue());
+      }
+    }
 
-	};
+  };
 
-	/**
-	 * Abstract function to be implemented by sub class, custom calculation on input aggregate.
-	 * @param collection Aggregate of values 
-	 * @return calculated value.
-	 */
-	public abstract long aggregateLongs(Collection<T> collection);
+  /**
+   * Abstract function to be implemented by sub class, custom calculation on input aggregate.
+   * @param collection Aggregate of values
+   * @return calculated value.
+   */
+  public abstract long aggregateLongs(Collection<T> collection);
 
-	/**
-	 * Abstract function to be implemented by sub class, custom calculation on input aggregate.
-	 * @param collection Aggregate of values 
-	 * @return calculated value.
-	 */
-	public abstract double aggregateDoubles(Collection<T> collection);
+  /**
+   * Abstract function to be implemented by sub class, custom calculation on input aggregate.
+   * @param collection Aggregate of values
+   * @return calculated value.
+   */
+  public abstract double aggregateDoubles(Collection<T> collection);
 }

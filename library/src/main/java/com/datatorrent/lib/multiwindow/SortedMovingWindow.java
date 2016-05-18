@@ -28,10 +28,12 @@ import java.util.PriorityQueue;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang.ClassUtils;
+
+import com.google.common.base.Function;
+
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.google.common.base.Function;
-import org.apache.commons.lang.ClassUtils;
 
 /**
  *
@@ -102,7 +104,7 @@ public class SortedMovingWindow<T, K> extends AbstractSlidingWindow<T, List<T>>
   {
     super.endWindow();
     tuplesInCurrentStreamWindow = new LinkedList<T>();
-    if(lastExpiredWindowState == null){
+    if (lastExpiredWindowState == null) {
       // not ready to emit value or empty in a certain window
       return;
     }
@@ -115,7 +117,7 @@ public class SortedMovingWindow<T, K> extends AbstractSlidingWindow<T, List<T>>
         int k = 0;
         if (comparator == null) {
           if (expiredTuple instanceof Comparable) {
-            k = ((Comparable<T>) expiredTuple).compareTo(minElemInSortedList);
+            k = ((Comparable<T>)expiredTuple).compareTo(minElemInSortedList);
           } else {
             errorOutput.emit(expiredTuple);
             throw new IllegalArgumentException("Operator \"" + ClassUtils.getShortClassName(this.getClass()) + "\" encounters an invalid tuple " + expiredTuple + "\nNeither the tuple is comparable Nor Comparator is specified!");

@@ -31,8 +31,8 @@ import com.datatorrent.lib.appdata.query.serde.MessageType;
  * This class represents the result sent in response to a {@link DataQuerySnapshot}.
  * @since 3.0.0
  */
-@MessageType(type=DataResultSnapshot.TYPE)
-@MessageSerializerInfo(clazz=DataResultSnapshotSerializer.class)
+@MessageType(type = DataResultSnapshot.TYPE)
+@MessageSerializerInfo(clazz = DataResultSnapshotSerializer.class)
 public class DataResultSnapshot extends Result
 {
   /**
@@ -48,8 +48,7 @@ public class DataResultSnapshot extends Result
    * @param query The query that this result is a response to.
    * @param values The result values for the query.
    */
-  public DataResultSnapshot(Query query,
-                           List<GPOMutable> values)
+  public DataResultSnapshot(Query query, List<GPOMutable> values)
   {
     super(query);
 
@@ -63,12 +62,9 @@ public class DataResultSnapshot extends Result
    * @param values The result values for the query.
    * @param countdown The countdown value for the result.
    */
-  public DataResultSnapshot(Query query,
-                           List<GPOMutable> values,
-                           long countdown)
+  public DataResultSnapshot(Query query, List<GPOMutable> values, long countdown)
   {
-    super(query,
-          countdown);
+    super(query, countdown);
 
     setValues(values);
   }

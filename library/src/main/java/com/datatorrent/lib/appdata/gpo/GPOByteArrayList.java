@@ -18,13 +18,13 @@
  */
 package com.datatorrent.lib.appdata.gpo;
 
+import java.util.Collection;
+import java.util.Iterator;
+
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import it.unimi.dsi.fastutil.bytes.ByteCollection;
 import it.unimi.dsi.fastutil.bytes.ByteIterator;
 import it.unimi.dsi.fastutil.bytes.ByteList;
-
-import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * This is a helper class which stores primitive bytes in an array list. This is useful
@@ -86,9 +86,7 @@ public class GPOByteArrayList extends ByteArrayList
 
   public boolean add(byte[] bytes)
   {
-    for(int byteCounter = 0;
-        byteCounter < bytes.length;
-        byteCounter++) {
+    for (int byteCounter = 0; byteCounter < bytes.length; byteCounter++) {
       this.add(bytes[byteCounter]);
     }
 

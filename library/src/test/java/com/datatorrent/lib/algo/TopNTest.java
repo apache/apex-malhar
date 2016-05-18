@@ -107,15 +107,15 @@ public class TopNTest
       for (Map.Entry<String, ArrayList<Number>> e: ((HashMap<String, ArrayList<Number>>)o).entrySet()) {
         if (e.getKey().equals("a")) {
           Assert.assertEquals("emitted value for 'a' was ", 3, e.getValue().size());
-        }
-        else if (e.getKey().equals("b")) {
+
+        } else if (e.getKey().equals("b")) {
           Assert.assertEquals("emitted tuple for 'b' was ", 3, e.getValue().size());
-        }
-        else if (e.getKey().equals("c")) {
+
+        } else if (e.getKey().equals("c")) {
           Assert.assertEquals("emitted tuple for 'c' was ", 1, e.getValue().size());
         }
         log.debug(String.format("Sorted list for %s:", e.getKey()));
-        for (Number i: e.getValue()) {
+        for (Number i : e.getValue()) {
           log.debug(String.format("%s", i.toString()));
         }
       }

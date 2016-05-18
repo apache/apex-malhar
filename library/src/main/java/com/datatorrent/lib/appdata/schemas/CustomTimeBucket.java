@@ -67,31 +67,25 @@ public class CustomTimeBucket implements Serializable, Comparable<CustomTimeBuck
       @SuppressWarnings("LocalVariableHidesMemberVariable")
       TimeBucket timeBucket = TimeBucket.getTimeBucketForSuffixEx(suffix);
 
-      initialize(timeBucket,
-                 amount);
+      initialize(timeBucket, amount);
     }
   }
 
-  public CustomTimeBucket(TimeBucket timeBucket,
-                          long count)
+  public CustomTimeBucket(TimeBucket timeBucket, long count)
   {
-    initialize(timeBucket,
-               count);
+    initialize(timeBucket, count);
   }
 
   public CustomTimeBucket(TimeBucket timeBucket)
   {
     if (timeBucket == TimeBucket.ALL) {
-      initialize(timeBucket,
-                 0L);
+      initialize(timeBucket, 0L);
     } else {
-      initialize(timeBucket,
-                 1L);
+      initialize(timeBucket, 1L);
     }
   }
 
-  private void initialize(TimeBucket timeBucket,
-                          long count)
+  private void initialize(TimeBucket timeBucket, long count)
   {
     this.timeBucket = Preconditions.checkNotNull(timeBucket);
     this.count = count;

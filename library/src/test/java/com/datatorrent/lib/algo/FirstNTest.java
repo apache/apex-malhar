@@ -103,15 +103,13 @@ public class FirstNTest
     int aval = 0;
     int bval = 0;
     int cval = 0;
-    for (Object o: sortSink.collectedTuples) {
-      for (Map.Entry<String, Number> e: ((HashMap<String, Number>)o).entrySet()) {
+    for (Object o : sortSink.collectedTuples) {
+      for (Map.Entry<String, Number> e : ((HashMap<String, Number>)o).entrySet()) {
         if (e.getKey().equals("a")) {
           aval += e.getValue().intValue();
-        }
-        else if (e.getKey().equals("b")) {
+        } else if (e.getKey().equals("b")) {
           bval += e.getValue().intValue();
-        }
-        else if (e.getKey().equals("c")) {
+        } else if (e.getKey().equals("c")) {
           cval += e.getValue().intValue();
         }
       }

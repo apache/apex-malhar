@@ -18,13 +18,14 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.datatorrent.common.util.BaseOperator;
+import java.util.Random;
+
+import javax.validation.constraints.Min;
+
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.Context.OperatorContext;
-
-import java.util.Random;
-import javax.validation.constraints.Min;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * Generates synthetic load.&nbsp;Creates tuples using random numbers and keeps emitting them on the output port string_data and integer_data.
@@ -117,7 +118,8 @@ public class RandomEventGenerator extends BaseOperator implements InputOperator
     tuplesBlast = i;
   }
 
-  public void setTuplesBlastIntervalMillis(int tuplesBlastIntervalMillis) {
+  public void setTuplesBlastIntervalMillis(int tuplesBlastIntervalMillis)
+  {
     this.tuplesBlastIntervalMillis = tuplesBlastIntervalMillis;
   }
 
@@ -172,6 +174,7 @@ public class RandomEventGenerator extends BaseOperator implements InputOperator
       try {
         Thread.sleep(tuplesBlastIntervalMillis);
       } catch (InterruptedException e) {
+        //fixme
       }
     }
   }

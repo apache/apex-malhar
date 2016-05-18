@@ -30,8 +30,8 @@ import com.datatorrent.lib.appdata.query.serde.MessageType;
  * as a result to a {@link SchemaQuery}.
  * @since 3.0.0
  */
-@MessageType(type=SchemaResult.TYPE)
-@MessageSerializerInfo(clazz=SchemaResultSerializer.class)
+@MessageType(type = SchemaResult.TYPE)
+@MessageSerializerInfo(clazz = SchemaResultSerializer.class)
 public class SchemaResult extends Result
 {
   /**
@@ -50,8 +50,7 @@ public class SchemaResult extends Result
    * @param schemaQuery
    * @param genericSchemas
    */
-  public SchemaResult(SchemaQuery schemaQuery,
-                      Schema... genericSchemas)
+  public SchemaResult(SchemaQuery schemaQuery, Schema... genericSchemas)
   {
     super(schemaQuery);
     setGenericSchemas(genericSchemas);
@@ -63,8 +62,7 @@ public class SchemaResult extends Result
    * @param schemaQuery The schema query which this schema result will be a response to.
    * @param genericSchemas The schemas to return in the schema result payload.
    */
-  public SchemaResult(SchemaQuery schemaQuery,
-                      List<Schema> genericSchemas)
+  public SchemaResult(SchemaQuery schemaQuery, List<Schema> genericSchemas)
   {
     super(schemaQuery);
     setGenericSchemas(genericSchemas);

@@ -32,72 +32,72 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
  */
 public class LogicalCompareToConstantTest
 {
-	/**
-	 * Test operator logic emits correct results.
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+  /**
+   * Test operator logic emits correct results.
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
-	public void testNodeProcessing()
-	{
-		LogicalCompareToConstant<Integer> oper = new LogicalCompareToConstant<Integer>()
-		{
-		};
-		CollectorTestSink eSink = new CollectorTestSink();
-		CollectorTestSink neSink = new CollectorTestSink();
-		CollectorTestSink gtSink = new CollectorTestSink();
-		CollectorTestSink gteSink = new CollectorTestSink();
-		CollectorTestSink ltSink = new CollectorTestSink();
-		CollectorTestSink lteSink = new CollectorTestSink();
+  public void testNodeProcessing()
+  {
+    LogicalCompareToConstant<Integer> oper = new LogicalCompareToConstant<Integer>()
+    {
+    };
+    CollectorTestSink eSink = new CollectorTestSink();
+    CollectorTestSink neSink = new CollectorTestSink();
+    CollectorTestSink gtSink = new CollectorTestSink();
+    CollectorTestSink gteSink = new CollectorTestSink();
+    CollectorTestSink ltSink = new CollectorTestSink();
+    CollectorTestSink lteSink = new CollectorTestSink();
 
-		oper.equalTo.setSink(eSink);
-		oper.notEqualTo.setSink(neSink);
-		oper.greaterThan.setSink(gtSink);
-		oper.greaterThanOrEqualTo.setSink(gteSink);
-		oper.lessThan.setSink(ltSink);
-		oper.lessThanOrEqualTo.setSink(lteSink);
-		oper.setConstant(2);
+    oper.equalTo.setSink(eSink);
+    oper.notEqualTo.setSink(neSink);
+    oper.greaterThan.setSink(gtSink);
+    oper.greaterThanOrEqualTo.setSink(gteSink);
+    oper.lessThan.setSink(ltSink);
+    oper.lessThanOrEqualTo.setSink(lteSink);
+    oper.setConstant(2);
 
-		oper.beginWindow(0); //
-		oper.input.process(1);
-		oper.input.process(2);
-		oper.input.process(3);
+    oper.beginWindow(0); //
+    oper.input.process(1);
+    oper.input.process(2);
+    oper.input.process(3);
 
-		oper.endWindow(); //
+    oper.endWindow(); //
 
-		Assert.assertEquals("number emitted tuples", 1,
-				eSink.collectedTuples.size());
-		Assert.assertEquals("tuples were", eSink.collectedTuples.get(0).equals(2),
-				true);
+    Assert.assertEquals("number emitted tuples", 1,
+        eSink.collectedTuples.size());
+    Assert.assertEquals("tuples were", eSink.collectedTuples.get(0).equals(2),
+        true);
 
-		Assert.assertEquals("number emitted tuples", 2,
-				neSink.collectedTuples.size());
-		Assert.assertEquals("tuples were", neSink.collectedTuples.get(0).equals(1),
-				true);
-		Assert.assertEquals("tuples were", neSink.collectedTuples.get(1).equals(3),
-				true);
+    Assert.assertEquals("number emitted tuples", 2,
+        neSink.collectedTuples.size());
+    Assert.assertEquals("tuples were", neSink.collectedTuples.get(0).equals(1),
+        true);
+    Assert.assertEquals("tuples were", neSink.collectedTuples.get(1).equals(3),
+        true);
 
-		Assert.assertEquals("number emitted tuples", 1,
-				gtSink.collectedTuples.size());
-		Assert.assertEquals("tuples were", gtSink.collectedTuples.get(0).equals(1),
-				true);
+    Assert.assertEquals("number emitted tuples", 1,
+        gtSink.collectedTuples.size());
+    Assert.assertEquals("tuples were", gtSink.collectedTuples.get(0).equals(1),
+        true);
 
-		Assert.assertEquals("number emitted tuples", 2,
-				gteSink.collectedTuples.size());
-		Assert.assertEquals("tuples were",
-				gteSink.collectedTuples.get(0).equals(1), true);
-		Assert.assertEquals("tuples were",
-				gteSink.collectedTuples.get(1).equals(2), true);
+    Assert.assertEquals("number emitted tuples", 2,
+        gteSink.collectedTuples.size());
+    Assert.assertEquals("tuples were",
+        gteSink.collectedTuples.get(0).equals(1), true);
+    Assert.assertEquals("tuples were",
+        gteSink.collectedTuples.get(1).equals(2), true);
 
-		Assert.assertEquals("number emitted tuples", 1,
-				ltSink.collectedTuples.size());
-		Assert.assertEquals("tuples were", ltSink.collectedTuples.get(0).equals(3),
-				true);
+    Assert.assertEquals("number emitted tuples", 1,
+        ltSink.collectedTuples.size());
+    Assert.assertEquals("tuples were", ltSink.collectedTuples.get(0).equals(3),
+        true);
 
-		Assert.assertEquals("number emitted tuples", 2,
-				lteSink.collectedTuples.size());
-		Assert.assertEquals("tuples were",
-				lteSink.collectedTuples.get(0).equals(2), true);
-		Assert.assertEquals("tuples were",
-				lteSink.collectedTuples.get(1).equals(3), true);
-	}
+    Assert.assertEquals("number emitted tuples", 2,
+        lteSink.collectedTuples.size());
+    Assert.assertEquals("tuples were",
+        lteSink.collectedTuples.get(0).equals(2), true);
+    Assert.assertEquals("tuples were",
+        lteSink.collectedTuples.get(1).equals(3), true);
+  }
 }

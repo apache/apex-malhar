@@ -18,12 +18,12 @@
  */
 package com.datatorrent.lib.util;
 
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Operator.Unifier;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator.Unifier;
 
 /**
  * This unifier consumes hash maps whose keys are objects and whose values are numbers.&nbsp;
@@ -51,8 +51,7 @@ public class UnifierHashMapSumKeys<K, V extends Number> extends BaseNumberKeyVal
       Double val = mergedTuple.get(e.getKey());
       if (val == null) {
         mergedTuple.put(e.getKey(), e.getValue().doubleValue());
-      }
-      else {
+      } else {
         val += e.getValue().doubleValue();
         mergedTuple.put(e.getKey(), val);
       }

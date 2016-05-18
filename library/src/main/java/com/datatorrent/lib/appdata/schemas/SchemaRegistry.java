@@ -34,17 +34,20 @@ public interface SchemaRegistry
    * @return The schema result.
    */
   public SchemaResult getSchemaResult(SchemaQuery schemaQuery);
+
   /**
    * Registers the given schema with this schema registry.
    * @param schema The schema to register with this registry.
    */
   public void registerSchema(Schema schema);
+
   /**
    * Registers the given schema with the given schema keys.
    * @param schema The schema to register.
    * @param schemaKeys The schema keys that correspond with the given schema.
    */
   public void registerSchema(Schema schema, Map<String, String> schemaKeys);
+
   /**
    * Gets the schema corresponding to the given schema keys.
    * @param schemaKeys The schema keys for a schema.

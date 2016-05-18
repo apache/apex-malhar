@@ -20,9 +20,9 @@ package com.datatorrent.lib.appdata.query;
 
 import java.util.Map;
 
-import com.google.common.collect.Maps;
-
 import org.apache.commons.lang3.mutable.MutableLong;
+
+import com.google.common.collect.Maps;
 
 import com.datatorrent.lib.appdata.query.QueueList.QueueListNode;
 import com.datatorrent.lib.appdata.schemas.Query;
@@ -48,14 +48,13 @@ public class AppDataWindowEndQueueManager<QUERY extends Query, META_QUERY> exten
   @Override
   public boolean enqueue(QUERY query, META_QUERY metaQuery, MutableLong context)
   {
-    if(context != null) {
+    if (context != null) {
       query.setCountdown(context.getValue());
     }
 
-    if(query.isOneTime()) {
+    if (query.isOneTime()) {
       return super.enqueue(query, metaQuery, new MutableLong(1L));
-    }
-    else {
+    } else {
       return super.enqueue(query, metaQuery, new MutableLong(query.getCountdown()));
     }
   }
@@ -76,9 +75,9 @@ public class AppDataWindowEndQueueManager<QUERY extends Query, META_QUERY> exten
   public boolean addingFilter(QueryBundle<QUERY, META_QUERY, MutableLong> queryBundle)
   {
     QueueListNode<QueryBundle<QUERY, META_QUERY, MutableLong>> queryNode =
-    queryIDToNode.get(queryBundle.getQuery().getId());
+        queryIDToNode.get(queryBundle.getQuery().getId());
 
-    if(queryNode == null) {
+    if (queryNode == null) {
       return true;
     }
 

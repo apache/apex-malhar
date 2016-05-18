@@ -35,10 +35,13 @@ import com.google.common.collect.Lists;
  * @since 1.0.2
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-public abstract class AbstractBatchTransactionableStoreOutputOperator<T, S extends TransactionableStore> extends AbstractAggregateTransactionableStoreOutputOperator<T, S> {
+public abstract class AbstractBatchTransactionableStoreOutputOperator<T, S extends TransactionableStore>
+    extends AbstractAggregateTransactionableStoreOutputOperator<T, S>
+{
 
   private Collection<T> tuples;
-  public AbstractBatchTransactionableStoreOutputOperator(){
+  public AbstractBatchTransactionableStoreOutputOperator()
+  {
     tuples = Lists.newArrayList();
   }
 
@@ -62,7 +65,8 @@ public abstract class AbstractBatchTransactionableStoreOutputOperator<T, S exten
   public abstract void processBatch(Collection<T> tuples);
 
   @Override
-  public void storeAggregate() {
+  public void storeAggregate()
+  {
     processBatch(tuples);
   }
 }

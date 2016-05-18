@@ -21,20 +21,24 @@ package com.datatorrent.lib.partitioner;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.validation.constraints.Min;
 
-import com.google.common.collect.Sets;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Sets;
 
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StatsListener;
-
 import com.datatorrent.common.partitioner.StatelessPartitioner;
 
 /**
@@ -122,13 +126,11 @@ public abstract class StatsAwareStatelessPartitioner<T extends Operator> impleme
         response.repartitionRequired = true;
         logger.debug("setting repartition to true");
 
-      }
-      else if (!repartition) {
+      } else if (!repartition) {
         repartition = true;
         nextMillis = System.currentTimeMillis() + cooldownMillis;
       }
-    }
-    else {
+    } else {
       repartition = false;
     }
     return response;
@@ -147,8 +149,7 @@ public abstract class StatsAwareStatelessPartitioner<T extends Operator> impleme
       nextMillis = partitionNextMillis;
       // delegate to create initial list of partitions
       return new StatelessPartitioner<T>(initialPartitionCount).definePartitions(partitions, context);
-    }
-    else {
+    } else {
       // repartition call
       logger.debug("repartition call for operator");
       if (System.currentTimeMillis() < partitionNextMillis) {
@@ -169,8 +170,7 @@ public abstract class StatsAwareStatelessPartitioner<T extends Operator> impleme
             Partition<T> siblingPartition = lowLoadPartitions.remove(partitionKey & reducedMask);
             if (siblingPartition == null) {
               lowLoadPartitions.put(partitionKey & reducedMask, p);
-            }
-            else {
+            } else {
               // both of the partitions are low load, combine
               PartitionKeys newPks = new PartitionKeys(reducedMask, Sets.newHashSet(partitionKey & reducedMask));
               // put new value so the map gets marked as modified
@@ -181,8 +181,7 @@ public abstract class StatsAwareStatelessPartitioner<T extends Operator> impleme
               //LOG.debug("partition keys after merge {}", siblingPartition.getPartitionKeys());
             }
           }
-        }
-        else if (load > 0) {
+        } else if (load > 0) {
           // split bottlenecks
           Map<Operator.InputPort<?>, PartitionKeys> keys = p.getPartitionKeys();
           Map.Entry<Operator.InputPort<?>, PartitionKeys> e = keys.entrySet().iterator().next();
@@ -196,8 +195,7 @@ public abstract class StatsAwareStatelessPartitioner<T extends Operator> impleme
             int key = e.getValue().partitions.iterator().next();
             int key2 = (newMask ^ e.getValue().mask) | key;
             newKeys = Sets.newHashSet(key, key2);
-          }
-          else {
+          } else {
             // assign keys to separate partitions
             newMask = e.getValue().mask;
             newKeys = e.getValue().partitions;
@@ -208,8 +206,7 @@ public abstract class StatsAwareStatelessPartitioner<T extends Operator> impleme
             newPartition.getPartitionKeys().put(e.getKey(), new PartitionKeys(newMask, Sets.newHashSet(key)));
             newPartitions.add(newPartition);
           }
-        }
-        else {
+        } else {
           // leave unchanged
           newPartitions.add(p);
         }
@@ -229,8 +226,8 @@ public abstract class StatsAwareStatelessPartitioner<T extends Operator> impleme
     partitionedInstanceStatus.clear();
     for (Map.Entry<Integer, Partition<T>> entry : partitions.entrySet()) {
       if (partitionedInstanceStatus.containsKey(entry.getKey())) {
-      }
-      else {
+        //FIXME
+      } else {
         partitionedInstanceStatus.put(entry.getKey(), null);
       }
     }

@@ -31,35 +31,35 @@ import com.datatorrent.lib.testbench.CountTestSink;
 public class HashMapToKeyValPairTest
 {
 
-	/**
-	 * Test oper pass through. The Object passed is not relevant
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Test
-	public void testNodeProcessing() throws Exception
-	{
-		HashMapToKeyValPair oper = new HashMapToKeyValPair();
-		CountTestSink keySink = new CountTestSink();
-		CountTestSink valSink = new CountTestSink();
-		CountTestSink keyvalSink = new CountTestSink();
+  /**
+   * Test oper pass through. The Object passed is not relevant
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @Test
+  public void testNodeProcessing() throws Exception
+  {
+    HashMapToKeyValPair oper = new HashMapToKeyValPair();
+    CountTestSink keySink = new CountTestSink();
+    CountTestSink valSink = new CountTestSink();
+    CountTestSink keyvalSink = new CountTestSink();
 
-		oper.key.setSink(keySink);
-		oper.val.setSink(valSink);
-		oper.keyval.setSink(keyvalSink);
+    oper.key.setSink(keySink);
+    oper.val.setSink(valSink);
+    oper.keyval.setSink(keyvalSink);
 
-		oper.beginWindow(0);
-		HashMap<String, String> input = new HashMap<String, String>();
-		input.put("a", "1");
-		// Same input object can be used as the oper is just pass through
-		int numtuples = 1000;
-		for (int i = 0; i < numtuples; i++) {
-			oper.data.process(input);
-		}
+    oper.beginWindow(0);
+    HashMap<String, String> input = new HashMap<String, String>();
+    input.put("a", "1");
+    // Same input object can be used as the oper is just pass through
+    int numtuples = 1000;
+    for (int i = 0; i < numtuples; i++) {
+      oper.data.process(input);
+    }
 
-		oper.endWindow();
+    oper.endWindow();
 
-		Assert.assertEquals("number emitted tuples", numtuples, keySink.count);
-		Assert.assertEquals("number emitted tuples", numtuples, valSink.count);
-		Assert.assertEquals("number emitted tuples", numtuples, keyvalSink.count);
-	}
+    Assert.assertEquals("number emitted tuples", numtuples, keySink.count);
+    Assert.assertEquals("number emitted tuples", numtuples, valSink.count);
+    Assert.assertEquals("number emitted tuples", numtuples, keyvalSink.count);
+  }
 }

@@ -21,7 +21,14 @@ package com.datatorrent.lib.util;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import javax.jms.*;
+
+import javax.jms.BytesMessage;
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.Message;
+import javax.jms.ObjectMessage;
+import javax.jms.TextMessage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,15 +46,13 @@ public class ActiveMQMultiTypeMessageListener extends ActiveMQMessageListener
       String msg = null;
       try {
         msg = txtMsg.getText();
-        receivedData.put(new Integer(countMessages), msg);
-      }
-      catch (JMSException ex) {
+        receivedData.put(countMessages, msg);
+      } catch (JMSException ex) {
         logger.debug(ex.getLocalizedMessage());
       }
 
       logger.debug("Received a TextMessage: {}", msg);
-    }
-    else if (message instanceof MapMessage) {
+    } else if (message instanceof MapMessage) {
       MapMessage mapMsg = (MapMessage)message;
       Map map = new HashMap();
       try {
@@ -56,41 +61,34 @@ public class ActiveMQMultiTypeMessageListener extends ActiveMQMessageListener
           String key = (String)en.nextElement();
           map.put(key, mapMsg.getObject(key));
         }
-        receivedData.put(new Integer(countMessages), map);
+        receivedData.put(countMessages, map);
 
-      }
-      catch (JMSException ex) {
+      } catch (JMSException ex) {
         logger.debug(ex.getLocalizedMessage());
       }
       logger.debug("Received a MapMessage: {}", map);
-    }
-    else if (message instanceof BytesMessage) {
+    } else if (message instanceof BytesMessage) {
       BytesMessage bytesMsg = (BytesMessage)message;
       try {
         byte[] byteArr = new byte[(int)bytesMsg.getBodyLength()];
         bytesMsg.readBytes(byteArr);
-        receivedData.put(new Integer(countMessages), byteArr);
-      }
-      catch (JMSException ex) {
+        receivedData.put(countMessages, byteArr);
+      } catch (JMSException ex) {
         logger.debug(ex.getLocalizedMessage());
       }
       logger.debug("Received a ByteMessage: {}", bytesMsg);
 
-    }
-    else if (message instanceof ObjectMessage) {
+    } else if (message instanceof ObjectMessage) {
       ObjectMessage objMsg = (ObjectMessage)message;
       Object msg = null;
       try {
         msg = objMsg.getObject();
-        receivedData.put(new Integer(countMessages), msg);
-      }
-      catch (JMSException ex) {
+        receivedData.put(countMessages, msg);
+      } catch (JMSException ex) {
         logger.debug(ex.getLocalizedMessage());
       }
       logger.debug("Received an ObjectMessage: {}", msg);
-    }
-
-    else {
+    } else {
       throw new IllegalArgumentException("Unhandled message type " + message.getClass().getName());
     }
   }

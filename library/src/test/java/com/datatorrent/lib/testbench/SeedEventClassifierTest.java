@@ -99,8 +99,7 @@ public class SeedEventClassifierTest
     Sink inSink2 = oper.data2.getSink();
     if (isstring) {
       oper.string_data.setSink(classifySink);
-    }
-    else {
+    } else {
       oper.hash_data.setSink(hashSink);
     }
 
@@ -122,12 +121,11 @@ public class SeedEventClassifierTest
           inSink2.put(input);
         }
       }
-    }
-    else {
+    } else {
       Integer input;
       for (int j = 0; j < 5; j++) {
         for (int i = 0; i < numTuples; i++) {
-          input = new Integer(i);
+          input = i;
           inSink1.put(input);
           inSink2.put(input);
         }
@@ -137,14 +135,13 @@ public class SeedEventClassifierTest
     if (isstring) {
       Assert.assertEquals("number emitted tuples", numTuples * 2 * 5, classifySink.count);
       LOG.debug(String.format("\n********************\nProcessed %d tuples with %d uniques\n********************\n",
-                              classifySink.count,
-                              classifySink.collectedTuples.size()));
-    }
-    else {
+          classifySink.count,
+          classifySink.collectedTuples.size()));
+    } else {
       Assert.assertEquals("number emitted tuples", numTuples * 2 * 5, hashSink.count);
       LOG.debug(String.format("\n********************\nProcessed %d tuples with %d uniques\n********************\n",
-                              hashSink.count,
-                              hashSink.collectedTuples.size()));
+          hashSink.count,
+          hashSink.collectedTuples.size()));
     }
   }
 }

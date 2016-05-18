@@ -68,35 +68,35 @@ public class ExceptMap<K, V extends Number> extends MatchMap<K, V>
         /**
          * Output port that emits non matching number tuples.
          */
-	public final transient DefaultOutputPort<HashMap<K, V>> except = new DefaultOutputPort<HashMap<K, V>>()
-	{
-		@Override
-		public Unifier<HashMap<K, V>> getUnifier()
-		{
-			return new UnifierHashMap<K, V>();
-		}
-	};
+  public final transient DefaultOutputPort<HashMap<K, V>> except = new DefaultOutputPort<HashMap<K, V>>()
+  {
+    @Override
+    public Unifier<HashMap<K, V>> getUnifier()
+    {
+      return new UnifierHashMap<K, V>();
+    }
+  };
 
-	/**
-	 * Does nothing. Overrides base as call super.tupleMatched() would emit the
-	 * tuple
-	 * 
-	 * @param tuple
-	 */
-	@Override
-	public void tupleMatched(Map<K, V> tuple)
-	{
-	}
+  /**
+   * Does nothing. Overrides base as call super.tupleMatched() would emit the
+   * tuple
+   *
+   * @param tuple
+   */
+  @Override
+  public void tupleMatched(Map<K, V> tuple)
+  {
+  }
 
-	/**
-	 * Emits the tuple. Calls cloneTuple to get a copy, allowing users to override
-	 * in case objects are mutable
-	 * 
-	 * @param tuple
-	 */
-	@Override
-	public void tupleNotMatched(Map<K, V> tuple)
-	{
-		except.emit(cloneTuple(tuple));
-	}
+  /**
+   * Emits the tuple. Calls cloneTuple to get a copy, allowing users to override
+   * in case objects are mutable
+   *
+   * @param tuple
+   */
+  @Override
+  public void tupleNotMatched(Map<K, V> tuple)
+  {
+    except.emit(cloneTuple(tuple));
+  }
 }

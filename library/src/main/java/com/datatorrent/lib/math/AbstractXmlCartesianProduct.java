@@ -18,17 +18,23 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.api.Context;
-import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.lib.xml.AbstractXmlDOMOperator;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.validation.constraints.NotNull;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.validation.constraints.NotNull;
-import javax.xml.xpath.*;
-import java.util.ArrayList;
-import java.util.List;
+import com.datatorrent.api.Context;
+import com.datatorrent.lib.xml.AbstractXmlDOMOperator;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * An operator that performs a cartesian product between different elements in a xml document.
@@ -146,7 +152,7 @@ public abstract class AbstractXmlCartesianProduct<T> extends AbstractXmlDOMOpera
     try {
       List<String> result = new ArrayList<String>();
       for (CartesianProduct cartesianProduct : cartesianProducts) {
-          cartesianProduct.product(document, result);
+        cartesianProduct.product(document, result);
       }
       processResult(result, tuple);
     } catch (XPathExpressionException e) {
@@ -252,8 +258,11 @@ public abstract class AbstractXmlCartesianProduct<T> extends AbstractXmlDOMOpera
           int balance = 1;
           int i;
           for (i = 1; (i < spec.length()) && (balance > 0); ++i) {
-            if (spec.charAt(i) == ')') balance--;
-            else if (spec.charAt(i) == '(') balance++;
+            if (spec.charAt(i) == ')') {
+              balance--;
+            } else if (spec.charAt(i) == '(') {
+              balance++;
+            }
           }
           if (i == spec.length()) {
             estr = spec.substring(1, spec.length() - 1);
@@ -358,10 +367,10 @@ public abstract class AbstractXmlCartesianProduct<T> extends AbstractXmlDOMOpera
             int chldEdDelIdx = productSpec.length() - 1;
             int chldSepDelIdx;
             if ((productSpec.charAt(chldStDelIdx) == '(') && (productSpec.charAt(chldEdDelIdx) == ')')
-                    && ((chldSepDelIdx = productSpec.indexOf(':')) != -1)) {
+                && ((chldSepDelIdx = productSpec.indexOf(':')) != -1)) {
               String child1Spec = productSpec.substring(chldStDelIdx + 1, chldSepDelIdx);
               String child2Spec = productSpec.substring(chldSepDelIdx + 1, chldEdDelIdx);
-              parentElement = (SimplePathElement) pathElement;
+              parentElement = (SimplePathElement)pathElement;
               childElement1 = pathElementFactory.getSpecable(child1Spec);
               childElement2 = pathElementFactory.getSpecable(child2Spec);
             }
@@ -419,7 +428,7 @@ public abstract class AbstractXmlCartesianProduct<T> extends AbstractXmlDOMOpera
   private List<Node> getNodes(Document document, String path) throws XPathExpressionException
   {
     XPathExpression pathExpr = xpath.compile(path);
-    NodeList nodeList = (NodeList) pathExpr.evaluate(document, XPathConstants.NODESET);
+    NodeList nodeList = (NodeList)pathExpr.evaluate(document, XPathConstants.NODESET);
     List<Node> nodes = new ArrayList<Node>();
     for (int i = 0; i < nodeList.getLength(); ++i) {
       nodes.add(nodeList.item(i));
@@ -459,8 +468,11 @@ public abstract class AbstractXmlCartesianProduct<T> extends AbstractXmlDOMOpera
     String delim = getDelim();
     boolean first = true;
     for (Node node : nodes) {
-      if (!first) sb.append(delim);
-      else first = false;
+      if (!first) {
+        sb.append(delim);
+      } else {
+        first = false;
+      }
       sb.append(getValue(node));
     }
     return sb.toString();

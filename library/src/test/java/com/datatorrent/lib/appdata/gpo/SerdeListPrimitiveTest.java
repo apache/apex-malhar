@@ -20,12 +20,12 @@ package com.datatorrent.lib.appdata.gpo;
 
 import java.util.List;
 
-import com.google.common.collect.Lists;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 import org.apache.commons.lang3.mutable.MutableInt;
+
+import com.google.common.collect.Lists;
 
 public class SerdeListPrimitiveTest
 {
@@ -35,11 +35,11 @@ public class SerdeListPrimitiveTest
     GPOByteArrayList bal = new GPOByteArrayList();
 
     List<Object> primitiveList = Lists.newArrayList();
-    primitiveList.add((Boolean) true);
-    primitiveList.add((Byte) ((byte) 5));
-    primitiveList.add((Short) ((short) 16000));
-    primitiveList.add((Integer) 25000000);
-    primitiveList.add((Long) 5000000000L);
+    primitiveList.add(true);
+    primitiveList.add(((byte)5));
+    primitiveList.add(((short)16000));
+    primitiveList.add(25000000);
+    primitiveList.add(5000000000L);
     primitiveList.add('a');
     primitiveList.add("tim is the coolest");
 
@@ -50,7 +50,8 @@ public class SerdeListPrimitiveTest
     bal.add(new byte[13]);
 
     @SuppressWarnings("unchecked")
-    List<Object> newPrimitiveList = (List<Object>) SerdeListPrimitive.INSTANCE.deserializeObject(bal.toByteArray(), new MutableInt(15));
+    List<Object> newPrimitiveList = (List<Object>)SerdeListPrimitive.INSTANCE.deserializeObject(bal.toByteArray(),
+        new MutableInt(15));
 
     Assert.assertEquals(primitiveList, newPrimitiveList);
   }

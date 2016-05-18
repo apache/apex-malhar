@@ -162,7 +162,7 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
 
             for (FileStatus status : fs.listStatus(operatorDirStatus.getPath())) {
               String fileName = status.getPath().getName();
-              if(fileName.endsWith(FSStorageAgent.TMP_FILE)) {
+              if (fileName.endsWith(FSStorageAgent.TMP_FILE)) {
                 continue;
               }
               long windowId = Long.parseLong(fileName, 16);
@@ -173,8 +173,7 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
             }
           }
         }
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         throw new RuntimeException(e);
       }
     }
@@ -255,8 +254,7 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
                 deletedOperators.remove(loperator);
                 fs.delete(loperatorPath, true);
               }
-            }
-            else if (loperator == operatorId) {
+            } else if (loperator == operatorId) {
               storageAgent.delete(loperator, lwindow);
             }
           }
@@ -296,7 +294,7 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
 
       for (IdempotentStorageManager storageManager : newManagers) {
 
-        FSIdempotentStorageManager lmanager = (FSIdempotentStorageManager) storageManager;
+        FSIdempotentStorageManager lmanager = (FSIdempotentStorageManager)storageManager;
         lmanager.recoveryPath = this.recoveryPath;
         lmanager.storageAgent = this.storageAgent;
 
@@ -318,7 +316,7 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
         //If some operators were removed then there needs to be a manager which can clean there state when it is not needed.
         if (deletedOperatorsManager == null) {
           //None of the managers were handling deleted operators data.
-          deletedOperatorsManager = (FSIdempotentStorageManager) newManagers.iterator().next();
+          deletedOperatorsManager = (FSIdempotentStorageManager)newManagers.iterator().next();
           deletedOperatorsManager.deletedOperators = Sets.newHashSet();
         }
 
@@ -331,8 +329,7 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
     {
       try {
         fs.close();
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         throw new RuntimeException(e);
       }
     }

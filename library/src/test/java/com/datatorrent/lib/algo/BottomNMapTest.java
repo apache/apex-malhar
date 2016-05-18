@@ -102,16 +102,14 @@ public class BottomNMapTest
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 3, sortSink.collectedTuples.size());
-    for (Object o: sortSink.collectedTuples) {
+    for (Object o : sortSink.collectedTuples) {
       log.debug(o.toString());
-      for (Map.Entry<String, ArrayList<Number>> e: ((HashMap<String, ArrayList<Number>>)o).entrySet()) {
+      for (Map.Entry<String, ArrayList<Number>> e : ((HashMap<String, ArrayList<Number>>)o).entrySet()) {
         if (e.getKey().equals("a")) {
           Assert.assertEquals("emitted value for 'a' was ", 3, e.getValue().size());
-        }
-        else if (e.getKey().equals("b")) {
+        } else if (e.getKey().equals("b")) {
           Assert.assertEquals("emitted tuple for 'b' was ", 3, e.getValue().size());
-        }
-        else if (e.getKey().equals("c")) {
+        } else if (e.getKey().equals("c")) {
           Assert.assertEquals("emitted tuple for 'c' was ", 1, e.getValue().size());
         }
       }

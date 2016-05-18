@@ -21,10 +21,13 @@ package com.datatorrent.lib.io;
 import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.common.util.BaseOperator;
 import org.apache.commons.lang3.ClassUtils;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This an input operator which passes data from an asynchronous data source to a port processing thread.
@@ -48,7 +51,7 @@ public abstract class SimpleSinglePortInputOperator<T> extends BaseOperator impl
    * The single output port of this input operator.
    * Collects asynchronously emitted tuples and flushes in container thread.
    */
-  final public transient BufferingOutputPort<T> outputPort;
+  public final transient BufferingOutputPort<T> outputPort;
 
   public SimpleSinglePortInputOperator(int portCapacity)
   {
@@ -61,7 +64,7 @@ public abstract class SimpleSinglePortInputOperator<T> extends BaseOperator impl
   }
 
   @Override
-  final public void activate(OperatorContext ctx)
+  public final void activate(OperatorContext ctx)
   {
     isActive = true;
     if (this instanceof Runnable) {
@@ -71,7 +74,7 @@ public abstract class SimpleSinglePortInputOperator<T> extends BaseOperator impl
   }
 
   @Override
-  final public void deactivate()
+  public final void deactivate()
   {
     isActive = false;
     if (ioThread != null) {
@@ -80,7 +83,7 @@ public abstract class SimpleSinglePortInputOperator<T> extends BaseOperator impl
     }
   }
 
-  final public boolean isActive()
+  public final boolean isActive()
   {
     return isActive;
   }
@@ -115,8 +118,7 @@ public abstract class SimpleSinglePortInputOperator<T> extends BaseOperator impl
     {
       try {
         tuples.put(tuple);
-      }
-      catch (InterruptedException ex) {
+      } catch (InterruptedException ex) {
         throw new RuntimeException(ex);
       }
     }
@@ -130,6 +132,6 @@ public abstract class SimpleSinglePortInputOperator<T> extends BaseOperator impl
       }
     }
 
-  };
+  }
 
 }

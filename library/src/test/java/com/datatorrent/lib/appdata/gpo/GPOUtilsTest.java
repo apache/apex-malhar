@@ -67,14 +67,14 @@ public class GPOUtilsTest
     final Long tlongv = 10000000000L;
 
     int totalBytes = 1 //boolean
-                     + 2 //char
-                     + 4 + tstringv.getBytes().length //string
-                     + 4 //float
-                     + 8 //double
-                     + 1 //byte
-                     + 2 //short
-                     + 4 //int
-                     + 8; //long
+        + 2 //char
+        + 4 + tstringv.getBytes().length //string
+        + 4 //float
+        + 8 //double
+        + 1 //byte
+        + 2 //short
+        + 4 //int
+        + 8; //long
 
     fieldToType.put(tboolean, Type.BOOLEAN);
     fieldToType.put(tchar, Type.CHAR);
@@ -144,14 +144,14 @@ public class GPOUtilsTest
     final Long tlongv = 10000000000L;
 
     int totalBytes = 1 //boolean
-                     + 2 //char
-                     + 4 + tstringv.getBytes().length //string
-                     + 4 //float
-                     + 8 //double
-                     + 1 //byte
-                     + 2 //short
-                     + 4 //int
-                     + 8; //long
+        + 2 //char
+        + 4 + tstringv.getBytes().length //string
+        + 4 //float
+        + 8 //double
+        + 1 //byte
+        + 2 //short
+        + 4 //int
+        + 8; //long
 
     logger.debug("Correct total bytes {}.", totalBytes);
 
@@ -303,9 +303,7 @@ public class GPOUtilsTest
     fieldToSerde.put("keys", SerdeListGPOMutable.INSTANCE);
     fieldToSerde.put("values", SerdeListGPOMutable.INSTANCE);
 
-    FieldsDescriptor metaDataFD = new FieldsDescriptor(fieldToType,
-                                                       fieldToSerde,
-                                                       new PayloadFix());
+    FieldsDescriptor metaDataFD = new FieldsDescriptor(fieldToType, fieldToSerde, new PayloadFix());
 
     GPOMutable gpo = new GPOMutable(metaDataFD);
 
@@ -348,13 +346,13 @@ public class GPOUtilsTest
     @Override
     public void fix(Object[] objects)
     {
-      FieldsDescriptor keyfd = (FieldsDescriptor) objects[0];
-      FieldsDescriptor valuefd = (FieldsDescriptor) objects[1];
+      FieldsDescriptor keyfd = (FieldsDescriptor)objects[0];
+      FieldsDescriptor valuefd = (FieldsDescriptor)objects[1];
 
       @SuppressWarnings("unchecked")
-      List<GPOMutable> keyMutables = (List<GPOMutable>) objects[2];
+      List<GPOMutable> keyMutables = (List<GPOMutable>)objects[2];
       @SuppressWarnings("unchecked")
-      List<GPOMutable> aggregateMutables = (List<GPOMutable>) objects[3];
+      List<GPOMutable> aggregateMutables = (List<GPOMutable>)objects[3];
 
       fix(keyfd, keyMutables);
       fix(valuefd, aggregateMutables);
@@ -362,9 +360,7 @@ public class GPOUtilsTest
 
     private void fix(FieldsDescriptor fd, List<GPOMutable> mutables)
     {
-      for(int index = 0;
-          index < mutables.size();
-          index++) {
+      for (int index = 0; index < mutables.size(); index++) {
         mutables.get(index).setFieldDescriptor(fd);
       }
     }

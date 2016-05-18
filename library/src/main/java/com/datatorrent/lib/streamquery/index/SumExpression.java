@@ -36,14 +36,16 @@ public class SumExpression extends BinaryExpression
 {
 
   /**
-   * @param Left column name argument for expression.
-   * @param Right column name argument for expression.
-   * @param Alias name for output field.
+   * @param left column name argument for expression.
+   * @param right column name argument for expression.
+   * @param alias name for output field.
    */
   public SumExpression(@NotNull String left, @NotNull String right, String alias)
   {
     super(left, right, alias);
-    if (this.alias == null) this.alias = "SUM(" + left + "," + right + ")";
+    if (this.alias == null) {
+      this.alias = "SUM(" + left + "," + right + ")";
+    }
   }
 
   /* sum column values.
@@ -52,7 +54,9 @@ public class SumExpression extends BinaryExpression
   @Override
   public void filter(Map<String, Object> row, Map<String, Object> collect)
   {
-    if (!row.containsKey(left) || !row.containsKey(right)) return;
+    if (!row.containsKey(left) || !row.containsKey(right)) {
+      return;
+    }
     collect.put(alias, ((Number)row.get(left)).doubleValue() + ((Number)row.get(right)).doubleValue());
   }
 

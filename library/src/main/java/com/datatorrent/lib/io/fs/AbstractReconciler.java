@@ -32,14 +32,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Operator.CheckpointListener;
 import com.datatorrent.api.Operator.IdleTimeHandler;
-
-import com.datatorrent.netlet.util.DTThrowable;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.common.util.NameableThreadFactory;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * This base operator queues input tuples for each window and asynchronously processes them after the window is committed.
@@ -115,12 +114,10 @@ public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator
     if (execute) {
       try {
         Thread.sleep(spinningTime);
-      }
-      catch (InterruptedException ie) {
+      } catch (InterruptedException ie) {
         throw new RuntimeException(ie);
       }
-    }
-    else {
+    } else {
       logger.error("Exception: ", cause);
       DTThrowable.rethrow(cause.get());
     }
@@ -178,14 +175,14 @@ public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator
             processCommittedData(output);
             doneTuples.add(output);
           }
-        }
-        catch (Throwable e) {
+        } catch (Throwable e) {
           cause.set(e);
           execute = false;
         }
       }
     };
   }
+
   /**
    * The implementation class should call this method to enqueue output once input is converted to queue input.
    *
@@ -203,7 +200,7 @@ public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator
    *
    * @param input
    */
-  abstract protected void processTuple(INPUT input);
+  protected abstract void processTuple(INPUT input);
 
   /**
    * This method is called once the window in which queueTuple was created is committed.

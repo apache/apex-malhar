@@ -50,7 +50,7 @@ public class PubSubWebSocketOperatorTest
     contextHandler.addServlet(sh, "/pubsub");
     contextHandler.addServlet(sh, "/*");
     server.start();
-    Connector connector[] = server.getConnectors();
+    Connector[] connector = server.getConnectors();
     URI uri = URI.create("ws://localhost:" + connector[0].getLocalPort() + "/pubsub");
 
     PubSubWebSocketOutputOperator<Object> outputOperator = new PubSubWebSocketOutputOperator<Object>();
@@ -100,10 +100,10 @@ public class PubSubWebSocketOperatorTest
     Assert.assertTrue("tuples emitted", sink.collectedTuples.size() > 1);
 
     @SuppressWarnings("unchecked")
-    Map<String, String> tuple = (Map<String, String>) sink.collectedTuples.get(0);
+    Map<String, String> tuple = (Map<String, String>)sink.collectedTuples.get(0);
     Assert.assertEquals("Expects {\"hello\":\"world\"} as data", "world", tuple.get("hello"));
 
-    String stringResult = (String) sink.collectedTuples.get(1);
+    String stringResult = (String)sink.collectedTuples.get(1);
     Assert.assertEquals("Expects {\"hello\":\"world\"} as data", stringData, stringResult);
 
     inputOperator.deactivate();

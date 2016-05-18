@@ -18,9 +18,9 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.api.annotation.OperatorAnnotation;
-
 import java.util.Collection;
+
+import com.datatorrent.api.annotation.OperatorAnnotation;
 
 /**
  * Adds incoming tuple to the state and emits the result of each addition on the respective ports.
@@ -47,27 +47,27 @@ import java.util.Collection;
 @OperatorAnnotation(partitionable = false)
 public class Sigma<T extends Number> extends AbstractAggregateCalc<T>
 {
-	@Override
-	public long aggregateLongs(Collection<T> collection)
-	{
-		long l = 0;
+  @Override
+  public long aggregateLongs(Collection<T> collection)
+  {
+    long l = 0;
 
-		for (Number n : collection) {
-			l += n.longValue();
-		}
+    for (Number n : collection) {
+      l += n.longValue();
+    }
 
-		return l;
-	}
+    return l;
+  }
 
-	@Override
-	public double aggregateDoubles(Collection<T> collection)
-	{
-		double d = 0;
+  @Override
+  public double aggregateDoubles(Collection<T> collection)
+  {
+    double d = 0;
 
-		for (Number n : collection) {
-			d += n.doubleValue();
-		}
+    for (Number n : collection) {
+      d += n.doubleValue();
+    }
 
-		return d;
-	}
+    return d;
+  }
 }

@@ -20,18 +20,17 @@ package com.datatorrent.lib.appdata.query.serde;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-
 import java.util.Map;
 import java.util.Set;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import com.datatorrent.lib.appdata.schemas.Message;
 
@@ -88,8 +87,7 @@ public class MessageDeserializerFactory
    * @param clazz The Class of messages that a context a being set for.
    * @param context The context to use when deserializing messages corresponding to the specified class.
    */
-  public void setContext(Class<? extends Message> clazz,
-                         Object context)
+  public void setContext(Class<? extends Message> clazz, Object context)
   {
     deserializationContext.put(clazz, context);
   }
@@ -104,8 +102,7 @@ public class MessageDeserializerFactory
 
     Set<Class<? extends Message>> clazzes = Sets.newHashSet();
 
-    for(Class<? extends Message> schema: schemas)
-    {
+    for (Class<? extends Message> schema : schemas) {
       Preconditions.checkNotNull(schema, "Provided schema cannot be null");
       Preconditions.checkArgument(!clazzes.contains(schema), "Schema %s was passed twice.", schema);
       clazzes.add(schema);
@@ -116,57 +113,53 @@ public class MessageDeserializerFactory
       Class<? extends CustomMessageDeserializer> cqd = null;
       Class<? extends CustomMessageValidator> cqv = null;
 
-      for(Annotation an: ans)
-      {
-        if(an instanceof MessageType) {
-          if(schemaType != null) {
+      for (Annotation an : ans) {
+        if (an instanceof MessageType) {
+          if (schemaType != null) {
             throw new IllegalArgumentException("Cannot specify the " + MessageType.class +
-              " annotation twice on the class: " + schema);
+                " annotation twice on the class: " + schema);
           }
 
-          schemaType = ((MessageType) an).type();
+          schemaType = ((MessageType)an).type();
 
-          LOG.debug("Detected schemaType for {} is {}",
-                       schema,
-                       schemaType);
-        }
-        else if(an instanceof MessageDeserializerInfo) {
-          if(cqd != null) {
+          LOG.debug("Detected schemaType for {} is {}", schema, schemaType);
+        } else if (an instanceof MessageDeserializerInfo) {
+          if (cqd != null) {
             throw new IllegalArgumentException("Cannot specify the " + MessageDeserializerInfo.class +
-              " annotation twice on the class: " + schema);
+                " annotation twice on the class: " + schema);
           }
 
-          cqd = ((MessageDeserializerInfo) an).clazz();
-        }
-        else if(an instanceof MessageValidatorInfo) {
-          if(cqv != null) {
+          cqd = ((MessageDeserializerInfo)an).clazz();
+        } else if (an instanceof MessageValidatorInfo) {
+          if (cqv != null) {
             throw new IllegalArgumentException("Cannot specify the " + MessageValidatorInfo.class +
-              " annotation twice on the class: ");
+                " annotation twice on the class: ");
           }
 
-          cqv = ((MessageValidatorInfo) an).clazz();
+          cqv = ((MessageValidatorInfo)an).clazz();
         }
       }
 
-      if(schemaType == null) {
+      if (schemaType == null) {
         throw new IllegalArgumentException("No " + MessageType.class + " annotation found on class: " + schema);
       }
 
-      if(cqd == null) {
+      if (cqd == null) {
         throw new IllegalArgumentException("No " + MessageDeserializerInfo.class + " annotation found on class: " +
-          schema);
+            schema);
       }
 
-      if(cqv == null) {
-        throw new IllegalArgumentException("No " + MessageValidatorInfo.class + " annotation found on class: " + schema);
+      if (cqv == null) {
+        throw new IllegalArgumentException(
+            "No " + MessageValidatorInfo.class + " annotation found on class: " + schema);
       }
 
       Class<? extends Message> prevSchema = typeToClass.put(schemaType, schema);
       LOG.debug("prevSchema {}:", prevSchema);
 
-      if(prevSchema != null) {
+      if (prevSchema != null) {
         throw new IllegalArgumentException("Cannot have the " +
-          schemaType + " schemaType defined on multiple classes: " + schema + ", " + prevSchema);
+            schemaType + " schemaType defined on multiple classes: " + schema + ", " + prevSchema);
       }
 
       try {
@@ -174,11 +167,7 @@ public class MessageDeserializerFactory
         CustomMessageValidator cqvI = cqv.newInstance();
         typeToCustomQueryBuilder.put(schemaType, cqdI);
         typeToCustomQueryValidator.put(schemaType, cqvI);
-      }
-      catch(InstantiationException ex) {
-        throw new RuntimeException(ex);
-      }
-      catch(IllegalAccessException ex) {
+      } catch (InstantiationException | IllegalAccessException ex) {
         throw new RuntimeException(ex);
       }
     }
@@ -195,22 +184,19 @@ public class MessageDeserializerFactory
   {
     String type;
 
-    try
-    {
+    try {
       JSONObject jsonObject = new JSONObject(json);
       type = jsonObject.getString(Message.FIELD_TYPE);
-    }
-    catch(JSONException e)
-    {
+    } catch (JSONException e) {
       throw new IOException(e);
     }
 
     CustomMessageDeserializer cqb = typeToCustomQueryBuilder.get(type);
 
-    if(cqb == null) {
+    if (cqb == null) {
       throw new IOException("The query type " +
-                            type +
-                            " does not have a corresponding deserializer.");
+          type +
+          " does not have a corresponding deserializer.");
     }
 
     CustomMessageValidator cqv = typeToCustomQueryValidator.get(type);
@@ -219,7 +205,7 @@ public class MessageDeserializerFactory
 
     LOG.debug("{}", data);
 
-    if(data == null || !(cqv != null && cqv.validate(data, context))) {
+    if (data == null || !(cqv != null && cqv.validate(data, context))) {
       return null;
     }
 

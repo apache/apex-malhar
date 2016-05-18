@@ -58,7 +58,8 @@ public class SelectTopOperator implements Operator
   /**
    * Input port that takes a map of &lt;string,object&gt;.
    */
-  public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>() {
+  public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>()
+  {
     @Override
     public void process(Map<String, Object> tuple)
     {
@@ -89,13 +90,13 @@ public class SelectTopOperator implements Operator
   @Override
   public void endWindow()
   {
-      int numEmits = topValue;
-      if (isPercentage) {
-        numEmits = list.size() * (topValue/100);
-      }
-      for (int i=0; (i < numEmits)&&(i < list.size()); i++) {
-        outport.emit(list.get(i));
-      }
+    int numEmits = topValue;
+    if (isPercentage) {
+      numEmits = list.size() * (topValue / 100);
+    }
+    for (int i = 0; (i < numEmits) && (i < list.size()); i++) {
+      outport.emit(list.get(i));
+    }
   }
 
   public int getTopValue()

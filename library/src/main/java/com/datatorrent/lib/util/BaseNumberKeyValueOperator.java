@@ -40,7 +40,8 @@ public class BaseNumberKeyValueOperator<K,V extends Number> extends BaseFiltered
   public enum V_TYPE
   {
     DOUBLE, INTEGER, FLOAT, LONG, SHORT, UNKNOWN
-  };
+  }
+
   @NotNull
   V_TYPE type = V_TYPE.DOUBLE;
 
@@ -53,20 +54,15 @@ public class BaseNumberKeyValueOperator<K,V extends Number> extends BaseFiltered
   {
     if (ctype == Double.class) {
       type = V_TYPE.DOUBLE;
-    }
-    else if (ctype == Integer.class) {
+    } else if (ctype == Integer.class) {
       type = V_TYPE.INTEGER;
-    }
-    else if (ctype == Float.class) {
+    } else if (ctype == Float.class) {
       type = V_TYPE.FLOAT;
-    }
-    else if (ctype == Long.class) {
+    } else if (ctype == Long.class) {
       type = V_TYPE.LONG;
-    }
-    else if (ctype == Short.class) {
+    } else if (ctype == Short.class) {
       type = V_TYPE.SHORT;
-    }
-    else {
+    } else {
       type = V_TYPE.UNKNOWN;
     }
   }
@@ -79,27 +75,27 @@ public class BaseNumberKeyValueOperator<K,V extends Number> extends BaseFiltered
    * @return value as a correct sub-class (V) object
    */
   @SuppressWarnings("unchecked")
-	public V getValue(Number num)
+  public V getValue(Number num)
   {
     Number val;
     switch (type) {
       case DOUBLE:
-        val = new Double(num.doubleValue());
+        val = num.doubleValue();
         break;
       case INTEGER:
-        val = new Integer(num.intValue());
+        val = num.intValue();
         break;
       case FLOAT:
-        val = new Float(num.floatValue());
+        val = num.floatValue();
         break;
       case LONG:
-        val = new Long(num.longValue());
+        val = num.longValue();
         break;
       case SHORT:
-        val = new Short(num.shortValue());
+        val = num.shortValue();
         break;
       default:
-        val = new Double(num.doubleValue());
+        val = num.doubleValue();
         break;
     }
     return (V)val;

@@ -45,7 +45,7 @@ public class SumTestSink<T> implements Sink<T>
   public void put(T payload)
   {
     if (payload instanceof Number) {
-      val += ((Number) payload).doubleValue();
+      val += ((Number)payload).doubleValue();
     }
   }
 
