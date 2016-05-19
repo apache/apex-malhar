@@ -42,7 +42,8 @@ import com.datatorrent.netlet.util.Slice;
  * 4. recursive: if scan recursively input directories<br/>
  * 5. blockSize: block size used to read input blocks of file<br/>
  * 6. readersCount: count of readers to read input file<br/>
- * 7. sequencialFileRead: If emit file blocks in sequence?
+ * 7. sequencialFileRead: If emit file blocks in sequence?<br/>
+ * 8. blocksThreshold: number of blocks emitted per window
  */
 
 public class FSInputModule implements Module
@@ -57,6 +58,8 @@ public class FSInputModule implements Module
   private long blockSize;
   private boolean sequencialFileRead = false;
   private int readersCount;
+  @Min(1)
+  protected int blocksThreshold;
 
   public final transient ProxyOutputPort<AbstractFileSplitter.FileMetadata> filesMetadataOutput = new ProxyOutputPort<>();
   public final transient ProxyOutputPort<BlockMetadata.FileBlockMetadata> blocksMetadataOutput = new ProxyOutputPort<>();
@@ -106,6 +109,9 @@ public class FSInputModule implements Module
     if (readersCount != 0) {
       dag.setAttribute(blockReader, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<FSSliceReader>(readersCount));
       fileSplitter.setBlocksThreshold(readersCount);
+    }
+    if (blocksThreshold != 0) {
+      fileSplitter.setBlocksThreshold(blocksThreshold);
     }
   }
 
@@ -248,6 +254,25 @@ public class FSInputModule implements Module
   public void setSequencialFileRead(boolean sequencialFileRead)
   {
     this.sequencialFileRead = sequencialFileRead;
+  }
+
+  /**
+   * Sets number of blocks to be emitted per window. A lot of blocks emitted
+   * per window can overwhelm the downstream operators. This setting helps to control that.
+   * @param threshold
+   */
+  public void setBlocksThreshold(int threshold)
+  {
+    this.blocksThreshold = threshold;
+  }
+
+  /**
+   * Gets number of blocks to be emitted per window.
+   * @return
+   */
+  public int getBlocksThreshold()
+  {
+    return blocksThreshold;
   }
 
   public static class SequentialFileBlockMetadataCodec
