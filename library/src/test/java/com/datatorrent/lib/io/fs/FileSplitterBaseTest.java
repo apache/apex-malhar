@@ -80,6 +80,7 @@ public class FileSplitterBaseTest
       }
 
       fileSplitter = new FileSplitterBase();
+      fileSplitter.setBlocksThreshold(100);
       fileSplitter.setFile(this.dataDirectory);
 
       Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
@@ -199,7 +200,9 @@ public class FileSplitterBaseTest
   {
     LocalMode lma = LocalMode.newInstance();
     SplitterApp app = new SplitterApp();
-    lma.prepareDAG(app, new Configuration());
+    Configuration appConf = new Configuration();
+    appConf.set("dt.operator.Splitter.prop.blocksThreshold", "4");
+    lma.prepareDAG(app, appConf);
     lma.cloneDAG(); // check serialization
     LocalMode.Controller lc = lma.getController();
     lc.runAsync();
