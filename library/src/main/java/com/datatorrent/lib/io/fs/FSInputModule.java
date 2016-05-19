@@ -58,7 +58,6 @@ public class FSInputModule implements Module
   private long blockSize;
   private boolean sequencialFileRead = false;
   private int readersCount;
-  @Min(1)
   protected int blocksThreshold;
 
   public final transient ProxyOutputPort<AbstractFileSplitter.FileMetadata> filesMetadataOutput = new ProxyOutputPort<>();
@@ -108,7 +107,6 @@ public class FSInputModule implements Module
     blockReader.setBasePath(files);
     if (readersCount != 0) {
       dag.setAttribute(blockReader, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<FSSliceReader>(readersCount));
-      fileSplitter.setBlocksThreshold(readersCount);
     }
     if (blocksThreshold != 0) {
       fileSplitter.setBlocksThreshold(blocksThreshold);
@@ -257,8 +255,8 @@ public class FSInputModule implements Module
   }
 
   /**
-   * Sets number of blocks to be emitted per window. A lot of blocks emitted
-   * per window can overwhelm the downstream operators. This setting helps to control that.
+   * Sets number of blocks to be emitted per window.<br/>
+   * A lot of blocks emitted per window can overwhelm the downstream operators. This setting helps to control that.
    * @param threshold
    */
   public void setBlocksThreshold(int threshold)
@@ -267,7 +265,8 @@ public class FSInputModule implements Module
   }
 
   /**
-   * Gets number of blocks to be emitted per window.
+   * Gets number of blocks to be emitted per window.<br/>
+   * A lot of blocks emitted per window can overwhelm the downstream operators. This setting helps to control that.
    * @return
    */
   public int getBlocksThreshold()
