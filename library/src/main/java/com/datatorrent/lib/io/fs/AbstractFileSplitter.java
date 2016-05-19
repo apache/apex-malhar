@@ -71,11 +71,6 @@ public abstract class AbstractFileSplitter extends BaseOperator
   public final transient DefaultOutputPort<BlockMetadata.FileBlockMetadata> blocksMetadataOutput =
       new DefaultOutputPort<>();
 
-  public AbstractFileSplitter()
-  {
-    blocksThreshold = Integer.MAX_VALUE;
-  }
-
   @Override
   public void setup(Context.OperatorContext context)
   {
@@ -280,11 +275,23 @@ public abstract class AbstractFileSplitter extends BaseOperator
     return blockSize;
   }
 
+  /**
+   * Sets number of blocks to be emitted per window.<br/>
+   * A lot of blocks emitted per window can overwhelm the downstream operators. Set this value considering blockSize and
+   * readersCount.
+   * @param threshold
+   */
   public void setBlocksThreshold(int threshold)
   {
     this.blocksThreshold = threshold;
   }
 
+  /**
+   * Gets number of blocks to be emitted per window.<br/>
+   * A lot of blocks emitted per window can overwhelm the downstream operators. Set this value considering blockSize and
+   * readersCount.
+   * @return
+   */
   public int getBlocksThreshold()
   {
     return blocksThreshold;

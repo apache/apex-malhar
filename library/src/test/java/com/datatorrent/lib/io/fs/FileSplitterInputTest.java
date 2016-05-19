@@ -104,6 +104,7 @@ public class FileSplitterInputTest
       }
 
       fileSplitterInput = new FileSplitterInput();
+      fileSplitterInput.setBlocksThreshold(100);
       scanner = new MockScanner();
       fileSplitterInput.setScanner(scanner);
       fileSplitterInput.getScanner().setScanIntervalMillis(500);
