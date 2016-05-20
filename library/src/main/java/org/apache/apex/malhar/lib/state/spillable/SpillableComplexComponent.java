@@ -23,7 +23,7 @@ import org.apache.apex.malhar.lib.utils.serde.Serde;
 
 import com.datatorrent.api.Component;
 import com.datatorrent.api.Context.OperatorContext;
-
+import com.datatorrent.netlet.util.Slice;
 
 /**
  * This is a composite component containing spillable data structures. This should be used as
@@ -39,7 +39,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableArrayList}.
    * @return A {@link SpillableArrayList}.
    */
-  <T> SpillableArrayList<T> newSpillableArrayList(long bucket, Serde<T, byte[]> serde);
+  <T> SpillableArrayList<T> newSpillableArrayList(long bucket, Serde<T, Slice> serde);
 
   /**
    * This is a method for creating a {@link SpillableArrayList}.
@@ -49,7 +49,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableArrayList}.
    * @return A {@link SpillableArrayList}.
    */
-  <T> SpillableArrayList<T> newSpillableArrayList(byte[] identifier, long bucket, Serde<T, byte[]> serde);
+  <T> SpillableArrayList<T> newSpillableArrayList(byte[] identifier, long bucket, Serde<T, Slice> serde);
 
   /**
    * This is a method for creating a {@link SpillableByteMap}. This method
@@ -61,8 +61,8 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @param serdeValue The Serializer/Deserializer to use for the map's values.
    * @return A {@link SpillableByteMap}.
    */
-  <K, V> SpillableByteMap<K, V> newSpillableByteMap(long bucket, Serde<K, byte[]> serdeKey,
-      Serde<V, byte[]> serdeValue);
+  <K, V> SpillableByteMap<K, V> newSpillableByteMap(long bucket, Serde<K, Slice> serdeKey,
+      Serde<V, Slice> serdeValue);
 
   /**
    * This is a method for creating a {@link SpillableByteMap}.
@@ -75,7 +75,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @return A {@link SpillableByteMap}.
    */
   <K, V> SpillableByteMap<K, V> newSpillableByteMap(byte[] identifier, long bucket,
-      Serde<K, byte[]> serdeKey, Serde<V, byte[]> serdeValue);
+      Serde<K, Slice> serdeKey, Serde<V, Slice> serdeValue);
 
   /**
    * This is a method for creating a {@link SpillableByteArrayListMultimap}. This method
@@ -88,7 +88,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @return A {@link SpillableByteArrayListMultimap}.
    */
   <K, V> SpillableByteArrayListMultimap<K, V> newSpillableByteArrayListMultimap(long bucket, Serde<K,
-      byte[]> serdeKey, Serde<V, byte[]> serdeValue);
+      Slice> serdeKey, Serde<V, Slice> serdeValue);
 
   /**
    * This is a method for creating a {@link SpillableByteArrayListMultimap}.
@@ -101,8 +101,28 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @return A {@link SpillableByteArrayListMultimap}.
    */
   <K, V> SpillableByteArrayListMultimap<K, V> newSpillableByteArrayListMultimap(byte[] identifier, long bucket,
-      Serde<K, byte[]> serdeKey,
-      Serde<V, byte[]> serdeValue);
+      Serde<K, Slice> serdeKey,
+      Serde<V, Slice> serdeValue);
+
+  /**
+   * This is a method for creating a {@link SpillableByteMultiset}. This method
+   * auto-generates an identifier for the data structure.
+   * @param <T> The type of the elements.
+   * @param bucket The bucket that this {@link SpillableByteMultiset} will be spilled too.
+   * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableByteMultiset}.
+   * @return A {@link SpillableByteMultiset}.
+   */
+  <T> SpillableByteMultiset<T> newSpillableByteMultiset(long bucket, Serde<T, Slice> serde);
+
+  /**
+   * This is a method for creating a {@link SpillableByteMultiset}.
+   * @param <T> The type of the elements.
+   * @param identifier The identifier for this {@link SpillableByteMultiset}.
+   * @param bucket The bucket that this {@link SpillableByteMultiset} will be spilled too.
+   * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableByteMultiset}.
+   * @return A {@link SpillableByteMultiset}.
+   */
+  <T> SpillableByteMultiset<T> newSpillableByteMultiset(byte[] identifier, long bucket, Serde<T, Slice> serde);
 
   /**
    * This is a method for creating a {@link SpillableQueue}. This method
@@ -112,7 +132,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableQueue}.
    * @return A {@link SpillableQueue}.
    */
-  <T> SpillableQueue<T> newSpillableQueue(long bucket, Serde<T, byte[]> serde);
+  <T> SpillableQueue<T> newSpillableQueue(long bucket, Serde<T, Slice> serde);
 
   /**
    * This is a method for creating a {@link SpillableQueue}.
@@ -122,5 +142,5 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableQueue}.
    * @return A {@link SpillableQueue}.
    */
-  <T> SpillableQueue<T> newSpillableQueue(byte[] identifier, long bucket, Serde<T, byte[]> serde);
+  <T> SpillableQueue<T> newSpillableQueue(byte[] identifier, long bucket, Serde<T, Slice> serde);
 }
