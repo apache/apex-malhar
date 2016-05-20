@@ -49,6 +49,8 @@ import com.datatorrent.lib.util.PojoUtils;
  * </ul>
  *
  * The operator uses interaction via {@link Expression} and {@link PojoUtils} to transform given POJO.
+ *
+ * @since 3.4.0
  */
 public class TransformOperator extends BaseOperator implements Operator.ActivationListener
 {

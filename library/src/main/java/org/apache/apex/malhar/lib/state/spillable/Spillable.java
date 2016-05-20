@@ -29,6 +29,8 @@ import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * This is a marker interface for a spillable data structure.
+ *
+ * @since 3.4.0
  */
 public interface Spillable
 {

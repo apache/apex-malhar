@@ -24,6 +24,8 @@ import java.util.Map;
  * this factory is implemented for support TOPN and BOTTOMN right now.
  * we are not clear what other composite aggregator could be, provide interface here.
  * assume Composite only embed one aggregate and with some properties
+ *
+ * @since 3.4.0
  */
 public interface CompositeAggregatorFactory
 {

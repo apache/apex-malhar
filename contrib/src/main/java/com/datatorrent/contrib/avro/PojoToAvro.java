@@ -57,6 +57,8 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
  * @displayName Pojo To Avro
  * @category Converter
  * @tags avro
+ *
+ * @since 3.4.0
  */
 @InterfaceStability.Evolving
 public class PojoToAvro extends BaseOperator

@@ -62,6 +62,8 @@ import com.datatorrent.lib.util.PojoUtils;
  * @displayName POJOEnricher
  * @category Database
  * @tags enrichment, enricher, pojo, schema, lookup
+ *
+ * @since 3.4.0
  */
 @InterfaceStability.Evolving
 public class POJOEnricher extends AbstractEnricher<Object, Object>

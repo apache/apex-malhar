@@ -32,6 +32,8 @@ import com.google.common.collect.Maps;
  * </p>
  *
  * @param <T> type of bucket events
+ *
+ * @since 3.4.0
  */
 @InterfaceStability.Unstable
 public class Bucket<T extends TimeEvent>

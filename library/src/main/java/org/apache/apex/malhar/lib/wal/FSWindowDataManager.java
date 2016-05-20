@@ -45,6 +45,8 @@ import com.datatorrent.common.util.FSStorageAgent;
 
 /**
  * An {@link WindowDataManager} that uses FS to persist state.
+ *
+ * @since 3.4.0
  */
 public class FSWindowDataManager implements WindowDataManager
 {

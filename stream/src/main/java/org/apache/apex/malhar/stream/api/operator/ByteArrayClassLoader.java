@@ -21,6 +21,9 @@ package org.apache.apex.malhar.stream.api.operator;
 
 import java.util.Map;
 
+/**
+ * @since 3.4.0
+ */
 public class ByteArrayClassLoader extends ClassLoader
 {
   private final Map<String, byte[]> classes;

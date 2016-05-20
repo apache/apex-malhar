@@ -38,6 +38,8 @@ import com.datatorrent.stram.plan.logical.LogicalPlan;
 /**
  * Graph data structure for DAG
  * With this data structure, the framework can do lazy load and optimization
+ *
+ * @since 3.4.0
  */
 public class DagMeta
 {

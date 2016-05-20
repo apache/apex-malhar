@@ -21,6 +21,8 @@ package org.apache.apex.malhar.lib.state.managed;
 
 /**
  * Managed state has a limit on amount of data in memory.
+ *
+ * @since 3.4.0
  */
 public interface ManagedState
 {

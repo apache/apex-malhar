@@ -52,6 +52,8 @@ import com.datatorrent.lib.db.KeyValueStore;
  * Geode is a data management platform that provides real-time
  * , consistent access to data-intensive applications.
  * 
+ *
+ * @since 3.4.0
  */
 public class GeodeStore implements KeyValueStore, Serializable
 {

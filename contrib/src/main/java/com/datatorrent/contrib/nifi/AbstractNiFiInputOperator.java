@@ -60,6 +60,8 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @displayName Abstract NiFi Input
  * @category Messaging
  * @tags input operator
+ *
+ * @since 3.4.0
  */
 
 public abstract class AbstractNiFiInputOperator<T> implements InputOperator

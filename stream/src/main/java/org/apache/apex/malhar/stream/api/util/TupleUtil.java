@@ -23,6 +23,8 @@ package org.apache.apex.malhar.stream.api.util;
  * Or converting from data tuples to display tuples <br>
  * Or generating watermark tuples <br>
  *
+ *
+ * @since 3.4.0
  */
 public class TupleUtil
 {

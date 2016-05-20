@@ -60,6 +60,8 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @category Messaging
  * @tags output operator
  *
+ *
+ * @since 3.4.0
  */
 public abstract class AbstractNiFiOutputOperator<T> extends BaseOperator
 {

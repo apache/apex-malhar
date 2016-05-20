@@ -27,6 +27,8 @@ import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
 
 /**
  * A Factory class to build from different kind of input source
+ *
+ * @since 3.4.0
  */
 public class StreamFactory
 {

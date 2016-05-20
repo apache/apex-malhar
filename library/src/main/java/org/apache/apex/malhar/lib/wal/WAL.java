@@ -30,6 +30,8 @@ import com.datatorrent.netlet.util.Slice;
  *
  * @param <READER> Type of WAL Reader
  * @param <WRITER> WAL Pointer Type.
+ *
+ * @since 3.4.0
  */
 public interface WAL<READER extends WAL.WALReader, WRITER extends WAL.WALWriter>
 {

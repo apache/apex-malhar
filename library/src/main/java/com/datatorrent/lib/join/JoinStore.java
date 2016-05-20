@@ -28,6 +28,8 @@ import com.datatorrent.api.Component;
  * <p>
  * Interface of store for join operation.
  * </p>
+ *
+ * @since 3.4.0
  */
 @InterfaceStability.Unstable
 public interface JoinStore extends Component

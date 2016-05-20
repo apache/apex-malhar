@@ -27,6 +27,8 @@ import com.datatorrent.netlet.util.Slice;
 
 /**
  * A state where keys are grouped in buckets.
+ *
+ * @since 3.4.0
  */
 public interface BucketedState
 {

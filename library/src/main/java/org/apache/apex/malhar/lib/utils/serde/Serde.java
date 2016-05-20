@@ -24,6 +24,8 @@ import org.apache.commons.lang3.mutable.MutableInt;
  * This is an interface for a Serializer/Deserializer class.
  * @param <OBJ> The type of the object to Serialize and Deserialize.
  * @param <SER> The type to Serialize an Object to.
+ *
+ * @since 3.4.0
  */
 public interface Serde<OBJ, SER>
 {

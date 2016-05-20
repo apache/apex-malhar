@@ -44,6 +44,8 @@ import com.datatorrent.lib.util.FieldInfo;
  * @displayName MapEnricher
  * @category Database
  * @tags enrichment, lookup, map
+ *
+ * @since 3.4.0
  */
 @InterfaceStability.Evolving
 public class MapEnricher extends AbstractEnricher<Map<String, Object>, Map<String, Object>>

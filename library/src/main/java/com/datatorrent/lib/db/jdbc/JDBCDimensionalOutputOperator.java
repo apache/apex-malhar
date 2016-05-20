@@ -58,6 +58,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
  * <li>Each aggregate is written to a different table based on its dimension
  * combination, time bucket, and corresponding aggregation</li>
  * </ol>
+ *
+ * @since 3.4.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public class JDBCDimensionalOutputOperator

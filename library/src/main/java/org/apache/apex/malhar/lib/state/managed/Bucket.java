@@ -42,6 +42,8 @@ import com.datatorrent.netlet.util.Slice;
 
 /**
  * A bucket that groups events.
+ *
+ * @since 3.4.0
  */
 public interface Bucket extends ManagedStateComponent
 {

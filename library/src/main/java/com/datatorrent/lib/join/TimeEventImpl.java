@@ -24,6 +24,8 @@ import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * Time event Implementation.
+ *
+ * @since 3.4.0
  */
 @InterfaceStability.Unstable
 public class TimeEventImpl implements TimeEvent, Comparable<TimeEventImpl>

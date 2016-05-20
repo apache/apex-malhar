@@ -24,6 +24,8 @@ import java.io.Serializable;
  * Creates a NiFiDataPacket from an incoming instance of the given type.
  *
  * @param <T> the type that a NiFiDataPacket is being created from
+ *
+ * @since 3.4.0
  */
 public interface NiFiDataPacketBuilder<T> extends Serializable
 {

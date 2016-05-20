@@ -29,6 +29,8 @@ import com.datatorrent.lib.util.AbstractKeyValueStorageAgent;
  * checkpointing
  * 
  *
+ *
+ * @since 3.4.0
  */
 public class GeodeKeyValueStorageAgent extends AbstractKeyValueStorageAgent<GeodeCheckpointStore> implements Serializable
 {

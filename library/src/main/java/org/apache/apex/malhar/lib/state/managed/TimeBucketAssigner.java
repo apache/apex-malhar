@@ -58,6 +58,8 @@ import com.datatorrent.lib.appdata.query.WindowBoundedService;
  * The boundaries can also be moved by {@link #getTimeBucketFor(long)}. The time which is passed as an argument to this
  * method can be ahead of <code>end</code>. This means that the corresponding event is a future event
  * (wrt TimeBucketAssigner) and cannot be ignored. Therefore it is accounted by sliding boundaries further.
+ *
+ * @since 3.4.0
  */
 public class TimeBucketAssigner implements ManagedStateComponent
 {

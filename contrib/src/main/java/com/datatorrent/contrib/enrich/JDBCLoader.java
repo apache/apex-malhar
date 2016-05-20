@@ -40,6 +40,8 @@ import com.datatorrent.lib.util.FieldInfo;
  * <b>queryStmt</b>: Sql Prepared Statement which needs to be executed<br>
  * <b>tableName</b>: JDBC table name<br>
  * <br>
+ *
+ * @since 3.4.0
  */
 @InterfaceStability.Evolving
 public class JDBCLoader extends JdbcStore implements BackendLoader

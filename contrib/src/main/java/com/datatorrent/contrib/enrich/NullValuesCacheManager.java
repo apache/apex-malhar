@@ -24,6 +24,8 @@ import com.datatorrent.lib.db.cache.CacheManager;
 
 /**
  * Null Values Cache Manager. Using this NULL entries can be specified explicitly.
+ *
+ * @since 3.4.0
  */
 @InterfaceStability.Evolving
 public class NullValuesCacheManager extends CacheManager

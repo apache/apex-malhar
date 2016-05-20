@@ -60,6 +60,8 @@ import com.datatorrent.netlet.util.Slice;
  *
  * Also this implementation is thread unsafe- the filesystem wal writer and reader operations should be performed in
  * operator's thread.
+ *
+ * @since 3.4.0
  */
 public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, FileSystemWAL.FileSystemWALWriter>
 {

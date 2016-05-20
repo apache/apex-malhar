@@ -38,6 +38,8 @@ import parquet.schema.MessageTypeParser;
  * {@link #convertGroup(Group)} method to convert Group to other type. Example
  * of such implementation is {@link ParquetFilePOJOReader} that converts Group
  * to POJO.
+ *
+ * @since 3.4.0
  */
 public abstract class AbstractParquetFileReader<T> extends AbstractFileInputOperator<T>
 {

@@ -26,6 +26,8 @@ import com.google.common.collect.Maps;
  * The DefaultCompositeAggregatorFactory find the specific factory according to the aggregator type
  * and delegate to the specific factory.
  * 
+ *
+ * @since 3.4.0
  */
 public class DefaultCompositeAggregatorFactory implements CompositeAggregatorFactory
 {

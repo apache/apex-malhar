@@ -20,6 +20,9 @@ package org.apache.apex.malhar.lib.dimensions.aggregator;
 
 import java.util.Map;
 
+/**
+ * @since 3.4.0
+ */
 public abstract class AbstractCompositeAggregatorFactory implements CompositeAggregatorFactory
 {
   protected static final String NAME_TEMPLATE = "%s-%s-%s";

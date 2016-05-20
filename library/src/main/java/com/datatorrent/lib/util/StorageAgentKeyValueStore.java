@@ -25,6 +25,8 @@ import com.datatorrent.lib.db.KeyValueStore;
 /**
  * Interface for KeyValue store
  * 
+ *
+ * @since 3.4.0
  */
 public interface StorageAgentKeyValueStore extends KeyValueStore
 {

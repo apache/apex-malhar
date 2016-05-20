@@ -30,6 +30,8 @@ import com.datatorrent.lib.io.fs.HDFSFileCopyModule;
 
 /**
  * Application for HDFS to HDFS file copy
+ *
+ * @since 3.4.0
  */
 @ApplicationAnnotation(name = "HDFSFileCopyApp")
 public class HDFSFileCopyApp implements StreamingApplication
