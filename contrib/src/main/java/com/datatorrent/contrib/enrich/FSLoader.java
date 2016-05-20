@@ -63,6 +63,8 @@ import com.datatorrent.lib.util.FieldInfo;
  * <p>
  * NOTE: This loader should be used with caution as all the data present in the file is loaded in memory because of
  * which the memory consumption may go up.
+ *
+ * @since 3.4.0
  */
 @InterfaceStability.Evolving
 public class FSLoader extends ReadOnlyBackup

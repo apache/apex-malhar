@@ -34,6 +34,8 @@ import com.datatorrent.api.Operator;
 /**
  * The stream interface to build a DAG
  * @param <T>
+ *
+ * @since 3.4.0
  */
 public interface ApexStream<T>
 {

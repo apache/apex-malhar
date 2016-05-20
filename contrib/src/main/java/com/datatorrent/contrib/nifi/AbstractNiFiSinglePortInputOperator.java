@@ -52,6 +52,8 @@ import com.datatorrent.api.DefaultOutputPort;
  * @category Messaging
  * @tags input operator
  *
+ *
+ * @since 3.4.0
  */
 public abstract class AbstractNiFiSinglePortInputOperator<T> extends AbstractNiFiInputOperator<T>
 {

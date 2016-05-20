@@ -47,6 +47,8 @@ import com.datatorrent.lib.util.FieldInfo.SupportType;
  * @param <OUTPUT> Type of tuples which are emitted by this operator</T>
  * @displayName Abstract Enrichment Operator
  * @tags Enrichment
+ *
+ * @since 3.4.0
  */
 @InterfaceStability.Evolving
 public abstract class AbstractEnricher<INPUT, OUTPUT> extends BaseOperator implements Operator.ActivationListener

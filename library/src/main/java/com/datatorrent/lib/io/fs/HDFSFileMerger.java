@@ -37,6 +37,8 @@ import com.datatorrent.lib.io.fs.Synchronizer.OutputFileMetadata;
  * HDFS file merger extends file merger to optimize for HDFS file copy usecase.
  * This uses fast merge from HDFS if destination filesystem is same as
  * application filesystem.
+ *
+ * @since 3.4.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public class HDFSFileMerger extends FileMerger

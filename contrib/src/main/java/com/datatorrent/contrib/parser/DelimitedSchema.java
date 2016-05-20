@@ -52,6 +52,8 @@ import org.slf4j.LoggerFactory;
  * "dd/MM/yyyy" } }, { "name": "securityCode", "type": "Long", "constraints": {
  * "minValue": "10", "maxValue": "30" } }, { "name": "active", "type":
  * "Boolean", "constraints": { "required": "true" } } ] }}
+ *
+ * @since 3.4.0
  */
 public class DelimitedSchema
 {

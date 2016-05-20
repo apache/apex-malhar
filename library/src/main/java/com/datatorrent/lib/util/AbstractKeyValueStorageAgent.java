@@ -38,6 +38,8 @@ import com.datatorrent.api.StorageAgent;
  * 
  * @param <S>
  *          Store implementation
+ *
+ * @since 3.4.0
  */
 public abstract class AbstractKeyValueStorageAgent<S extends StorageAgentKeyValueStore>
     implements StorageAgent.ApplicationAwareStorageAgent, Serializable

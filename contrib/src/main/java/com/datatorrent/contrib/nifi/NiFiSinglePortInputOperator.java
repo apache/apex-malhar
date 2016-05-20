@@ -35,6 +35,8 @@ import org.apache.nifi.stream.io.StreamUtils;
  * @category Messaging
  * @tags input operator
  *
+ *
+ * @since 3.4.0
  */
 public class NiFiSinglePortInputOperator extends AbstractNiFiSinglePortInputOperator<NiFiDataPacket>
 {

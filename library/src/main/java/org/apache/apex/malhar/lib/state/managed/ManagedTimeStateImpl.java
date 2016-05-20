@@ -34,6 +34,8 @@ import com.datatorrent.netlet.util.Slice;
 /**
  * This implementation of {@link AbstractManagedStateImpl} lets the client to specify the time for each key.
  * The value of time is used to derive the time-bucket of a key.
+ *
+ * @since 3.4.0
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
 public class ManagedTimeStateImpl extends AbstractManagedStateImpl implements TimeSlicedBucketedState

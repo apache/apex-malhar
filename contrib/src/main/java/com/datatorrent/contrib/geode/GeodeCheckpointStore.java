@@ -49,6 +49,8 @@ import java.util.Map.Entry;
  * serialization to store retrieve objects
  * 
  *
+ *
+ * @since 3.4.0
  */
 public class GeodeCheckpointStore
     implements StorageAgentKeyValueStore, Serializable

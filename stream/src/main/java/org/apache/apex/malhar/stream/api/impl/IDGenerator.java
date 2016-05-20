@@ -26,6 +26,8 @@ import static java.lang.System.currentTimeMillis;
 
 /**
  * A util class to generate unique ids in dag
+ *
+ * @since 3.4.0
  */
 public class IDGenerator
 {

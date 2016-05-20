@@ -27,6 +27,8 @@ import com.datatorrent.lib.util.FieldInfo;
 
 /**
  * Interface for store to be used in enrichment
+ *
+ * @since 3.4.0
  */
 @InterfaceStability.Evolving
 public interface BackendLoader extends CacheManager.Backup

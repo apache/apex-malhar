@@ -35,6 +35,9 @@ import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.Type;
 
 
+/**
+ * @since 3.4.0
+ */
 public abstract class AbstractTopBottomAggregator extends AbstractCompositeAggregator
 {
   public static final String PROP_COUNT = "count";

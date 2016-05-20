@@ -42,6 +42,8 @@ import com.datatorrent.api.Operator;
 
 /**
  * Operators that wrap the functions
+ *
+ * @since 3.4.0
  */
 public class FunctionOperator<OUT, FUNCTION extends Function> implements Operator
 {

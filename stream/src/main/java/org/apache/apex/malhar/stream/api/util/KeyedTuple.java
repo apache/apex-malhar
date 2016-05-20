@@ -21,6 +21,8 @@ package org.apache.apex.malhar.stream.api.util;
 /**
  * An interface indicate a tuple with a specific key
  * It is used internally to identify the key from the tuple
+ *
+ * @since 3.4.0
  */
 public interface KeyedTuple<K>
 {

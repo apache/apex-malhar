@@ -49,6 +49,8 @@ import com.datatorrent.lib.appdata.schemas.CustomTimeBucket;
  * one for cost and one for revenue.
  * </p>
  * 
+ *
+ * @since 3.4.0
  */
 public abstract class AbstractIncrementalAggregator implements IncrementalAggregator
 {

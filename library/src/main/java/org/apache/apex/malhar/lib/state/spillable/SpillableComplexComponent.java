@@ -28,6 +28,8 @@ import com.datatorrent.netlet.util.Slice;
 /**
  * This is a composite component containing spillable data structures. This should be used as
  * a component inside {@link com.datatorrent.api.Operator}s.
+ *
+ * @since 3.4.0
  */
 public interface SpillableComplexComponent extends Component<OperatorContext>, SpillableComponent
 {

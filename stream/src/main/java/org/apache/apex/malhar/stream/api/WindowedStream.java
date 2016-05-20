@@ -48,6 +48,8 @@ package org.apache.apex.malhar.stream.api;
  * </p>
  *
  * @param <T> Output tuple type
+ *
+ * @since 3.4.0
  */
 public interface WindowedStream<T> extends ApexStream<T>
 {

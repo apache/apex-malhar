@@ -46,6 +46,8 @@ import com.datatorrent.stram.plan.logical.LogicalPlan;
 /**
  * Default stream implementation for ApexStream interface.
  * It creates the dag(execution plan) from stream api
+ *
+ * @since 3.4.0
  */
 public class ApexStreamImpl<T> implements ApexStream<T>
 {

@@ -18,6 +18,9 @@
  */
 package org.apache.apex.malhar.lib.dimensions.aggregator;
 
+/**
+ * @since 3.4.0
+ */
 public class AggregatorBottom extends AbstractTopBottomAggregator
 {
   @Override

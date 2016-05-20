@@ -120,6 +120,8 @@ import com.datatorrent.netlet.util.Slice;
  *   </tr>
  * </table>
  *
+ *
+ * @since 3.4.0
  */
 public abstract class AbstractManagedStateImpl
     implements ManagedState, Component<OperatorContext>, Operator.CheckpointNotificationListener, ManagedStateContext,

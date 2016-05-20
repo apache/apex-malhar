@@ -31,6 +31,8 @@ import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Defines how quasi-Java Expression should be parsed.
+ *
+ * @since 3.4.0
  */
 public class JavaExpressionParser implements Expression.ExpressionParser
 {

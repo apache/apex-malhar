@@ -53,6 +53,8 @@ import com.datatorrent.api.DefaultInputPort;
  * @category Messaging
  * @tags output operator
  *
+ *
+ * @since 3.4.0
  */
 public class NiFiSinglePortOutputOperator<T> extends AbstractNiFiOutputOperator<T>
 {

@@ -48,6 +48,8 @@ import com.datatorrent.netlet.util.Slice;
  * data files. This class listens to time expiry events issued by {@link TimeBucketAssigner}.
  *
  * This component is also responsible for purging old time buckets.
+ *
+ * @since 3.4.0
  */
 public class IncrementalCheckpointManager extends FSWindowDataManager
     implements ManagedStateComponent

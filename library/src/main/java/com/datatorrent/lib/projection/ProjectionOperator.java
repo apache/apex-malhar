@@ -71,6 +71,8 @@ import com.datatorrent.lib.util.PojoUtils;
  *  - when selectFields = "b", projected port shall emit {b} and remainder port shall emit {a, c}
  *  - when dropFields = "b", projected port shall emit {a, c} and remainder port shall emit {b}
  *
+ *
+ * @since 3.4.0
  */
 public class ProjectionOperator extends BaseOperator implements Operator.ActivationListener<Context>
 {

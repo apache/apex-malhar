@@ -25,6 +25,9 @@ import java.io.OutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @since 3.4.0
+ */
 public class IOUtils
 {
   /**

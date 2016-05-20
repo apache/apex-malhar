@@ -33,6 +33,8 @@ import com.datatorrent.lib.db.AbstractKeyValueStoreInputOperator;
  * @param <T>
  *          The tuple type.
  * 
+ *
+ * @since 3.4.0
  */
 public abstract class AbstractGeodeInputOperator<T> extends AbstractKeyValueStoreInputOperator<T, GeodeStore>
 {

@@ -30,6 +30,8 @@ import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
  * SimpleCompositAggregator is the aggregator which embed other aggregator
  *
  *
+ *
+ * @since 3.4.0
  */
 public abstract class AbstractCompositeAggregator implements CompositeAggregator
 {

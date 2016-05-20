@@ -30,6 +30,8 @@ import com.esotericsoftware.reflectasm.shaded.org.objectweb.asm.Opcodes;
  * This class is used to modify the bytecode of annonymous at runtime.
  * The limit for this is the annonymous class that is being modified must by stateless
  *
+ *
+ * @since 3.4.0
  */
 public class AnnonymousClassModifier extends ClassVisitor
 {

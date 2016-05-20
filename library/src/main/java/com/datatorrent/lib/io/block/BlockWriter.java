@@ -45,6 +45,8 @@ import com.datatorrent.netlet.util.Slice;
 /**
  * Writes a block to the appFS (HDFS on which app is running). This is temporary
  * write to HDFS to handle large files.
+ *
+ * @since 3.4.0
  */
 public class BlockWriter extends AbstractFileOutputOperator<AbstractBlockReader.ReaderRecord<Slice>>
     implements Partitioner<BlockWriter>

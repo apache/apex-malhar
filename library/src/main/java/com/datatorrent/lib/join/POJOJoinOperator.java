@@ -59,6 +59,8 @@ import com.datatorrent.lib.util.PojoUtils;
  * @displayName BeanJoin Operator
  * @category join
  * @tags join
+ *
+ * @since 3.4.0
  */
 @InterfaceStability.Unstable
 public class POJOJoinOperator extends AbstractJoinOperator

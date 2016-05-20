@@ -29,6 +29,8 @@ import com.datatorrent.netlet.util.Slice;
  * time per key to figure out which time bucket a particular key belongs to.
  * <p/>
  * The time here is mainly used for purging of aged key/value pair.
+ *
+ * @since 3.4.0
  */
 public interface TimeSlicedBucketedState
 {

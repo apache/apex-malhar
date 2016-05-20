@@ -36,6 +36,8 @@ import com.datatorrent.netlet.util.DTThrowable;
  * This class is responsible for writing tuples to HDFS. All tuples are written
  * to the same file. Rolling file based on size, no. of tuples, idle windows,
  * elapsed windows is supported.
+ *
+ * @since 3.4.0
  */
 
 public class BytesFileOutputOperator extends AbstractSingleFileOutputOperator<byte[]>

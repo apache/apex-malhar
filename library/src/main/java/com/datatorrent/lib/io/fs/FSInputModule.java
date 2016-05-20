@@ -43,6 +43,8 @@ import com.datatorrent.netlet.util.Slice;
  * 5. blockSize: block size used to read input blocks of file<br/>
  * 6. readersCount: count of readers to read input file<br/>
  * 7. sequencialFileRead: If emit file blocks in sequence?
+ *
+ * @since 3.4.0
  */
 
 public class FSInputModule implements Module

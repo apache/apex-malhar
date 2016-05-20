@@ -20,6 +20,8 @@ package org.apache.apex.malhar.stream.api.function;
 
 /**
  * The top level function interface
+ *
+ * @since 3.4.0
  */
 public interface Function
 {

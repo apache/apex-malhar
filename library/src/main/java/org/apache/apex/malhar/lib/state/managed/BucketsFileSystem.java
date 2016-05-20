@@ -67,6 +67,8 @@ import com.datatorrent.netlet.util.Slice;
  * </ol>
  * <p/>
  * Meta data information is updated by {@link IncrementalCheckpointManager}. Any updates are restricted to the package.
+ *
+ * @since 3.4.0
  */
 public class BucketsFileSystem implements ManagedStateComponent
 {

@@ -23,6 +23,8 @@ import org.apache.commons.lang3.mutable.MutableInt;
 /**
  * This is a simple pass through {@link Serde}. When serialization is performed the input byte array is returned.
  * Similarly when deserialization is performed the input byte array is returned.
+ *
+ * @since 3.4.0
  */
 public class PassThruByteArraySerde implements Serde<byte[], byte[]>
 {

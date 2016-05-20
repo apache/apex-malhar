@@ -54,6 +54,8 @@ import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
  * @displayName AvroFileInputOperator
  * @category Input
  * @tags fs, file,avro, input operator
+ *
+ * @since 3.4.0
  */
 @InterfaceStability.Evolving
 public class AvroFileInputOperator extends AbstractFileInputOperator<GenericRecord>

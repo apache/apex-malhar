@@ -29,6 +29,8 @@ import com.datatorrent.lib.appdata.schemas.Type;
 /**
  * TODO: this class can move to Malhar. put in Megh for implementing TOP/BOTTOM dimension computation.
  *
+ *
+ * @since 3.4.0
  */
 public class SerdeMapPrimitive  implements Serde
 {

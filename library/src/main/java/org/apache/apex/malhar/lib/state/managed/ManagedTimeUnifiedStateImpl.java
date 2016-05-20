@@ -45,6 +45,8 @@ import com.datatorrent.netlet.util.Slice;
 
 /**
  * In this implementation of {@link AbstractManagedStateImpl} the buckets in memory are time-buckets.
+ *
+ * @since 3.4.0
  */
 public class ManagedTimeUnifiedStateImpl extends AbstractManagedStateImpl implements BucketedState
 {
