@@ -188,10 +188,11 @@
     <profile>
       <id>all-modules</id>
       <modules>
+        <module>kafka</module>
+        <module>stream</module>
         <module>benchmark</module>
         <module>apps</module>
         <module>samples</module>
-        <module>kafka</module>
       </modules>
     </profile>
   </profiles>
