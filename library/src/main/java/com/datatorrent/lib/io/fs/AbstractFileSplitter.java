@@ -48,12 +48,12 @@ public abstract class AbstractFileSplitter extends BaseOperator
 {
   protected Long blockSize;
   private int sequenceNo;
+  private int DEFAULT_BLOCKS_THRESHOLD = 4;
 
   /**
    * This is a threshold on the no. of blocks emitted per window. A lot of blocks emitted
    * per window can overwhelm the downstream operators. This setting helps to control that.
    */
-  @Min(1)
   protected int blocksThreshold;
 
   protected transient long blockCount;
@@ -73,7 +73,7 @@ public abstract class AbstractFileSplitter extends BaseOperator
 
   public AbstractFileSplitter()
   {
-    blocksThreshold = Integer.MAX_VALUE;
+    blocksThreshold = DEFAULT_BLOCKS_THRESHOLD;
   }
 
   @Override
