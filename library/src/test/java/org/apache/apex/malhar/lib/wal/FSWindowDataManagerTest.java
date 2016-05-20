@@ -56,7 +56,7 @@ public class FSWindowDataManagerTest
   {
 
     String applicationPath;
-    WindowDataManager.FSWindowDataManager storageManager;
+    FSWindowDataManager storageManager;
     Context.OperatorContext context;
 
     @Override
@@ -64,7 +64,7 @@ public class FSWindowDataManagerTest
     {
       TestUtils.deleteTargetTestClassFolder(description);
       super.starting(description);
-      storageManager = new WindowDataManager.FSWindowDataManager();
+      storageManager = new FSWindowDataManager();
       applicationPath = "target/" + description.getClassName() + "/" + description.getMethodName();
 
       Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();

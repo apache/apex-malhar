@@ -33,6 +33,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.nifi.remote.protocol.DataPacket;
 import org.apache.nifi.stream.io.ByteArrayInputStream;
 import org.apache.nifi.util.file.FileUtils;
@@ -71,7 +72,7 @@ public class NiFiSinglePortInputOperatorTest
 
     sink = new CollectorTestSink<>();
     builder = new MockSiteToSiteClient.Builder();
-    windowDataManager = new WindowDataManager.FSWindowDataManager();
+    windowDataManager = new FSWindowDataManager();
 
     operator = new NiFiSinglePortInputOperator(builder, windowDataManager);
     operator.outputPort.setSink(sink);

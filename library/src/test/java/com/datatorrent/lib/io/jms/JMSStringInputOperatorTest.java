@@ -126,7 +126,7 @@ public class JMSStringInputOperatorTest
     testMeta.operator.activate(testMeta.context);
 
     Assert.assertEquals("largest recovery window", 1,
-        testMeta.operator.getIdempotentStorageManager().getLargestRecoveryWindow());
+        testMeta.operator.getWindowDataManager().getLargestRecoveryWindow());
 
     testMeta.operator.beginWindow(1);
     testMeta.operator.endWindow();
@@ -163,7 +163,7 @@ public class JMSStringInputOperatorTest
     testMeta.operator.activate(testMeta.context);
 
     Assert.assertEquals("window 1 should not exist", Stateless.WINDOW_ID,
-        testMeta.operator.getIdempotentStorageManager().getLargestRecoveryWindow());
+        testMeta.operator.getWindowDataManager().getLargestRecoveryWindow());
   }
 
   private void produceMsg(int numMessages) throws Exception

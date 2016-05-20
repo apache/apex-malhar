@@ -28,7 +28,6 @@ import com.datatorrent.api.Stats;
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.util.KryoCloneUtils;
 
 import com.google.common.base.Joiner;
@@ -44,6 +43,8 @@ import kafka.javaapi.PartitionMetadata;
 import kafka.javaapi.consumer.SimpleConsumer;
 import kafka.message.Message;
 import kafka.message.MessageAndOffset;
+
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -137,7 +138,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   private long maxTotalMsgSizePerWindow = Long.MAX_VALUE;
   private transient int emitCount = 0;
   private transient long emitTotalMsgSize = 0;
-  protected IdempotentStorageManager idempotentStorageManager;
+  protected WindowDataManager windowDataManager;
   protected transient long currentWindowId;
   protected transient int operatorId;
   protected final transient Map<KafkaPartition, MutablePair<Long, Integer>> currentWindowRecoveryState;
@@ -192,7 +193,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
 
   public AbstractKafkaInputOperator()
   {
-    idempotentStorageManager = new IdempotentStorageManager.NoopIdempotentStorageManager();
+    windowDataManager = new WindowDataManager.NoopWindowDataManager();
     currentWindowRecoveryState = new HashMap<KafkaPartition, MutablePair<Long, Integer>>();
   }
 
@@ -244,16 +245,16 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     }
     this.context = context;
     operatorId = context.getId();
-    if(consumer instanceof HighlevelKafkaConsumer && !(idempotentStorageManager instanceof IdempotentStorageManager.NoopIdempotentStorageManager)) {
+    if(consumer instanceof HighlevelKafkaConsumer && !(windowDataManager instanceof WindowDataManager.NoopWindowDataManager)) {
       throw new RuntimeException("Idempotency is not supported for High Level Kafka Consumer");
     }
-    idempotentStorageManager.setup(context);
+    windowDataManager.setup(context);
   }
 
   @Override
   public void teardown()
   {
-    idempotentStorageManager.teardown();
+    windowDataManager.teardown();
     consumer.teardown();
   }
 
@@ -261,7 +262,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   public void beginWindow(long windowId)
   {
     currentWindowId = windowId;
-    if (windowId <= idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (windowId <= windowDataManager.getLargestRecoveryWindow()) {
       replay(windowId);
     }
     emitCount = 0;
@@ -272,7 +273,8 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   {
     try {
       @SuppressWarnings("unchecked")
-      Map<KafkaPartition, MutablePair<Long, Integer>> recoveredData = (Map<KafkaPartition, MutablePair<Long, Integer>>) idempotentStorageManager.load(operatorId, windowId);
+      Map<KafkaPartition, MutablePair<Long, Integer>> recoveredData = (Map<KafkaPartition, MutablePair<Long, Integer>>)
+          windowDataManager.load(operatorId, windowId);
       if (recoveredData != null) {
         Map<String, List<PartitionMetadata>> pms = KafkaMetadataUtil.getPartitionsForTopic(getConsumer().brokers, getConsumer().topic);
         if (pms != null) {
@@ -311,7 +313,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
           }
         }
       }
-      if(windowId == idempotentStorageManager.getLargestRecoveryWindow()) {
+      if(windowId == windowDataManager.getLargestRecoveryWindow()) {
         // Start the consumer at the largest recovery window
         SimpleKafkaConsumer cons = (SimpleKafkaConsumer)getConsumer();
         // Set the offset positions to the consumer
@@ -337,9 +339,9 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
       Map<KafkaPartition, Long> carryOn = new HashMap<>(offsetStats);
       offsetTrackHistory.add(Pair.of(currentWindowId, carryOn));
     }
-    if (currentWindowId > idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (currentWindowId > windowDataManager.getLargestRecoveryWindow()) {
       try {
-        idempotentStorageManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
+        windowDataManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
       }
       catch (IOException e) {
         throw new RuntimeException("saving recovery", e);
@@ -376,7 +378,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     }
 
     try {
-      idempotentStorageManager.deleteUpTo(operatorId, windowId);
+      windowDataManager.deleteUpTo(operatorId, windowId);
     }
     catch (IOException e) {
       throw new RuntimeException("deleting state", e);
@@ -386,7 +388,8 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   @Override
   public void activate(OperatorContext ctx)
   {
-    if (context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) != Stateless.WINDOW_ID && context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) < idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) != Stateless.WINDOW_ID &&
+        context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) < windowDataManager.getLargestRecoveryWindow()) {
       // If it is a replay state, don't start the consumer
       return;
     }
@@ -405,7 +408,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   @Override
   public void emitTuples()
   {
-    if (currentWindowId <= idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (currentWindowId <= windowDataManager.getLargestRecoveryWindow()) {
       return;
     }
     int count = consumer.messageSize() + ((pendingMessage != null) ? 1 : 0);
@@ -505,7 +508,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
       logger.info("Initial offsets: {} ", "{ " + Joiner.on(", ").useForNull("").withKeyValueSeparator(": ").join(initOffset) + " }");
     }
 
-    Collection<IdempotentStorageManager> newManagers = Sets.newHashSet();
+    Collection<WindowDataManager> newManagers = Sets.newHashSet();
     Set<Integer> deletedOperators =  Sets.newHashSet();
 
     switch (strategy) {
@@ -537,7 +540,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
           partitions.add(createPartition(Sets.newHashSet(newPartition), null, newManagers));
         }
         newWaitingPartition.clear();
-        idempotentStorageManager.partitioned(newManagers, deletedOperators);
+        windowDataManager.partitioned(newManagers, deletedOperators);
         return partitions;
 
       }
@@ -580,7 +583,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
 
         logger.info("[ONE_TO_MANY]: Add operator partition for kafka partition(s): {} ", StringUtils.join(newWaitingPartition, ", "));
         partitions.add(createPartition(Sets.newHashSet(newWaitingPartition), null, newManagers));
-        idempotentStorageManager.partitioned(newManagers, deletedOperators);
+        windowDataManager.partitioned(newManagers, deletedOperators);
         return partitions;
       }
       else {
@@ -631,12 +634,12 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
       break;
     }
 
-    idempotentStorageManager.partitioned(newManagers, deletedOperators);
+    windowDataManager.partitioned(newManagers, deletedOperators);
     return newPartitions;
   }
 
   // Create a new partition with the partition Ids and initial offset positions
-  protected Partitioner.Partition<AbstractKafkaInputOperator<K>> createPartition(Set<KafkaPartition> pIds, Map<KafkaPartition, Long> initOffsets, Collection<IdempotentStorageManager> newManagers)
+  protected Partitioner.Partition<AbstractKafkaInputOperator<K>> createPartition(Set<KafkaPartition> pIds, Map<KafkaPartition, Long> initOffsets, Collection<WindowDataManager> newManagers)
   {
 
     Partitioner.Partition<AbstractKafkaInputOperator<K>> p = new DefaultPartition<>(KryoCloneUtils.cloneObject(this));
@@ -648,7 +651,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
         p.getPartitionedInstance().offsetStats.putAll(p.getPartitionedInstance().getConsumer().getCurrentOffsets());
       }
     }
-    newManagers.add(p.getPartitionedInstance().idempotentStorageManager);
+    newManagers.add(p.getPartitionedInstance().windowDataManager);
 
     PartitionInfo pif = new PartitionInfo();
     pif.kpids = pIds;
@@ -929,14 +932,14 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     long byteRateLeft;
   }
 
-  public IdempotentStorageManager getIdempotentStorageManager()
+  public WindowDataManager getWindowDataManager()
   {
-    return idempotentStorageManager;
+    return windowDataManager;
   }
 
-  public void setIdempotentStorageManager(IdempotentStorageManager idempotentStorageManager)
+  public void setWindowDataManager(WindowDataManager windowDataManager)
   {
-    this.idempotentStorageManager = idempotentStorageManager;
+    this.windowDataManager = windowDataManager;
   }
 
   public void setInitialPartitionCount(int partitionCount)

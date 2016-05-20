@@ -39,6 +39,8 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.commons.lang.mutable.MutableLong;
 
 import com.google.common.collect.Maps;
@@ -52,7 +54,6 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.ActivationListener;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.counters.BasicCounters;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
@@ -63,8 +64,8 @@ import com.datatorrent.netlet.util.DTThrowable;
  * {@link #onMessage(Message)} is called which buffers the message into a holding buffer. This is asynchronous.<br/>
  * {@link #emitTuples()} retrieves messages from holding buffer and processes them.
  * <p/>
- * Important: The {@link IdempotentStorageManager.FSIdempotentStorageManager} makes the operator fault tolerant as
- * well as idempotent. If {@link IdempotentStorageManager.NoopIdempotentStorageManager} is set on the operator then
+ * Important: The {@link FSWindowDataManager} makes the operator fault tolerant as
+ * well as idempotent. If {@link WindowDataManager.NoopWindowDataManager} is set on the operator then
  * it will not be fault-tolerant as well.
  * <p/>
  * Configurations:<br/>
@@ -105,7 +106,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
   private final transient AtomicReference<Throwable> throwable;
 
   @NotNull
-  protected IdempotentStorageManager idempotentStorageManager;
+  protected WindowDataManager windowDataManager;
   private transient long[] operatorRecoveredWindows;
   protected transient long currentWindowId;
   protected transient int emitCount;
@@ -120,7 +121,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
     counters = new BasicCounters<MutableLong>(MutableLong.class);
     throwable = new AtomicReference<Throwable>();
     pendingAck = Sets.newHashSet();
-    idempotentStorageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
+    windowDataManager = new FSWindowDataManager();
 
     lock = new Lock();
 
@@ -200,9 +201,9 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
     spinMillis = context.getValue(OperatorContext.SPIN_MILLIS);
     counters.setCounter(CounterKeys.RECEIVED, new MutableLong());
     counters.setCounter(CounterKeys.REDELIVERED, new MutableLong());
-    idempotentStorageManager.setup(context);
+    windowDataManager.setup(context);
     try {
-      operatorRecoveredWindows = idempotentStorageManager.getWindowIds(context.getId());
+      operatorRecoveredWindows = windowDataManager.getWindowIds(context.getId());
       if (operatorRecoveredWindows != null) {
         Arrays.sort(operatorRecoveredWindows);
       }
@@ -261,7 +262,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
   public void beginWindow(long windowId)
   {
     currentWindowId = windowId;
-    if (windowId <= idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (windowId <= windowDataManager.getLargestRecoveryWindow()) {
       replay(windowId);
     }
   }
@@ -270,7 +271,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
   {
     try {
       @SuppressWarnings("unchecked")
-      Map<String, T> recoveredData = (Map<String, T>)idempotentStorageManager.load(context.getId(), windowId);
+      Map<String, T> recoveredData = (Map<String, T>)windowDataManager.load(context.getId(), windowId);
       if (recoveredData == null) {
         return;
       }
@@ -286,7 +287,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
   @Override
   public void emitTuples()
   {
-    if (currentWindowId <= idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (currentWindowId <= windowDataManager.getLargestRecoveryWindow()) {
       return;
     }
 
@@ -346,7 +347,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
   @Override
   public void endWindow()
   {
-    if (currentWindowId > idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (currentWindowId > windowDataManager.getLargestRecoveryWindow()) {
       synchronized (lock) {
         boolean stateSaved = false;
         boolean ackCompleted = false;
@@ -359,7 +360,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
             emitCount++;
             lastMsg = msg;
           }
-          idempotentStorageManager.save(currentWindowRecoveryState, context.getId(), currentWindowId);
+          windowDataManager.save(currentWindowRecoveryState, context.getId(), currentWindowId);
           stateSaved = true;
 
           currentWindowRecoveryState.clear();
@@ -376,7 +377,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
         } finally {
           if (stateSaved && !ackCompleted) {
             try {
-              idempotentStorageManager.delete(context.getId(), currentWindowId);
+              windowDataManager.delete(context.getId(), currentWindowId);
             } catch (IOException e) {
               LOG.error("unable to delete corrupted state", e);
             }
@@ -416,7 +417,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
   public void committed(long windowId)
   {
     try {
-      idempotentStorageManager.deleteUpTo(context.getId(), windowId);
+      windowDataManager.deleteUpTo(context.getId(), windowId);
     } catch (IOException e) {
       throw new RuntimeException("committing", e);
     }
@@ -447,7 +448,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
   @Override
   public void teardown()
   {
-    idempotentStorageManager.teardown();
+    windowDataManager.teardown();
   }
 
   /**
@@ -500,17 +501,17 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
    *
    * @param storageManager
    */
-  public void setIdempotentStorageManager(IdempotentStorageManager storageManager)
+  public void setWindowDataManager(WindowDataManager storageManager)
   {
-    this.idempotentStorageManager = storageManager;
+    this.windowDataManager = storageManager;
   }
 
   /**
    * @return the idempotent storage manager.
    */
-  public IdempotentStorageManager getIdempotentStorageManager()
+  public WindowDataManager getWindowDataManager()
   {
-    return this.idempotentStorageManager;
+    return this.windowDataManager;
   }
 
   protected abstract void emit(T payload);

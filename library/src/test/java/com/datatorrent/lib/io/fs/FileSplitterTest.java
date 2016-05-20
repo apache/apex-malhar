@@ -35,6 +35,7 @@ import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.fs.FileContext;
@@ -45,7 +46,6 @@ import com.google.common.collect.Sets;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.io.block.BlockMetadata;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
@@ -109,7 +109,7 @@ public class FileSplitterTest
       fileSplitter.scanner.setScanIntervalMillis(500);
       fileSplitter.scanner.setFilePatternRegularExp(".*[.]txt");
       fileSplitter.scanner.setFiles(dataDirectory);
-      fileSplitter.setIdempotentStorageManager(new IdempotentStorageManager.NoopIdempotentStorageManager());
+      fileSplitter.setWindowDataManager(new FSWindowDataManager());
 
       Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(Context.DAGContext.APPLICATION_PATH, dataDirectory);
@@ -191,9 +191,9 @@ public class FileSplitterTest
   @Test
   public void testIdempotency() throws InterruptedException
   {
-    IdempotentStorageManager.FSIdempotentStorageManager fsIdempotentStorageManager =
-        new IdempotentStorageManager.FSIdempotentStorageManager();
-    testMeta.fileSplitter.setIdempotentStorageManager(fsIdempotentStorageManager);
+    FSWindowDataManager fsWindowDataManager =
+        new FSWindowDataManager();
+    testMeta.fileSplitter.setWindowDataManager(fsWindowDataManager);
 
     testMeta.fileSplitter.setup(testMeta.context);
     //will emit window 1 from data directory
@@ -296,9 +296,8 @@ public class FileSplitterTest
   @Test
   public void testIdempotencyWithBlocksThreshold() throws InterruptedException
   {
-    IdempotentStorageManager.FSIdempotentStorageManager fsIdempotentStorageManager = new IdempotentStorageManager
-        .FSIdempotentStorageManager();
-    testMeta.fileSplitter.setIdempotentStorageManager(fsIdempotentStorageManager);
+    FSWindowDataManager fsWindowDataManager = new FSWindowDataManager();
+    testMeta.fileSplitter.setWindowDataManager(fsWindowDataManager);
     testMeta.fileSplitter.setBlocksThreshold(10);
     testMeta.fileSplitter.scanner.setScanIntervalMillis(500);
     testMeta.fileSplitter.setup(testMeta.context);
@@ -346,10 +345,9 @@ public class FileSplitterTest
   @Ignore
   public void testRecoveryOfPartialFile() throws InterruptedException
   {
-    IdempotentStorageManager.FSIdempotentStorageManager fsIdempotentStorageManager = new IdempotentStorageManager
-        .FSIdempotentStorageManager();
+    FSWindowDataManager fsIdempotentStorageManager = new FSWindowDataManager();
     fsIdempotentStorageManager.setRecoveryPath(testMeta.dataDirectory + '/' + "recovery");
-    testMeta.fileSplitter.setIdempotentStorageManager(fsIdempotentStorageManager);
+    testMeta.fileSplitter.setWindowDataManager(fsIdempotentStorageManager);
     testMeta.fileSplitter.setBlockSize(2L);
     testMeta.fileSplitter.setBlocksThreshold(2);
     testMeta.fileSplitter.scanner.setScanIntervalMillis(500);

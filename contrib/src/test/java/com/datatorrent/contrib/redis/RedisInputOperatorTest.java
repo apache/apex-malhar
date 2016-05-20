@@ -25,6 +25,8 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
+
 import redis.clients.jedis.ScanParams;
 
 import com.datatorrent.api.Attribute;
@@ -34,7 +36,6 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 
@@ -134,7 +135,7 @@ public class RedisInputOperatorTest
     testStore.put("test_ghi", "123");
 
     RedisKeyValueInputOperator operator = new RedisKeyValueInputOperator();
-    operator.setIdempotentStorageManager(new IdempotentStorageManager.FSIdempotentStorageManager());
+    operator.setWindowDataManager(new FSWindowDataManager());
     
     operator.setStore(operatorStore);
     operator.setScanCount(1);
@@ -162,13 +163,13 @@ public class RedisInputOperatorTest
       // failure and then re-deployment of operator
       // Re-instantiating to reset values
       operator = new RedisKeyValueInputOperator();
-      operator.setIdempotentStorageManager(new IdempotentStorageManager.FSIdempotentStorageManager());
+      operator.setWindowDataManager(new FSWindowDataManager());
       operator.setStore(operatorStore);
       operator.setScanCount(1);
       operator.outputPort.setSink(sink);
       operator.setup(context);
 
-      Assert.assertEquals("largest recovery window", 2, operator.getIdempotentStorageManager().getLargestRecoveryWindow());
+      Assert.assertEquals("largest recovery window", 2, operator.getWindowDataManager().getLargestRecoveryWindow());
 
       operator.beginWindow(1);
       operator.emitTuples();
@@ -188,7 +189,7 @@ public class RedisInputOperatorTest
         testStore.remove(entry.getKey());
       }
       sink.collectedTuples.clear();
-      operator.getIdempotentStorageManager().deleteUpTo(context.getId(), 5);
+      operator.getWindowDataManager().deleteUpTo(context.getId(), 5);
       operator.teardown();
     }
   }

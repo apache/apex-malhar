@@ -24,6 +24,7 @@ import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.avro.AvroRuntimeException;
 import org.apache.avro.file.DataFileStream;
 import org.apache.avro.generic.GenericDatumReader;
@@ -36,7 +37,6 @@ import com.google.common.annotations.VisibleForTesting;
 
 import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
 
 /**
@@ -48,7 +48,7 @@ import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
  * No need to provide schema,its inferred from the file<br>
  * This operator emits a GenericRecord based on the schema derived from the
  * input file<br>
- * Users can add the {@link IdempotentStorageManager.FSIdempotentStorageManager}
+ * Users can add the {@link FSWindowDataManager}
  * to ensure exactly once semantics with a HDFS backed WAL.
  * 
  * @displayName AvroFileInputOperator
