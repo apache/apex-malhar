@@ -38,7 +38,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  * elapsed windows is supported.
  */
 
-class BytesFileOutputOperator extends AbstractSingleFileOutputOperator<byte[]>
+public class BytesFileOutputOperator extends AbstractSingleFileOutputOperator<byte[]>
 {
 
   /**
