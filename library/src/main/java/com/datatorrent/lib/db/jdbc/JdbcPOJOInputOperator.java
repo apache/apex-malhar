@@ -292,17 +292,17 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
 
           case Types.TIMESTAMP:
             Timestamp tsVal = result.getTimestamp(i + 1);
-            ((PojoUtils.SetterLong<Object>)afi.setterOrGetter).set(obj, tsVal.getTime());
+            ((PojoUtils.Setter<Object, Timestamp>)afi.setterOrGetter).set(obj, tsVal);
             break;
 
           case Types.TIME:
             Time timeVal = result.getTime(i + 1);
-            ((PojoUtils.SetterLong<Object>)afi.setterOrGetter).set(obj, timeVal.getTime());
+            ((PojoUtils.Setter<Object, Time>)afi.setterOrGetter).set(obj, timeVal);
             break;
 
           case Types.DATE:
             Date dateVal = result.getDate(i + 1);
-            ((PojoUtils.SetterLong<Object>)afi.setterOrGetter).set(obj, dateVal.getTime());
+            ((PojoUtils.Setter<Object, Date>)afi.setterOrGetter).set(obj, dateVal);
             break;
 
           default:
@@ -415,18 +415,18 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
           break;
 
         case Types.TIMESTAMP:
-          activeFieldInfo.setterOrGetter = PojoUtils.createSetterLong(pojoClass,
-              activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          activeFieldInfo.setterOrGetter = PojoUtils.createSetter(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression(),Timestamp.class);
           break;
 
         case Types.TIME:
-          activeFieldInfo.setterOrGetter = PojoUtils.createSetterLong(pojoClass,
-              activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          activeFieldInfo.setterOrGetter = PojoUtils.createSetter(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression(),Time.class);
           break;
 
         case Types.DATE:
-          activeFieldInfo.setterOrGetter = PojoUtils.createSetterLong(pojoClass,
-              activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          activeFieldInfo.setterOrGetter = PojoUtils.createSetter(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression(), Date.class);
           break;
 
         default:
