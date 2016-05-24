@@ -44,6 +44,7 @@ import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.helper.TestPortContext;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.FieldInfo;
+import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
@@ -56,6 +57,8 @@ public class JdbcOperatorTest
 
   private static final String TABLE_NAME = "test_event_table";
   private static final String TABLE_POJO_NAME = "test_pojo_event_table";
+  private static final String TABLE_POJO_NAME_ID_DIFF = "test_pojo_event_table_id_diff";
+  private static final String TABLE_POJO_NAME_NAME_DIFF = "test_pojo_event_table_name_diff";
   private static String APP_ID = "JdbcOperatorTest";
   private static int OPERATOR_ID = 0;
 
@@ -162,6 +165,12 @@ public class JdbcOperatorTest
       String createPOJOTable = "CREATE TABLE IF NOT EXISTS " + TABLE_POJO_NAME
           + "(id INTEGER not NULL,name VARCHAR(255),startDate DATE,startTime TIME,startTimestamp TIMESTAMP, PRIMARY KEY ( id ))";
       stmt.executeUpdate(createPOJOTable);
+      String createPOJOTableIdDiff = "CREATE TABLE IF NOT EXISTS " + TABLE_POJO_NAME_ID_DIFF
+          + "(id1 INTEGER not NULL,name VARCHAR(255), PRIMARY KEY ( id1 ))";
+      stmt.executeUpdate(createPOJOTableIdDiff);
+      String createPOJOTableNameDiff = "CREATE TABLE IF NOT EXISTS " + TABLE_POJO_NAME_NAME_DIFF
+          + "(id INTEGER not NULL,name1 VARCHAR(255), PRIMARY KEY ( id ))";
+      stmt.executeUpdate(createPOJOTableNameDiff);
     } catch (Throwable e) {
       DTThrowable.rethrow(e);
     }
@@ -174,6 +183,9 @@ public class JdbcOperatorTest
       Statement stmt = con.createStatement();
 
       String cleanTable = "delete from " + TABLE_NAME;
+      stmt.executeUpdate(cleanTable);
+
+      cleanTable = "delete from " + TABLE_POJO_NAME;
       stmt.executeUpdate(cleanTable);
 
       cleanTable = "delete from " + JdbcTransactionalStore.DEFAULT_META_TABLE;
@@ -238,9 +250,50 @@ public class JdbcOperatorTest
     }
   }
 
-  private static class TestPOJOOutputOperator extends JdbcPOJOOutputOperator
+  private static class TestPOJOOutputOperator extends JdbcPOJOInsertOutputOperator
   {
     TestPOJOOutputOperator()
+    {
+      cleanTable();
+    }
+
+    public int getNumOfEventsInStore(String tableName)
+    {
+      Connection con;
+      try {
+        con = DriverManager.getConnection(URL);
+        Statement stmt = con.createStatement();
+
+        String countQuery = "SELECT count(*) from " + tableName;
+        ResultSet resultSet = stmt.executeQuery(countQuery);
+        resultSet.next();
+        return resultSet.getInt(1);
+      } catch (SQLException e) {
+        throw new RuntimeException("fetching count", e);
+      }
+    }
+
+    public int getNumOfNullEventsInStore(String tableName)
+    {
+      Connection con;
+      try {
+        con = DriverManager.getConnection(URL);
+        Statement stmt = con.createStatement();
+
+        String countQuery = "SELECT count(*) from " + tableName + " where name1 is null";
+        ResultSet resultSet = stmt.executeQuery(countQuery);
+        resultSet.next();
+        return resultSet.getInt(1);
+      } catch (SQLException e) {
+        throw new RuntimeException("fetching count", e);
+      }
+    }
+
+  }
+
+  private static class TestPOJONonInsertOutputOperator extends JdbcPOJONonInsertOutputOperator
+  {
+    public TestPOJONonInsertOutputOperator()
     {
       cleanTable();
     }
@@ -261,6 +314,21 @@ public class JdbcOperatorTest
       }
     }
 
+    public int getDistinctNonUnique()
+    {
+      Connection con;
+      try {
+        con = DriverManager.getConnection(URL);
+        Statement stmt = con.createStatement();
+
+        String countQuery = "SELECT count(distinct(name)) from " + TABLE_POJO_NAME;
+        ResultSet resultSet = stmt.executeQuery(countQuery);
+        resultSet.next();
+        return resultSet.getInt(1);
+      } catch (SQLException e) {
+        throw new RuntimeException("fetching count", e);
+      }
+    }
   }
 
   private static class TestInputOperator extends AbstractJdbcInputOperator<TestEvent>
@@ -309,6 +377,7 @@ public class JdbcOperatorTest
 
     outputOperator.setup(context);
 
+    outputOperator.activate(context);
     List<TestEvent> events = Lists.newArrayList();
     for (int i = 0; i < 10; i++) {
       events.add(new TestEvent(i));
@@ -341,9 +410,9 @@ public class JdbcOperatorTest
     outputOperator.setBatchSize(3);
     outputOperator.setTablename(TABLE_POJO_NAME);
 
-    List<FieldInfo> fieldInfos = Lists.newArrayList();
-    fieldInfos.add(new FieldInfo("ID", "id", null));
-    fieldInfos.add(new FieldInfo("NAME", "name", null));
+    List<JdbcFieldInfo> fieldInfos = Lists.newArrayList();
+    fieldInfos.add(new JdbcFieldInfo("ID", "id", null, "INTEGER"));
+    fieldInfos.add(new JdbcFieldInfo("NAME", "name", null, "VARCHAR"));
     outputOperator.setFieldInfos(fieldInfos);
 
     outputOperator.setStore(transactionalStore);
@@ -368,7 +437,213 @@ public class JdbcOperatorTest
     }
     outputOperator.endWindow();
 
-    Assert.assertEquals("rows in db", 10, outputOperator.getNumOfEventsInStore());
+    Assert.assertEquals("rows in db", 10, outputOperator.getNumOfEventsInStore(TABLE_POJO_NAME));
+  }
+
+  /**
+   * This test will assume direct mapping for POJO fields to DB columns
+   * All fields in DB present in POJO
+   */
+  @Test
+  public void testJdbcPojoInsertOutputOperator()
+  {
+    JdbcTransactionalStore transactionalStore = new JdbcTransactionalStore();
+    transactionalStore.setDatabaseDriver(DB_DRIVER);
+    transactionalStore.setDatabaseUrl(URL);
+
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap =
+        new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
+    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
+        OPERATOR_ID, attributeMap);
+
+    TestPOJOOutputOperator outputOperator = new TestPOJOOutputOperator();
+    outputOperator.setBatchSize(3);
+    outputOperator.setTablename(TABLE_POJO_NAME);
+
+    outputOperator.setStore(transactionalStore);
+
+    outputOperator.setup(context);
+
+    Attribute.AttributeMap.DefaultAttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();
+    portAttributes.put(Context.PortContext.TUPLE_CLASS, TestPOJOEvent.class);
+    TestPortContext tpc = new TestPortContext(portAttributes);
+    outputOperator.input.setup(tpc);
+
+    CollectorTestSink<Object> errorSink = new CollectorTestSink<>();
+    TestUtils.setSink(outputOperator.error, errorSink);
+
+    outputOperator.activate(context);
+
+    List<TestPOJOEvent> events = Lists.newArrayList();
+    for (int i = 0; i < 10; i++) {
+      events.add(new TestPOJOEvent(i, "test" + i));
+    }
+    events.add(new TestPOJOEvent(0, "test0")); // Records violating PK constraint
+    events.add(new TestPOJOEvent(2, "test2")); // Records violating PK constraint
+    events.add(new TestPOJOEvent(10, "test10")); // Clean record
+    events.add(new TestPOJOEvent(11, "test11")); // Clean record
+    events.add(new TestPOJOEvent(3, "test3")); // Records violating PK constraint
+    events.add(new TestPOJOEvent(12, "test12")); // Clean record
+
+    outputOperator.beginWindow(0);
+    for (TestPOJOEvent event : events) {
+      outputOperator.input.process(event);
+    }
+    outputOperator.endWindow();
+
+    Assert.assertEquals("rows in db", 13, outputOperator.getNumOfEventsInStore(TABLE_POJO_NAME));
+    Assert.assertEquals("Error tuples", 3, errorSink.collectedTuples.size());
+  }
+
+  /**
+   * This test will assume direct mapping for POJO fields to DB columns
+   * Nullable DB field missing in POJO
+   * name1 field, which is nullable in DB is missing from POJO
+   * POJO(id, name) -> DB(id, name1)
+   */
+  @Test
+  public void testJdbcPojoInsertOutputOperatorNullName()
+  {
+    JdbcTransactionalStore transactionalStore = new JdbcTransactionalStore();
+    transactionalStore.setDatabaseDriver(DB_DRIVER);
+    transactionalStore.setDatabaseUrl(URL);
+
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap =
+        new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
+    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
+        OPERATOR_ID, attributeMap);
+
+    TestPOJOOutputOperator outputOperator = new TestPOJOOutputOperator();
+    outputOperator.setBatchSize(3);
+    outputOperator.setTablename(TABLE_POJO_NAME_NAME_DIFF);
+
+    outputOperator.setStore(transactionalStore);
+
+    outputOperator.setup(context);
+
+    Attribute.AttributeMap.DefaultAttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();
+    portAttributes.put(Context.PortContext.TUPLE_CLASS, TestPOJOEvent.class);
+    TestPortContext tpc = new TestPortContext(portAttributes);
+    outputOperator.input.setup(tpc);
+
+    outputOperator.activate(context);
+
+    List<TestPOJOEvent> events = Lists.newArrayList();
+    for (int i = 0; i < 10; i++) {
+      events.add(new TestPOJOEvent(i, "test" + i));
+    }
+
+    outputOperator.beginWindow(0);
+    for (TestPOJOEvent event : events) {
+      outputOperator.input.process(event);
+    }
+    outputOperator.endWindow();
+
+    Assert.assertEquals("rows in db", 10, outputOperator.getNumOfEventsInStore(TABLE_POJO_NAME_NAME_DIFF));
+    Assert.assertEquals("null name rows in db", 10,
+        outputOperator.getNumOfNullEventsInStore(TABLE_POJO_NAME_NAME_DIFF));
+  }
+
+  /**
+   * This test will assume direct mapping for POJO fields to DB columns.
+   * Non-Nullable DB field missing in POJO
+   * id1 field which is non-nullable in DB is missing from POJO
+   * POJO(id, name) -> DB(id1, name)
+   */
+  @Test
+  public void testJdbcPojoInsertOutputOperatorNullId()
+  {
+    JdbcTransactionalStore transactionalStore = new JdbcTransactionalStore();
+    transactionalStore.setDatabaseDriver(DB_DRIVER);
+    transactionalStore.setDatabaseUrl(URL);
+
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap =
+        new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
+    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
+        OPERATOR_ID, attributeMap);
+
+    TestPOJOOutputOperator outputOperator = new TestPOJOOutputOperator();
+    outputOperator.setBatchSize(3);
+    outputOperator.setTablename(TABLE_POJO_NAME_ID_DIFF);
+
+    outputOperator.setStore(transactionalStore);
+
+    outputOperator.setup(context);
+
+    Attribute.AttributeMap.DefaultAttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();
+    portAttributes.put(Context.PortContext.TUPLE_CLASS, TestPOJOEvent.class);
+    TestPortContext tpc = new TestPortContext(portAttributes);
+    outputOperator.input.setup(tpc);
+
+    boolean exceptionOccurred = false;
+    try {
+      outputOperator.activate(context);
+    } catch (Exception e) {
+      exceptionOccurred = true;
+      Assert.assertTrue(e instanceof RuntimeException);
+      Assert.assertTrue(e.getMessage().toLowerCase().contains("id1 not found in pojo"));
+    }
+    Assert.assertTrue(exceptionOccurred);
+  }
+
+  @Test
+  public void testJdbcPojoOutputOperatorMerge()
+  {
+    JdbcTransactionalStore transactionalStore = new JdbcTransactionalStore();
+    transactionalStore.setDatabaseDriver(DB_DRIVER);
+    transactionalStore.setDatabaseUrl(URL);
+
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap =
+        new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
+    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
+        OPERATOR_ID, attributeMap);
+
+    TestPOJONonInsertOutputOperator updateOperator = new TestPOJONonInsertOutputOperator();
+    updateOperator.setBatchSize(3);
+
+    updateOperator.setStore(transactionalStore);
+
+    updateOperator.setSqlStatement("MERGE INTO " + TABLE_POJO_NAME + " AS T USING (VALUES (?, ?)) AS FOO(id, name) "
+        + "ON T.id = FOO.id "
+        + "WHEN MATCHED THEN UPDATE SET name = FOO.name "
+        + "WHEN NOT MATCHED THEN INSERT( id, name ) VALUES (FOO.id, FOO.name);");
+
+    List<JdbcFieldInfo> fieldInfos = Lists.newArrayList();
+    fieldInfos.add(new JdbcFieldInfo("id", "id", null, "INTEGER"));
+    fieldInfos.add(new JdbcFieldInfo("name", "name", null, "VARCHAR"));
+    updateOperator.setFieldInfos(fieldInfos);
+    updateOperator.setup(context);
+
+    Attribute.AttributeMap.DefaultAttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();
+    portAttributes.put(Context.PortContext.TUPLE_CLASS, TestPOJOEvent.class);
+    TestPortContext tpc = new TestPortContext(portAttributes);
+    updateOperator.input.setup(tpc);
+
+    updateOperator.activate(context);
+
+    List<TestPOJOEvent> events = Lists.newArrayList();
+    for (int i = 0; i < 10; i++) {
+      events.add(new TestPOJOEvent(i, "test" + i));
+    }
+    for (int i = 0; i < 5; i++) {
+      events.add(new TestPOJOEvent(i, "test" + 100));
+    }
+
+    updateOperator.getDistinctNonUnique();
+    updateOperator.beginWindow(0);
+    for (TestPOJOEvent event : events) {
+      updateOperator.input.process(event);
+    }
+    updateOperator.endWindow();
+
+    // Expect 10 unique ids: 0 - 9
+    Assert.assertEquals("rows in db", 10, updateOperator.getNumOfEventsInStore());
+    // Expect 6 unique name: test-100, test-5, test-6, test-7, test-8, test-9
+    Assert.assertEquals("rows in db", 6, updateOperator.getDistinctNonUnique());
   }
 
   @Test
