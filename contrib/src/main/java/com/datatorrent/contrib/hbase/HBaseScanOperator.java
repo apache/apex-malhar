@@ -18,8 +18,19 @@
  */
 package com.datatorrent.contrib.hbase;
 
+import java.io.IOException;
+import java.util.Queue;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Scan;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.AutoMetric;
+import com.datatorrent.api.Context;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.Context.OperatorContext;
+import com.google.common.collect.Queues;
+
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -40,25 +51,105 @@ import org.apache.hadoop.hbase.client.ResultScanner;
  * @tags hbase, scan, input operator
  * @since 0.3.2
  */
-public abstract class HBaseScanOperator<T> extends HBaseInputOperator<T>
+public abstract class HBaseScanOperator<T> extends HBaseInputOperator<T> implements Operator.ActivationListener<Context>
 {
+  public static final int DEF_HINT_SCAN_LOOKAHEAD = 2;
+  public static final int DEF_QUEUE_SIZE = 1000;
+  public static final int DEF_SLEEP_MILLIS = 10;
+
+  private String startRow;
+  private String endRow;
+  private String lastReadRow;
+  private int hintScanLookahead = DEF_HINT_SCAN_LOOKAHEAD;
+  private int queueSize = DEF_QUEUE_SIZE;
+  private int sleepMillis = DEF_SLEEP_MILLIS;
+  private Queue<Result> resultQueue;
+  private boolean threadFailed = false;
+
+  @AutoMetric
+  protected long tuplesRead;
+
+  // Transients
+  protected transient Scan scan;
+  protected transient ResultScanner scanner;
+  protected transient Thread readThread;
+
+  @Override
+  public void setup(OperatorContext context)
+  {
+    super.setup(context);
+    resultQueue = Queues.newLinkedBlockingQueue(queueSize);
+  }
+
+  @Override
+  public void activate(Context context)
+  {
+    startReadThread();
+  }
+
+  protected void startReadThread()
+  {
+    try {
+      scan = operationScan();
+      scanner = getStore().getTable().getScanner(scan);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    readThread = new Thread(new Runnable() {
+      @Override
+      public void run()
+      {
+        try {
+          Result result;
+          while ((result = scanner.next()) != null) {
+            while (!resultQueue.offer(result)) {
+              Thread.sleep(sleepMillis);
+            }
+          }
+        } catch (Exception e) {
+          logger.debug("Exception in fetching results {}", e.getMessage());
+          threadFailed = true;
+          throw new RuntimeException(e);
+        } finally {
+          scanner.close();
+        }
+      }
+    });
+    readThread.start();
+  }
+
+  @Override
+  public void beginWindow(long windowId)
+  {
+    super.beginWindow(windowId);
+    tuplesRead = 0;
+  }
 
   @Override
   public void emitTuples()
   {
+    if (!readThread.isAlive() && threadFailed) {
+      throw new RuntimeException("Exception in scan thread");
+    }
     try {
-      HTable table = getTable();
-      Scan scan = operationScan();
-      ResultScanner scanner = table.getScanner(scan);
-      for (Result result : scanner) {
-        //KeyValue[] kvs = result.raw();
-        //T t = getTuple(kvs);
-        T t = getTuple(result);
-        outputPort.emit(t);
+      Result result = resultQueue.poll();
+      if (result == null) {
+        return;
+      }
+      T tuple = getTuple(result);
+      if (tuple != null) {
+        outputPort.emit(tuple);
+        tuplesRead++;
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public void deactivate()
+  {
+    readThread.interrupt();
   }
 
   /**
@@ -78,5 +169,80 @@ public abstract class HBaseScanOperator<T> extends HBaseInputOperator<T>
    * @return The tuple
    */
   protected abstract T getTuple(Result result);
+
+  /**
+   * Returns the start row key in the table as set previously
+   * @return {@link #startRow}
+   */
+  public String getStartRow()
+  {
+    return startRow;
+  }
+
+  /**
+   * Sets the start row key in the table from where the scan should begin
+   * @param startRow
+   */
+  public void setStartRow(String startRow)
+  {
+    this.startRow = startRow;
+  }
+
+  /**
+   * Returns the end row key in the table as set previously
+   * @return {@link #endRow}
+   */
+  public String getEndRow()
+  {
+    return endRow;
+  }
+
+  /**
+   * Sets the end row key in the table where the scan should end
+   * @param endRow
+   */
+  public void setEndRow(String endRow)
+  {
+    this.endRow = endRow;
+  }
+
+  /**
+   * Returns the last read row key from the hbase table
+   * @return {@link #lastReadRow}
+   */
+  public String getLastReadRow()
+  {
+    return lastReadRow;
+  }
+
+  /**
+   * Sets the last read row key from the hbase table. After the failures, the new scan will start from this row key
+   * @param lastReadRow
+   */
+  public void setLastReadRow(String lastReadRow)
+  {
+    this.lastReadRow = lastReadRow;
+  }
+
+  /**
+   * Returns the Scan HINT_LOOKAHEAD parameter as configured. Default is {@value #DEF_HINT_SCAN_LOOKAHEAD}
+   * @return {@link #hintScanLookahead}
+   */
+  public int getHintScanLookahead()
+  {
+    return hintScanLookahead;
+  }
+
+  /**
+   * Sets the HINT_LOOKAHEAD parameter for an HBase Scan. This allows HBase RegionServer to attempt to look ahead by the
+   * value of this attribute before scheduling a seek operation. Seeks when scheduled very close can be inefficient.
+   * @param hintScanLookahead
+   */
+  public void setHintScanLookahead(int hintScanLookahead)
+  {
+    this.hintScanLookahead = hintScanLookahead;
+  }
+
+  private static final Logger logger = LoggerFactory.getLogger(HBaseScanOperator.class);
 
 }
