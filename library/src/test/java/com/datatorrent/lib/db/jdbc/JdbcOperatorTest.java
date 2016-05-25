@@ -411,7 +411,7 @@ public class JdbcOperatorTest
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
         OPERATOR_ID, attributeMap);
     
-    cleanTableAndInsertEvents(10);
+    insertEvents(10,true, 0);
 
     JdbcPOJOInputOperator inputOperator = new JdbcPOJOInputOperator();
     inputOperator.setStore(store);
@@ -475,21 +475,40 @@ public class JdbcOperatorTest
     inputOperator.endWindow();
 
     Assert.assertEquals("rows from db", 0, sink.collectedTuples.size());
+    
+    // Insert 3 more tuples and check if they are read successfully.
+    insertEvents(3, false, 10);
+
+    inputOperator.beginWindow(3);
+    inputOperator.emitTuples();
+    inputOperator.endWindow();
+
+    Assert.assertEquals("rows from db", 3, sink.collectedTuples.size());
+    for (Object tuple : sink.collectedTuples) {
+      TestPOJOEvent pojoEvent = (TestPOJOEvent)tuple;
+      Assert.assertTrue("i=" + i, pojoEvent.getId() == i);
+      Assert.assertTrue("date", pojoEvent.getStartDate() instanceof Date);
+      Assert.assertTrue("time", pojoEvent.getStartTime() instanceof Time);
+      Assert.assertTrue("timestamp", pojoEvent.getStartTimestamp() instanceof Timestamp);
+      i++;
+    }
   }
   
 
-  private void cleanTableAndInsertEvents(int numEvents)
+  private void insertEvents(int numEvents, boolean cleanExistingRows, int startRowId)
   {
     try (Connection con = DriverManager.getConnection(URL); Statement stmt = con.createStatement()) {
-      String cleanTable = "delete from " + TABLE_POJO_NAME;
-      stmt.executeUpdate(cleanTable);
+      if (cleanExistingRows) {
+        String cleanTable = "delete from " + TABLE_POJO_NAME;
+        stmt.executeUpdate(cleanTable);
+      }
 
       String insert = "insert into " + TABLE_POJO_NAME + " values (?,?,?,?,?)";
       PreparedStatement pStmt = con.prepareStatement(insert);
       con.prepareStatement(insert);
 
       for (int i = 0; i < numEvents; i++) {
-        pStmt.setInt(1, i);
+        pStmt.setInt(1, startRowId + i);
         pStmt.setString(2, "name");
         pStmt.setDate(3, new Date(2016, 1, 1));
         pStmt.setTime(4, new Time(2016, 1, 1));

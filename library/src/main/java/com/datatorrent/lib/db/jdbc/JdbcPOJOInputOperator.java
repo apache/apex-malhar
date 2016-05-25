@@ -95,8 +95,6 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
   private transient PreparedStatement preparedStatement;
   protected transient Class<?> pojoClass;
 
-  protected int pageNumber;
-
   @AutoMetric
   protected long tuplesRead;
 
@@ -188,7 +186,6 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
   public void beginWindow(long l)
   {
     windowDone = false;
-    tuplesRead = 0;
   }
 
   @Override
@@ -209,7 +206,6 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
           windowDone = true;
         }
         resultSet.close();
-        pageNumber++;
       } catch (SQLException ex) {
         store.disconnect();
         throw new RuntimeException(ex);
@@ -220,9 +216,9 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
   protected void setRuntimeParams() throws SQLException
   {
     if (mysqlSyntax) {
-      preparedStatement.setLong(1, pageNumber * fetchSize);
+      preparedStatement.setLong(1, tuplesRead);
     } else {
-      preparedStatement.setLong(1, pageNumber * fetchSize);
+      preparedStatement.setLong(1, tuplesRead);
     }
   }
 
