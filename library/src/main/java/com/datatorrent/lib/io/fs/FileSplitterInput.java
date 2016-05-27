@@ -18,7 +18,6 @@
  */
 package com.datatorrent.lib.io.fs;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
@@ -375,11 +374,11 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
             lastScannedInfo = null;
             numDiscoveredPerIteration = 0;
             for (String afile : files) {
-              String filePath = new File(afile).getAbsolutePath();
-              LOG.debug("Scan started for input {}", filePath);
+              Path filePath = new Path(afile);
+              LOG.debug("Scan started for input {}", filePath.toString());
               Map<String, Long> lastModifiedTimesForInputDir;
-              lastModifiedTimesForInputDir = referenceTimes.get(filePath);
-              scan(new Path(afile), null, lastModifiedTimesForInputDir);
+              lastModifiedTimesForInputDir = referenceTimes.get(filePath.toString());
+              scan(filePath, null, lastModifiedTimesForInputDir);
             }
             scanIterationComplete();
           } else {
@@ -499,11 +498,11 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
       ScannedFileInfo info;
       if (rootPath == null) {
         info = parentStatus.isDirectory() ?
-          new ScannedFileInfo(parentPath.toUri().getPath(), childPath.getName(), childStatus.getModificationTime()) :
+          new ScannedFileInfo(parentPath.toString(), childPath.getName(), childStatus.getModificationTime()) :
           new ScannedFileInfo(null, childPath.toUri().getPath(), childStatus.getModificationTime());
       } else {
         URI relativeChildURI = rootPath.toUri().relativize(childPath.toUri());
-        info = new ScannedFileInfo(rootPath.toUri().getPath(), relativeChildURI.getPath(),
+        info = new ScannedFileInfo(rootPath.toString(), relativeChildURI.getPath(),
           childStatus.getModificationTime());
       }
       return info;
