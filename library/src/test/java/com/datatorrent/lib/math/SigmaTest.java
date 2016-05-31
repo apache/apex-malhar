@@ -18,12 +18,32 @@
  */
 package com.datatorrent.lib.math;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.validation.ConstraintViolationException;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.Context;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.common.partitioner.StatelessPartitioner;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.testbench.SumTestSink;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * 
@@ -33,6 +53,10 @@ import com.datatorrent.lib.testbench.SumTestSink;
  */
 public class SigmaTest
 {
+  private static int tuplesToSend = 173;
+  private static int numPartitions = 15;
+  private static Counter checker = new Counter();
+
   /**
    * Test oper logic emits correct results
    */
@@ -71,4 +95,82 @@ public class SigmaTest
     Assert.assertEquals("sum was", sum, dmultSink.val.intValue());
     Assert.assertEquals("sum", sum, fmultSink.val.intValue());
   }
+
+  public static class Application implements StreamingApplication
+  {
+    private static Logger LOG = LoggerFactory.getLogger(Application.class);
+
+    @Override
+    public void populateDAG(DAG dag, Configuration conf)
+    {
+      LOG.debug("Application - PopulateDAG");
+      NumGenerator generator = new NumGenerator();
+      Sigma<Long> summer = new Sigma<>();
+
+      dag.addOperator("Generator.", generator);
+      dag.addOperator("Summer", summer);
+      dag.addOperator("Checker", checker);
+
+      StatelessPartitioner<Sigma> partitioner = new StatelessPartitioner<>();
+      partitioner.setPartitionCount(numPartitions);
+      dag.setAttribute(summer, Context.OperatorContext.PARTITIONER, partitioner);
+
+      // And then we should see the output
+      dag.addStream("generator-summer", generator.out, summer.input);
+      dag.addStream("summer-checker", summer.longResult, checker.counter);
+    }
+  }
+
+  @Test
+  public void testApplication() throws IOException, Exception
+  {
+    try {
+      LocalMode lma = LocalMode.newInstance();
+      Configuration conf = new Configuration(false);
+      lma.prepareDAG(new Application(), conf);
+      LocalMode.Controller lc = lma.getController();
+      lc.run(15000); // runs for 10 seconds and quits
+
+      assertEquals("Total sum", tuplesToSend*numPartitions, checker.getCount());
+    } catch (ConstraintViolationException e) {
+      Assert.fail("constraint violations: " + e.getConstraintViolations());
+    }
+  }
+
+  private static class NumGenerator extends BaseOperator implements InputOperator
+  {
+    private long count = 0;
+
+    public transient DefaultOutputPort<List<Long>> out = new DefaultOutputPort<>();
+
+    @Override
+    public void emitTuples()
+    {
+      if (count < tuplesToSend) {
+        LinkedList<Long> list = new LinkedList<>();
+        list.add(1l);
+        out.emit(list);
+      }
+    }
+  }
+
+  private static class Counter extends BaseOperator
+  {
+    private static long count = 0;
+
+    public final transient DefaultInputPort<Long> counter = new DefaultInputPort<Long>()
+    {
+      @Override
+      public void process(Long tuple)
+      {
+        count += tuple;
+      }
+    };
+
+    public long getCount()
+    {
+      return count;
+    }
+  }
 }
+

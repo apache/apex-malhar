@@ -19,6 +19,7 @@
 package com.datatorrent.lib.math;
 
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
 
@@ -38,23 +39,73 @@ public abstract class AbstractOutput extends BaseOperator
    * Double type output.
    */
   @OutputPortFieldAnnotation(optional = true)
-  public final transient DefaultOutputPort<Double> doubleResult = new DefaultOutputPort<Double>();
+  public final transient DefaultOutputPort<Double> doubleResult = new DefaultOutputPort<Double>()
+  {
+    @Override
+    public Operator.Unifier<Double> getUnifier()
+    {
+      return getUnifierDouble();
+    }
+  };
+
+  protected Operator.Unifier<Double> getUnifierDouble()
+  {
+    return null;
+  }
 
   /**
    * Float type output.
    */
   @OutputPortFieldAnnotation(optional = true)
-  public final transient DefaultOutputPort<Float> floatResult = new DefaultOutputPort<Float>();
+  public final transient DefaultOutputPort<Float> floatResult = new DefaultOutputPort<Float>()
+  {
+    @Override
+    public Operator.Unifier<Float> getUnifier()
+    {
+      return getUnifierFloat();
+    }
+  };
+
+  protected Operator.Unifier<Float> getUnifierFloat()
+  {
+    return null;
+  }
+
 
   /**
    * Long type output.
    */
   @OutputPortFieldAnnotation(optional = true)
-  public final transient DefaultOutputPort<Long> longResult = new DefaultOutputPort<Long>();
+  public final transient DefaultOutputPort<Long> longResult = new DefaultOutputPort<Long>()
+  {
+    @Override
+    public Operator.Unifier<Long> getUnifier()
+    {
+      return getUnifierLong();
+    }
+  };
+
+  protected Operator.Unifier<Long> getUnifierLong()
+  {
+    return null;
+  }
+
 
   /**
    * Integer type output.
    */
   @OutputPortFieldAnnotation(optional = true)
-  public final transient DefaultOutputPort<Integer> integerResult = new DefaultOutputPort<Integer>();
+  public final transient DefaultOutputPort<Integer> integerResult = new DefaultOutputPort<Integer>()
+  {
+    @Override
+    public Operator.Unifier<Integer> getUnifier()
+    {
+      return getUnifierInt();
+    }
+  };
+
+  protected Operator.Unifier<Integer> getUnifierInt()
+  {
+    return null;
+  }
 }
