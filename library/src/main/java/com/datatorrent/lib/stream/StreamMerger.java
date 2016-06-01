@@ -18,13 +18,19 @@
  */
 package com.datatorrent.lib.stream;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.BaseOperator;
 
 /**
- * An implementation of BaseOperator that merges two streams with identical schema and emits the tuples to the output port in order.
+ * An implementation of BaseOperator that merges multiple streams with identical schema and emits the tuples
+ * to the output port in order.
  *
  * <p>
  * This is a pass through operator<br>
@@ -41,35 +47,57 @@ import com.datatorrent.common.util.BaseOperator;
 @Stateless
 public class StreamMerger<K> extends BaseOperator
 {
-  /**
-   * Data input port 1.
-   */
-  public final transient DefaultInputPort<K> data1 = new DefaultInputPort<K>()
+  private int portCount = 0;
+  private final transient ArrayList<DefaultInputPort<K>> ports = new ArrayList<>(portCount);
+
+  public StreamMerger()
   {
-    /**
-     * Emits to port "out"
-     */
-    @Override
-    public void process(K tuple)
-    {
-      out.emit(tuple);
-    }
-  };
+  }
+
+  public StreamMerger(int portCount)
+  {
+    this.portCount = portCount;
+  }
 
   /**
-   * Data input port 2.
+   * Track the number of created streams so that the operator can be re-initialized properly in the case of
+   * an operator restart.
+   * @param context
    */
-  public final transient DefaultInputPort<K> data2 = new DefaultInputPort<K>()
+  @Override
+  public void setup(Context.OperatorContext context)
   {
-    /**
-     * Emits to port "out"
-     */
-    @Override
-    public void process(K tuple)
-    {
-      out.emit(tuple);
+    for (int i = 0; i < portCount; i++) {
+      addStream();
     }
-  };
+  }
+
+  public StreamMerger<K> addStream() {
+    ports.add(new DefaultInputPort<K>()
+    {
+      @Override
+      public void process(K tuple)
+      {
+        out.emit(tuple);
+      }
+    });
+
+    return this;
+  }
+
+  public DefaultInputPort<K> getPort(int idx) {
+    return ports.get(idx);
+  }
+
+  public int getPortCount()
+  {
+    return portCount;
+  }
+
+  public void setPortCount(int portCount)
+  {
+    this.portCount = portCount;
+  }
 
   /**
    * Output port.

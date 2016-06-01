@@ -37,20 +37,28 @@ public class StreamMergerTest
   @Test
   public void testNodeProcessing() throws Exception
   {
+    int numStreams = 20;
     StreamMerger oper = new StreamMerger();
+
+    for (int i = 0 ; i < numStreams; i++) {
+      oper.addStream();
+    }
+
     CountTestSink mergeSink = new CountTestSink();
     oper.out.setSink(mergeSink);
 
     oper.beginWindow(0);
     int numtuples = 500;
     Integer input = 0;
+
     // Same input object can be used as the oper is just pass through
     for (int i = 0; i < numtuples; i++) {
-      oper.data1.process(input);
-      oper.data2.process(input);
+      for (int j = 0; j < numStreams; j++) {
+        oper.getPort(j).process(input);
+      }
     }
 
     oper.endWindow();
-    Assert.assertEquals("number emitted tuples", numtuples * 2, mergeSink.count);
+    Assert.assertEquals("number emitted tuples", numtuples * numStreams, mergeSink.count);
   }
 }
