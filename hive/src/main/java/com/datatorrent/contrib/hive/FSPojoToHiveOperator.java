@@ -18,6 +18,12 @@
  */
 package com.datatorrent.contrib.hive;
 
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+
+import com.google.common.collect.Lists;
+
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
@@ -27,13 +33,13 @@ import com.datatorrent.lib.util.PojoUtils.GetterFloat;
 import com.datatorrent.lib.util.PojoUtils.GetterInt;
 import com.datatorrent.lib.util.PojoUtils.GetterLong;
 import com.datatorrent.lib.util.PojoUtils.GetterShort;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.sql.Date;
 
 /**
- * An Implementation of AbstractFSRollingOutputOperator which takes any POJO as input, serializes the POJO as Hive delimiter separated values
- * which are written in text files to hdfs, and are inserted into hive on committed window callback.This operator can handle outputting to multiple files when the output file depends on the tuple.
+ * An Implementation of AbstractFSRollingOutputOperator which takes any POJO as
+ * input, serializes the POJO as Hive delimiter separated values which are
+ * written in text files to hdfs, and are inserted into hive on committed window
+ * callback.This operator can handle outputting to multiple files when the
+ * output file depends on the tuple.
  *
  * @displayName: FS To Hive Operator
  * @category Output
@@ -47,7 +53,7 @@ public class FSPojoToHiveOperator extends AbstractFSRollingOutputOperator<Object
   private ArrayList<String> hiveColumns;
   private ArrayList<FIELD_TYPE> hiveColumnDataTypes;
   private ArrayList<FIELD_TYPE> hivePartitionColumnDataTypes;
-  private transient ArrayList<Object> getters;
+  private transient ArrayList<Object> getters = Lists.newArrayList();
   private ArrayList<String> expressionsForHiveColumns;
   private ArrayList<String> expressionsForHivePartitionColumns;
 
@@ -61,7 +67,6 @@ public class FSPojoToHiveOperator extends AbstractFSRollingOutputOperator<Object
     this.expressionsForHivePartitionColumns = expressionsForHivePartitionColumns;
   }
 
-
   /*
    * A list of Java expressions in which each expression yields the specific table column value and partition column value in hive table from the input POJO.
    */
@@ -73,12 +78,6 @@ public class FSPojoToHiveOperator extends AbstractFSRollingOutputOperator<Object
   public void setExpressionsForHiveColumns(ArrayList<String> expressions)
   {
     this.expressionsForHiveColumns = expressions;
-  }
-
-  public FSPojoToHiveOperator()
-  {
-    super();
-    getters = new ArrayList<Object>();
   }
 
   @SuppressWarnings("unchecked")
@@ -123,10 +122,10 @@ public class FSPojoToHiveOperator extends AbstractFSRollingOutputOperator<Object
     }
   }
 
-  public enum FIELD_TYPE
+  public static enum FIELD_TYPE
   {
     BOOLEAN, DOUBLE, INTEGER, FLOAT, LONG, SHORT, CHARACTER, STRING, DATE, TIMESTAMP, OTHER
-  };
+  }
 
   /*
    * Columns in Hive table.
@@ -190,15 +189,21 @@ public class FSPojoToHiveOperator extends AbstractFSRollingOutputOperator<Object
   @SuppressWarnings("unchecked")
   public ArrayList<String> getHivePartition(Object tuple)
   {
+    if (getters.isEmpty()) {
+      processFirstTuple(tuple);
+    }
+
     int sizeOfColumns = hiveColumns.size();
     int sizeOfPartitionColumns = hivePartitionColumns.size();
-    int size = sizeOfColumns + sizeOfPartitionColumns;
+    //int size = sizeOfColumns + sizeOfPartitionColumns;
     ArrayList<String> hivePartitionColumnValues = new ArrayList<String>();
     String partitionColumnValue;
-    for (int i = sizeOfColumns; i < size; i++) {
-      // FIELD_TYPE type = hiveColumnsDataTypes.get(i);
-      //partitionColumnValue = getValue(tuple, sizeOfColumns, type);
-      partitionColumnValue = ((Getter<Object, String>)getters.get(i)).get(tuple);
+    for (int i = 0; i < sizeOfPartitionColumns; i++) {
+      FIELD_TYPE type = hivePartitionColumnDataTypes.get(i);
+      StringBuilder result = new StringBuilder();
+      getValue(tuple, sizeOfColumns + i, type, result);
+      partitionColumnValue = result.toString();
+      //partitionColumnValue = (String)getters.get(i).get(tuple);
       hivePartitionColumnValues.add(partitionColumnValue);
     }
     return hivePartitionColumnValues;
@@ -217,11 +222,12 @@ public class FSPojoToHiveOperator extends AbstractFSRollingOutputOperator<Object
   public void processFirstTuple(Object tuple)
   {
     Class<?> fqcn = tuple.getClass();
-    createGetters(fqcn, hiveColumns.size(), expressionsForHiveColumns,hiveColumnDataTypes);
-    createGetters(fqcn, hivePartitionColumns.size(), expressionsForHivePartitionColumns,hivePartitionColumnDataTypes);
+    createGetters(fqcn, hiveColumns.size(), expressionsForHiveColumns, hiveColumnDataTypes);
+    createGetters(fqcn, hivePartitionColumns.size(), expressionsForHivePartitionColumns, hivePartitionColumnDataTypes);
   }
 
-  protected void createGetters(Class<?> fqcn, int size, ArrayList<String> expressions,ArrayList<FIELD_TYPE> columnDataTypes)
+  protected void createGetters(Class<?> fqcn, int size, ArrayList<String> expressions,
+      ArrayList<FIELD_TYPE> columnDataTypes)
   {
     for (int i = 0; i < size; i++) {
       FIELD_TYPE type = columnDataTypes.get(i);
@@ -277,8 +283,9 @@ public class FSPojoToHiveOperator extends AbstractFSRollingOutputOperator<Object
     for (int i = 0; i < size; i++) {
       FIELD_TYPE type = hiveColumnDataTypes.get(i);
       getValue(tuple, i, type, result);
-      result.append("\n");
+      result.append("\t");
     }
+    result.append("\n");
     return (result.toString()).getBytes();
   }
 

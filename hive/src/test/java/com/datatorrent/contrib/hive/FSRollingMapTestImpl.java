@@ -18,34 +18,32 @@
  */
 package com.datatorrent.contrib.hive;
 
-import com.datatorrent.lib.db.jdbc.JdbcStore;
-import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
 
-/**
- * Hive Store that extends Jdbc Store and provides its own driver name.
- *
- * @since 2.1.0
- */
-public class HiveStore extends JdbcStore
+public class FSRollingMapTestImpl extends AbstractFSRollingOutputOperator<Map<String, Object>>
 {
-  public HiveStore()
+  @Override
+  public ArrayList<String> getHivePartition(Map<String, Object> tuple)
   {
-    super();
-    this.setDatabaseDriver(HIVE_DRIVER);
+    ArrayList<String> hivePartitions = new ArrayList<String>();
+    hivePartitions.add("2014-12-10");
+    return (hivePartitions);
   }
 
-  public static final String HIVE_DRIVER = "org.apache.hive.jdbc.HiveDriver";
-  @NotNull
-  public String filepath;
-
-  public String getFilepath()
+  @Override
+  protected byte[] getBytesForTuple(Map<String, Object> tuple)
   {
-    return filepath;
-  }
+    Iterator<String> keyIter = tuple.keySet().iterator();
+    StringBuilder writeToHive = new StringBuilder("");
 
-  public void setFilepath(String filepath)
-  {
-    this.filepath = filepath;
+    while (keyIter.hasNext()) {
+      String key = keyIter.next();
+      Object obj = tuple.get(key);
+      writeToHive.append(key).append(":").append(obj).append("\n");
+    }
+    return writeToHive.toString().getBytes();
   }
 
 }

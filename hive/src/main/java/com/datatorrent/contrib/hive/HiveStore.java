@@ -18,32 +18,35 @@
  */
 package com.datatorrent.contrib.hive;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
+import javax.validation.constraints.NotNull;
 
-public  class FSRollingMapTestImpl extends AbstractFSRollingOutputOperator<Map<String,Object>>
+import com.datatorrent.lib.db.jdbc.JdbcStore;
+
+/**
+ * Hive Store that extends Jdbc Store and provides its own driver name.
+ *
+ * @since 2.1.0
+ */
+public class HiveStore extends JdbcStore
 {
-  @Override
-  public ArrayList<String> getHivePartition(Map<String,Object> tuple)
+  public HiveStore()
   {
-    ArrayList<String> hivePartitions = new ArrayList<String>();
-    hivePartitions.add("2014-12-10");
-    return(hivePartitions);
+    super();
+    this.setDatabaseDriver(HIVE_DRIVER);
   }
 
-  @Override
-    protected byte[] getBytesForTuple(Map<String, Object> tuple)
-    {
-      Iterator<String> keyIter = tuple.keySet().iterator();
-      StringBuilder writeToHive = new StringBuilder("");
+  public static final String HIVE_DRIVER = "org.apache.hive.jdbc.HiveDriver";
+  @NotNull
+  public String filepath;
 
-      while (keyIter.hasNext()) {
-        String key = keyIter.next();
-        Object obj = tuple.get(key);
-        writeToHive.append(key).append(":").append(obj).append("\n");
-      }
-      return writeToHive.toString().getBytes();
-    }
+  public String getFilepath()
+  {
+    return filepath;
+  }
+
+  public void setFilepath(String filepath)
+  {
+    this.filepath = filepath;
+  }
 
 }

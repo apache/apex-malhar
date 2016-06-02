@@ -221,7 +221,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
-          <maxAllowedViolations>2791</maxAllowedViolations>
+          <maxAllowedViolations>2709</maxAllowedViolations>
           <logViolationsToConsole>${checkstyle.console}</logViolationsToConsole>
         </configuration>
       </plugin>
@@ -566,18 +566,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.apache.hive</groupId>
-      <artifactId>hive-service</artifactId>
-      <version>0.13.1</version>
-      <optional>true</optional>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>org.apache.solr</groupId>
       <artifactId>solr-solrj</artifactId>
       <version>4.10.1</version>
@@ -602,12 +590,6 @@
       <artifactId>aws-java-sdk-kinesis</artifactId>
       <version>1.9.10</version>
       <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>io.teknek</groupId>
-      <artifactId>hiveunit</artifactId>
-      <version>0.0.3</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.rosuda</groupId>
