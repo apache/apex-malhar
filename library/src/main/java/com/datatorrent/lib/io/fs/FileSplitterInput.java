@@ -18,7 +18,6 @@
  */
 package com.datatorrent.lib.io.fs;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
@@ -194,11 +193,12 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   protected void updateReferenceTimes(ScannedFileInfo fileInfo)
   {
     Map<String, Long> referenceTimePerInputDir;
-    if ((referenceTimePerInputDir = referenceTimes.get(fileInfo.getDirectoryPath())) == null) {
+    String referenceKey = fileInfo.getDirectoryPath() == null ? fileInfo.getFilePath() : fileInfo.getDirectoryPath();
+    if ((referenceTimePerInputDir = referenceTimes.get(referenceKey)) == null) {
       referenceTimePerInputDir = Maps.newHashMap();
     }
     referenceTimePerInputDir.put(fileInfo.getFilePath(), fileInfo.modifiedTime);
-    referenceTimes.put(fileInfo.getDirectoryPath(), referenceTimePerInputDir);
+    referenceTimes.put(referenceKey, referenceTimePerInputDir);
   }
 
   @Override
@@ -375,11 +375,14 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
             lastScannedInfo = null;
             numDiscoveredPerIteration = 0;
             for (String afile : files) {
-              String filePath = new File(afile).getAbsolutePath();
+              Path filePath = new Path(afile);
               LOG.debug("Scan started for input {}", filePath);
-              Map<String, Long> lastModifiedTimesForInputDir;
-              lastModifiedTimesForInputDir = referenceTimes.get(filePath);
-              scan(new Path(afile), null, lastModifiedTimesForInputDir);
+              Map<String, Long> lastModifiedTimesForInputDir = null;
+              if (fs.exists(filePath)) {
+                FileStatus fileStatus = fs.getFileStatus(filePath);
+                lastModifiedTimesForInputDir = referenceTimes.get(fileStatus.getPath().toUri().getPath());
+              }
+              scan(filePath, null, lastModifiedTimesForInputDir);
             }
             scanIterationComplete();
           } else {

@@ -18,38 +18,38 @@
  */
 package com.datatorrent.contrib.hive;
 
-import io.teknek.hiveunit.HiveTestService;
+import java.io.File;
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.hive.conf.HiveConf;
+import org.apache.thrift.TException;
 
-import com.datatorrent.contrib.hive.AbstractFSRollingOutputOperator.FilePartitionMapping;
+import io.teknek.hiveunit.HiveTestService;
+
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.serializers.FieldSerializer;
 
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.ProcessingMode;
+import com.datatorrent.contrib.hive.AbstractFSRollingOutputOperator.FilePartitionMapping;
 import com.datatorrent.contrib.hive.FSPojoToHiveOperator.FIELD_TYPE;
-import com.datatorrent.lib.util.TestUtils.TestInfo;
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.serializers.FieldSerializer;
-import java.io.File;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashMap;
-import org.apache.commons.io.FileUtils;
-import org.apache.hadoop.hive.conf.HiveConf;
-import org.apache.thrift.TException;
-import org.junit.Rule;
-import org.junit.runner.Description;
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+
 
 public class HiveMockTest extends HiveTestService
 {
@@ -68,38 +68,43 @@ public class HiveMockTest extends HiveTestService
   public static final String DATABASE = "default";
   public static final String HOST_PREFIX = "jdbc:hive://";
 
-  @Rule
-  public TestInfo testMeta = new HiveTestWatcher();
+  public String testdir;
 
-  public static class HiveTestWatcher extends TestInfo
+  private String getDir()
   {
-    @Override
-    public String getDir()
-    {
-      String filePath = new File("target/hive").getAbsolutePath();
-      LOG.debug("filepath is {}", filePath);
-      return filePath;
-    }
+    String filePath = new File("target/hive").getAbsolutePath();
+    LOG.info("filepath is {}", filePath);
+    return filePath;
+  }
 
-    @Override
-    protected void starting(Description description)
-    {
-      super.starting(description);
-      new File(getDir()).mkdir();
-    }
+  @Override
+  public void setUp() throws Exception
+  {
+    super.setUp();
+  }
 
-    @Override
-    protected void finished(Description description)
-    {
-      super.finished(description);
-      FileUtils.deleteQuietly(new File(getDir()));
-    }
+  private static final int NUMBER_OF_TESTS = 4; // count your tests here
+  private int sTestsRun = 0;
 
+  @Override
+  public void tearDown() throws Exception
+  {
+    super.tearDown();
+    sTestsRun++;
+    //Equivalent of @AfterClass in junit 3.
+    if (sTestsRun == NUMBER_OF_TESTS) {
+      FileUtils.deleteQuietly(new File(testdir));
+    }
   }
 
   public HiveMockTest() throws IOException, Exception
   {
     super();
+    testdir = getDir();
+    Properties properties = System.getProperties();
+    properties.put("derby.system.home", testdir);
+    System.setProperty(HiveConf.ConfVars.METASTOREWAREHOUSE.toString(), testdir);
+    new File(testdir).mkdir();
   }
 
   public static HiveStore createStore(HiveStore hiveStore)
@@ -144,8 +149,8 @@ public class HiveMockTest extends HiveTestService
 
     stmt.execute("DROP TABLE " + tablename);
 
-    stmt.execute("CREATE TABLE IF NOT EXISTS " + tablename + " (col1 String) PARTITIONED BY(dt STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\n'  \n"
-            + "STORED AS TEXTFILE ");
+    stmt.execute("CREATE TABLE IF NOT EXISTS " + tablename + " (col1 String) PARTITIONED BY(dt STRING) "
+        + "ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n'  \n" + "STORED AS TEXTFILE ");
     /*ResultSet res = stmt.execute("CREATE TABLE IF NOT EXISTS temp4 (col1 map<string,int>,col2 map<string,int>,col3  map<string,int>,col4 map<String,timestamp>, col5 map<string,double>,col6 map<string,double>,col7 map<string,int>,col8 map<string,int>) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','  \n"
      + "COLLECTION ITEMS TERMINATED BY '\n'  \n"
      + "MAP KEYS TERMINATED BY ':'  \n"
@@ -169,8 +174,8 @@ public class HiveMockTest extends HiveTestService
     }
     stmt.execute("DROP TABLE " + tablepojo);
 
-    stmt.execute("CREATE TABLE " + tablepojo + " (col1 int) PARTITIONED BY(dt STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\n'  \n"
-            + "STORED AS TEXTFILE ");
+    stmt.execute("CREATE TABLE " + tablepojo + " (col1 int) PARTITIONED BY(dt STRING) ROW FORMAT DELIMITED "
+        + "FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n' \n" + "STORED AS TEXTFILE ");
     hiveStore.disconnect();
   }
 
@@ -189,42 +194,37 @@ public class HiveMockTest extends HiveTestService
 
     stmt.execute("DROP TABLE " + tablemap);
 
-    stmt.execute("CREATE TABLE IF NOT EXISTS " + tablemap + " (col1 map<string,int>) PARTITIONED BY(dt STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\n'  \n"
-            + "MAP KEYS TERMINATED BY '" + delimiterMap + "' \n"
-            + "STORED AS TEXTFILE ");
+    stmt.execute("CREATE TABLE IF NOT EXISTS " + tablemap
+        + " (col1 map<string,int>) PARTITIONED BY(dt STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t'  \n"
+        + "MAP KEYS TERMINATED BY '" + delimiterMap + "' \n" + "STORED AS TEXTFILE ");
     hiveStore.disconnect();
-  }
-
-  @Override
-  public void setUp() throws Exception
-  {
-    System.setProperty(HiveConf.ConfVars.METASTOREWAREHOUSE.toString(), testMeta.getDir());
-    super.setUp();
   }
 
   @Test
   public void testInsertString() throws Exception
   {
     HiveStore hiveStore = createStore(null);
-    hiveStore.setFilepath(testMeta.getDir());
+    hiveStore.setFilepath(testdir);
     ArrayList<String> hivePartitionColumns = new ArrayList<String>();
     hivePartitionColumns.add("dt");
     hiveInitializeDatabase(createStore(null));
     HiveOperator hiveOperator = new HiveOperator();
-    hiveOperator.setHivestore(hiveStore);
+    hiveOperator.setStore(hiveStore);
     hiveOperator.setTablename(tablename);
     hiveOperator.setHivePartitionColumns(hivePartitionColumns);
 
     FSRollingTestImpl fsRolling = new FSRollingTestImpl();
-    fsRolling.setFilePath(testMeta.getDir());
+    fsRolling.setFilePath(testdir);
     short permission = 511;
     fsRolling.setFilePermission(permission);
+    fsRolling.setAlwaysWriteToTmp(false);
     fsRolling.setMaxLength(128);
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
+        OPERATOR_ID, attributeMap);
 
     fsRolling.setup(context);
     hiveOperator.setup(context);
@@ -238,13 +238,9 @@ public class HiveMockTest extends HiveTestService
     partitions2.add("2014-12-11");
     mapping2.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-11" + "/" + "0-transaction.out.part.0");
     mapping2.setPartition(partitions2);
-    for (int wid = 0, total = 0;
-            wid < NUM_WINDOWS;
-            wid++) {
+    for (int wid = 0, total = 0; wid < NUM_WINDOWS; wid++) {
       fsRolling.beginWindow(wid);
-      for (int tupleCounter = 0;
-              tupleCounter < BLAST_SIZE && total < DATABASE_SIZE;
-              tupleCounter++, total++) {
+      for (int tupleCounter = 0; tupleCounter < BLAST_SIZE && total < DATABASE_SIZE; tupleCounter++, total++) {
         fsRolling.input.process("2014-12-1" + tupleCounter);
       }
       if (wid == 7) {
@@ -288,19 +284,19 @@ public class HiveMockTest extends HiveTestService
   public void testInsertPOJO() throws Exception
   {
     HiveStore hiveStore = createStore(null);
-    hiveStore.setFilepath(testMeta.getDir());
+    hiveStore.setFilepath(testdir);
     ArrayList<String> hivePartitionColumns = new ArrayList<String>();
     hivePartitionColumns.add("dt");
     ArrayList<String> hiveColumns = new ArrayList<String>();
     hiveColumns.add("col1");
     hiveInitializePOJODatabase(createStore(null));
     HiveOperator hiveOperator = new HiveOperator();
-    hiveOperator.setHivestore(hiveStore);
+    hiveOperator.setStore(hiveStore);
     hiveOperator.setTablename(tablepojo);
     hiveOperator.setHivePartitionColumns(hivePartitionColumns);
 
     FSPojoToHiveOperator fsRolling = new FSPojoToHiveOperator();
-    fsRolling.setFilePath(testMeta.getDir());
+    fsRolling.setFilePath(testdir);
     fsRolling.setHiveColumns(hiveColumns);
     ArrayList<FIELD_TYPE> fieldtypes = new ArrayList<FIELD_TYPE>();
     ArrayList<FIELD_TYPE> partitiontypes = new ArrayList<FIELD_TYPE>();
@@ -319,6 +315,7 @@ public class HiveMockTest extends HiveTestService
     expressionsPartitions.add("getDate()");
     short permission = 511;
     fsRolling.setFilePermission(permission);
+    fsRolling.setAlwaysWriteToTmp(false);
     fsRolling.setMaxLength(128);
     fsRolling.setExpressionsForHiveColumns(expressions);
     fsRolling.setExpressionsForHivePartitionColumns(expressionsPartitions);
@@ -326,7 +323,8 @@ public class HiveMockTest extends HiveTestService
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
+        OPERATOR_ID, attributeMap);
 
     fsRolling.setup(context);
     hiveOperator.setup(context);
@@ -340,13 +338,9 @@ public class HiveMockTest extends HiveTestService
     partitions2.add("2014-12-12");
     mapping2.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-12" + "/" + "0-transaction.out.part.0");
     mapping2.setPartition(partitions2);
-    for (int wid = 0, total = 0;
-            wid < NUM_WINDOWS;
-            wid++) {
+    for (int wid = 0, total = 0; wid < NUM_WINDOWS; wid++) {
       fsRolling.beginWindow(wid);
-      for (int tupleCounter = 1;
-              tupleCounter < BLAST_SIZE && total < DATABASE_SIZE;
-              tupleCounter++, total++) {
+      for (int tupleCounter = 1; tupleCounter < BLAST_SIZE && total < DATABASE_SIZE; tupleCounter++, total++) {
         InnerObj innerObj = new InnerObj();
         innerObj.setId(tupleCounter);
         innerObj.setDate("2014-12-1" + tupleCounter);
@@ -395,25 +389,27 @@ public class HiveMockTest extends HiveTestService
   public void testHiveInsertMapOperator() throws SQLException, TException
   {
     HiveStore hiveStore = createStore(null);
-    hiveStore.setFilepath(testMeta.getDir());
+    hiveStore.setFilepath(testdir);
     ArrayList<String> hivePartitionColumns = new ArrayList<String>();
     hivePartitionColumns.add("dt");
     hiveInitializeMapDatabase(createStore(null));
     HiveOperator hiveOperator = new HiveOperator();
-    hiveOperator.setHivestore(hiveStore);
+    hiveOperator.setStore(hiveStore);
     hiveOperator.setTablename(tablemap);
     hiveOperator.setHivePartitionColumns(hivePartitionColumns);
 
     FSRollingMapTestImpl fsRolling = new FSRollingMapTestImpl();
-    fsRolling.setFilePath(testMeta.getDir());
+    fsRolling.setFilePath(testdir);
     short permission = 511;
     fsRolling.setFilePermission(permission);
+    fsRolling.setAlwaysWriteToTmp(false);
     fsRolling.setMaxLength(128);
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
+        OPERATOR_ID, attributeMap);
 
     fsRolling.setup(context);
     hiveOperator.setup(context);
@@ -428,13 +424,9 @@ public class HiveMockTest extends HiveTestService
     partitions2.add("2014-12-11");
     mapping2.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-11" + "/" + "0-transaction.out.part.0");
     mapping2.setPartition(partitions2);
-    for (int wid = 0;
-            wid < NUM_WINDOWS;
-            wid++) {
+    for (int wid = 0; wid < NUM_WINDOWS; wid++) {
       fsRolling.beginWindow(wid);
-      for (int tupleCounter = 0;
-              tupleCounter < BLAST_SIZE;
-              tupleCounter++) {
+      for (int tupleCounter = 0; tupleCounter < BLAST_SIZE; tupleCounter++) {
         map.put(2014 - 12 - 10 + "", 2014 - 12 - 10);
         fsRolling.input.put(map);
         map.clear();
@@ -476,26 +468,27 @@ public class HiveMockTest extends HiveTestService
   {
     hiveInitializeDatabase(createStore(null));
     HiveStore hiveStore = createStore(null);
-    hiveStore.setFilepath(testMeta.getDir());
+    hiveStore.setFilepath(testdir);
     HiveOperator outputOperator = new HiveOperator();
     HiveOperator newOp;
-
-    outputOperator.setHivestore(hiveStore);
+    outputOperator.setStore(hiveStore);
     ArrayList<String> hivePartitionColumns = new ArrayList<String>();
     hivePartitionColumns.add("dt");
     FSRollingTestImpl fsRolling = new FSRollingTestImpl();
     hiveInitializeDatabase(createStore(null));
     outputOperator.setHivePartitionColumns(hivePartitionColumns);
     outputOperator.setTablename(tablename);
-    fsRolling.setFilePath(testMeta.getDir());
+    fsRolling.setFilePath(testdir);
     short persmission = 511;
     fsRolling.setFilePermission(persmission);
+    fsRolling.setAlwaysWriteToTmp(false);
     fsRolling.setMaxLength(128);
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
+        OPERATOR_ID, attributeMap);
 
     fsRolling.setup(context);
 
@@ -515,13 +508,9 @@ public class HiveMockTest extends HiveTestService
     partitions3.add("2014-12-12");
     mapping3.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-12" + "/" + "0-transaction.out.part.0");
     mapping3.setPartition(partitions3);
-    for (int wid = 0, total = 0;
-            wid < NUM_WINDOWS;
-            wid++) {
+    for (int wid = 0, total = 0; wid < NUM_WINDOWS; wid++) {
       fsRolling.beginWindow(wid);
-      for (int tupleCounter = 0;
-              tupleCounter < BLAST_SIZE && total < DATABASE_SIZE;
-              tupleCounter++, total++) {
+      for (int tupleCounter = 0; tupleCounter < BLAST_SIZE && total < DATABASE_SIZE; tupleCounter++, total++) {
         fsRolling.input.process("2014-12-1" + tupleCounter);
       }
       if (wid == 7) {
