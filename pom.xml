@@ -134,6 +134,7 @@
               <excludes>
                 <exclude>@org.apache.hadoop.classification.InterfaceStability$Evolving</exclude>
                 <exclude>@org.apache.hadoop.classification.InterfaceStability$Unstable</exclude>
+                <exclude>org.apache.apex.malhar.lib.fs.BytesFileOutputOperator</exclude>
               </excludes>
             </parameter>
             <skip>${semver.plugin.skip}</skip>

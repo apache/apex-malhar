@@ -26,12 +26,14 @@ import java.util.Collection;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.fs.GenericFileOutputOperator.BytesFileOutputOperator;
+import org.apache.apex.malhar.lib.fs.GenericFileOutputOperator.StringFileOutputOperator;
 import org.apache.commons.io.FileUtils;
 
 import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest;
 import com.datatorrent.netlet.util.DTThrowable;
 
-public class BytesFileOutputOperatorTest extends AbstractFileOutputOperatorTest
+public class GenericFileOutputOperatorTest extends AbstractFileOutputOperatorTest
 {
 
   /**
@@ -42,7 +44,7 @@ public class BytesFileOutputOperatorTest extends AbstractFileOutputOperatorTest
   @Test
   public void testIdleWindowsFinalize() throws IOException
   {
-    BytesFileOutputOperator writer = new BytesFileOutputOperator();
+    StringFileOutputOperator writer = new StringFileOutputOperator();
     writer.setOutputFileName("output.txt");
     writer.setFilePath(testMeta.getDir());
     writer.setAlwaysWriteToTmp(true);
@@ -56,7 +58,7 @@ public class BytesFileOutputOperatorTest extends AbstractFileOutputOperatorTest
     for (int i = 0; i <= 12; i++) {
       writer.beginWindow(i);
       for (String t : tuples[i]) {
-        writer.stringInput.put(t);
+        writer.input.put(t);
       }
       writer.endWindow();
     }
@@ -65,7 +67,7 @@ public class BytesFileOutputOperatorTest extends AbstractFileOutputOperatorTest
     for (int i = 13; i <= 26; i++) {
       writer.beginWindow(i);
       for (String t : tuples[i]) {
-        writer.stringInput.put(t);
+        writer.input.put(t);
       }
       writer.endWindow();
     }
@@ -102,7 +104,7 @@ public class BytesFileOutputOperatorTest extends AbstractFileOutputOperatorTest
     for (int i = 0; i < tuples.length; i++) {
       writer.beginWindow(i);
       for (String t : tuples[i]) {
-        writer.stringInput.put(t);
+        writer.input.put(t.getBytes());
       }
       writer.endWindow();
       if (i % 10 == 0) {
@@ -118,7 +120,7 @@ public class BytesFileOutputOperatorTest extends AbstractFileOutputOperatorTest
       checkOutput(i, testMeta.getDir() + "/output.txt_0", expected[i], true);
     }
   }
-
+  
   public static void checkOutput(int fileCount, String baseFilePath, String expectedOutput, boolean checkTmp)
   {
     if (fileCount >= 0) {
