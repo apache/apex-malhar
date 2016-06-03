@@ -37,12 +37,13 @@ import com.datatorrent.netlet.util.DTThrowable;
 /**
  * This class is responsible for writing tuples to HDFS. All tuples are written
  * to the same file. Rolling file based on size, no. of tuples, idle windows,
- * elapsed windows is supported.
+ * elapsed windows is supported. The user can configure how tuples are written
+ * to the file through the converter property.
  *
  * @since 3.4.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-public abstract class GenericFileOutputOperator<INPUT> extends AbstractSingleFileOutputOperator<INPUT>
+public class GenericFileOutputOperator<INPUT> extends AbstractSingleFileOutputOperator<INPUT>
 {
 
   /**
@@ -108,7 +109,7 @@ public abstract class GenericFileOutputOperator<INPUT> extends AbstractSingleFil
   /**
    * Default value for rotation windows
    */
-  private static final int DEFAULT_ROTATION_WINDOWS = 2 * 60 * 10; //10 min  
+  private static final int DEFAULT_ROTATION_WINDOWS = 2 * 60 * 10; //10 min
 
   /**
    * Initializing default values for tuple separator, stream expiry, rotation
@@ -123,7 +124,7 @@ public abstract class GenericFileOutputOperator<INPUT> extends AbstractSingleFil
 
   /**
    * {@inheritDoc}
-   * 
+   *
    * @return byte[] representation of the given tuple. if input tuple is of type
    *         byte[] then it is returned as it is. for any other type toString()
    *         representation is used to generate byte[].
@@ -207,7 +208,7 @@ public abstract class GenericFileOutputOperator<INPUT> extends AbstractSingleFil
 
   /**
    * {@inheritDoc} Handles file rotation along with exception handling
-   * 
+   *
    * @param lastFile
    */
   protected void rotateCall(String lastFile)
@@ -294,7 +295,7 @@ public abstract class GenericFileOutputOperator<INPUT> extends AbstractSingleFil
   {
     this.converter = converter;
   }
-  
+
   /**
    * Converter returning input tuples as byte[] without any conversion
    */
@@ -309,13 +310,13 @@ public abstract class GenericFileOutputOperator<INPUT> extends AbstractSingleFil
 
   public static class BytesFileOutputOperator extends GenericFileOutputOperator<byte[]>
   {
-    
+
     public BytesFileOutputOperator()
     {
       setConverter(new NoOpConverter());
     }
   }
-  
+
   /**
    * Converter returning byte[] conversion of the input String.
    */
@@ -324,10 +325,10 @@ public abstract class GenericFileOutputOperator<INPUT> extends AbstractSingleFil
     @Override
     public byte[] convert(String tuple)
     {
-      return ((String)tuple).getBytes();
+      return tuple.getBytes();
     }
   }
-  
+
   public static class StringFileOutputOperator extends GenericFileOutputOperator<String>
   {
     public StringFileOutputOperator()
