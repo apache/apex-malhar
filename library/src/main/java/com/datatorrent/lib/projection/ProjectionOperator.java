@@ -20,15 +20,14 @@
 package com.datatorrent.lib.projection;
 
 import java.lang.reflect.Field;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.hadoop.classification.InterfaceStability;
 
 import com.google.common.annotations.VisibleForTesting;
 
@@ -37,13 +36,10 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-
 import com.datatorrent.common.util.BaseOperator;
-
 import com.datatorrent.lib.util.PojoUtils;
 
 /**
@@ -74,11 +70,14 @@ import com.datatorrent.lib.util.PojoUtils;
  *
  * @since 3.4.0
  */
+@InterfaceStability.Evolving
 public class ProjectionOperator extends BaseOperator implements Operator.ActivationListener<Context>
 {
-  protected String selectFields;
-  protected String dropFields;
-  protected String condition;
+  @NotNull
+  private List<String> selectFields;
+
+  @NotNull
+  private List<String> dropFields;
 
   static class TypeInfo
   {
@@ -162,7 +161,7 @@ public class ProjectionOperator extends BaseOperator implements Operator.Activat
   };
 
 
-  public final transient DefaultOutputPort<Object> error = new DefaultOutputPort<Object>();
+  public final transient DefaultOutputPort<Object> error = new DefaultOutputPort<>();
 
   /**
    * addProjectedField: Add field details (name, type, getter and setter) for field with given name
@@ -202,16 +201,14 @@ public class ProjectionOperator extends BaseOperator implements Operator.Activat
   public void activate(Context context)
   {
     final Field[] allFields = inClazz.getDeclaredFields();
-
-    if (selectFields != null && !selectFields.isEmpty()) {
-      List<String> sFields = Arrays.asList(selectFields.split(","));
-      for (String s : sFields) {
+    if ((selectFields != null) && !selectFields.isEmpty()) {
+      for (String s : selectFields) {
         addProjectedField(s);
       }
 
       if (remainderClazz != null) {
         for (Field f : allFields) {
-          if (!sFields.contains(f.getName())) {
+          if (!selectFields.contains(f.getName())) {
             addRemainderField(f.getName());
           }
         }
@@ -219,11 +216,9 @@ public class ProjectionOperator extends BaseOperator implements Operator.Activat
         logger.info("Remainder Port does not have Schema class defined");
       }
     } else {
-      List<String> dFields = new ArrayList<>();
-      if (dropFields != null && !dropFields.isEmpty()) {
-        dFields = Arrays.asList(dropFields.split(","));
+      if ((dropFields != null) && !dropFields.isEmpty()) {
         if (remainderClazz != null) {
-          for (String s : dFields) {
+          for (String s : dropFields) {
             addRemainderField(s);
           }
         } else {
@@ -232,7 +227,7 @@ public class ProjectionOperator extends BaseOperator implements Operator.Activat
       }
 
       for (Field f : allFields) {
-        if (!dFields.contains(f.getName())) {
+        if ((dropFields == null) || !dropFields.contains(f.getName())) {
           addProjectedField(f.getName());
         }
       }
@@ -306,6 +301,50 @@ public class ProjectionOperator extends BaseOperator implements Operator.Activat
       error.emit(t);
       errorTuples++;
     }
+  }
+
+  /**
+   * set selectFields, a list of fields to be selected from incoming POJO
+   *
+   * @param selectFields List of fields from POJO to be selected
+   * @description $[] Field which become part of selected fields
+   * @useSchema $[] input.fields[].name
+   */
+  public void setSelectFields(List<String> selectFields)
+  {
+    this.selectFields = selectFields;
+  }
+
+  /**
+   * get selectFields, a list of fields to be selected from incoming POJO
+   *
+   * @return selectFields list of fields from POJO to be selected
+   */
+  public List<String> getSelectFields()
+  {
+    return selectFields;
+  }
+
+  /**
+   * set dropFields, a list of fields to be dropped from incoming POJO
+   *
+   * @param dropFields List of fields from POJO to be selected
+   * @description $[] Field which become part of dropped fields
+   * @useSchema $[] input.fields[].name
+   */
+  public void setDropFields(List<String> dropFields)
+  {
+    this.dropFields = dropFields;
+  }
+
+  /**
+   * get dropFields, a list of fields to be dropped from incoming POJO
+   *
+   * @return dropFields list of fields from POJO to be selected
+   */
+  public List<String> getDropFields()
+  {
+    return dropFields;
   }
 
   private static final Logger logger = LoggerFactory.getLogger(ProjectionOperator.class);
