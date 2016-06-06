@@ -10,3 +10,4 @@ target/
 npm-debug.log
 nb-configuration.xml
 hadoop.log
+.checkstyle

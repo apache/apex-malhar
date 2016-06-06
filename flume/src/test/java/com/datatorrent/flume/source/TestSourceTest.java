@@ -11,12 +11,13 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.flume.Context;
-import org.apache.flume.Event;
-import org.apache.flume.channel.ChannelProcessor;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.flume.Context;
+import org.apache.flume.Event;
+import org.apache.flume.channel.ChannelProcessor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -56,8 +57,7 @@ public class TestSourceTest
     TestSource ts = new TestSource();
     try {
       ts.configure(new Context(map));
-    }
-    catch (RuntimeException re) {
+    } catch (RuntimeException re) {
       if (re.getCause() instanceof FileNotFoundException) {
         logger.warn("Skipping testSource as {}", re.getCause().getLocalizedMessage());
         return;
@@ -75,19 +75,20 @@ public class TestSourceTest
       final int last = ts.cache.size();
       for (int i = 0; i < last; i++) {
         Event event =  queue.poll(2, TimeUnit.SECONDS);
-        String row = new String(event.getBody()) ;
+        String row = new String(event.getBody());
         assertFalse("2013-11-07 should not be present", row.contains("2013-11-07"));
         assertFalse("2013-11-08 should not be present", row.contains("2013-11-08"));
         Map<String, String> headers = event.getHeaders();
-        assertEquals("Source", SOURCE_FILE + i, headers.get(TestSource.SOURCE_FILE).concat(headers.get(TestSource.LINE_NUMBER)));
+        assertEquals("Source", SOURCE_FILE + i,
+            headers.get(TestSource.SOURCE_FILE).concat(headers.get(TestSource.LINE_NUMBER)));
       }
-    }
-    finally {
+    } finally {
       ts.stop();
     }
     long end = System.currentTimeMillis();
 
-    assertTrue(String.format("Execution Time %d and %d", start,  end), end <= start + 500 + 1000 * ts.cache.size() / ts.rate);
+    assertTrue(String.format("Execution Time %d and %d", start,  end),
+        end <= start + 500 + 1000 * ts.cache.size() / ts.rate);
   }
 
   private static final Logger logger = LoggerFactory.getLogger(TestSourceTest.class);

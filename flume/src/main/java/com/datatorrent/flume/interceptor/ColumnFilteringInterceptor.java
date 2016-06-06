@@ -14,7 +14,11 @@ import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.interceptor.Interceptor;
 
-import static com.datatorrent.flume.interceptor.ColumnFilteringInterceptor.Constants.*;
+import static com.datatorrent.flume.interceptor.ColumnFilteringInterceptor.Constants.COLUMNS;
+import static com.datatorrent.flume.interceptor.ColumnFilteringInterceptor.Constants.DST_SEPARATOR;
+import static com.datatorrent.flume.interceptor.ColumnFilteringInterceptor.Constants.DST_SEPARATOR_DFLT;
+import static com.datatorrent.flume.interceptor.ColumnFilteringInterceptor.Constants.SRC_SEPARATOR;
+import static com.datatorrent.flume.interceptor.ColumnFilteringInterceptor.Constants.SRC_SEPARATOR_DFLT;
 
 /**
  * <p>ColumnFilteringInterceptor class.</p>
@@ -83,9 +87,8 @@ public class ColumnFilteringInterceptor implements Interceptor
     if (i == length && index < maxColumn) {
       nextVirginIndex = index + 2;
       positions[nextVirginIndex - 1] = length;
-      separatorTerminated = length > 0? body[length - 1]  != srcSeparator: false;
-    }
-    else {
+      separatorTerminated = length > 0 ? body[length - 1]  != srcSeparator : false;
+    } else {
       nextVirginIndex = index + 1;
       separatorTerminated = true;
     }
@@ -96,8 +99,7 @@ public class ColumnFilteringInterceptor implements Interceptor
       int len = positions[column + 1] - positions[column];
       if (len <= 0) {
         newArrayLen++;
-      }
-      else {
+      } else {
         if (separatorTerminated && positions[column + 1] == length) {
           newArrayLen++;
         }
@@ -114,12 +116,10 @@ public class ColumnFilteringInterceptor implements Interceptor
         newoffset += len;
         if (newbody[newoffset - 1] == srcSeparator) {
           newbody[newoffset - 1] = dstSeparator;
-        }
-        else {
+        } else {
           newbody[newoffset++] = dstSeparator;
         }
-      }
-      else {
+      } else {
         newbody[newoffset++] = dstSeparator;
       }
     }

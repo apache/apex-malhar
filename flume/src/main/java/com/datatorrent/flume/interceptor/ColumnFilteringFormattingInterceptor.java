@@ -9,16 +9,16 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.primitives.Ints;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.interceptor.Interceptor;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.primitives.Ints;
 
 import static com.datatorrent.flume.interceptor.ColumnFilteringFormattingInterceptor.Constants.COLUMNS_FORMATTER;
 import static com.datatorrent.flume.interceptor.ColumnFilteringFormattingInterceptor.Constants.SRC_SEPARATOR;
@@ -92,8 +92,7 @@ public class ColumnFilteringFormattingInterceptor implements Interceptor
       nextVirginIndex = index + 2;
       positions[nextVirginIndex - 1] = length;
       separatorAtEnd = length > 0 ? body[length - 1] == srcSeparator : false;
-    }
-    else {
+    } else {
       nextVirginIndex = index + 1;
     }
 
@@ -104,8 +103,7 @@ public class ColumnFilteringFormattingInterceptor implements Interceptor
       if (len > 0) {
         if (positions[column + 1] == length && !separatorAtEnd) {
           newArrayLen += len;
-        }
-        else {
+        } else {
           newArrayLen += len - 1;
         }
       }
@@ -182,8 +180,7 @@ public class ColumnFilteringFormattingInterceptor implements Interceptor
         lColumns.add(Integer.parseInt(col.substring(1, col.length() - 1)));
         if (separatorStart == 0 && matcher.start() > 0) {
           lPrefix = formatter.substring(0, matcher.start());
-        }
-        else if (separatorStart > 0) {
+        } else if (separatorStart > 0) {
           lSeparators.add(formatter.substring(separatorStart, matcher.start()));
         }
 
@@ -200,12 +197,11 @@ public class ColumnFilteringFormattingInterceptor implements Interceptor
       for (int i = 0; i < columns.length; i++) {
         if (i < lSeparators.size()) {
           dstSeparators[i] = lSeparators.get(i).getBytes();
-        }
-        else {
+        } else {
           dstSeparators[i] = emptyStringBytes;
         }
       }
-      srcSeparator = context.getInteger(SRC_SEPARATOR, (int) SRC_SEPARATOR_DFLT).byteValue();
+      srcSeparator = context.getInteger(SRC_SEPARATOR, (int)SRC_SEPARATOR_DFLT).byteValue();
       this.prefix = lPrefix.getBytes();
     }
   }

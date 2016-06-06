@@ -12,8 +12,6 @@ import java.util.Collection;
 
 import javax.validation.constraints.NotNull;
 
-import com.google.common.base.Throwables;
-
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectReader;
 import org.codehaus.jackson.map.ObjectWriter;
@@ -31,6 +29,8 @@ import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.details.InstanceSerializer;
 import org.apache.flume.conf.Configurable;
 
+import com.google.common.base.Throwables;
+
 import com.datatorrent.api.Component;
 
 /**
@@ -39,7 +39,8 @@ import com.datatorrent.api.Component;
  * @author Chetan Narsude <chetan@datatorrent.com>
  * @since 0.9.3
  */
-public class ZKAssistedDiscovery implements Discovery<byte[]>, Component<com.datatorrent.api.Context>, Configurable, Serializable
+public class ZKAssistedDiscovery implements Discovery<byte[]>,
+    Component<com.datatorrent.api.Context>, Configurable, Serializable
 {
   @NotNull
   private String serviceName;
@@ -82,12 +83,10 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>, Component<com.dat
       ServiceInstance<byte[]> instance = getInstance(service);
       if (flag) {
         discovery.registerService(instance);
-      }
-      else {
+      } else {
         discovery.unregisterService(instance);
       }
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       throw Throwables.propagate(e);
     }
   }
@@ -136,8 +135,7 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>, Component<com.dat
         });
       }
       return returnable;
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       throw Throwables.propagate(e);
     }
   }
@@ -145,7 +143,9 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>, Component<com.dat
   @Override
   public String toString()
   {
-    return "ZKAssistedDiscovery{" + "serviceName=" + serviceName + ", connectionString=" + connectionString + ", basePath=" + basePath + ", connectionTimeoutMillis=" + connectionTimeoutMillis + ", connectionRetryCount=" + connectionRetryCount + ", conntectionRetrySleepMillis=" + conntectionRetrySleepMillis + '}';
+    return "ZKAssistedDiscovery{" + "serviceName=" + serviceName + ", connectionString=" + connectionString +
+        ", basePath=" + basePath + ", connectionTimeoutMillis=" + connectionTimeoutMillis + ", connectionRetryCount=" +
+        connectionRetryCount + ", conntectionRetrySleepMillis=" + conntectionRetrySleepMillis + '}';
   }
 
   @Override
@@ -210,8 +210,7 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>, Component<com.dat
             .client(curatorFramework)
             .serializer(instanceSerializerFactory.getInstanceSerializer(
             new TypeReference<ServiceInstance<byte[]>>()
-    {
-    })).build();
+              {})).build();
   }
 
   /**
@@ -346,8 +345,7 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>, Component<com.dat
     discovery = getDiscovery(curatorFramework);
     try {
       discovery.start();
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       Throwables.propagate(ex);
     }
   }
@@ -357,11 +355,9 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>, Component<com.dat
   {
     try {
       discovery.close();
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       throw new RuntimeException(ex);
-    }
-    finally {
+    } finally {
       curatorFramework.close();
       curatorFramework = null;
     }
@@ -379,7 +375,7 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>, Component<com.dat
     }
 
     public <T> InstanceSerializer<T> getInstanceSerializer(
-            TypeReference<ServiceInstance<T>> typeReference)
+        TypeReference<ServiceInstance<T>> typeReference)
     {
       return new JacksonInstanceSerializer<T>(objectReader, objectWriter, typeReference);
     }
@@ -390,7 +386,8 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>, Component<com.dat
       private final ObjectWriter objectWriter;
       private final ObjectReader objectReader;
 
-      JacksonInstanceSerializer(ObjectReader objectReader, ObjectWriter objectWriter, TypeReference<ServiceInstance<T>> typeRef)
+      JacksonInstanceSerializer(ObjectReader objectReader, ObjectWriter objectWriter,
+          TypeReference<ServiceInstance<T>> typeRef)
       {
         this.objectReader = objectReader;
         this.objectWriter = objectWriter;

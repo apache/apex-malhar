@@ -4,7 +4,6 @@
  */
 package com.datatorrent.flume.integration;
 
-
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -13,10 +12,13 @@ import org.slf4j.LoggerFactory;
 import org.apache.flume.Event;
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
-
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.flume.operator.AbstractFlumeInputOperator;
 import com.datatorrent.flume.storage.EventCodec;
 
@@ -92,8 +94,7 @@ public class ApplicationTest implements StreamingApplication
   {
     try {
       LocalMode.runApp(this, Integer.MAX_VALUE);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       logger.warn("The dag seems to be not testable yet, if it's - remove this exception handling", ex);
     }
 

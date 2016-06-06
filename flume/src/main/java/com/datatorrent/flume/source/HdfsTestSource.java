@@ -9,9 +9,16 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.annotation.Nonnull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.flume.Context;
@@ -22,9 +29,11 @@ import org.apache.flume.conf.Configurable;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.source.AbstractSource;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocatedFileStatus;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.RemoteIterator;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -95,7 +104,8 @@ public class HdfsTestSource extends AbstractSource implements EventDrivenSource,
       }
       if (logger.isDebugEnabled()) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        logger.debug("settings {} {} {} {} {}", directory, rate, dateFormat.format(oneDayBack), dateFormat.format(new Date(initTime)), currentFile);
+        logger.debug("settings {} {} {} {} {}", directory, rate, dateFormat.format(oneDayBack),
+            dateFormat.format(new Date(initTime)), currentFile);
         for (String file : dataFiles) {
           logger.debug("settings add file {}", file);
         }
@@ -104,8 +114,7 @@ public class HdfsTestSource extends AbstractSource implements EventDrivenSource,
       fs = FileSystem.newInstance(new Path(directory).toUri(), configuration);
       Path filePath = new Path(dataFiles.get(currentFile));
       br = new BufferedReader(new InputStreamReader(new GzipCompressorInputStream(fs.open(filePath))));
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException(e);
     }
 
@@ -131,12 +140,10 @@ public class HdfsTestSource extends AbstractSource implements EventDrivenSource,
         logger.debug("new file {}", filePathStr);
         files.add(path.toString());
       }
-    }
-    catch (FileNotFoundException e) {
+    } catch (FileNotFoundException e) {
       logger.warn("Failed to list directory {}", directoryPath, e);
       throw new RuntimeException(e);
-    }
-    finally {
+    } finally {
       lfs.close();
     }
     return files;
@@ -178,8 +185,7 @@ public class HdfsTestSource extends AbstractSource implements EventDrivenSource,
             Event flumeEvent = EventBuilder.withBody(line.getBytes());
             events.add(flumeEvent);
           }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
           throw new RuntimeException(e);
         }
         if (events.size() > 0) {

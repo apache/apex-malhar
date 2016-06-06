@@ -6,8 +6,10 @@ package com.datatorrent.flume.operator;
 
 import java.util.HashSet;
 import java.util.Set;
+
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  *

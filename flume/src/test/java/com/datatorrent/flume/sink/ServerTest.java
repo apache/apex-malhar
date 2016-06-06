@@ -5,9 +5,9 @@
 package com.datatorrent.flume.sink;
 
 import java.util.Random;
+
 import org.junit.Assert;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *

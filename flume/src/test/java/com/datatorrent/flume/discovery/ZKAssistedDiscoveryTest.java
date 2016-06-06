@@ -9,12 +9,14 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.junit.Assert.*;
 
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.details.InstanceSerializer;
 
 import com.datatorrent.flume.discovery.Discovery.Service;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  *
@@ -62,9 +64,10 @@ public class ZKAssistedDiscoveryTest
       }
 
     });
-    InstanceSerializer<byte[]> instanceSerializer = discovery.getInstanceSerializerFactory().getInstanceSerializer(new TypeReference<ServiceInstance<byte[]>>()
-    {
-    });
+    InstanceSerializer<byte[]> instanceSerializer =
+        discovery.getInstanceSerializerFactory().getInstanceSerializer(new TypeReference<ServiceInstance<byte[]>>()
+        {
+        });
     byte[] serialize = instanceSerializer.serialize(instance);
     logger.debug("serialized json = {}", new String(serialize));
     ServiceInstance<byte[]> deserialize = instanceSerializer.deserialize(serialize);
