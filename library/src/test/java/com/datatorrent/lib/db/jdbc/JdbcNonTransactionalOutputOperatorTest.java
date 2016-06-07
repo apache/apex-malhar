@@ -26,8 +26,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -141,7 +139,8 @@ public class JdbcNonTransactionalOutputOperatorTest
 
     com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
+        OPERATOR_ID, attributeMap);
     outputOperator.setStore(store);
 
     outputOperator.setup(context);
@@ -160,4 +159,3 @@ public class JdbcNonTransactionalOutputOperatorTest
     Assert.assertEquals("rows in db", 10, outputOperator.getNumOfEventsInStore());
   }
 }
-
