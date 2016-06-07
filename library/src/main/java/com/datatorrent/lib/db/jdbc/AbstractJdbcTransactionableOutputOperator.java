@@ -23,7 +23,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,7 +139,6 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T>
    *
    * @return the sql statement to update a tuple in the database.
    */
-  @NotNull
   protected abstract String getUpdateCommand();
 
   /**
