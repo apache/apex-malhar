@@ -96,7 +96,6 @@ public class JdbcNonTransactionalOutputOperatorTest
       cleanTable();
     }
 
-    @Nonnull
     @Override
     protected String getUpdateCommand()
     {
