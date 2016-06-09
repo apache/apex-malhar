@@ -20,6 +20,7 @@ package org.apache.apex.malhar.stream.api.impl;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,7 +29,10 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.apache.apex.malhar.stream.api.ApexStream;
+import org.apache.apex.malhar.stream.api.CompositeStreamTransform;
+import org.apache.apex.malhar.stream.api.WindowedStream;
 import org.apache.apex.malhar.stream.api.function.Function;
+import org.apache.apex.malhar.stream.api.function.Function.FlatMapFunction;
 import org.apache.apex.malhar.stream.api.operator.FunctionOperator;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -40,6 +44,8 @@ import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator;
 import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.util.KeyValPair;
+import com.datatorrent.lib.window.WindowOption;
 import com.datatorrent.stram.StramLocalCluster;
 import com.datatorrent.stram.plan.logical.LogicalPlan;
 
@@ -49,7 +55,7 @@ import com.datatorrent.stram.plan.logical.LogicalPlan;
  *
  * @since 3.4.0
  */
-public class ApexStreamImpl<T> implements ApexStream<T>
+public class ApexStreamImpl<T> implements ApexStream<T>, WindowedStream<T>
 {
 
   private static Set<Attribute<?>> OPERATOR_ATTRIBUTES;
@@ -198,14 +204,14 @@ public class ApexStreamImpl<T> implements ApexStream<T>
   }
 
   @Override
-  public <O, STREAM extends ApexStream<O>> STREAM flatMap(Function.FlatMapFunction<T, O> flatten)
+  public <O, STREAM extends ApexStream<O>> STREAM flatMap(FlatMapFunction<T, O> flatten)
   {
     return flatMap(flatten.toString(), flatten);
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public <O, STREAM extends ApexStream<O>> STREAM flatMap(String name, Function.FlatMapFunction<T, O> flatten)
+  public <O, STREAM extends ApexStream<O>> STREAM flatMap(String name, FlatMapFunction<T, O> flatten)
   {
     FunctionOperator.FlatMapFunctionOperator<T, O> opt = new FunctionOperator.FlatMapFunctionOperator<>(flatten);
     return (STREAM)addOperator(name, opt, opt.input, opt.output);
@@ -232,6 +238,18 @@ public class ApexStreamImpl<T> implements ApexStream<T>
   }
 
   @Override
+  public <O, K, STREAM extends ApexStream<KeyValPair<K, Iterable<O>>>> STREAM groupByKey()
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <STREAM extends ApexStream<Iterable<T>>> STREAM group()
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   @SuppressWarnings("unchecked")
   public <STREAM extends ApexStream<T>> STREAM reduce(String name, Function.ReduceFunction<T> reduce)
   {
@@ -254,9 +272,27 @@ public class ApexStreamImpl<T> implements ApexStream<T>
   }
 
   @Override
+  public <O, K, STREAM extends ApexStream<KeyValPair<K, O>>> STREAM foldByKey(String name, Function.FoldFunction<T, KeyValPair<K, O>> fold)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <O, K, STREAM extends ApexStream<KeyValPair<K, O>>> STREAM foldByKey(Function.FoldFunction<T, KeyValPair<K, O>> fold)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public <STREAM extends ApexStream<Integer>> STREAM count()
   {
     throw new UnsupportedOperationException();
+  }
+
+
+  public <STREAM extends ApexStream<Map.Entry<Object, Integer>>> STREAM countByElement()
+  {
+    return null;
   }
 
   @Override
@@ -266,14 +302,46 @@ public class ApexStreamImpl<T> implements ApexStream<T>
   }
 
   @Override
+  public <TUPLE, KEY, STREAM extends ApexStream<Map.Entry<KEY, List<TUPLE>>>> STREAM topByKey(int N)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <STREAM extends ApexStream<T>> STREAM top(int N)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <O, STREAM extends ApexStream<O>> STREAM combineByKey()
+  {
+    return null;
+  }
+
+  @Override
+  public <O, STREAM extends ApexStream<O>> STREAM combine()
+  {
+    return null;
+  }
+
+  @Override
   @SuppressWarnings("unchecked")
-  public <STREAM extends ApexStream<Map<Object, Integer>>> STREAM countByKey()
+  public <STREAM extends ApexStream<Map.Entry<Object, Integer>>> STREAM countByKey()
   {
     // Needs to change the unique counter to support keys
     UniqueCounter<Object> uniqueCounter = new UniqueCounter<>();
     uniqueCounter.setCumulative(true);
-    Operator.OutputPort<? extends Map<Object, Integer>> resultPort = uniqueCounter.count;
-    return (STREAM)addOperator("CounterByKey", uniqueCounter, (Operator.InputPort<T>)uniqueCounter.data, resultPort);
+    Operator.OutputPort<HashMap<Object, Integer>> resultPort = uniqueCounter.count;
+    return (STREAM)addOperator("CounterByKey", uniqueCounter, (Operator.InputPort<T>)uniqueCounter.data, resultPort)
+        .flatMap(new FlatMapFunction<HashMap<Object, Integer>, Map.Entry<Object, Integer>>()
+        {
+          @Override
+          public Iterable<Map.Entry<Object, Integer>> f(HashMap<Object, Integer> input)
+          {
+            return input.entrySet();
+          }
+        });
   }
 
   @Override
@@ -316,6 +384,12 @@ public class ApexStreamImpl<T> implements ApexStream<T>
     }
 
     return (STREAM)new ApexStreamImpl<>(this.graph, newBrick);
+  }
+
+  @Override
+  public <O, STREAM extends ApexStream<O>> STREAM addCompositeStreams(CompositeStreamTransform<T, O> compositeStreamTransform)
+  {
+    throw new UnsupportedOperationException();
   }
 
   /* Check to see if inputPort and outputPort belongs to the operator */
@@ -493,5 +567,10 @@ public class ApexStreamImpl<T> implements ApexStream<T>
     //TODO need an api to submit the StreamingApplication to cluster
   }
 
+  @Override
+  public WindowedStream<T> window(WindowOption option)
+  {
+    return null;
+  }
 
 }
