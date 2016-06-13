@@ -182,6 +182,38 @@ public class JDBCLoaderTest
   }
 
   @Test
+  public void testMysqlDBLookupIncludeAllKeysEmptyQuery() throws Exception
+  {
+    CountDownLatch latch = new CountDownLatch(1);
+
+    ArrayList<FieldInfo> lookupKeys = new ArrayList<>();
+    lookupKeys.add(new FieldInfo("ID", "ID", FieldInfo.SupportType.INTEGER));
+
+    ArrayList<FieldInfo> includeKeys = new ArrayList<>();
+    includeKeys.add(new FieldInfo("ID", "ID", FieldInfo.SupportType.INTEGER));
+    includeKeys.add(new FieldInfo("NAME", "NAME", FieldInfo.SupportType.STRING));
+    includeKeys.add(new FieldInfo("AGE", "AGE", FieldInfo.SupportType.INTEGER));
+    includeKeys.add(new FieldInfo("ADDRESS", "ADDRESS", FieldInfo.SupportType.STRING));
+    includeKeys.add(new FieldInfo("SALARY", "SALARY", FieldInfo.SupportType.DOUBLE));
+
+    testMeta.dbloader.setQueryStmt("");
+    testMeta.dbloader.setFieldInfo(lookupKeys, includeKeys);
+
+    latch.await(1000, TimeUnit.MILLISECONDS);
+
+    ArrayList<Object> keys = new ArrayList<Object>();
+    keys.add(4);
+
+    ArrayList<Object> columnInfo = (ArrayList<Object>)testMeta.dbloader.get(keys);
+
+    Assert.assertEquals("ID", 4, columnInfo.get(0));
+    Assert.assertEquals("NAME", "Mark", columnInfo.get(1).toString().trim());
+    Assert.assertEquals("AGE", 25, columnInfo.get(2));
+    Assert.assertEquals("ADDRESS", "Rich-Mond", columnInfo.get(3).toString().trim());
+    Assert.assertEquals("SALARY", 65000.0, columnInfo.get(4));
+  }
+
+  @Test
   public void testMysqlDBQuery() throws Exception
   {
     CountDownLatch latch = new CountDownLatch(1);

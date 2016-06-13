@@ -156,7 +156,7 @@ public class JDBCLoader extends JdbcStore implements BackendLoader
   {
     this.lookupFieldInfo = lookupFieldInfo;
     this.includeFieldInfo = includeFieldInfo;
-    if (queryStmt == null) {
+    if ((queryStmt == null) || (queryStmt.length() == 0)) {
       queryStmt = generateQueryStmt();
     }
   }
