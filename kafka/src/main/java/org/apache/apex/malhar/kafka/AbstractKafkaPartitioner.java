@@ -45,6 +45,8 @@ import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.lib.util.KryoCloneUtils;
 
+import kafka.common.AuthorizationException;
+
 /**
  * Abstract partitioner used to manage the partitions of kafka input operator.
  * It use a number of kafka consumers(one for each cluster) to get the latest partition metadata for topics that
@@ -87,27 +89,50 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
   @Override
   public Collection<Partition<AbstractKafkaInputOperator>> definePartitions(Collection<Partition<AbstractKafkaInputOperator>> collection, PartitioningContext partitioningContext)
   {
-
     initMetadataClients();
 
     Map<String, Map<String, List<PartitionInfo>>> metadata = new HashMap<>();
 
-
     for (int i = 0; i < clusters.length; i++) {
       metadata.put(clusters[i], new HashMap<String, List<PartitionInfo>>());
       for (String topic : topics) {
-        List<PartitionInfo> ptis = metadataRefreshClients.get(i).partitionsFor(topic);
-        if (logger.isDebugEnabled()) {
-          logger.debug("Partition metadata for topic {} : {}", topic, Joiner.on(';').join(ptis));
+        int tryTime = 3;
+        while (tryTime-- > 0) {
+          try {
+            List<PartitionInfo> ptis = metadataRefreshClients.get(i).partitionsFor(topic);
+            if (logger.isDebugEnabled()) {
+              logger.debug("Partition metadata for topic {} : {}", topic, Joiner.on(';').join(ptis));
+            }
+            metadata.get(clusters[i]).put(topic, ptis);
+            break;
+          } catch (AuthorizationException ae) {
+            logger.error("Kafka AuthorizationException.");
+            throw new RuntimeException("Kafka AuthorizationException.", ae);
+          } catch (Exception e) {
+            logger.warn("Got Exception when trying get partition info for topic {}.", topic, e);
+            try {
+              Thread.sleep(100);
+            } catch (Exception e1) {
+              //ignore
+            }
+          }
         }
-        metadata.get(clusters[i]).put(topic, ptis);
+        if (tryTime == 0) {
+          throw new RuntimeException("Get partition info completely failed. Please check the log file");
+        }
       }
       metadataRefreshClients.get(i).close();
     }
 
     metadataRefreshClients = null;
 
-    List<Set<AbstractKafkaPartitioner.PartitionMeta>> parts = assign(metadata);
+    List<Set<AbstractKafkaPartitioner.PartitionMeta>> parts = null;
+    try {
+      parts = assign(metadata);
+    } catch (Exception e) {
+      logger.error("assign() exception.", e);
+      e.printStackTrace();
+    }
 
 
     if (currentPartitions == parts || currentPartitions.equals(parts)) {
