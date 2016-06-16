@@ -32,6 +32,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +75,7 @@ public class KafkaConsumerWrapper implements Closeable
 
   private static final Logger logger = LoggerFactory.getLogger(KafkaConsumerWrapper.class);
 
-  private boolean isAlive = false;
+  private AtomicBoolean isAlive = new AtomicBoolean(false);
 
   private final Map<String, KafkaConsumer<byte[], byte[]>> consumers = new HashMap<>();
 
@@ -129,6 +130,11 @@ public class KafkaConsumerWrapper implements Closeable
         if (meta.getTopicPartition().equals(tp)) {
           kc.resume(tp);
         } else {
+          try {
+            kc.position(tp);
+          } catch (NoOffsetForPartitionException e) {
+            kc.seekToBeginning(tp);
+          }
           kc.pause(tp);
         }
       }
@@ -188,7 +194,7 @@ public class KafkaConsumerWrapper implements Closeable
       try {
 
 
-        while (wrapper.isAlive) {
+        while (wrapper.isAlive.get()) {
           if (wrapper.waitForReplay) {
             Thread.sleep(100);
             continue;
@@ -255,7 +261,7 @@ public class KafkaConsumerWrapper implements Closeable
   public void start(boolean waitForReplay)
   {
     this.waitForReplay = waitForReplay;
-    isAlive = true;
+    isAlive.set(true);
 
     // thread to consume the kafka data
     // create thread pool for consumer threads
@@ -330,11 +336,11 @@ public class KafkaConsumerWrapper implements Closeable
    */
   public void stop()
   {
+    isAlive.set(false);
     for (KafkaConsumer<byte[], byte[]> c : consumers.values()) {
       c.wakeup();
     }
     kafkaConsumerExecutor.shutdownNow();
-    isAlive = false;
     holdingBuffer.clear();
     IOUtils.closeQuietly(this);
   }
@@ -345,16 +351,6 @@ public class KafkaConsumerWrapper implements Closeable
   public void teardown()
   {
     holdingBuffer.clear();
-  }
-
-  public boolean isAlive()
-  {
-    return isAlive;
-  }
-
-  public void setAlive(boolean isAlive)
-  {
-    this.isAlive = isAlive;
   }
 
   public Pair<String, ConsumerRecord<byte[], byte[]>> pollMessage()
