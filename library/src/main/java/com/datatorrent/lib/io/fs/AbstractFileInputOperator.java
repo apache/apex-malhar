@@ -1056,10 +1056,15 @@ public abstract class AbstractFileInputOperator<T>
       return pathSet;
     }
 
+    protected int getPartition(String filePathStr)
+    {
+      return filePathStr.hashCode();
+    }
+
     protected boolean acceptFile(String filePathStr)
     {
       if (partitionCount > 1) {
-        int i = filePathStr.hashCode();
+        int i = getPartition(filePathStr);
         int mod = i % partitionCount;
         if (mod < 0) {
           mod += partitionCount;
@@ -1096,7 +1101,8 @@ public abstract class AbstractFileInputOperator<T>
 
     protected DirectoryScanner createPartition(int partitionIndex, int partitionCount)
     {
-      DirectoryScanner that = new DirectoryScanner();
+      KryoCloneUtils<DirectoryScanner> cloneUtils = KryoCloneUtils.createCloneUtils(this);
+      DirectoryScanner that = cloneUtils.getClone();
       that.filePatternRegexp = this.filePatternRegexp;
       that.regex = this.regex;
       that.partitionIndex = partitionIndex;
@@ -1109,6 +1115,16 @@ public abstract class AbstractFileInputOperator<T>
     {
       return "DirectoryScanner [filePatternRegexp=" + filePatternRegexp + " partitionIndex=" +
           partitionIndex + " partitionCount=" + partitionCount + "]";
+    }
+
+    protected void setPartitionIndex(int partitionIndex)
+    {
+      this.partitionIndex = partitionIndex;
+    }
+
+    protected void setPartitionCount(int partitionCount)
+    {
+      this.partitionCount = partitionCount;
     }
   }
 
