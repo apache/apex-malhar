@@ -18,20 +18,14 @@
  */
 package com.datatorrent.contrib.elasticsearch;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
+import com.datatorrent.api.Sink;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
-import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.api.Sink;
+import java.util.*;
 
 /**
  * Unit test for ElasticSearch operator. It assumes that you have running instance of elasticsearch on localhost:9300
@@ -49,8 +43,9 @@ public class ElasticSearchOperatorTest
   ElasticSearchConnectable createStore()
   {
     ElasticSearchConnectable store = new ElasticSearchConnectable();
-    store.setHostName("localhost");
+    store.setHostName("127.0.0.1");
     store.setPort(9300);
+    store.setClusterName("elasticsearch");
     return store;
   }
 
@@ -144,7 +139,7 @@ public class ElasticSearchOperatorTest
       protected SearchRequestBuilder getSearchRequestBuilder()
       {
         long time = System.currentTimeMillis();
-        return searchRequestBuilder.setPostFilter(FilterBuilders.rangeFilter(POST_DATE).from(testStartTime).to(time)) // Filter
+        return searchRequestBuilder.setPostFilter(QueryBuilders.rangeQuery(POST_DATE).from(testStartTime).to(time)) // Filter
             .setSize(15).setExplain(false);
       }
     };

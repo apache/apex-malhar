@@ -19,10 +19,12 @@
 package com.datatorrent.contrib.elasticsearch;
 
 import java.io.IOException;
+import java.net.InetAddress;
 
 import javax.validation.constraints.NotNull;
 
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
 import com.datatorrent.lib.db.Connectable;
@@ -51,6 +53,9 @@ public class ElasticSearchConnectable implements Connectable
   protected String hostName;
   @NotNull
   protected int port;
+
+  @NotNull
+  protected String clusterName;
 
   protected transient TransportClient client;
 
@@ -88,6 +93,24 @@ public class ElasticSearchConnectable implements Connectable
     this.port = port;
   }
 
+  /**
+   *
+   * @return
+   */
+  public String getClusterName() 
+  {
+    return clusterName;
+  }
+
+  /**
+   *
+   * @param clusterName
+   */
+  public void setClusterName(String clusterName) 
+  {
+    this.clusterName = clusterName;
+  }
+
   /*
    * (non-Javadoc)
    * 
@@ -96,8 +119,9 @@ public class ElasticSearchConnectable implements Connectable
   @Override
   public void connect() throws IOException
   {
-    client = new TransportClient();
-    client.addTransportAddress(new InetSocketTransportAddress(hostName, port));
+    Settings settings = Settings.settingsBuilder().put("cluster.name", clusterName).put("client.transport.sniff", true).build();
+    client = TransportClient.builder().settings(settings).build();
+    client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(hostName),port));
   }
 
   /*
