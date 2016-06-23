@@ -29,12 +29,12 @@ import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.util.KryoCloneUtils;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
 import kafka.api.FetchRequest;
 import kafka.api.FetchRequestBuilder;
 import kafka.cluster.Broker;
@@ -54,6 +54,7 @@ import org.slf4j.LoggerFactory;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -203,6 +204,14 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
    */
   protected abstract void emitTuple(Message message);
 
+  /**
+   * Concrete class derived from KafkaInputOpertor should implement this method if it wants to access kafka offset and partitionId along with kafka message. 
+   */
+  protected void emitTuple(KafkaConsumer.KafkaMessage message)
+  {
+    emitTuple(message.msg);
+  }
+
   public int getMaxTuplesPerWindow()
   {
     return maxTuplesPerWindow;
@@ -304,7 +313,8 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
             FetchResponse fetchResponse = ksc.fetch(req);
             Integer count = 0;
             for (MessageAndOffset msg : fetchResponse.messageSet(consumer.topic, kp.getPartitionId())) {
-              emitTuple(msg.message());
+              KafkaConsumer.KafkaMessage kafkaMessage = new KafkaConsumer.KafkaMessage(kp, msg.message(), msg.offset());
+              emitTuple(kafkaMessage);
               offsetStats.put(kp, msg.offset());
               count = count + 1;
               if (count.equals(rc.getValue().right))
@@ -430,7 +440,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
         pendingMessage = message;
         break;
       }
-      emitTuple(message.msg);
+      emitTuple(message);
       emitCount++;
       emitTotalMsgSize += message.msg.size();
       offsetStats.put(message.kafkaPart, message.offSet);
