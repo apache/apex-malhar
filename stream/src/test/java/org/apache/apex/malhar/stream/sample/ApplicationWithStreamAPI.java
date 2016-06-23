@@ -20,14 +20,20 @@ package org.apache.apex.malhar.stream.sample;
 
 import java.util.Arrays;
 
+import org.joda.time.Duration;
+
 import org.apache.apex.malhar.stream.api.ApexStream;
 import org.apache.apex.malhar.stream.api.function.Function;
 import org.apache.apex.malhar.stream.api.impl.StreamFactory;
+import org.apache.apex.malhar.lib.window.TriggerOption;
+import org.apache.apex.malhar.lib.window.WindowOption;
+import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * An application example with stream api
@@ -40,7 +46,7 @@ public class ApplicationWithStreamAPI implements StreamingApplication
   public void populateDAG(DAG dag, Configuration configuration)
   {
     String localFolder = "./src/test/resources/data";
-    ApexStream stream = StreamFactory
+    ApexStream<String> stream = StreamFactory
         .fromFolder(localFolder)
         .flatMap(new Function.FlatMapFunction<String, String>()
         {
@@ -51,7 +57,16 @@ public class ApplicationWithStreamAPI implements StreamingApplication
           }
         });
     stream.print();
-    stream.countByKey().print();
+    stream.window(new WindowOption.GlobalWindow(), new TriggerOption().withEarlyFiringsAtEvery(Duration
+        .millis(1000)).accumulatingFiredPanes()).countByKey(new Function.MapFunction<String, Tuple<KeyValPair<String, Long>>>()
+    {
+      @Override
+      public Tuple<KeyValPair<String, Long>> f(String input)
+      {
+        return new Tuple.PlainTuple(new KeyValPair<>(input, 1l));
+      }
+    }).print();
     stream.populateDag(dag);
+
   }
 }

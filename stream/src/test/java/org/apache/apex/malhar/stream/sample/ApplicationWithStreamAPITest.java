@@ -45,7 +45,7 @@ public class ApplicationWithStreamAPITest
     lma.prepareDAG(new ApplicationWithStreamAPI(), conf);
     LocalMode.Controller lc = lma.getController();
     long start = System.currentTimeMillis();
-    lc.run(5000);
+    lc.run(100000);
     long end = System.currentTimeMillis();
     long time = end - start;
     logger.info("Test used " + time + " ms");

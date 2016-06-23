@@ -29,6 +29,10 @@ import org.junit.Test;
 
 import org.apache.apex.malhar.stream.api.function.Function;
 import org.apache.apex.malhar.stream.api.impl.StreamFactory;
+import org.apache.apex.malhar.lib.window.Tuple;
+import org.apache.apex.malhar.lib.window.WindowOption;
+
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * A test class which test your own stream implementation build on default one
@@ -65,7 +69,7 @@ public class MyStreamTest
 
     testId = "testMethodChainWordcount";
 
-    TupleCollector<Map<Object, Integer>> collector = new TupleCollector<>();
+    TupleCollector<Tuple<KeyValPair<String, Long>>> collector = new TupleCollector<>();
     collector.id = testId;
     new MyStream<>(StreamFactory.fromFolder("./src/test/resources/data"))
         .<String, MyStream<String>>flatMap(new Function.FlatMapFunction<String, String>()
@@ -89,8 +93,14 @@ public class MyStreamTest
           {
             return input.startsWith("word");
           }
-        }).countByKey()
-        .addOperator(collector, collector.inputPort, collector.outputPort).print().runEmbedded(false, 30000, exitCondition);
+        }).window(new WindowOption.GlobalWindow()).countByKey(new Function.MapFunction<String, Tuple<KeyValPair<String, Long>>>()
+    {
+      @Override
+      public Tuple<KeyValPair<String, Long>> f(String input)
+      {
+        return new Tuple.PlainTuple(new KeyValPair<>(input, input));
+      }
+    }).addOperator(collector, collector.inputPort, collector.outputPort).print().runEmbedded(false, 30000, exitCondition);
 
 
     List<Map<Object, Integer>> data = (List<Map<Object, Integer>>)TupleCollector.results.get(testId);
@@ -103,7 +113,7 @@ public class MyStreamTest
   {
     testId = "testNonMethodChainWordcount";
 
-    TupleCollector<Map<Object, Integer>> collector = new TupleCollector<>();
+    TupleCollector<Tuple<KeyValPair<String, Long>>> collector = new TupleCollector<>();
     collector.id = testId;
     MyStream<String> mystream = new MyStream<>(StreamFactory
         .fromFolder("./src/test/resources/data"))
@@ -129,7 +139,14 @@ public class MyStreamTest
       {
         return input.startsWith("word");
       }
-    }).countByKey().addOperator(collector, collector.inputPort, collector.outputPort).print().runEmbedded(false, 30000, exitCondition);
+    }).window(new WindowOption.GlobalWindow()).countByKey(new Function.MapFunction<String, Tuple<KeyValPair<String, Long>>>()
+    {
+      @Override
+      public Tuple<KeyValPair<String, Long>> f(String input)
+      {
+        return new Tuple.PlainTuple(new KeyValPair<>(input, 1));
+      }
+    }).addOperator(collector, collector.inputPort, collector.outputPort).print().runEmbedded(false, 30000, exitCondition);
 
 
     List<Map<Object, Integer>> data = (List<Map<Object, Integer>>)TupleCollector.results.get(testId);
