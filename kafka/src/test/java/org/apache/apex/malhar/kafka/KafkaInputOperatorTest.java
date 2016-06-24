@@ -34,14 +34,16 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.LoggerFactory;
 
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
-import org.apache.commons.io.FileUtils;
+
+import com.google.common.collect.Lists;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
@@ -55,7 +57,6 @@ import com.datatorrent.stram.StramLocalCluster;
  * A bunch of test to verify the input operator will be automatically partitioned per kafka partition This test is launching its
  * own Kafka cluster.
  */
-@Ignore
 @RunWith(Parameterized.class)
 public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 {
@@ -65,13 +66,36 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
   private String partition = null;
 
   private String testName = "";
-
+  
   public static String APPLICATION_PATH = baseDir + File.separator + StramLocalCluster.class.getName() + File.separator;
 
+  public class KafkaTestInfo extends TestWatcher
+  {
+    public org.junit.runner.Description desc;
+
+    public String getDir()
+    {
+      String methodName = desc.getMethodName();
+      String className = desc.getClassName();
+      return "target/" + className + "/" + methodName + "/" + testName;
+    }
+
+    @Override
+    protected void starting(org.junit.runner.Description description)
+    {
+      this.desc = description;
+    }
+  }
+  
+  @Rule
+  public final KafkaTestInfo testInfo = new KafkaTestInfo();
+  
+  
   @Parameterized.Parameters(name = "multi-cluster: {0}, multi-partition: {1}, partition: {2}")
   public static Collection<Object[]> testScenario()
   {
-    return Arrays.asList(new Object[][]{{true, false, "one_to_one"},// multi cluster with single partition
+    return Arrays.asList(new Object[][]{
+      {true, false, "one_to_one"},// multi cluster with single partition
       {true, false, "one_to_many"},
       {true, true, "one_to_one"},// multi cluster with multi partitions
       {true, true, "one_to_many"},
@@ -82,12 +106,17 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     });
   }
 
+
+
   @Before
   public void before()
   {
-    FileUtils.deleteQuietly(new File(APPLICATION_PATH));
-    tupleCollection.clear();
     testName = TEST_TOPIC + testCounter++;
+    logger.info("before() test case: {}", testName);
+    tupleCollection.clear();
+    //reset count for next new test case
+    k = 0;
+    
     createTopic(0, testName);
     if (hasMultiCluster) {
       createTopic(1, testName);
@@ -107,12 +136,24 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(KafkaInputOperatorTest.class);
   private static List<String> tupleCollection = new LinkedList<>();
-  private static Map<String, Set<String>> tupleCollectedInWindow = new HashMap<>();
+
+  /**
+   * whether countDown latch count all tuples or just END_TUPLE
+   */
+  private static final boolean countDownAll = false;
+  private static final int scale = 2;
+  private static final int totalCount = 10 * scale;
+  private static final int failureTrigger = 3 * scale;
+  private static final int tuplesPerWindow = 5 * scale;
+  private static final int waitTime = 60000 + 300 * scale;
+  
+  //This latch was used to count the END_TUPLE, but the order of tuple can't be guaranteed, 
+  //so, count valid tuple instead.
   private static CountDownLatch latch;
   private static boolean hasFailure = false;
-  private static int failureTrigger = 3000;
   private static int k = 0;
-
+  private static Thread monitorThread;
+  
   /**
    * Test Operator to collect tuples from KafkaSingleInputStringOperator.
    *
@@ -120,8 +161,14 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
    */
   public static class CollectorModule extends BaseOperator
   {
-
-    public final transient CollectorInputPort inputPort = new CollectorInputPort(this);
+    public final transient DefaultInputPort<byte[]> inputPort = new DefaultInputPort<byte[]>()
+    {
+      @Override
+      public void process(byte[] bt)
+      {
+        processTuple(bt);
+      }
+    };
 
     long currentWindowId;
 
@@ -129,8 +176,10 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 
     boolean isIdempotentTest = false;
 
-    transient Set<String> windowTupleCollector = new HashSet<>();
-
+    transient List<String> windowTupleCollector = Lists.newArrayList();
+    private transient Map<String, List<String>> tupleCollectedInWindow = new HashMap<>();
+    private int endTuples = 0;
+    
     @Override
     public void setup(Context.OperatorContext context)
     {
@@ -143,38 +192,12 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     {
       super.beginWindow(windowId);
       currentWindowId = windowId;
-    }
-
-    @Override
-    public void endWindow()
-    {
-      super.endWindow();
-      if (isIdempotentTest) {
-        String key = operatorId + "," + currentWindowId;
-        Set<String> msgsInWin = tupleCollectedInWindow.get(key);
-        if (msgsInWin!=null) {
-          Assert.assertEquals("replay messages should be exactly same as previous window", msgsInWin, windowTupleCollector);
-        } else {
-          Set<String> newSet = new HashSet<>();
-          newSet.addAll(windowTupleCollector);
-          tupleCollectedInWindow.put(key, newSet);
-        }
-      }
       windowTupleCollector.clear();
+      endTuples = 0;
     }
 
-  }
-
-  public static class CollectorInputPort extends DefaultInputPort<byte[]>
-  {
-    CollectorModule ownerNode;
-
-    CollectorInputPort(CollectorModule node) {
-      this.ownerNode = node;
-    }
-
-    @Override
-    public void process(byte[] bt)
+    
+    public void processTuple(byte[] bt)
     {
       String tuple = new String(bt);
       if (hasFailure && k++ == failureTrigger) {
@@ -182,19 +205,66 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
         hasFailure = false;
         throw new RuntimeException();
       }
-      if (tuple.equals(KafkaOperatorTestBase.END_TUPLE)) {
-        if (latch != null) {
-          latch.countDown();
-        }
-        return;
+      if (tuple.startsWith(KafkaOperatorTestBase.END_TUPLE)) {
+        endTuples++;
       }
-      tupleCollection.add(tuple);
-      if (ownerNode.isIdempotentTest) {
-        ownerNode.windowTupleCollector.add(tuple);
+      
+      windowTupleCollector.add(tuple);
+    }
+    
+    @Override
+    public void endWindow()
+    {
+      super.endWindow();
+      if (isIdempotentTest) {
+        String key = operatorId + "," + currentWindowId;
+        List<String> msgsInWin = tupleCollectedInWindow.get(key);
+        if (msgsInWin != null) {
+          Assert.assertEquals("replay messages should be exactly same as previous window", msgsInWin, windowTupleCollector);
+        } else {
+          List<String> newList = Lists.newArrayList();
+          newList.addAll(windowTupleCollector);
+          tupleCollectedInWindow.put(key, newList);
+        }
+      }
+
+      //discard the tuples of this window if except happened
+      int tupleSize = windowTupleCollector.size();
+      tupleCollection.addAll(windowTupleCollector);
+      
+      int countDownTupleSize = countDownAll ? tupleSize : endTuples;
+
+      if (latch != null) {
+        Assert.assertTrue("received END_TUPLES more than expected.", latch.getCount() >= countDownTupleSize);
+        while (countDownTupleSize > 0) {
+            latch.countDown();
+            --countDownTupleSize;
+        }
+        if (latch.getCount() == 0) {
+          /**
+           * The time before countDown() and the shutdown() of the application
+           * will cause fatal error:
+           * "Catastrophic Error: Invalid State - the operator blocked forever!"
+           * as the activeQueues could be cleared but alive haven't changed yet.
+           * throw the ShutdownException to let the engine shutdown;
+           */
+          try {
+            throw new ShutdownException();
+            //lc.shutdown();
+          } finally {
+            /**
+             * interrupt the engine thread, let it wake from sleep and handle
+             * the shutdown at this time, all payload should be handled. so it
+             * should be ok to interrupt
+             */
+            monitorThread.interrupt();
+          }
+        }
       }
     }
 
   }
+
 
   /**
    * Test AbstractKafkaSinglePortInputOperator (i.e. an input adapter for Kafka, aka consumer). This module receives
@@ -230,11 +300,11 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 
   public void testInputOperator(boolean hasFailure, boolean idempotent) throws Exception
   {
-
     // each broker should get a END_TUPLE message
-    latch = new CountDownLatch(totalBrokers);
+    latch = new CountDownLatch(countDownAll ? totalCount + totalBrokers : totalBrokers);
 
-    int totalCount = 10000;
+    logger.info("Test Case: name: {}; totalBrokers: {}; hasFailure: {}; hasMultiCluster: {}; hasMultiPartition: {}, partition: {}", 
+        testName, totalBrokers, hasFailure, hasMultiCluster, hasMultiPartition, partition); 
 
     // Start producer
     KafkaTestProducer p = new KafkaTestProducer(testName, hasMultiPartition, hasMultiCluster);
@@ -242,19 +312,21 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     Thread t = new Thread(p);
     t.start();
 
+    int expectedReceiveCount = totalCount + totalBrokers;
+    
     // Create DAG for testing.
     LocalMode lma = LocalMode.newInstance();
     DAG dag = lma.getDAG();
 
     // Create KafkaSinglePortStringInputOperator
-    KafkaSinglePortInputOperator node = dag.addOperator("Kafka input", KafkaSinglePortInputOperator.class);
+    KafkaSinglePortInputOperator node = dag.addOperator("Kafka input" + testName, KafkaSinglePortInputOperator.class);
     node.setInitialPartitionCount(1);
     // set topic
     node.setTopics(testName);
     node.setInitialOffset(AbstractKafkaInputOperator.InitialOffset.EARLIEST.name());
     node.setClusters(getClusterConfig());
     node.setStrategy(partition);
-    if(idempotent) {
+    if (idempotent) {
       node.setWindowDataManager(new FSWindowDataManager());
     }
 
@@ -264,49 +336,60 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     collector.isIdempotentTest = idempotent;
 
     // Connect ports
-    dag.addStream("Kafka message", node.outputPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
-
+    dag.addStream("Kafka message" + testName, node.outputPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
 
     if (hasFailure) {
       setupHasFailureTest(node, dag);
     }
 
     // Create local cluster
-    final LocalMode.Controller lc = lma.getController();
+    LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
 
-    lc.runAsync();
+    //let the Controller to run the inside another thread. It is almost same as call Controller.runAsync(), 
+    //but Controller.runAsync() don't expose the thread which run it, so we don't know when the thread will be terminated.
+    //create this thread and then call join() to make sure the Controller shutdown completely.
+    monitorThread = new Thread((StramLocalCluster)lc, "master");
+    monitorThread.start();
 
-    // Wait 30s for consumer finish consuming all the messages
-    boolean notTimeout = latch.await(40000, TimeUnit.MILLISECONDS);
-    Collections.sort(tupleCollection, new Comparator<String>()
-    {
-      @Override
-      public int compare(String o1, String o2)
-      {
-        return Integer.parseInt(o1.split("_")[1]) - Integer.parseInt(o2.split("_")[1]);
-      }
-    });
-    Assert.assertTrue("TIMEOUT: 40s Collected " + tupleCollection, notTimeout);
+    boolean notTimeout = true;
+    try {
+      // Wait 60s for consumer finish consuming all the messages
+      notTimeout = latch.await(waitTime, TimeUnit.MILLISECONDS);
+      lc.shutdown();
+
+      //wait until control thread finished.
+      monitorThread.join();
+    } catch (Exception e) {
+      logger.warn(e.getMessage());
+    }
+    
+    t.join();
+    
+    if (!notTimeout || expectedReceiveCount != tupleCollection.size()) {
+      logger.info("Number of received/expected tuples: {}/{}, testName: {}, tuples: \n{}", tupleCollection.size(),
+          expectedReceiveCount, testName, tupleCollection);
+    }
+    Assert.assertTrue("TIMEOUT. testName: " + this.testName + "; Collected data: " + tupleCollection, notTimeout);
 
     // Check results
-    Assert.assertTrue("Collected tuples " + tupleCollection + " Tuple count is not expected", totalCount <=+ tupleCollection.size());
-    logger.debug(String.format("Number of emitted tuples: %d", tupleCollection.size()));
-
-    t.join();
-    p.close();
-    lc.shutdown();
+    Assert.assertTrue( "testName: " + testName + "; Collected tuple size: " + tupleCollection.size() + "; Expected tuple size: " + expectedReceiveCount + "; data: \n" + tupleCollection, 
+        expectedReceiveCount == tupleCollection.size());
+    
+    logger.info("End of test case: {}", testName);
   }
 
+  
   private void setupHasFailureTest(KafkaSinglePortInputOperator operator, DAG dag)
   {
     operator.setHoldingBufferSize(5000);
     dag.setAttribute(Context.DAGContext.CHECKPOINT_WINDOW_COUNT, 1);
     //dag.setAttribute(Context.OperatorContext.STORAGE_AGENT, new FSStorageAgent(APPLICATION_PATH + "failureck", new Configuration()));
-    operator.setMaxTuplesPerWindow(500);
+    operator.setMaxTuplesPerWindow(tuplesPerWindow);
   }
 
-  private String getClusterConfig() {
+  private String getClusterConfig()
+  {
     String l = "localhost:";
     return l + TEST_KAFKA_BROKER_PORT[0][0] +
       (hasMultiPartition ? "," + l + TEST_KAFKA_BROKER_PORT[0][1] : "") +
