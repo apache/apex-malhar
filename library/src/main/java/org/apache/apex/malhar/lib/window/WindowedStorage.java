@@ -21,12 +21,15 @@ package org.apache.apex.malhar.lib.window;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.hadoop.classification.InterfaceStability;
+
 /**
  * WindowedStorage is a key-value store with the key being the window. The implementation of this interface should
  * make sure checkpointing and recovery will be done correctly.
  *
  * TODO: Look at the possibility of integrating spillable data structure: https://issues.apache.org/jira/browse/APEXMALHAR-2026
  */
+@InterfaceStability.Evolving
 public interface WindowedStorage<T> extends Iterable<Map.Entry<Window, T>>
 {
   /**

@@ -25,11 +25,13 @@ import java.util.Set;
 
 import org.apache.apex.malhar.lib.window.Window;
 import org.apache.apex.malhar.lib.window.WindowedKeyedStorage;
+import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * This is the in-memory implementation of WindowedKeyedStorage. Do not use this class if you have a large state that
  * can't be fit in memory.
  */
+@InterfaceStability.Evolving
 public class InMemoryWindowedKeyedStorage<K, V> extends InMemoryWindowedStorage<Map<K, V>> implements WindowedKeyedStorage<K, V>
 {
   @Override

@@ -30,6 +30,7 @@ import org.apache.apex.malhar.lib.window.Window;
 import org.apache.apex.malhar.lib.window.WindowOption;
 import org.apache.apex.malhar.lib.window.WindowState;
 import org.apache.apex.malhar.lib.window.WindowedKeyedStorage;
+import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.lib.util.KeyValPair;
 
@@ -37,8 +38,9 @@ import com.datatorrent.lib.util.KeyValPair;
  * This is an implementation of WindowedOperator that takes in key value pairs as input and gives out key value pairs
  * as output. If your operation is not key based, please use {@link WindowedOperatorImpl}.
  */
+@InterfaceStability.Evolving
 public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
-    extends AbstractWindowedOperator<KeyValPair<KeyT, InputValT>, AccumT, KeyValPair<KeyT, OutputValT>, WindowedKeyedStorage<KeyT, AccumT>, Accumulation<InputValT, AccumT, OutputValT>>
+    extends AbstractWindowedOperator<KeyValPair<KeyT, InputValT>, KeyValPair<KeyT, OutputValT>, WindowedKeyedStorage<KeyT, AccumT>, Accumulation<InputValT, AccumT, OutputValT>>
 {
 
   @Override

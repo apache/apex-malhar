@@ -39,7 +39,7 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
  */
 public class WindowedOperatorTest
 {
-  private void checkFailedValidation(WindowedOperatorImpl windowedOperator, String message)
+  private void verifyValidationFailure(WindowedOperatorImpl windowedOperator, String message)
   {
     try {
       windowedOperator.validate();
@@ -64,59 +64,29 @@ public class WindowedOperatorTest
   public void testValidation() throws Exception
   {
     WindowedOperatorImpl<Long, Long, Long> windowedOperator = new WindowedOperatorImpl<>();
-    checkFailedValidation(windowedOperator, "nothing is configured");
+    verifyValidationFailure(windowedOperator, "nothing is configured");
     windowedOperator.setWindowStateStorage(new InMemoryWindowedStorage<WindowState>());
-    checkFailedValidation(windowedOperator, "data storage is not set");
+    verifyValidationFailure(windowedOperator, "data storage is not set");
     windowedOperator.setDataStorage(new InMemoryWindowedStorage<Long>());
-    checkFailedValidation(windowedOperator, "accumulation is not set");
-    windowedOperator.setAccumulation(new Accumulation<Long, Long, Long>()
-    {
-      @Override
-      public Long defaultAccumulatedValue()
-      {
-        return null;
-      }
-
-      @Override
-      public Long accumulate(Long accumulatedValue, Long input)
-      {
-        return null;
-      }
-
-      @Override
-      public Long merge(Long accumulatedValue1, Long accumulatedValue2)
-      {
-        return null;
-      }
-
-      @Override
-      public Long getOutput(Long accumulatedValue)
-      {
-        return null;
-      }
-
-      @Override
-      public Long getRetraction(Long accumulatedValue)
-      {
-        return null;
-      }
-    });
+    verifyValidationFailure(windowedOperator, "accumulation is not set");
+    windowedOperator.setAccumulation(new SumAccumulation());
     windowedOperator.validate();
     windowedOperator.setTriggerOption(new TriggerOption().accumulatingAndRetractingFiredPanes());
-    checkFailedValidation(windowedOperator, "retracting storage is not set for ACCUMULATING_AND_RETRACTING");
+    verifyValidationFailure(windowedOperator, "retracting storage is not set for ACCUMULATING_AND_RETRACTING");
     windowedOperator.setRetractionStorage(new InMemoryWindowedStorage<Long>());
     windowedOperator.validate();
     windowedOperator.setTriggerOption(new TriggerOption().discardingFiredPanes().firingOnlyUpdatedPanes());
-    checkFailedValidation(windowedOperator, "DISCARDING is not valid for option firingOnlyUpdatedPanes");
+    verifyValidationFailure(windowedOperator, "DISCARDING is not valid for option firingOnlyUpdatedPanes");
     windowedOperator.setTriggerOption(new TriggerOption().accumulatingFiredPanes().firingOnlyUpdatedPanes());
     windowedOperator.setRetractionStorage(null);
-    checkFailedValidation(windowedOperator, "retracting storage is not set for option firingOnlyUpdatedPanes");
+    verifyValidationFailure(windowedOperator, "retracting storage is not set for option firingOnlyUpdatedPanes");
   }
 
   @Test
   public void testWatermarkAndAllowedLateness()
   {
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1, new Attribute.AttributeMap.DefaultAttributeMap());
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1,
+        new Attribute.AttributeMap.DefaultAttributeMap());
     WindowedOperatorImpl<Long, Long, Long> windowedOperator = createDefaultWindowedOperator();
     CollectorTestSink controlSink = new CollectorTestSink();
 
@@ -166,7 +136,49 @@ public class WindowedOperatorTest
   }
 
   @Test
-  public void testTriggers()
+  public void testTriggerWithDiscardingMode()
+  {
+
+  }
+
+  @Test
+  public void testTriggerWithAccumulatingMode()
+  {
+
+  }
+
+  @Test
+  public void testTriggerWithAccumulatingModeFiringOnlyUpdatedPanes()
+  {
+
+  }
+
+  @Test
+  public void testTriggerWithAccumulatingAndRetractingMode()
+  {
+
+  }
+
+  @Test
+  public void testGlobalWindow()
+  {
+
+  }
+
+  @Test
+  public void testTimeWindow()
+  {
+
+  }
+
+  @Test
+  public void testSlidingWindow()
+  {
+
+  }
+
+  @Test
+  public void testSessionWindow()
   {
 
   }

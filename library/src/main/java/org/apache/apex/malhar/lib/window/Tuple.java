@@ -21,9 +21,12 @@ package org.apache.apex.malhar.lib.window;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hadoop.classification.InterfaceStability;
+
 /**
  * All tuples that use the WindowedOperator must be an implementation of this interface
  */
+@InterfaceStability.Evolving
 public interface Tuple<T>
 {
   /**

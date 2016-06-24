@@ -38,6 +38,7 @@ import org.apache.apex.malhar.lib.window.WindowOption;
 import org.apache.apex.malhar.lib.window.WindowState;
 import org.apache.apex.malhar.lib.window.WindowedOperator;
 import org.apache.apex.malhar.lib.window.WindowedStorage;
+import org.apache.hadoop.classification.InterfaceStability;
 
 import com.google.common.base.Function;
 
@@ -53,8 +54,9 @@ import com.datatorrent.common.util.BaseOperator;
  * values are stored in the storage.
  *
  */
-public abstract class AbstractWindowedOperator<InputT, AccumT, OutputT, DataStorageT extends WindowedStorage, AccumulationT extends Accumulation>
-    extends BaseOperator implements WindowedOperator<InputT, AccumT, OutputT>
+@InterfaceStability.Evolving
+public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT extends WindowedStorage, AccumulationT extends Accumulation>
+    extends BaseOperator implements WindowedOperator<InputT>
 {
 
   protected WindowOption windowOption;
@@ -351,7 +353,7 @@ public abstract class AbstractWindowedOperator<InputT, AccumT, OutputT, DataStor
   public void dropTuple(Tuple<InputT> input)
   {
     // do nothing
-    LOG.debug("##################### Dropping late tuple {}", input);
+    LOG.debug("Dropping late tuple {}", input);
   }
 
 

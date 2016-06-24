@@ -18,9 +18,12 @@
  */
 package org.apache.apex.malhar.lib.window;
 
+import org.apache.hadoop.classification.InterfaceStability;
+
 /**
  * This is the interface for accumulation when joining multiple streams.
  */
+@InterfaceStability.Evolving
 public interface JoinAccumulation<InputT1, InputT2, InputT3, InputT4, InputT5, AccumT, OutputT> extends Accumulation<InputT1, AccumT, OutputT>
 {
   /**

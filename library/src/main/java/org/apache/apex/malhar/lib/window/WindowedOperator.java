@@ -29,7 +29,7 @@ import com.google.common.base.Function;
  * windowing and triggering
  */
 @InterfaceStability.Evolving
-public interface WindowedOperator<InputT, AccumT, OutputT>
+public interface WindowedOperator<InputT>
 {
 
   /**

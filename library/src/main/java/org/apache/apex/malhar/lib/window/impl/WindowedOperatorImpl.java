@@ -23,12 +23,14 @@ import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.apex.malhar.lib.window.Window;
 import org.apache.apex.malhar.lib.window.WindowedStorage;
+import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * This is an implementation of the WindowedOperator. If your operation is key based, please use {@link KeyedWindowedOperatorImpl}.
  */
+@InterfaceStability.Evolving
 public class WindowedOperatorImpl<InputT, AccumT, OutputT>
-    extends AbstractWindowedOperator<InputT, AccumT, OutputT, WindowedStorage<AccumT>, Accumulation<InputT, AccumT, OutputT>>
+    extends AbstractWindowedOperator<InputT, OutputT, WindowedStorage<AccumT>, Accumulation<InputT, AccumT, OutputT>>
 {
   @Override
   public void accumulateTuple(Tuple.WindowedTuple<InputT> tuple)
