@@ -135,26 +135,86 @@ public class WindowedOperatorTest
     windowedOperator.endWindow();
   }
 
+  private void testTrigger(TriggerOption.AccumulationMode accumulationMode)
+  {
+    WindowedOperatorImpl<Long, Long, Long> windowedOperator = createDefaultWindowedOperator();
+    TriggerOption triggerOption = new TriggerOption().withEarlyFiringsAtEvery(Duration.millis(1000));
+    switch (accumulationMode) {
+      case ACCUMULATING:
+        triggerOption.accumulatingFiredPanes();
+        break;
+      case ACCUMULATING_AND_RETRACTING:
+        triggerOption.accumulatingAndRetractingFiredPanes();
+        break;
+      case DISCARDING:
+        triggerOption.discardingFiredPanes();
+        break;
+    }
+    windowedOperator.setTriggerOption(triggerOption);
+    windowedOperator.setWindowOption(new WindowOption.TimeWindows(Duration.millis(1000)));
+    CollectorTestSink sink = new CollectorTestSink();
+    windowedOperator.output.setSink(sink);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1,
+        new Attribute.AttributeMap.DefaultAttributeMap());
+    windowedOperator.setup(context);
+    windowedOperator.beginWindow(1);
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(100L, 2L));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(200L, 3L));
+    windowedOperator.endWindow();
+    Assert.assertTrue("No trigger should be fired yet", sink.collectedTuples.isEmpty());
+    windowedOperator.beginWindow(2);
+    windowedOperator.endWindow();
+    Assert.assertTrue("No trigger should be fired yet", sink.collectedTuples.isEmpty());
+    windowedOperator.beginWindow(3);
+    windowedOperator.endWindow();
+    Assert.assertEquals("There should be exactly one tuple for the time trigger", 1, sink.collectedTuples.size());
+    Assert.assertEquals(5L, ((Tuple<Long>)sink.collectedTuples.get(0)).getValue().longValue());
+    sink.collectedTuples.clear();
+    windowedOperator.beginWindow(4);
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(400L, 4L));
+    windowedOperator.endWindow();
+    Assert.assertTrue("No trigger should be fired yet", sink.collectedTuples.isEmpty());
+    windowedOperator.beginWindow(5);
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(300L, 5L));
+    windowedOperator.endWindow();
+    switch (accumulationMode) {
+      case ACCUMULATING:
+        Assert.assertEquals("There should be exactly one tuple for the time trigger", 1, sink.collectedTuples.size());
+        Assert.assertEquals(14L, ((Tuple<Long>)sink.collectedTuples.get(0)).getValue().longValue());
+        break;
+      case DISCARDING:
+        Assert.assertEquals("There should be exactly one tuple for the time trigger", 1, sink.collectedTuples.size());
+        Assert.assertEquals(9L, ((Tuple<Long>)sink.collectedTuples.get(0)).getValue().longValue());
+        break;
+      case ACCUMULATING_AND_RETRACTING:
+        Assert.assertEquals("There should be exactly two tuples for the time trigger", 2, sink.collectedTuples.size());
+        Assert.assertEquals(-5L, ((Tuple<Long>)sink.collectedTuples.get(0)).getValue().longValue());
+        Assert.assertEquals(14L, ((Tuple<Long>)sink.collectedTuples.get(1)).getValue().longValue());
+        break;
+    }
+  }
+
+
   @Test
   public void testTriggerWithDiscardingMode()
   {
-
+    testTrigger(TriggerOption.AccumulationMode.DISCARDING);
   }
 
   @Test
   public void testTriggerWithAccumulatingMode()
   {
-
-  }
-
-  @Test
-  public void testTriggerWithAccumulatingModeFiringOnlyUpdatedPanes()
-  {
-
+    testTrigger(TriggerOption.AccumulationMode.ACCUMULATING);
   }
 
   @Test
   public void testTriggerWithAccumulatingAndRetractingMode()
+  {
+    testTrigger(TriggerOption.AccumulationMode.ACCUMULATING_AND_RETRACTING);
+  }
+
+  @Test
+  public void testTriggerWithAccumulatingModeFiringOnlyUpdatedPanes()
   {
 
   }

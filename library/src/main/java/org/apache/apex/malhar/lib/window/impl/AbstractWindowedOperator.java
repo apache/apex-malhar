@@ -53,6 +53,10 @@ import com.datatorrent.common.util.BaseOperator;
  * concepts. The subclass of this abstract class is supposed to provide the implementation of how the accumulated
  * values are stored in the storage.
  *
+ * @param <InputT> The type of the input tuple
+ * @param <OutputT> The type of the output tuple
+ * @param <DataStorageT> The type of the data storage
+ * @param <AccumulationT> The type of the accumulation
  */
 @InterfaceStability.Evolving
 public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT extends WindowedStorage, AccumulationT extends Accumulation>

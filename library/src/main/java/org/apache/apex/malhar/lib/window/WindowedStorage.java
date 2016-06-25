@@ -27,6 +27,8 @@ import org.apache.hadoop.classification.InterfaceStability;
  * WindowedStorage is a key-value store with the key being the window. The implementation of this interface should
  * make sure checkpointing and recovery will be done correctly.
  *
+ * @param <T> The type of the data that is stored per window
+ *
  * TODO: Look at the possibility of integrating spillable data structure: https://issues.apache.org/jira/browse/APEXMALHAR-2026
  */
 @InterfaceStability.Evolving

@@ -4,7 +4,7 @@ import org.apache.apex.malhar.lib.window.ControlTuple;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * Created by david on 6/23/16.
+ * The implementation of the Watermark tuple
  */
 @InterfaceStability.Evolving
 public class WatermarkImpl implements ControlTuple.Watermark

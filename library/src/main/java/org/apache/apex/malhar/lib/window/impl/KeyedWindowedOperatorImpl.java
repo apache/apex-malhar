@@ -37,6 +37,11 @@ import com.datatorrent.lib.util.KeyValPair;
 /**
  * This is an implementation of WindowedOperator that takes in key value pairs as input and gives out key value pairs
  * as output. If your operation is not key based, please use {@link WindowedOperatorImpl}.
+ *
+ * @param <KeyT> The type of the key of both the input and the output tuple
+ * @param <InputValT> The type of the value of the keyed input tuple
+ * @param <AccumT> The type of the accumulated value in the operator state per key per window
+ * @param <OutputValT> The type of the value of the keyed output tuple
  */
 @InterfaceStability.Evolving
 public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>

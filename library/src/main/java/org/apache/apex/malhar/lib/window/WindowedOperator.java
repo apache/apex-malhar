@@ -27,6 +27,8 @@ import com.google.common.base.Function;
 /**
  * This interface describes what needs to be implemented for the operator that supports the Apache Beam model of
  * windowing and triggering
+ *
+ * @param <InputT> The type of the input tuple
  */
 @InterfaceStability.Evolving
 public interface WindowedOperator<InputT>

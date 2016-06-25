@@ -27,6 +27,10 @@ import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * This is an implementation of the WindowedOperator. If your operation is key based, please use {@link KeyedWindowedOperatorImpl}.
+ *
+ * @param <InputT> The type of the value of the input tuple
+ * @param <AccumT> The type of the accumulated value in the operator state per window
+ * @param <OutputT> The type of the value of the output tuple
  */
 @InterfaceStability.Evolving
 public class WindowedOperatorImpl<InputT, AccumT, OutputT>
@@ -68,6 +72,8 @@ public class WindowedOperatorImpl<InputT, AccumT, OutputT>
       throw new UnsupportedOperationException();
     }
     AccumT accumulatedValue = retractionStorage.get(window);
-    output.emit(new Tuple.WindowedTuple<>(window, accumulation.getRetraction(accumulatedValue)));
+    if (accumulatedValue != null) {
+      output.emit(new Tuple.WindowedTuple<>(window, accumulation.getRetraction(accumulatedValue)));
+    }
   }
 }
