@@ -331,12 +331,12 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
         // Note: this messes up the order of the window and we might want to revisit this if the order of the windows
         // matter
         for (long slideBeginTimestamp = beginTimestamp - slideBy;
-            slideBeginTimestamp >= timestamp && timestamp > slideBeginTimestamp + durationMillis;
+            slideBeginTimestamp <= timestamp && timestamp < slideBeginTimestamp + durationMillis;
             slideBeginTimestamp -= slideBy) {
           windows.add(new Window.TimeWindow(slideBeginTimestamp, durationMillis));
         }
         for (long slideBeginTimestamp = beginTimestamp + slideBy;
-            slideBeginTimestamp >= timestamp && timestamp > slideBeginTimestamp + durationMillis;
+            slideBeginTimestamp <= timestamp && timestamp < slideBeginTimestamp + durationMillis;
             slideBeginTimestamp += slideBy) {
           windows.add(new Window.TimeWindow(slideBeginTimestamp, durationMillis));
         }
