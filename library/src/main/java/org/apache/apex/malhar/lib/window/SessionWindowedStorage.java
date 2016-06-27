@@ -43,5 +43,5 @@ public interface SessionWindowedStorage<K, V> extends WindowedKeyedStorage<K, V>
    * @param gap
    * @return
    */
-  Collection<Map.Entry<Window.SessionWindow, V>> getSessionEntries(K key, long timestamp, long gap);
+  Collection<Map.Entry<Window.SessionWindow<K>, V>> getSessionEntries(K key, long timestamp, long gap);
 }

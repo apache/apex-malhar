@@ -37,6 +37,7 @@ import org.apache.apex.malhar.lib.window.impl.WindowedOperatorImpl;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Unit tests for WindowedOperator
@@ -306,26 +307,90 @@ public class WindowedOperatorTest
     WindowedOperatorImpl<Long, Long, Long> windowedOperator = createDefaultWindowedOperator();
     windowedOperator.setWindowOption(new WindowOption.SlidingTimeWindows(Duration.millis(1000), Duration.millis(200)));
     windowedOperator.setup(context);
-    Tuple.WindowedTuple<Long> windowedValue = windowedOperator.getWindowedValue(new Tuple.TimestampedTuple<>(1100L, 2L));
+    Tuple.WindowedTuple<Long> windowedValue = windowedOperator.getWindowedValue(new Tuple.TimestampedTuple<>(1600L, 2L));
     List<Window> windows = windowedValue.getWindows();
     Window[] winArray = windows.toArray(new Window[]{});
     Arrays.sort(winArray, Window.DEFAULT_COMPARATOR);
     Assert.assertEquals(5, winArray.length);
-    Assert.assertEquals(200, winArray[0].getBeginTimestamp());
+    Assert.assertEquals(800, winArray[0].getBeginTimestamp());
     Assert.assertEquals(1000, winArray[0].getDurationMillis());
-    Assert.assertEquals(400, winArray[1].getBeginTimestamp());
+    Assert.assertEquals(1000, winArray[1].getBeginTimestamp());
     Assert.assertEquals(1000, winArray[1].getDurationMillis());
-    Assert.assertEquals(600, winArray[2].getBeginTimestamp());
+    Assert.assertEquals(1200, winArray[2].getBeginTimestamp());
     Assert.assertEquals(1000, winArray[2].getDurationMillis());
-    Assert.assertEquals(800, winArray[3].getBeginTimestamp());
+    Assert.assertEquals(1400, winArray[3].getBeginTimestamp());
     Assert.assertEquals(1000, winArray[3].getDurationMillis());
-    Assert.assertEquals(1000, winArray[4].getBeginTimestamp());
+    Assert.assertEquals(1600, winArray[4].getBeginTimestamp());
     Assert.assertEquals(1000, winArray[4].getDurationMillis());
   }
 
   @Test
-  public void testSessionWindow()
+  public void testSessionWindowAssignment()
   {
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1,
+        new Attribute.AttributeMap.DefaultAttributeMap());
+    KeyedWindowedOperatorImpl<String, Long, Long, Long> windowedOperator = createDefaultKeyedWindowedOperator();
+    windowedOperator.setWindowOption(new WindowOption.SessionWindows(Duration.millis(2000)));
+    windowedOperator.setup(context);
+    windowedOperator.beginWindow(1);
+    Tuple tuple = new Tuple.TimestampedTuple<>(1100L, new KeyValPair<>("a", 2L));
+    Tuple.WindowedTuple<KeyValPair<String, Long>> windowedValue = windowedOperator.getWindowedValue(tuple);
+    List<Window> windows = windowedValue.getWindows();
+    Assert.assertEquals(1, windows.size());
+    Window.SessionWindow<String> sw = (Window.SessionWindow<String>)windows.get(0);
+    Assert.assertEquals(1100L, sw.getBeginTimestamp());
+    Assert.assertEquals(1, sw.getDurationMillis());
+    windowedOperator.processTuple(tuple);
+
+    // extending an existing session window
+    tuple = new Tuple.TimestampedTuple<>(2000L, new KeyValPair<>("a", 3L));
+    windowedValue = windowedOperator.getWindowedValue(tuple);
+    windows = windowedValue.getWindows();
+    sw = (Window.SessionWindow<String>)windows.get(0);
+    Assert.assertEquals(1100L, sw.getBeginTimestamp());
+    Assert.assertEquals(901, sw.getDurationMillis());
+    windowedOperator.processTuple(tuple);
+
+    // a separate session window
+    tuple = new Tuple.TimestampedTuple<>(5000L, new KeyValPair<>("a", 4L));
+    windowedValue = windowedOperator.getWindowedValue(tuple);
+    windows = windowedValue.getWindows();
+    sw = (Window.SessionWindow<String>)windows.get(0);
+    Assert.assertEquals(5000L, sw.getBeginTimestamp());
+    Assert.assertEquals(1, sw.getDurationMillis());
+    windowedOperator.processTuple(tuple);
+
+    // session window merging
+    tuple = new Tuple.TimestampedTuple<>(3500L, new KeyValPair<>("a", 3L));
+    windowedValue = windowedOperator.getWindowedValue(tuple);
+    windows = windowedValue.getWindows();
+    sw = (Window.SessionWindow<String>)windows.get(0);
+    Assert.assertEquals(1100L, sw.getBeginTimestamp());
+    Assert.assertEquals(3901, sw.getDurationMillis());
+    windowedOperator.processTuple(tuple);
+
+    windowedOperator.endWindow();
+  }
+
+  @Test
+  public void testKeyedAccumulation()
+  {
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1,
+        new Attribute.AttributeMap.DefaultAttributeMap());
+    KeyedWindowedOperatorImpl<String, Long, Long, Long> windowedOperator = createDefaultKeyedWindowedOperator();
+    windowedOperator.setWindowOption(new WindowOption.TimeWindows(Duration.millis(1000)));
+    WindowedKeyedStorage<String, Long> dataStorage = new InMemoryWindowedKeyedStorage<>();
+    windowedOperator.setDataStorage(dataStorage);
+    windowedOperator.setup(context);
+    windowedOperator.beginWindow(1);
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(100L, new KeyValPair<>("a", 2L)));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(200L, new KeyValPair<>("a", 3L)));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(300L, new KeyValPair<>("b", 4L)));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(150L, new KeyValPair<>("b", 5L)));
+    windowedOperator.endWindow();
+    Assert.assertEquals(1, dataStorage.size());
+    Assert.assertEquals(5L, dataStorage.get(new Window.TimeWindow(0, 1000), "a").longValue());
+    Assert.assertEquals(9L, dataStorage.get(new Window.TimeWindow(0, 1000), "b").longValue());
 
   }
 }

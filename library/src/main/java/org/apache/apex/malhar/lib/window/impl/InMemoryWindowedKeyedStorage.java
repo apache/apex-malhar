@@ -18,11 +18,16 @@
  */
 package org.apache.apex.malhar.lib.window.impl;
 
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.apex.malhar.lib.window.SessionWindowedStorage;
 import org.apache.apex.malhar.lib.window.Window;
 import org.apache.apex.malhar.lib.window.WindowedKeyedStorage;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -32,7 +37,8 @@ import org.apache.hadoop.classification.InterfaceStability;
  * can't be fit in memory.
  */
 @InterfaceStability.Evolving
-public class InMemoryWindowedKeyedStorage<K, V> extends InMemoryWindowedStorage<Map<K, V>> implements WindowedKeyedStorage<K, V>
+public class InMemoryWindowedKeyedStorage<K, V> extends InMemoryWindowedStorage<Map<K, V>>
+    implements WindowedKeyedStorage<K, V>, SessionWindowedStorage<K, V>
 {
   @Override
   public void put(Window window, K key, V value)
@@ -67,4 +73,27 @@ public class InMemoryWindowedKeyedStorage<K, V> extends InMemoryWindowedStorage<
     }
   }
 
+  @Override
+  public Collection<Map.Entry<Window.SessionWindow<K>, V>> getSessionEntries(K key, long timestamp, long gap)
+  {
+    List<Map.Entry<Window.SessionWindow<K>, V>> results = new ArrayList<>();
+    // TODO: this is inefficient, but this is usually not used in a real use case since it's in memory
+    for (Map.Entry<Window, Map<K, V>> entry : map.entrySet()) {
+      Window.SessionWindow<K> window = (Window.SessionWindow<K>)entry.getKey();
+      if (key.equals(window.getKey())) {
+        if (timestamp > window.getBeginTimestamp()) {
+          if (window.getBeginTimestamp() + window.getDurationMillis() + gap > timestamp) {
+            results.add(new AbstractMap.SimpleEntry<>(window, entry.getValue().get(key)));
+          }
+        } else if (timestamp < window.getBeginTimestamp()) {
+          if (window.getBeginTimestamp() - gap <= timestamp) {
+            results.add(new AbstractMap.SimpleEntry<>(window, entry.getValue().get(key)));
+          }
+        } else {
+          results.add(new AbstractMap.SimpleEntry<>(window, entry.getValue().get(key)));
+        }
+      }
+    }
+    return results;
+  }
 }
