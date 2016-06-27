@@ -19,7 +19,6 @@
 package org.apache.apex.malhar.lib.window;
 
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.hadoop.classification.InterfaceStability;
 
@@ -65,28 +64,11 @@ public interface WindowedStorage<T> extends Iterable<Map.Entry<Window, T>>
   T get(Window window);
 
   /**
-   * Gets the windows in the storage that end before the given timestamp
-   *
-   * @param timestamp
-   * @return
-   */
-  Set<Window> windowsEndBefore(long timestamp);
-
-  /**
    * Removes all the data associated with the given window. This does NOT mean removing the window in checkpointed state
    *
    * @param window
    */
   void remove(Window window);
-
-  /**
-   * Removes all data in this storage that is associated with a window at or before the specified timestamp.
-   * This will be used for purging data beyond the allowed lateness. This does NOT mean removing the windows in checkpointed
-   * state.
-   *
-   * @param timestamp
-   */
-  void removeUpTo(long timestamp);
 
   /**
    * Migrate the data from one window to another. This will invalidate fromWindow in the storage and move the

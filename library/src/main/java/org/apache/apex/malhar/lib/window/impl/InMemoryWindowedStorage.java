@@ -62,31 +62,9 @@ public class InMemoryWindowedStorage<T> implements WindowedStorage<T>
   }
 
   @Override
-  public Set<Window> windowsEndBefore(long timestamp)
-  {
-    Set<Window> result = new TreeSet<>(Window.DEFAULT_COMPARATOR);
-    Window refWindow = new Window.TimeWindow(timestamp, 0);
-    for (Map.Entry<Window, T> entry : map.headMap(refWindow, true).entrySet()) {
-      Window w = entry.getKey();
-      if (timestamp >= w.getBeginTimestamp() + w.getDurationMillis()) {
-        result.add(w);
-      }
-    }
-    return result;
-  }
-
-  @Override
   public void remove(Window window)
   {
     map.remove(window);
-  }
-
-  @Override
-  public void removeUpTo(long timestamp)
-  {
-    for (Window w : windowsEndBefore(timestamp)) {
-      map.remove(w);
-    }
   }
 
   @Override

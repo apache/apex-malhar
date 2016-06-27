@@ -366,19 +366,12 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   {
     currentWatermark = watermark.getTimestamp();
     long horizon = currentWatermark - allowedLatenessMillis;
-    if (allowedLatenessMillis >= 0) {
-      // purge window that are too late to accept any more input
-      dataStorage.removeUpTo(horizon);
-    }
 
     for (Iterator<Map.Entry<Window, WindowState>> it = windowStateMap.iterator(); it.hasNext(); ) {
       Map.Entry<Window, WindowState> entry = it.next();
       Window window = entry.getKey();
       WindowState windowState = entry.getValue();
-      if (allowedLatenessMillis >= 0 && window.getBeginTimestamp() + window.getDurationMillis() < horizon) {
-        // discard this window because it's too late now
-        it.remove();
-      } else if (window.getBeginTimestamp() + window.getDurationMillis() < currentWatermark) {
+      if (window.getBeginTimestamp() + window.getDurationMillis() < currentWatermark) {
         // watermark has not arrived for this window before, marking this window late
         if (windowState.watermarkArrivalTime == -1) {
           windowState.watermarkArrivalTime = currentDerivedTimestamp;
@@ -386,6 +379,11 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
             // fire trigger at watermark if applicable
             fireTrigger(window, windowState);
           }
+        }
+        if (allowedLatenessMillis >= 0 && window.getBeginTimestamp() + window.getDurationMillis() < horizon) {
+          // discard this window because it's too late now
+          it.remove();
+          dataStorage.remove(window);
         }
       }
     }
