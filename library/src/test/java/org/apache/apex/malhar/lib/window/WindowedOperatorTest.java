@@ -19,6 +19,7 @@
 package org.apache.apex.malhar.lib.window;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +36,7 @@ import org.apache.apex.malhar.lib.window.impl.WatermarkImpl;
 import org.apache.apex.malhar.lib.window.impl.WindowedOperatorImpl;
 
 import com.datatorrent.api.Attribute;
+import com.datatorrent.api.Sink;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
@@ -391,6 +393,107 @@ public class WindowedOperatorTest
     Assert.assertEquals(1, dataStorage.size());
     Assert.assertEquals(5L, dataStorage.get(new Window.TimeWindow(0, 1000), "a").longValue());
     Assert.assertEquals(9L, dataStorage.get(new Window.TimeWindow(0, 1000), "b").longValue());
+  }
 
+  private void testKeyedTrigger(TriggerOption.AccumulationMode accumulationMode)
+  {
+    KeyedWindowedOperatorImpl<String, Long, Long, Long> windowedOperator = createDefaultKeyedWindowedOperator();
+    TriggerOption triggerOption = new TriggerOption().withEarlyFiringsAtEvery(Duration.millis(1000));
+    switch (accumulationMode) {
+      case ACCUMULATING:
+        triggerOption.accumulatingFiredPanes();
+        break;
+      case ACCUMULATING_AND_RETRACTING:
+        triggerOption.accumulatingAndRetractingFiredPanes();
+        break;
+      case DISCARDING:
+        triggerOption.discardingFiredPanes();
+        break;
+    }
+    windowedOperator.setTriggerOption(triggerOption);
+    windowedOperator.setWindowOption(new WindowOption.TimeWindows(Duration.millis(1000)));
+    CollectorTestSink<Tuple<KeyValPair<String, Long>>> sink = new CollectorTestSink();
+    windowedOperator.output.setSink((Sink<Object>)(Sink)sink);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1,
+        new Attribute.AttributeMap.DefaultAttributeMap());
+    windowedOperator.setup(context);
+    windowedOperator.beginWindow(1);
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(100L, new KeyValPair<>("a", 2L)));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(200L, new KeyValPair<>("b", 3L)));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(400L, new KeyValPair<>("b", 5L)));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(300L, new KeyValPair<>("a", 4L)));
+    windowedOperator.endWindow();
+    Assert.assertTrue("No trigger should be fired yet", sink.collectedTuples.isEmpty());
+    windowedOperator.beginWindow(2);
+    windowedOperator.endWindow();
+    Assert.assertTrue("No trigger should be fired yet", sink.collectedTuples.isEmpty());
+    windowedOperator.beginWindow(3);
+    windowedOperator.endWindow();
+    Assert.assertEquals("There should be exactly two tuple for the time trigger", 2, sink.collectedTuples.size());
+    {
+      Map<String, Long> map = new HashMap<>();
+      for (Tuple<KeyValPair<String, Long>> tuple : sink.collectedTuples) {
+        map.put(tuple.getValue().getKey(), tuple.getValue().getValue());
+      }
+      Assert.assertEquals(6L, map.get("a").longValue());
+      Assert.assertEquals(8L, map.get("b").longValue());
+    }
+    sink.collectedTuples.clear();
+    windowedOperator.beginWindow(4);
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(400L, new KeyValPair<>("a", 8L)));
+    windowedOperator.endWindow();
+    Assert.assertTrue("No trigger should be fired yet", sink.collectedTuples.isEmpty());
+    windowedOperator.beginWindow(5);
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(300L, new KeyValPair<>("b", 9L)));
+    windowedOperator.endWindow();
+    Map<String, Long> map = new HashMap<>();
+    switch (accumulationMode) {
+      case ACCUMULATING:
+        Assert.assertEquals("There should be exactly two tuples for the time trigger", 2, sink.collectedTuples.size());
+        for (Tuple<KeyValPair<String, Long>> tuple : sink.collectedTuples) {
+          map.put(tuple.getValue().getKey(), tuple.getValue().getValue());
+        }
+        Assert.assertEquals(14L, map.get("a").longValue());
+        Assert.assertEquals(17L, map.get("b").longValue());
+        break;
+      case DISCARDING:
+        Assert.assertEquals("There should be exactly two tuples for the time trigger", 2, sink.collectedTuples.size());
+        for (Tuple<KeyValPair<String, Long>> tuple : sink.collectedTuples) {
+          map.put(tuple.getValue().getKey(), tuple.getValue().getValue());
+        }
+        Assert.assertEquals(8L, map.get("a").longValue());
+        Assert.assertEquals(9L, map.get("b").longValue());
+        break;
+      case ACCUMULATING_AND_RETRACTING:
+        Assert.assertEquals("There should be exactly four tuples for the time trigger", 4, sink.collectedTuples.size());
+        for (Tuple<KeyValPair<String, Long>> tuple : sink.collectedTuples) {
+          String key = tuple.getValue().getKey();
+          long value = tuple.getValue().getValue();
+          map.put(value < 0 ? "R" + key : key, value);
+        }
+        Assert.assertEquals(-6L, map.get("Ra").longValue());
+        Assert.assertEquals(-8L, map.get("Rb").longValue());
+        Assert.assertEquals(14L, map.get("a").longValue());
+        Assert.assertEquals(17L, map.get("b").longValue());
+        break;
+    }
+  }
+
+  @Test
+  public void testKeyedTriggerWithDiscardingMode()
+  {
+    testKeyedTrigger(TriggerOption.AccumulationMode.DISCARDING);
+  }
+
+  @Test
+  public void testKeyedTriggerWithAccumulatingMode()
+  {
+    testKeyedTrigger(TriggerOption.AccumulationMode.ACCUMULATING);
+  }
+
+  @Test
+  public void testKeyedTriggerWithAccumulatingAndRetractingMode()
+  {
+    testKeyedTrigger(TriggerOption.AccumulationMode.ACCUMULATING_AND_RETRACTING);
   }
 }

@@ -127,14 +127,4 @@ public interface WindowedOperator<InputT>
    */
   void clearWindowData(Window window);
 
-  /**
-   * This method invalidates the given window. The scenarios of calling this method are:
-   *  1. The window has passed the allowed lateness
-   *  2. The window has been merged with another window to form a new window
-   *
-   * @param window
-   */
-  void invalidateWindow(Window window);
-
-
 }

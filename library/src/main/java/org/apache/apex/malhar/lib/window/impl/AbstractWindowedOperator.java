@@ -476,13 +476,4 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
     dataStorage.remove(window);
   }
 
-  @Override
-  public void invalidateWindow(Window window)
-  {
-    dataStorage.remove(window);
-    if (retractionStorage != null) {
-      retractionStorage.remove(window);
-    }
-    windowStateMap.remove(window);
-  }
 }
