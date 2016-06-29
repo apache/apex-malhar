@@ -133,18 +133,17 @@ public class WindowedOperatorTest
     Assert.assertEquals(5L, dataStorage.get(window).longValue());
 
     windowedOperator.processWatermark(new WatermarkImpl(1200));
+    windowedOperator.endWindow();
     Assert.assertTrue(windowState.watermarkArrivalTime > 0);
     Assert.assertEquals("We should get one watermark tuple", 1, controlSink.getCount(false));
 
+    windowedOperator.beginWindow(2);
     windowedOperator.processTuple(new Tuple.TimestampedTuple<>(900L, 4L));
     Assert.assertEquals("Late but not too late", 9L, dataStorage.get(window).longValue());
-
-    windowedOperator.endWindow();
-
-    windowedOperator.beginWindow(2);
     windowedOperator.processWatermark(new WatermarkImpl(3000));
+    windowedOperator.endWindow();
     Assert.assertEquals("We should get two watermark tuples", 2, controlSink.getCount(false));
-
+    windowedOperator.beginWindow(3);
     windowedOperator.processTuple(new Tuple.TimestampedTuple<>(120L, 5L)); // this tuple should be dropped
     Assert.assertEquals("The window should be dropped because it's too late", 0, dataStorage.size());
     Assert.assertEquals("The window should be dropped because it's too late", 0, windowStateStorage.size());

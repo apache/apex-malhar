@@ -67,7 +67,7 @@ public class TriggerOption
   {
     protected WatermarkOpt watermarkOpt;
 
-    Trigger()
+    private Trigger()
     {
       // for kryo
     }
@@ -91,7 +91,7 @@ public class TriggerOption
     @FieldSerializer.Bind(JavaSerializer.class)
     Duration duration;
 
-    public TimeTrigger()
+    private TimeTrigger()
     {
       // for kryo
     }
@@ -114,7 +114,7 @@ public class TriggerOption
   public static class CountTrigger extends Trigger
   {
     long count;
-    public CountTrigger()
+    private CountTrigger()
     {
       //for kryo
     }
