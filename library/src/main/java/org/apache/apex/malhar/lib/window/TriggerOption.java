@@ -53,7 +53,7 @@ public class TriggerOption
   /**
    * Whether the trigger should be fired before the watermark, at the watermark, or after the watermark
    */
-  public enum WatermarkOpt
+  public enum Type
   {
     EARLY,
     ON_TIME,
@@ -65,21 +65,21 @@ public class TriggerOption
    */
   public static class Trigger
   {
-    protected WatermarkOpt watermarkOpt;
+    protected Type type;
 
     private Trigger()
     {
       // for kryo
     }
 
-    Trigger(WatermarkOpt watermarkOpt)
+    Trigger(Type type)
     {
-      this.watermarkOpt = watermarkOpt;
+      this.type = type;
     }
 
-    public WatermarkOpt getWatermarkOpt()
+    public Type getType()
     {
-      return watermarkOpt;
+      return type;
     }
   }
 
@@ -96,9 +96,9 @@ public class TriggerOption
       // for kryo
     }
 
-    public TimeTrigger(WatermarkOpt watermarkOpt, Duration duration)
+    public TimeTrigger(Type type, Duration duration)
     {
-      super(watermarkOpt);
+      super(type);
       this.duration = duration;
     }
 
@@ -113,15 +113,15 @@ public class TriggerOption
    */
   public static class CountTrigger extends Trigger
   {
-    long count;
+    private long count;
     private CountTrigger()
     {
       //for kryo
     }
 
-    public CountTrigger(WatermarkOpt watermarkOpt, long count)
+    public CountTrigger(Type type, long count)
     {
-      super(watermarkOpt);
+      super(type);
       this.count = count;
     }
 
@@ -141,7 +141,7 @@ public class TriggerOption
   public static TriggerOption AtWatermark()
   {
     TriggerOption triggerOption = new TriggerOption();
-    Trigger trigger = new Trigger(WatermarkOpt.ON_TIME);
+    Trigger trigger = new Trigger(Type.ON_TIME);
     triggerOption.triggerList.add(trigger);
     return triggerOption;
   }
@@ -154,7 +154,7 @@ public class TriggerOption
    */
   public TriggerOption withEarlyFiringsAtEvery(Duration duration)
   {
-    TimeTrigger trigger = new TimeTrigger(WatermarkOpt.EARLY, duration);
+    TimeTrigger trigger = new TimeTrigger(Type.EARLY, duration);
     triggerList.add(trigger);
     return this;
   }
@@ -167,7 +167,7 @@ public class TriggerOption
    */
   public TriggerOption withEarlyFiringsAtEvery(long count)
   {
-    CountTrigger trigger = new CountTrigger(WatermarkOpt.EARLY, count);
+    CountTrigger trigger = new CountTrigger(Type.EARLY, count);
     triggerList.add(trigger);
     return this;
   }
@@ -180,7 +180,7 @@ public class TriggerOption
    */
   public TriggerOption withLateFiringsAtEvery(Duration duration)
   {
-    TimeTrigger trigger = new TimeTrigger(WatermarkOpt.LATE, duration);
+    TimeTrigger trigger = new TimeTrigger(Type.LATE, duration);
     triggerList.add(trigger);
     return this;
   }
@@ -193,7 +193,7 @@ public class TriggerOption
    */
   public TriggerOption withLateFiringsAtEvery(long count)
   {
-    CountTrigger trigger = new CountTrigger(WatermarkOpt.LATE, count);
+    CountTrigger trigger = new CountTrigger(Type.LATE, count);
     triggerList.add(trigger);
     return this;
   }

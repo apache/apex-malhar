@@ -162,7 +162,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   {
     this.triggerOption = triggerOption;
     for (TriggerOption.Trigger trigger : triggerOption.getTriggerList()) {
-      switch (trigger.getWatermarkOpt()) {
+      switch (trigger.getType()) {
         case ON_TIME:
           triggerAtWatermark = true;
           break;
@@ -181,7 +181,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
           }
           break;
         default:
-          throw new RuntimeException("Unexpected watermark option: " + trigger.getWatermarkOpt());
+          throw new RuntimeException("Unknown trigger type: " + trigger.getType());
       }
     }
   }
@@ -393,6 +393,8 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   @Override
   public void endWindow()
   {
+    // We only do actual processing of watermark at window boundary so that it will not break idempotency.
+    // TODO: May want to revisit this if the application cares more about latency than idempotency
     processWatermarkAtEndWindow();
     fireTimeTriggers();
   }
@@ -421,6 +423,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
             // discard this window because it's too late now
             it.remove();
             dataStorage.remove(window);
+            retractionStorage.remove(window);
           }
         }
       }
