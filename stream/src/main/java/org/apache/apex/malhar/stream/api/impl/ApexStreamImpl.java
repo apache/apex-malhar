@@ -246,7 +246,7 @@ public class ApexStreamImpl<T> implements ApexStream<T>
   @Override
   public <O, STREAM extends ApexStream<O>> STREAM addOperator(Operator op, Operator.InputPort<T> inputPort, Operator.OutputPort<O> outputPort)
   {
-    return addOperator(op.toString(), op, inputPort, outputPort);
+    return addOperator(IDGenerator.generateOperatorIDWithUUID(op.getClass()), op, inputPort, outputPort);
   }
 
 

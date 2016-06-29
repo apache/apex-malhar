@@ -188,7 +188,7 @@ public class AutoComplete
    * Lower latency, but more expensive.
    */
   private static class ComputeTopFlat
-      extends CompositeStreamTransform<CompletionCandidate, KeyValPair<String, List<CompletionCandidate>>>
+      extends CompositeStreamTransform<CompletionCandidate, Tuple<KeyValPair<String, List<CompletionCandidate>>>>
   {
     private final int candidatesPerPrefix;
     private final int minPrefix;
@@ -200,17 +200,17 @@ public class AutoComplete
     }
 
     @Override
-    public ApexStream<KeyValPair<String, List<CompletionCandidate>>> compose(
+    public ApexStream<Tuple<KeyValPair<String, List<CompletionCandidate>>>> compose(
         ApexStream<CompletionCandidate> input)
     {
       return input.flatMap(new AllPrefixes(minPrefix)).window(new WindowOption.GlobalWindow())
-          .topByKey(1, new Function.MapFunction<KeyValPair<String, CompletionCandidate>, KeyValPair<String,
-              CompletionCandidate>>()
+          .topByKey(1, new Function.MapFunction<KeyValPair<String, CompletionCandidate>, Tuple<KeyValPair<String,
+              CompletionCandidate>>>()
           {
             @Override
-            public KeyValPair<String, CompletionCandidate> f(KeyValPair<String, CompletionCandidate> tuple)
+            public Tuple<KeyValPair<String, CompletionCandidate>> f(KeyValPair<String, CompletionCandidate> tuple)
             {
-              return tuple;
+              return new Tuple.PlainTuple<>(tuple);
             }
           });
     }
@@ -254,7 +254,7 @@ public class AutoComplete
    * the most common tokens per prefix.
    */
   public static class ComputeTopCompletions
-      extends CompositeStreamTransform<String, KeyValPair<String, List<CompletionCandidate>>>
+      extends CompositeStreamTransform<String, Tuple<KeyValPair<String, List<CompletionCandidate>>>>
   {
     private final int candidatesPerPrefix;
     private final boolean recursive;
@@ -272,7 +272,7 @@ public class AutoComplete
 
     @Override
     @SuppressWarnings("unchecked")
-    public ApexStream<KeyValPair<String, List<CompletionCandidate>>> compose(ApexStream<String> inputStream)
+    public ApexStream<Tuple<KeyValPair<String, List<CompletionCandidate>>>> compose(ApexStream<String> inputStream)
     {
       if (!(inputStream instanceof WindowedStream)) {
         return null;

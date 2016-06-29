@@ -1,7 +1,12 @@
 package org.apache.apex.malhar.stream.api.impl;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 import org.joda.time.Duration;
 
@@ -18,6 +23,10 @@ import org.apache.apex.malhar.lib.window.impl.InMemoryWindowedKeyedStorage;
 import org.apache.apex.malhar.lib.window.impl.InMemoryWindowedStorage;
 import org.apache.apex.malhar.lib.window.impl.KeyedWindowedOperatorImpl;
 
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.MinMaxPriorityQueue;
 
 import com.datatorrent.lib.util.KeyValPair;
 
@@ -57,6 +66,82 @@ public class ApexWindowedStreamImpl<T> extends ApexStreamImpl<T> implements Wind
     public Long getRetraction(Long accumulatedValue)
     {
       return -accumulatedValue;
+    }
+  }
+
+
+  public static class TopN<T> implements Accumulation<T, List<T>, List<T>>
+  {
+
+    int n;
+
+    Comparator<T> comparator;
+
+    public void setN(int n)
+    {
+      this.n = n;
+    }
+
+    public void setComparator(Comparator<T> comparator)
+    {
+      this.comparator = comparator;
+    }
+
+    @Override
+    public List<T> defaultAccumulatedValue()
+    {
+      return new LinkedList<>();
+    }
+
+    @Override
+    public List<T> accumulate(List<T> accumulatedValue, T input)
+    {
+      int k = 0;
+      for (T inMemory : accumulatedValue) {
+        if (comparator!=null) {
+          if (comparator.compare(inMemory, input) < 0)
+            break;
+        } else if (input instanceof Comparable) {
+          if (((Comparable<T>)input).compareTo(inMemory) > 0)
+            break;
+        } else {
+          throw new RuntimeException("Tuple cannot be compared");
+        }
+        k++;
+      }
+      accumulatedValue.add(k, input);
+      if (accumulatedValue.size() > n) {
+        accumulatedValue.remove(accumulatedValue.get(accumulatedValue.size() - 1));
+      }
+      return accumulatedValue;
+    }
+
+    @Override
+    public List<T> merge(List<T> accumulatedValue1, List<T> accumulatedValue2)
+    {
+      accumulatedValue1.addAll(accumulatedValue2);
+      if (comparator != null) {
+        Collections.sort(accumulatedValue1, Collections.reverseOrder(comparator));
+      } else {
+        Collections.sort(accumulatedValue1, Collections.reverseOrder());
+      }
+      if (accumulatedValue1.size() > n) {
+        return accumulatedValue1.subList(0, n);
+      } else {
+        return accumulatedValue1;
+      }
+    }
+
+    @Override
+    public List<T> getOutput(List<T> accumulatedValue)
+    {
+      return accumulatedValue;
+    }
+
+    @Override
+    public List<T> getRetraction(List<T> accumulatedValue)
+    {
+      return new LinkedList<>();
     }
   }
 
@@ -101,9 +186,25 @@ public class ApexWindowedStreamImpl<T> extends ApexStreamImpl<T> implements Wind
   }
 
   @Override
-  public <TUPLE, KEY, STREAM extends WindowedStream<KeyValPair<KEY, List<TUPLE>>>> STREAM topByKey(int N, Function.MapFunction<T, KeyValPair<KEY, TUPLE>> convertToKeyVal)
+  public <V, K, STREAM extends WindowedStream<Tuple<KeyValPair<K, List<V>>>>> STREAM topByKey(int N, Function.MapFunction<T, Tuple<KeyValPair<K, V>>> convertToKeyVal)
   {
-    return null;
+    WindowedStream<Tuple<KeyValPair<K, V>>> kvstream = map(convertToKeyVal);
+    KeyedWindowedOperatorImpl<K, V, List<V>, List<V>> keyedWindowedOperator = new KeyedWindowedOperatorImpl<>();
+
+    //TODO use other default setting in the future
+    keyedWindowedOperator.setDataStorage(new InMemoryWindowedKeyedStorage<K, List<V>>());
+    keyedWindowedOperator.setRetractionStorage(new InMemoryWindowedKeyedStorage<K, List<V>>());
+    keyedWindowedOperator.setWindowStateStorage(new InMemoryWindowedStorage<WindowState>());
+    if (windowOption != null)
+      keyedWindowedOperator.setWindowOption(windowOption);
+    if (triggerOption != null)
+      keyedWindowedOperator.setTriggerOption(triggerOption);
+    if (allowedLateness != null)
+      keyedWindowedOperator.setAllowedLateness(allowedLateness);
+    TopN<V> top = new TopN<>();
+    top.setN(N);
+    keyedWindowedOperator.setAccumulation(top);
+    return kvstream.addOperator(keyedWindowedOperator, keyedWindowedOperator.input, keyedWindowedOperator.output);
   }
 
   @Override

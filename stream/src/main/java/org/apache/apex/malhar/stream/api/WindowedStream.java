@@ -94,7 +94,7 @@ public interface WindowedStream<T> extends ApexStream<T>
    * Return top tuples by the selected key
    * @return new stream of Key and top N tuple of the key
    */
-  <TUPLE, KEY, STREAM extends WindowedStream<KeyValPair<KEY, List<TUPLE>>>> STREAM topByKey(int N, Function.MapFunction<T, KeyValPair<KEY, TUPLE>> convertToKeyVal);
+  <TUPLE, KEY, STREAM extends WindowedStream<Tuple<KeyValPair<KEY, List<TUPLE>>>>> STREAM topByKey(int N, Function.MapFunction<T, Tuple<KeyValPair<KEY, TUPLE>>> convertToKeyVal);
 
   /**
    *
