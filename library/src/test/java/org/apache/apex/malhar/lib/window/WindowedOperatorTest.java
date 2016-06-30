@@ -164,6 +164,8 @@ public class WindowedOperatorTest
       case DISCARDING:
         triggerOption.discardingFiredPanes();
         break;
+      default:
+        throw new RuntimeException("Unknown accumulation mode: " + accumulationMode);
     }
     windowedOperator.setTriggerOption(triggerOption);
     windowedOperator.setWindowOption(new WindowOption.TimeWindows(Duration.millis(1000)));
@@ -206,6 +208,8 @@ public class WindowedOperatorTest
         Assert.assertEquals(-5L, ((Tuple<Long>)sink.collectedTuples.get(0)).getValue().longValue());
         Assert.assertEquals(14L, ((Tuple<Long>)sink.collectedTuples.get(1)).getValue().longValue());
         break;
+      default:
+        throw new RuntimeException("Unknown accumulation mode: " + accumulationMode);
     }
   }
 
@@ -408,6 +412,8 @@ public class WindowedOperatorTest
       case DISCARDING:
         triggerOption.discardingFiredPanes();
         break;
+      default:
+        throw new RuntimeException("Unknown accumulation mode: " + accumulationMode);
     }
     windowedOperator.setTriggerOption(triggerOption);
     windowedOperator.setWindowOption(new WindowOption.TimeWindows(Duration.millis(1000)));
@@ -475,6 +481,8 @@ public class WindowedOperatorTest
         Assert.assertEquals(14L, map.get("a").longValue());
         Assert.assertEquals(17L, map.get("b").longValue());
         break;
+      default:
+        throw new RuntimeException("Unknown accumulation mode: " + accumulationMode);
     }
   }
 

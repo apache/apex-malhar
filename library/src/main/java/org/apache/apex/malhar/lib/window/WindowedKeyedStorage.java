@@ -19,7 +19,6 @@
 package org.apache.apex.malhar.lib.window;
 
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.hadoop.classification.InterfaceStability;
 
