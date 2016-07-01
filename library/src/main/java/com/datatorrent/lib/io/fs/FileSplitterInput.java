@@ -317,9 +317,10 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
     @Override
     public void setup(Context.OperatorContext context)
     {
-      if (scanService == null) {
-        scanService = Executors.newSingleThreadExecutor();
+      if (scanService != null) {
+        throw new RuntimeException("multiple calls to setup() detected!");
       }
+      scanService = Executors.newSingleThreadExecutor();
       sleepMillis = context.getValue(Context.OperatorContext.SPIN_MILLIS);
       if (filePatternRegularExp != null) {
         regex = Pattern.compile(filePatternRegularExp);
