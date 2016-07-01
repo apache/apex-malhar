@@ -288,12 +288,12 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
 
     protected transient long lastScanMillis;
     protected transient FileSystem fs;
-    protected final transient LinkedBlockingDeque<ScannedFileInfo> discoveredFiles;
+    protected transient LinkedBlockingDeque<ScannedFileInfo> discoveredFiles;
     protected transient ExecutorService scanService;
-    protected final transient AtomicReference<Throwable> atomicThrowable;
+    protected transient AtomicReference<Throwable> atomicThrowable;
 
     private transient volatile boolean running;
-    protected final transient HashSet<String> ignoredFiles;
+    protected transient HashSet<String> ignoredFiles;
 
     protected transient Pattern regex;
     private transient Pattern ignoreRegex;
@@ -309,9 +309,6 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
       recursive = true;
       scanIntervalMillis = DEF_SCAN_INTERVAL_MILLIS;
       files = Sets.newLinkedHashSet();
-      discoveredFiles = new LinkedBlockingDeque<>();
-      atomicThrowable = new AtomicReference<>();
-      ignoredFiles = Sets.newHashSet();
     }
 
     @Override
@@ -321,6 +318,9 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
         throw new RuntimeException("multiple calls to setup() detected!");
       }
       scanService = Executors.newSingleThreadExecutor();
+      discoveredFiles = new LinkedBlockingDeque<>();
+      atomicThrowable = new AtomicReference<>();
+      ignoredFiles = Sets.newHashSet();
       sleepMillis = context.getValue(Context.OperatorContext.SPIN_MILLIS);
       if (filePatternRegularExp != null) {
         regex = Pattern.compile(filePatternRegularExp);
