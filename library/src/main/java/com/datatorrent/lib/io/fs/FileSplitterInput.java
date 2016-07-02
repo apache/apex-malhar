@@ -80,13 +80,13 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
 {
   @NotNull
   private WindowDataManager windowDataManager;
-  @NotNull
-  protected final transient LinkedList<ScannedFileInfo> currentWindowRecoveryState;
+
+  protected transient LinkedList<ScannedFileInfo> currentWindowRecoveryState;
 
   @Valid
   @NotNull
   private TimeBasedDirectoryScanner scanner;
-  @NotNull
+
   private Map<String, Map<String, Long>> referenceTimes;
 
   private transient long sleepMillis;
@@ -94,15 +94,15 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   public FileSplitterInput()
   {
     super();
-    currentWindowRecoveryState = Lists.newLinkedList();
     windowDataManager = new WindowDataManager.NoopWindowDataManager();
-    referenceTimes = Maps.newHashMap();
     scanner = new TimeBasedDirectoryScanner();
   }
 
   @Override
   public void setup(Context.OperatorContext context)
   {
+    currentWindowRecoveryState = Lists.newLinkedList();
+    referenceTimes = Maps.newHashMap();
     sleepMillis = context.getValue(Context.OperatorContext.SPIN_MILLIS);
     scanner.setup(context);
     windowDataManager.setup(context);
@@ -288,12 +288,12 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
 
     protected transient long lastScanMillis;
     protected transient FileSystem fs;
-    protected final transient LinkedBlockingDeque<ScannedFileInfo> discoveredFiles;
-    protected final transient ExecutorService scanService;
-    protected final transient AtomicReference<Throwable> atomicThrowable;
+    protected transient LinkedBlockingDeque<ScannedFileInfo> discoveredFiles;
+    protected transient ExecutorService scanService;
+    protected transient AtomicReference<Throwable> atomicThrowable;
 
     private transient volatile boolean running;
-    protected final transient HashSet<String> ignoredFiles;
+    protected transient HashSet<String> ignoredFiles;
 
     protected transient Pattern regex;
     private transient Pattern ignoreRegex;
@@ -309,15 +309,18 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
       recursive = true;
       scanIntervalMillis = DEF_SCAN_INTERVAL_MILLIS;
       files = Sets.newLinkedHashSet();
-      scanService = Executors.newSingleThreadExecutor();
-      discoveredFiles = new LinkedBlockingDeque<>();
-      atomicThrowable = new AtomicReference<>();
-      ignoredFiles = Sets.newHashSet();
     }
 
     @Override
     public void setup(Context.OperatorContext context)
     {
+      if (scanService != null) {
+        throw new RuntimeException("multiple calls to setup() detected!");
+      }
+      scanService = Executors.newSingleThreadExecutor();
+      discoveredFiles = new LinkedBlockingDeque<>();
+      atomicThrowable = new AtomicReference<>();
+      ignoredFiles = Sets.newHashSet();
       sleepMillis = context.getValue(Context.OperatorContext.SPIN_MILLIS);
       if (filePatternRegularExp != null) {
         regex = Pattern.compile(filePatternRegularExp);
