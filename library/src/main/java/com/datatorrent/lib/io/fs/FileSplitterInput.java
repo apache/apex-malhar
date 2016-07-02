@@ -80,13 +80,13 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
 {
   @NotNull
   private WindowDataManager windowDataManager;
-  @NotNull
-  protected final transient LinkedList<ScannedFileInfo> currentWindowRecoveryState;
+
+  protected transient LinkedList<ScannedFileInfo> currentWindowRecoveryState;
 
   @Valid
   @NotNull
   private TimeBasedDirectoryScanner scanner;
-  @NotNull
+
   private Map<String, Map<String, Long>> referenceTimes;
 
   private transient long sleepMillis;
@@ -94,15 +94,15 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   public FileSplitterInput()
   {
     super();
-    currentWindowRecoveryState = Lists.newLinkedList();
     windowDataManager = new WindowDataManager.NoopWindowDataManager();
-    referenceTimes = Maps.newHashMap();
     scanner = new TimeBasedDirectoryScanner();
   }
 
   @Override
   public void setup(Context.OperatorContext context)
   {
+    currentWindowRecoveryState = Lists.newLinkedList();
+    referenceTimes = Maps.newHashMap();
     sleepMillis = context.getValue(Context.OperatorContext.SPIN_MILLIS);
     scanner.setup(context);
     windowDataManager.setup(context);
