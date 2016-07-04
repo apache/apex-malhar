@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+<configuration>
+  <!-- 
+  <property>
+    <name>dt.application.{appName}.operator.{opName}.prop.{propName}</name>
+    <value>some-default-value (if value is not specified, it is required from the user or custom config when launching)</value>
+  </property>
+  -->
+  <!-- memory assigned to app master
+  <property>
+    <name>dt.attr.MASTER_MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  -->
+  <property>
+    <name>dt.application.RecordReaderExample.operator.recordReader.prop.files</name>
+    <value>src/main/resources/META-INF/CustomerTxnData</value>
+  </property>
+  <property>
+    <name>dt.application.RecordReaderExample.attr.CHECKPOINT_WINDOW_COUNT</name>
+    <value>10</value>
+  </property>
+  <property>
+    <name>dt.application.RecordReaderExample.operator.csvParser.prop.schema</name>
+    <value>{
+    "separator": "|",
+    "quoteChar": "\"",
+    "fields": [
+        {
+            "name": "customerName",
+            "type": "String"
+        },
+        {
+            "name": "customerPhone",
+            "type": "String"
+        },
+        {
+            "name": "customerEmail",
+            "type": "String"
+        },
+        {
+            "name": "city",
+            "type": "String"
+        },
+        {
+            "name": "country",
+            "type": "String"
+        },
+        {
+            "name": "uid",
+            "type": "String"
+        },
+        {
+            "name": "accountNumber",
+            "type": "String"
+        },
+        {
+            "name": "txId",
+            "type": "long"
+        },
+        {
+            "name": "txDate",
+            "type": "Date",
+            "constraints" : {
+                "format" : "yyyy-MM-dd HH:mm:ss"
+            }
+        },
+        {
+            "name": "txAmount",
+            "type": "double"
+        }
+      ]
+  }
+  </value>
+  </property>
+  <property>
+    <name>dt.application.RecordReaderExample.operator.formatter.prop.schema</name>
+    <value>{
+    "separator": "|",
+    "quoteChar": "\"",
+    "lineDelimiter": "",
+    "fields": [
+        {
+            "name": "customerName",
+            "type": "String"
+        },
+        {
+            "name": "customerPhone",
+            "type": "String"
+        },
+        {
+            "name": "customerEmail",
+            "type": "String"
+        },
+        {
+            "name": "city",
+            "type": "String"
+        },
+        {
+            "name": "country",
+            "type": "String"
+        },
+        {
+            "name": "uid",
+            "type": "String"
+        },
+        {
+            "name": "accountNumber",
+            "type": "String"
+        },
+        {
+            "name": "txId",
+            "type": "long"
+        },
+        {
+            "name": "txDate",
+            "type": "Date",
+            "constraints" : {
+                "format" : "yyyy-MM-dd HH:mm:ss"
+            }
+        },
+        {
+            "name": "txAmount",
+            "type": "double"
+        }
+      ]
+  }
+  </value>
+  </property>
+  <property>
+    <name>dt.application.RecordReaderExample.operator.csvParser.port.out.attr.TUPLE_CLASS</name>
+    <value>com.example.recordReader.TransactionsSchema</value>
+  </property>
+  <property>
+    <name>dt.application.RecordReaderExample.operator.formatter.port.in.attr.TUPLE_CLASS</name>
+    <value>com.example.recordReader.TransactionsSchema</value>
+  </property>
+  <property>
+    <name>dt.application.RecordReaderExample.operator.fileOutput.prop.filePath</name>
+    <value>/tmp</value>
+  </property>
+  <property>
+    <name>dt.application.RecordReaderExample.operator.fileOutput.prop.outputFileName</name>
+    <value>output.txt</value>
+  </property>
+  <property>
+    <name>dt.application.RecordReaderExample.operator.fileOutput.prop.tupleSeparator</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.RecordReaderExample.operator.fileOutput.prop.maxIdleWindows</name>
+    <value>2</value>
+  </property>
+  <property>
+    <name>dt.loggers.level</name>
+    <value>com.datatorrent.*:DEBUG,org.apache.apex.malhar.*:DEBUG</value>
+  </property>
+</configuration>
+
