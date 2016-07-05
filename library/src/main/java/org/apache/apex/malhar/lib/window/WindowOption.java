@@ -31,19 +31,19 @@ import com.esotericsoftware.kryo.serializers.JavaSerializer;
  *  This is used by both the high level API and by the WindowedOperator
  */
 @InterfaceStability.Evolving
-public abstract class WindowOption
+public interface WindowOption
 {
   /**
    * The windowing specification that says there is only one window for the entire time of the application
    */
-  public static class GlobalWindow extends WindowOption
+  class GlobalWindow implements WindowOption
   {
   }
 
   /**
    * The windowing specification that divides the time into slices with the same width
    */
-  public static class TimeWindows extends WindowOption
+  class TimeWindows implements WindowOption
   {
     @FieldSerializer.Bind(JavaSerializer.class)
     private Duration duration;
@@ -84,7 +84,7 @@ public abstract class WindowOption
    * The window specification that represents sliding windows
    *
    */
-  public static class SlidingTimeWindows extends TimeWindows
+  class SlidingTimeWindows extends TimeWindows
   {
     @FieldSerializer.Bind(JavaSerializer.class)
     private Duration slideByDuration;
@@ -113,7 +113,7 @@ public abstract class WindowOption
    * The window specification that represents session windows, with a minimum gap duration between two windows with the
    * same key.
    */
-  public static class SessionWindows extends WindowOption
+  class SessionWindows implements WindowOption
   {
     @FieldSerializer.Bind(JavaSerializer.class)
     private Duration minGap;
