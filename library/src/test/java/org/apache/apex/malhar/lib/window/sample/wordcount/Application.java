@@ -40,6 +40,7 @@ import org.apache.apex.malhar.lib.window.impl.KeyedWindowedOperatorImpl;
 import org.apache.apex.malhar.lib.window.impl.WatermarkImpl;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 
 import com.google.common.base.Throwables;
@@ -126,12 +127,12 @@ public class Application implements StreamingApplication
   public void populateDAG(DAG dag, Configuration configuration)
   {
     WordGenerator inputOperator = new WordGenerator();
-    KeyedWindowedOperatorImpl<String, Long, Long, Long> windowedOperator = new KeyedWindowedOperatorImpl<>();
-    Accumulation<Long, Long, Long> sum = new SumAccumulation();
+    KeyedWindowedOperatorImpl<String, Long, MutableLong, Long> windowedOperator = new KeyedWindowedOperatorImpl<>();
+    Accumulation<Long, MutableLong, Long> sum = new SumAccumulation();
 
     windowedOperator.setAccumulation(sum);
-    windowedOperator.setDataStorage(new InMemoryWindowedKeyedStorage<String, Long>());
-    windowedOperator.setRetractionStorage(new InMemoryWindowedKeyedStorage<String, Long>());
+    windowedOperator.setDataStorage(new InMemoryWindowedKeyedStorage<String, MutableLong>());
+    windowedOperator.setRetractionStorage(new InMemoryWindowedKeyedStorage<String, MutableLong>());
     windowedOperator.setWindowStateStorage(new InMemoryWindowedStorage<WindowState>());
     windowedOperator.setWindowOption(new WindowOption.TimeWindows(Duration.standardMinutes(1)));
     windowedOperator.setTriggerOption(TriggerOption.AtWatermark().withEarlyFiringsAtEvery(Duration.millis(1000)).accumulatingAndRetractingFiredPanes());

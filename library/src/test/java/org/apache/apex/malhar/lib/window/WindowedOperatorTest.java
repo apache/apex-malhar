@@ -34,6 +34,7 @@ import org.apache.apex.malhar.lib.window.impl.InMemoryWindowedStorage;
 import org.apache.apex.malhar.lib.window.impl.KeyedWindowedOperatorImpl;
 import org.apache.apex.malhar.lib.window.impl.WatermarkImpl;
 import org.apache.apex.malhar.lib.window.impl.WindowedOperatorImpl;
+import org.apache.commons.lang3.mutable.MutableLong;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Sink;
@@ -56,21 +57,21 @@ public class WindowedOperatorTest
     }
   }
 
-  private WindowedOperatorImpl<Long, Long, Long> createDefaultWindowedOperator()
+  private WindowedOperatorImpl<Long, MutableLong, Long> createDefaultWindowedOperator()
   {
-    WindowedOperatorImpl<Long, Long, Long> windowedOperator = new WindowedOperatorImpl<>();
-    windowedOperator.setDataStorage(new InMemoryWindowedStorage<Long>());
-    windowedOperator.setRetractionStorage(new InMemoryWindowedStorage<Long>());
+    WindowedOperatorImpl<Long, MutableLong, Long> windowedOperator = new WindowedOperatorImpl<>();
+    windowedOperator.setDataStorage(new InMemoryWindowedStorage<MutableLong>());
+    windowedOperator.setRetractionStorage(new InMemoryWindowedStorage<MutableLong>());
     windowedOperator.setWindowStateStorage(new InMemoryWindowedStorage<WindowState>());
     windowedOperator.setAccumulation(new SumAccumulation());
     return windowedOperator;
   }
 
-  private KeyedWindowedOperatorImpl<String, Long, Long, Long> createDefaultKeyedWindowedOperator()
+  private KeyedWindowedOperatorImpl<String, Long, MutableLong, Long> createDefaultKeyedWindowedOperator()
   {
-    KeyedWindowedOperatorImpl<String, Long, Long, Long> windowedOperator = new KeyedWindowedOperatorImpl<>();
-    windowedOperator.setDataStorage(new InMemoryWindowedKeyedStorage<String, Long>());
-    windowedOperator.setRetractionStorage(new InMemoryWindowedKeyedStorage<String, Long>());
+    KeyedWindowedOperatorImpl<String, Long, MutableLong, Long> windowedOperator = new KeyedWindowedOperatorImpl<>();
+    windowedOperator.setDataStorage(new InMemoryWindowedKeyedStorage<String, MutableLong>());
+    windowedOperator.setRetractionStorage(new InMemoryWindowedKeyedStorage<String, MutableLong>());
     windowedOperator.setWindowStateStorage(new InMemoryWindowedStorage<WindowState>());
     windowedOperator.setAccumulation(new SumAccumulation());
     return windowedOperator;
@@ -79,17 +80,17 @@ public class WindowedOperatorTest
   @Test
   public void testValidation() throws Exception
   {
-    WindowedOperatorImpl<Long, Long, Long> windowedOperator = new WindowedOperatorImpl<>();
+    WindowedOperatorImpl<Long, MutableLong, Long> windowedOperator = new WindowedOperatorImpl<>();
     verifyValidationFailure(windowedOperator, "nothing is configured");
     windowedOperator.setWindowStateStorage(new InMemoryWindowedStorage<WindowState>());
     verifyValidationFailure(windowedOperator, "data storage is not set");
-    windowedOperator.setDataStorage(new InMemoryWindowedStorage<Long>());
+    windowedOperator.setDataStorage(new InMemoryWindowedStorage<MutableLong>());
     verifyValidationFailure(windowedOperator, "accumulation is not set");
     windowedOperator.setAccumulation(new SumAccumulation());
     windowedOperator.validate();
     windowedOperator.setTriggerOption(new TriggerOption().accumulatingAndRetractingFiredPanes());
     verifyValidationFailure(windowedOperator, "retracting storage is not set for ACCUMULATING_AND_RETRACTING");
-    windowedOperator.setRetractionStorage(new InMemoryWindowedStorage<Long>());
+    windowedOperator.setRetractionStorage(new InMemoryWindowedStorage<MutableLong>());
     windowedOperator.validate();
     windowedOperator.setTriggerOption(new TriggerOption().discardingFiredPanes().firingOnlyUpdatedPanes());
     verifyValidationFailure(windowedOperator, "DISCARDING is not valid for option firingOnlyUpdatedPanes");
@@ -103,7 +104,7 @@ public class WindowedOperatorTest
   {
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1,
         new Attribute.AttributeMap.DefaultAttributeMap());
-    WindowedOperatorImpl<Long, Long, Long> windowedOperator = createDefaultWindowedOperator();
+    WindowedOperatorImpl<Long, MutableLong, Long> windowedOperator = createDefaultWindowedOperator();
     CollectorTestSink controlSink = new CollectorTestSink();
 
     windowedOperator.controlOutput.setSink(controlSink);
@@ -111,7 +112,7 @@ public class WindowedOperatorTest
     windowedOperator.setWindowOption(new WindowOption.TimeWindows(Duration.millis(1000)));
     windowedOperator.setAllowedLateness(Duration.millis(1000));
 
-    WindowedStorage<Long> dataStorage = new InMemoryWindowedStorage<>();
+    WindowedStorage<MutableLong> dataStorage = new InMemoryWindowedStorage<>();
     WindowedStorage<WindowState> windowStateStorage = new InMemoryWindowedStorage<>();
 
     windowedOperator.setDataStorage(dataStorage);
@@ -152,7 +153,7 @@ public class WindowedOperatorTest
 
   private void testTrigger(TriggerOption.AccumulationMode accumulationMode)
   {
-    WindowedOperatorImpl<Long, Long, Long> windowedOperator = createDefaultWindowedOperator();
+    WindowedOperatorImpl<Long, MutableLong, Long> windowedOperator = createDefaultWindowedOperator();
     TriggerOption triggerOption = new TriggerOption().withEarlyFiringsAtEvery(Duration.millis(1000));
     switch (accumulationMode) {
       case ACCUMULATING:
@@ -235,7 +236,7 @@ public class WindowedOperatorTest
   public void testTriggerWithAccumulatingModeFiringOnlyUpdatedPanes()
   {
     for (boolean firingOnlyUpdatedPanes : new boolean[]{true, false}) {
-      WindowedOperatorImpl<Long, Long, Long> windowedOperator = createDefaultWindowedOperator();
+      WindowedOperatorImpl<Long, MutableLong, Long> windowedOperator = createDefaultWindowedOperator();
       TriggerOption triggerOption = new TriggerOption().withEarlyFiringsAtEvery(Duration.millis(1000))
           .accumulatingFiredPanes();
       if (firingOnlyUpdatedPanes) {
@@ -280,7 +281,7 @@ public class WindowedOperatorTest
   {
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1,
         new Attribute.AttributeMap.DefaultAttributeMap());
-    WindowedOperatorImpl<Long, Long, Long> windowedOperator = createDefaultWindowedOperator();
+    WindowedOperatorImpl<Long, MutableLong, Long> windowedOperator = createDefaultWindowedOperator();
     windowedOperator.setWindowOption(new WindowOption.GlobalWindow());
     windowedOperator.setup(context);
     Tuple.WindowedTuple<Long> windowedValue = windowedOperator.getWindowedValue(new Tuple.TimestampedTuple<>(1100L, 2L));
@@ -294,7 +295,7 @@ public class WindowedOperatorTest
   {
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1,
         new Attribute.AttributeMap.DefaultAttributeMap());
-    WindowedOperatorImpl<Long, Long, Long> windowedOperator = createDefaultWindowedOperator();
+    WindowedOperatorImpl<Long, MutableLong, Long> windowedOperator = createDefaultWindowedOperator();
     windowedOperator.setWindowOption(new WindowOption.TimeWindows(Duration.millis(1000)));
     windowedOperator.setup(context);
     Tuple.WindowedTuple<Long> windowedValue = windowedOperator.getWindowedValue(new Tuple.TimestampedTuple<>(1100L, 2L));
@@ -309,7 +310,7 @@ public class WindowedOperatorTest
   {
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1,
         new Attribute.AttributeMap.DefaultAttributeMap());
-    WindowedOperatorImpl<Long, Long, Long> windowedOperator = createDefaultWindowedOperator();
+    WindowedOperatorImpl<Long, MutableLong, Long> windowedOperator = createDefaultWindowedOperator();
     windowedOperator.setWindowOption(new WindowOption.SlidingTimeWindows(Duration.millis(1000), Duration.millis(200)));
     windowedOperator.setup(context);
     Tuple.WindowedTuple<Long> windowedValue = windowedOperator.getWindowedValue(new Tuple.TimestampedTuple<>(1600L, 2L));
@@ -334,7 +335,7 @@ public class WindowedOperatorTest
   {
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1,
         new Attribute.AttributeMap.DefaultAttributeMap());
-    KeyedWindowedOperatorImpl<String, Long, Long, Long> windowedOperator = createDefaultKeyedWindowedOperator();
+    KeyedWindowedOperatorImpl<String, Long, MutableLong, Long> windowedOperator = createDefaultKeyedWindowedOperator();
     windowedOperator.setWindowOption(new WindowOption.SessionWindows(Duration.millis(2000)));
     windowedOperator.setup(context);
     windowedOperator.beginWindow(1);
@@ -382,9 +383,9 @@ public class WindowedOperatorTest
   {
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1,
         new Attribute.AttributeMap.DefaultAttributeMap());
-    KeyedWindowedOperatorImpl<String, Long, Long, Long> windowedOperator = createDefaultKeyedWindowedOperator();
+    KeyedWindowedOperatorImpl<String, Long, MutableLong, Long> windowedOperator = createDefaultKeyedWindowedOperator();
     windowedOperator.setWindowOption(new WindowOption.TimeWindows(Duration.millis(1000)));
-    WindowedKeyedStorage<String, Long> dataStorage = new InMemoryWindowedKeyedStorage<>();
+    WindowedKeyedStorage<String, MutableLong> dataStorage = new InMemoryWindowedKeyedStorage<>();
     windowedOperator.setDataStorage(dataStorage);
     windowedOperator.setup(context);
     windowedOperator.beginWindow(1);
@@ -400,7 +401,7 @@ public class WindowedOperatorTest
 
   private void testKeyedTrigger(TriggerOption.AccumulationMode accumulationMode)
   {
-    KeyedWindowedOperatorImpl<String, Long, Long, Long> windowedOperator = createDefaultKeyedWindowedOperator();
+    KeyedWindowedOperatorImpl<String, Long, MutableLong, Long> windowedOperator = createDefaultKeyedWindowedOperator();
     TriggerOption triggerOption = new TriggerOption().withEarlyFiringsAtEvery(Duration.millis(1000));
     switch (accumulationMode) {
       case ACCUMULATING:

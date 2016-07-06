@@ -18,38 +18,42 @@
  */
 package org.apache.apex.malhar.lib.window;
 
+import org.apache.commons.lang3.mutable.MutableLong;
+
 /**
  * Accumulation that does a simple sum of longs
  */
-public class SumAccumulation implements Accumulation<Long, Long, Long>
+public class SumAccumulation implements Accumulation<Long, MutableLong, Long>
 {
   @Override
-  public Long defaultAccumulatedValue()
+  public MutableLong defaultAccumulatedValue()
   {
-    return 0L;
+    return new MutableLong(0);
   }
 
   @Override
-  public Long accumulate(Long accumulatedValue, Long input)
+  public MutableLong accumulate(MutableLong accumulatedValue, Long input)
   {
-    return accumulatedValue + input;
-  }
-
-  @Override
-  public Long merge(Long accumulatedValue1, Long accumulatedValue2)
-  {
-    return accumulatedValue1 + accumulatedValue2;
-  }
-
-  @Override
-  public Long getOutput(Long accumulatedValue)
-  {
+    accumulatedValue.add(input);
     return accumulatedValue;
   }
 
   @Override
-  public Long getRetraction(Long accumulatedValue)
+  public MutableLong merge(MutableLong accumulatedValue1, MutableLong accumulatedValue2)
   {
-    return -accumulatedValue;
+    accumulatedValue1.add(accumulatedValue2);
+    return accumulatedValue1;
+  }
+
+  @Override
+  public Long getOutput(MutableLong accumulatedValue)
+  {
+    return accumulatedValue.getValue();
+  }
+
+  @Override
+  public Long getRetraction(MutableLong accumulatedValue)
+  {
+    return -accumulatedValue.longValue();
   }
 }

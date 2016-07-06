@@ -27,6 +27,7 @@ import org.apache.apex.malhar.lib.window.WindowOption;
 import org.apache.apex.malhar.lib.window.WindowState;
 import org.apache.apex.malhar.lib.window.impl.InMemoryWindowedStorage;
 import org.apache.apex.malhar.lib.window.impl.WindowedOperatorImpl;
+import org.apache.commons.lang3.mutable.MutableLong;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.hadoop.conf.Configuration;
 
@@ -55,40 +56,40 @@ public class Application implements StreamingApplication
     }
   }
 
-  public static class PiAccumulation implements Accumulation<MutablePair<Double, Double>, MutablePair<Long, Long>, Double>
+  public static class PiAccumulation implements Accumulation<MutablePair<Double, Double>, MutablePair<MutableLong, MutableLong>, Double>
   {
     @Override
-    public MutablePair<Long, Long> defaultAccumulatedValue()
+    public MutablePair<MutableLong, MutableLong> defaultAccumulatedValue()
     {
-      return new MutablePair<>(0L, 0L);
+      return new MutablePair<>(new MutableLong(0), new MutableLong(0));
     }
 
     @Override
-    public MutablePair<Long, Long> accumulate(MutablePair<Long, Long> accumulatedValue, MutablePair<Double, Double> input)
+    public MutablePair<MutableLong, MutableLong> accumulate(MutablePair<MutableLong, MutableLong> accumulatedValue, MutablePair<Double, Double> input)
     {
-      long first = accumulatedValue.getLeft();
-      long second = accumulatedValue.getRight();
       if (input.getLeft() * input.getLeft() + input.getRight() * input.getRight() < 1) {
-        first++;
+        accumulatedValue.getLeft().increment();
       }
-      second++;
-      return new MutablePair<>(first, second);
+      accumulatedValue.getRight().increment();
+      return accumulatedValue;
     }
 
     @Override
-    public MutablePair<Long, Long> merge(MutablePair<Long, Long> accumulatedValue1, MutablePair<Long, Long> accumulatedValue2)
+    public MutablePair<MutableLong, MutableLong> merge(MutablePair<MutableLong, MutableLong> accumulatedValue1, MutablePair<MutableLong, MutableLong> accumulatedValue2)
     {
-      return new MutablePair<>(accumulatedValue1.getLeft() + accumulatedValue2.getLeft(), accumulatedValue1.getRight() + accumulatedValue2.getRight());
+      accumulatedValue1.getLeft().add(accumulatedValue2.getLeft());
+      accumulatedValue1.getRight().add(accumulatedValue2.getRight());
+      return accumulatedValue1;
     }
 
     @Override
-    public Double getOutput(MutablePair<Long, Long> accumulatedValue)
+    public Double getOutput(MutablePair<MutableLong, MutableLong> accumulatedValue)
     {
-      return accumulatedValue.getRight() == 0 ? 0.0 : (((double)accumulatedValue.getLeft()) * 4 / accumulatedValue.getRight());
+      return accumulatedValue.getRight().longValue() == 0 ? 0.0 : (((double)accumulatedValue.getLeft().longValue()) * 4 / accumulatedValue.getRight().longValue());
     }
 
     @Override
-    public Double getRetraction(MutablePair<Long, Long> accumulatedValue)
+    public Double getRetraction(MutablePair<MutableLong, MutableLong> accumulatedValue)
     {
       return -getOutput(accumulatedValue);
     }
@@ -98,11 +99,11 @@ public class Application implements StreamingApplication
   public void populateDAG(DAG dag, Configuration configuration)
   {
     RandomNumberPairGenerator inputOperator = new RandomNumberPairGenerator();
-    WindowedOperatorImpl<MutablePair<Double, Double>, MutablePair<Long, Long>, Double> windowedOperator = new WindowedOperatorImpl<>();
-    Accumulation<MutablePair<Double, Double>, MutablePair<Long, Long>, Double> piAccumulation = new PiAccumulation();
+    WindowedOperatorImpl<MutablePair<Double, Double>, MutablePair<MutableLong, MutableLong>, Double> windowedOperator = new WindowedOperatorImpl<>();
+    Accumulation<MutablePair<Double, Double>, MutablePair<MutableLong, MutableLong>, Double> piAccumulation = new PiAccumulation();
 
     windowedOperator.setAccumulation(piAccumulation);
-    windowedOperator.setDataStorage(new InMemoryWindowedStorage<MutablePair<Long, Long>>());
+    windowedOperator.setDataStorage(new InMemoryWindowedStorage<MutablePair<MutableLong, MutableLong>>());
     windowedOperator.setWindowStateStorage(new InMemoryWindowedStorage<WindowState>());
     windowedOperator.setWindowOption(new WindowOption.GlobalWindow());
     windowedOperator.setTriggerOption(TriggerOption.AtWatermark().withEarlyFiringsAtEvery(Duration.millis(1000)).accumulatingFiredPanes());
