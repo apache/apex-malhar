@@ -51,6 +51,12 @@ public interface Window
     {
       return Long.MAX_VALUE;
     }
+
+    @Override
+    public boolean equals(Object other)
+    {
+      return (other instanceof GlobalWindow);
+    }
   }
 
   class DefaultComparator implements Comparator<Window>
@@ -129,6 +135,17 @@ public interface Window
       return durationMillis;
     }
 
+    @Override
+    public boolean equals(Object other)
+    {
+      if (other instanceof TimeWindow) {
+        TimeWindow otherWindow = (TimeWindow)other;
+        return this.beginTimestamp == otherWindow.beginTimestamp && this.durationMillis == otherWindow.durationMillis;
+      } else {
+        return false;
+      }
+    }
+
   }
 
   /**
@@ -156,24 +173,22 @@ public interface Window
       return key;
     }
 
-    /**
-     * Merges the two session windows and forms one window that spans the two windows.
-     * The caller of this method is responsible for checking whether the two windows are close enough for merging
-     *
-     * @param w1
-     * @param w2
-     * @param <K>
-     * @return
-     */
-    public static <K> SessionWindow<K> merge(SessionWindow<K> w1, SessionWindow<K> w2)
+    @Override
+    public boolean equals(Object other)
     {
-      if ((w1.key != null && w1.key != null) || !w1.key.equals(w2.key)) {
-        throw new IllegalArgumentException("The keys of the two session windows do not match");
+      if (!super.equals(other)) {
+        return false;
       }
-      long beginTimestamp = Math.min(w1.beginTimestamp, w2.beginTimestamp);
-      long endTimestamp = Math.max(w1.beginTimestamp + w1.durationMillis, w2.beginTimestamp + w2.durationMillis);
-      return new SessionWindow<>(w1.key, beginTimestamp, endTimestamp - beginTimestamp);
+      if (other instanceof SessionWindow) {
+        SessionWindow<K> otherSessionWindow = (SessionWindow<K>)other;
+        if (key == null) {
+          return otherSessionWindow.key == null;
+        } else {
+          return key.equals(otherSessionWindow.key);
+        }
+      } else {
+        return false;
+      }
     }
-
   }
 }

@@ -99,7 +99,7 @@ public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
         Window.SessionWindow<KeyT> sessionWindow1 = sessionWindowEntry1.getKey();
         Window.SessionWindow<KeyT> sessionWindow2 = sessionWindowEntry2.getKey();
         AccumT sessionData1 = sessionWindowEntry1.getValue();
-        AccumT sessionData2 = sessionWindowEntry1.getValue();
+        AccumT sessionData2 = sessionWindowEntry2.getValue();
         if (triggerOption != null &&
             triggerOption.getAccumulationMode() == TriggerOption.AccumulationMode.ACCUMULATING_AND_RETRACTING) {
           // fire a retraction trigger because the two session windows will be merged to a new window
