@@ -96,10 +96,21 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
     for (int i = 0; i < clusters.length; i++) {
       metadata.put(clusters[i], new HashMap<String, List<PartitionInfo>>());
       for (String topic : topics) {
-        int tryTime = 3;
+        int tryTime = 10;
+        boolean errorDueToException = false;
         while (tryTime-- > 0) {
           try {
             List<PartitionInfo> ptis = metadataRefreshClients.get(i).partitionsFor(topic);
+            if (ptis == null) {
+              logger.warn("Partition metadata for topic {} is null. retrying...", topic);
+              errorDueToException = false;
+              try {
+                Thread.sleep(100);
+              } catch (Exception e1) {
+                //ignore
+              }
+              continue;
+            }
             if (logger.isDebugEnabled()) {
               logger.debug("Partition metadata for topic {} : {}", topic, Joiner.on(';').join(ptis));
             }
@@ -110,6 +121,7 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
             throw new RuntimeException("Kafka AuthorizationException.", ae);
           } catch (Exception e) {
             logger.warn("Got Exception when trying get partition info for topic {}.", topic, e);
+            errorDueToException = true;
             try {
               Thread.sleep(100);
             } catch (Exception e1) {
@@ -117,8 +129,8 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
             }
           }
         }
-        if (tryTime == 0) {
-          throw new RuntimeException("Get partition info completely failed. Please check the log file");
+        if (tryTime == 0 && errorDueToException) {
+          throw new RuntimeException("Get partition info for topic completely failed. Please check the log file. topic name: " + topic);
         }
       }
       metadataRefreshClients.get(i).close();
