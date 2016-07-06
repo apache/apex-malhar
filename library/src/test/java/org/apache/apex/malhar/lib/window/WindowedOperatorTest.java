@@ -61,7 +61,7 @@ public class WindowedOperatorTest
   {
     WindowedOperatorImpl<Long, MutableLong, Long> windowedOperator = new WindowedOperatorImpl<>();
     windowedOperator.setDataStorage(new InMemoryWindowedStorage<MutableLong>());
-    windowedOperator.setRetractionStorage(new InMemoryWindowedStorage<MutableLong>());
+    windowedOperator.setRetractionStorage(new InMemoryWindowedStorage<Long>());
     windowedOperator.setWindowStateStorage(new InMemoryWindowedStorage<WindowState>());
     windowedOperator.setAccumulation(new SumAccumulation());
     return windowedOperator;
@@ -71,7 +71,7 @@ public class WindowedOperatorTest
   {
     KeyedWindowedOperatorImpl<String, Long, MutableLong, Long> windowedOperator = new KeyedWindowedOperatorImpl<>();
     windowedOperator.setDataStorage(new InMemoryWindowedKeyedStorage<String, MutableLong>());
-    windowedOperator.setRetractionStorage(new InMemoryWindowedKeyedStorage<String, MutableLong>());
+    windowedOperator.setRetractionStorage(new InMemoryWindowedKeyedStorage<String, Long>());
     windowedOperator.setWindowStateStorage(new InMemoryWindowedStorage<WindowState>());
     windowedOperator.setAccumulation(new SumAccumulation());
     return windowedOperator;
@@ -90,7 +90,7 @@ public class WindowedOperatorTest
     windowedOperator.validate();
     windowedOperator.setTriggerOption(new TriggerOption().accumulatingAndRetractingFiredPanes());
     verifyValidationFailure(windowedOperator, "retracting storage is not set for ACCUMULATING_AND_RETRACTING");
-    windowedOperator.setRetractionStorage(new InMemoryWindowedStorage<MutableLong>());
+    windowedOperator.setRetractionStorage(new InMemoryWindowedStorage<Long>());
     windowedOperator.validate();
     windowedOperator.setTriggerOption(new TriggerOption().discardingFiredPanes().firingOnlyUpdatedPanes());
     verifyValidationFailure(windowedOperator, "DISCARDING is not valid for option firingOnlyUpdatedPanes");

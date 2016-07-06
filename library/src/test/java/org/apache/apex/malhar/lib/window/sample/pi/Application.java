@@ -89,9 +89,9 @@ public class Application implements StreamingApplication
     }
 
     @Override
-    public Double getRetraction(MutablePair<MutableLong, MutableLong> accumulatedValue)
+    public Double getRetraction(Double value)
     {
-      return -getOutput(accumulatedValue);
+      return -value;
     }
   }
 

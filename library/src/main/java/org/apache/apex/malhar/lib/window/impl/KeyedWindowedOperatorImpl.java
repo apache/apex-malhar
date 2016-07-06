@@ -46,7 +46,7 @@ import com.datatorrent.lib.util.KeyValPair;
  */
 @InterfaceStability.Evolving
 public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
-    extends AbstractWindowedOperator<KeyValPair<KeyT, InputValT>, KeyValPair<KeyT, OutputValT>, WindowedKeyedStorage<KeyT, AccumT>, Accumulation<InputValT, AccumT, OutputValT>>
+    extends AbstractWindowedOperator<KeyValPair<KeyT, InputValT>, KeyValPair<KeyT, OutputValT>, WindowedKeyedStorage<KeyT, AccumT>, WindowedKeyedStorage<KeyT, OutputValT>, Accumulation<InputValT, AccumT, OutputValT>>
 {
 
   @Override
@@ -146,15 +146,16 @@ public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
   public void fireNormalTrigger(Window window, boolean fireOnlyUpdatedPanes)
   {
     for (Map.Entry<KeyT, AccumT> entry : dataStorage.entrySet(window)) {
+      OutputValT outputVal = accumulation.getOutput(entry.getValue());
       if (fireOnlyUpdatedPanes) {
-        AccumT oldAccumulatedValue = retractionStorage.get(window, entry.getKey());
-        if (oldAccumulatedValue != null && oldAccumulatedValue.equals(entry.getValue())) {
+        OutputValT oldValue = retractionStorage.get(window, entry.getKey());
+        if (oldValue != null && oldValue.equals(outputVal)) {
           continue;
         }
       }
-      output.emit(new Tuple.WindowedTuple<>(window, new KeyValPair<>(entry.getKey(), accumulation.getOutput(entry.getValue()))));
+      output.emit(new Tuple.WindowedTuple<>(window, new KeyValPair<>(entry.getKey(), outputVal)));
       if (retractionStorage != null) {
-        retractionStorage.put(window, entry.getKey(), entry.getValue());
+        retractionStorage.put(window, entry.getKey(), outputVal);
       }
     }
   }
@@ -165,7 +166,7 @@ public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
     if (triggerOption.getAccumulationMode() != TriggerOption.AccumulationMode.ACCUMULATING_AND_RETRACTING) {
       throw new UnsupportedOperationException();
     }
-    for (Map.Entry<KeyT, AccumT> entry : retractionStorage.entrySet(window)) {
+    for (Map.Entry<KeyT, OutputValT> entry : retractionStorage.entrySet(window)) {
       output.emit(new Tuple.WindowedTuple<>(window, new KeyValPair<>(entry.getKey(), accumulation.getRetraction(entry.getValue()))));
     }
   }

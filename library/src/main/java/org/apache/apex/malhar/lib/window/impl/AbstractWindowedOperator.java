@@ -59,7 +59,7 @@ import com.datatorrent.common.util.BaseOperator;
  * @param <AccumulationT> The type of the accumulation
  */
 @InterfaceStability.Evolving
-public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT extends WindowedStorage, AccumulationT extends Accumulation>
+public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT extends WindowedStorage, RetractionStorageT extends WindowedStorage, AccumulationT extends Accumulation>
     extends BaseOperator implements WindowedOperator<InputT>
 {
 
@@ -80,7 +80,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   private long currentDerivedTimestamp = -1;
   private long windowWidthMillis;
   protected DataStorageT dataStorage;
-  protected DataStorageT retractionStorage;
+  protected RetractionStorageT retractionStorage;
   protected AccumulationT accumulation;
 
   private static final transient Logger LOG = LoggerFactory.getLogger(AbstractWindowedOperator.class);
@@ -207,7 +207,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
    *
    * @param storageAgent
    */
-  public void setRetractionStorage(DataStorageT storageAgent)
+  public void setRetractionStorage(RetractionStorageT storageAgent)
   {
     this.retractionStorage = storageAgent;
   }

@@ -132,7 +132,7 @@ public class Application implements StreamingApplication
 
     windowedOperator.setAccumulation(sum);
     windowedOperator.setDataStorage(new InMemoryWindowedKeyedStorage<String, MutableLong>());
-    windowedOperator.setRetractionStorage(new InMemoryWindowedKeyedStorage<String, MutableLong>());
+    windowedOperator.setRetractionStorage(new InMemoryWindowedKeyedStorage<String, Long>());
     windowedOperator.setWindowStateStorage(new InMemoryWindowedStorage<WindowState>());
     windowedOperator.setWindowOption(new WindowOption.TimeWindows(Duration.standardMinutes(1)));
     windowedOperator.setTriggerOption(TriggerOption.AtWatermark().withEarlyFiringsAtEvery(Duration.millis(1000)).accumulatingAndRetractingFiredPanes());
