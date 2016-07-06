@@ -52,8 +52,8 @@ public class SumAccumulation implements Accumulation<Long, MutableLong, Long>
   }
 
   @Override
-  public Long getRetraction(Long accumulatedValue)
+  public Long getRetraction(Long value)
   {
-    return -accumulatedValue;
+    return -value;
   }
 }

@@ -69,8 +69,8 @@ public interface Accumulation<InputT, AccumT, OutputT>
    * Gets the retraction of the value. This is used for retracting previous panes in
    * ACCUMULATING_AND_RETRACTING accumulation mode
    *
-   * @param accumulatedValue
+   * @param value
    * @return
    */
-  OutputT getRetraction(OutputT accumulatedValue);
+  OutputT getRetraction(OutputT value);
 }
