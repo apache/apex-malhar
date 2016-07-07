@@ -278,6 +278,10 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   @Override
   public Tuple.WindowedTuple<InputT> getWindowedValue(Tuple<InputT> input)
   {
+    if (windowOption == null && input instanceof Tuple.WindowedTuple) {
+      // inherit the windows from upstream
+      return (Tuple.WindowedTuple<InputT>)input;
+    }
     Tuple.WindowedTuple<InputT> windowedTuple = new Tuple.WindowedTuple<>();
     windowedTuple.setValue(input.getValue());
     windowedTuple.setTimestamp(extractTimestamp(input));
