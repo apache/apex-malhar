@@ -79,7 +79,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   private long lateTriggerMillis;
   private long currentDerivedTimestamp = -1;
   private long windowWidthMillis;
-  private long fixedLatenessMillis = -1;
+  private long fixedWatermarkMillis = -1;
   protected DataStorageT dataStorage;
   protected RetractionStorageT retractionStorage;
   protected AccumulationT accumulation;
@@ -237,15 +237,15 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   }
 
   /**
-   * Sets the fixed lateness with respect to the processing time derived from the Apex window ID. This is useful if we
+   * Sets the fixed watermark with respect to the processing time derived from the Apex window ID. This is useful if we
    * don't have watermark tuples from upstream. However, using this means whether a tuple is considered late totally
    * depends on the Apex window ID of this operator.
    *
    * Note that setting this value will make incoming watermark tuples useless.
    */
-  public void setFixedLateness(long millis)
+  public void setFixedWatermark(long millis)
   {
-    this.fixedLatenessMillis = millis;
+    this.fixedWatermarkMillis = millis;
   }
 
   public void validate() throws ValidationException
@@ -414,8 +414,8 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
 
   private void processWatermarkAtEndWindow()
   {
-    if (fixedLatenessMillis > 0) {
-      watermarkTimestamp = currentDerivedTimestamp - fixedLatenessMillis;
+    if (fixedWatermarkMillis > 0) {
+      watermarkTimestamp = currentDerivedTimestamp - fixedWatermarkMillis;
     }
     if (watermarkTimestamp > 0) {
       this.currentWatermark = watermarkTimestamp;
