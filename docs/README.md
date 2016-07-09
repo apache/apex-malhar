@@ -19,27 +19,3 @@ For additional details see [writing your docs](http://www.mkdocs.org/user-guide/
 ## Site Configuration
 
 Guides on applying site-wide [configuration](http://www.mkdocs.org/user-guide/configuration/) and [themeing](http://www.mkdocs.org/user-guide/styling-your-docs/) are available on the MkDocs site.
-
-## Deployment
-
-Deployment is done in two steps.  First all documentation is statically generatd into HTML files and then it is deployed to the apex website.  For more details on how conversion to HTML works see [MkDocs documentation](http://www.mkdocs.org/).
-
-1.  Go to release branch of the repository and execute the following command to build the docs:
-
-```bash
-# set project version
-APEX_MALHAR_VERSION=3.4
-
-# build docs under site foolder
-mkdocs build --clean
-
-# copy docs from site into target folder on apex-site
-cd ../incubator-apex-site
-git checkout asf-site
-cp -r ../incubator-apex-malhar/site docs/malhar-${APEX_MALHAR_VERSION}
-git add -A
-git commit -m "Adding apex-${APEX_MALHAR_VERSION} documentation"
-git push
-```
-
-2.  Go to [apex-site repository](https://github.com/apache/incubator-apex-site#contributing) and add the new link to the [docs.md](https://github.com/apache/incubator-apex-site/blob/master/src/md/docs.md) and follow committer steps to commit and push these changes, and deploy the site.
