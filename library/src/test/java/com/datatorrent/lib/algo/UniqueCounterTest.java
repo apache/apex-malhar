@@ -48,7 +48,6 @@ public class UniqueCounterTest
     String btuple = "b";
     String ctuple = "c";
     String dtuple = "d";
-    String etuple = "e";
 
     int numTuples = 10000;
     oper.beginWindow(0);
@@ -57,28 +56,39 @@ public class UniqueCounterTest
       if (i % 2 == 0) {
         oper.data.process(btuple);
       }
-      if (i % 3 == 0) {
-        oper.data.process(ctuple);
-      }
       if (i % 5 == 0) {
-        oper.data.process(dtuple);
-      }
-      if (i % 10 == 0) {
-        oper.data.process(etuple);
+        oper.data.process(ctuple);
       }
     }
     oper.endWindow();
+
+    oper.beginWindow(1);
+    for (int i = 0; i < numTuples; i++) {
+      oper.data.process(atuple);
+    }
+    oper.endWindow();
+
     HashMap<String, Integer> tuple = (HashMap<String, Integer>)sink.tuple;
     int acount = tuple.get("a");
-    int bcount = tuple.get("b");
-    int ccount = tuple.get("c");
-    int dcount = tuple.get("d");
-    int ecount = tuple.get("e");
-    Assert.assertEquals("number emitted tuples", 1, sink.count);
     Assert.assertEquals("number emitted tuples", numTuples, acount);
-    Assert.assertEquals("number emitted tuples", numTuples / 2, bcount);
-    Assert.assertEquals("number emitted tuples", numTuples / 3 + 1, ccount);
-    Assert.assertEquals("number emitted tuples", numTuples / 5, dcount);
-    Assert.assertEquals("number emitted tuples", numTuples / 10, ecount);
+
+    oper.beginWindow(2);
+    for (int i = 0; i < numTuples; i++) {
+      if (i % 2 == 0) {
+        oper.data.process(btuple);
+      }
+      oper.data.process(btuple);
+      if (i % 10 == 0) {
+        oper.data.process(dtuple);
+      }
+    }
+    oper.endWindow();
+
+    tuple = (HashMap<String, Integer>)sink.tuple;
+    int bcount = tuple.get("b");
+    int dcount = tuple.get("d");
+    Assert.assertEquals("number emitted tuples", 3, sink.count);
+    Assert.assertEquals("number emitted tuples", numTuples + (numTuples / 2), bcount);
+    Assert.assertEquals("number emitted tuples", numTuples / 10, dcount);
   }
 }
