@@ -26,7 +26,8 @@ import org.joda.time.Duration;
 import org.apache.apex.malhar.stream.api.function.Function;
 import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.Tuple;
-
+import org.apache.apex.malhar.stream.api.impl.accumulation.FoldFn;
+import org.apache.apex.malhar.stream.api.impl.accumulation.ReduceFn;
 
 import com.datatorrent.lib.util.KeyValPair;
 
@@ -70,7 +71,7 @@ public interface WindowedStream<T> extends ApexStream<T>
    * Count of all tuples
    * @return new stream of Integer
    */
-  <STREAM extends WindowedStream<Long>> STREAM count();
+  <STREAM extends WindowedStream<Tuple<Long>>> STREAM count();
 
   /**
    * Count tuples by the key<br>
@@ -94,14 +95,14 @@ public interface WindowedStream<T> extends ApexStream<T>
    * Return top tuples by the selected key
    * @return new stream of Key and top N tuple of the key
    */
-  <TUPLE, KEY, STREAM extends WindowedStream<Tuple<KeyValPair<KEY, List<TUPLE>>>>> STREAM topByKey(int N, Function.MapFunction<T, Tuple<KeyValPair<KEY, TUPLE>>> convertToKeyVal);
+  <K, V, STREAM extends WindowedStream<Tuple<KeyValPair<K, List<V>>>>> STREAM topByKey(int N, Function.MapFunction<T, Tuple<KeyValPair<K, V>>> convertToKeyVal);
 
   /**
    *
    * Return top tuples of all tuples in the window
    * @return new stream of Map
    */
-  <STREAM extends WindowedStream<T>> STREAM top(int N);
+  <STREAM extends WindowedStream<Tuple<List<T>>>> STREAM top(int N);
 
   <O, STREAM extends WindowedStream<O>> STREAM combineByKey();
 
@@ -110,11 +111,18 @@ public interface WindowedStream<T> extends ApexStream<T>
   /**
    * Reduce transformation<br>
    * Add an operator to the DAG which merge tuple t1, t2 to new tuple
-   * @param name operator name
    * @param reduce reduce function
    * @return new stream of same type
    */
-  <STREAM extends WindowedStream<T>> STREAM reduce(String name, Function.ReduceFunction<T> reduce);
+  <STREAM extends WindowedStream<Tuple<T>>> STREAM reduce(ReduceFn<T> reduce);
+
+  /**
+   * Reduce transformation by selected key <br>
+   * Add an operator to the DAG which merge tuple t1, t2 to new tuple by key
+   * @param reduce reduce function
+   * @return new stream of same type
+   */
+  <K, V, STREAM extends WindowedStream<Tuple<KeyValPair<K, V>>>> STREAM reduceByKey(ReduceFn<V> reduce, Function.MapFunction<T, Tuple<KeyValPair<K, V>>> convertToKeyVal);
 
   /**
    * Fold transformation<br>
@@ -124,29 +132,8 @@ public interface WindowedStream<T> extends ApexStream<T>
    * @param <O> Result type
    * @return new stream of type O
    */
-  <O, STREAM extends WindowedStream<O>> STREAM fold(O initialValue, Function.FoldFunction<T, O> fold);
+  <O, STREAM extends WindowedStream<Tuple<O>>> STREAM fold(FoldFn<T, O> fold);
 
-  /**
-   * Fold transformation<br>
-   * Add an operator to the DAG which merge tuple T to accumulated result tuple O
-   * @param name name of the operator
-   * @param initialValue initial result value
-   * @param fold fold function
-   * @param <O> Result type
-   * @return new stream of type O
-   */
-  <O, STREAM extends WindowedStream<O>> STREAM fold(String name, O initialValue, Function.FoldFunction<T, O> fold);
-
-
-  /**
-   * Fold transformation<br>
-   * Add an operator to the DAG which merge tuple T to accumulated result tuple O
-   * @param name name of the operator
-   * @param fold fold function
-   * @param <O> Result type
-   * @return new stream of type O
-   */
-  <O, K, STREAM extends WindowedStream<KeyValPair<K, O>>> STREAM foldByKey(String name, Function.FoldFunction<T, KeyValPair<K, O>> fold);
 
   /**
    * Fold transformation<br>
@@ -155,16 +142,9 @@ public interface WindowedStream<T> extends ApexStream<T>
    * @param <O> Result type
    * @return new stream of type O
    */
-  <O, K, STREAM extends WindowedStream<KeyValPair<K, O>>> STREAM foldByKey(Function.FoldFunction<T, KeyValPair<K, O>> fold);
+  <K, V, O, STREAM extends WindowedStream<Tuple<KeyValPair<K, O>>>> STREAM foldByKey(FoldFn<V, O> fold, Function.MapFunction<T, Tuple<KeyValPair<K, V>>> convertToKeyVal);
 
 
-  /**
-   * Reduce transformation<br>
-   * Add an operator to the DAG which merge tuple t1, t2 to new tuple
-   * @param reduce reduce function
-   * @return new stream of same type
-   */
-  <STREAM extends WindowedStream<T>> STREAM reduce(Function.ReduceFunction<T> reduce);
 
   /**
    * Return tuples for each key for each window

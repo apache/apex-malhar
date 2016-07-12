@@ -52,6 +52,7 @@ import com.datatorrent.common.util.BaseOperator;
  * This is the abstract windowed operator class that implements most of the windowing, triggering, and accumulating
  * concepts. The subclass of this abstract class is supposed to provide the implementation of how the accumulated
  * values are stored in the storage.
+ * 8
  *
  * @param <InputT> The type of the input tuple
  * @param <OutputT> The type of the output tuple

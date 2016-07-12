@@ -17,12 +17,14 @@
  */
 package org.apache.apex.malhar.stream.sample.cookbook;
 
+import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.apex.malhar.stream.api.ApexStream;
 import org.apache.apex.malhar.stream.api.CompositeStreamTransform;
 import org.apache.apex.malhar.stream.api.function.Function;
 import org.apache.apex.malhar.stream.api.impl.StreamFactory;
 import org.apache.apex.malhar.lib.window.WindowOption;
-
+import org.apache.apex.malhar.stream.api.impl.accumulation.FoldFn;
+import org.apache.apex.malhar.stream.api.impl.accumulation.ReduceFn;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
@@ -69,12 +71,12 @@ public class CombinePerKeyExamples {
   /**
    * Prepares the output data which is in same bean
    */
-  static class FormatShakespeareOutputFn implements Function.MapFunction<KeyValPair<String, String>, SampleBean>
+  static class FormatShakespeareOutputFn implements Function.MapFunction<Tuple<KeyValPair<String, String>>, SampleBean>
   {
     @Override
-    public SampleBean f(KeyValPair<String, String> input)
+    public SampleBean f(Tuple<KeyValPair<String, String>> input)
     {
-      return new SampleBean(input.getKey(), input.getValue(), null);
+      return new SampleBean(input.getValue().getKey(), input.getValue().getValue(), null);
     }
   }
 
@@ -90,15 +92,47 @@ public class CombinePerKeyExamples {
     @Override
     public ApexStream<SampleBean> compose(ApexStream<SampleBean> inputStream)
     {
+      // fix this later
       return inputStream.map(new ExtractLargeWordsFn())
           .window(new WindowOption.GlobalWindow())
-          .foldByKey(new Function.FoldFunction<KeyValPair<String, String>, KeyValPair<String, String>>()
+          .reduceByKey(new ReduceFn<String>()
           {
             @Override
-            public KeyValPair<String, String> fold(KeyValPair<String, String> input, KeyValPair<String, String> output)
+            public String defaultAccumulatedValue()
             {
-              output.setValue(output.getValue() + input.getValue());
-              return output;
+              return "";
+            }
+
+            @Override
+            public String accumulate(String accumulatedValue, String input)
+            {
+              return accumulatedValue + "," + input;
+            }
+
+            @Override
+            public String merge(String accumulatedValue1, String accumulatedValue2)
+            {
+              return accumulatedValue1 + "," + accumulatedValue2;
+            }
+
+            @Override
+            public String getOutput(String accumulatedValue)
+            {
+              return accumulatedValue;
+            }
+
+            @Override
+            public String getRetraction(String value)
+            {
+              return value;
+            }
+          }, new Function.MapFunction<KeyValPair<String, String>, Tuple<KeyValPair<String, String>>>()
+
+          {
+            @Override
+            public Tuple<KeyValPair<String, String>> f(KeyValPair<String, String> input)
+            {
+              return null;
             }
           })
           .map(new FormatShakespeareOutputFn());
