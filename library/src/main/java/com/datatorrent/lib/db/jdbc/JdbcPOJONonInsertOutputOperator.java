@@ -50,7 +50,7 @@ public class JdbcPOJONonInsertOutputOperator extends AbstractJdbcPOJOOutputOpera
 
     columnDataTypes = Lists.newArrayList();
     for (JdbcFieldInfo fi : getFieldInfos()) {
-      columnFieldGetters.add(new JdbcPOJOInputOperator.ActiveFieldInfo(fi));
+      columnFieldGetters.add(new ActiveFieldInfo(fi));
       columnDataTypes.add(fi.getSqlType());
     }
   }

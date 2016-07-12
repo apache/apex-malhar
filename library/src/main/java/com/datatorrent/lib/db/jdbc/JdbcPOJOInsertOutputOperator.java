@@ -112,7 +112,7 @@ public class JdbcPOJOInsertOutputOperator extends AbstractJdbcPOJOOutputOperator
     }
 
     for (FieldInfo fi : getFieldInfos()) {
-      columnFieldGetters.add(new JdbcPOJOInputOperator.ActiveFieldInfo(fi));
+      columnFieldGetters.add(new ActiveFieldInfo(fi));
     }
 
     StringBuilder columns = new StringBuilder();

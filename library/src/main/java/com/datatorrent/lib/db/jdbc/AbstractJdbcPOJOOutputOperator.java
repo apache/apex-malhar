@@ -38,6 +38,7 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
@@ -67,7 +68,7 @@ public abstract class AbstractJdbcPOJOOutputOperator extends AbstractJdbcTransac
   @NotNull
   private String tablename;
 
-  protected final transient List<JdbcPOJOInputOperator.ActiveFieldInfo> columnFieldGetters;
+  protected final transient List<ActiveFieldInfo> columnFieldGetters;
 
   protected transient Class<?> pojoClass;
 
@@ -93,6 +94,17 @@ public abstract class AbstractJdbcPOJOOutputOperator extends AbstractJdbcTransac
     super();
     columnFieldGetters = Lists.newArrayList();
   }
+  
+  protected static class ActiveFieldInfo
+  {
+    final FieldInfo fieldInfo;
+    Object setterOrGetter;
+
+    ActiveFieldInfo(FieldInfo fieldInfo)
+    {
+      this.fieldInfo = fieldInfo;
+    }
+  }
 
   @Override
   @SuppressWarnings("unchecked")
@@ -101,7 +113,7 @@ public abstract class AbstractJdbcPOJOOutputOperator extends AbstractJdbcTransac
     final int size = columnDataTypes.size();
     for (int i = 0; i < size; i++) {
       final int type = columnDataTypes.get(i);
-      JdbcPOJOInputOperator.ActiveFieldInfo activeFieldInfo = columnFieldGetters.get(i);
+      ActiveFieldInfo activeFieldInfo = columnFieldGetters.get(i);
       switch (type) {
         case (Types.CHAR):
         case (Types.VARCHAR):
@@ -160,7 +172,7 @@ public abstract class AbstractJdbcPOJOOutputOperator extends AbstractJdbcTransac
   }
 
   @SuppressWarnings("UnusedParameters")
-  protected void handleUnknownDataType(int type, Object tuple, JdbcPOJOInputOperator.ActiveFieldInfo activeFieldInfo)
+  protected void handleUnknownDataType(int type, Object tuple, ActiveFieldInfo activeFieldInfo)
   {
     throw new RuntimeException("unsupported data type " + type);
   }
@@ -212,7 +224,7 @@ public abstract class AbstractJdbcPOJOOutputOperator extends AbstractJdbcTransac
     final int size = columnDataTypes.size();
     for (int i = 0; i < size; i++) {
       final int type = columnDataTypes.get(i);
-      JdbcPOJOInputOperator.ActiveFieldInfo activeFieldInfo = columnFieldGetters.get(i);
+      ActiveFieldInfo activeFieldInfo = columnFieldGetters.get(i);
       switch (type) {
         case (Types.CHAR):
         case (Types.VARCHAR):
