@@ -25,6 +25,7 @@ import java.util.Map;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
 
 /**
@@ -37,6 +38,7 @@ public class TupleCollector<T> extends BaseOperator
 
   public final transient CollectorInputPort<T> inputPort = new CollectorInputPort<>(this);
 
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<>();
 
   public String id = "";

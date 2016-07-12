@@ -18,11 +18,24 @@
  */
 package org.apache.apex.malhar.stream.api.function;
 
+import org.apache.apex.malhar.lib.window.Tuple;
+import org.apache.apex.malhar.stream.api.operator.FunctionOperator;
+import org.apache.hadoop.classification.InterfaceStability;
+
+import com.datatorrent.lib.util.KeyValPair;
+
 /**
- * The top level function interface
+ * The top level function interface <br>
+ * The function is wrapped by {@link FunctionOperator} <br>
+ * It takes input from input port of {@link FunctionOperator} ex. {@link FunctionOperator.MapFunctionOperator#input} <br>
+ * And the output will be emitted using {@link FunctionOperator#tupleOutput} <br>
+ * Anonymous function is not fully supported. It must be <b>stateless</b> should not be defined in any static context<br>
+ * If anonymous function does not working, you can should use top level function class<br>
+ * Top level function class should have public non-arg constructor
  *
  * @since 3.4.0
  */
+@InterfaceStability.Evolving
 public interface Function
 {
   /**
@@ -45,26 +58,18 @@ public interface Function
   }
 
   /**
-   * An interface defines a reduce transformation
+   * A special map function to convert any pojo to key value pair datastructure
    * @param <T>
+   * @param <K>
+   * @param <V>
    */
-  public static interface ReduceFunction<T> extends Function
+  public static interface ToKeyValue<T, K, V> extends MapFunction<T, Tuple<KeyValPair<K, V>>>
   {
-    T reduce(T t1, T t2);
+
   }
 
   /**
-   * An interface that defines a fold transformation
-   * @param <I>
-   * @param <O>
-   */
-  public static interface FoldFunction<I, O> extends Function
-  {
-    O fold(I input, O output);
-  }
-
-  /**
-   * An interface that defines flatmap transforation
+   * An interface that defines flatmap transformation
    * @param <I>
    * @param <O>
    */
@@ -76,7 +81,8 @@ public interface Function
    * An interface that defines filter transformation
    * @param <T>
    */
-  public static interface FilterFunction<T> extends MapFunction<T, Boolean>
+  public static interface FilterFunction<T> extends Function
   {
+    boolean f(T input);
   }
 }

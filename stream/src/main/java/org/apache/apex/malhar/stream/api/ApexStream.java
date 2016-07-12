@@ -18,11 +18,14 @@
  */
 package org.apache.apex.malhar.stream.api;
 
-
-import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.joda.time.Duration;
+
+import org.apache.apex.malhar.lib.window.TriggerOption;
+import org.apache.apex.malhar.lib.window.WindowOption;
 import org.apache.apex.malhar.stream.api.function.Function;
+import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context.DAGContext;
@@ -37,6 +40,7 @@ import com.datatorrent.api.Operator;
  *
  * @since 3.4.0
  */
+@InterfaceStability.Evolving
 public interface ApexStream<T>
 {
   /**
@@ -46,17 +50,7 @@ public interface ApexStream<T>
    * @param <O> Type of the output
    * @return new stream of type O
    */
-  <O, STREAM extends ApexStream<O>> STREAM map(Function.MapFunction<T, O> mapFunction);
-
-  /**
-   * Simple map transformation<br>
-   * Add an operator to the DAG which convert tuple T to tuple O
-   * @param name operator name
-   * @param mapFunction map function
-   * @param <O> Type of the output
-   * @return new stream of type O
-   */
-  <O, STREAM extends ApexStream<O>> STREAM map(String name, Function.MapFunction<T, O> mapFunction);
+  <O, STREAM extends ApexStream<O>> STREAM map(Function.MapFunction<T, O> mapFunction, Option... opts);
 
   /**
    * Flat map transformation
@@ -65,17 +59,7 @@ public interface ApexStream<T>
    * @param <O> Type of the output
    * @return new stream of type O
    */
-  <O, STREAM extends ApexStream<O>> STREAM flatMap(Function.FlatMapFunction<T, O> flatten);
-
-  /**
-   * Flat map transformation<br>
-   * Add an operator to the DAG which convert tuple T to a collection of tuple O
-   * @param name operator name
-   * @param flatten
-   * @param <O> Type of the output
-   * @return new stream of type O
-   */
-  <O, STREAM extends ApexStream<O>> STREAM flatMap(String name, Function.FlatMapFunction<T, O> flatten);
+  <O, STREAM extends ApexStream<O>> STREAM flatMap(Function.FlatMapFunction<T, O> flatten, Option... opts);
 
   /**
    * Filter transformation<br>
@@ -83,76 +67,7 @@ public interface ApexStream<T>
    * @param filter filter function
    * @return new stream of same type
    */
-  <STREAM extends ApexStream<T>> STREAM filter(Function.FilterFunction<T> filter);
-
-  /**
-   * Filter transformation<br>
-   * Add an operator to the DAG which filter out tuple T that cannot satisfy the FilterFunction
-   * @param name operator name
-   * @param filter filter function
-   * @return new stream of same type
-   */
-  <STREAM extends ApexStream<T>> STREAM filter(String name, Function.FilterFunction<T> filter);
-
-  /**
-   * Reduce transformation<br>
-   * Add an operator to the DAG which merge tuple t1, t2 to new tuple
-   * @param reduce reduce function
-   * @return new stream of same type
-   */
-  <STREAM extends ApexStream<T>> STREAM reduce(Function.ReduceFunction<T> reduce);
-
-  /**
-   * Reduce transformation<br>
-   * Add an operator to the DAG which merge tuple t1, t2 to new tuple
-   * @param name operator name
-   * @param reduce reduce function
-   * @return new stream of same type
-   */
-  <STREAM extends ApexStream<T>> STREAM reduce(String name, Function.ReduceFunction<T> reduce);
-
-  /**
-   * Fold transformation<br>
-   * Add an operator to the DAG which merge tuple T to accumulated result tuple O
-   * @param initialValue initial result value
-   * @param fold fold function
-   * @param <O> Result type
-   * @return new stream of type O
-   */
-  <O, STREAM extends ApexStream<O>> STREAM fold(O initialValue, Function.FoldFunction<T, O> fold);
-
-  /**
-   * Fold transformation<br>
-   * Add an operator to the DAG which merge tuple T to accumulated result tuple O
-   * @param name name of the operator
-   * @param initialValue initial result value
-   * @param fold fold function
-   * @param <O> Result type
-   * @return new stream of type O
-   */
-  <O, STREAM extends ApexStream<O>> STREAM fold(String name, O initialValue, Function.FoldFunction<T, O> fold);
-
-  /**
-   * Count of all tuples
-   * @return new stream of Integer
-   */
-  <STREAM extends ApexStream<Integer>> STREAM count();
-
-  /**
-   * Count tuples by the key<br>
-   * If the input is KeyedTuple it will get the key from getKey method from the tuple<br>
-   * If not, use the tuple itself as a key
-   * @return new stream of Map
-   */
-  <STREAM extends ApexStream<Map<Object, Integer>>> STREAM countByKey();
-
-  /**
-   *
-   * Count tuples by the indexed key
-   * @param key the index of the field in the tuple that are used as key
-   * @return new stream of Map
-   */
-  <STREAM extends ApexStream<Map<Object, Integer>>> STREAM countByKey(int key);
+  <STREAM extends ApexStream<T>> STREAM filter(Function.FilterFunction<T> filter, Option... opts);
 
   /**
    * Extend the dag by adding one operator<br>
@@ -162,18 +77,23 @@ public interface ApexStream<T>
    * @param <O> type of the output
    * @return new stream of type O
    */
-  <O, STREAM extends ApexStream<O>> STREAM addOperator(Operator op, Operator.InputPort<T> inputPort,  Operator.OutputPort<O> outputPort);
+  <O, STREAM extends ApexStream<O>> STREAM addOperator(Operator op, Operator.InputPort<T> inputPort,  Operator.OutputPort<O> outputPort, Option... opts);
 
   /**
-   * Extend the dag by adding one {@see Operator}
-   * @param opName Operator name
+   * Extend the dag by adding one end operator<br>
    * @param op Operator added to the stream
    * @param inputPort InputPort of the operator that is connected to last exposed OutputPort in the stream
-   * @param outputPort OutputPort of the operator will be connected to next operator
    * @param <O> type of the output
    * @return new stream of type O
    */
-  <O, STREAM extends ApexStream<O>> STREAM addOperator(String opName, Operator op, Operator.InputPort<T> inputPort,  Operator.OutputPort<O> outputPort);
+  <O, STREAM extends ApexStream<O>> STREAM endWith(Operator op, Operator.InputPort<T> inputPort, Option... opts);
+
+  /**
+   * Extend the dag by adding one {@see CompositeStreamTransform}
+   * @param compositeStreamTransform Composite Streams and Transforms
+   * @return new stream of type O
+   */
+  <O, INSTREAM extends ApexStream<T>, OUTSTREAM extends ApexStream<O>> OUTSTREAM addCompositeStreams(CompositeStreamTransform<INSTREAM, OUTSTREAM> compositeStreamTransform);
 
   /**
    * Union multiple stream into one
@@ -259,5 +179,31 @@ public interface ApexStream<T>
    * Submit the application to cluster
    */
   void run();
+
+  /**
+   * Chunk tuples into Windows
+   * Window Transform are defined in {@see WindowedStream}
+   * @param windowOption
+   * @return
+   */
+  WindowedStream<T> window(WindowOption windowOption);
+
+  /**
+   * Chunk tuple into windows with window option and trigger option
+   * @param windowOption
+   * @param triggerOption
+   * @return
+   */
+  WindowedStream<T> window(WindowOption windowOption, TriggerOption triggerOption);
+
+  /**
+   *
+   * Chunk tuple into windows with window option and trigger option and allowed lateness
+   * @param windowOption
+   * @param triggerOption
+   * @param allowLateness
+   * @return
+   */
+  WindowedStream<T> window(WindowOption windowOption, TriggerOption triggerOption, Duration allowLateness);
 
 }

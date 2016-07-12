@@ -27,9 +27,13 @@ import java.util.concurrent.Callable;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.window.TriggerOption;
+import org.apache.apex.malhar.lib.window.Tuple;
+import org.apache.apex.malhar.lib.window.WindowOption;
 import org.apache.apex.malhar.stream.api.function.Function;
 import org.apache.apex.malhar.stream.api.impl.StreamFactory;
 
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * A embedded application test without creating Streaming Application
@@ -41,25 +45,32 @@ public class LocalTestWithoutStreamApplication
   public void testNonStreamApplicationWordcount() throws Exception
   {
 
-    TupleCollector<Map<Object, Integer>> collector = new TupleCollector<>();
+    TupleCollector<Tuple.WindowedTuple<KeyValPair<String, Long>>> collector = new TupleCollector<>();
     collector.id = "testNonStreamApplicationWordcount";
-    final Map<Object, Integer> expected = new HashMap<>();
-    expected.put("error", 2);
-    expected.put("word1", 4);
-    expected.put("word2", 8);
-    expected.put("word3", 4);
-    expected.put("word4", 4);
-    expected.put("word5", 4);
-    expected.put("word7", 4);
-    expected.put("word9", 6);
+    final Map<String, Long> expected = new HashMap<>();
+    expected.put("error", 2L);
+    expected.put("word1", 4L);
+    expected.put("word2", 8L);
+    expected.put("word3", 4L);
+    expected.put("word4", 4L);
+    expected.put("word5", 4L);
+    expected.put("word7", 4L);
+    expected.put("word9", 6L);
 
     Callable<Boolean> exitCondition = new Callable<Boolean>()
     {
       @Override
       public Boolean call() throws Exception
       {
-        List<Map<Object, Integer>> data = (List<Map<Object, Integer>>)TupleCollector.results.get("testNonStreamApplicationWordcount");
-        return (data != null) && data.size() >= 1 && expected.equals(data.get(data.size() - 1));
+        if (!TupleCollector.results.containsKey("testNonStreamApplicationWordcount") || TupleCollector.results.get("testNonStreamApplicationWordcount").isEmpty()) {
+          return false;
+        }
+        Map<String, Long> data = new HashMap<>();
+        for (Tuple.TimestampedTuple<KeyValPair<String, Long>> entry :
+            (List<Tuple.TimestampedTuple<KeyValPair<String, Long>>>)TupleCollector.results.get("testNonStreamApplicationWordcount")) {
+          data.put(entry.getValue().getKey(), entry.getValue().getValue());
+        }
+        return data.size() >= 8 && expected.equals(data);
       }
     };
 
@@ -73,13 +84,26 @@ public class LocalTestWithoutStreamApplication
             return Arrays.asList(input.split(" "));
           }
         })
-        .countByKey().addOperator(collector, collector.inputPort, collector.outputPort).print().runEmbedded(false, 30000, exitCondition);
+        .window(new WindowOption.GlobalWindow(), new TriggerOption().accumulatingFiredPanes().withEarlyFiringsAtEvery(1))
+        .countByKey(new Function.ToKeyValue<String, String, Long>()
+        {
+          @Override
+          public Tuple<KeyValPair<String, Long>> f(String input)
+          {
+            return new Tuple.PlainTuple(new KeyValPair<>(input, 1L));
+          }
+        }).addOperator(collector, collector.inputPort, null).runEmbedded(false, 30000, exitCondition);
 
+    Map<String, Long> data = new HashMap<>();
 
-    List<Map<Object, Integer>> data = (List<Map<Object, Integer>>)TupleCollector.results.get("testNonStreamApplicationWordcount");
+    for (Tuple.TimestampedTuple<KeyValPair<String, Long>> entry :
+        (List<Tuple.TimestampedTuple<KeyValPair<String, Long>>>)TupleCollector.results.get("testNonStreamApplicationWordcount")) {
+      data.put(entry.getValue().getKey(), entry.getValue().getValue());
+    }
 
+    //Thread.sleep(100000);
     Assert.assertNotNull(data);
     Assert.assertTrue(data.size() > 1);
-    Assert.assertEquals(expected, data.get(data.size() - 1));
+    Assert.assertEquals(expected, data);
   }
 }

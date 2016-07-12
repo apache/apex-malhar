@@ -269,7 +269,7 @@ public class FunctionOperatorTest
         = new FunctionOperator.FilterFunctionOperator<Integer>(new Function.FilterFunction<Integer>()
         {
           @Override
-          public Boolean f(Integer in)
+          public boolean f(Integer in)
           {
             return in % divider == 0;
           }
@@ -309,7 +309,7 @@ public class FunctionOperatorTest
         .filter(new Function.FilterFunction<Integer>()
         {
           @Override
-          public Boolean f(Integer in)
+          public boolean f(Integer in)
           {
             return in % divider == 0;
           }

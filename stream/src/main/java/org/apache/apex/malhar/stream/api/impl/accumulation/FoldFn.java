@@ -16,39 +16,50 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.stream.api.operator;
+package org.apache.apex.malhar.stream.api.impl.accumulation;
 
-
-import java.util.Map;
-
-import org.apache.hadoop.classification.InterfaceStability;
+import org.apache.apex.malhar.lib.window.Accumulation;
 
 /**
- * @since 3.4.0
+ * Fold Accumulation Adaptor class
  */
-@InterfaceStability.Evolving
-public class ByteArrayClassLoader extends ClassLoader
+public abstract class FoldFn<INPUT, OUTPUT> implements Accumulation<INPUT, OUTPUT, OUTPUT>
 {
-  private final Map<String, byte[]> classes;
 
-  public ByteArrayClassLoader(Map<String, byte[]> classes)
+  public FoldFn()
   {
-    this.classes = classes;
   }
 
-  public ByteArrayClassLoader(Map<String, byte[]> classes, ClassLoader parent)
+  public FoldFn(OUTPUT initialVal)
   {
-    super(parent);
-    this.classes = classes;
+    this.initialVal = initialVal;
   }
 
-  protected Class findClass(String name) throws ClassNotFoundException
+  private OUTPUT initialVal;
+
+  @Override
+  public OUTPUT defaultAccumulatedValue()
   {
-    byte[] data = (byte[])((byte[])this.classes.get(name));
-    if (data == null) {
-      throw new ClassNotFoundException(name);
-    } else {
-      return super.defineClass(name, data, 0, data.length);
-    }
+    return initialVal;
   }
+
+  @Override
+  public OUTPUT accumulate(OUTPUT accumulatedValue, INPUT input)
+  {
+    return fold(accumulatedValue, input);
+  }
+
+  @Override
+  public OUTPUT getOutput(OUTPUT accumulatedValue)
+  {
+    return accumulatedValue;
+  }
+
+  @Override
+  public OUTPUT getRetraction(OUTPUT value)
+  {
+    return null;
+  }
+
+  abstract OUTPUT fold(OUTPUT result, INPUT input);
 }

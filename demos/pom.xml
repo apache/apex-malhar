@@ -192,6 +192,7 @@
     <module>r</module>
     <module>echoserver</module>
     <module>iteration</module>
+    <module>highlevelapi</module>
   </modules>
 
   <dependencies>
@@ -224,6 +225,17 @@
       <version>${project.version}</version>
       <classifier>tests</classifier>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>malhar-stream</artifactId>
+      <version>${project.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>

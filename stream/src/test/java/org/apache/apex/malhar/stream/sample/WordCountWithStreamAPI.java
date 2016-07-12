@@ -36,18 +36,18 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * An application example with stream api
+ * Word count with streaming API
  */
-@ApplicationAnnotation(name = "WordCountStreamingApiDemo")
-public class ApplicationWithStreamAPI implements StreamingApplication
+@ApplicationAnnotation(name = "WCDemo")
+public class WordCountWithStreamAPI implements StreamingApplication
 {
 
   @Override
   public void populateDAG(DAG dag, Configuration configuration)
   {
-    String localFolder = "./src/test/resources/data";
+    WCInput wcInput = new WCInput();
     ApexStream<String> stream = StreamFactory
-        .fromFolder(localFolder)
+        .fromInput(wcInput, wcInput.output)
         .flatMap(new Function.FlatMapFunction<String, String>()
         {
           @Override
@@ -58,7 +58,8 @@ public class ApplicationWithStreamAPI implements StreamingApplication
         });
     stream.print();
     stream.window(new WindowOption.GlobalWindow(), new TriggerOption().withEarlyFiringsAtEvery(Duration
-        .millis(1000)).accumulatingFiredPanes()).countByKey(new Function.ToKeyValue<String, String, Long>()
+        .millis(1000)).accumulatingFiredPanes())
+        .countByKey(new Function.ToKeyValue<String, String, Long>()
         {
           @Override
           public Tuple<KeyValPair<String, Long>> f(String input)
@@ -67,6 +68,5 @@ public class ApplicationWithStreamAPI implements StreamingApplication
           }
         }).print();
     stream.populateDag(dag);
-
   }
 }

@@ -18,6 +18,11 @@
  */
 package org.apache.apex.malhar.stream.api.util;
 
+import java.util.List;
+
+import org.apache.apex.malhar.lib.window.Tuple;
+import org.apache.apex.malhar.lib.window.Window;
+
 /**
  * The tuple util will be used to extract fields that are used as key or value<br>
  * Or converting from data tuples to display tuples <br>
@@ -29,8 +34,22 @@ package org.apache.apex.malhar.stream.api.util;
 public class TupleUtil
 {
 
-  public static interface NONE
+  public static <T, O> Tuple.PlainTuple<O> buildOf(Tuple.PlainTuple<T> t, O newValue)
   {
 
+    if (t instanceof Tuple.WindowedTuple) {
+      Tuple.WindowedTuple<O> newT = new Tuple.WindowedTuple<>();
+      List<Window> wins = ((Tuple.WindowedTuple)t).getWindows();
+      for (Window w : wins) {
+        newT.addWindow(w);
+      }
+      newT.setValue(newValue);
+      ((Tuple.WindowedTuple)t).setTimestamp(((Tuple.WindowedTuple)t).getTimestamp());
+      return newT;
+    } else if (t instanceof Tuple.TimestampedTuple) {
+      return new Tuple.TimestampedTuple<>(((Tuple.TimestampedTuple)t).getTimestamp(), newValue);
+    } else {
+      return new Tuple.PlainTuple<>(newValue);
+    }
   }
 }

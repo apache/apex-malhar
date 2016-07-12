@@ -18,6 +18,8 @@
  */
 package org.apache.apex.malhar.stream.api.operator;
 
+import org.apache.hadoop.classification.InterfaceStability;
+
 import com.esotericsoftware.reflectasm.shaded.org.objectweb.asm.AnnotationVisitor;
 import com.esotericsoftware.reflectasm.shaded.org.objectweb.asm.Attribute;
 import com.esotericsoftware.reflectasm.shaded.org.objectweb.asm.ClassVisitor;
@@ -33,6 +35,7 @@ import com.esotericsoftware.reflectasm.shaded.org.objectweb.asm.Opcodes;
  *
  * @since 3.4.0
  */
+@InterfaceStability.Evolving
 public class AnnonymousClassModifier extends ClassVisitor
 {
   private String className;

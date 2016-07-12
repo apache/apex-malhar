@@ -26,10 +26,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.validation.constraints.NotNull;
-
+import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.apex.malhar.stream.api.function.Function;
+import org.apache.apex.malhar.stream.api.util.TupleUtil;
 import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.classification.InterfaceStability;
 
 import com.esotericsoftware.reflectasm.shaded.org.objectweb.asm.ClassReader;
 import com.esotericsoftware.reflectasm.shaded.org.objectweb.asm.ClassWriter;
@@ -39,12 +40,15 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
  * Operators that wrap the functions
  *
  * @since 3.4.0
  */
+@InterfaceStability.Evolving
 public class FunctionOperator<OUT, FUNCTION extends Function> implements Operator
 {
   private byte[] annonymousFunctionClass;
@@ -57,7 +61,11 @@ public class FunctionOperator<OUT, FUNCTION extends Function> implements Operato
 
   protected boolean isAnnonymous = false;
 
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<OUT> output = new DefaultOutputPort<>();
+
+  @OutputPortFieldAnnotation(optional = true)
+  public final transient DefaultOutputPort<Tuple<OUT>> tupleOutput = new DefaultOutputPort<>();
 
   public FunctionOperator(FUNCTION f)
   {
@@ -245,6 +253,7 @@ public class FunctionOperator<OUT, FUNCTION extends Function> implements Operato
 
     }
 
+    @InputPortFieldAnnotation(optional = true)
     public final transient DefaultInputPort<IN> input = new DefaultInputPort<IN>()
     {
       @Override
@@ -252,6 +261,21 @@ public class FunctionOperator<OUT, FUNCTION extends Function> implements Operato
       {
         Function.MapFunction<IN, OUT> f = getFunction();
         output.emit(f.f(t));
+      }
+    };
+
+    @InputPortFieldAnnotation(optional = true)
+    public final transient DefaultInputPort<Tuple<IN>> tupleInput =  new DefaultInputPort<Tuple<IN>>()
+    {
+      @Override
+      public void process(Tuple<IN> t)
+      {
+        Function.MapFunction<IN, OUT> f = getFunction();
+        if (t instanceof Tuple.PlainTuple) {
+          TupleUtil.buildOf((Tuple.PlainTuple<IN>)t, f.f(t.getValue()));
+        } else {
+          output.emit(f.f(t.getValue()));
+        }
       }
     };
 
@@ -269,6 +293,8 @@ public class FunctionOperator<OUT, FUNCTION extends Function> implements Operato
 
     }
 
+
+    @InputPortFieldAnnotation(optional = true)
     public final transient DefaultInputPort<IN> input = new DefaultInputPort<IN>()
     {
       @Override
@@ -281,74 +307,31 @@ public class FunctionOperator<OUT, FUNCTION extends Function> implements Operato
       }
     };
 
+    @InputPortFieldAnnotation(optional = true)
+    public final transient DefaultInputPort<Tuple<IN>> tupleInput =  new DefaultInputPort<Tuple<IN>>()
+    {
+      @Override
+      public void process(Tuple<IN> t)
+      {
+        Function.FlatMapFunction<IN, OUT> f = getFunction();
+        if (t instanceof Tuple.PlainTuple) {
+          for (OUT out : f.f(t.getValue())) {
+            tupleOutput.emit(TupleUtil.buildOf((Tuple.PlainTuple<IN>)t, out));
+          }
+        } else {
+          for (OUT out : f.f(t.getValue())) {
+            output.emit(out);
+          }
+        }
+      }
+    };
+
     public FlatMapFunctionOperator(Function.FlatMapFunction<IN, OUT> f)
     {
       super(f);
     }
   }
 
-  public static class FoldFunctionOperator<IN, OUT> extends FunctionOperator<OUT, Function.FoldFunction<IN, OUT>>
-  {
-
-    public FoldFunctionOperator()
-    {
-
-    }
-
-    @NotNull
-    private OUT foldVal;
-
-    public final transient DefaultInputPort<IN> input = new DefaultInputPort<IN>()
-    {
-      @Override
-      public void process(IN t)
-      {
-        Function.FoldFunction<IN, OUT> f = getFunction();
-        // fold the value
-        foldVal = f.fold(t, foldVal);
-        output.emit(foldVal);
-      }
-    };
-
-    public FoldFunctionOperator(Function.FoldFunction<IN, OUT> f, OUT initialVal)
-    {
-      super(f);
-      this.foldVal = initialVal;
-    }
-  }
-
-  public static class ReduceFunctionOperator<IN> extends FunctionOperator<IN, Function.ReduceFunction<IN>>
-  {
-
-    public ReduceFunctionOperator()
-    {
-
-    }
-
-    @NotNull
-    private IN reducedVal;
-
-    public final transient DefaultInputPort<IN> input = new DefaultInputPort<IN>()
-    {
-      @Override
-      public void process(IN t)
-      {
-        Function.ReduceFunction<IN> f = getFunction();
-        // fold the value
-        if (reducedVal == null) {
-          reducedVal = t;
-          return;
-        }
-        reducedVal = f.reduce(t, reducedVal);
-        output.emit(reducedVal);
-      }
-    };
-
-    public ReduceFunctionOperator(Function.ReduceFunction<IN> f)
-    {
-      super(f);
-    }
-  }
 
   public static class FilterFunctionOperator<IN> extends FunctionOperator<IN, Function.FilterFunction<IN>>
   {
@@ -358,6 +341,7 @@ public class FunctionOperator<OUT, FUNCTION extends Function> implements Operato
 
     }
 
+    @InputPortFieldAnnotation(optional = true)
     public final transient DefaultInputPort<IN> input = new DefaultInputPort<IN>()
     {
       @Override
@@ -368,6 +352,20 @@ public class FunctionOperator<OUT, FUNCTION extends Function> implements Operato
         if (f.f(t)) {
           output.emit(t);
         }
+      }
+    };
+
+    @InputPortFieldAnnotation(optional = true)
+    public final transient DefaultInputPort<Tuple<IN>> tupleInput =  new DefaultInputPort<Tuple<IN>>()
+    {
+      @Override
+      public void process(Tuple<IN> t)
+      {
+        Function.FilterFunction<IN> f = getFunction();
+        if (f.f(t.getValue())) {
+          tupleOutput.emit(t);
+        }
+
       }
     };
 

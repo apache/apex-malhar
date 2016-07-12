@@ -20,6 +20,8 @@ package org.apache.apex.malhar.stream.api.impl;
 
 import java.util.UUID;
 
+import org.apache.hadoop.classification.InterfaceStability;
+
 import com.datatorrent.api.Operator;
 
 import static java.lang.System.currentTimeMillis;
@@ -29,6 +31,7 @@ import static java.lang.System.currentTimeMillis;
  *
  * @since 3.4.0
  */
+@InterfaceStability.Evolving
 public class IDGenerator
 {
 

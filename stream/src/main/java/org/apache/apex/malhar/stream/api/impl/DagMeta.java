@@ -27,8 +27,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.stream.api.Option;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.DAG;
@@ -36,14 +41,15 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.stram.plan.logical.LogicalPlan;
 
 /**
- * Graph data structure for DAG
- * With this data structure, the framework can do lazy load and optimization
+ * Logical graph data structure for DAG <br>
+ *
+ * With the build method({@link #buildDAG()}, {@link #buildDAG(DAG)}) to convert it to Apex DAG
  *
  * @since 3.4.0
  */
+@InterfaceStability.Evolving
 public class DagMeta
 {
-
   private List<NodeMeta> heads = new LinkedList<>();
 
   List<Pair<Attribute, Object>> dagAttributes = new LinkedList<>();
@@ -51,9 +57,9 @@ public class DagMeta
   public static class NodeMeta
   {
 
-    private String nodeName;
-
     private Operator operator;
+
+    private Option[] options;
 
     List<Pair<Attribute, Object>> operatorAttributes = new LinkedList<>();
 
@@ -79,11 +85,6 @@ public class DagMeta
       return children;
     }
 
-    public String getNodeName()
-    {
-      return nodeName;
-    }
-
     public Operator getOperator()
     {
       return operator;
@@ -94,12 +95,12 @@ public class DagMeta
       return nodeStreams;
     }
 
-    public NodeMeta(Operator operator, String nodeName)
+    public NodeMeta(Operator operator, Option... options)
     {
 
-      this.nodeName = nodeName;
-
       this.operator = operator;
+
+      this.options = options;
 
       for (Field field : this.operator.getClass().getFields()) {
         int modifier = field.getModifiers();
@@ -122,6 +123,15 @@ public class DagMeta
       }
     }
 
+    public String getOperatorName()
+    {
+      for (Option opt : options) {
+        if (opt instanceof Option.OpName) {
+          return ((Option.OpName)opt).getName();
+        }
+      }
+      return operator.toString();
+    }
   }
 
   public DagMeta()
@@ -141,11 +151,15 @@ public class DagMeta
     for (NodeMeta nm : heads) {
       visitNode(nm, dag);
     }
+    logger.debug("Finish building the dag:\n {}", dag.toString());
   }
 
   private void visitNode(NodeMeta nm, DAG dag)
   {
-    dag.addOperator(nm.nodeName, nm.operator);
+    String opName = nm.getOperatorName();
+    logger.debug("Building DAG: add operator {}: {}", opName, nm.operator);
+    dag.addOperator(opName, nm.operator);
+
     for (NodeMeta child : nm.children) {
       visitNode(child, dag);
     }
@@ -154,15 +168,18 @@ public class DagMeta
       if (entry.getKey() == null || entry.getValue().getKey() == null || 0 == entry.getValue().getKey().size()) {
         continue;
       }
+      logger.debug("Building DAG: add stream {} from {} to {}", entry.getKey().toString(), entry.getKey(), entry.getValue().getLeft().toArray(new Operator.InputPort[]{}));
       DAG.StreamMeta streamMeta = dag.addStream(entry.getKey().toString(), entry.getKey(),
           entry.getValue().getLeft().toArray(new Operator.InputPort[]{}));
       // set locality
       if (entry.getValue().getRight() != null) {
+        logger.debug("Building DAG: set locality of the stream {} to {}", entry.getKey().toString(), entry.getValue().getRight());
         streamMeta.setLocality(entry.getValue().getRight());
       }
       //set attributes for output port
       if (nm.outputPortAttributes.containsKey(entry.getKey())) {
         for (Pair<Attribute, Object> attr : nm.outputPortAttributes.get(entry.getKey())) {
+          logger.debug("Building DAG: set port attribute {} to {} for port {}", attr.getLeft(), attr.getValue(), entry.getKey());
           dag.setOutputPortAttribute(entry.getKey(), attr.getLeft(), attr.getValue());
         }
       }
@@ -173,6 +190,7 @@ public class DagMeta
       //set input port attributes
       if (nm.inputPortAttributes.containsKey(input)) {
         for (Pair<Attribute, Object> attr : nm.inputPortAttributes.get(input)) {
+          logger.debug("Building DAG: set port attribute {} to {} for port {}", attr.getLeft(), attr.getValue(), input);
           dag.setInputPortAttribute(input, attr.getLeft(), attr.getValue());
         }
       }
@@ -180,15 +198,16 @@ public class DagMeta
 
     // set operator attributes
     for (Pair<Attribute, Object> attr : nm.operatorAttributes) {
+      logger.debug("Building DAG: set operator attribute {} to {} for operator {}", attr.getLeft(), attr.getValue(), nm.operator);
       dag.setAttribute(nm.operator, attr.getLeft(), attr.getValue());
     }
 
   }
 
-  public NodeMeta addNode(String nodeName, Operator operator, NodeMeta parent, Operator.OutputPort parentOutput, Operator.InputPort inputPort)
+  public NodeMeta addNode(Operator operator, NodeMeta parent, Operator.OutputPort parentOutput, Operator.InputPort inputPort, Option... options)
   {
 
-    NodeMeta newNode = new NodeMeta(operator, nodeName);
+    NodeMeta newNode = new NodeMeta(operator, options);
     if (parent == null) {
       heads.add(newNode);
     } else {
@@ -198,5 +217,7 @@ public class DagMeta
     }
     return newNode;
   }
+
+  private static final Logger logger = LoggerFactory.getLogger(DagMeta.class);
 
 }

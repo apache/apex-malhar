@@ -24,11 +24,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.joda.time.Duration;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.window.TriggerOption;
+import org.apache.apex.malhar.lib.window.Tuple;
+import org.apache.apex.malhar.lib.window.WindowOption;
 import org.apache.apex.malhar.stream.api.function.Function;
+import org.apache.apex.malhar.stream.api.impl.ApexStreamImpl;
 import org.apache.apex.malhar.stream.api.impl.StreamFactory;
+
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * A test class which test your own stream implementation build on default one
@@ -36,25 +43,32 @@ import org.apache.apex.malhar.stream.api.impl.StreamFactory;
 @SuppressWarnings("unchecked")
 public class MyStreamTest
 {
-  static Map<Object, Integer> expected = new HashMap<>();
+  static Map<String, Long> expected = new HashMap<>();
   static String testId = null;
   static Callable<Boolean> exitCondition = null;
   static {
-    expected.put("newword1", 4);
-    expected.put("newword2", 8);
-    expected.put("newword3", 4);
-    expected.put("newword4", 4);
-    expected.put("newword5", 4);
-    expected.put("newword7", 4);
-    expected.put("newword9", 6);
+    expected.put("newword1", 4L);
+    expected.put("newword2", 8L);
+    expected.put("newword3", 4L);
+    expected.put("newword4", 4L);
+    expected.put("newword5", 4L);
+    expected.put("newword7", 4L);
+    expected.put("newword9", 6L);
 
     exitCondition = new Callable<Boolean>()
     {
       @Override
       public Boolean call() throws Exception
       {
-        List<Map<Object, Integer>> data = (List<Map<Object, Integer>>)TupleCollector.results.get(testId);
-        return (data != null) && data.size() >= 1 && expected.equals(data.get(data.size() - 1));
+        if (!TupleCollector.results.containsKey(testId) || TupleCollector.results.get(testId).isEmpty()) {
+          return false;
+        }
+        Map<String, Long> dataMap = new HashMap<>();
+        List<Tuple.TimestampedTuple<KeyValPair<String, Long>>> data = (List<Tuple.TimestampedTuple<KeyValPair<String, Long>>>)TupleCollector.results.get(testId);
+        for (Tuple.TimestampedTuple<KeyValPair<String, Long>> entry : data) {
+          dataMap.put(entry.getValue().getKey(), entry.getValue().getValue());
+        }
+        return (dataMap != null) && dataMap.size() >= 1 && expected.equals(dataMap);
       }
     };
   }
@@ -65,9 +79,9 @@ public class MyStreamTest
 
     testId = "testMethodChainWordcount";
 
-    TupleCollector<Map<Object, Integer>> collector = new TupleCollector<>();
+    TupleCollector<Tuple.WindowedTuple<KeyValPair<String, Long>>> collector = new TupleCollector<>();
     collector.id = testId;
-    new MyStream<>(StreamFactory.fromFolder("./src/test/resources/data"))
+    new MyStream<>((ApexStreamImpl<String>)StreamFactory.fromFolder("./src/test/resources/data"))
         .<String, MyStream<String>>flatMap(new Function.FlatMapFunction<String, String>()
         {
           @Override
@@ -85,17 +99,28 @@ public class MyStreamTest
         }, new Function.FilterFunction<String>()
         {
           @Override
-          public Boolean f(String input)
+          public boolean f(String input)
           {
             return input.startsWith("word");
           }
-        }).countByKey()
-        .addOperator(collector, collector.inputPort, collector.outputPort).print().runEmbedded(false, 30000, exitCondition);
+        }).window(new WindowOption.GlobalWindow(), new TriggerOption().accumulatingFiredPanes().withEarlyFiringsAtEvery(Duration.millis(1000)))
+        .countByKey(new Function.ToKeyValue<String, String, Long>()
+        {
+          @Override
+          public Tuple<KeyValPair<String, Long>> f(String input)
+          {
+            return new Tuple.PlainTuple(new KeyValPair<>(input, 1L));
+          }
+        }).addOperator(collector, collector.inputPort, null)
+        .runEmbedded(false, 30000, exitCondition);
 
+    Map<String, Long> dataMap = new HashMap<>();
+    for (Tuple.TimestampedTuple<KeyValPair<String, Long>> entry : (List<Tuple.TimestampedTuple<KeyValPair<String, Long>>>)TupleCollector.results.get(testId)) {
+      dataMap.put(entry.getValue().getKey(), entry.getValue().getValue());
+    }
 
-    List<Map<Object, Integer>> data = (List<Map<Object, Integer>>)TupleCollector.results.get(testId);
-    Assert.assertTrue(data.size() > 1);
-    Assert.assertEquals(expected, data.get(data.size() - 1));
+    Assert.assertTrue(dataMap.size() > 1);
+    Assert.assertEquals(expected, dataMap);
   }
 
   @Test
@@ -103,9 +128,9 @@ public class MyStreamTest
   {
     testId = "testNonMethodChainWordcount";
 
-    TupleCollector<Map<Object, Integer>> collector = new TupleCollector<>();
+    TupleCollector<Tuple.WindowedTuple<KeyValPair<String, Long>>> collector = new TupleCollector<>();
     collector.id = testId;
-    MyStream<String> mystream = new MyStream<>(StreamFactory
+    MyStream<String> mystream = new MyStream<>((ApexStreamImpl<String>)StreamFactory
         .fromFolder("./src/test/resources/data"))
         .flatMap(new Function.FlatMapFunction<String, String>()
         {
@@ -125,16 +150,28 @@ public class MyStreamTest
     }, new Function.FilterFunction<String>()
     {
       @Override
-      public Boolean f(String input)
+      public boolean f(String input)
       {
         return input.startsWith("word");
       }
-    }).countByKey().addOperator(collector, collector.inputPort, collector.outputPort).print().runEmbedded(false, 30000, exitCondition);
+    }).window(new WindowOption.GlobalWindow(), new TriggerOption().accumulatingFiredPanes().withEarlyFiringsAtEvery(Duration.millis(1000)))
+    .countByKey(new Function.ToKeyValue<String, String, Long>()
+    {
+      @Override
+      public Tuple<KeyValPair<String, Long>> f(String input)
+      {
+        return new Tuple.PlainTuple(new KeyValPair<>(input, 1L));
+      }
+    }).addOperator(collector, collector.inputPort, collector.outputPort).print().runEmbedded(false, 30000, exitCondition);
 
 
-    List<Map<Object, Integer>> data = (List<Map<Object, Integer>>)TupleCollector.results.get(testId);
-    Assert.assertTrue(data.size() > 1);
-    Assert.assertEquals(expected, data.get(data.size() - 1));
+    Map<String, Long> dataMap = new HashMap<>();
+    for (Tuple.TimestampedTuple<KeyValPair<String, Long>> entry : (List<Tuple.TimestampedTuple<KeyValPair<String, Long>>>)TupleCollector.results.get(testId)) {
+      dataMap.put(entry.getValue().getKey(), entry.getValue().getValue());
+    }
+
+    Assert.assertTrue(dataMap.size() > 1);
+    Assert.assertEquals(expected, dataMap);
   }
 
 }

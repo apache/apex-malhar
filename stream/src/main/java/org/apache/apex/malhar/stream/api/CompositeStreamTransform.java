@@ -16,19 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.stream.api.util;
+package org.apache.apex.malhar.stream.api;
+
+import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * An interface indicate a tuple with a specific key
- * It is used internally to identify the key from the tuple
- *
- * @since 3.4.0
+ * A group of Streams and transforms in between
  */
-public interface KeyedTuple<K>
+@InterfaceStability.Evolving
+public abstract class CompositeStreamTransform<INSTREAM extends ApexStream, OUTSTREAM extends ApexStream>
 {
-  /**
-   * Return the key of the tuple
-   * @return
-   */
-  K getKey();
+  public abstract OUTSTREAM compose(INSTREAM inputStream);
 }
