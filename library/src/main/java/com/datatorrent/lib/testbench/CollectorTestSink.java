@@ -67,6 +67,14 @@ public class CollectorTestSink<T> implements Sink<T>
   @Override
   public int getCount(boolean reset)
   {
-    throw new UnsupportedOperationException("Not supported yet.");
+    synchronized (collectedTuples) {
+      try {
+        return collectedTuples.size();
+      } finally {
+        if (reset) {
+          collectedTuples.clear();
+        }
+      }
+    }
   }
 }

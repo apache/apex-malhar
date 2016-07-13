@@ -244,7 +244,7 @@
     <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka_2.10</artifactId>
-      <version>0.8.1.1</version>
+      <version>0.8.2.1</version>
       <optional>true</optional>
       <exclusions>
         <exclusion>
@@ -474,14 +474,14 @@
       <!-- required by twitter -->
       <groupId>org.twitter4j</groupId>
       <artifactId>twitter4j-core</artifactId>
-      <version>2.2.6</version>
+      <version>4.0.4</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <!-- required by twitter -->
       <groupId>org.twitter4j</groupId>
       <artifactId>twitter4j-stream</artifactId>
-      <version>2.2.6</version>
+      <version>4.0.4</version>
       <optional>true</optional>
     </dependency>
     <dependency>

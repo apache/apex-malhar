@@ -226,13 +226,13 @@ public class FileSplitterInputTest
     FSWindowDataManager fsIdempotentStorageManager = new FSWindowDataManager();
     testMeta.fileSplitterInput.setWindowDataManager(fsIdempotentStorageManager);
 
-    testMeta.fileSplitterInput.setup(testMeta.context);
+    fsIdempotentStorageManager.setup(testMeta.context);
     //will emit window 1 from data directory
     testFileMetadata();
     testMeta.fileMetadataSink.clear();
     testMeta.blockMetadataSink.clear();
 
-    testMeta.fileSplitterInput.setup(testMeta.context);
+    fsIdempotentStorageManager.setup(testMeta.context);
     testMeta.fileSplitterInput.beginWindow(1);
     Assert.assertEquals("Blocks", 12, testMeta.blockMetadataSink.collectedTuples.size());
     for (Object blockMetadata : testMeta.blockMetadataSink.collectedTuples) {
@@ -331,13 +331,13 @@ public class FileSplitterInputTest
     testMeta.fileSplitterInput.setWindowDataManager(fsWindowDataManager);
     testMeta.fileSplitterInput.setBlocksThreshold(10);
     testMeta.fileSplitterInput.getScanner().setScanIntervalMillis(500);
-    testMeta.fileSplitterInput.setup(testMeta.context);
+    fsWindowDataManager.setup(testMeta.context);
 
     testBlocksThreshold();
     testMeta.fileMetadataSink.clear();
     testMeta.blockMetadataSink.clear();
 
-    testMeta.fileSplitterInput.setup(testMeta.context);
+    fsWindowDataManager.setup(testMeta.context);
     for (int i = 1; i < 8; i++) {
       testMeta.fileSplitterInput.beginWindow(i);
     }
@@ -499,7 +499,7 @@ public class FileSplitterInputTest
     testMeta.fileSplitterInput.getScanner().setScanIntervalMillis(500);
 
 
-    testMeta.fileSplitterInput.setup(testMeta.context);
+    fsWindowDataManager.setup(testMeta.context);
 
     testMeta.fileSplitterInput.beginWindow(1);
 

@@ -18,8 +18,10 @@
  */
 package com.datatorrent.lib.db.jdbc;
 
+import java.sql.BatchUpdateException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 import javax.validation.constraints.Min;
@@ -28,8 +30,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-
+import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator;
 
 /**
@@ -56,6 +62,7 @@ import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator
  */
 public abstract class AbstractJdbcTransactionableOutputOperator<T>
     extends AbstractPassThruTransactionableStoreOutputOperator<T, JdbcTransactionalStore>
+    implements Operator.ActivationListener<Context.OperatorContext>
 {
   protected static int DEFAULT_BATCH_SIZE = 1000;
 
@@ -65,6 +72,14 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T>
 
   private transient int batchStartIdx;
   private transient PreparedStatement updateCommand;
+
+  @OutputPortFieldAnnotation(optional = true)
+  public final transient DefaultOutputPort<T> error = new DefaultOutputPort<>();
+
+  @AutoMetric
+  private int tuplesWrittenSuccessfully;
+  @AutoMetric
+  private int errorTuples;
 
   public AbstractJdbcTransactionableOutputOperator()
   {
@@ -78,12 +93,25 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T>
   public void setup(Context.OperatorContext context)
   {
     super.setup(context);
+
+  }
+
+  @Override
+  public void activate(OperatorContext context)
+  {
     try {
       updateCommand = store.connection.prepareStatement(getUpdateCommand());
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
+  }
 
+  @Override
+  public void beginWindow(long windowId)
+  {
+    super.beginWindow(windowId);
+    tuplesWrittenSuccessfully = 0;
+    errorTuples = 0;
   }
 
   @Override
@@ -95,6 +123,11 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T>
     super.endWindow();
     tuples.clear();
     batchStartIdx = 0;
+  }
+
+  @Override
+  public void deactivate()
+  {
   }
 
   @Override
@@ -116,10 +149,47 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T>
       }
       updateCommand.executeBatch();
       updateCommand.clearBatch();
+      batchStartIdx += tuples.size() - batchStartIdx;
+    } catch (BatchUpdateException bue) {
+      logger.error(bue.getMessage());
+      processUpdateCounts(bue.getUpdateCounts(), tuples.size() - batchStartIdx);
     } catch (SQLException e) {
       throw new RuntimeException("processing batch", e);
-    } finally {
-      batchStartIdx += tuples.size() - batchStartIdx;
+    }
+  }
+
+  /**
+   * Identify which commands in the batch failed and redirect these on the error port.
+   * See https://docs.oracle.com/javase/7/docs/api/java/sql/BatchUpdateException.html for more details
+   *
+   * @param updateCounts
+   * @param commandsInBatch
+   */
+  private void processUpdateCounts(int[] updateCounts, int commandsInBatch)
+  {
+    if (updateCounts.length < commandsInBatch) {
+      // Driver chose not to continue processing after failure.
+      error.emit(tuples.get(updateCounts.length + batchStartIdx));
+      errorTuples++;
+      // In this case, updateCounts is the number of successful queries
+      tuplesWrittenSuccessfully += updateCounts.length;
+      // Skip the error record
+      batchStartIdx += updateCounts.length + 1;
+      // And process the remaining if any
+      if ((tuples.size() - batchStartIdx) > 0) {
+        processBatch();
+      }
+    } else {
+      // Driver processed all batch statements in spite of failures.
+      // Pick out the failures and send on error port.
+      tuplesWrittenSuccessfully = commandsInBatch;
+      for (int i = 0; i < commandsInBatch; i++) {
+        if (updateCounts[i] == Statement.EXECUTE_FAILED) {
+          error.emit(tuples.get(i + batchStartIdx));
+          errorTuples++;
+          tuplesWrittenSuccessfully--;
+        }
+      }
     }
   }
 
@@ -149,6 +219,20 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T>
    * @throws SQLException
    */
   protected abstract void setStatementParameters(PreparedStatement statement, T tuple) throws SQLException;
+
+  public int getTuplesWrittenSuccessfully()
+  {
+    return tuplesWrittenSuccessfully;
+  }
+
+  /**
+   * Setter for metric tuplesWrittenSuccessfully
+   * @param tuplesWrittenSuccessfully
+   */
+  public void setTuplesWrittenSuccessfully(int tuplesWrittenSuccessfully)
+  {
+    this.tuplesWrittenSuccessfully = tuplesWrittenSuccessfully;
+  }
 
   private static final Logger logger = LoggerFactory.getLogger(AbstractJdbcTransactionableOutputOperator.class);
 

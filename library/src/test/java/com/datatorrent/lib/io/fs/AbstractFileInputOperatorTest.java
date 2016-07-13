@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import org.junit.Assert;
@@ -866,5 +867,75 @@ public class AbstractFileInputOperatorTest
       }
       return null;
     }
+  }
+
+  /** scanner to extract partition id from start of the filename */
+  static class MyScanner extends AbstractFileInputOperator.DirectoryScanner
+  {
+    @Override
+    protected int getPartition(String filePathStr)
+    {
+      String[] parts = filePathStr.split("/");
+      parts = parts[parts.length - 1].split("_");
+      try {
+        int code = Integer.parseInt(parts[0]);
+        return code;
+      } catch (NumberFormatException ex) {
+        return super.getPartition(filePathStr);
+      }
+    }
+  }
+
+  /**
+   * Partition the operator in 2
+   * create ten files with index of the file at the start, i.e 1_file, 2_file .. etc.
+   * The scanner returns this index from getPartition method.
+   * each partition should read 5 files as file index are from 0 to 9 (including 0 and 9).
+   * @throws Exception
+   */
+  @Test
+  public void testWithCustomScanner() throws Exception
+  {
+    LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
+    oper.setScanner(new MyScanner());
+    oper.getScanner().setFilePatternRegexp(".*partition_([\\d]*)");
+    oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
+
+    Random rand = new Random();
+    Path path = new Path(new File(testMeta.dir).getAbsolutePath());
+    FileContext.getLocalFSFileContext().delete(path, true);
+    for (int file = 0; file < 10; file++) {
+      FileUtils.write(new File(testMeta.dir, file + "_partition_00" + rand.nextInt(100)), "");
+    }
+
+    List<Partition<AbstractFileInputOperator<String>>> partitions = Lists.newArrayList();
+    partitions.add(new DefaultPartition<AbstractFileInputOperator<String>>(oper));
+    Collection<Partition<AbstractFileInputOperator<String>>> newPartitions = oper.definePartitions(partitions,
+        new PartitioningContextImpl(null, 2));
+    Assert.assertEquals(2, newPartitions.size());
+    Assert.assertEquals(1, oper.getCurrentPartitions()); // partitioned() wasn't called
+
+    for (Partition<AbstractFileInputOperator<String>> p : newPartitions) {
+      Assert.assertNotSame(oper, p.getPartitionedInstance());
+      Assert.assertNotSame(oper.getScanner(), p.getPartitionedInstance().getScanner());
+      Set<String> consumed = Sets.newHashSet();
+      LinkedHashSet<Path> files = p.getPartitionedInstance().getScanner().scan(FileSystem.getLocal(new Configuration(false)), path, consumed);
+      Assert.assertEquals("partition " + files, 5, files.size());
+    }
+  }
+
+  @Test
+  public void testCustomScanner()
+  {
+    MyScanner scanner = new MyScanner();
+    scanner.setPartitionCount(2);
+
+    scanner.setPartitionIndex(1);
+    boolean accepted = scanner.acceptFile("1_file");
+    Assert.assertTrue("File should be accepted by this partition ", accepted);
+
+    scanner.setPartitionIndex(0);
+    accepted = scanner.acceptFile("1_file");
+    Assert.assertFalse("File should not be accepted by this partition ", accepted);
   }
 }

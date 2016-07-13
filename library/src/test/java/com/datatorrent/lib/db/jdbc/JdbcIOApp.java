@@ -18,6 +18,7 @@
  */
 package com.datatorrent.lib.db.jdbc;
 
+import java.sql.Types;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
@@ -49,12 +50,12 @@ public class JdbcIOApp implements StreamingApplication
     dag.getMeta(jdbcInputOperator).getMeta(jdbcInputOperator.outputPort).getAttributes()
         .put(Context.PortContext.TUPLE_CLASS, JdbcIOAppTest.PojoEvent.class);
 
-    JdbcPOJOOutputOperator jdbcOutputOperator = dag.addOperator("JdbcOutput", new JdbcPOJOOutputOperator());
+    JdbcPOJOInsertOutputOperator jdbcOutputOperator = dag.addOperator("JdbcOutput", new JdbcPOJOInsertOutputOperator());
     JdbcTransactionalStore outputStore = new JdbcTransactionalStore();
     outputStore.setDatabaseDriver("org.hsqldb.jdbcDriver");
     outputStore.setDatabaseUrl("jdbc:hsqldb:mem:test");
     jdbcOutputOperator.setStore(outputStore);
-    jdbcOutputOperator.setFieldInfos(addFieldInfos());
+    jdbcOutputOperator.setFieldInfos(addJdbcFieldInfos());
     jdbcOutputOperator.setTablename("test_app_output_event_table");
     jdbcOutputOperator.setBatchSize(10);
     dag.getMeta(jdbcOutputOperator).getMeta(jdbcOutputOperator.input).getAttributes()
@@ -72,4 +73,14 @@ public class JdbcIOApp implements StreamingApplication
     fieldInfos.add(new FieldInfo("AMOUNT", "amount", SupportType.INTEGER));
     return fieldInfos;
   }
+
+  private List<JdbcFieldInfo> addJdbcFieldInfos()
+  {
+    List<JdbcFieldInfo> fieldInfos = Lists.newArrayList();
+    fieldInfos.add(new JdbcFieldInfo("ACCOUNT_NO", "accountNumber", SupportType.INTEGER, Types.INTEGER));
+    fieldInfos.add(new JdbcFieldInfo("NAME", "name", SupportType.STRING, Types.VARCHAR));
+    fieldInfos.add(new JdbcFieldInfo("AMOUNT", "amount", SupportType.INTEGER, Types.INTEGER));
+    return fieldInfos;
+  }
+
 }
