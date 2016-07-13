@@ -27,7 +27,7 @@ import java.util.UUID;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
-import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -51,6 +51,7 @@ public class ElasticSearchOperatorTest
     ElasticSearchConnectable store = new ElasticSearchConnectable();
     store.setHostName("localhost");
     store.setPort(9300);
+    store.setClusterName("elasticsearch");
     return store;
   }
 
@@ -89,7 +90,7 @@ public class ElasticSearchOperatorTest
     ElasticSearchMapOutputOperator<Map<String, Object>> operator = new ElasticSearchMapOutputOperator<Map<String, Object>>() {
       /*
        * (non-Javadoc)
-       * 
+       *
        * @see com.datatorrent.contrib.elasticsearch. AbstractElasticSearchOutputOperator #processTuple(java.lang.Object)
        */
       @Override
@@ -128,8 +129,7 @@ public class ElasticSearchOperatorTest
 
   /**
    * Read data written to elastic search
-   * 
-   * @param tupleIDs
+   *
    * @param testStartTime
    */
   private List<String> readFromES(List<String> writtenTupleIDs, final long testStartTime)
@@ -137,14 +137,14 @@ public class ElasticSearchOperatorTest
     ElasticSearchMapInputOperator<Map<String, Object>> operator = new ElasticSearchMapInputOperator<Map<String, Object>>() {
       /**
        * Set SearchRequestBuilder parameters specific to current window.
-       * 
+       *
        * @see com.datatorrent.contrib.elasticsearch.ElasticSearchMapInputOperator#getSearchRequestBuilder()
        */
       @Override
       protected SearchRequestBuilder getSearchRequestBuilder()
       {
         long time = System.currentTimeMillis();
-        return searchRequestBuilder.setPostFilter(FilterBuilders.rangeFilter(POST_DATE).from(testStartTime).to(time)) // Filter
+        return searchRequestBuilder.setPostFilter(QueryBuilders.rangeQuery(POST_DATE).from(testStartTime).to(time)) // Filter
             .setSize(15).setExplain(false);
       }
     };

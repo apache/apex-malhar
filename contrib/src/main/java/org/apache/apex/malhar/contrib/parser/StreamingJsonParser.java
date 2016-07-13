@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 
-import org.elasticsearch.common.primitives.Ints;
+import com.google.common.primitives.Ints;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;

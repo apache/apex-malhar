@@ -57,7 +57,7 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  * @displayName Elastic Search Output
  * @category Output
  * @tags elastic search
- * 
+ *
  * @since 2.1.0
  */
 public abstract class AbstractElasticSearchOutputOperator<T, S extends ElasticSearchConnectable> extends AbstractStoreOutputOperator<T, S>
@@ -109,15 +109,18 @@ public abstract class AbstractElasticSearchOutputOperator<T, S extends ElasticSe
    */
   private void processBatch()
   {
-    BulkRequestBuilder bulkRequestBuilder = new BulkRequestBuilder(store.client);
-    while (!tupleBatch.isEmpty()) {
-      T tuple = tupleBatch.remove();
-      IndexRequestBuilder indexRequestBuilder = getIndexRequestBuilder(tuple);
-      bulkRequestBuilder.add(indexRequestBuilder);
-    }
-    BulkResponse bulkResponse = bulkRequestBuilder.execute().actionGet();
-    if (bulkResponse.hasFailures()) {
-      DTThrowable.rethrow(new Exception(bulkResponse.buildFailureMessage()));
+    BulkRequestBuilder bulkRequestBuilder = store.client.prepareBulk();
+    if(tupleBatch.size()>=1){
+      while (!tupleBatch.isEmpty()) {
+        T tuple = tupleBatch.remove();
+        IndexRequestBuilder indexRequestBuilder = getIndexRequestBuilder(tuple);
+        bulkRequestBuilder.add(indexRequestBuilder);
+      }
+      BulkResponse bulkResponse = bulkRequestBuilder.execute().actionGet();
+      if (bulkResponse.hasFailures())
+      {
+        DTThrowable.rethrow(new Exception(bulkResponse.buildFailureMessage()));
+      }
     }
   }
 
@@ -129,7 +132,7 @@ public abstract class AbstractElasticSearchOutputOperator<T, S extends ElasticSe
    * @return
    */
   protected IndexRequestBuilder getIndexRequestBuilder(T tuple){
-    IndexRequestBuilder indexRequestBuilder = new IndexRequestBuilder(store.client, getIndexName(tuple));
+    IndexRequestBuilder indexRequestBuilder = store.client.prepareIndex(getIndexName(tuple),getType(tuple));
     String id = getId(tuple);
     if (id != null) {
       indexRequestBuilder.setId(id);
