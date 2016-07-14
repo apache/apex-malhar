@@ -76,17 +76,23 @@ public class JMSBase
   private transient Session session;
   private transient Destination destination;
 
+  private ConnectionFactoryBuilder connectionFactoryBuilder;
   private String connectionFactoryClass;
   private Map<String, String> connectionFactoryProperties = Maps.newHashMap();
   private String ackMode = "CLIENT_ACKNOWLEDGE";
-  private String clientId = "TestClient";
-  private String subject = "TEST.FOO";
+  private String clientId;
+  private String subject;
   private int batch = 10;
   private int messageSize = 255;
   private boolean durable = false;
   private boolean topic = false;
   private boolean verbose = false;
   protected boolean transacted = true;
+  
+  public static interface ConnectionFactoryBuilder 
+  {
+    ConnectionFactory buildConnectionFactory();
+  }
 
   /**
    * @return the connection
@@ -122,7 +128,12 @@ public class JMSBase
     this.connectionFactoryClass = connectionFactoryClass;
   }
 
-  /**
+  public void setConnectionFactoryBuilder(ConnectionFactoryBuilder connectionFactoryBuilder) 
+  {
+    this.connectionFactoryBuilder = connectionFactoryBuilder;
+  }
+
+/**
    * Return the connection factory properties. Property names are provider specific and can be set directly from configuration, for example:<p>
    * <code>dt.operator.JMSOper.connectionFactoryProperties.brokerURL=vm://localhost<code>
    * @return reference to mutable properties
@@ -355,10 +366,13 @@ public class JMSBase
    */
   protected ConnectionFactory getConnectionFactory()
   {
-    logger.debug("class {} properties {}", connectionFactoryClass, connectionFactoryProperties);
+    logger.debug("connectionFactoryBuilder {} connectionFactoryClass {} properties {}", "" + connectionFactoryBuilder,
+        connectionFactoryClass, connectionFactoryProperties);
     ConnectionFactory cf;
     try {
-      if (connectionFactoryClass != null) {
+      if (connectionFactoryBuilder != null) {
+        cf = connectionFactoryBuilder.buildConnectionFactory();
+      } else if (connectionFactoryClass != null) {
         @SuppressWarnings("unchecked")
         Class<ConnectionFactory> clazz = (Class<ConnectionFactory>)Class.forName(connectionFactoryClass);
         cf = clazz.newInstance();
