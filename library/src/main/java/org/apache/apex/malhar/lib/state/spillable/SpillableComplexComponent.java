@@ -23,6 +23,7 @@ import org.apache.apex.malhar.lib.utils.serde.Serde;
 
 import com.datatorrent.api.Component;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Operator;
 import com.datatorrent.netlet.util.Slice;
 
 /**
@@ -31,7 +32,8 @@ import com.datatorrent.netlet.util.Slice;
  *
  * @since 3.4.0
  */
-public interface SpillableComplexComponent extends Component<OperatorContext>, SpillableComponent
+public interface SpillableComplexComponent extends Component<OperatorContext>, SpillableComponent,
+    Operator.CheckpointNotificationListener
 {
   /**
    * This is a method for creating a {@link SpillableArrayList}. This method

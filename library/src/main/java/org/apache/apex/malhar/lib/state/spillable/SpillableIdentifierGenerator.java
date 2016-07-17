@@ -16,29 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.state.managed.spillable.inmem;
+package org.apache.apex.malhar.lib.state.spillable;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import org.apache.apex.malhar.lib.state.spillable.inmem.InMemMultiset;
-
-import com.esotericsoftware.kryo.Kryo;
-
-import com.datatorrent.lib.util.KryoCloneUtils;
-
-public class InMemMultisetTest
+/**
+ * Classes implementing this interface can be used as generators for identifiers for Spillable data structures. This is
+ * mainly used in implementations of {@link SpillableComplexComponent}.
+ */
+public interface SpillableIdentifierGenerator
 {
-  @Test
-  public void serializationTest()
-  {
-    InMemMultiset<String> set = new InMemMultiset<>();
+  /**
+   * Generators the next valid identifier for a Spillable data structure.
+   * @return A byte array which represents the next valid identifier for a Spillable data structure.
+   */
+  byte[] next();
 
-    set.add("a");
-    set.add("a");
-
-    InMemMultiset<String> cloned = KryoCloneUtils.cloneObject(new Kryo(), set);
-
-    Assert.assertEquals(2, cloned.count("a"));
-  }
+  /**
+   * Registers the given identifier with this {@link SpillableIdentifierGenerator}.
+   * @param identifier The identifier to register with this {@link SpillableIdentifierGenerator}.
+   */
+  void register(byte[] identifier);
 }

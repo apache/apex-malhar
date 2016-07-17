@@ -16,29 +16,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.state.managed.spillable.inmem;
+package org.apache.apex.malhar.lib.utils.serde;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.commons.lang3.mutable.MutableInt;
 
-import org.apache.apex.malhar.lib.state.spillable.inmem.InMemSpillableArrayList;
+import com.datatorrent.lib.appdata.gpo.GPOUtils;
+import com.datatorrent.netlet.util.Slice;
 
-import com.esotericsoftware.kryo.Kryo;
-
-import com.datatorrent.lib.util.KryoCloneUtils;
-
-public class InMemSpillableArrayListTest
+/**
+ * An implementation of {@link Serde} which serializes and deserializes {@link String}s.
+ */
+public class SerdeStringSlice implements Serde<String, Slice>
 {
-  @Test
-  public void serializationTest()
+  @Override
+  public Slice serialize(String object)
   {
-    InMemSpillableArrayList<String> list = new InMemSpillableArrayList<>();
+    return new Slice(GPOUtils.serializeString(object));
+  }
 
-    list.add("a");
-    list.add("a");
+  @Override
+  public String deserialize(Slice object, MutableInt offset)
+  {
+    offset.add(object.offset);
+    String string = GPOUtils.deserializeString(object.buffer, offset);
+    offset.subtract(object.offset);
+    return string;
+  }
 
-    InMemSpillableArrayList<String> cloned = KryoCloneUtils.cloneObject(new Kryo(), list);
-
-    Assert.assertEquals(2, list.size());
+  @Override
+  public String deserialize(Slice object)
+  {
+    return deserialize(object, new MutableInt(0));
   }
 }

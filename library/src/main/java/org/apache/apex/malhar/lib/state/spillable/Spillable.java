@@ -98,19 +98,7 @@ public interface Spillable
    * should implement this interface. A user working with an implementation of this interface needs
    * to make sure that the {@link com.datatorrent.api.Operator} call-backs are propagated to it.
    */
-  interface SpillableComponent extends Component<OperatorContext>, Spillable
+  interface SpillableComponent extends Component<OperatorContext>, Spillable, WindowListener
   {
-    /**
-     * This signals that the parent {@link com.datatorrent.api.Operator}'s
-     * {@link com.datatorrent.api.Operator#beginWindow(long)} method has been called.
-     * @param windowId The next windowId of the parent operator.
-     */
-    void beginWindow(long windowId);
-
-    /**
-     * This signals that the parent {@link com.datatorrent.api.Operator}'s
-     * {@link com.datatorrent.api.Operator#endWindow()} method has been called.
-     */
-    void endWindow();
   }
 }
