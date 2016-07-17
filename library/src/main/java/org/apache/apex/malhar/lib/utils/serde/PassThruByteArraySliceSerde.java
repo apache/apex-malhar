@@ -19,33 +19,41 @@
 package org.apache.apex.malhar.lib.utils.serde;
 
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.hadoop.classification.InterfaceStability;
+
+import com.datatorrent.netlet.util.Slice;
 
 /**
- * This is a simple pass through {@link Serde}. When serialization is performed the input byte array is returned.
- * Similarly when deserialization is performed the input byte array is returned.
+ * This is a simple {@link Serde} which serializes and deserializes byte arrays to {@link Slice}s. A byte array is
+ * serialized by simply wrapping it in a {@link Slice} object and deserialized by simply reading the byte array
+ * out of the {@link Slice} object.
  *
- * @since 3.4.0
+ * <b>Note:</b> The deserialized method doesn't use the offset argument in this implementation.
  */
-@InterfaceStability.Evolving
-public class PassThruByteArraySerde implements Serde<byte[], byte[]>
+public class PassThruByteArraySliceSerde implements Serde<byte[], Slice>
 {
   @Override
-  public byte[] serialize(byte[] object)
+  public Slice serialize(byte[] object)
   {
-    return object;
+    return new Slice(object);
   }
 
   @Override
-  public byte[] deserialize(byte[] object, MutableInt offset)
+  public byte[] deserialize(Slice object, MutableInt offset)
   {
     offset.add(object.length);
-    return object;
+
+    if (object.offset == 0) {
+      return object.buffer;
+    }
+
+    byte[] bytes = new byte[object.length];
+    System.arraycopy(object.buffer, object.offset, bytes, 0, object.length);
+    return bytes;
   }
 
   @Override
-  public byte[] deserialize(byte[] object)
+  public byte[] deserialize(Slice object)
   {
-    return object;
+    return deserialize(object, new MutableInt(0));
   }
 }

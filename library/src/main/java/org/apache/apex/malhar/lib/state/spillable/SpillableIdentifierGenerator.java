@@ -16,36 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.utils.serde;
+package org.apache.apex.malhar.lib.state.spillable;
 
-import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * This is a simple pass through {@link Serde}. When serialization is performed the input byte array is returned.
- * Similarly when deserialization is performed the input byte array is returned.
- *
- * @since 3.4.0
+ * Classes implementing this interface can be used as generators for identifiers for Spillable data structures. This is
+ * mainly used in implementations of {@link SpillableComplexComponent}.
  */
 @InterfaceStability.Evolving
-public class PassThruByteArraySerde implements Serde<byte[], byte[]>
+public interface SpillableIdentifierGenerator
 {
-  @Override
-  public byte[] serialize(byte[] object)
-  {
-    return object;
-  }
+  /**
+   * Generators the next valid identifier for a Spillable data structure.
+   * @return A byte array which represents the next valid identifier for a Spillable data structure.
+   */
+  byte[] next();
 
-  @Override
-  public byte[] deserialize(byte[] object, MutableInt offset)
-  {
-    offset.add(object.length);
-    return object;
-  }
-
-  @Override
-  public byte[] deserialize(byte[] object)
-  {
-    return object;
-  }
+  /**
+   * Registers the given identifier with this {@link SpillableIdentifierGenerator}.
+   * @param identifier The identifier to register with this {@link SpillableIdentifierGenerator}.
+   */
+  void register(byte[] identifier);
 }
