@@ -16,36 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.utils.serde;
+package org.apache.apex.malhar.lib.state.spillable;
 
-import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.classification.InterfaceStability;
 
+import com.datatorrent.api.Operator;
+
 /**
- * This is a simple pass through {@link Serde}. When serialization is performed the input byte array is returned.
- * Similarly when deserialization is performed the input byte array is returned.
- *
- * @since 3.4.0
+ * This interface represents components which need to listen to the operator {@link Operator#beginWindow(long)} and
+ * {@link Operator#endWindow()} callbacks.
  */
 @InterfaceStability.Evolving
-public class PassThruByteArraySerde implements Serde<byte[], byte[]>
+public interface WindowListener
 {
-  @Override
-  public byte[] serialize(byte[] object)
-  {
-    return object;
-  }
+  /**
+   * This is called when the parent {@link Operator}'s {@link Operator#beginWindow(long)} callback is called.
+   * @param windowId The id of the current application window.
+   */
+  void beginWindow(long windowId);
 
-  @Override
-  public byte[] deserialize(byte[] object, MutableInt offset)
-  {
-    offset.add(object.length);
-    return object;
-  }
-
-  @Override
-  public byte[] deserialize(byte[] object)
-  {
-    return object;
-  }
+  /**
+   * This is called when the parent {@link Operator}'s {@link Operator#endWindow()} callback is called.
+   */
+  void endWindow();
 }

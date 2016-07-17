@@ -16,29 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.state.managed.spillable.inmem;
+package org.apache.apex.malhar.lib.state.spillable;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.apex.malhar.lib.state.BucketedState;
+import org.apache.hadoop.classification.InterfaceStability;
 
-import org.apache.apex.malhar.lib.state.spillable.inmem.InMemSpillableArrayList;
+import com.datatorrent.api.Component;
+import com.datatorrent.api.Context;
+import com.datatorrent.api.Operator;
 
-import com.esotericsoftware.kryo.Kryo;
-
-import com.datatorrent.lib.util.KryoCloneUtils;
-
-public class InMemSpillableArrayListTest
+/**
+ * Implementations of this interface are used by Spillable datastructures to spill data to disk.
+ */
+@InterfaceStability.Evolving
+public interface SpillableStateStore extends BucketedState, Component<Context.OperatorContext>,
+    Operator.CheckpointNotificationListener, WindowListener
 {
-  @Test
-  public void serializationTest()
-  {
-    InMemSpillableArrayList<String> list = new InMemSpillableArrayList<>();
-
-    list.add("a");
-    list.add("a");
-
-    InMemSpillableArrayList<String> cloned = KryoCloneUtils.cloneObject(new Kryo(), list);
-
-    Assert.assertEquals(2, list.size());
-  }
 }

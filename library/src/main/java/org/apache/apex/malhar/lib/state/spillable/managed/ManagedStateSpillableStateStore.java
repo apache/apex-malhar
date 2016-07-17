@@ -16,30 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.state.managed.spillable.inmem;
+package org.apache.apex.malhar.lib.state.spillable.managed;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.apex.malhar.lib.state.managed.ManagedStateImpl;
+import org.apache.apex.malhar.lib.state.spillable.SpillableStateStore;
 
-import org.apache.apex.malhar.lib.state.spillable.inmem.InMemSpillableByteArrayListMultimap;
+import com.esotericsoftware.kryo.DefaultSerializer;
+import com.esotericsoftware.kryo.serializers.FieldSerializer;
 
-import com.esotericsoftware.kryo.Kryo;
-
-import com.datatorrent.lib.util.KryoCloneUtils;
-
-public class InMemSpillableByteArrayListMultimapTest
+@DefaultSerializer(FieldSerializer.class)
+public class ManagedStateSpillableStateStore extends ManagedStateImpl implements SpillableStateStore
 {
-  @Test
-  public void serializationTest()
+  public ManagedStateSpillableStateStore()
   {
-    InMemSpillableByteArrayListMultimap<String, String> multimap =
-        new InMemSpillableByteArrayListMultimap<String, String>();
-
-    multimap.put("a", "b");
-    multimap.put("a", "c");
-
-    InMemSpillableByteArrayListMultimap<String, String> cloned = KryoCloneUtils.cloneObject(new Kryo(), multimap);
-
-    Assert.assertEquals(2, cloned.get("a").size());
+    super();
   }
 }

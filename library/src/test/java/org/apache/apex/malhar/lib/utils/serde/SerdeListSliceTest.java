@@ -16,29 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.state.managed.spillable.inmem;
+package org.apache.apex.malhar.lib.utils.serde;
+
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import org.apache.apex.malhar.lib.state.spillable.inmem.InMemMultiset;
+import com.google.common.collect.Lists;
 
-import com.esotericsoftware.kryo.Kryo;
+import com.datatorrent.netlet.util.Slice;
 
-import com.datatorrent.lib.util.KryoCloneUtils;
-
-public class InMemMultisetTest
+public class SerdeListSliceTest
 {
   @Test
-  public void serializationTest()
+  public void simpleSerdeTest()
   {
-    InMemMultiset<String> set = new InMemMultiset<>();
+    SerdeListSlice<String> serdeList = new SerdeListSlice<String>(new SerdeStringSlice());
 
-    set.add("a");
-    set.add("a");
+    List<String> stringList = Lists.newArrayList("a", "b", "c");
 
-    InMemMultiset<String> cloned = KryoCloneUtils.cloneObject(new Kryo(), set);
+    Slice slice = serdeList.serialize(stringList);
 
-    Assert.assertEquals(2, cloned.count("a"));
+    List<String> deserializedList = serdeList.deserialize(slice);
+
+    Assert.assertEquals(stringList, deserializedList);
   }
 }

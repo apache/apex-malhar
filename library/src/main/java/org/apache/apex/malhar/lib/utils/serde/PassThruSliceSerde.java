@@ -21,30 +21,29 @@ package org.apache.apex.malhar.lib.utils.serde;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.classification.InterfaceStability;
 
+import com.datatorrent.netlet.util.Slice;
+
 /**
- * This is a simple pass through {@link Serde}. When serialization is performed the input byte array is returned.
- * Similarly when deserialization is performed the input byte array is returned.
- *
- * @since 3.4.0
+ * This is a {@link Serde} implementation which simply allows an input slice to pass through. No serialization or
+ * deserialization transformation is performed on the input {@link Slice}s.
  */
 @InterfaceStability.Evolving
-public class PassThruByteArraySerde implements Serde<byte[], byte[]>
+public class PassThruSliceSerde implements Serde<Slice, Slice>
 {
   @Override
-  public byte[] serialize(byte[] object)
+  public Slice serialize(Slice object)
   {
     return object;
   }
 
   @Override
-  public byte[] deserialize(byte[] object, MutableInt offset)
+  public Slice deserialize(Slice object, MutableInt offset)
   {
-    offset.add(object.length);
     return object;
   }
 
   @Override
-  public byte[] deserialize(byte[] object)
+  public Slice deserialize(Slice object)
   {
     return object;
   }

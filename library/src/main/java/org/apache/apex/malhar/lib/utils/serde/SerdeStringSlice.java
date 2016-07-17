@@ -21,31 +21,33 @@ package org.apache.apex.malhar.lib.utils.serde;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.classification.InterfaceStability;
 
+import com.datatorrent.lib.appdata.gpo.GPOUtils;
+import com.datatorrent.netlet.util.Slice;
+
 /**
- * This is a simple pass through {@link Serde}. When serialization is performed the input byte array is returned.
- * Similarly when deserialization is performed the input byte array is returned.
- *
- * @since 3.4.0
+ * An implementation of {@link Serde} which serializes and deserializes {@link String}s.
  */
 @InterfaceStability.Evolving
-public class PassThruByteArraySerde implements Serde<byte[], byte[]>
+public class SerdeStringSlice implements Serde<String, Slice>
 {
   @Override
-  public byte[] serialize(byte[] object)
+  public Slice serialize(String object)
   {
-    return object;
+    return new Slice(GPOUtils.serializeString(object));
   }
 
   @Override
-  public byte[] deserialize(byte[] object, MutableInt offset)
+  public String deserialize(Slice object, MutableInt offset)
   {
-    offset.add(object.length);
-    return object;
+    offset.add(object.offset);
+    String string = GPOUtils.deserializeString(object.buffer, offset);
+    offset.subtract(object.offset);
+    return string;
   }
 
   @Override
-  public byte[] deserialize(byte[] object)
+  public String deserialize(Slice object)
   {
-    return object;
+    return deserialize(object, new MutableInt(0));
   }
 }
