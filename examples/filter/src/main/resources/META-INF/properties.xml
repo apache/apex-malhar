@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<configuration>
+  <!-- 
+  <property>
+    <name>dt.application.{appName}.operator.{opName}.prop.{propName}</name>
+    <value>some-default-value (if value is not specified, it is required from the user or custom config when launching)</value>
+  </property>
+  -->
+  <!-- memory assigned to app master
+  <property>
+    <name>dt.attr.MASTER_MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  -->
+
+  <!-- these values override those set in populateDAG -->
+  
+  <property>
+       <name>dt.application.FilterExample.operator.*.attr.MEMORY_MB</name>
+       <value>750</value>
+  </property>
+  <property>
+     <name>dt.application.FilterExample.attr.CHECKPOINT_WINDOW_COUNT</name>
+     <value>10</value>
+  </property>
+  <property>
+    <name>dt.application.FilterExample.operator.recordReader.prop.files</name>
+    <value>src/main/resources/META-INF/input.txt</value>
+  </property>
+  <property>
+    <name>dt.application.FilterExample.operator.csvParser.prop.schema</name>
+    <value>{"separator": "|","quoteChar":"\"","lineDelimiter":"","fields": [{"name": "trasactionId","type": "long"},{"name": "accountNumber","type": "long"},{"name": "amount","type": "double"},{"name": "type","type": "String"}]}</value>
+  </property>
+  <property>
+    <name>dt.application.FilterExample.operator.csvParser.port.out.attr.TUPLE_CLASS</name>
+    <value>com.datatorrent.tutorial.filter.TransactionPOJO</value>
+  </property>
+  <property>
+     <name>dt.application.FilterExample.operator.selectedOutput.prop.maxIdleWindows</name>
+     <value>20</value>
+  </property>
+  <property>
+     <name>dt.application.FilterExample.operator.rejectedOutput.prop.maxIdleWindows</name>
+     <value>20</value>
+  </property>
+  <property>
+    <name>dt.application.FilterExample.operator.filterOperator.port.input.attr.TUPLE_CLASS</name>
+    <value>com.datatorrent.tutorial.filter.TransactionPOJO</value>
+  </property>
+  <property>
+    <name>dt.application.FilterExample.operator.selectedFormatter.port.in.attr.TUPLE_CLASS</name>
+    <value>com.datatorrent.tutorial.filter.TransactionPOJO</value>
+  </property>
+  <property>
+    <name>dt.application.FilterExample.operator.rejectedFormatter.port.in.attr.TUPLE_CLASS</name>
+    <value>com.datatorrent.tutorial.filter.TransactionPOJO</value>
+  </property>
+  <property>
+    <name>dt.application.FilterExample.operator.filterOperator.prop.condition</name>
+    <value>({$}.getAmount() >= 20000)</value>
+  </property>
+  <property>
+    <name>dt.application.FilterExample.operator.filterOperator.prop.expressionFunctionsItem[5]</name>
+    <value>org.apache.commons.lang3.BooleanUtils.*</value>
+  </property>
+  <property>
+    <name>dt.application.FilterExample.operator.selectedFormatter.prop.schema</name>
+    <value>{"separator": "|","quoteChar":"\"","lineDelimiter":"","fields": [{"name": "trasactionId","type": "long"},{"name": "accountNumber","type": "long"},{"name": "amount","type": "double"},{"name": "type","type": "String"}]}</value>
+  </property>
+  <property>
+    <name>dt.application.FilterExample.operator.rejectedFormatter.prop.schema</name>
+    <value>{"separator": "|","quoteChar":"\"","lineDelimiter":"","fields": [{"name": "trasactionId","type": "long"},{"name": "accountNumber","type": "long"},{"name": "amount","type": "double"},{"name": "type","type": "String"}]}</value>
+  </property>
+  <property>
+    <name>dt.application.FilterExample.operator.selectedOutput.prop.filePath</name>
+    <value>file:///tmp</value>
+  </property>
+  <property>
+    <name>dt.application.FilterExample.operator.selectedOutput.prop.outputFileName</name>
+    <value>selected.txt</value>
+  </property>
+  <property>
+    <name>dt.application.FilterExample.operator.rejectedOutput.prop.filePath</name>
+    <value>file:///tmp</value>
+  </property>
+  <property>
+    <name>dt.application.FilterExample.operator.rejectedOutput.prop.outputFileName</name>
+    <value>rejected.txt</value>
+  </property>
+  <property>
+    <name>dt.loggers.level</name>
+    <value>com.datatorrent.*:DEBUG,org.apache.apex.malhar.*:DEBUG</value>
+  </property>
+</configuration>
+
