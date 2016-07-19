@@ -341,6 +341,11 @@
       <version>7.0.6</version>
     </dependency>
     <dependency>
+      <groupId>org.jooq</groupId>
+      <artifactId>jooq</artifactId>
+      <version>3.6.4</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.apex</groupId>
       <artifactId>apex-shaded-ning19</artifactId>
       <version>1.0.0</version>
