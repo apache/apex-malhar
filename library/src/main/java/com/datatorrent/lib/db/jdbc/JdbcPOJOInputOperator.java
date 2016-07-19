@@ -120,7 +120,6 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
   public void setup(Context.OperatorContext context)
   {
     Preconditions.checkArgument(query != null || tableName != null, "both query and table name are not set");
-    super.setup(context);
 
     try {
       //closing the query statement in super class as it is not needed
@@ -148,6 +147,7 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
     for (FieldInfo fi : fieldInfos) {
       columnFieldSetters.add(new ActiveFieldInfo(fi));
     }
+    super.setup(context);
   }
 
   protected void populateColumnDataTypes() throws SQLException
