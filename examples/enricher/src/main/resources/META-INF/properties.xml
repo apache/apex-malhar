@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<configuration>
+  <!-- Parser -->
+  <property>
+    <name>dt.application.EnricherAppWithJSONFile.operator.Parser.port.out.attr.TUPLE_CLASS</name>
+    <value>com.example.myapexapp.POJO</value>
+  </property>
+
+  <!-- Enrich -->
+  <property>
+    <name>dt.application.EnricherAppWithJSONFile.operator.Enrich.port.input.attr.TUPLE_CLASS</name>
+    <value>com.example.myapexapp.POJO</value>
+  </property>
+  <property>
+    <name>dt.application.EnricherAppWithJSONFile.operator.Enrich.port.output.attr.TUPLE_CLASS</name>
+    <value>com.example.myapexapp.POJOEnriched</value>
+  </property>
+  <property>
+    <name>dt.application.EnricherAppWithJSONFile.operator.Enrich.prop.store.fileName</name>
+    <value>/tmp/circleMapping.txt</value>
+  </property>
+
+  <!-- file output operator -->
+  <property>
+    <name>dt.application.EnricherAppWithJSONFile.operator.fileOut.prop.filePath</name>
+    <value>/tmp/enrichedData</value>
+  </property>
+  <property>
+    <name>dt.application.EnricherAppWithJSONFile.operator.fileOut.prop.baseName</name>
+    <value>test</value>
+  </property>
+  <property>
+    <name>dt.application.EnricherAppWithJSONFile.operator.fileOut.prop.maxLength</name>
+    <value>1024</value>
+  </property>
+  <property>
+    <name>dt.application.EnricherAppWithJSONFile.operator.fileOut.prop.rotationWindows</name>
+    <value>4</value>
+  </property>
+</configuration>
+
