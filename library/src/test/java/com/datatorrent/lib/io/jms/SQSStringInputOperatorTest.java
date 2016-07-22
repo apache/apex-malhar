@@ -126,7 +126,7 @@ public class SQSStringInputOperatorTest
       operator.setSubject(testBase.getCurrentQueueName());
       // for SQS ack mode should be "AUTO_ACKNOWLEDGE" and transacted = false
       operator.setAckMode("AUTO_ACKNOWLEDGE");  
-      operator.transacted = false;
+      operator.setTransacted(false);
 
       sink = new CollectorTestSink<>();
       operator.output.setSink(sink);
