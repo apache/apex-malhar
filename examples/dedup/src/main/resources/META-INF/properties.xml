@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<configuration>
+  <property>
+    <name>dt.application.DedupExample.operator.RandomGenerator.prop.tuplesPerWindow</name>
+    <value>100</value>
+  </property>
+  <property>
+    <name>dt.application.DedupExample.operator.Deduper.prop.keyExpression</name>
+    <value>id</value>
+  </property>
+  <property>
+    <name>dt.application.DedupExample.operator.Deduper.prop.timeExpression</name>
+    <value>eventTime.getTime()</value>
+  </property>
+  <property>
+    <name>dt.application.DedupExample.operator.Deduper.prop.bucketSpan</name>
+    <value>10</value>
+  </property>
+  <property>
+    <name>dt.application.DedupExample.operator.Deduper.prop.expireBefore</name>
+    <value>60</value>
+  </property>
+  <property>
+    <name>dt.application.DedupExample.operator.ConsoleUnique.prop.stringFormat</name>
+    <value>Unique: %s</value>
+  </property>
+  <property>
+    <name>dt.application.DedupExample.operator.ConsoleDuplicate.prop.stringFormat</name>
+    <value>Duplicate: %s</value>
+  </property>
+  <property>
+    <name>dt.application.DedupExample.operator.ConsoleExpired.prop.stringFormat</name>
+    <value>Expired: %s</value>
+  </property>
+  <property>
+    <name>dt.application.DedupExample.operator.*.attr.MEMORY_MB</name>
+    <value>512</value>
+  </property>
+</configuration>
+
