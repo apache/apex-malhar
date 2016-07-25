@@ -514,11 +514,11 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
     return this.windowDataManager;
   }
 
-  public void setTransacted(boolean value) 
+  public void setTransacted(boolean value)
   {
     transacted = value;
   }
-  
+
   protected abstract void emit(T payload);
 
   public static enum CounterKeys

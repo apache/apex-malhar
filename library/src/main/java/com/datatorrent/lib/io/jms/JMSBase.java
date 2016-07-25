@@ -88,8 +88,8 @@ public class JMSBase
   private boolean topic = false;
   private boolean verbose = false;
   protected boolean transacted = true;
-  
-  public static interface ConnectionFactoryBuilder 
+
+  public static interface ConnectionFactoryBuilder
   {
     ConnectionFactory buildConnectionFactory();
   }
@@ -128,7 +128,7 @@ public class JMSBase
     this.connectionFactoryClass = connectionFactoryClass;
   }
 
-  public void setConnectionFactoryBuilder(ConnectionFactoryBuilder connectionFactoryBuilder) 
+  public void setConnectionFactoryBuilder(ConnectionFactoryBuilder connectionFactoryBuilder)
   {
     this.connectionFactoryBuilder = connectionFactoryBuilder;
   }

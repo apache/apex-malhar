@@ -46,22 +46,22 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
  * Tests for {@link JMSStringInputOperator} for AMZ SQS.
  * Note: for SQS we should use AckMode as "AUTO_ACKNOWLEDGE" and
  * no transacted mode (transacted = false).
- * 
+ *
  * Note: check the comment for com.amazon.sqs.javamessaging.SQSMessageConsumer.close()
  * specifically: "Since consumer prefetch threads use SQS long-poll feature with 20 seconds
      * timeout, closing each consumer prefetch thread can take up to 20 seconds,
      * which in-turn will impact the time on consumer close."
- * 
- * Because of the above this test takes a long time due to consumer.close() in 
+ *
+ * Because of the above this test takes a long time due to consumer.close() in
  * com.datatorrent.lib.io.jms.AbstractJMSInputOperator.cleanup()
- * 
+ *
  * NOTE: tests are automatically skipped if the secret key in sqstestCreds.properties
  * is missing or blank.
- * 
+ *
  * NOTE: each test creates its own uniquely named queue in SQS and then deletes it afterwards.
  * Also we try to scrub any leftover queues from the previous runs just in case tests were
  * aborted (check com.datatorrent.lib.io.jms.SQSTestBase.generateCurrentQueueName(String))
- * 
+ *
  */
 public class SQSStringInputOperatorTest
 {
@@ -78,7 +78,7 @@ public class SQSStringInputOperatorTest
     {
       final String methodName = description.getMethodName();
       final String className = description.getClassName();
-      
+
       testBase = new SQSTestBase();
       if (testBase.validateTestCreds() == false) {
         return;
@@ -93,39 +93,39 @@ public class SQSStringInputOperatorTest
       }
 
       baseDir = "target/" + className + "/" + methodName;
-      
+
       Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
       attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
       attributeMap.put(Context.DAGContext.APPLICATION_PATH, baseDir);
 
       context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
       operator = new JMSStringInputOperator();
-      operator.setConnectionFactoryBuilder(new JMSBase.ConnectionFactoryBuilder() 
+      operator.setConnectionFactoryBuilder(new JMSBase.ConnectionFactoryBuilder()
       {
 
         @Override
-        public ConnectionFactory buildConnectionFactory() 
+        public ConnectionFactory buildConnectionFactory()
         {
           // Create the connection factory using the environment variable credential provider.
-          // Connections this factory creates can talk to the queues in us-east-1 region. 
+          // Connections this factory creates can talk to the queues in us-east-1 region.
           SQSConnectionFactory connectionFactory =
               SQSConnectionFactory.builder()
               .withRegion(Region.getRegion(Regions.US_EAST_1))
-              .withAWSCredentialsProvider(new PropertiesFileCredentialsProvider(SQSTestBase.SQSDEV_CREDS_FILENAME))
+              .withAWSCredentialsProvider(new PropertiesFileCredentialsProvider(testBase.getDevCredsFilePath()))
               .build();
           return connectionFactory;
         }
-        
+
         @Override
-        public String toString() 
+        public String toString()
         {
           return className + "/" + methodName + "/ConnectionFactoryBuilder";
         }
-        
+
       });
       operator.setSubject(testBase.getCurrentQueueName());
       // for SQS ack mode should be "AUTO_ACKNOWLEDGE" and transacted = false
-      operator.setAckMode("AUTO_ACKNOWLEDGE");  
+      operator.setAckMode("AUTO_ACKNOWLEDGE");
       operator.setTransacted(false);
 
       sink = new CollectorTestSink<>();
@@ -155,10 +155,10 @@ public class SQSStringInputOperatorTest
   @Rule
   public TestMeta testMeta = new TestMeta();
 
-  
+
   /**
    * Basic string input test
-   * 
+   *
    * @throws Exception
    */
   @Test
@@ -183,7 +183,7 @@ public class SQSStringInputOperatorTest
     testMeta.operator.endWindow();
 
     Assert.assertEquals("num of messages in window 1 pre-failure", 25, testMeta.sink.collectedTuples.size());
-    
+
     // for some reason AMZ SQS doesn't preserve the order producer->consumer or we might have a race
     //    condition on our producer side, so we can't be sure that get(4) will return "4:..."
     //    In any case we will only check message matching between pre-failure
@@ -215,15 +215,15 @@ public class SQSStringInputOperatorTest
    * eventually. Because of the async nature of the operator (messages are delivered to the operator
    * as an async listener) we can't be sure how many messages are present in testMeta.sink.collectedTuples
    * before endWindow so our assertion is just testMeta.sink.collectedTuples.size() < 9
-   * 
+   *
    * @throws Exception
    */
   @Test
   public void testFailureAfterPersistenceAndBeforeRecovery() throws Exception
   {
     testMeta.testBase.validateAssumption();
-    testMeta.sink = new CollectorTestSink<Object>() 
-    {  
+    testMeta.sink = new CollectorTestSink<Object>()
+    {
       @Override
       public void put(Object payload)
       {

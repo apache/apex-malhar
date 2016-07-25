@@ -39,48 +39,58 @@ public class SQSTestBase
   public static final String TEST_FOO = "TEST_FOO";
 
   public PropertiesCredentials testCreds;
-  
+
   /**
    * creds to be used by the dev end eg. by the JMSInputOperator in SQS mode
    */
-  public static String SQSDEV_CREDS_FILENAME = "sqsdevCreds.properties";
-  
+  private static String SQSDEV_CREDS_FILENAME = "/sqsdevCreds.properties";
+
   /**
    * creds to be used by the test end eg. by SQSInputOperatorTest
    */
-  public static String SQSTEST_CREDS_FILENAME = "sqstestCreds.properties";
+  private static String SQSTEST_CREDS_FILENAME = "/sqstestCreds.properties";
 
   private AmazonSQSClient sqs;
-  
+
   private String currentQueueName;
   private String currentQueueUrl;
-  
 
-  public SQSTestBase() 
+
+  public SQSTestBase()
   {
-    PropertiesFileCredentialsProvider file = new PropertiesFileCredentialsProvider(SQSTEST_CREDS_FILENAME);
+    PropertiesFileCredentialsProvider file = new PropertiesFileCredentialsProvider(getTestCredsFilePath());
     testCreds = (PropertiesCredentials)file.getCredentials();
     sqs = new AmazonSQSClient(testCreds);
   }
-  
-  public String getCurrentQueueName() 
+
+  public String getTestCredsFilePath()
+  {
+    return getClass().getResource(SQSTEST_CREDS_FILENAME).getFile();
+  }
+
+  public String getDevCredsFilePath()
+  {
+    return getClass().getResource(SQSDEV_CREDS_FILENAME).getFile();
+  }
+
+  public String getCurrentQueueName()
   {
     return currentQueueName;
   }
 
-  public void setCurrentQueueName(String currentQueueName) 
+  public void setCurrentQueueName(String currentQueueName)
   {
     this.currentQueueName = currentQueueName;
   }
-  
+
   /**
    *  Each test creates its own uniquely named queue in SQS and then deletes it afterwards.
    *  We try to scrub any leftover queues from the previous runs just in case tests were
-   * aborted 
-   * 
+   * aborted
+   *
    * @param currentQueueNamePrefix
    */
-  public void generateCurrentQueueName(String currentQueueNamePrefix) 
+  public void generateCurrentQueueName(String currentQueueNamePrefix)
   {
     if (validateTestCreds()) {
       ListQueuesResult list = sqs.listQueues(currentQueueNamePrefix);
@@ -104,7 +114,7 @@ public class SQSTestBase
   }
 
   /**
-   * 
+   *
    * @param text
    * @throws Exception
    */
@@ -112,10 +122,10 @@ public class SQSTestBase
   {
     produceMsg(new String[] {text}, purgeFirst);
   }
-  
+
   /**
    * TODO: copy the logic of JMSTestBase.produceMsg
-   * 
+   *
    * @param text
    * @throws Exception
    */
@@ -127,10 +137,10 @@ public class SQSTestBase
     }
     produceMsg(array, purgeFirst);
   }
-  
+
   /**
    * Produce unique messages
-   * 
+   *
    * @param text
    * @throws Exception
    */
@@ -143,21 +153,21 @@ public class SQSTestBase
     produceMsg(array, purgeFirst);
   }
 
-  public boolean validateTestCreds() 
+  public boolean validateTestCreds()
   {
     return testCreds.getAWSSecretKey() != null &&
         testCreds.getAWSSecretKey().trim().isEmpty() == false;
   }
 
-  public void validateAssumption() 
+  public void validateAssumption()
   {
     Assume.assumeTrue(validateTestCreds());
   }
-  
+
 
   /**
    * create a queue we can use for testing
-   * 
+   *
    * @throws Exception
    */
   @Before
@@ -166,7 +176,7 @@ public class SQSTestBase
     validateAssumption();
     // Create a queue
     CreateQueueRequest createQueueRequest = new CreateQueueRequest().withQueueName(getCurrentQueueName());
-    currentQueueUrl = sqs.createQueue(createQueueRequest).getQueueUrl(); 
+    currentQueueUrl = sqs.createQueue(createQueueRequest).getQueueUrl();
   }
 
   @After
