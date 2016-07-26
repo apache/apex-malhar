@@ -8,3 +8,4 @@ pages:
     - File Splitter: operators/file_splitter.md
     - Block Reader: operators/block_reader.md
     - File Output: operators/file_output.md
+    - Enricher: operators/enricher.md
