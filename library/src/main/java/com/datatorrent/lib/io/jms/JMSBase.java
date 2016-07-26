@@ -76,9 +76,7 @@ public class JMSBase
   private transient Session session;
   private transient Destination destination;
 
-  private ConnectionFactoryBuilder connectionFactoryBuilder;
-  private String connectionFactoryClass;
-  private Map<String, String> connectionFactoryProperties = Maps.newHashMap();
+  private ConnectionFactoryBuilder connectionFactoryBuilder = new DefaultConnectionFactoryBuilder();
   private String ackMode = "CLIENT_ACKNOWLEDGE";
   private String clientId;
   private String subject;
@@ -89,9 +87,39 @@ public class JMSBase
   private boolean verbose = false;
   protected boolean transacted = true;
 
-  public static interface ConnectionFactoryBuilder
+  public abstract static class ConnectionFactoryBuilder
   {
-    ConnectionFactory buildConnectionFactory();
+    protected Map<String, String> connectionFactoryProperties = Maps.newHashMap();
+
+    public Map<String, String> getConnectionFactoryProperties()
+    {
+      return connectionFactoryProperties;
+    }
+
+    public void setConnectionFactoryProperties(Map<String, String> connectionFactoryProperties)
+    {
+      this.connectionFactoryProperties = connectionFactoryProperties;
+    }
+
+    public abstract ConnectionFactory buildConnectionFactory();
+  }
+
+  public static class DefaultConnectionFactoryBuilder extends ConnectionFactoryBuilder
+  {
+
+    @Override
+    public ConnectionFactory buildConnectionFactory()
+    {
+      ConnectionFactory cf;
+      try {
+        cf = new org.apache.activemq.ActiveMQConnectionFactory();
+        BeanUtils.populate(cf, super.connectionFactoryProperties);
+        logger.debug("creation successful.");
+        return cf;
+      } catch (Exception e) {
+        throw new RuntimeException("Failed to create connection factory.", e);
+      }
+    }
   }
 
   /**
@@ -118,16 +146,6 @@ public class JMSBase
     return destination;
   }
 
-  public String getConnectionFactoryClass()
-  {
-    return connectionFactoryClass;
-  }
-
-  public void setConnectionFactoryClass(String connectionFactoryClass)
-  {
-    this.connectionFactoryClass = connectionFactoryClass;
-  }
-
   public void setConnectionFactoryBuilder(ConnectionFactoryBuilder connectionFactoryBuilder)
   {
     this.connectionFactoryBuilder = connectionFactoryBuilder;
@@ -140,12 +158,12 @@ public class JMSBase
    */
   public Map<String, String> getConnectionFactoryProperties()
   {
-    return connectionFactoryProperties;
+    return connectionFactoryBuilder.getConnectionFactoryProperties();
   }
 
   public void setConnectionFactoryProperties(Map<String, String> connectionFactoryProperties)
   {
-    this.connectionFactoryProperties = connectionFactoryProperties;
+    connectionFactoryBuilder.setConnectionFactoryProperties(connectionFactoryProperties);
   }
 
   /**
@@ -154,7 +172,7 @@ public class JMSBase
   @Deprecated
   public void setUser(String user)
   {
-    this.connectionFactoryProperties.put("userName", user);
+    this.getConnectionFactoryProperties().put("userName", user);
   }
 
   /**
@@ -163,7 +181,7 @@ public class JMSBase
   @Deprecated
   public void setPassword(String password)
   {
-    this.connectionFactoryProperties.put("password", password);
+    this.getConnectionFactoryProperties().put("password", password);
   }
 
   /**
@@ -172,7 +190,7 @@ public class JMSBase
   @Deprecated
   public void setUrl(String url)
   {
-    this.connectionFactoryProperties.put("brokerURL", url);
+    this.getConnectionFactoryProperties().put("brokerURL", url);
   }
 
   /**
@@ -366,25 +384,11 @@ public class JMSBase
    */
   protected ConnectionFactory getConnectionFactory()
   {
-    logger.debug("connectionFactoryBuilder {} connectionFactoryClass {} properties {}", "" + connectionFactoryBuilder,
-        connectionFactoryClass, connectionFactoryProperties);
-    ConnectionFactory cf;
-    try {
-      if (connectionFactoryBuilder != null) {
-        cf = connectionFactoryBuilder.buildConnectionFactory();
-      } else if (connectionFactoryClass != null) {
-        @SuppressWarnings("unchecked")
-        Class<ConnectionFactory> clazz = (Class<ConnectionFactory>)Class.forName(connectionFactoryClass);
-        cf = clazz.newInstance();
-      } else {
-        cf = new org.apache.activemq.ActiveMQConnectionFactory();
-      }
-      BeanUtils.populate(cf, connectionFactoryProperties);
-      logger.debug("creation successful.");
-      return cf;
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to create connection factory.", e);
-    }
+    logger.debug("connectionFactoryBuilder {} properties {}", "" + connectionFactoryBuilder,
+        getConnectionFactoryProperties());
+
+    return connectionFactoryBuilder.buildConnectionFactory();
+
   }
 
   /**
