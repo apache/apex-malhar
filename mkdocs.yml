@@ -3,6 +3,7 @@ site_favicon: favicon.ico
 theme: readthedocs
 pages:
 - Apache Apex Malhar: index.md
+- Development Best Practices: development_best_practices.md
 - Operators:
     - Kafka Input: operators/kafkaInputOperator.md
     - File Splitter: operators/file_splitter.md
