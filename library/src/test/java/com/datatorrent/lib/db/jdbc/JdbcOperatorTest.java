@@ -80,6 +80,7 @@ public class JdbcOperatorTest
     private Date startDate;
     private Time startTime;
     private Timestamp startTimestamp;
+    private double score;
 
     public TestPOJOEvent()
     {
@@ -140,7 +141,16 @@ public class JdbcOperatorTest
     {
       this.startTimestamp = startTimestamp;
     }
-
+  
+    public double getScore()
+    {
+      return score;
+    }
+  
+    public void setScore(double score)
+    {
+      this.score = score;
+    }
   }
 
   @BeforeClass
@@ -164,7 +174,7 @@ public class JdbcOperatorTest
       String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (ID INTEGER)";
       stmt.executeUpdate(createTable);
       String createPOJOTable = "CREATE TABLE IF NOT EXISTS " + TABLE_POJO_NAME
-          + "(id INTEGER not NULL,name VARCHAR(255),startDate DATE,startTime TIME,startTimestamp TIMESTAMP, PRIMARY KEY ( id ))";
+          + "(id INTEGER not NULL,name VARCHAR(255),startDate DATE,startTime TIME,startTimestamp TIMESTAMP, score DOUBLE, PRIMARY KEY ( id ))";
       stmt.executeUpdate(createPOJOTable);
       String createPOJOTableIdDiff = "CREATE TABLE IF NOT EXISTS " + TABLE_POJO_NAME_ID_DIFF
           + "(id1 INTEGER not NULL,name VARCHAR(255), PRIMARY KEY ( id1 ))";
@@ -698,6 +708,7 @@ public class JdbcOperatorTest
     fieldInfos.add(new FieldInfo("STARTDATE", "startDate", null));
     fieldInfos.add(new FieldInfo("STARTTIME", "startTime", null));
     fieldInfos.add(new FieldInfo("STARTTIMESTAMP", "startTimestamp", null));
+    fieldInfos.add(new FieldInfo("SCORE", "score", FieldInfo.SupportType.DOUBLE));
     inputOperator.setFieldInfos(fieldInfos);
 
     inputOperator.setFetchSize(5);
@@ -741,6 +752,7 @@ public class JdbcOperatorTest
       Assert.assertTrue("date", pojoEvent.getStartDate() instanceof Date);
       Assert.assertTrue("time", pojoEvent.getStartTime() instanceof Time);
       Assert.assertTrue("timestamp", pojoEvent.getStartTimestamp() instanceof Timestamp);
+      Assert.assertTrue("score", pojoEvent.getScore() == 55.4);
       i++;
     }
 
@@ -766,6 +778,7 @@ public class JdbcOperatorTest
       Assert.assertTrue("date", pojoEvent.getStartDate() instanceof Date);
       Assert.assertTrue("time", pojoEvent.getStartTime() instanceof Time);
       Assert.assertTrue("timestamp", pojoEvent.getStartTimestamp() instanceof Timestamp);
+      Assert.assertTrue("score", pojoEvent.getScore() == 55.4);
       i++;
     }
   }
@@ -779,7 +792,7 @@ public class JdbcOperatorTest
         stmt.executeUpdate(cleanTable);
       }
 
-      String insert = "insert into " + TABLE_POJO_NAME + " values (?,?,?,?,?)";
+      String insert = "insert into " + TABLE_POJO_NAME + " values (?,?,?,?,?,?)";
       PreparedStatement pStmt = con.prepareStatement(insert);
       con.prepareStatement(insert);
 
@@ -789,6 +802,7 @@ public class JdbcOperatorTest
         pStmt.setDate(3, new Date(2016, 1, 1));
         pStmt.setTime(4, new Time(2016, 1, 1));
         pStmt.setTimestamp(5, new Timestamp(2016, 1, 1, 0, 0, 0, 0));
+        pStmt.setDouble(6, new Double(55.4));
         pStmt.executeUpdate();
       }
     } catch (SQLException e) {
