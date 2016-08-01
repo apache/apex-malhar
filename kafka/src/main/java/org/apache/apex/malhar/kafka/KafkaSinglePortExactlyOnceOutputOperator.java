@@ -147,7 +147,7 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
   public void committed(long windowId)
   {
     try {
-      windowDataManager.deleteUpTo(operatorId, windowId);
+      windowDataManager.committed(windowId);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -176,7 +176,7 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
     getProducer().flush();
 
     try {
-      this.windowDataManager.save(getPartitionsAndOffsets(true), operatorId, windowId);
+      this.windowDataManager.save(getPartitionsAndOffsets(true), windowId);
     } catch (IOException | InterruptedException | ExecutionException e) {
       throw new RuntimeException(e);
     }
@@ -271,7 +271,7 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
     Map<Integer,Long> currentOffsets;
 
     try {
-      storedOffsets = (Map<Integer,Long>)this.windowDataManager.load(operatorId, windowId);
+      storedOffsets = (Map<Integer,Long>)this.windowDataManager.retrieve(windowId);
       currentOffsets = getPartitionsAndOffsets(true);
     } catch (IOException | ExecutionException | InterruptedException e) {
       throw new RuntimeException(e);

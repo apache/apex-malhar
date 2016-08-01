@@ -56,7 +56,7 @@ import com.datatorrent.netlet.util.Slice;
  * <p/>
  * Note:<br/>
  * The FileSystem Writer and Reader operations should not alternate because intermingling these operations will cause
- * problems. Typically the  WAL Reader will only used in recovery.<br/>
+ * problems. Typically the WAL Reader will only used in recovery or replay of finished windows.<br/>
  *
  * Also this implementation is thread unsafe- the filesystem wal writer and reader operations should be performed in
  * operator's thread.
@@ -73,7 +73,7 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
   @Min(0)
   private long maxLength;
 
-  private FileSystemWALPointer walStartPointer = new FileSystemWALPointer(0, 0);
+  FileSystemWALPointer walStartPointer = new FileSystemWALPointer(0, 0);
 
   @NotNull
   private FileSystemWAL.FileSystemWALReader fileSystemWALReader = new FileSystemWALReader(this);
@@ -81,21 +81,26 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
   @NotNull
   private FileSystemWAL.FileSystemWALWriter fileSystemWALWriter = new FileSystemWALWriter(this);
 
-  //part => tmp file path;
-  private final Map<Integer, String> tempPartFiles = new TreeMap<>();
+  //part => tmp file filePath;
+  final Map<Integer, String> tempPartFiles = new TreeMap<>();
 
   private long lastCheckpointedWindow = Stateless.WINDOW_ID;
+
+  private boolean hardLimitOnMaxLength;
+
+  private boolean inBatchMode;
+
+  transient FileContext fileContext;
 
   @Override
   public void setup()
   {
     try {
-      FileContext fileContext = FileContextUtils.getFileContext(filePath);
+      fileContext = FileContextUtils.getFileContext(filePath);
       if (maxLength == 0) {
         maxLength = fileContext.getDefaultFileSystem().getServerDefaults().getBlockSize();
       }
-      fileSystemWALWriter.open(fileContext);
-      fileSystemWALReader.open(fileContext);
+      fileSystemWALWriter.recover();
     } catch (IOException e) {
       throw new RuntimeException("during setup", e);
     }
@@ -227,6 +232,47 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
     this.maxLength = maxLength;
   }
 
+  /**
+   * @return true if there is a hard limit on max length; false otherwise.
+   */
+  public boolean isHardLimitOnMaxLength()
+  {
+    return hardLimitOnMaxLength;
+  }
+
+  /**
+   * When hard limit on max length is true, then a wal part file will never exceed the the max length.<br/>
+   * Entry is appended to the next part if adding it to the current part exceeds the max length.
+   * <p/>
+   * When hard limit on max length if false, then a wal part file can exceed the max length if the last entry makes the
+   * wal part exceeds the max length. By default this is set to false.
+   *
+   * @param hardLimitOnMaxLength
+   */
+  public void setHardLimitOnMaxLength(boolean hardLimitOnMaxLength)
+  {
+    this.hardLimitOnMaxLength = hardLimitOnMaxLength;
+  }
+
+  /**
+   * @return true if writing in batch mode; false otherwise.
+   */
+  public boolean isInBatchMode()
+  {
+    return inBatchMode;
+  }
+
+  /**
+   * When in batch mode, a file is rotated only when a batch gets completed. This facilitates writing multiple entries
+   * that will all be written to the same part file.
+   *
+   * @param inBatchMode write in batch mode or not.
+   */
+  public void setInBatchMode(boolean inBatchMode)
+  {
+    this.inBatchMode = inBatchMode;
+  }
+
   public static class FileSystemWALPointer implements Comparable<FileSystemWALPointer>
   {
     private final int partNum;
@@ -261,6 +307,11 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
       return offset;
     }
 
+    public FileSystemWALPointer getCopy()
+    {
+      return new FileSystemWALPointer(partNum, offset);
+    }
+
     @Override
     public String toString()
     {
@@ -273,16 +324,15 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
    */
   public static class FileSystemWALReader implements WAL.WALReader<FileSystemWALPointer>
   {
-    private FileSystemWALPointer currentPointer;
+    private transient FileSystemWALPointer currentPointer;
 
     private transient DataInputStream inputStream;
     private transient Path currentOpenPath;
     private transient boolean isOpenPathTmp;
 
     private final FileSystemWAL fileSystemWAL;
-    private transient FileContext fileContext;
 
-    private FileSystemWALReader()
+    protected FileSystemWALReader()
     {
       //for kryo
       fileSystemWAL = null;
@@ -291,16 +341,10 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
     public FileSystemWALReader(@NotNull FileSystemWAL fileSystemWal)
     {
       this.fileSystemWAL = Preconditions.checkNotNull(fileSystemWal, "wal");
-      currentPointer = new FileSystemWALPointer(fileSystemWal.walStartPointer.partNum,
-          fileSystemWal.walStartPointer.offset);
     }
 
-    protected void open(@NotNull FileContext fileContext) throws IOException
-    {
-      this.fileContext = Preconditions.checkNotNull(fileContext, "fileContext");
-    }
-
-    protected void close() throws IOException
+    @Override
+    public void close() throws IOException
     {
       if (inputStream != null) {
         inputStream.close();
@@ -350,9 +394,9 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
         isOpenPathTmp = false;
       }
 
-      LOG.debug("path to read {} and pointer {}", pathToReadFrom, walPointer);
-      if (fileContext.util().exists(pathToReadFrom)) {
-        DataInputStream stream = fileContext.open(pathToReadFrom);
+      LOG.debug("filePath to read {} and pointer {}", pathToReadFrom, walPointer);
+      if (fileSystemWAL.fileContext.util().exists(pathToReadFrom)) {
+        DataInputStream stream = fileSystemWAL.fileContext.open(pathToReadFrom);
         if (walPointer.offset > 0) {
           stream.skip(walPointer.offset);
         }
@@ -365,6 +409,20 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
     @Override
     public Slice next() throws IOException
     {
+      return readOrSkip(false);
+    }
+
+    @Override
+    public void skipNext() throws IOException
+    {
+      readOrSkip(true);
+    }
+
+    private Slice readOrSkip(boolean skip) throws IOException
+    {
+      if (currentPointer == null) {
+        currentPointer = fileSystemWAL.walStartPointer;
+      }
       do {
         if (inputStream == null) {
           inputStream = getInputStream(currentPointer);
@@ -376,19 +434,34 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
           inputStream = getInputStream(currentPointer);
         }
 
-        if (inputStream != null && currentPointer.offset < fileContext.getFileStatus(currentOpenPath).getLen()) {
+        if (inputStream != null && currentPointer.offset <
+            fileSystemWAL.fileContext.getFileStatus(currentOpenPath).getLen()) {
           int len = inputStream.readInt();
           Preconditions.checkState(len >= 0, "negative length");
 
-          byte[] data = new byte[len];
-          inputStream.readFully(data);
+          if (!skip) {
+            byte[] data = new byte[len];
+            inputStream.readFully(data);
+            currentPointer.offset += len + 4;
+            return new Slice(data);
 
-          currentPointer.offset += data.length + 4;
-          return new Slice(data);
+          } else {
+            long actualSkipped = inputStream.skip(len);
+            if (actualSkipped != len) {
+              throw new IOException("unable to skip " + len);
+            }
+            currentPointer.offset += len + 4;
+            return null;
+          }
         }
       } while (nextSegment());
       close();
       return null;
+    }
+
+    FileSystemWALPointer getCurrentPointer()
+    {
+      return currentPointer;
     }
 
     @Override
@@ -410,52 +483,52 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
     private final Map<Long, Integer> pendingFinalization = new TreeMap<>();
 
     private final FileSystemWAL fileSystemWAL;
-    private transient FileContext fileContext;
 
     private int latestFinalizedPart = -1;
     private int lowestDeletedPart = -1;
 
-    private FileSystemWALWriter()
+    protected FileSystemWALWriter()
     {
       //for kryo
       fileSystemWAL = null;
     }
 
-    public FileSystemWALWriter(@NotNull FileSystemWAL fileSystemWal)
+    protected FileSystemWALWriter(@NotNull FileSystemWAL fileSystemWal)
     {
       this.fileSystemWAL = Preconditions.checkNotNull(fileSystemWal, "wal");
     }
 
-    protected void open(@NotNull FileContext fileContext) throws IOException
+    protected void recover() throws IOException
     {
-      this.fileContext = Preconditions.checkNotNull(fileContext, "file context");
-      recover();
+      restoreActivePart();
+      deleteStrayTmpFiles();
     }
 
-    private void recover() throws IOException
+    void restoreActivePart() throws IOException
     {
-      LOG.debug("current point", currentPointer);
+      LOG.debug("restore part {}", currentPointer);
       String tmpFilePath = fileSystemWAL.tempPartFiles.get(currentPointer.getPartNum());
       if (tmpFilePath != null) {
 
-        Path tmpPath = new Path(tmpFilePath);
-        if (fileContext.util().exists(tmpPath)) {
-          LOG.debug("tmp path exists {}", tmpPath);
+        Path inputPath = new Path(tmpFilePath);
+        if (fileSystemWAL.fileContext.util().exists(inputPath)) {
+          LOG.debug("input path exists {}", inputPath);
 
+          //temp file output stream
           outputStream = getOutputStream(new FileSystemWALPointer(currentPointer.partNum, 0));
-          DataInputStream inputStreamOldTmp = fileContext.open(tmpPath);
+          DataInputStream inputStream = fileSystemWAL.fileContext.open(inputPath);
 
-          IOUtils.copyPartial(inputStreamOldTmp, currentPointer.offset, outputStream);
+          IOUtils.copyPartial(inputStream, currentPointer.offset, outputStream);
 
           outputStream.flush();
-          //remove old tmp
-          inputStreamOldTmp.close();
-          LOG.debug("delete tmp {}", tmpPath);
-          fileContext.delete(tmpPath, true);
+          inputStream.close();
         }
       }
+    }
 
-      //find all valid path names
+    void deleteStrayTmpFiles() throws IOException
+    {
+      //find all valid filePath names
       Set<String> validPathNames = new HashSet<>();
       for (Map.Entry<Integer, String> entry : fileSystemWAL.tempPartFiles.entrySet()) {
         if (entry.getKey() <= currentPointer.partNum) {
@@ -468,22 +541,22 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
       //which aren't accounted by tmp files map
       Path walPath = new Path(fileSystemWAL.filePath);
       Path parentWAL = walPath.getParent();
-      if (parentWAL != null && fileContext.util().exists(parentWAL)) {
-        RemoteIterator<FileStatus> remoteIterator = fileContext.listStatus(parentWAL);
+      if (parentWAL != null && fileSystemWAL.fileContext.util().exists(parentWAL)) {
+        RemoteIterator<FileStatus> remoteIterator = fileSystemWAL.fileContext.listStatus(parentWAL);
         while (remoteIterator.hasNext()) {
           FileStatus status = remoteIterator.next();
           String fileName = status.getPath().getName();
           if (fileName.startsWith(walPath.getName()) && fileName.endsWith(TMP_EXTENSION) &&
               !validPathNames.contains(fileName)) {
             LOG.debug("delete stray tmp {}", status.getPath());
-            fileContext.delete(status.getPath(), true);
+            fileSystemWAL.fileContext.delete(status.getPath(), true);
           }
         }
       }
-
     }
 
-    protected void close() throws IOException
+    @Override
+    public void close() throws IOException
     {
       if (outputStream != null) {
         outputStream.close();
@@ -499,23 +572,27 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
         outputStream = getOutputStream(currentPointer);
       }
 
-      int entryLength = entry.length + 4;
+      int entrySize = entry.length + 4;
+
+      if (fileSystemWAL.hardLimitOnMaxLength) {
+        Preconditions.checkArgument(entrySize > fileSystemWAL.maxLength, "entry too big. increase the max length");
+      }
 
       // rotate if needed
-      if (shouldRotate(entryLength)) {
+      if (fileSystemWAL.hardLimitOnMaxLength && shouldRotate(entrySize) && !fileSystemWAL.inBatchMode) {
         rotate(true);
       }
 
       outputStream.writeInt(entry.length);
       outputStream.write(entry.buffer, entry.offset, entry.length);
-      currentPointer.offset += entryLength;
+      currentPointer.offset += entrySize;
 
-      if (currentPointer.offset == fileSystemWAL.maxLength) {
+      if (currentPointer.offset >= fileSystemWAL.maxLength && !fileSystemWAL.inBatchMode) {
         //if the file is completed then we can rotate it. do not have to wait for next entry
         rotate(false);
       }
 
-      return entryLength;
+      return entrySize;
     }
 
     @Override
@@ -543,9 +620,9 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
         if (i <= latestFinalizedPart) {
           //delete a part only if it is finalized.
           Path partPath = new Path(fileSystemWAL.getPartFilePath(i));
-          if (fileContext.util().exists(partPath)) {
+          if (fileSystemWAL.fileContext.util().exists(partPath)) {
             LOG.debug("delete {}", partPath);
-            fileContext.delete(partPath, true);
+            fileSystemWAL.fileContext.delete(partPath, true);
             lastPartDeleted = i;
           } else {
             break;
@@ -560,18 +637,18 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
       if (pointer.partNum <= latestFinalizedPart && pointer.offset > 0) {
         String part = fileSystemWAL.getPartFilePath(pointer.partNum);
         Path inputPartPath = new Path(part);
-        long length = fileContext.getFileStatus(inputPartPath).getLen();
+        long length = fileSystemWAL.fileContext.getFileStatus(inputPartPath).getLen();
 
         LOG.debug("truncate {} from {} length {}", part, pointer.offset, length);
 
         if (length > pointer.offset) {
 
-          String temp = getTmpFilePath(part);
+          String temp = createTmpFilePath(part);
           Path tmpPart = new Path(temp);
 
-          DataInputStream inputStream = fileContext.open(inputPartPath);
-          DataOutputStream outputStream = fileContext.create(tmpPart, EnumSet.of(CreateFlag.CREATE, CreateFlag.APPEND),
-              Options.CreateOpts.CreateParent.createParent());
+          DataInputStream inputStream = fileSystemWAL.fileContext.open(inputPartPath);
+          DataOutputStream outputStream = fileSystemWAL.fileContext.create(tmpPart,
+              EnumSet.of(CreateFlag.CREATE, CreateFlag.OVERWRITE), Options.CreateOpts.CreateParent.createParent());
 
           IOUtils.copyPartial(inputStream, pointer.offset, length - pointer.offset, outputStream);
           inputStream.close();
@@ -582,7 +659,7 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
             fileSystemWAL.walStartPointer.offset = 0;
           }
 
-          fileContext.rename(tmpPart, inputPartPath, Options.Rename.OVERWRITE);
+          fileSystemWAL.fileContext.rename(tmpPart, inputPartPath, Options.Rename.OVERWRITE);
         }
       }
     }
@@ -590,8 +667,8 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
     protected void flush() throws IOException
     {
       if (outputStream != null) {
-        if (fileContext.getDefaultFileSystem() instanceof LocalFs ||
-            fileContext.getDefaultFileSystem() instanceof RawLocalFs) {
+        if (fileSystemWAL.fileContext.getDefaultFileSystem() instanceof LocalFs ||
+            fileSystemWAL.fileContext.getDefaultFileSystem() instanceof RawLocalFs) {
           //until the stream is closed on the local FS, readers don't see any data.
           close();
         } else {
@@ -607,19 +684,34 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
       return currentPointer.offset + entryLength > fileSystemWAL.maxLength;
     }
 
-    protected void rotate(boolean openNextFile) throws IOException
+    void rotate(boolean openNextFile) throws IOException
     {
       flush();
       close();
-      //all parts up to current part can be finalized.
-      pendingFinalization.put(fileSystemWAL.getLastCheckpointedWindow(), currentPointer.partNum);
 
-      LOG.debug("rotate {} to {}", currentPointer.partNum, currentPointer.partNum + 1);
+      int partNum = currentPointer.partNum;
+      LOG.debug("rotate {} to {}", partNum, currentPointer.partNum + 1);
       currentPointer = new FileSystemWALPointer(currentPointer.partNum + 1, 0);
       if (openNextFile) {
         //if adding the new entry to the file can cause the current file to exceed the max length then it is rotated.
         outputStream = getOutputStream(currentPointer);
       }
+
+      rotated(partNum);
+    }
+
+    public void batchCompleted() throws IOException
+    {
+      if (fileSystemWAL.inBatchMode && currentPointer.offset >= fileSystemWAL.maxLength) {
+        //if the file is completed then we can rotate it
+        rotate(false);
+      }
+    }
+
+    protected void rotated(int partNum) throws IOException
+    {
+      //all parts up to current part can be finalized.
+      pendingFinalization.put(fileSystemWAL.getLastCheckpointedWindow(), partNum);
     }
 
     protected void finalizeFiles(long window) throws IOException
@@ -640,14 +732,7 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
 
           int partToFinalizeTill = entry.getValue();
           for (int i = largestPartAvailable; i <= partToFinalizeTill; i++) {
-            String tmpToFinalize = fileSystemWAL.tempPartFiles.remove(i);
-            Path tmpPath = new Path(tmpToFinalize);
-
-            if (fileContext.util().exists(tmpPath)) {
-              LOG.debug("finalize {} of part {}", tmpToFinalize, i);
-              fileContext.rename(tmpPath, new Path(fileSystemWAL.getPartFilePath(i)), Options.Rename.OVERWRITE);
-              latestFinalizedPart = i;
-            }
+            finalize(i);
           }
           largestPartAvailable = partToFinalizeTill + 1;
         }
@@ -659,37 +744,60 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
       }
     }
 
+    protected void finalize(int partNum) throws IOException
+    {
+      String tmpToFinalize = fileSystemWAL.tempPartFiles.remove(partNum);
+      Path tmpPath = new Path(tmpToFinalize);
+      if (fileSystemWAL.fileContext.util().exists(tmpPath)) {
+        LOG.debug("finalize {} of part {}", tmpPath, partNum);
+        fileSystemWAL.fileContext.rename(tmpPath, new Path(fileSystemWAL.getPartFilePath(partNum)),
+            Options.Rename.OVERWRITE);
+        latestFinalizedPart = partNum;
+      }
+    }
+
     private DataOutputStream getOutputStream(FileSystemWALPointer pointer) throws IOException
     {
       Preconditions.checkArgument(outputStream == null, "output stream is not null");
 
-      if (pointer.offset > 0 && (fileContext.getDefaultFileSystem() instanceof LocalFs ||
-          fileContext.getDefaultFileSystem() instanceof RawLocalFs)) {
-        //on local file system the stream is closed instead of flush so we open it again in append mode if the
-        //offset > 0.
-        return fileContext.create(new Path(fileSystemWAL.tempPartFiles.get(pointer.partNum)),
+      if (pointer.offset > 0 && (fileSystemWAL.fileContext.getDefaultFileSystem() instanceof LocalFs ||
+          fileSystemWAL.fileContext.getDefaultFileSystem() instanceof RawLocalFs)) {
+        //On local file system the stream is always closed and never flushed so we open it again in append mode if the
+        //offset > 0. This block is entered only when appending to wal while writing on local fs.
+        return fileSystemWAL.fileContext.create(new Path(fileSystemWAL.tempPartFiles.get(pointer.partNum)),
             EnumSet.of(CreateFlag.CREATE, CreateFlag.APPEND), Options.CreateOpts.CreateParent.createParent());
       }
 
       String partFile = fileSystemWAL.getPartFilePath(pointer.partNum);
-      String tmpFilePath = getTmpFilePath(partFile);
+      String tmpFilePath = createTmpFilePath(partFile);
       fileSystemWAL.tempPartFiles.put(pointer.partNum, tmpFilePath);
 
       Preconditions.checkArgument(pointer.offset == 0, "offset > 0");
       LOG.debug("open {} => {}", pointer.partNum, tmpFilePath);
-      outputStream = fileContext.create(new Path(tmpFilePath),
+      outputStream = fileSystemWAL.fileContext.create(new Path(tmpFilePath),
           EnumSet.of(CreateFlag.CREATE, CreateFlag.OVERWRITE), Options.CreateOpts.CreateParent.createParent());
       return outputStream;
     }
 
+    //visible to WindowDataManager
+    FileSystemWALPointer getCurrentPointer()
+    {
+      return currentPointer;
+    }
+
+    //visible to WindowDataManager
+    void setCurrentPointer(@NotNull FileSystemWALPointer pointer)
+    {
+      this.currentPointer = Preconditions.checkNotNull(pointer, "pointer");
+    }
   }
 
-  private static String getTmpFilePath(String filePath)
+  private static String createTmpFilePath(String filePath)
   {
     return filePath + '.' + System.currentTimeMillis() + TMP_EXTENSION;
   }
 
-  private static final String TMP_EXTENSION = ".tmp";
+  static final String TMP_EXTENSION = ".tmp";
 
   private static final Logger LOG = LoggerFactory.getLogger(FileSystemWAL.class);
 }

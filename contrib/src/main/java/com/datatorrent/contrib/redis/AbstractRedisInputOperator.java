@@ -107,11 +107,11 @@ public abstract class AbstractRedisInputOperator<T> extends AbstractKeyValueStor
       if (!skipOffsetRecovery) {
         // Begin offset for this window is recovery offset stored for the last
         // window
-        RecoveryState recoveryStateForLastWindow = (RecoveryState) getWindowDataManager().load(context.getId(), windowId - 1);
+        RecoveryState recoveryStateForLastWindow = (RecoveryState) getWindowDataManager().retrieve(windowId - 1);
         recoveryState.scanOffsetAtBeginWindow = recoveryStateForLastWindow.scanOffsetAtBeginWindow;
       }
       skipOffsetRecovery = false;
-      RecoveryState recoveryStateForCurrentWindow = (RecoveryState) getWindowDataManager().load(context.getId(), windowId);
+      RecoveryState recoveryStateForCurrentWindow = (RecoveryState) getWindowDataManager().retrieve(windowId);
       recoveryState.numberOfScanCallsInWindow = recoveryStateForCurrentWindow.numberOfScanCallsInWindow;
       if (recoveryState.scanOffsetAtBeginWindow != null) {
         scanOffset = recoveryState.scanOffsetAtBeginWindow;
@@ -185,7 +185,7 @@ public abstract class AbstractRedisInputOperator<T> extends AbstractKeyValueStor
 
     if (currentWindowId > getWindowDataManager().getLargestRecoveryWindow()) {
       try {
-        getWindowDataManager().save(recoveryState, context.getId(), currentWindowId);
+        getWindowDataManager().save(recoveryState, currentWindowId);
       } catch (IOException e) {
         DTThrowable.rethrow(e);
       }
@@ -233,7 +233,7 @@ public abstract class AbstractRedisInputOperator<T> extends AbstractKeyValueStor
   public void committed(long windowId)
   {
     try {
-      getWindowDataManager().deleteUpTo(context.getId(), windowId);
+      getWindowDataManager().committed(windowId);
     } catch (IOException e) {
       throw new RuntimeException("committing", e);
     }

@@ -79,6 +79,7 @@ public class IncrementalCheckpointManager extends FSWindowDataManager
   {
     super();
     setRecoveryPath(WAL_RELATIVE_PATH);
+    setRelyOnCheckpoints(true);
   }
 
   @Override
@@ -132,7 +133,7 @@ public class IncrementalCheckpointManager extends FSWindowDataManager
             managedStateContext.getBucketsFileSystem().writeBucketData(windowId, singleBucket.getKey(),
                 singleBucket.getValue());
           }
-          storageAgent.delete(managedStateContext.getOperatorContext().getId(), windowId);
+          committed(windowId);
         } catch (Throwable t) {
           throwable.set(t);
           LOG.debug("transfer window {}", windowId, t);
@@ -150,7 +151,7 @@ public class IncrementalCheckpointManager extends FSWindowDataManager
   }
 
   @Override
-  public void save(Object object, int operatorId, long windowId) throws IOException
+  public void save(Object object, long windowId) throws IOException
   {
     throw new UnsupportedOperationException("doesn't support saving any object");
   }
@@ -159,15 +160,13 @@ public class IncrementalCheckpointManager extends FSWindowDataManager
    * The unsaved state combines data received in multiple windows. This window data manager persists this data
    * on disk by the window id in which it was requested.
    * @param unsavedData   un-saved data of all buckets.
-   * @param operatorId    operator id.
    * @param windowId      window id.
    * @param skipWriteToWindowFile flag that enables/disables saving the window file.
    *
    * @throws IOException
    */
-  public void save(Map<Long, Map<Slice, Bucket.BucketedValue>> unsavedData, int operatorId, long windowId,
-      boolean skipWriteToWindowFile)
-      throws IOException
+  public void save(Map<Long, Map<Slice, Bucket.BucketedValue>> unsavedData, long windowId,
+      boolean skipWriteToWindowFile) throws IOException
   {
     Throwable lthrowable;
     if ((lthrowable = throwable.get()) != null) {
@@ -177,7 +176,7 @@ public class IncrementalCheckpointManager extends FSWindowDataManager
     savedWindows.put(windowId, unsavedData);
 
     if (!skipWriteToWindowFile) {
-      super.save(unsavedData, operatorId, windowId);
+      super.save(unsavedData, windowId);
     }
   }
 

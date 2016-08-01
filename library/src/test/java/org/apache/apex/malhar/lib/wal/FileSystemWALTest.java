@@ -206,7 +206,6 @@ public class FileSystemWALTest
     testMeta.fsWAL.teardown();
   }
 
-
   @Test
   public void testFinalizeAfterDelay() throws IOException
   {
@@ -452,8 +451,7 @@ public class FileSystemWALTest
     Assert.assertEquals("num tuples", expectedTuples, tuples);
   }
 
-  private static void write1KRecords(FileSystemWAL.FileSystemWALWriter writer, int numRecords)
-      throws IOException
+  private static void write1KRecords(FileSystemWAL.FileSystemWALWriter writer, int numRecords) throws IOException
   {
     for (int i = 0; i < numRecords; i++) {
       writer.append(getRandomSlice(1020));

@@ -132,7 +132,7 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
       return;
     }
     try {
-      windowDataManager.save("processedWindow", operatorContextId, currentWindowId);
+      windowDataManager.save("processedWindow", currentWindowId);
     } catch (IOException e) {
       DTThrowable.rethrow(e);
     }

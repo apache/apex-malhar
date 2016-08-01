@@ -20,9 +20,8 @@ package org.apache.apex.malhar.lib.wal;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 
 import org.junit.Assert;
 import org.junit.Rule;
@@ -30,13 +29,6 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -44,6 +36,7 @@ import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.annotation.Stateless;
+import com.datatorrent.common.util.Pair;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.util.TestUtils;
 
@@ -56,20 +49,17 @@ public class FSWindowDataManagerTest
   {
 
     String applicationPath;
-    FSWindowDataManager storageManager;
-    Context.OperatorContext context;
+    Attribute.AttributeMap.DefaultAttributeMap attributes;
 
     @Override
     protected void starting(Description description)
     {
       TestUtils.deleteTargetTestClassFolder(description);
       super.starting(description);
-      storageManager = new FSWindowDataManager();
       applicationPath = "target/" + description.getClassName() + "/" + description.getMethodName();
 
-      Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
+      attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(DAG.APPLICATION_PATH, applicationPath);
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
     }
 
     @Override
@@ -85,31 +75,39 @@ public class FSWindowDataManagerTest
   @Test
   public void testLargestRecoveryWindow()
   {
-    testMeta.storageManager.setup(testMeta.context);
-    Assert.assertEquals("largest recovery", Stateless.WINDOW_ID, testMeta.storageManager.getLargestRecoveryWindow());
-    testMeta.storageManager.teardown();
+    Pair<Context.OperatorContext, FSWindowDataManager> pair = createManagerAndContextFor(1);
+    pair.second.setup(pair.first);
+    Assert.assertEquals("largest recovery", Stateless.WINDOW_ID, pair.second.getLargestRecoveryWindow());
+    pair.second.teardown();
   }
 
   @Test
   public void testSave() throws IOException
   {
-    testMeta.storageManager.setup(testMeta.context);
+    Pair<Context.OperatorContext, FSWindowDataManager> pair = createManagerAndContextFor(1);
+    pair.second.setup(pair.first);
     Map<Integer, String> data = Maps.newHashMap();
     data.put(1, "one");
     data.put(2, "two");
     data.put(3, "three");
-    testMeta.storageManager.save(data, 1, 1);
-    testMeta.storageManager.setup(testMeta.context);
+    pair.second.save(data, 1);
+
+    pair.second.setup(pair.first);
     @SuppressWarnings("unchecked")
-    Map<Integer, String> decoded = (Map<Integer, String>)testMeta.storageManager.load(1, 1);
-    Assert.assertEquals("dataOf1", data, decoded);
-    testMeta.storageManager.teardown();
+    Map<Integer, String> artifact = (Map<Integer, String>)pair.second.retrieve(1);
+    Assert.assertEquals("dataOf1", data, artifact);
+    pair.second.teardown();
   }
 
   @Test
-  public void testLoad() throws IOException
+  public void testRetrieve() throws IOException
   {
-    testMeta.storageManager.setup(testMeta.context);
+    Pair<Context.OperatorContext, FSWindowDataManager> pair1 = createManagerAndContextFor(1);
+    Pair<Context.OperatorContext, FSWindowDataManager> pair2 = createManagerAndContextFor(2);
+
+    pair1.second.setup(pair1.first);
+    pair2.second.setup(pair2.first);
+
     Map<Integer, String> dataOf1 = Maps.newHashMap();
     dataOf1.put(1, "one");
     dataOf1.put(2, "two");
@@ -120,25 +118,67 @@ public class FSWindowDataManagerTest
     dataOf2.put(5, "five");
     dataOf2.put(6, "six");
 
-    testMeta.storageManager.save(dataOf1, 1, 1);
-    testMeta.storageManager.save(dataOf2, 2, 1);
-    testMeta.storageManager.setup(testMeta.context);
-    Map<Integer, Object> decodedStates = testMeta.storageManager.load(1);
-    Assert.assertEquals("no of states", 2, decodedStates.size());
-    for (Integer operatorId : decodedStates.keySet()) {
-      if (operatorId == 1) {
-        Assert.assertEquals("data of 1", dataOf1, decodedStates.get(1));
-      } else {
-        Assert.assertEquals("data of 2", dataOf2, decodedStates.get(2));
-      }
-    }
-    testMeta.storageManager.teardown();
+    pair1.second.save(dataOf1, 1);
+    pair2.second.save(dataOf2, 1);
+
+    pair1.second.setup(pair1.first);
+    Object artifact1 = pair1.second.retrieve(1);
+    Assert.assertEquals("data of 1", dataOf1, artifact1);
+
+    pair2.second.setup(pair2.first);
+    Object artifact2 = pair2.second.retrieve(1);
+    Assert.assertEquals("data of 2", dataOf2, artifact2);
+
+    pair1.second.teardown();
+    pair2.second.teardown();
+  }
+
+  @Test
+  public void testRetrieveAllPartitions() throws IOException
+  {
+    Pair<Context.OperatorContext, FSWindowDataManager> pair1 = createManagerAndContextFor(1);
+    Pair<Context.OperatorContext, FSWindowDataManager> pair2 = createManagerAndContextFor(2);
+
+    pair1.second.setup(pair1.first);
+    pair2.second.setup(pair2.first);
+
+    Map<Integer, String> dataOf1 = Maps.newHashMap();
+    dataOf1.put(1, "one");
+    dataOf1.put(2, "two");
+    dataOf1.put(3, "three");
+
+    Map<Integer, String> dataOf2 = Maps.newHashMap();
+    dataOf2.put(4, "four");
+    dataOf2.put(5, "five");
+    dataOf2.put(6, "six");
+
+    pair1.second.save(dataOf1, 1);
+    pair2.second.save(dataOf2, 1);
+
+    pair1.second.teardown();
+    pair2.second.teardown();
+
+    List<WindowDataManager> managers = pair1.second.partition(3, null);
+
+    managers.get(0).setup(pair1.first);
+    Map<Integer, Object> artifacts = managers.get(0).retrieveAllPartitions(1);
+    Assert.assertEquals("num artifacts", 2, artifacts.size());
+
+    Assert.assertEquals("artifact 1", dataOf1, artifacts.get(1));
+    Assert.assertEquals("artifact 2", dataOf2, artifacts.get(2));
+
+    managers.get(0).teardown();
   }
 
   @Test
   public void testRecovery() throws IOException
   {
-    testMeta.storageManager.setup(testMeta.context);
+    Pair<Context.OperatorContext, FSWindowDataManager> pair1 = createManagerAndContextFor(1);
+    Pair<Context.OperatorContext, FSWindowDataManager> pair2 = createManagerAndContextFor(2);
+
+    pair1.second.setup(pair1.first);
+    pair2.second.setup(pair2.first);
+
     Map<Integer, String> dataOf1 = Maps.newHashMap();
     dataOf1.put(1, "one");
     dataOf1.put(2, "two");
@@ -149,37 +189,36 @@ public class FSWindowDataManagerTest
     dataOf2.put(5, "five");
     dataOf2.put(6, "six");
 
-    testMeta.storageManager.save(dataOf1, 1, 1);
-    testMeta.storageManager.save(dataOf2, 2, 2);
+    pair1.second.save(dataOf1, 1);
+    pair2.second.save(dataOf2, 2);
 
-    testMeta.storageManager.setup(testMeta.context);
-    Assert.assertEquals("largest recovery window", 2, testMeta.storageManager.getLargestRecoveryWindow());
-    testMeta.storageManager.teardown();
-  }
+    pair1.second.setup(pair1.first);
+    Assert.assertEquals("largest recovery window", 1, pair1.second.getLargestRecoveryWindow());
 
-  @Test
-  public void testGetWindowIds() throws IOException
-  {
-    testMeta.storageManager.setup(testMeta.context);
-    Map<Integer, String> data = Maps.newHashMap();
-    data.put(1, "one");
-    data.put(2, "two");
-    data.put(3, "three");
+    pair2.second.setup(pair2.first);
+    Assert.assertEquals("largest recovery window", 2, pair2.second.getLargestRecoveryWindow());
 
-    testMeta.storageManager.save(data, 1, 1);
-    testMeta.storageManager.save(data, 2, 2);
+    pair1.second.teardown();
+    pair2.second.teardown();
 
-    testMeta.storageManager.setup(testMeta.context);
-
-    Assert.assertArrayEquals(new long[] {1, 2}, testMeta.storageManager.getWindowIds());
-
-    testMeta.storageManager.teardown();
+    WindowDataManager manager = pair1.second.partition(1, Sets.newHashSet(2)).get(0);
+    manager.setup(pair1.first);
+    Assert.assertEquals("largest recovery window", 1, manager.getLargestRecoveryWindow());
+    manager.teardown();
   }
 
   @Test
   public void testDelete() throws IOException
   {
-    testMeta.storageManager.setup(testMeta.context);
+    Pair<Context.OperatorContext, FSWindowDataManager> pair1 = createManagerAndContextFor(1);
+    pair1.second.setup(pair1.first);
+
+    Pair<Context.OperatorContext, FSWindowDataManager> pair2 = createManagerAndContextFor(2);
+    pair2.second.setup(pair2.first);
+
+    Pair<Context.OperatorContext, FSWindowDataManager> pair3 = createManagerAndContextFor(3);
+    pair3.second.setup(pair3.first);
+
     Map<Integer, String> dataOf1 = Maps.newHashMap();
     dataOf1.put(1, "one");
     dataOf1.put(2, "two");
@@ -196,41 +235,65 @@ public class FSWindowDataManagerTest
     dataOf2.put(9, "nine");
 
     for (int i = 1; i <= 9; ++i) {
-      testMeta.storageManager.save(dataOf1, 1, i);
+      pair1.second.save(dataOf1, i);
     }
 
-    testMeta.storageManager.save(dataOf2, 2, 1);
-    testMeta.storageManager.save(dataOf3, 3, 1);
-
-    testMeta.storageManager.partitioned(Lists.<WindowDataManager>newArrayList(testMeta.storageManager),
-        Sets.newHashSet(2, 3));
-    testMeta.storageManager.setup(testMeta.context);
-    testMeta.storageManager.deleteUpTo(1, 6);
-
-    Path appPath = new Path(testMeta.applicationPath + '/' + testMeta.storageManager.getRecoveryPath());
-    FileSystem fs = FileSystem.newInstance(appPath.toUri(), new Configuration());
-    FileStatus[] fileStatuses = fs.listStatus(new Path(appPath, Integer.toString(1)));
-    Assert.assertEquals("number of windows for 1", 3, fileStatuses.length);
-    TreeSet<String> windows = Sets.newTreeSet();
-    for (FileStatus fileStatus : fileStatuses) {
-      windows.add(fileStatus.getPath().getName());
+    for (int i = 1; i <= 6; ++i) {
+      pair2.second.save(dataOf2, i);
     }
-    Assert.assertEquals("window list for 1", Sets.newTreeSet(Arrays.asList("7", "8", "9")), windows);
-    Assert.assertEquals("no data for 2", false, fs.exists(new Path(appPath, Integer.toString(2))));
-    Assert.assertEquals("no data for 3", false, fs.exists(new Path(appPath, Integer.toString(3))));
-    testMeta.storageManager.teardown();
+
+    for (int i = 1; i <= 3; ++i) {
+      pair3.second.save(dataOf3, i);
+    }
+
+    pair1.second.teardown();
+    pair2.second.teardown();
+    pair3.second.teardown();
+
+    FSWindowDataManager fsManager = (FSWindowDataManager)pair1.second.partition(1, Sets.newHashSet(2, 3)).get(0);
+    fsManager.setup(pair1.first);
+
+    Assert.assertEquals("recovery window", 3, fsManager.getLargestRecoveryWindow());
+
+    Map<Integer, Object> artifacts = fsManager.retrieveAllPartitions(1);
+    Assert.assertEquals("num artifacts", 3, artifacts.size());
+
+    fsManager.committed(3);
+    fsManager.teardown();
+
+    testMeta.attributes.put(Context.OperatorContext.ACTIVATION_WINDOW_ID, 3L);
+    fsManager.setup(pair1.first);
+    Assert.assertEquals("recovery window", Stateless.WINDOW_ID, fsManager.getLargestRecoveryWindow());
+    fsManager.teardown();
   }
 
   @Test
   public void testAbsoluteRecoveryPath() throws IOException
   {
-    testMeta.storageManager.setRecoveryPathRelativeToAppPath(false);
+    Pair<Context.OperatorContext, FSWindowDataManager> pair = createManagerAndContextFor(1);
+    pair.second.setRecoveryPathRelativeToAppPath(false);
     long time = System.currentTimeMillis();
-    testMeta.storageManager.setRecoveryPath("target/" + time);
-    testSave();
+    pair.second.setRecoveryPath("target/" + time);
+
+    pair.second.setup(pair.first);
+    Map<Integer, String> data = Maps.newHashMap();
+    data.put(1, "one");
+    data.put(2, "two");
+    data.put(3, "three");
+    pair.second.save(data, 1);
+
     File recoveryDir = new File("target/" + time);
-    Assert.assertTrue("recover path exist", recoveryDir.isDirectory());
-    FileUtils.deleteDirectory(recoveryDir);
+    Assert.assertTrue("recover filePath exist", recoveryDir.isDirectory());
+    pair.second.teardown();
+  }
+
+  private Pair<Context.OperatorContext, FSWindowDataManager> createManagerAndContextFor(int operatorId)
+  {
+    FSWindowDataManager dataManager = new FSWindowDataManager();
+    Context.OperatorContext context =  new OperatorContextTestHelper.TestIdOperatorContext(operatorId,
+        testMeta.attributes);
+
+    return new Pair<>(context, dataManager);
   }
 
 }

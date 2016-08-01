@@ -242,7 +242,7 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     WindowDataManager windowDataManager = new FSWindowDataManager();
     windowDataManager.setup(operatorContext);
     try {
-      windowDataManager.deleteUpTo(operatorContext.getId(),windowDataManager.getLargestRecoveryWindow());
+      windowDataManager.committed(windowDataManager.getLargestRecoveryWindow());
     } catch (IOException e) {
       e.printStackTrace();
     }

@@ -44,7 +44,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import com.esotericsoftware.kryo.Kryo;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -817,12 +816,12 @@ public class AbstractFileInputOperatorTest
   }
 
   @Test
-  public void testIdempotentStorageManagerPartitioning() throws Exception
+  public void testWindowDataManagerPartitioning() throws Exception
   {
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
     oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
-    oper.setWindowDataManager(new TestStorageManager());
+    oper.setWindowDataManager(new FSWindowDataManager());
     oper.operatorId = 7;
 
     Path path = new Path(new File(testMeta.dir).getAbsolutePath());
@@ -838,15 +837,15 @@ public class AbstractFileInputOperatorTest
     Assert.assertEquals(2, newPartitions.size());
     Assert.assertEquals(1, oper.getCurrentPartitions());
 
-    List<TestStorageManager> storageManagers = Lists.newLinkedList();
+    List<FSWindowDataManager> storageManagers = Lists.newLinkedList();
     for (Partition<AbstractFileInputOperator<String>> p : newPartitions) {
-      storageManagers.add((TestStorageManager)p.getPartitionedInstance().getWindowDataManager());
+      storageManagers.add((FSWindowDataManager)p.getPartitionedInstance().getWindowDataManager());
     }
     Assert.assertEquals("count of storage managers", 2, storageManagers.size());
 
     int countOfDeleteManagers = 0;
-    TestStorageManager deleteManager = null;
-    for (TestStorageManager storageManager : storageManagers) {
+    FSWindowDataManager deleteManager = null;
+    for (FSWindowDataManager storageManager : storageManagers) {
       if (storageManager.getDeletedOperators() != null) {
         countOfDeleteManagers++;
         deleteManager = storageManager;
@@ -856,17 +855,6 @@ public class AbstractFileInputOperatorTest
     Assert.assertEquals("count of delete managers", 1, countOfDeleteManagers);
     Assert.assertNotNull("deleted operators manager", deleteManager);
     Assert.assertEquals("deleted operators", Sets.newHashSet(7), deleteManager.getDeletedOperators());
-  }
-
-  private static class TestStorageManager extends FSWindowDataManager
-  {
-    Set<Integer> getDeletedOperators()
-    {
-      if (deletedOperators != null) {
-        return ImmutableSet.copyOf(deletedOperators);
-      }
-      return null;
-    }
   }
 
   /** scanner to extract partition id from start of the filename */

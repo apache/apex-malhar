@@ -34,6 +34,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.nifi.remote.protocol.DataPacket;
 import org.apache.nifi.stream.io.ByteArrayInputStream;
 import org.apache.nifi.util.file.FileUtils;
@@ -45,7 +46,6 @@ import com.datatorrent.contrib.nifi.mock.MockDataPacket;
 import com.datatorrent.contrib.nifi.mock.MockSiteToSiteClient;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
-import org.apache.apex.malhar.lib.wal.WindowDataManager;
 
 public class NiFiSinglePortInputOperatorTest
 {
@@ -115,7 +115,7 @@ public class NiFiSinglePortInputOperatorTest
     windowDataManager.setup(context);
 
     // verify that all the data packets were saved for window #1
-    List<StandardNiFiDataPacket> windowData = (List<StandardNiFiDataPacket>) windowDataManager.load(context.getId(), 1);
+    List<StandardNiFiDataPacket> windowData = (List<StandardNiFiDataPacket>)windowDataManager.retrieve(1);
     Assert.assertNotNull("Should have recovered data", windowData);
     Assert.assertEquals("Size of recovered data should equal size of mock data packets",
         dataPackets.size(), windowData.size());

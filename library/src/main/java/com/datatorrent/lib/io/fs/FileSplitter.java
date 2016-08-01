@@ -184,7 +184,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
   {
     try {
       @SuppressWarnings("unchecked")
-      LinkedList<FileInfo> recoveredData = (LinkedList<FileInfo>)windowDataManager.load(operatorId, windowId);
+      LinkedList<FileInfo> recoveredData = (LinkedList<FileInfo>)windowDataManager.retrieve(windowId);
       if (recoveredData == null) {
         //This could happen when there are multiple physical instances and one of them is ahead in processing windows.
         return;
@@ -261,7 +261,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
   {
     if (currentWindowId > windowDataManager.getLargestRecoveryWindow()) {
       try {
-        windowDataManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
+        windowDataManager.save(currentWindowRecoveryState, currentWindowId);
       } catch (IOException e) {
         throw new RuntimeException("saving recovery", e);
       }
@@ -388,7 +388,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
   public void committed(long l)
   {
     try {
-      windowDataManager.deleteUpTo(operatorId, l);
+      windowDataManager.committed(l);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
