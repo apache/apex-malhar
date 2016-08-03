@@ -25,6 +25,7 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Session;
+import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,8 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.beanutils.BeanUtils;
 
 import com.google.common.collect.Maps;
+
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * Base class for any JMS input or output adapter operator.
@@ -76,6 +79,7 @@ public class JMSBase
   private transient Session session;
   private transient Destination destination;
 
+  @NotNull
   private ConnectionFactoryBuilder connectionFactoryBuilder = new DefaultConnectionFactoryBuilder();
   private String ackMode = "CLIENT_ACKNOWLEDGE";
   private String clientId;
@@ -87,7 +91,12 @@ public class JMSBase
   private boolean verbose = false;
   protected boolean transacted = true;
 
-  public abstract static class ConnectionFactoryBuilder
+  public static interface ConnectionFactoryBuilder
+  {
+    public ConnectionFactory buildConnectionFactory();
+  }
+
+  public static class DefaultConnectionFactoryBuilder implements ConnectionFactoryBuilder
   {
     protected Map<String, String> connectionFactoryProperties = Maps.newHashMap();
 
@@ -101,24 +110,25 @@ public class JMSBase
       this.connectionFactoryProperties = connectionFactoryProperties;
     }
 
-    public abstract ConnectionFactory buildConnectionFactory();
-  }
-
-  public static class DefaultConnectionFactoryBuilder extends ConnectionFactoryBuilder
-  {
-
     @Override
     public ConnectionFactory buildConnectionFactory()
     {
       ConnectionFactory cf;
       try {
         cf = new org.apache.activemq.ActiveMQConnectionFactory();
-        BeanUtils.populate(cf, super.connectionFactoryProperties);
+        BeanUtils.populate(cf, connectionFactoryProperties);
         logger.debug("creation successful.");
         return cf;
       } catch (Exception e) {
-        throw new RuntimeException("Failed to create connection factory.", e);
+        DTThrowable.rethrow(e);
+        return null;  // previous rethrow makes this redundant, but compiler doesn't know...
       }
+    }
+
+    @Override
+    public String toString()
+    {
+      return "DefaultConnectionFactoryBuilder [connectionFactoryProperties=" + connectionFactoryProperties + "]";
     }
   }
 
@@ -146,24 +156,37 @@ public class JMSBase
     return destination;
   }
 
+  public ConnectionFactoryBuilder getConnectionFactoryBuilder()
+  {
+    return connectionFactoryBuilder;
+  }
+
   public void setConnectionFactoryBuilder(ConnectionFactoryBuilder connectionFactoryBuilder)
   {
     this.connectionFactoryBuilder = connectionFactoryBuilder;
   }
 
-/**
+  /**
    * Return the connection factory properties. Property names are provider specific and can be set directly from configuration, for example:<p>
    * <code>dt.operator.JMSOper.connectionFactoryProperties.brokerURL=vm://localhost<code>
    * @return reference to mutable properties
    */
   public Map<String, String> getConnectionFactoryProperties()
   {
-    return connectionFactoryBuilder.getConnectionFactoryProperties();
+    if (connectionFactoryBuilder instanceof DefaultConnectionFactoryBuilder) {
+      return ((DefaultConnectionFactoryBuilder)connectionFactoryBuilder).getConnectionFactoryProperties();
+    } else {
+      throw new UnsupportedOperationException("ConnectionFactoryBuilder does not support connectionFactoryProperties");
+    }
   }
 
   public void setConnectionFactoryProperties(Map<String, String> connectionFactoryProperties)
   {
-    connectionFactoryBuilder.setConnectionFactoryProperties(connectionFactoryProperties);
+    if (connectionFactoryBuilder instanceof DefaultConnectionFactoryBuilder) {
+      ((DefaultConnectionFactoryBuilder)connectionFactoryBuilder).setConnectionFactoryProperties(connectionFactoryProperties);
+    } else {
+      throw new UnsupportedOperationException("ConnectionFactoryBuilder does not support connectionFactoryProperties");
+    }
   }
 
   /**
@@ -384,8 +407,7 @@ public class JMSBase
    */
   protected ConnectionFactory getConnectionFactory()
   {
-    logger.debug("connectionFactoryBuilder {} properties {}", "" + connectionFactoryBuilder,
-        getConnectionFactoryProperties());
+    logger.debug("connectionFactoryBuilder {}", "" + connectionFactoryBuilder);
 
     return connectionFactoryBuilder.buildConnectionFactory();
 
