@@ -19,13 +19,16 @@
 
 package com.datatorrent.lib.filter;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.classification.InterfaceStability;
+
+import com.google.common.annotations.VisibleForTesting;
 
 import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
@@ -59,7 +62,8 @@ import com.datatorrent.lib.util.PojoUtils;
 public class FilterOperator extends BaseOperator implements Operator.ActivationListener
 {
   private String condition;
-  private List<String> expressionFunctions = new LinkedList<>();
+  private List<String> expressionFunctions;
+  private List<String> additionalExpressionFunctions = new ArrayList<>();
 
   private transient Class<?> inClazz = null;
   private transient Expression<Boolean> expr = null;
@@ -81,11 +85,9 @@ public class FilterOperator extends BaseOperator implements Operator.ActivationL
 
   public FilterOperator()
   {
-    expressionFunctions.add("java.lang.Math.*");
-    expressionFunctions.add("org.apache.commons.lang3.StringUtils.*");
-    expressionFunctions.add("org.apache.commons.lang3.StringEscapeUtils.*");
-    expressionFunctions.add("org.apache.commons.lang3.time.DurationFormatUtils.*");
-    expressionFunctions.add("org.apache.commons.lang3.time.DateFormatUtils.*");
+    expressionFunctions = new ArrayList<>(Arrays.asList(new String[] {"java.lang.Math.*",
+        "org.apache.commons.lang3.StringUtils.*", "org.apache.commons.lang3.StringEscapeUtils.*",
+        "org.apache.commons.lang3.time.DurationFormatUtils.*", "org.apache.commons.lang3.time.DateFormatUtils.*" }));
   }
 
   @InputPortFieldAnnotation(schemaRequired = true)
@@ -127,6 +129,11 @@ public class FilterOperator extends BaseOperator implements Operator.ActivationL
   protected void createExpression()
   {
     logger.info("Creating an expression for condition {}", condition);
+    for (String expression : additionalExpressionFunctions) {
+      if (expression != null) {
+        expressionFunctions.add(expression);
+      }
+    }
     expr = PojoUtils.createExpression(inClazz, condition, Boolean.class,
         expressionFunctions.toArray(new String[expressionFunctions.size()]));
   }
@@ -185,13 +192,14 @@ public class FilterOperator extends BaseOperator implements Operator.ActivationL
 
   /**
    * Returns the list of expression function which would be made available to
-   * expression to use.
+   * expression to use. This is in addition to default expression functions
+   * added by the operator
    *
    * @return List of functions available in expression.
    */
-  public List<String> getExpressionFunctions()
+  public List<String> getAdditionalExpressionFunctions()
   {
-    return expressionFunctions;
+    return additionalExpressionFunctions;
   }
 
   /**
@@ -199,15 +207,31 @@ public class FilterOperator extends BaseOperator implements Operator.ActivationL
    * to expression to use.
    * For ex. org.apache.apex.test1.Test would mean that "Test" method will be
    * available in the expression to be used directly.
+   * This is in addition to default expression functions added by the operator.
    * This is an optional property. See constructor to see defaults that are included.
    *
-   * @param expressionFunctions List of qualified class/method that needs to be
+   * @param additionalExpressionFunctions List of qualified class/method that needs to be
    *                            imported to expression.
    */
-  public void setExpressionFunctions(List<String> expressionFunctions)
+  public void setAdditionalExpressionFunctions(List<String> additionalExpressionFunctions)
   {
-    this.expressionFunctions = expressionFunctions;
+    this.additionalExpressionFunctions = additionalExpressionFunctions;
   }
 
+  public void setOptionalExpressionFunctionsItem(int index, String value)
+  {
+    final int need = index - additionalExpressionFunctions.size() + 1;
+    for (int i = 0; i < need; i++) {
+      additionalExpressionFunctions.add(null);
+    }
+    additionalExpressionFunctions.set(index, value);
+  }
+
+  @VisibleForTesting
+  List<String> getExpressionFunctions()
+  {
+    return expressionFunctions;
+  }
+  
   private static final Logger logger = LoggerFactory.getLogger(FilterOperator.class);
 }
