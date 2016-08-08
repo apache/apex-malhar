@@ -229,7 +229,7 @@ public class RabbitMQInputOperatorTest
 
     operator.deactivate();
     operator.teardown();
-    operator.getWindowDataManager().deleteUpTo(context.getId(), 1);
+    operator.getWindowDataManager().committed(1);
     publisher.teardown();
   }
 }

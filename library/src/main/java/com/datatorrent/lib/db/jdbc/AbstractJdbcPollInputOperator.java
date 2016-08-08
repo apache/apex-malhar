@@ -430,7 +430,7 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
         }
         MutablePair<String, String> windowBoundaryPair = new MutablePair<>(lower, upper);
         currentWindowRecoveryState = windowBoundaryPair;
-        windowManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
+        windowManager.save(currentWindowRecoveryState, currentWindowId);
       }
     } catch (IOException e) {
       throw new RuntimeException("saving recovery", e);
@@ -493,7 +493,7 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
 
     MutablePair<String, String> recoveredData = new MutablePair<String, String>();
     try {
-      recoveredData = (MutablePair<String, String>)windowManager.load(operatorId, windowId);
+      recoveredData = (MutablePair<String, String>)windowManager.retrieve(windowId);
 
       if (recoveredData != null) {
         //skip the window and return if there was no incoming data in the window

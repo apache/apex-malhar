@@ -19,7 +19,6 @@
 package com.datatorrent.lib.io.jms;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -107,7 +106,6 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
 
   @NotNull
   protected WindowDataManager windowDataManager;
-  private transient long[] operatorRecoveredWindows;
   protected transient long currentWindowId;
   protected transient int emitCount;
 
@@ -202,14 +200,6 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
     counters.setCounter(CounterKeys.RECEIVED, new MutableLong());
     counters.setCounter(CounterKeys.REDELIVERED, new MutableLong());
     windowDataManager.setup(context);
-    try {
-      operatorRecoveredWindows = windowDataManager.getWindowIds(context.getId());
-      if (operatorRecoveredWindows != null) {
-        Arrays.sort(operatorRecoveredWindows);
-      }
-    } catch (IOException e) {
-      throw new RuntimeException("fetching windows", e);
-    }
   }
 
   /**
@@ -271,7 +261,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
   {
     try {
       @SuppressWarnings("unchecked")
-      Map<String, T> recoveredData = (Map<String, T>)windowDataManager.load(context.getId(), windowId);
+      Map<String, T> recoveredData = (Map<String, T>)windowDataManager.retrieve(windowId);
       if (recoveredData == null) {
         return;
       }
@@ -360,7 +350,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
             emitCount++;
             lastMsg = msg;
           }
-          windowDataManager.save(currentWindowRecoveryState, context.getId(), currentWindowId);
+          windowDataManager.save(currentWindowRecoveryState, currentWindowId);
           stateSaved = true;
 
           currentWindowRecoveryState.clear();
@@ -377,7 +367,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
         } finally {
           if (stateSaved && !ackCompleted) {
             try {
-              windowDataManager.delete(context.getId(), currentWindowId);
+              windowDataManager.deleteLastWindow();
             } catch (IOException e) {
               LOG.error("unable to delete corrupted state", e);
             }
@@ -385,8 +375,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
         }
       }
       emitCount = 0; //reset emit count
-    } else if (operatorRecoveredWindows != null &&
-        currentWindowId < operatorRecoveredWindows[operatorRecoveredWindows.length - 1]) {
+    } else if (currentWindowId < windowDataManager.getLargestRecoveryWindow()) {
       //pendingAck is not cleared for the last replayed window of this operator. This is because there is
       //still a chance that in the previous run the operator crashed after saving the state but before acknowledgement.
       pendingAck.clear();
@@ -417,7 +406,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
   public void committed(long windowId)
   {
     try {
-      windowDataManager.deleteUpTo(context.getId(), windowId);
+      windowDataManager.committed(windowId);
     } catch (IOException e) {
       throw new RuntimeException("committing", e);
     }

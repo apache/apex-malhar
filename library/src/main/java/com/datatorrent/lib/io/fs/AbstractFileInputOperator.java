@@ -529,7 +529,7 @@ public abstract class AbstractFileInputOperator<T>
   {
     if (currentWindowId > windowDataManager.getLargestRecoveryWindow()) {
       try {
-        windowDataManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
+        windowDataManager.save(currentWindowRecoveryState, currentWindowId);
       } catch (IOException e) {
         throw new RuntimeException("saving recovery", e);
       }
@@ -553,7 +553,7 @@ public abstract class AbstractFileInputOperator<T>
     //all the recovery data for a window and then processes only those files which would be hashed
     //to it in the current run.
     try {
-      Map<Integer, Object> recoveryDataPerOperator = windowDataManager.load(windowId);
+      Map<Integer, Object> recoveryDataPerOperator = windowDataManager.retrieveAllPartitions(windowId);
 
       for (Object recovery : recoveryDataPerOperator.values()) {
         @SuppressWarnings("unchecked")
@@ -836,7 +836,7 @@ public abstract class AbstractFileInputOperator<T>
     List<DirectoryScanner> scanners = scanner.partition(totalCount, oldscanners);
 
     Collection<Partition<AbstractFileInputOperator<T>>> newPartitions = Lists.newArrayListWithExpectedSize(totalCount);
-    Collection<WindowDataManager> newManagers = Lists.newArrayListWithExpectedSize(totalCount);
+    List<WindowDataManager> newManagers = windowDataManager.partition(totalCount, deletedOperators);
 
     KryoCloneUtils<AbstractFileInputOperator<T>> cloneUtils = KryoCloneUtils.createCloneUtils(this);
     for (int i = 0; i < scanners.size(); i++) {
@@ -888,11 +888,10 @@ public abstract class AbstractFileInputOperator<T>
           pendingFilesIterator.remove();
         }
       }
+      oper.setWindowDataManager(newManagers.get(i));
       newPartitions.add(new DefaultPartition<AbstractFileInputOperator<T>>(oper));
-      newManagers.add(oper.windowDataManager);
     }
 
-    windowDataManager.partitioned(newManagers, deletedOperators);
     LOG.info("definePartitions called returning {} partitions", newPartitions.size());
     return newPartitions;
   }
@@ -917,7 +916,7 @@ public abstract class AbstractFileInputOperator<T>
   public void committed(long windowId)
   {
     try {
-      windowDataManager.deleteUpTo(operatorId, windowId);
+      windowDataManager.committed(windowId);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

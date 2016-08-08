@@ -288,7 +288,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     try {
       @SuppressWarnings("unchecked")
       Map<KafkaPartition, MutablePair<Long, Integer>> recoveredData = (Map<KafkaPartition, MutablePair<Long, Integer>>)
-          windowDataManager.load(operatorId, windowId);
+          windowDataManager.retrieve(windowId);
       if (recoveredData != null) {
         Map<String, List<PartitionMetadata>> pms = KafkaMetadataUtil.getPartitionsForTopic(getConsumer().brokers, getConsumer().topic);
         if (pms != null) {
@@ -356,7 +356,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     }
     if (currentWindowId > windowDataManager.getLargestRecoveryWindow()) {
       try {
-        windowDataManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
+        windowDataManager.save(currentWindowRecoveryState, currentWindowId);
       }
       catch (IOException e) {
         throw new RuntimeException("saving recovery", e);
@@ -393,7 +393,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     }
 
     try {
-      windowDataManager.deleteUpTo(operatorId, windowId);
+      windowDataManager.committed(windowId);
     }
     catch (IOException e) {
       throw new RuntimeException("deleting state", e);
@@ -523,8 +523,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
       logger.info("Initial offsets: {} ", "{ " + Joiner.on(", ").useForNull("").withKeyValueSeparator(": ").join(initOffset) + " }");
     }
 
-    Collection<WindowDataManager> newManagers = Sets.newHashSet();
-    Set<Integer> deletedOperators =  Sets.newHashSet();
+    Set<Integer> deletedOperators = Sets.newHashSet();
 
     switch (strategy) {
 
@@ -543,7 +542,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
           String clusterId = kp.getKey();
           for (PartitionMetadata pm : kp.getValue()) {
             logger.info("[ONE_TO_ONE]: Create operator partition for cluster {}, topic {}, kafka partition {} ", clusterId, getConsumer().topic, pm.partitionId());
-            newPartitions.add(createPartition(Sets.newHashSet(new KafkaPartition(clusterId, consumer.topic, pm.partitionId())), initOffset, newManagers));
+            newPartitions.add(createPartition(Sets.newHashSet(new KafkaPartition(clusterId, consumer.topic, pm.partitionId())), initOffset));
           }
         }
 
@@ -552,10 +551,14 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
         // add partition for new kafka partition
         for (KafkaPartition newPartition : newWaitingPartition) {
           logger.info("[ONE_TO_ONE]: Add operator partition for cluster {}, topic {}, partition {}", newPartition.getClusterId(), getConsumer().topic, newPartition.getPartitionId());
-          partitions.add(createPartition(Sets.newHashSet(newPartition), null, newManagers));
+          partitions.add(createPartition(Sets.newHashSet(newPartition), null));
         }
         newWaitingPartition.clear();
-        windowDataManager.partitioned(newManagers, deletedOperators);
+        List<WindowDataManager> managers = windowDataManager.partition(partitions.size(), deletedOperators);
+        int i = 0;
+        for (Partition<AbstractKafkaInputOperator<K>> partition : partitions) {
+          partition.getPartitionedInstance().setWindowDataManager(managers.get(i++));
+        }
         return partitions;
 
       }
@@ -590,15 +593,20 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
         newPartitions = new ArrayList<Partitioner.Partition<AbstractKafkaInputOperator<K>>>(size);
         for (i = 0; i < size; i++) {
           logger.info("[ONE_TO_MANY]: Create operator partition for kafka partition(s): {} ", StringUtils.join(kps[i], ", "));
-          newPartitions.add(createPartition(kps[i], initOffset, newManagers));
+          newPartitions.add(createPartition(kps[i], initOffset));
         }
 
       }
       else if (newWaitingPartition.size() != 0) {
 
         logger.info("[ONE_TO_MANY]: Add operator partition for kafka partition(s): {} ", StringUtils.join(newWaitingPartition, ", "));
-        partitions.add(createPartition(Sets.newHashSet(newWaitingPartition), null, newManagers));
-        windowDataManager.partitioned(newManagers, deletedOperators);
+        partitions.add(createPartition(Sets.newHashSet(newWaitingPartition), null));
+
+        List<WindowDataManager> managers = windowDataManager.partition(partitions.size(), deletedOperators);
+        int i = 0;
+        for (Partition<AbstractKafkaInputOperator<K>> partition : partitions) {
+          partition.getPartitionedInstance().setWindowDataManager(managers.get(i++));
+        }
         return partitions;
       }
       else {
@@ -637,7 +645,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
         }
         for (PartitionInfo r : partitionInfos) {
           logger.info("[ONE_TO_MANY]: Create operator partition for kafka partition(s): " + StringUtils.join(r.kpids, ", ") + ", topic: " + this.getConsumer().topic);
-          newPartitions.add(createPartition(r.kpids, offsetTrack, newManagers));
+          newPartitions.add(createPartition(r.kpids, offsetTrack));
         }
         currentPartitionInfo.addAll(partitionInfos);
       }
@@ -649,12 +657,30 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
       break;
     }
 
-    windowDataManager.partitioned(newManagers, deletedOperators);
+    List<WindowDataManager> managers = windowDataManager.partition(newPartitions.size(), deletedOperators);
+    int i = 0;
+    for (Partition<AbstractKafkaInputOperator<K>> partition : partitions) {
+      partition.getPartitionedInstance().setWindowDataManager(managers.get(i++));
+    }
     return newPartitions;
   }
 
+  /**
+   * Create a new partition with the partition Ids and initial offset positions
+   *
+   * @deprecated use {@link #createPartition(Set, Map)}
+   */
+  @Deprecated
+  protected Partitioner.Partition<AbstractKafkaInputOperator<K>> createPartition(Set<KafkaPartition> pIds,
+      Map<KafkaPartition, Long> initOffsets,
+      @SuppressWarnings("UnusedParameters") Collection<WindowDataManager> newManagers)
+  {
+    return createPartition(pIds, initOffsets);
+  }
+
   // Create a new partition with the partition Ids and initial offset positions
-  protected Partitioner.Partition<AbstractKafkaInputOperator<K>> createPartition(Set<KafkaPartition> pIds, Map<KafkaPartition, Long> initOffsets, Collection<WindowDataManager> newManagers)
+  protected Partitioner.Partition<AbstractKafkaInputOperator<K>> createPartition(Set<KafkaPartition> pIds,
+      Map<KafkaPartition, Long> initOffsets)
   {
 
     Partitioner.Partition<AbstractKafkaInputOperator<K>> p = new DefaultPartition<>(KryoCloneUtils.cloneObject(this));
@@ -666,7 +692,6 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
         p.getPartitionedInstance().offsetStats.putAll(p.getPartitionedInstance().getConsumer().getCurrentOffsets());
       }
     }
-    newManagers.add(p.getPartitionedInstance().windowDataManager);
 
     PartitionInfo pif = new PartitionInfo();
     pif.kpids = pIds;

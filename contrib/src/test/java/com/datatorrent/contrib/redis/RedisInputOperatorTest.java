@@ -189,7 +189,7 @@ public class RedisInputOperatorTest
         testStore.remove(entry.getKey());
       }
       sink.collectedTuples.clear();
-      operator.getWindowDataManager().deleteUpTo(context.getId(), 5);
+      operator.getWindowDataManager().committed(5);
       operator.teardown();
     }
   }

@@ -127,7 +127,7 @@ public abstract class AbstractNiFiOutputOperator<T> extends BaseOperator
 
     // mark that we processed the window
     try {
-      windowDataManager.save("processedWindow", operatorContextId, currentWindowId);
+      windowDataManager.save("processedWindow", currentWindowId);
     } catch (IOException e) {
       DTThrowable.rethrow(e);
     }
