@@ -23,13 +23,13 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.apache.apex</groupId>
-    <artifactId>malhar</artifactId>
+    <groupId>com.simplifi.it</groupId>
+    <artifactId>kelp</artifactId>
     <version>3.5.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>malhar-contrib</artifactId>
-  <name>Apache Apex Malhar Contrib Library</name>
+  <artifactId>kelp-contrib</artifactId>
+  <name>Kelp Contrib Library</name>
   <packaging>jar</packaging>
 
   <properties>
@@ -215,6 +215,9 @@
       <plugin>
         <groupId>com.github.siom79.japicmp</groupId>
         <artifactId>japicmp-maven-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
       </plugin>
 
       <plugin>
@@ -460,12 +463,12 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-library</artifactId>
+      <artifactId>kelp-library</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-library</artifactId>
+      <artifactId>kelp-library</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
       <classifier>tests</classifier>
@@ -611,9 +614,9 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.apache.apex</groupId>
-      <artifactId>apex-common</artifactId>
-      <version>${apex.core.version}</version>
+      <groupId>com.simplifi.it</groupId>
+      <artifactId>otterx-common</artifactId>
+      <version>${otterx.core.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>

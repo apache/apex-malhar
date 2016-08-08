@@ -75,6 +75,12 @@ public class HBaseTransactionalPutOperatorTest {
           // TODO Auto-generated method stub
           return 0;
         }
+  
+        @Override
+        public String getName()
+        {
+          return "operator";
+        }
 
         @Override
         public void setCounters(Object counters) {
@@ -145,7 +151,13 @@ public class HBaseTransactionalPutOperatorTest {
           // TODO Auto-generated method stub
           return 0;
         }
-
+  
+        @Override
+        public String getName()
+        {
+          return "operator";
+        }
+  
         @Override
         public void setCounters(Object counters) {
           // TODO Auto-generated method stub
@@ -218,6 +230,12 @@ public class HBaseTransactionalPutOperatorTest {
         public int getId() {
           // TODO Auto-generated method stub
           return 0;
+        }
+  
+        @Override
+        public String getName()
+        {
+          return "operator";
         }
 
         @Override

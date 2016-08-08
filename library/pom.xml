@@ -24,15 +24,15 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.apache.apex</groupId>
-    <artifactId>malhar</artifactId>
+    <groupId>com.simplifi.it</groupId>
+    <artifactId>kelp</artifactId>
     <version>3.5.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>malhar-library</artifactId>
+  <artifactId>kelp-library</artifactId>
   <packaging>jar</packaging>
 
-  <name>Apache Apex Malhar Library</name>
+  <name>Kelp Library</name>
 
   <build>
     <plugins>
@@ -178,6 +178,9 @@
       <plugin>
         <groupId>com.github.siom79.japicmp</groupId>
         <artifactId>japicmp-maven-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -201,9 +204,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.apex</groupId>
-      <artifactId>apex-common</artifactId>
-      <version>${apex.core.version}</version>
+      <groupId>com.simplifi.it</groupId>
+      <artifactId>otterx-common</artifactId>
+      <version>${otterx.core.version}</version>
     </dependency>
     <dependency>
       <groupId>com.icegreen</groupId>
@@ -335,8 +338,8 @@
       <version>7.0.6</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.apex</groupId>
-      <artifactId>apex-shaded-ning19</artifactId>
+      <groupId>com.simplifi.it</groupId>
+      <artifactId>otterx-shaded-ning19</artifactId>
       <version>1.0.0</version>
     </dependency>
     <dependency>

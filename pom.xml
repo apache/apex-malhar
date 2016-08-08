@@ -23,17 +23,16 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.apache.apex</groupId>
-    <artifactId>apex</artifactId>
-    <version>3.4.0</version>
+    <groupId>com.simplifi.it</groupId>
+    <artifactId>otterx</artifactId>
+    <version>3.5.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.apache.apex</groupId>
-  <artifactId>malhar</artifactId>
+  <artifactId>kelp</artifactId>
   <version>3.5.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>Apache Apex Malhar</name>
-  <url>http://apex.apache.org</url>
+  <name>Kelp</name>
+  <url>https://simplifi.it/</url>
 
   <licenses>
     <license>
@@ -49,7 +48,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.deploy.skip>false</maven.deploy.skip>
-    <apex.core.version>3.4.0</apex.core.version>
+    <otterx.core.version>3.5.0-SNAPSHOT</otterx.core.version>
     <semver.plugin.skip>false</semver.plugin.skip>
     <surefire.args>-Xmx2048m</surefire.args>
   </properties>
@@ -76,7 +75,7 @@
         </configuration>
       </plugin>
       <plugin>
-      	<groupId>org.apache.maven.plugins</groupId>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <argLine>${surefire.args}</argLine>
@@ -112,9 +111,10 @@
           <artifactId>japicmp-maven-plugin</artifactId>
           <version>0.7.1</version>
           <configuration>
+            <skip>true</skip>
             <oldVersion>
               <dependency>
-                <groupId>org.apache.apex</groupId>
+                <groupId>com.simplifi.it</groupId>
                 <artifactId>${project.artifactId}</artifactId>
                 <version>3.4.0</version>
               </dependency>
@@ -154,9 +154,9 @@
           <artifactId>maven-checkstyle-plugin</artifactId>
           <dependencies>
             <dependency>
-              <groupId>org.apache.apex</groupId>
-              <artifactId>apex-codestyle-config</artifactId>
-              <version>1.0.0-incubating</version>
+              <groupId>com.simplifi.it</groupId>
+              <artifactId>otterx-codestyle-config</artifactId>
+              <version>1.0.0</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -189,7 +189,7 @@
           <plugin>
             <artifactId>maven-assembly-plugin</artifactId>
             <configuration>
-              <finalName>apache-apex-${project.build.finalName}</finalName>
+              <finalName>otterx-${project.build.finalName}</finalName>
             </configuration>
           </plugin>
         </plugins>
@@ -200,10 +200,6 @@
       <modules>
         <module>kafka</module>
         <module>hive</module>
-        <module>stream</module>
-        <module>benchmark</module>
-        <module>apps</module>
-        <module>samples</module>
       </modules>
     </profile>
   </profiles>
@@ -215,9 +211,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.apex</groupId>
-      <artifactId>apex-engine</artifactId>
-      <version>${apex.core.version}</version>
+      <groupId>com.simplifi.it</groupId>
+      <artifactId>otterx-engine</artifactId>
+      <version>${otterx.core.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

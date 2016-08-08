@@ -48,16 +48,23 @@ public class OperatorContextTestHelper
   {
     int id;
     com.datatorrent.api.Attribute.AttributeMap attributes;
+    String name;
 
     public TestIdOperatorContext(int id)
     {
-      this.id = id;
+      this(id, "testOperator", null);
     }
 
     public TestIdOperatorContext(int id, @Nonnull com.datatorrent.api.Attribute.AttributeMap map)
     {
+      this(id, "testOperator", map);
+    }
+  
+    public TestIdOperatorContext(int id, String name, @Nonnull com.datatorrent.api.Attribute.AttributeMap map)
+    {
       this.id = id;
       this.attributes = map;
+      this.name = name;
     }
 
     @Override
@@ -65,7 +72,13 @@ public class OperatorContextTestHelper
     {
       return id;
     }
-
+  
+    @Override
+    public String getName()
+    {
+      return name;
+    }
+  
     @Override
     public void sendMetrics(Collection<String> metricNames)
     {
