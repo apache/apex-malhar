@@ -343,7 +343,6 @@
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-s3</artifactId>
       <version>1.10.73</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
 	  <groupId>com.fasterxml.jackson.core</groupId>

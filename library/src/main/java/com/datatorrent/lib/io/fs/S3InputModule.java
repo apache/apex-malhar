@@ -24,9 +24,6 @@ import com.datatorrent.lib.io.block.FSSliceReader;
  * S3InputModule is used to read files/list of files (or directory) from S3 bucket. <br/>
  * Module emits, <br/>
  * 1. FileMetadata 2. BlockMetadata 3. Block Bytes.<br/><br/>
- * Parallel read will work only if the scheme is "s3a" and the Hadoop version is 2.7+.
- * Parallel read doesn't work in the case of the scheme is "s3n/s3". In this case, this operator explicitly
- * disables the parallel read functionality.
  * For more info about S3 scheme protocals, please have a look at
  * <a href="https://wiki.apache.org/hadoop/AmazonS3">https://wiki.apache.org/hadoop/AmazonS3.</a>
  *
@@ -53,16 +50,11 @@ public class S3InputModule extends FSInputModule
   @Override
   public FSSliceReader createBlockReader()
   {
-    //Extract the scheme from the files
-    String s3input = getFiles();
-    String scheme =  s3input.substring(0, s3input.indexOf("://"));
-    // Parallel read doesn't support, if the scheme is s3 (or) s3n.
-    if (scheme.equals("s3") || scheme.equals("s3n")) {
-      setSequencialFileRead(true);
-    }
-    // Set the s3 bucket name to the block reader
+    // Set the s3 bucket name, accessKey, SecretAccessKey to the block reader
     S3BlockReader reader = new S3BlockReader();
     reader.setBucketName(S3BlockReader.extractBucket(getFiles()));
+    reader.setAccessKey(S3BlockReader.extractAccessKey(getFiles()));
+    reader.setSecretAccessKey(S3BlockReader.extractSecretAccessKey(getFiles()));
     return reader;
   }
 }
