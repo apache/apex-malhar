@@ -1,4 +1,0 @@
-{
-  "values": [{"name": "hashtag", "type": "string"},
-             {"name": "count", "type": "integer"}]
-}
