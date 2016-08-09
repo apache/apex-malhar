@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -290,7 +289,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     new Thread(p).start();
 
 
-    KafkaSinglePortStringInputOperator operator = createAndDeployOperator(true);
+    KafkaSinglePortStringInputOperator operator = createAndDeployOperator();
     latch.await(4000, TimeUnit.MILLISECONDS);
     operator.beginWindow(1);
     operator.emitTuples();
@@ -304,7 +303,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     operator.teardown();
     operator.deactivate();
 
-    operator = createAndDeployOperator(true);
+    operator = createAndDeployOperator();
     Assert.assertEquals("largest recovery window", 2, operator.getWindowDataManager().getLargestRecoveryWindow());
 
     operator.beginWindow(1);
@@ -325,57 +324,9 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     operator.deactivate();
   }
 
-  @Test
-  public void testRecoveryAndExactlyOnce() throws Exception
+  private KafkaSinglePortStringInputOperator createAndDeployOperator()
   {
-    int totalCount = 1500;
 
-    // initial the latch for this test
-    latch = new CountDownLatch(50);
-
-    // Start producer
-    KafkaTestProducer p = new KafkaTestProducer(TEST_TOPIC);
-    p.setSendCount(totalCount);
-    new Thread(p).start();
-
-    KafkaSinglePortStringInputOperator operator = createAndDeployOperator(false);
-    latch.await(4000, TimeUnit.MILLISECONDS);
-    operator.beginWindow(1);
-    operator.emitTuples();
-    operator.endWindow();
-    operator.beginWindow(2);
-    operator.emitTuples();
-    operator.endWindow();
-    operator.checkpointed(2);
-    operator.committed(2);
-    Map<KafkaPartition, Long> offsetStats = operator.offsetStats;
-    int collectedTuplesAfterCheckpoint = testMeta.sink.collectedTuples.size();
-    //failure and then re-deployment of operator
-    testMeta.sink.collectedTuples.clear();
-    operator.teardown();
-    operator.deactivate();
-    operator = createOperator(false);
-    operator.offsetStats = offsetStats;
-    operator.setup(testMeta.context);
-    operator.activate(testMeta.context);
-    latch.await(4000, TimeUnit.MILLISECONDS);
-    // Emiting data after all recovery windows are replayed
-    operator.beginWindow(3);
-    operator.emitTuples();
-    operator.endWindow();
-    operator.beginWindow(4);
-    operator.emitTuples();
-    operator.endWindow();
-    latch.await(3000, TimeUnit.MILLISECONDS);
-
-    Assert.assertEquals("Total messages collected ", totalCount - collectedTuplesAfterCheckpoint + 1, testMeta.sink.collectedTuples.size());
-    testMeta.sink.collectedTuples.clear();
-    operator.teardown();
-    operator.deactivate();
-  }
-
-  private KafkaSinglePortStringInputOperator createOperator(boolean isIdempotency)
-  {
     Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
     attributeMap.put(Context.DAGContext.APPLICATION_PATH, testMeta.baseDir);
@@ -388,12 +339,9 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     consumer.setTopic(TEST_TOPIC);
     consumer.setInitialOffset("earliest");
 
-    if (isIdempotency) {
-      FSWindowDataManager storageManager = new FSWindowDataManager();
-      storageManager.setRecoveryPath(testMeta.recoveryDir);
-      testMeta.operator.setWindowDataManager(storageManager);
-    }
-
+    FSWindowDataManager storageManager = new FSWindowDataManager();
+    storageManager.setRecoveryPath(testMeta.recoveryDir);
+    testMeta.operator.setWindowDataManager(storageManager);
     testMeta.operator.setConsumer(consumer);
     testMeta.operator.setZookeeper("localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT[0]);
     testMeta.operator.setMaxTuplesPerWindow(500);
@@ -408,12 +356,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     testMeta.sink = new CollectorTestSink<Object>();
     testMeta.operator.outputPort.setSink(testMeta.sink);
     operator.outputPort.setSink(testMeta.sink);
-    return operator;
-  }
 
-  private KafkaSinglePortStringInputOperator createAndDeployOperator(boolean isIdempotency)
-  {
-    KafkaSinglePortStringInputOperator operator = createOperator(isIdempotency);
     operator.setup(testMeta.context);
     operator.activate(testMeta.context);
 

@@ -81,6 +81,7 @@ public class JMSObjectInputOperatorTest
 
       context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
       operator = new JMSObjectInputOperator();
+      operator.setSubject("TEST.FOO");
       operator.getConnectionFactoryProperties().put(JMSTestBase.AMQ_BROKER_URL, "vm://localhost");
 
       sink = new CollectorTestSink<Object>();

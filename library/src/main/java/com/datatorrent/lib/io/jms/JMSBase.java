@@ -25,6 +25,7 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Session;
+import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,8 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.beanutils.BeanUtils;
 
 import com.google.common.collect.Maps;
+
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * Base class for any JMS input or output adapter operator.
@@ -76,17 +79,58 @@ public class JMSBase
   private transient Session session;
   private transient Destination destination;
 
-  private String connectionFactoryClass;
-  private Map<String, String> connectionFactoryProperties = Maps.newHashMap();
+  @NotNull
+  private ConnectionFactoryBuilder connectionFactoryBuilder = new DefaultConnectionFactoryBuilder();
   private String ackMode = "CLIENT_ACKNOWLEDGE";
-  private String clientId = "TestClient";
-  private String subject = "TEST.FOO";
+  private String clientId;
+  private String subject;
   private int batch = 10;
   private int messageSize = 255;
   private boolean durable = false;
   private boolean topic = false;
   private boolean verbose = false;
   protected boolean transacted = true;
+
+  public static interface ConnectionFactoryBuilder
+  {
+    public ConnectionFactory buildConnectionFactory();
+  }
+
+  public static class DefaultConnectionFactoryBuilder implements ConnectionFactoryBuilder
+  {
+    protected Map<String, String> connectionFactoryProperties = Maps.newHashMap();
+
+    public Map<String, String> getConnectionFactoryProperties()
+    {
+      return connectionFactoryProperties;
+    }
+
+    public void setConnectionFactoryProperties(Map<String, String> connectionFactoryProperties)
+    {
+      this.connectionFactoryProperties = connectionFactoryProperties;
+    }
+
+    @Override
+    public ConnectionFactory buildConnectionFactory()
+    {
+      ConnectionFactory cf;
+      try {
+        cf = new org.apache.activemq.ActiveMQConnectionFactory();
+        BeanUtils.populate(cf, connectionFactoryProperties);
+        logger.debug("creation successful.");
+        return cf;
+      } catch (Exception e) {
+        DTThrowable.rethrow(e);
+        return null;  // previous rethrow makes this redundant, but compiler doesn't know...
+      }
+    }
+
+    @Override
+    public String toString()
+    {
+      return "DefaultConnectionFactoryBuilder [connectionFactoryProperties=" + connectionFactoryProperties + "]";
+    }
+  }
 
   /**
    * @return the connection
@@ -112,14 +156,14 @@ public class JMSBase
     return destination;
   }
 
-  public String getConnectionFactoryClass()
+  public ConnectionFactoryBuilder getConnectionFactoryBuilder()
   {
-    return connectionFactoryClass;
+    return connectionFactoryBuilder;
   }
 
-  public void setConnectionFactoryClass(String connectionFactoryClass)
+  public void setConnectionFactoryBuilder(ConnectionFactoryBuilder connectionFactoryBuilder)
   {
-    this.connectionFactoryClass = connectionFactoryClass;
+    this.connectionFactoryBuilder = connectionFactoryBuilder;
   }
 
   /**
@@ -129,12 +173,20 @@ public class JMSBase
    */
   public Map<String, String> getConnectionFactoryProperties()
   {
-    return connectionFactoryProperties;
+    if (connectionFactoryBuilder instanceof DefaultConnectionFactoryBuilder) {
+      return ((DefaultConnectionFactoryBuilder)connectionFactoryBuilder).getConnectionFactoryProperties();
+    } else {
+      throw new UnsupportedOperationException("ConnectionFactoryBuilder does not support connectionFactoryProperties");
+    }
   }
 
   public void setConnectionFactoryProperties(Map<String, String> connectionFactoryProperties)
   {
-    this.connectionFactoryProperties = connectionFactoryProperties;
+    if (connectionFactoryBuilder instanceof DefaultConnectionFactoryBuilder) {
+      ((DefaultConnectionFactoryBuilder)connectionFactoryBuilder).setConnectionFactoryProperties(connectionFactoryProperties);
+    } else {
+      throw new UnsupportedOperationException("ConnectionFactoryBuilder does not support connectionFactoryProperties");
+    }
   }
 
   /**
@@ -143,7 +195,7 @@ public class JMSBase
   @Deprecated
   public void setUser(String user)
   {
-    this.connectionFactoryProperties.put("userName", user);
+    this.getConnectionFactoryProperties().put("userName", user);
   }
 
   /**
@@ -152,7 +204,7 @@ public class JMSBase
   @Deprecated
   public void setPassword(String password)
   {
-    this.connectionFactoryProperties.put("password", password);
+    this.getConnectionFactoryProperties().put("password", password);
   }
 
   /**
@@ -161,7 +213,7 @@ public class JMSBase
   @Deprecated
   public void setUrl(String url)
   {
-    this.connectionFactoryProperties.put("brokerURL", url);
+    this.getConnectionFactoryProperties().put("brokerURL", url);
   }
 
   /**
@@ -355,22 +407,10 @@ public class JMSBase
    */
   protected ConnectionFactory getConnectionFactory()
   {
-    logger.debug("class {} properties {}", connectionFactoryClass, connectionFactoryProperties);
-    ConnectionFactory cf;
-    try {
-      if (connectionFactoryClass != null) {
-        @SuppressWarnings("unchecked")
-        Class<ConnectionFactory> clazz = (Class<ConnectionFactory>)Class.forName(connectionFactoryClass);
-        cf = clazz.newInstance();
-      } else {
-        cf = new org.apache.activemq.ActiveMQConnectionFactory();
-      }
-      BeanUtils.populate(cf, connectionFactoryProperties);
-      logger.debug("creation successful.");
-      return cf;
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to create connection factory.", e);
-    }
+    logger.debug("connectionFactoryBuilder {}", "" + connectionFactoryBuilder);
+
+    return connectionFactoryBuilder.buildConnectionFactory();
+
   }
 
   /**

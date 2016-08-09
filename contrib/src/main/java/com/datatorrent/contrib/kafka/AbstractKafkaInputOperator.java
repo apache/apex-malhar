@@ -250,12 +250,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     consumer.create();
     // reset the offsets to checkpointed one
     if (consumer instanceof SimpleKafkaConsumer && !offsetStats.isEmpty()) {
-      Map<KafkaPartition, Long> currentOffsets = new HashMap<>();
-      // Increment the offsets and set it to consumer
-      for (Map.Entry<KafkaPartition, Long> e: offsetStats.entrySet()) {
-        currentOffsets.put(e.getKey(), e.getValue() + 1);
-      }
-      ((SimpleKafkaConsumer)consumer).resetOffset(currentOffsets);
+      ((SimpleKafkaConsumer)consumer).resetOffset(offsetStats);
     }
     this.context = context;
     operatorId = context.getId();
