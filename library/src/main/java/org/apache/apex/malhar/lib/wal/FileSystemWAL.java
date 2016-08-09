@@ -520,7 +520,7 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
 
           IOUtils.copyPartial(inputStream, currentPointer.offset, outputStream);
 
-          outputStream.flush();
+          flush();
           inputStream.close();
         }
       }
