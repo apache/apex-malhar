@@ -123,7 +123,7 @@ public class IncrementalCheckpointManagerTest
     testMeta.checkpointManager.teardown();
     Thread.sleep(500);
 
-    testMeta.checkpointManager.committed(testMeta.operatorId, 10);
+    testMeta.checkpointManager.committed(10);
     testMeta.checkpointManager.transferWindowFiles();
 
     for (int i = 0; i < 5; i++) {
@@ -145,7 +145,7 @@ public class IncrementalCheckpointManagerTest
 
     Map<Long, Map<Slice, Bucket.BucketedValue>> data = ManagedStateTestUtils.getTestData(0, 5, 0);
     testMeta.checkpointManager.save(data, 10, false);
-    testMeta.checkpointManager.committed(testMeta.operatorId, 10);
+    testMeta.checkpointManager.committed(10);
     latch.await();
     testMeta.checkpointManager.teardown();
     Thread.sleep(500);

@@ -373,8 +373,8 @@ public abstract class AbstractManagedStateImpl
             }
           }
         }
-        checkpointManager.committed(operatorContext.getId(), windowId);
-      } catch (IOException | InterruptedException e) {
+        checkpointManager.committed(windowId);
+      } catch (IOException e) {
         throw new RuntimeException("committing " + windowId, e);
       }
     }

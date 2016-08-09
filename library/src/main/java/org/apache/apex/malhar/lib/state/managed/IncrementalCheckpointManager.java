@@ -183,11 +183,10 @@ public class IncrementalCheckpointManager extends FSWindowDataManager
   /**
    * Transfers the data which has been committed till windowId to data files.
    *
-   * @param operatorId operator id
    * @param windowId   window id
    */
-  @SuppressWarnings("UnusedParameters")
-  protected void committed(int operatorId, long windowId) throws IOException, InterruptedException
+  @Override
+  public void committed(long windowId) throws IOException
   {
     LOG.debug("data manager committed {}", windowId);
     for (Long currentWindow : savedWindows.keySet()) {
