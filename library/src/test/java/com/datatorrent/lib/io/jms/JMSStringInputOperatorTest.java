@@ -77,6 +77,7 @@ public class JMSStringInputOperatorTest
 
       context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
       operator = new JMSStringInputOperator();
+      operator.setSubject("TEST.FOO");
       operator.getConnectionFactoryProperties().put(JMSTestBase.AMQ_BROKER_URL, "vm://localhost");
 
       sink = new CollectorTestSink<>();
@@ -145,6 +146,7 @@ public class JMSStringInputOperatorTest
         throw new RuntimeException("fail ack");
       }
     };
+    testMeta.operator.setSubject("TEST.FOO");
     testMeta.operator.getConnectionFactoryProperties().put(JMSTestBase.AMQ_BROKER_URL, "vm://localhost");
 
     testMeta.operator.setup(testMeta.context);

@@ -25,6 +25,7 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Session;
+import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,8 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.beanutils.BeanUtils;
 
 import com.google.common.collect.Maps;
+
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * Base class for any JMS input or output adapter operator.
@@ -76,17 +79,116 @@ public class JMSBase
   private transient Session session;
   private transient Destination destination;
 
-  private String connectionFactoryClass;
-  private Map<String, String> connectionFactoryProperties = Maps.newHashMap();
+  @NotNull
+  private ConnectionFactoryBuilder connectionFactoryBuilder;
   private String ackMode = "CLIENT_ACKNOWLEDGE";
-  private String clientId = "TestClient";
-  private String subject = "TEST.FOO";
+  private String clientId;
+  private String subject;
   private int batch = 10;
   private int messageSize = 255;
   private boolean durable = false;
   private boolean topic = false;
   private boolean verbose = false;
   protected boolean transacted = true;
+
+  /**
+   * Builder class that allows caller to build the connection factory (optional)
+   *
+   */
+  public static interface ConnectionFactoryBuilder
+  {
+
+    /**
+     * This method is called by the operator to return properly built
+     * (authenticated, connected etc) connection factory
+     *
+     * @return properly built connection factory
+     */
+    public ConnectionFactory buildConnectionFactory();
+  }
+
+  /**
+   * Default implementation for {@link ConnectionFactoryBuilder} that works for ActiveMQ
+   *
+   *
+   */
+  public static class DefaultConnectionFactoryBuilder implements ConnectionFactoryBuilder
+  {
+    protected String connectionFactoryClass;
+
+    @NotNull
+    protected Map<String, String> connectionFactoryProperties = Maps.newHashMap();
+
+    /**
+     * Get properties used to configure this DefaultConnectionFactoryBuilder instance
+     *
+     * @return Map of properties
+     */
+    public Map<String, String> getConnectionFactoryProperties()
+    {
+      return connectionFactoryProperties;
+    }
+
+    /**
+     * Set properties used to configure this DefaultConnectionFactoryBuilder instance.
+     * Note: previous properties are overwritten.
+     *
+     * @param connectionFactoryProperties
+     */
+    public void setConnectionFactoryProperties(Map<String, String> connectionFactoryProperties)
+    {
+      this.connectionFactoryProperties = connectionFactoryProperties;
+    }
+    
+    /**
+     * Get the fully qualified class-name of the connection factory that is used by this
+     * builder to instantiate the connection factory
+     *
+     * @return fully qualified class-name
+     */
+    public String getConnectionFactoryClass()
+    {
+      return connectionFactoryClass;
+    }
+    
+    /**
+     * Set the fully qualified class-name of the connection factory that is used by this
+     * builder to instantiate the connection factory
+     *
+     * @param connectionFactoryClass  fully qualified class-name
+     */
+    public void setConnectionFactoryClass(String connectionFactoryClass)
+    {
+      this.connectionFactoryClass = connectionFactoryClass;
+    }
+
+    @Override
+    public ConnectionFactory buildConnectionFactory()
+    {
+      ConnectionFactory cf;
+      try {
+        if (connectionFactoryClass != null) {
+          @SuppressWarnings("unchecked")
+          Class<ConnectionFactory> clazz = (Class<ConnectionFactory>)Class.forName(connectionFactoryClass);
+          cf = clazz.newInstance();
+        } else {
+          cf = new org.apache.activemq.ActiveMQConnectionFactory();
+        }
+        BeanUtils.populate(cf, connectionFactoryProperties);
+        logger.debug("creation successful.");
+        return cf;
+      } catch (Exception e) {
+        DTThrowable.rethrow(e);
+        return null;  // previous rethrow makes this redundant, but compiler doesn't know...
+      }
+    }
+
+    @Override
+    public String toString()
+    {
+      return "DefaultConnectionFactoryBuilder [connectionFactoryProperties=" + connectionFactoryProperties + "]";
+    }
+  }
 
   /**
    * @return the connection
@@ -111,15 +213,68 @@ public class JMSBase
   {
     return destination;
   }
-
+  
+  /**
+   * gets the connection factory class-name used by the default connection factory builder
+   *
+   * @return connection factory class-name
+   */
   public String getConnectionFactoryClass()
   {
-    return connectionFactoryClass;
+    if (connectionFactoryBuilder == null) {
+      connectionFactoryBuilder = createDefaultConnectionFactoryBuilderIfRequired();
+    }
+    if (connectionFactoryBuilder instanceof DefaultConnectionFactoryBuilder) {
+      return ((DefaultConnectionFactoryBuilder)connectionFactoryBuilder).getConnectionFactoryClass();
+    } else {
+      throw new UnsupportedOperationException("ConnectionFactoryBuilder does not support connectionFactoryClass");
+    }
   }
 
+  /**
+   * if the existing connectionFactoryBuilder is not of type DefaultConnectionFactoryBuilder
+   * create one.
+   *
+   * @return the current DefaultConnectionFactoryBuilder value
+   */
+  private DefaultConnectionFactoryBuilder createDefaultConnectionFactoryBuilderIfRequired()
+  {
+    if (!(connectionFactoryBuilder instanceof DefaultConnectionFactoryBuilder)) {
+      connectionFactoryBuilder = new DefaultConnectionFactoryBuilder();
+    }
+    return (DefaultConnectionFactoryBuilder)connectionFactoryBuilder;
+  }
+  
+  /**
+   * Sets the connection factory class-name used by the default connection factory builder
+   *
+   * @param connectionFactoryClass factory class-name to be set
+   */
   public void setConnectionFactoryClass(String connectionFactoryClass)
   {
-    this.connectionFactoryClass = connectionFactoryClass;
+    DefaultConnectionFactoryBuilder builder =
+        createDefaultConnectionFactoryBuilderIfRequired();
+    builder.setConnectionFactoryClass(connectionFactoryClass);
+  }
+
+  /**
+   * gets the connection factory builder of this instance
+   *
+   * @return connection factory builder
+   */
+  public ConnectionFactoryBuilder getConnectionFactoryBuilder()
+  {
+    return connectionFactoryBuilder;
+  }
+
+  /**
+   * Sets the connection factory builder of this instance
+   *
+   * @param connectionFactoryBuilder connection factory builder for this instance
+   */
+  public void setConnectionFactoryBuilder(ConnectionFactoryBuilder connectionFactoryBuilder)
+  {
+    this.connectionFactoryBuilder = connectionFactoryBuilder;
   }
 
   /**
@@ -129,12 +284,27 @@ public class JMSBase
    */
   public Map<String, String> getConnectionFactoryProperties()
   {
-    return connectionFactoryProperties;
+    if (connectionFactoryBuilder == null) {
+      connectionFactoryBuilder = createDefaultConnectionFactoryBuilderIfRequired();
+    }
+    if (connectionFactoryBuilder instanceof DefaultConnectionFactoryBuilder) {
+      return ((DefaultConnectionFactoryBuilder)connectionFactoryBuilder).getConnectionFactoryProperties();
+    } else {
+      throw new UnsupportedOperationException("ConnectionFactoryBuilder does not support connectionFactoryProperties");
+    }
   }
 
+  /**
+   * Sets the connection factory properties. Property names are provider specific and can be set directly from configuration, for example:<p>
+   * <code>dt.operator.JMSOper.connectionFactoryProperties.brokerURL=vm://localhost<code>
+   *
+   * @param connectionFactoryProperties reference to mutable properties
+   */
   public void setConnectionFactoryProperties(Map<String, String> connectionFactoryProperties)
   {
-    this.connectionFactoryProperties = connectionFactoryProperties;
+    DefaultConnectionFactoryBuilder builder =
+        createDefaultConnectionFactoryBuilderIfRequired();
+    builder.setConnectionFactoryProperties(connectionFactoryProperties);
   }
 
   /**
@@ -143,7 +313,7 @@ public class JMSBase
   @Deprecated
   public void setUser(String user)
   {
-    this.connectionFactoryProperties.put("userName", user);
+    this.getConnectionFactoryProperties().put("userName", user);
   }
 
   /**
@@ -152,7 +322,7 @@ public class JMSBase
   @Deprecated
   public void setPassword(String password)
   {
-    this.connectionFactoryProperties.put("password", password);
+    this.getConnectionFactoryProperties().put("password", password);
   }
 
   /**
@@ -161,7 +331,7 @@ public class JMSBase
   @Deprecated
   public void setUrl(String url)
   {
-    this.connectionFactoryProperties.put("brokerURL", url);
+    this.getConnectionFactoryProperties().put("brokerURL", url);
   }
 
   /**
@@ -355,22 +525,10 @@ public class JMSBase
    */
   protected ConnectionFactory getConnectionFactory()
   {
-    logger.debug("class {} properties {}", connectionFactoryClass, connectionFactoryProperties);
-    ConnectionFactory cf;
-    try {
-      if (connectionFactoryClass != null) {
-        @SuppressWarnings("unchecked")
-        Class<ConnectionFactory> clazz = (Class<ConnectionFactory>)Class.forName(connectionFactoryClass);
-        cf = clazz.newInstance();
-      } else {
-        cf = new org.apache.activemq.ActiveMQConnectionFactory();
-      }
-      BeanUtils.populate(cf, connectionFactoryProperties);
-      logger.debug("creation successful.");
-      return cf;
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to create connection factory.", e);
-    }
+    logger.debug("connectionFactoryBuilder {}", "" + connectionFactoryBuilder);
+
+    return connectionFactoryBuilder.buildConnectionFactory();
+
   }
 
   /**
