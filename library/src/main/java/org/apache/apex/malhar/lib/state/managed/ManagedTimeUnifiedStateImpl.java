@@ -67,14 +67,14 @@ public class ManagedTimeUnifiedStateImpl extends AbstractManagedStateImpl implem
   @Override
   public void put(long time, @NotNull Slice key, @NotNull Slice value)
   {
-    long timeBucket = timeBucketAssigner.getTimeBucketFor(time);
+    long timeBucket = timeBucketAssigner.getTimeBucketAndAdjustBoundaries(time);
     putInBucket(timeBucket, timeBucket, key, value);
   }
 
   @Override
   public Slice getSync(long time, @NotNull Slice key)
   {
-    long timeBucket = timeBucketAssigner.getTimeBucketFor(time);
+    long timeBucket = timeBucketAssigner.getTimeBucketAndAdjustBoundaries(time);
     if (timeBucket == -1) {
       //time is expired so return expired slice.
       return BucketedState.EXPIRED;
@@ -85,7 +85,7 @@ public class ManagedTimeUnifiedStateImpl extends AbstractManagedStateImpl implem
   @Override
   public Future<Slice> getAsync(long time, @NotNull Slice key)
   {
-    long timeBucket = timeBucketAssigner.getTimeBucketFor(time);
+    long timeBucket = timeBucketAssigner.getTimeBucketAndAdjustBoundaries(time);
     if (timeBucket == -1) {
       //time is expired so return expired slice.
       return Futures.immediateFuture(BucketedState.EXPIRED);

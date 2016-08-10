@@ -55,7 +55,7 @@ public class ManagedStateImpl extends AbstractManagedStateImpl implements Bucket
   @Override
   public void put(long bucketId, @NotNull Slice key, @NotNull Slice value)
   {
-    long timeBucket = timeBucketAssigner.getTimeBucketFor(time);
+    long timeBucket = timeBucketAssigner.getTimeBucketAndAdjustBoundaries(time);
     putInBucket(bucketId, timeBucket, key, value);
   }
 

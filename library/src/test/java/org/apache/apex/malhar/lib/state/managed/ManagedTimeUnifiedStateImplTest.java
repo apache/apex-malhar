@@ -110,7 +110,7 @@ public class ManagedTimeUnifiedStateImplTest
 
     testMeta.managedState.setup(testMeta.operatorContext);
 
-    long timeBucket = testMeta.managedState.getTimeBucketAssigner().getTimeBucketFor(time);
+    long timeBucket = testMeta.managedState.getTimeBucketAssigner().getTimeBucketAndAdjustBoundaries(time);
     Map<Slice, Bucket.BucketedValue> unsavedBucket0 = ManagedStateTestUtils.getTestBucketData(0, timeBucket);
 
     //write data to disk explicitly
@@ -132,7 +132,7 @@ public class ManagedTimeUnifiedStateImplTest
 
     testMeta.managedState.setup(testMeta.operatorContext);
 
-    long timeBucket = testMeta.managedState.getTimeBucketAssigner().getTimeBucketFor(time);
+    long timeBucket = testMeta.managedState.getTimeBucketAssigner().getTimeBucketAndAdjustBoundaries(time);
     Map<Slice, Bucket.BucketedValue> unsavedBucket0 = ManagedStateTestUtils.getTestBucketData(0, timeBucket);
 
     //write data to disk explicitly
