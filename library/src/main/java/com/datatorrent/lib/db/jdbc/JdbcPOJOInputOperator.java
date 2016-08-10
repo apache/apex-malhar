@@ -400,7 +400,7 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
           break;
 
         case (Types.DOUBLE):
-          activeFieldInfo.setterOrGetter = PojoUtils.createGetterDouble(pojoClass,
+          activeFieldInfo.setterOrGetter = PojoUtils.createSetterDouble(pojoClass,
               activeFieldInfo.fieldInfo.getPojoFieldExpression());
           break;
 
