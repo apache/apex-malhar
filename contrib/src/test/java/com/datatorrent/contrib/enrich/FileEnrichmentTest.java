@@ -21,7 +21,9 @@ package com.datatorrent.contrib.enrich;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Map;
 
 import org.junit.Assert;
@@ -51,7 +53,7 @@ public class FileEnrichmentTest
     FileUtils.copyFile(new File(origUrl.getPath()), new File(fileUrl.getPath()));
 
     MapEnricher oper = new MapEnricher();
-    FSLoader store = new FSLoader();
+    FSLoader store = new JsonFSLoader();
     store.setFileName(fileUrl.toString());
     oper.setLookupFields(Arrays.asList("productId"));
     oper.setIncludeFields(Arrays.asList("productCategory"));
@@ -99,5 +101,69 @@ public class FileEnrichmentTest
     Assert.assertEquals("value of product category is 1", 5, emitted.get("productCategory"));
     Assert.assertTrue(emitted.get("productCategory") instanceof Integer);
   }
-}
 
+  @Test
+  public void testEnrichmentOperatorDelimitedFSLoader() throws IOException, InterruptedException
+  {
+    URL origUrl = this.getClass().getResource("/productmapping-delim.txt");
+
+    URL fileUrl = new URL(this.getClass().getResource("/").toString() + "productmapping-delim1.txt");
+    FileUtils.deleteQuietly(new File(fileUrl.getPath()));
+    FileUtils.copyFile(new File(origUrl.getPath()), new File(fileUrl.getPath()));
+    MapEnricher oper = new MapEnricher();
+    DelimitedFSLoader store = new DelimitedFSLoader();
+    // store.setFieldDescription("productCategory:INTEGER,productId:INTEGER");
+    store.setFileName(fileUrl.toString());
+    store.setSchema(
+        "{\"separator\":\",\",\"fields\": [{\"name\": \"productCategory\",\"type\": \"Integer\"},{\"name\": \"productId\",\"type\": \"Integer\"},{\"name\": \"mfgDate\",\"type\": \"Date\",\"constraints\": {\"format\": \"dd/MM/yyyy\"}}]}");
+    oper.setLookupFields(Arrays.asList("productId"));
+    oper.setIncludeFields(Arrays.asList("productCategory", "mfgDate"));
+    oper.setStore(store);
+
+    oper.setup(null);
+
+    CollectorTestSink<Map<String, Object>> sink = new CollectorTestSink<>();
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    CollectorTestSink<Object> tmp = (CollectorTestSink)sink;
+    oper.output.setSink(tmp);
+
+    oper.activate(null);
+
+    oper.beginWindow(0);
+    Map<String, Object> tuple = Maps.newHashMap();
+    tuple.put("productId", 3);
+    tuple.put("channelId", 4);
+    tuple.put("amount", 10.0);
+
+    Kryo kryo = new Kryo();
+    oper.input.process(kryo.copy(tuple));
+
+    oper.endWindow();
+
+    oper.deactivate();
+
+    /* Number of tuple, emitted */
+    Assert.assertEquals("Number of tuple emitted ", 1, sink.collectedTuples.size());
+    Map<String, Object> emitted = sink.collectedTuples.iterator().next();
+
+    /* The fields present in original event is kept as it is */
+    Assert.assertEquals("Number of fields in emitted tuple", 5, emitted.size());
+    Assert.assertEquals("value of productId is 3", tuple.get("productId"), emitted.get("productId"));
+    Assert.assertEquals("value of channelId is 4", tuple.get("channelId"), emitted.get("channelId"));
+    Assert.assertEquals("value of amount is 10.0", tuple.get("amount"), emitted.get("amount"));
+
+    /* Check if productCategory is added to the event */
+    Assert.assertEquals("productCategory is part of tuple", true, emitted.containsKey("productCategory"));
+    Assert.assertEquals("value of product category is 1", 5, emitted.get("productCategory"));
+    Assert.assertTrue(emitted.get("productCategory") instanceof Integer);
+
+    /* Check if mfgDate is added to the event */
+    Assert.assertEquals("mfgDate is part of tuple", true, emitted.containsKey("productCategory"));
+    Date mfgDate = (Date)emitted.get("mfgDate");
+    Assert.assertEquals("value of day", 1, mfgDate.getDate());
+    Assert.assertEquals("value of month", 0, mfgDate.getMonth());
+    Assert.assertEquals("value of year", 2016, mfgDate.getYear() + 1900);
+    Assert.assertTrue(emitted.get("mfgDate") instanceof Date);
+  }
+
+}
