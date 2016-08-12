@@ -48,7 +48,7 @@ public class ManagedTimeStateImpl extends AbstractManagedStateImpl implements Ti
   @Override
   public void put(long bucketId, long time, @NotNull Slice key, @NotNull Slice value)
   {
-    long timeBucket = timeBucketAssigner.getTimeBucketFor(time);
+    long timeBucket = timeBucketAssigner.getTimeBucketAndAdjustBoundaries(time);
     putInBucket(bucketId, timeBucket, key, value);
   }
 
@@ -61,7 +61,7 @@ public class ManagedTimeStateImpl extends AbstractManagedStateImpl implements Ti
   @Override
   public Slice getSync(long bucketId, long time, @NotNull Slice key)
   {
-    long timeBucket = timeBucketAssigner.getTimeBucketFor(time);
+    long timeBucket = timeBucketAssigner.getTimeBucketAndAdjustBoundaries(time);
     if (timeBucket == -1) {
       //time is expired so no point in looking further.
       return BucketedState.EXPIRED;
@@ -78,7 +78,7 @@ public class ManagedTimeStateImpl extends AbstractManagedStateImpl implements Ti
   @Override
   public Future<Slice> getAsync(long bucketId, long time, Slice key)
   {
-    long timeBucket = timeBucketAssigner.getTimeBucketFor(time);
+    long timeBucket = timeBucketAssigner.getTimeBucketAndAdjustBoundaries(time);
     if (timeBucket == -1) {
       //time is expired so no point in looking further.
       return Futures.immediateFuture(BucketedState.EXPIRED);

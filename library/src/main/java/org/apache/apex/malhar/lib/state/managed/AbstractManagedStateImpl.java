@@ -245,7 +245,6 @@ public abstract class AbstractManagedStateImpl
     if (throwable.get() != null) {
       Throwables.propagate(throwable.get());
     }
-    timeBucketAssigner.beginWindow(windowId);
   }
 
 

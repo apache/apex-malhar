@@ -20,8 +20,6 @@
 package org.apache.apex.malhar.lib.state.managed;
 
 import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.joda.time.Duration;
 import org.junit.Assert;
@@ -85,39 +83,13 @@ public class TimeBucketAssignerTest
     testMeta.timeBucketAssigner.setup(testMeta.mockManagedStateContext);
 
     long time1 = referenceTime - Duration.standardMinutes(2).getMillis();
-    Assert.assertEquals("time bucket", 1, testMeta.timeBucketAssigner.getTimeBucketFor(time1));
+    Assert.assertEquals("time bucket", 1, testMeta.timeBucketAssigner.getTimeBucketAndAdjustBoundaries(time1));
 
     long time0 = referenceTime - Duration.standardMinutes(40).getMillis();
-    Assert.assertEquals("time bucket", 0, testMeta.timeBucketAssigner.getTimeBucketFor(time0));
+    Assert.assertEquals("time bucket", 0, testMeta.timeBucketAssigner.getTimeBucketAndAdjustBoundaries(time0));
 
     long expiredTime = referenceTime - Duration.standardMinutes(65).getMillis();
-    Assert.assertEquals("time bucket", -1, testMeta.timeBucketAssigner.getTimeBucketFor(expiredTime));
+    Assert.assertEquals("time bucket", -1, testMeta.timeBucketAssigner.getTimeBucketAndAdjustBoundaries(expiredTime));
     testMeta.timeBucketAssigner.teardown();
   }
-
-  @Test
-  public void testSlidingOnlyBetweenWindow() throws InterruptedException
-  {
-    final CountDownLatch latch = new CountDownLatch(1);
-    final AtomicInteger timesCalled = new AtomicInteger();
-    testMeta.timeBucketAssigner.setPurgeListener(new TimeBucketAssigner.PurgeListener()
-    {
-      @Override
-      public void purgeTimeBucketsLessThanEqualTo(long timeBucket)
-      {
-        timesCalled.getAndIncrement();
-        latch.countDown();
-      }
-    });
-
-    testMeta.timeBucketAssigner.setup(testMeta.mockManagedStateContext);
-    testMeta.timeBucketAssigner.beginWindow(0);
-    latch.await();
-    testMeta.timeBucketAssigner.endWindow();
-    int valueBeforeSleep = timesCalled.get();
-    Thread.sleep(1000);
-    Assert.assertEquals("value should not change", valueBeforeSleep, timesCalled.get());
-    testMeta.timeBucketAssigner.teardown();
-  }
-
 }
