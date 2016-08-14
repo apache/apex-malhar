@@ -152,7 +152,7 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
     private final transient ByteArrayOutputStream tmpBuilder;
 
     private transient byte[] buffer;
-    private transient String strBuffer;
+    private transient String bufferStr;
     private transient int posInStr;
 
     public LineReaderContext()
@@ -190,11 +190,11 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
           if (bytesRead == -1) {
             break;
           }
-          strBuffer = new String(buffer);
+          bufferStr = new String(buffer,0, bytesRead);
         }
 
-        while (posInStr < strBuffer.length()) {
-          char c = strBuffer.charAt(posInStr);
+        while (posInStr < bufferStr.length()) {
+          char c = bufferStr.charAt(posInStr);
           if (c != '\r' && c != '\n') {
             tmpBuilder.write(c);
             posInStr++;
@@ -208,8 +208,8 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
         lineBuilder.write(subLine);
 
         if (foundEOL) {
-          while (posInStr < strBuffer.length()) {
-            char c = strBuffer.charAt(posInStr);
+          while (posInStr < bufferStr.length()) {
+            char c = bufferStr.charAt(posInStr);
             if (c == '\r' || c == '\n') {
               emptyBuilder.write(c);
               posInStr++;
@@ -219,6 +219,10 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
           }
           usedBytes += emptyBuilder.toByteArray().length;
         } else {
+          //end of stream reached
+          if (bytesRead < bufferSize) {
+            break;
+          }
           //read more bytes from the input stream
           posInStr = 0;
         }
