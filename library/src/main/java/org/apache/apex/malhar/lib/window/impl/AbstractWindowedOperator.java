@@ -131,7 +131,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   /**
    * Process the incoming data tuple
    *
-   * @param tuple
+   * @param tuple the incoming tuple
    */
   public void processTuple(Tuple<InputT> tuple)
   {
@@ -206,21 +206,21 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   /**
    * This method sets the storage for the data for each window
    *
-   * @param storageAgent
+   * @param dataStorage The data storage
    */
-  public void setDataStorage(DataStorageT storageAgent)
+  public void setDataStorage(DataStorageT dataStorage)
   {
-    this.dataStorage = storageAgent;
+    this.dataStorage = dataStorage;
   }
 
   /**
    * This method sets the storage for the retraction data for each window. Only used when the accumulation mode is ACCUMULATING_AND_RETRACTING
    *
-   * @param storageAgent
+   * @param retractionStorage The retraction storage
    */
-  public void setRetractionStorage(RetractionStorageT storageAgent)
+  public void setRetractionStorage(RetractionStorageT retractionStorage)
   {
-    this.retractionStorage = storageAgent;
+    this.retractionStorage = retractionStorage;
   }
 
   public void addComponent(String key, Component<Context.OperatorContext> component)
@@ -232,7 +232,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
    * Sets the accumulation, which basically tells the WindowedOperator what to do if a new tuple comes in and what
    * to put in the pane when a trigger is fired
    *
-   * @param accumulation
+   * @param accumulation the accumulation
    */
   public void setAccumulation(AccumulationT accumulation)
   {
@@ -345,8 +345,8 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
    * If we are doing sliding windows, this will return multiple windows. Otherwise, only one window will be returned.
    * Note that this method does not apply to SessionWindows.
    *
-   * @param timestamp
-   * @return
+   * @param timestamp the timestamp
+   * @return the windows this timestamp belongs to
    */
   private Collection<Window.TimeWindow> getTimeWindowsForTimestamp(long timestamp)
   {
@@ -378,7 +378,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   @Override
   public boolean isTooLate(long timestamp)
   {
-    return allowedLatenessMillis < 0 ? false : (timestamp < currentWatermark - allowedLatenessMillis);
+    return allowedLatenessMillis >= 0 && (timestamp < currentWatermark - allowedLatenessMillis);
   }
 
   @Override
@@ -395,6 +395,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public void setup(Context.OperatorContext context)
   {
     this.timeIncrement = context.getValue(Context.OperatorContext.APPLICATION_WINDOW_COUNT) * context.getValue(Context.DAGContext.STREAMING_WINDOW_SIZE_MILLIS);
@@ -537,7 +538,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   /**
    * This method fires the normal trigger for the given window.
    *
-   * @param window
+   * @param window the window to fire trigger on
    * @param fireOnlyUpdatedPanes Do not fire trigger if the old value is the same as the new value. If true, retraction storage is required.
    */
   public abstract void fireNormalTrigger(Window window, boolean fireOnlyUpdatedPanes);
@@ -546,7 +547,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
    * This method fires the retraction trigger for the given window. This should only be valid if the accumulation
    * mode is ACCUMULATING_AND_RETRACTING
    *
-   * @param window
+   * @param window the window to fire the retraction trigger on
    */
   public abstract void fireRetractionTrigger(Window window);
 

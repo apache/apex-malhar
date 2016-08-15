@@ -35,7 +35,7 @@ public interface Tuple<T>
   /**
    * Gets the value of the tuple
    *
-   * @return
+   * @return the value
    */
   T getValue();
 
@@ -81,6 +81,7 @@ public interface Tuple<T>
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean equals(Object obj)
     {
       if (obj instanceof PlainTuple) {
@@ -133,6 +134,7 @@ public interface Tuple<T>
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean equals(Object obj)
     {
       if (obj instanceof TimestampedTuple && super.equals(obj)) {
@@ -186,6 +188,7 @@ public interface Tuple<T>
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean equals(Object obj)
     {
       if (obj instanceof WindowedTuple && super.equals(obj)) {

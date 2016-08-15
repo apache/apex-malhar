@@ -42,36 +42,36 @@ public interface WindowedOperator<InputT>
   /**
    * Sets the WindowOption of this operator
    *
-   * @param windowOption
+   * @param windowOption the window option
    */
   void setWindowOption(WindowOption windowOption);
 
   /**
    * Sets the TriggerOption of this operator
    *
-   * @param triggerOption
+   * @param triggerOption the trigger option
    */
   void setTriggerOption(TriggerOption triggerOption);
 
   /**
    * Sets the allowed lateness of this operator
    *
-   * @param allowedLateness
+   * @param allowedLateness the allowed lateness
    */
   void setAllowedLateness(Duration allowedLateness);
 
   /**
    * This sets the function that extracts the timestamp from the input tuple
    *
-   * @param timestampExtractor
+   * @param timestampExtractor the timestamp extractor
    */
   void setTimestampExtractor(Function<InputT, Long> timestampExtractor);
 
   /**
    * Assign window(s) for this input tuple
    *
-   * @param input
-   * @return
+   * @param input the input tuple
+   * @return the windowed tuple
    */
   Tuple.WindowedTuple<InputT> getWindowedValue(Tuple<InputT> input);
 
@@ -80,8 +80,8 @@ public interface WindowedOperator<InputT>
    * The implementation of this operator should look at the allowed lateness in the WindowOption.
    * It should also call this function and if it returns true, it should drop the associated tuple.
    *
-   * @param timestamp
-   * @return
+   * @param timestamp the timestamp
+   * @return whether the timestamp is considered too late
    */
   boolean isTooLate(long timestamp);
 
@@ -89,14 +89,14 @@ public interface WindowedOperator<InputT>
    * This method is supposed to drop the tuple because it has passed the allowed lateness. But an implementation
    * of this method has the chance to do something different (e.g. emit it to another port)
    *
-   * @param input
+   * @param input the input tuple
    */
   void dropTuple(Tuple<InputT> input);
 
   /**
    * This method accumulates the incoming tuple (with the Accumulation interface)
    *
-   * @param tuple
+   * @param tuple the input tuple
    */
   void accumulateTuple(Tuple.WindowedTuple<InputT> tuple);
 
@@ -106,7 +106,7 @@ public interface WindowedOperator<InputT>
    * and change the state of each of those windows. All tuples for those windows arriving after
    * the watermark will be considered late.
    *
-   * @param watermark
+   * @param watermark the watermark tuple
    */
   void processWatermark(ControlTuple.Watermark watermark);
 
@@ -114,14 +114,15 @@ public interface WindowedOperator<InputT>
    * This method fires the trigger for the given window, and possibly retraction trigger. The implementation should clear
    * the window data in the storage if the accumulation mode is DISCARDING
    *
-   * @param window
+   * @param window the window
+   * @param windowState the window state
    */
   void fireTrigger(Window window, WindowState windowState);
 
   /**
    * This method clears the window data in the storage.
    *
-   * @param window
+   * @param window the window
    */
   void clearWindowData(Window window);
 

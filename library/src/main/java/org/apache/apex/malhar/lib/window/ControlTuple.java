@@ -37,7 +37,7 @@ public interface ControlTuple
     /**
      * Gets the timestamp associated with this watermark
      *
-     * @return
+     * @return the timestamp
      */
     long getTimestamp();
   }

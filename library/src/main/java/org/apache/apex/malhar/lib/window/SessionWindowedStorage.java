@@ -38,8 +38,8 @@ public interface SessionWindowedStorage<K, V> extends WindowedStorage.WindowedKe
    * Migrate the data from one window to another. This will invalidate fromWindow in the storage and move the
    * data to toWindow, and overwrite any existing data in toWindow
    *
-   * @param fromWindow
-   * @param toWindow
+   * @param fromWindow the window we want to migrate from
+   * @param toWindow the window we want to migrate to
    */
   void migrateWindow(Window.SessionWindow<K> fromWindow, Window.SessionWindow<K> toWindow);
 
@@ -51,8 +51,8 @@ public interface SessionWindowedStorage<K, V> extends WindowedStorage.WindowedKe
    *
    * @param key the key
    * @param timestamp the timestamp
-   * @param gap
-   * @return
+   * @param gap the minimum gap
+   * @return the windows
    */
   Collection<Map.Entry<Window.SessionWindow<K>, V>> getSessionEntries(K key, long timestamp, long gap);
 }

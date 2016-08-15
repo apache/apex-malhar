@@ -37,21 +37,21 @@ public interface WindowedStorage extends Component<Context.OperatorContext>
   /**
    * Returns true if the storage contains this window
    *
-   * @param window
+   * @param window the window
    */
   boolean containsWindow(Window window);
 
   /**
    * Returns the number of windows in the storage
    *
-   * @return
+   * @return the number of windows
    */
   long size();
 
   /**
    * Removes all the data associated with the given window. This does NOT mean removing the window in checkpointed state
    *
-   * @param window
+   * @param window the window
    */
   void remove(Window window);
 
@@ -68,23 +68,23 @@ public interface WindowedStorage extends Component<Context.OperatorContext>
     /**
      * Sets the data associated with the given window
      *
-     * @param window
-     * @param value
+     * @param window the window
+     * @param value the value
      */
     void put(Window window, T value);
 
     /**
      * Gets the value associated with the given window
      *
-     * @param window
-     * @return
+     * @param window the window
+     * @return the value
      */
     T get(Window window);
 
     /**
      * Returns the iterable of the entries in the storage
      *
-     * @return
+     * @return the entries
      */
     Iterable<Map.Entry<Window, T>> entries();
   }
@@ -100,26 +100,26 @@ public interface WindowedStorage extends Component<Context.OperatorContext>
     /**
      * Sets the data associated with the given window and the key
      *
-     * @param window
-     * @param key
-     * @param value
+     * @param window the window
+     * @param key the key
+     * @param value the value
      */
     void put(Window window, K key, V value);
 
     /**
      * Gets an iterable object over the key/value pairs associated with the given window
      *
-     * @param window
-     * @return
+     * @param window the window
+     * @return the entries
      */
     Iterable<Map.Entry<K, V>> entries(Window window);
 
     /**
      * Gets the data associated with the given window and the key
      *
-     * @param window
-     * @param key
-     * @return
+     * @param window the window
+     * @param key the key
+     * @return the value
      */
     V get(Window window, K key);
 

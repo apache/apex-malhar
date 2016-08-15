@@ -45,13 +45,15 @@ public class InMemorySessionWindowedStorage<K, V> extends InMemoryWindowedKeyedS
   @Override
   public void put(Window window, K key, V value)
   {
+    @SuppressWarnings("unchecked")
+    Window.SessionWindow<K> sessionWindow = (Window.SessionWindow<K>)window;
     super.put(window, key, value);
     TreeSet<Window.SessionWindow<K>> sessionWindows = keyToWindows.get(key);
     if (sessionWindows == null) {
       sessionWindows = new TreeSet<>();
       keyToWindows.put(key, sessionWindows);
     }
-    sessionWindows.add((Window.SessionWindow<K>)window);
+    sessionWindows.add(sessionWindow);
   }
 
   @Override

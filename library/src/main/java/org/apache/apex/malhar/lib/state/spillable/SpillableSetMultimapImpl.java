@@ -167,7 +167,7 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
     if (spillableSet != null) {
       cache.remove((K)key);
       Slice keySlice = SliceUtils.concatenate(serdeKey.serialize((K)key), META_KEY_SUFFIX);
-      map.remove(keySlice);
+      map.put(keySlice, new ImmutablePair<>(0, spillableSet.getHead()));
       spillableSet.clear();
       removedSets.add(spillableSet);
     }
@@ -200,7 +200,8 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
       return true;
     }
     Slice keySlice = SliceUtils.concatenate(serdeKey.serialize((K)key), META_KEY_SUFFIX);
-    return map.containsKey(keySlice);
+    Pair<Integer, V> meta = map.get(keySlice);
+    return meta != null && meta.getLeft() > 0;
   }
 
   @Override
@@ -230,8 +231,7 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
       spillableSet = new SpillableSetImpl<>(bucket, keyPrefix.toByteArray(), store, serdeValue);
       cache.put(key, spillableSet);
     }
-    spillableSet.add(value);
-    return true;
+    return spillableSet.add(value);
   }
 
   @Override

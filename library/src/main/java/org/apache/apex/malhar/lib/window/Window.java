@@ -105,7 +105,7 @@ public interface Window<WINDOW extends Comparable<WINDOW>> extends Comparable<WI
     /**
      * Gets the beginning timestamp of this window
      *
-     * @return
+     * @return the begin timestamp
      */
     @Override
     public long getBeginTimestamp()
@@ -116,7 +116,7 @@ public interface Window<WINDOW extends Comparable<WINDOW>> extends Comparable<WI
     /**
      * Gets the duration millis of this window
      *
-     * @return
+     * @return the duration
      */
     @Override
     public long getDurationMillis()
@@ -198,6 +198,7 @@ public interface Window<WINDOW extends Comparable<WINDOW>> extends Comparable<WI
         return false;
       }
       if (other instanceof SessionWindow) {
+        @SuppressWarnings("unchecked")
         SessionWindow<K> otherSessionWindow = (SessionWindow<K>)other;
         if (key == null) {
           return otherSessionWindow.key == null;

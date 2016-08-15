@@ -37,33 +37,33 @@ public interface Accumulation<InputT, AccumT, OutputT>
   /**
    * Returns the default accumulated value when nothing has been accumulated
    *
-   * @return
+   * @return the default accumulated value
    */
   AccumT defaultAccumulatedValue();
 
   /**
    * Accumulates the input to the accumulated value
    *
-   * @param accumulatedValue
-   * @param input
-   * @return
+   * @param accumulatedValue the accumulated value
+   * @param input the input value
+   * @return the result accumulated value
    */
   AccumT accumulate(AccumT accumulatedValue, InputT input);
 
   /**
    * Merges two accumulated values into one
    *
-   * @param accumulatedValue1
-   * @param accumulatedValue2
-   * @return
+   * @param accumulatedValue1 the first accumulated value
+   * @param accumulatedValue2 the second accumulated value
+   * @return the result accumulated value
    */
   AccumT merge(AccumT accumulatedValue1, AccumT accumulatedValue2);
 
   /**
    * Gets the output of the accumulated value. This is used for generating the data for triggers
    *
-   * @param accumulatedValue
-   * @return
+   * @param accumulatedValue the accumulated value
+   * @return the output
    */
   OutputT getOutput(AccumT accumulatedValue);
 
@@ -71,8 +71,8 @@ public interface Accumulation<InputT, AccumT, OutputT>
    * Gets the retraction of the value. This is used for retracting previous panes in
    * ACCUMULATING_AND_RETRACTING accumulation mode
    *
-   * @param value
-   * @return
+   * @param value the value to be retracted
+   * @return the retracted value
    */
   OutputT getRetraction(OutputT value);
 }

@@ -138,7 +138,7 @@ public class TriggerOption
   /**
    * Creates a TriggerOption with an initial trigger that should be fired at the watermark
    *
-   * @return
+   * @return the TriggerOption
    */
   public static TriggerOption AtWatermark()
   {
@@ -151,8 +151,8 @@ public class TriggerOption
   /**
    * A trigger should be fired before the watermark once for every specified duration
    *
-   * @param duration
-   * @return
+   * @param duration the duration
+   * @return the TriggerOption
    */
   public TriggerOption withEarlyFiringsAtEvery(Duration duration)
   {
@@ -164,8 +164,8 @@ public class TriggerOption
   /**
    * A trigger should be fired before the watermark once for every n tuple(s)
    *
-   * @param count
-   * @return
+   * @param count the count
+   * @return the TriggerOption
    */
   public TriggerOption withEarlyFiringsAtEvery(long count)
   {
@@ -177,8 +177,8 @@ public class TriggerOption
   /**
    * A trigger should be fired after the watermark once for every specified duration
    *
-   * @param duration
-   * @return
+   * @param duration the duration
+   * @return the TriggerOption
    */
   public TriggerOption withLateFiringsAtEvery(Duration duration)
   {
@@ -190,8 +190,8 @@ public class TriggerOption
   /**
    * A trigger should be fired after the watermark once for every n late tuple(s)
    *
-   * @param count
-   * @return
+   * @param count the count
+   * @return the TriggerOption
    */
   public TriggerOption withLateFiringsAtEvery(long count)
   {
@@ -203,7 +203,7 @@ public class TriggerOption
   /**
    * With discarding mode, the state is discarded after each trigger
    *
-   * @return
+   * @return the TriggerOption
    */
   public TriggerOption discardingFiredPanes()
   {
@@ -214,7 +214,7 @@ public class TriggerOption
   /**
    * With accumulating mode, the state is kept
    *
-   * @return
+   * @return the TriggerOption
    */
   public TriggerOption accumulatingFiredPanes()
   {
@@ -227,7 +227,7 @@ public class TriggerOption
    * so when new values come in that change the state, a retraction trigger can be fired with the snapshot of the state
    * when the last trigger was fired
    *
-   * @return
+   * @return the TriggerOption
    */
   public TriggerOption accumulatingAndRetractingFiredPanes()
   {
@@ -239,7 +239,7 @@ public class TriggerOption
    * Only fire triggers for data that has changed from the last trigger. This only applies to ACCUMULATING and
    * ACCUMULATING_AND_RETRACTING accumulation modes.
    *
-   * @return
+   * @return the TriggerOption
    */
   public TriggerOption firingOnlyUpdatedPanes()
   {
@@ -250,7 +250,7 @@ public class TriggerOption
   /**
    * Gets the accumulation mode
    *
-   * @return
+   * @return the AccumulationMode
    */
   public AccumulationMode getAccumulationMode()
   {
@@ -260,7 +260,7 @@ public class TriggerOption
   /**
    * Gets the trigger list
    *
-   * @return
+   * @return the trigger list
    */
   public List<Trigger> getTriggerList()
   {
@@ -271,7 +271,7 @@ public class TriggerOption
    * Returns whether we should only fire panes that have been updated since the last trigger.
    * When this option is set, DISCARDING accumulation mode must not be used.
    *
-   * @return
+   * @return whether we want to fire only updated panes
    */
   public boolean isFiringOnlyUpdatedPanes()
   {
