@@ -30,7 +30,7 @@ import java.util.Set;
 import org.apache.apex.malhar.lib.state.spillable.Spillable;
 import org.apache.apex.malhar.lib.window.SessionWindowedStorage;
 import org.apache.apex.malhar.lib.window.Window;
-import org.apache.apex.malhar.lib.window.WindowedKeyedStorage;
+import org.apache.apex.malhar.lib.window.WindowedStorage;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
@@ -40,7 +40,7 @@ import org.apache.hadoop.classification.InterfaceStability;
  */
 @InterfaceStability.Unstable
 public class InMemoryWindowedKeyedStorage<K, V> extends InMemoryWindowedStorage<Map<K, V>>
-    implements WindowedKeyedStorage<K, V>, SessionWindowedStorage<K, V>
+    implements WindowedStorage.WindowedKeyedStorage<K, V>, SessionWindowedStorage<K, V>
 {
   @Override
   public void put(Window window, K key, V value)
@@ -49,7 +49,7 @@ public class InMemoryWindowedKeyedStorage<K, V> extends InMemoryWindowedStorage<
     if (map.containsKey(window)) {
       kvMap = map.get(window);
     } else {
-      kvMap = new HashMap<K, V>();
+      kvMap = new HashMap<>();
       map.put(window, kvMap);
     }
     kvMap.put(key, value);
@@ -72,6 +72,14 @@ public class InMemoryWindowedKeyedStorage<K, V> extends InMemoryWindowedStorage<
       return map.get(window).get(key);
     } else {
       return null;
+    }
+  }
+
+  @Override
+  public void migrateWindow(Window fromWindow, Window toWindow)
+  {
+    if (containsWindow(fromWindow)) {
+      map.put(toWindow, map.remove(fromWindow));
     }
   }
 

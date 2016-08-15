@@ -60,6 +60,11 @@ public class OperatorContextTestHelper
       this.attributes = map;
     }
 
+    public com.datatorrent.api.Attribute.AttributeMap getAttributes()
+    {
+      return attributes;
+    }
+
     @Override
     public int getId()
     {

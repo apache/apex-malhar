@@ -18,8 +18,8 @@
  */
 package org.apache.apex.malhar.lib.window;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.hadoop.classification.InterfaceStability;
 
@@ -43,11 +43,12 @@ public interface Tuple<T>
    */
   class PlainTuple<T> implements Tuple<T>
   {
-    private T value;
+    private final T value;
 
     private PlainTuple()
     {
       // for kryo
+      value = null;
     }
 
     public PlainTuple(T value)
@@ -58,11 +59,6 @@ public interface Tuple<T>
     public T getValue()
     {
       return value;
-    }
-
-    public void setValue(T value)
-    {
-      this.value = value;
     }
 
     @Override
@@ -79,11 +75,12 @@ public interface Tuple<T>
    */
   class TimestampedTuple<T> extends PlainTuple<T>
   {
-    private long timestamp;
+    private final long timestamp;
 
     private TimestampedTuple()
     {
       // for kryo
+      timestamp = -1;
     }
 
     public TimestampedTuple(long timestamp, T value)
@@ -97,10 +94,6 @@ public interface Tuple<T>
       return timestamp;
     }
 
-    public void setTimestamp(long timestamp)
-    {
-      this.timestamp = timestamp;
-    }
   }
 
   /**
@@ -110,26 +103,29 @@ public interface Tuple<T>
    */
   class WindowedTuple<T> extends TimestampedTuple<T>
   {
-    private List<Window> windows = new ArrayList<>();
+    private final Collection<? extends Window> windows;
 
-    public WindowedTuple()
+    private WindowedTuple()
     {
+      // for kryo
+      windows = Collections.emptySet();
+    }
+
+    public WindowedTuple(Collection<? extends Window> windows, long timestamp, T value)
+    {
+      super(timestamp, value);
+      this.windows = windows;
     }
 
     public WindowedTuple(Window window, T value)
     {
       super(window.getBeginTimestamp(), value);
-      this.windows.add(window);
+      windows = Collections.singleton(window);
     }
 
-    public List<Window> getWindows()
+    public Collection<? extends Window> getWindows()
     {
       return windows;
-    }
-
-    public void addWindow(Window window)
-    {
-      this.windows.add(window);
     }
   }
 
