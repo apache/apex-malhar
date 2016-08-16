@@ -30,23 +30,17 @@ import com.datatorrent.netlet.util.Slice;
  * @since 3.5.0
  */
 @InterfaceStability.Evolving
-public class PassThruSliceSerde implements Serde<Slice, Slice>
+public class PassThruSliceSerde implements Serde<Slice>
 {
   @Override
-  public Slice serialize(Slice object)
+  public void serialize(Slice slice, SerializationBuffer buffer)
   {
-    return object;
+    buffer.write(slice.buffer, slice.offset, slice.length);
   }
 
   @Override
-  public Slice deserialize(Slice object, MutableInt offset)
+  public Slice deserialize(byte[] buffer, MutableInt offset, int length)
   {
-    return object;
-  }
-
-  @Override
-  public Slice deserialize(Slice object)
-  {
-    return object;
+    return new Slice(buffer, offset.intValue(), length);
   }
 }

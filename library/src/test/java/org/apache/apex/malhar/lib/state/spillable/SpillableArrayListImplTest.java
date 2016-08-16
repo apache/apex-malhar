@@ -23,7 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.apex.malhar.lib.state.spillable.inmem.InMemSpillableStateStore;
-import org.apache.apex.malhar.lib.utils.serde.SerdeStringSlice;
+import org.apache.apex.malhar.lib.utils.serde.StringSerde;
 
 import com.google.common.collect.Lists;
 
@@ -58,7 +58,7 @@ public class SpillableArrayListImplTest
   public void simpleAddGetAndSetTest1Helper(SpillableStateStore store)
   {
     SpillableArrayListImpl<String> list = new SpillableArrayListImpl<>(0L, ID1, store,
-        new SerdeStringSlice(), 1);
+        new StringSerde(), 1);
 
     store.setup(testMeta.operatorContext);
     list.setup(testMeta.operatorContext);
@@ -177,7 +177,7 @@ public class SpillableArrayListImplTest
   private void simpleAddGetAndSetTest3Helper(SpillableStateStore store)
   {
     SpillableArrayListImpl<String> list = new SpillableArrayListImpl<>(0L, ID1, store,
-        new SerdeStringSlice(), 3);
+        new StringSerde(), 3);
 
     store.setup(testMeta.operatorContext);
     list.setup(testMeta.operatorContext);
@@ -321,10 +321,10 @@ public class SpillableArrayListImplTest
   public void simpleMultiListTestHelper(SpillableStateStore store)
   {
     SpillableArrayListImpl<String> list1 = new SpillableArrayListImpl<>(0L, ID1, store,
-        new SerdeStringSlice(), 1);
+        new StringSerde(), 1);
 
     SpillableArrayListImpl<String> list2 = new SpillableArrayListImpl<>(0L, ID2, store,
-        new SerdeStringSlice(), 1);
+        new StringSerde(), 1);
 
     store.setup(testMeta.operatorContext);
     list1.setup(testMeta.operatorContext);
@@ -483,7 +483,7 @@ public class SpillableArrayListImplTest
     SpillableStateStore store = testMeta.store;
 
     SpillableArrayListImpl<String> list = new SpillableArrayListImpl<>(0L, ID1, store,
-        new SerdeStringSlice(), 3);
+        new StringSerde(), 3);
 
     store.setup(testMeta.operatorContext);
     list.setup(testMeta.operatorContext);

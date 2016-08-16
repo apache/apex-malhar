@@ -21,23 +21,26 @@ package org.apache.apex.malhar.lib.utils.serde;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.datatorrent.netlet.util.Slice;
 
-public class SerdePairSliceTest
+public class PairSerdeTest
 {
   @Test
   public void simpleSerdeTest()
   {
-    SerdePairSlice<String, Integer> serdePair = new SerdePairSlice<>(new SerdeStringSlice(), new SerdeIntSlice());
+    PairSerde<String, Integer> serdePair = new PairSerde<>(new StringSerde(), new IntSerde());
 
     Pair<String, Integer> pair = new ImmutablePair<>("abc", 123);
 
-    Slice slice = serdePair.serialize(pair);
+    SerializationBuffer buffer = new DefaultSerializationBuffer(new WindowedBlockStream());
+    serdePair.serialize(pair, buffer);
+    Slice slice = buffer.toSlice();
 
-    Pair<String, Integer> deserializedPair = serdePair.deserialize(slice);
+    Pair<String, Integer> deserializedPair = serdePair.deserialize(slice.buffer, new MutableInt(slice.offset), slice.length);
 
     Assert.assertEquals(pair, deserializedPair);
   }

@@ -16,23 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.state.spillable;
-
-import org.apache.apex.malhar.lib.state.BucketedState;
-import org.apache.apex.malhar.lib.state.managed.BucketProvider;
-import org.apache.hadoop.classification.InterfaceStability;
-
-import com.datatorrent.api.Component;
-import com.datatorrent.api.Context;
-import com.datatorrent.api.Operator;
+package org.apache.apex.malhar.lib.state.managed;
 
 /**
- * Implementations of this interface are used by Spillable datastructures to spill data to disk.
+ * This interface declares methods to get bucket by bucket id
  *
- * @since 3.5.0
  */
-@InterfaceStability.Evolving
-public interface SpillableStateStore extends BucketedState, Component<Context.OperatorContext>,
-    Operator.CheckpointNotificationListener, WindowListener, BucketProvider
+public interface BucketProvider
 {
+  /**
+   * get bucket by bucket id
+   * @param bucketId
+   * @return
+   */
+  public Bucket getBucket(long bucketId);
+
+  /**
+   * Create bucket if not exist, return the bucket
+   * @param bucketId
+   * @return
+   */
+  public Bucket ensureBucket(long bucketId);
 }

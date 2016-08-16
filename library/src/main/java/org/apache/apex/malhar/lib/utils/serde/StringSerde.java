@@ -16,23 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.state.spillable;
+package org.apache.apex.malhar.lib.utils.serde;
 
-import org.apache.apex.malhar.lib.state.BucketedState;
-import org.apache.apex.malhar.lib.state.managed.BucketProvider;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.classification.InterfaceStability;
 
-import com.datatorrent.api.Component;
-import com.datatorrent.api.Context;
-import com.datatorrent.api.Operator;
+import com.datatorrent.lib.appdata.gpo.GPOUtils;
 
 /**
- * Implementations of this interface are used by Spillable datastructures to spill data to disk.
+ * An implementation of {@link Serde} which serializes and deserializes {@link String}s.
  *
  * @since 3.5.0
  */
 @InterfaceStability.Evolving
-public interface SpillableStateStore extends BucketedState, Component<Context.OperatorContext>,
-    Operator.CheckpointNotificationListener, WindowListener, BucketProvider
+public class StringSerde implements Serde<String>
 {
+  @Override
+  public void serialize(String string, SerializationBuffer buffer)
+  {
+    buffer.writeStringPrefixedByLength(string);
+  }
+
+  @Override
+  public String deserialize(byte[] buffer, MutableInt offset, int length)
+  {
+    return GPOUtils.deserializeString(buffer, offset);
+  }
 }

@@ -18,38 +18,28 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.hadoop.classification.InterfaceStability;
+import org.junit.Assert;
+import org.junit.Test;
 
-import com.datatorrent.lib.appdata.gpo.GPOUtils;
+import org.apache.commons.lang3.mutable.MutableInt;
+
 import com.datatorrent.netlet.util.Slice;
 
-/**
- * An implementation of {@link Serde} which serializes and deserializes {@link String}s.
- *
- * @since 3.5.0
- */
-@InterfaceStability.Evolving
-public class SerdeStringSlice implements Serde<String, Slice>
+public class AffixSerdeTest
 {
-  @Override
-  public Slice serialize(String object)
+  @Test
+  public void simpleTest()
   {
-    return new Slice(GPOUtils.serializeString(object));
-  }
+    SerializationBuffer buffer = new DefaultSerializationBuffer(new WindowedBlockStream());
+    AffixSerde<String> serde = new AffixSerde<>(new byte[]{1, 2, 3}, new StringSerde(), new byte[]{9});
 
-  @Override
-  public String deserialize(Slice object, MutableInt offset)
-  {
-    offset.add(object.offset);
-    String string = GPOUtils.deserializeString(object.buffer, offset);
-    offset.subtract(object.offset);
-    return string;
-  }
+    final String orgValue = "abc";
+    serde.serialize(orgValue, buffer);
+    Slice slice = buffer.toSlice();
 
-  @Override
-  public String deserialize(Slice object)
-  {
-    return deserialize(object, new MutableInt(0));
+    Assert.assertArrayEquals(new byte[]{1, 2, 3, 0, 0, 0, 3, 'a', 'b', 'c', 9}, slice.toByteArray());
+
+    String value = serde.deserialize(slice.buffer, new MutableInt(slice.offset), slice.length);
+    Assert.assertEquals("Expected value: " + orgValue + ", actual value: " + value, orgValue, value);
   }
 }

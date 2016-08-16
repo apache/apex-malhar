@@ -16,23 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.state.spillable;
+package com.datatorrent.benchmark.spillable;
 
-import org.apache.apex.malhar.lib.state.BucketedState;
-import org.apache.apex.malhar.lib.state.managed.BucketProvider;
-import org.apache.hadoop.classification.InterfaceStability;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.common.util.BaseOperator;
 
-import com.datatorrent.api.Component;
-import com.datatorrent.api.Context;
-import com.datatorrent.api.Operator;
-
-/**
- * Implementations of this interface are used by Spillable datastructures to spill data to disk.
- *
- * @since 3.5.0
- */
-@InterfaceStability.Evolving
-public interface SpillableStateStore extends BucketedState, Component<Context.OperatorContext>,
-    Operator.CheckpointNotificationListener, WindowListener, BucketProvider
+public class SpillableTestInputOperator extends BaseOperator implements InputOperator
 {
+  public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
+  public long count = 0;
+  public int batchSize = 100;
+  public int sleepBetweenBatch = 1;
+
+  @Override
+  public void emitTuples()
+  {
+    for (int i = 0; i < batchSize; ++i) {
+      output.emit("" + ++count);
+    }
+    if (sleepBetweenBatch > 0) {
+      try {
+        Thread.sleep(sleepBetweenBatch);
+      } catch (InterruptedException e) {
+        //ignore
+      }
+    }
+  }
 }

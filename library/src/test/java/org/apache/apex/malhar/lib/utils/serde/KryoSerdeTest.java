@@ -24,6 +24,8 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.commons.lang3.mutable.MutableInt;
+
 import com.google.common.collect.Lists;
 
 import com.datatorrent.netlet.util.Slice;
@@ -31,7 +33,7 @@ import com.datatorrent.netlet.util.Slice;
 /**
  * SerdeKryoSlice unit tests
  */
-public class SerdeKryoSliceTest
+public class KryoSerdeTest
 {
   public static class TestPojo
   {
@@ -59,21 +61,25 @@ public class SerdeKryoSliceTest
   @Test
   public void stringListTest()
   {
-    SerdeKryoSlice<ArrayList> serdeList = new SerdeKryoSlice<>(ArrayList.class);
+    KryoSerde<ArrayList> serdeList = new KryoSerde<>(ArrayList.class);
 
     ArrayList<String> stringList = Lists.newArrayList("a", "b", "c");
-    Slice slice = serdeList.serialize(stringList);
-    List<String> deserializedList = serdeList.deserialize(slice);
+    SerializationBuffer buffer = new DefaultSerializationBuffer(new WindowedBlockStream());
+    serdeList.serialize(stringList, buffer);
+    Slice slice = buffer.toSlice();
+    List<String> deserializedList = serdeList.deserialize(slice.buffer, new MutableInt(slice.offset), slice.length);
     Assert.assertEquals(stringList, deserializedList);
   }
 
   @Test
   public void pojoTest()
   {
-    SerdeKryoSlice<TestPojo> serdePojo = new SerdeKryoSlice<>();
+    KryoSerde<TestPojo> serdePojo = new KryoSerde<>();
     TestPojo pojo = new TestPojo(345, "xyz");
-    Slice slice = serdePojo.serialize(pojo);
-    TestPojo deserializedPojo = serdePojo.deserialize(slice);
+    SerializationBuffer buffer = new DefaultSerializationBuffer(new WindowedBlockStream());
+    serdePojo.serialize(pojo, buffer);
+    Slice slice = buffer.toSlice();
+    TestPojo deserializedPojo = serdePojo.deserialize(slice.buffer, new MutableInt(slice.offset), slice.length);
     Assert.assertEquals(pojo, deserializedPojo);
   }
 }

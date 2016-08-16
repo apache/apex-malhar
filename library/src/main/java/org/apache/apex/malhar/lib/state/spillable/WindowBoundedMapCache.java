@@ -21,6 +21,9 @@ package org.apache.apex.malhar.lib.state.spillable;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.google.common.base.Preconditions;
@@ -39,6 +42,7 @@ import com.google.common.collect.Sets;
 @InterfaceStability.Evolving
 public class WindowBoundedMapCache<K, V>
 {
+  private static final transient Logger logger = LoggerFactory.getLogger(WindowBoundedMapCache.class);
   public static final int DEFAULT_MAX_SIZE = 50000;
 
   private int maxSize = DEFAULT_MAX_SIZE;
@@ -109,7 +113,6 @@ public class WindowBoundedMapCache<K, V>
     Note: beginWindow is intentionally not implemented because many users need a cache that does not require
     beginWindow to be called.
    */
-
   public void endWindow()
   {
     int count = cache.size() - maxSize;

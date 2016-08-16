@@ -27,15 +27,14 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.apex.malhar.lib.state.spillable.Spillable;
 import org.apache.apex.malhar.lib.state.spillable.SpillableComplexComponent;
+import org.apache.apex.malhar.lib.utils.serde.KryoSerde;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
-import org.apache.apex.malhar.lib.utils.serde.SerdeKryoSlice;
 import org.apache.apex.malhar.lib.window.Window;
 import org.apache.apex.malhar.lib.window.WindowedStorage;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.netlet.util.Slice;
 
 /**
  * Implementation of WindowedKeyedStorage using {@link Spillable} data structures
@@ -48,10 +47,10 @@ public class SpillableWindowedKeyedStorage<K, V> implements WindowedStorage.Wind
   @NotNull
   protected SpillableComplexComponent scc;
   protected long bucket;
-  protected Serde<Window, Slice> windowSerde;
-  protected Serde<Pair<Window, K>, Slice> windowKeyPairSerde;
-  protected Serde<K, Slice> keySerde;
-  protected Serde<V, Slice> valueSerde;
+  protected Serde<Window> windowSerde;
+  protected Serde<Pair<Window, K>> windowKeyPairSerde;
+  protected Serde<K> keySerde;
+  protected Serde<V> valueSerde;
 
   protected Spillable.SpillableMap<Pair<Window, K>, V> windowKeyToValueMap;
   protected Spillable.SpillableSetMultimap<Window, K> windowToKeysMap;
@@ -96,7 +95,7 @@ public class SpillableWindowedKeyedStorage<K, V> implements WindowedStorage.Wind
   }
 
   public SpillableWindowedKeyedStorage(long bucket,
-      Serde<Window, Slice> windowSerde, Serde<Pair<Window, K>, Slice> windowKeyPairSerde, Serde<K, Slice> keySerde, Serde<V, Slice> valueSerde)
+      Serde<Window> windowSerde, Serde<Pair<Window, K>> windowKeyPairSerde, Serde<K> keySerde, Serde<V> valueSerde)
   {
     this.bucket = bucket;
     this.windowSerde = windowSerde;
@@ -120,17 +119,17 @@ public class SpillableWindowedKeyedStorage<K, V> implements WindowedStorage.Wind
     this.bucket = bucket;
   }
 
-  public void setWindowSerde(Serde<Window, Slice> windowSerde)
+  public void setWindowSerde(Serde<Window> windowSerde)
   {
     this.windowSerde = windowSerde;
   }
 
-  public void setWindowKeyPairSerde(Serde<Pair<Window, K>, Slice> windowKeyPairSerde)
+  public void setWindowKeyPairSerde(Serde<Pair<Window, K>> windowKeyPairSerde)
   {
     this.windowKeyPairSerde = windowKeyPairSerde;
   }
 
-  public void setValueSerde(Serde<V, Slice> valueSerde)
+  public void setValueSerde(Serde<V> valueSerde)
   {
     this.valueSerde = valueSerde;
   }
@@ -168,16 +167,16 @@ public class SpillableWindowedKeyedStorage<K, V> implements WindowedStorage.Wind
     }
     // set default serdes
     if (windowSerde == null) {
-      windowSerde = new SerdeKryoSlice<>();
+      windowSerde = new KryoSerde<>();
     }
     if (windowKeyPairSerde == null) {
-      windowKeyPairSerde = new SerdeKryoSlice<>();
+      windowKeyPairSerde = new KryoSerde<>();
     }
     if (keySerde == null) {
-      keySerde = new SerdeKryoSlice<>();
+      keySerde = new KryoSerde<>();
     }
     if (valueSerde == null) {
-      valueSerde = new SerdeKryoSlice<>();
+      valueSerde = new KryoSerde<>();
     }
 
     if (windowKeyToValueMap == null) {
@@ -220,5 +219,4 @@ public class SpillableWindowedKeyedStorage<K, V> implements WindowedStorage.Wind
   {
     return windowKeyToValueMap.get(new ImmutablePair<>(window, key));
   }
-
 }

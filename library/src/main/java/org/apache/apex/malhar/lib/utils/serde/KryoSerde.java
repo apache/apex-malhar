@@ -27,8 +27,6 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
-import com.datatorrent.netlet.util.Slice;
-
 /**
  * Generic serde using Kryo serialization. Note that while this is convenient, it may not be desirable because
  * using Kryo makes the object being serialized rigid, meaning you won't be able to make backward compatible or
@@ -37,11 +35,12 @@ import com.datatorrent.netlet.util.Slice;
  * @param <T> The type being serialized
  */
 @InterfaceStability.Evolving
-public class SerdeKryoSlice<T> implements Serde<T, Slice>
+public class KryoSerde<T> implements Serde<T>
 {
   // Setup ThreadLocal of Kryo instances
   private static final ThreadLocal<Kryo> kryos = new ThreadLocal<Kryo>()
   {
+    @Override
     protected Kryo initialValue()
     {
       Kryo kryo = new Kryo();
@@ -52,18 +51,22 @@ public class SerdeKryoSlice<T> implements Serde<T, Slice>
 
   private final Class<? extends T> clazz;
 
-  public SerdeKryoSlice()
+  public KryoSerde()
   {
     this.clazz = null;
   }
 
-  public SerdeKryoSlice(Class<? extends T> clazz)
+  public KryoSerde(Class<? extends T> clazz)
   {
     this.clazz = clazz;
   }
 
+  /**
+   * Current implementation writes to the temporary ByteArrayOutputStream and then copy
+   * TODO: let SerializationBuffer support kyro.
+   */
   @Override
-  public Slice serialize(T object)
+  public void serialize(T object, SerializationBuffer buffer)
   {
     Kryo kryo = kryos.get();
     ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -73,28 +76,21 @@ public class SerdeKryoSlice<T> implements Serde<T, Slice>
     } else {
       kryo.writeObject(output, object);
     }
-    return new Slice(output.toBytes());
+    buffer.write(output.toBytes());
   }
 
   @Override
-  public T deserialize(Slice slice, MutableInt offset)
+  public T deserialize(byte[] buffer, MutableInt offset, int length)
   {
-    byte[] bytes = slice.toByteArray();
     Kryo kryo = kryos.get();
-    Input input = new Input(bytes, offset.intValue(), bytes.length - offset.intValue());
+    Input input = new Input(buffer, offset.intValue(), length);
     T object;
     if (clazz == null) {
       object = (T)kryo.readClassAndObject(input);
     } else {
       object = kryo.readObject(input, clazz);
     }
-    offset.setValue(bytes.length - input.position());
+    offset.add(length);
     return object;
-  }
-
-  @Override
-  public T deserialize(Slice slice)
-  {
-    return deserialize(slice, new MutableInt(0));
   }
 }

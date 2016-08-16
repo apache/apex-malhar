@@ -18,28 +18,30 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.hadoop.classification.InterfaceStability;
-
 /**
- * This is a simple pass through {@link Serde}. When serialization is performed the input byte array is returned.
- * Similarly when deserialization is performed the input byte array is returned.
- *
- * @since 3.4.0
+ * The process of interface would be:
+ * - Stream keep on reporting how many free blocks it has in certain frequent. usually at the end of each window
+ * - Stream check how many block should release. Stream usually release the blocks but Stream can make its own decision
+ * - Stream report how many blocks actually released
  */
-@InterfaceStability.Evolving
-public class PassThruByteArraySerde implements Serde<byte[]>
+public interface BlockReleaseStrategy
 {
-  @Override
-  public void serialize(byte[] object, SerializationBuffer buffer)
-  {
-    buffer.write(object);
-  }
+  /**
+   * The stream should call this method to report to the strategy how many blocks are free currently.
+   * @param freeBlockNum
+   */
+  public void currentFreeBlocks(int freeBlockNum);
 
-  @Override
-  public byte[] deserialize(byte[] object, MutableInt offset, int length)
-  {
-    offset.add(object.length);
-    return object;
-  }
+  /**
+   * Get how many blocks can be released
+   * @return
+   */
+  public int getNumBlocksToRelease();
+
+  /**
+   * The stream should call this method to report how many block are released.
+   * @param numReleasedBlocks
+   */
+  public void releasedBlocks(int numReleasedBlocks);
+
 }

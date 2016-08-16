@@ -19,43 +19,28 @@
 package org.apache.apex.malhar.lib.utils.serde;
 
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.hadoop.classification.InterfaceStability;
 
-import com.datatorrent.netlet.util.Slice;
+import com.datatorrent.lib.appdata.gpo.GPOUtils;
 
 /**
- * This is a simple {@link Serde} which serializes and deserializes byte arrays to {@link Slice}s. A byte array is
- * serialized by simply wrapping it in a {@link Slice} object and deserialized by simply reading the byte array
- * out of the {@link Slice} object.
- *
- * <b>Note:</b> The deserialized method doesn't use the offset argument in this implementation.
+ * This is an implementation of {@link Serde} which deserializes and serializes integers.
  *
  * @since 3.5.0
  */
-public class PassThruByteArraySliceSerde implements Serde<byte[], Slice>
+@InterfaceStability.Evolving
+public class LongSerde implements Serde<Long>
 {
   @Override
-  public Slice serialize(byte[] object)
+  public void serialize(Long value, SerializationBuffer buffer)
   {
-    return new Slice(object);
+    buffer.write(value);
   }
 
   @Override
-  public byte[] deserialize(Slice object, MutableInt offset)
+  public Long deserialize(byte[] buffer, MutableInt offset, int length)
   {
-    offset.add(object.length);
-
-    if (object.offset == 0) {
-      return object.buffer;
-    }
-
-    byte[] bytes = new byte[object.length];
-    System.arraycopy(object.buffer, object.offset, bytes, 0, object.length);
-    return bytes;
-  }
-
-  @Override
-  public byte[] deserialize(Slice object)
-  {
-    return deserialize(object, new MutableInt(0));
+    long val = GPOUtils.deserializeLong(buffer, offset);
+    return val;
   }
 }

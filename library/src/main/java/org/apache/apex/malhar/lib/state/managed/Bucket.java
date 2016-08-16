@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -31,6 +32,10 @@ import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.utils.serde.KeyValueByteStreamProvider;
+import org.apache.apex.malhar.lib.utils.serde.SliceUtils;
+import org.apache.apex.malhar.lib.utils.serde.WindowedBlockStream;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -46,7 +51,7 @@ import com.datatorrent.netlet.util.Slice;
  *
  * @since 3.4.0
  */
-public interface Bucket extends ManagedStateComponent
+public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvider
 {
   /**
    * @return bucket id
@@ -218,13 +223,22 @@ public interface Bucket extends ManagedStateComponent
 
     private transient TreeMap<Long, BucketsFileSystem.TimeBucketMeta> cachedBucketMetas;
 
+    /**
+     * By default, separate keys and values into two different streams.
+     * key stream and value stream should be created during construction instead of setup, as the reference of the streams will be passed to the serialize method
+     */
+    protected WindowedBlockStream keyStream = new WindowedBlockStream();
+    protected WindowedBlockStream valueStream = new WindowedBlockStream();
+
+    protected ConcurrentLinkedQueue<Long> windowsForFreeMemory = new ConcurrentLinkedQueue<>();
+
     private DefaultBucket()
     {
       //for kryo
       bucketId = -1;
     }
 
-    protected DefaultBucket(long bucketId)
+    public DefaultBucket(long bucketId)
     {
       this.bucketId = bucketId;
     }
@@ -321,6 +335,9 @@ public interface Bucket extends ManagedStateComponent
     @Override
     public Slice get(Slice key, long timeBucket, ReadSource readSource)
     {
+      // This call is lightweight
+      releaseMemory();
+      key = SliceUtils.toBufferSlice(key);
       switch (readSource) {
         case MEMORY:
           return getFromMemory(key);
@@ -392,6 +409,11 @@ public interface Bucket extends ManagedStateComponent
     @Override
     public void put(Slice key, long timeBucket, Slice value)
     {
+      // This call is lightweight
+      releaseMemory();
+      key = SliceUtils.toBufferSlice(key);
+      value = SliceUtils.toBufferSlice(value);
+
       BucketedValue bucketedValue = flash.get(key);
       if (bucketedValue == null) {
         bucketedValue = new BucketedValue(timeBucket, value);
@@ -409,39 +431,45 @@ public interface Bucket extends ManagedStateComponent
       }
     }
 
+    /**
+     * Free memory up to the given windowId
+     * This method will be called by another thread. Adding concurrency control to Stream would impact the performance.
+     * This method only calculates the size of the memory that could be released and then sends free memory request to the operator thread
+     */
     @Override
     public long freeMemory(long windowId) throws IOException
     {
+      // calculate the size first and then send the release memory request. It could reduce the chance of conflict and increase the performance.
+      long size = keyStream.dataSizeUpToWindow(windowId) + valueStream.dataSizeUpToWindow(windowId);
+      windowsForFreeMemory.add(windowId);
+      return size;
+    }
+
+    /**
+     * This operation must be called from operator thread. It won't do anything if no memory to be freed
+     */
+    protected long releaseMemory()
+    {
       long memoryFreed = 0;
-      Long clearWindowId;
-
-      while ((clearWindowId = committedData.floorKey(windowId)) != null) {
-        Map<Slice, BucketedValue> windowData = committedData.remove(clearWindowId);
-
-        for (Map.Entry<Slice, BucketedValue> entry: windowData.entrySet()) {
-          memoryFreed += entry.getKey().length + entry.getValue().getSize();
-        }
+      while (!windowsForFreeMemory.isEmpty()) {
+        long windowId = windowsForFreeMemory.poll();
+        long originSize = keyStream.size() + valueStream.size();
+        keyStream.resetUpToWindow(windowId);
+        valueStream.resetUpToWindow(windowId);
+        memoryFreed += originSize - (keyStream.size() + valueStream.size());
       }
-      fileCache.clear();
-      if (cachedBucketMetas != null) {
 
-        for (BucketsFileSystem.TimeBucketMeta tbm : cachedBucketMetas.values()) {
-          FileAccess.FileReader reader = readers.remove(tbm.getTimeBucketId());
-          if (reader != null) {
-            memoryFreed += tbm.getSizeInBytes();
-            reader.close();
-          }
-        }
-
+      if (memoryFreed > 0) {
+        LOG.debug("Total freed memory size: {}", memoryFreed);
+        sizeInBytes.getAndAdd(-memoryFreed);
       }
-      sizeInBytes.getAndAdd(-memoryFreed);
-      LOG.debug("space freed {} {}", bucketId, memoryFreed);
       return memoryFreed;
     }
 
     @Override
     public Map<Slice, BucketedValue> checkpoint(long windowId)
     {
+      releaseMemory();
       try {
         //transferring the data from flash to check-pointed state in finally block and re-initializing the flash.
         return flash;
@@ -546,6 +574,19 @@ public interface Bucket extends ManagedStateComponent
     ConcurrentSkipListMap<Long, Map<Slice, BucketedValue>> getCheckpointedData()
     {
       return checkpointedData;
+    }
+
+
+    @Override
+    public WindowedBlockStream getKeyStream()
+    {
+      return keyStream;
+    }
+
+    @Override
+    public WindowedBlockStream getValueStream()
+    {
+      return valueStream;
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultBucket.class);

@@ -22,42 +22,28 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  * This is an interface for a Serializer/Deserializer class.
- * @param <OBJ> The type of the object to Serialize and Deserialize.
- * @param <SER> The type to Serialize an Object to.
+ * @param <T> The type of the object to Serialize and Deserialize.
  *
  * @since 3.4.0
  */
-public interface Serde<OBJ, SER>
+public interface Serde<T>
 {
   /**
-   * Serialized the given object.
-   * @param object The object to serialize.
-   * @return The serialized representation of the object.
+   * Serialize the object to the input SerializeBuffer. This give the chance of share same SerializeBuffer with different object.
+   * @param object
+   * @param buffer
    */
-  SER serialize(OBJ object);
+  void serialize(T object, SerializationBuffer buffer);
 
   /**
-   * Deserializes the given serialized representation of an object.
-   * @param object The serialized representation of an object.
-   * @param offset An offset in the serialized representation of the object. After the
-   * deserialize method completes the offset is updated, so that the offset points to
-   * the remaining unprocessed portion of the serialized object. For example:<br/>
-   * {@code
-   * Object obj;
-   * MutableInt mi;
-   * someObj1 = deserialize(obj, mi);
-   * someObj2 = deserialize(obj, mi);
-   * }
+   * Deserialize from the buffer and return a new object.
+   * After the deserialize method completes the offset is updated, so that the offset points to
+   * the remaining unprocessed portion of the serialization buffer.
    *
-   * @return The deserialized object.
+   * @param buffer
+   * @param offset An offset of the buffer.
+   * @param length The input length
+   * @return
    */
-  OBJ deserialize(SER object, MutableInt offset);
-
-  /**
-   * Deserializes the given serialized representation of an object.
-   * @param object The serialized representation of an object.
-   *
-   * @return The deserialized object.
-   */
-  OBJ deserialize(SER object);
+  T deserialize(byte[] buffer, MutableInt offset, int length);
 }
