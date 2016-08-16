@@ -32,7 +32,7 @@ import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.apex.malhar.lib.state.spillable.Spillable;
+import org.apache.apex.malhar.lib.state.spillable.WindowListener;
 import org.apache.apex.malhar.lib.window.Accumulation;
 import org.apache.apex.malhar.lib.window.ControlTuple;
 import org.apache.apex.malhar.lib.window.TriggerOption;
@@ -432,9 +432,8 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   public void beginWindow(long windowId)
   {
     for (Component component : components.values()) {
-      // TODO: We should have a new generic interface WindowListener that listens for beginWindow and endWindow events
-      if (component instanceof Spillable.SpillableComponent) {
-        ((Spillable.SpillableComponent)component).beginWindow(windowId);
+      if (component instanceof WindowListener) {
+        ((WindowListener)component).beginWindow(windowId);
       }
     }
     if (currentDerivedTimestamp == -1) {
@@ -458,9 +457,8 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
     fireTimeTriggers();
 
     for (Component component : components.values()) {
-      // TODO: We should have a new generic interface WindowListener that listens for beginWindow and endWindow events
-      if (component instanceof Spillable.SpillableComponent) {
-        ((Spillable.SpillableComponent)component).endWindow();
+      if (component instanceof WindowListener) {
+        ((WindowListener)component).endWindow();
       }
     }
   }
