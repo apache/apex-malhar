@@ -70,21 +70,37 @@ public class NvlFunction<T> extends BaseOperator
     private int index = 0;
 
     /**
+     * Helper to process a tuple
+     */
+    private void processInternal(T tuple, boolean isAlias) {
+        int size;
+        if (isAlias) {
+            aliases.add(tuple);
+            size = columns.size();
+        }
+        else {
+            columns.add(tuple);
+            size = aliases.size();
+        }
+
+        if (size > index) {
+            int loc = aliases.size();
+            if (loc > columns.size()) {
+                loc = columns.size();
+            }
+            emit(columns.get(loc - 1), aliases.get(loc - 1));
+            index++;
+        }
+    }
+
+    /**
      * Column input port
      */
     public final transient DefaultInputPort<T> column = new DefaultInputPort<T>()
     {
         @Override
         public void process(T tuple) {
-            columns.add(tuple);
-            if (aliases.size() > index) {
-                int loc = aliases.size();
-                if (loc > columns.size()) {
-                    loc = columns.size();
-                }
-                emit(columns.get(loc - 1), aliases.get(loc - 1));
-                index++;
-            }
+            processInternal(tuple, false);
         }
     };
 
@@ -99,15 +115,7 @@ public class NvlFunction<T> extends BaseOperator
                 errordata.emit("Error(null alias not allowed)");
                 return;
             }
-            aliases.add(tuple);
-            if (columns.size() > index) {
-                int loc = aliases.size();
-                if (loc > columns.size()) {
-                    loc = columns.size();
-                }
-                emit(columns.get(loc - 1), aliases.get(loc - 1));
-                index++;
-            }
+            processInternal(tuple, true);
         }
     };
 
@@ -127,4 +135,12 @@ public class NvlFunction<T> extends BaseOperator
      */
     @OutputPortFieldAnnotation(optional = true)
     public final transient DefaultOutputPort<String> errordata = new DefaultOutputPort<String>();
+
+    @Override
+    public void endWindow()
+    {
+        columns.clear();
+        aliases.clear();
+        index = 0;
+    }
 }
