@@ -23,7 +23,10 @@ import java.util.concurrent.Future;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.state.managed.Bucket;
 import org.apache.apex.malhar.lib.state.spillable.SpillableStateStore;
+import org.apache.apex.malhar.lib.utils.serde.BufferSlice;
+import org.apache.apex.malhar.lib.utils.serde.SliceUtils;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.google.common.collect.Maps;
@@ -74,6 +77,8 @@ public class InMemSpillableStateStore implements SpillableStateStore
       bucket = Maps.newHashMap();
       store.put(bucketId, bucket);
     }
+    key = SliceUtils.toBufferSlice(key);
+    value = SliceUtils.toBufferSlice(value);
 
     bucket.put(key, value);
   }
@@ -88,6 +93,10 @@ public class InMemSpillableStateStore implements SpillableStateStore
       store.put(bucketId, bucket);
     }
 
+    if (key.getClass() == Slice.class) {
+      //The hashCode of Slice was not correct, so correct it
+      key = new BufferSlice(key);
+    }
     return bucket.get(key);
   }
 
@@ -116,5 +125,22 @@ public class InMemSpillableStateStore implements SpillableStateStore
   public String toString()
   {
     return store.toString();
+  }
+
+  protected Bucket.DefaultBucket bucket;
+
+  @Override
+  public Bucket getBucket(long bucketId)
+  {
+    return bucket;
+  }
+
+  @Override
+  public Bucket ensureBucket(long bucketId)
+  {
+    if (bucket == null) {
+      bucket = new Bucket.DefaultBucket(1);
+    }
+    return bucket;
   }
 }

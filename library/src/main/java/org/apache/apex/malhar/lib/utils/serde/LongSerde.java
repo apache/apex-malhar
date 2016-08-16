@@ -18,11 +18,10 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
-import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.classification.InterfaceStability;
 
-import com.datatorrent.lib.appdata.gpo.GPOUtils;
-import com.datatorrent.netlet.util.Slice;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 
 /**
  * This is an implementation of {@link Serde} which deserializes and serializes integers.
@@ -30,25 +29,17 @@ import com.datatorrent.netlet.util.Slice;
  * @since 3.5.0
  */
 @InterfaceStability.Evolving
-public class SerdeLongSlice implements Serde<Long, Slice>
+public class LongSerde implements Serde<Long>
 {
   @Override
-  public Slice serialize(Long object)
+  public void serialize(Long value, Output output)
   {
-    return new Slice(GPOUtils.serializeLong(object));
+    output.writeLong(value);
   }
 
   @Override
-  public Long deserialize(Slice slice, MutableInt offset)
+  public Long deserialize(Input input)
   {
-    long val = GPOUtils.deserializeLong(slice.buffer, new MutableInt(slice.offset + offset.intValue()));
-    offset.add(8);
-    return val;
-  }
-
-  @Override
-  public Long deserialize(Slice object)
-  {
-    return deserialize(object, new MutableInt(0));
+    return input.readLong();
   }
 }

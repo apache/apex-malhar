@@ -47,8 +47,14 @@ public class SpillableWindowedStorageTest
     Window window2 = new Window.TimeWindow<>(1010, 10);
     Window window3 = new Window.TimeWindow<>(1020, 10);
     storage.setSpillableComplexComponent(sccImpl);
-    storage.getSpillableComplexComponent().setup(testMeta.operatorContext);
+
+    /*
+     * storage.setup() will create Spillable Data Structures
+     * storage.getSpillableComplexComponent().setup() will setup these Data Structures.
+     * So storage.setup() should be called before storage.getSpillableComplexComponent().setup()
+     */
     storage.setup(testMeta.operatorContext);
+    storage.getSpillableComplexComponent().setup(testMeta.operatorContext);
 
     sccImpl.beginWindow(1000);
     storage.put(window1, 1);
@@ -103,8 +109,15 @@ public class SpillableWindowedStorageTest
     Window window2 = new Window.TimeWindow<>(1010, 10);
     Window window3 = new Window.TimeWindow<>(1020, 10);
     storage.setSpillableComplexComponent(sccImpl);
-    storage.getSpillableComplexComponent().setup(testMeta.operatorContext);
+
+    /*
+     * storage.setup() will create Spillable Data Structures
+     * storage.getSpillableComplexComponent().setup() will setup these Data Structures.
+     * So storage.setup() should be called before storage.getSpillableComplexComponent().setup()
+     */
     storage.setup(testMeta.operatorContext);
+    storage.getSpillableComplexComponent().setup(testMeta.operatorContext);
+
 
     sccImpl.beginWindow(1000);
     storage.put(window1, "x", 1);

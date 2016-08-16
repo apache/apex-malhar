@@ -26,15 +26,15 @@ import java.util.NoSuchElementException;
 import javax.validation.constraints.NotNull;
 
 import org.apache.apex.malhar.lib.utils.serde.Serde;
-import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.esotericsoftware.kryo.DefaultSerializer;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.FieldSerializer;
 import com.google.common.base.Preconditions;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.netlet.util.Slice;
 
 /**
  * A Spillable implementation of {@link List} backed by a {@link SpillableStateStore}.
@@ -62,48 +62,29 @@ public class SpillableSetImpl<T> implements Spillable.SpillableSet<T>, Spillable
     T next;
   }
 
-  public static class SerdeListNodeSlice<T> implements Serde<ListNode<T>, Slice>
+  public static class ListNodeSerde<T> implements Serde<ListNode<T>>
   {
-    private Serde<T, Slice> serde;
-    private static Slice falseSlice = new Slice(new byte[]{0});
-    private static Slice trueSlice = new Slice(new byte[]{1});
+    private Serde<T> serde;
 
-    public SerdeListNodeSlice(@NotNull Serde<T, Slice> serde)
+    public ListNodeSerde(@NotNull Serde<T> serde)
     {
       this.serde = Preconditions.checkNotNull(serde);
     }
 
     @Override
-    public Slice serialize(ListNode<T> object)
+    public void serialize(ListNode<T> object, Output output)
     {
-      int size = 0;
-
-      Slice slice1 = object.valid ? trueSlice : falseSlice;
-      size += 1;
-      Slice slice2 = serde.serialize(object.next);
-      size += slice2.length;
-
-      byte[] bytes = new byte[size];
-      System.arraycopy(slice1.buffer, slice1.offset, bytes, 0, slice1.length);
-      System.arraycopy(slice2.buffer, slice2.offset, bytes, slice1.length, slice2.length);
-
-      return new Slice(bytes);
+      output.writeBoolean(object.valid);
+      serde.serialize(object.next, output);
     }
 
     @Override
-    public ListNode<T> deserialize(Slice slice, MutableInt offset)
+    public ListNode<T> deserialize(Input input)
     {
       ListNode<T> result = new ListNode<>();
-      result.valid = slice.buffer[offset.intValue()] != 0;
-      offset.add(1);
-      result.next = serde.deserialize(slice, offset);
+      result.valid = input.readBoolean();
+      result.next = serde.deserialize(input);
       return result;
-    }
-
-    @Override
-    public ListNode<T> deserialize(Slice object)
-    {
-      return deserialize(object, new MutableInt(0));
     }
   }
 
@@ -135,11 +116,11 @@ public class SpillableSetImpl<T> implements Spillable.SpillableSet<T>, Spillable
    */
   public SpillableSetImpl(long bucketId, @NotNull byte[] prefix,
       @NotNull SpillableStateStore store,
-      @NotNull Serde<T, Slice> serde)
+      @NotNull Serde<T> serde)
   {
     this.store = Preconditions.checkNotNull(store);
 
-    map = new SpillableMapImpl<>(store, prefix, bucketId, serde, new SerdeListNodeSlice(serde));
+    map = new SpillableMapImpl<>(store, prefix, bucketId, serde, new ListNodeSerde(serde));
   }
 
   public void setSize(int size)

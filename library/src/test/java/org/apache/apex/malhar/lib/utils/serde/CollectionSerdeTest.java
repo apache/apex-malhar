@@ -26,24 +26,26 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.esotericsoftware.kryo.io.Input;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import com.datatorrent.netlet.util.Slice;
 
-public class SerdeCollectionSliceTest
+public class CollectionSerdeTest
 {
   @Test
   public void testSerdeList()
   {
-    SerdeCollectionSlice<String, List<String>> serdeList =
-        new SerdeCollectionSlice<>(new SerdeStringSlice(), (Class<List<String>>)(Class)ArrayList.class);
+    CollectionSerde<String, List<String>> serdeList =
+        new CollectionSerde<>(new StringSerde(), (Class)ArrayList.class);
 
     List<String> stringList = Lists.newArrayList("a", "b", "c");
+    SerializationBuffer buffer = new SerializationBuffer(new WindowedBlockStream());
+    serdeList.serialize(stringList, buffer);
 
-    Slice slice = serdeList.serialize(stringList);
-
-    List<String> deserializedList = serdeList.deserialize(slice);
+    Slice slice = buffer.toSlice();
+    List<String> deserializedList = serdeList.deserialize(new Input(slice.buffer, slice.offset, slice.length));
 
     Assert.assertEquals(stringList, deserializedList);
   }
@@ -51,14 +53,15 @@ public class SerdeCollectionSliceTest
   @Test
   public void testSerdeSet()
   {
-    SerdeCollectionSlice<String, Set<String>> serdeSet =
-        new SerdeCollectionSlice<>(new SerdeStringSlice(), (Class<Set<String>>)(Class)HashSet.class);
+    CollectionSerde<String, Set<String>> serdeSet =
+        new CollectionSerde<>(new StringSerde(), (Class)HashSet.class);
 
     Set<String> stringList = Sets.newHashSet("a", "b", "c");
+    SerializationBuffer buffer = new SerializationBuffer(new WindowedBlockStream());
+    serdeSet.serialize(stringList, buffer);
 
-    Slice slice = serdeSet.serialize(stringList);
-
-    Set<String> deserializedSet = serdeSet.deserialize(slice);
+    Slice slice = buffer.toSlice();
+    Set<String> deserializedSet = serdeSet.deserialize(new Input(slice.buffer, slice.offset, slice.length));
 
     Assert.assertEquals(stringList, deserializedSet);
   }

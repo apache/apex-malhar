@@ -26,7 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.apex.malhar.lib.state.spillable.inmem.InMemSpillableStateStore;
-import org.apache.apex.malhar.lib.utils.serde.SerdeStringSlice;
+import org.apache.apex.malhar.lib.utils.serde.StringSerde;
 
 import com.google.common.collect.Lists;
 
@@ -53,7 +53,7 @@ public class SpillableSetImplTest
 
   public void simpleAddGetAndSetTest1Helper(SpillableStateStore store)
   {
-    SpillableSetImpl<String> set = new SpillableSetImpl<>(0L, ID1, store, new SerdeStringSlice());
+    SpillableSetImpl<String> set = new SpillableSetImpl<>(0L, ID1, store, new StringSerde());
 
     store.setup(testMeta.operatorContext);
     set.setup(testMeta.operatorContext);

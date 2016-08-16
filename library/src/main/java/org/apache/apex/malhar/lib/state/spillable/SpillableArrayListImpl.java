@@ -26,9 +26,9 @@ import java.util.ListIterator;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.utils.serde.CollectionSerde;
+import org.apache.apex.malhar.lib.utils.serde.IntSerde;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
-import org.apache.apex.malhar.lib.utils.serde.SerdeCollectionSlice;
-import org.apache.apex.malhar.lib.utils.serde.SerdeIntSlice;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.esotericsoftware.kryo.DefaultSerializer;
@@ -37,7 +37,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.netlet.util.Slice;
 
 /**
  * A Spillable implementation of {@link List} backed by a {@link SpillableStateStore}.
@@ -58,11 +57,10 @@ public class SpillableArrayListImpl<T> implements Spillable.SpillableList<T>, Sp
   @NotNull
   private SpillableStateStore store;
   @NotNull
-  private Serde<T, Slice> serde;
+  private Serde<T> serde;
   @NotNull
   private SpillableMapImpl<Integer, List<T>> map;
 
-  private boolean sizeCached = false;
   private int size;
   private int numBatches;
 
@@ -86,15 +84,15 @@ public class SpillableArrayListImpl<T> implements Spillable.SpillableList<T>, Sp
    */
   public SpillableArrayListImpl(long bucketId, @NotNull byte[] prefix,
       @NotNull SpillableStateStore store,
-      @NotNull Serde<T, Slice> serde)
+      @NotNull Serde<T> serde)
   {
     this.bucketId = bucketId;
     this.prefix = Preconditions.checkNotNull(prefix);
     this.store = Preconditions.checkNotNull(store);
     this.serde = Preconditions.checkNotNull(serde);
 
-    map = new SpillableMapImpl<>(store, prefix, bucketId, new SerdeIntSlice(),
-        new SerdeCollectionSlice<>(serde, (Class<List<T>>)(Class)ArrayList.class));
+    map = new SpillableMapImpl<>(store, prefix, bucketId, new IntSerde(),
+        new CollectionSerde<T, List<T>>(serde, (Class)ArrayList.class));
   }
 
   /**
@@ -111,7 +109,7 @@ public class SpillableArrayListImpl<T> implements Spillable.SpillableList<T>, Sp
    */
   public SpillableArrayListImpl(long bucketId, @NotNull byte[] prefix,
       @NotNull SpillableStateStore store,
-      @NotNull Serde<T, Slice> serde,
+      @NotNull Serde<T> serde,
       int batchSize)
   {
     this(bucketId, prefix, store, serde);
@@ -328,6 +326,7 @@ public class SpillableArrayListImpl<T> implements Spillable.SpillableList<T>, Sp
   @Override
   public void setup(Context.OperatorContext context)
   {
+    store.ensureBucket(bucketId);
     map.setup(context);
   }
 

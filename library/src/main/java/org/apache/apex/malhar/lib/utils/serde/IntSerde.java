@@ -18,27 +18,28 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.hadoop.classification.InterfaceStability;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 
-import com.datatorrent.netlet.util.Slice;
-
-public class SerdePairSliceTest
+/**
+ * This is an implementation of {@link Serde} which deserializes and serializes integers.
+ *
+ * @since 3.5.0
+ */
+@InterfaceStability.Evolving
+public class IntSerde implements Serde<Integer>
 {
-  @Test
-  public void simpleSerdeTest()
+  @Override
+  public void serialize(Integer value, Output output)
   {
-    SerdePairSlice<String, Integer> serdePair = new SerdePairSlice<>(new SerdeStringSlice(), new SerdeIntSlice());
+    output.writeInt(value);
+  }
 
-    Pair<String, Integer> pair = new ImmutablePair<>("abc", 123);
-
-    Slice slice = serdePair.serialize(pair);
-
-    Pair<String, Integer> deserializedPair = serdePair.deserialize(slice);
-
-    Assert.assertEquals(pair, deserializedPair);
+  @Override
+  public Integer deserialize(Input input)
+  {
+    return input.readInt();
   }
 }

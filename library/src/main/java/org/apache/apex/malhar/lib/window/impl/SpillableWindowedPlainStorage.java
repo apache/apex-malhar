@@ -24,13 +24,12 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.apex.malhar.lib.state.spillable.Spillable;
 import org.apache.apex.malhar.lib.state.spillable.SpillableComplexComponent;
+import org.apache.apex.malhar.lib.utils.serde.GenericSerde;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
-import org.apache.apex.malhar.lib.utils.serde.SerdeKryoSlice;
 import org.apache.apex.malhar.lib.window.Window;
 import org.apache.apex.malhar.lib.window.WindowedStorage;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.netlet.util.Slice;
 
 /**
  * This is an implementation of WindowedPlainStorage that makes use of {@link Spillable} data structures
@@ -42,8 +41,8 @@ public class SpillableWindowedPlainStorage<T> implements WindowedStorage.Windowe
   @NotNull
   private SpillableComplexComponent scc;
   private long bucket;
-  private Serde<Window, Slice> windowSerde;
-  private Serde<T, Slice> valueSerde;
+  private Serde<Window> windowSerde;
+  private Serde<T> valueSerde;
 
   protected Spillable.SpillableMap<Window, T> windowToDataMap;
 
@@ -51,7 +50,7 @@ public class SpillableWindowedPlainStorage<T> implements WindowedStorage.Windowe
   {
   }
 
-  public SpillableWindowedPlainStorage(long bucket, Serde<Window, Slice> windowSerde, Serde<T, Slice> valueSerde)
+  public SpillableWindowedPlainStorage(long bucket, Serde<Window> windowSerde, Serde<T> valueSerde)
   {
     this.bucket = bucket;
     this.windowSerde = windowSerde;
@@ -73,12 +72,12 @@ public class SpillableWindowedPlainStorage<T> implements WindowedStorage.Windowe
     this.bucket = bucket;
   }
 
-  public void setWindowSerde(Serde<Window, Slice> windowSerde)
+  public void setWindowSerde(Serde<Window> windowSerde)
   {
     this.windowSerde = windowSerde;
   }
 
-  public void setValueSerde(Serde<T, Slice> valueSerde)
+  public void setValueSerde(Serde<T> valueSerde)
   {
     this.valueSerde = valueSerde;
   }
@@ -128,10 +127,10 @@ public class SpillableWindowedPlainStorage<T> implements WindowedStorage.Windowe
     }
     // set default serdes
     if (windowSerde == null) {
-      windowSerde = new SerdeKryoSlice<>();
+      windowSerde = new GenericSerde<>();
     }
     if (valueSerde == null) {
-      valueSerde = new SerdeKryoSlice<>();
+      valueSerde = new GenericSerde<>();
     }
     if (windowToDataMap == null) {
       windowToDataMap = scc.newSpillableMap(bucket, windowSerde, valueSerde);
@@ -142,5 +141,4 @@ public class SpillableWindowedPlainStorage<T> implements WindowedStorage.Windowe
   public void teardown()
   {
   }
-
 }
