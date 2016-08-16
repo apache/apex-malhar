@@ -18,8 +18,13 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
-import org.apache.commons.lang3.mutable.MutableInt;
+import java.io.IOException;
+
 import org.apache.hadoop.classification.InterfaceStability;
+
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import com.google.common.base.Throwables;
 
 import com.datatorrent.netlet.util.Slice;
 
@@ -30,23 +35,26 @@ import com.datatorrent.netlet.util.Slice;
  * @since 3.5.0
  */
 @InterfaceStability.Evolving
-public class PassThruSliceSerde implements Serde<Slice, Slice>
+public class PassThruSliceSerde implements Serde<Slice>
 {
   @Override
-  public Slice serialize(Slice object)
+  public void serialize(Slice slice, Output output)
   {
-    return object;
+    output.write(slice.buffer, slice.offset, slice.length);
   }
 
   @Override
-  public Slice deserialize(Slice object, MutableInt offset)
+  public Slice deserialize(Input input)
   {
-    return object;
-  }
-
-  @Override
-  public Slice deserialize(Slice object)
-  {
-    return object;
+    if (input.getInputStream() != null) {
+      // The input is backed by a stream, cannot directly use its internal buffer
+      try {
+        return new Slice(input.readBytes(input.available()));
+      } catch (IOException ex) {
+        throw Throwables.propagate(ex);
+      }
+    } else {
+      return new Slice(input.getBuffer(), input.position(), input.limit() - input.position());
+    }
   }
 }

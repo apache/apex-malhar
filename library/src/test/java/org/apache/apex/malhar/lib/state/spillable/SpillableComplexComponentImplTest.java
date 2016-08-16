@@ -22,7 +22,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.apex.malhar.lib.state.spillable.inmem.InMemSpillableStateStore;
-import org.apache.apex.malhar.lib.utils.serde.SerdeStringSlice;
+import org.apache.apex.malhar.lib.utils.serde.StringSerde;
 
 public class SpillableComplexComponentImplTest
 {
@@ -48,9 +48,9 @@ public class SpillableComplexComponentImplTest
     SpillableComplexComponentImpl sccImpl = new SpillableComplexComponentImpl(store);
 
     Spillable.SpillableComponent scList =
-        (Spillable.SpillableComponent)sccImpl.newSpillableArrayList(0L, new SerdeStringSlice());
+        (Spillable.SpillableComponent)sccImpl.newSpillableArrayList(0L, new StringSerde());
     Spillable.SpillableComponent scMap =
-        (Spillable.SpillableComponent)sccImpl.newSpillableMap(0L, new SerdeStringSlice(), new SerdeStringSlice());
+        (Spillable.SpillableComponent)sccImpl.newSpillableMap(0L, new StringSerde(), new StringSerde());
 
     sccImpl.setup(testMeta.operatorContext);
 

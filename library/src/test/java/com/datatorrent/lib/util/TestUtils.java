@@ -24,6 +24,7 @@ import java.util.List;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import org.apache.apex.malhar.lib.utils.serde.BufferSlice;
 import org.apache.commons.io.FileUtils;
 
 import com.google.common.base.Preconditions;
@@ -57,7 +58,7 @@ public class TestUtils
 
   public static Slice getSlice(int val)
   {
-    return new Slice(getBytes(val));
+    return new BufferSlice(getBytes(val));
   }
 
   public static class TestInfo extends TestWatcher

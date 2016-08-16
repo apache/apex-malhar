@@ -20,70 +20,54 @@ package org.apache.apex.malhar.lib.utils.serde;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.classification.InterfaceStability;
 
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.google.common.base.Preconditions;
-
-import com.datatorrent.netlet.util.Slice;
 
 /**
  * This is an implementation of {@link Serde} which serializes and deserializes pairs.
  */
 @InterfaceStability.Evolving
-public class SerdePairSlice<T1, T2> implements Serde<Pair<T1, T2>, Slice>
+public class PairSerde<T1, T2> implements Serde<Pair<T1, T2>>
 {
   @NotNull
-  private Serde<T1, Slice> serde1;
+  private Serde<T1> serde1;
   @NotNull
-  private Serde<T2, Slice> serde2;
+  private Serde<T2> serde2;
 
-  private SerdePairSlice()
+  private PairSerde()
   {
     // for Kryo
   }
 
   /**
-   * Creates a {@link SerdePairSlice}.
+   * Creates a {@link PairSerde}.
    * @param serde1 The {@link Serde} that is used to serialize and deserialize first element of a pair
    * @param serde2 The {@link Serde} that is used to serialize and deserialize second element of a pair
    */
-  public SerdePairSlice(@NotNull Serde<T1, Slice> serde1, @NotNull Serde<T2, Slice> serde2)
+  public PairSerde(@NotNull Serde<T1> serde1, @NotNull Serde<T2> serde2)
   {
     this.serde1 = Preconditions.checkNotNull(serde1);
     this.serde2 = Preconditions.checkNotNull(serde2);
   }
 
   @Override
-  public Slice serialize(Pair<T1, T2> pair)
+  public void serialize(Pair<T1, T2> pair, Output output)
   {
-    int size = 0;
-
-    Slice slice1 = serde1.serialize(pair.getLeft());
-    size += slice1.length;
-    Slice slice2 = serde2.serialize(pair.getRight());
-    size += slice2.length;
-
-    byte[] bytes = new byte[size];
-    System.arraycopy(slice1.buffer, slice1.offset, bytes, 0, slice1.length);
-    System.arraycopy(slice2.buffer, slice2.offset, bytes, slice1.length, slice2.length);
-
-    return new Slice(bytes);
+    serde1.serialize(pair.getLeft(), output);
+    serde2.serialize(pair.getRight(), output);
   }
 
   @Override
-  public Pair<T1, T2> deserialize(Slice slice, MutableInt offset)
+  public Pair<T1, T2> deserialize(Input input)
   {
-    T1 first = serde1.deserialize(slice, offset);
-    T2 second = serde2.deserialize(slice, offset);
+    T1 first = serde1.deserialize(input);
+    T2 second = serde2.deserialize(input);
     return new ImmutablePair<>(first, second);
   }
 
-  @Override
-  public Pair<T1, T2> deserialize(Slice slice)
-  {
-    return deserialize(slice, new MutableInt(0));
-  }
 }

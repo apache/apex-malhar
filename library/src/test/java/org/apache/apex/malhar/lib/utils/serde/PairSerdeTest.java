@@ -18,34 +18,31 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.hadoop.classification.InterfaceStability;
+import org.junit.Assert;
+import org.junit.Test;
 
-/**
- * This is a simple pass through {@link Serde}. When serialization is performed the input byte array is returned.
- * Similarly when deserialization is performed the input byte array is returned.
- *
- * @since 3.4.0
- */
-@InterfaceStability.Evolving
-public class PassThruByteArraySerde implements Serde<byte[], byte[]>
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+
+import com.esotericsoftware.kryo.io.Input;
+
+import com.datatorrent.netlet.util.Slice;
+
+public class PairSerdeTest
 {
-  @Override
-  public byte[] serialize(byte[] object)
+  @Test
+  public void simpleSerdeTest()
   {
-    return object;
-  }
+    PairSerde<String, Integer> serdePair = new PairSerde<>(new StringSerde(), new IntSerde());
 
-  @Override
-  public byte[] deserialize(byte[] object, MutableInt offset)
-  {
-    offset.add(object.length);
-    return object;
-  }
+    Pair<String, Integer> pair = new ImmutablePair<>("abc", 123);
 
-  @Override
-  public byte[] deserialize(byte[] object)
-  {
-    return object;
+    SerializationBuffer buffer = new SerializationBuffer(new WindowedBlockStream());
+    serdePair.serialize(pair, buffer);
+    Slice slice = buffer.toSlice();
+
+    Pair<String, Integer> deserializedPair = serdePair.deserialize(new Input(slice.buffer, slice.offset, slice.length));
+
+    Assert.assertEquals(pair, deserializedPair);
   }
 }

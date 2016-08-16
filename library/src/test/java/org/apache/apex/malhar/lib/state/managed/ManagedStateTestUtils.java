@@ -28,6 +28,7 @@ import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.utils.serde.BufferSlice;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.RemoteIterator;
 
@@ -128,6 +129,6 @@ public class ManagedStateTestUtils
 
   public static Slice getSliceFor(String x)
   {
-    return new Slice(x.getBytes());
+    return new BufferSlice(x.getBytes());
   }
 }

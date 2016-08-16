@@ -24,7 +24,6 @@ import org.apache.apex.malhar.lib.utils.serde.Serde;
 import com.datatorrent.api.Component;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
-import com.datatorrent.netlet.util.Slice;
 
 /**
  * This is a composite component containing spillable data structures. This should be used as
@@ -43,7 +42,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableList}.
    * @return A {@link SpillableList}.
    */
-  <T> SpillableList<T> newSpillableArrayList(long bucket, Serde<T, Slice> serde);
+  <T> SpillableList<T> newSpillableArrayList(long bucket, Serde<T> serde);
 
   /**
    * This is a method for creating a {@link SpillableList}.
@@ -53,7 +52,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableList}.
    * @return A {@link SpillableList}.
    */
-  <T> SpillableList<T> newSpillableArrayList(byte[] identifier, long bucket, Serde<T, Slice> serde);
+  <T> SpillableList<T> newSpillableArrayList(byte[] identifier, long bucket, Serde<T> serde);
 
   /**
    * This is a method for creating a {@link SpillableMap}. This method
@@ -65,8 +64,8 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @param serdeValue The Serializer/Deserializer to use for the map's values.
    * @return A {@link SpillableMap}.
    */
-  <K, V> SpillableMap<K, V> newSpillableMap(long bucket, Serde<K, Slice> serdeKey,
-      Serde<V, Slice> serdeValue);
+  <K, V> SpillableMap<K, V> newSpillableMap(long bucket, Serde<K> serdeKey,
+      Serde<V> serdeValue);
 
   /**
    * This is a method for creating a {@link SpillableMap}.
@@ -79,7 +78,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @return A {@link SpillableMap}.
    */
   <K, V> SpillableMap<K, V> newSpillableMap(byte[] identifier, long bucket,
-      Serde<K, Slice> serdeKey, Serde<V, Slice> serdeValue);
+      Serde<K> serdeKey, Serde<V> serdeValue);
 
   /**
    * This is a method for creating a {@link SpillableListMultimap}. This method
@@ -91,8 +90,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @param serdeValue The Serializer/Deserializer to use for the values in the map's lists.
    * @return A {@link SpillableListMultimap}.
    */
-  <K, V> SpillableListMultimap<K, V> newSpillableArrayListMultimap(long bucket, Serde<K,
-      Slice> serdeKey, Serde<V, Slice> serdeValue);
+  <K, V> SpillableListMultimap<K, V> newSpillableArrayListMultimap(long bucket, Serde<K> serdeKey, Serde<V> serdeValue);
 
   /**
    * This is a method for creating a {@link SpillableListMultimap}.
@@ -105,8 +103,8 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @return A {@link SpillableListMultimap}.
    */
   <K, V> SpillableListMultimap<K, V> newSpillableArrayListMultimap(byte[] identifier, long bucket,
-      Serde<K, Slice> serdeKey,
-      Serde<V, Slice> serdeValue);
+      Serde<K> serdeKey,
+      Serde<V> serdeValue);
 
   /**
    * This is a method for creating a {@link SpillableSetMultimap}.
@@ -117,8 +115,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @param serdeValue The Serializer/Deserializer to use for the values in the map's lists.
    * @return A {@link SpillableSetMultimap}.
    */
-  <K, V> SpillableSetMultimap<K, V> newSpillableSetMultimap(long bucket, Serde<K,
-      Slice> serdeKey, Serde<V, Slice> serdeValue);
+  <K, V> SpillableSetMultimap<K, V> newSpillableSetMultimap(long bucket, Serde<K> serdeKey, Serde<V> serdeValue);
 
   /**
    * This is a method for creating a {@link SpillableMultiset}. This method
@@ -128,7 +125,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableMultiset}.
    * @return A {@link SpillableMultiset}.
    */
-  <T> SpillableMultiset<T> newSpillableMultiset(long bucket, Serde<T, Slice> serde);
+  <T> SpillableMultiset<T> newSpillableMultiset(long bucket, Serde<T> serde);
 
   /**
    * This is a method for creating a {@link SpillableMultiset}.
@@ -138,7 +135,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableMultiset}.
    * @return A {@link SpillableMultiset}.
    */
-  <T> SpillableMultiset<T> newSpillableMultiset(byte[] identifier, long bucket, Serde<T, Slice> serde);
+  <T> SpillableMultiset<T> newSpillableMultiset(byte[] identifier, long bucket, Serde<T> serde);
 
   /**
    * This is a method for creating a {@link SpillableQueue}. This method
@@ -148,7 +145,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableQueue}.
    * @return A {@link SpillableQueue}.
    */
-  <T> SpillableQueue<T> newSpillableQueue(long bucket, Serde<T, Slice> serde);
+  <T> SpillableQueue<T> newSpillableQueue(long bucket, Serde<T> serde);
 
   /**
    * This is a method for creating a {@link SpillableQueue}.
@@ -158,5 +155,5 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableQueue}.
    * @return A {@link SpillableQueue}.
    */
-  <T> SpillableQueue<T> newSpillableQueue(byte[] identifier, long bucket, Serde<T, Slice> serde);
+  <T> SpillableQueue<T> newSpillableQueue(byte[] identifier, long bucket, Serde<T> serde);
 }

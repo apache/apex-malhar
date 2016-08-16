@@ -18,29 +18,30 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-
 /**
- * This is an interface for a Serializer/Deserializer class.
- * @param <T> The type of the object to Serialize and Deserialize.
- *
- * @since 3.4.0
+ * The process of interface would be:
+ * - Stream keep on reporting how many free blocks it has in certain frequent. usually at the end of each window
+ * - Stream check how many block should release. Stream usually release the blocks but Stream can make its own decision
+ * - Stream report how many blocks actually released
  */
-public interface Serde<T>
+public interface BlockReleaseStrategy
 {
   /**
-   * Serialize the object to the given output.
-   * @param object
-   * @param output
+   * The stream should call this method to report to the strategy how many blocks are free currently.
+   * @param freeBlockNum
    */
-  void serialize(T object, Output output);
+  void currentFreeBlocks(int freeBlockNum);
 
   /**
-   * Deserialize from the input and return a new object.
-   *
-   * @param input
+   * Get how many blocks can be released
    * @return
    */
-  T deserialize(Input input);
+  int getNumBlocksToRelease();
+
+  /**
+   * The stream should call this method to report how many block are released.
+   * @param numReleasedBlocks
+   */
+  void releasedBlocks(int numReleasedBlocks);
+
 }

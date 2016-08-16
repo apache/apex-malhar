@@ -27,11 +27,11 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.utils.serde.AffixKeyValueSerdeManager;
+import org.apache.apex.malhar.lib.utils.serde.IntSerde;
+import org.apache.apex.malhar.lib.utils.serde.PairSerde;
 import org.apache.apex.malhar.lib.utils.serde.PassThruSliceSerde;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
-import org.apache.apex.malhar.lib.utils.serde.SerdeIntSlice;
-import org.apache.apex.malhar.lib.utils.serde.SerdePairSlice;
-import org.apache.apex.malhar.lib.utils.serde.SliceUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -65,10 +65,11 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
   private SpillableStateStore store;
   private byte[] identifier;
   private long bucket;
-  private Serde<K, Slice> serdeKey;
-  private Serde<V, Slice> serdeValue;
+  private Serde<V> valueSerde;
   private transient List<SpillableSetImpl<V>> removedSets = new ArrayList<>();
 
+  protected AffixKeyValueSerdeManager<K, V> keyValueSerdeManager;
+  protected transient Context.OperatorContext context;
   private SpillableSetMultimapImpl()
   {
     // for kryo
@@ -84,16 +85,15 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
    * @param serdeKey The {@link Serde} to use when serializing and deserializing values.
    */
   public SpillableSetMultimapImpl(SpillableStateStore store, byte[] identifier, long bucket,
-      Serde<K, Slice> serdeKey,
-      Serde<V, Slice> serdeValue)
+      Serde<K> keySerde,
+      Serde<V> valueSerde)
   {
     this.store = Preconditions.checkNotNull(store);
-    this.identifier = Preconditions.checkNotNull(identifier);
     this.bucket = bucket;
-    this.serdeKey = Preconditions.checkNotNull(serdeKey);
-    this.serdeValue = Preconditions.checkNotNull(serdeValue);
+    this.valueSerde = Preconditions.checkNotNull(valueSerde);
+    keyValueSerdeManager = new AffixKeyValueSerdeManager<K, V>(META_KEY_SUFFIX, identifier, Preconditions.checkNotNull(keySerde), valueSerde);
 
-    map = new SpillableMapImpl(store, identifier, bucket, new PassThruSliceSerde(), new SerdePairSlice<>(new SerdeIntSlice(), serdeValue));
+    map = new SpillableMapImpl(store, identifier, bucket, new PassThruSliceSerde(), new PairSerde<>(new IntSerde(), valueSerde));
   }
 
   public SpillableStateStore getStore()
@@ -112,17 +112,17 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
     SpillableSetImpl<V> spillableSet = cache.get(key);
 
     if (spillableSet == null) {
-      Slice keySlice = serdeKey.serialize(key);
-      Pair<Integer, V> meta = map.get(SliceUtils.concatenate(keySlice, META_KEY_SUFFIX));
+      Pair<Integer, V> meta = map.get(keyValueSerdeManager.serializeMetaKey(key, false));
 
       if (meta == null) {
         return null;
       }
 
-      Slice keyPrefix = SliceUtils.concatenate(identifier, keySlice);
-      spillableSet = new SpillableSetImpl<>(bucket, keyPrefix.toByteArray(), store, serdeValue);
+      Slice keyPrefix = keyValueSerdeManager.serializeDataKey(key, false);
+      spillableSet = new SpillableSetImpl<>(bucket, keyPrefix.toByteArray(), store, valueSerde);
       spillableSet.setSize(meta.getLeft());
       spillableSet.setHead(meta.getRight());
+      spillableSet.setup(context);
     }
 
     cache.put(key, spillableSet);
@@ -166,7 +166,7 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
     SpillableSetImpl<V> spillableSet = getHelper((K)key);
     if (spillableSet != null) {
       cache.remove((K)key);
-      Slice keySlice = SliceUtils.concatenate(serdeKey.serialize((K)key), META_KEY_SUFFIX);
+      Slice keySlice = keyValueSerdeManager.serializeMetaKey((K)key, false);
       map.put(keySlice, new ImmutablePair<>(0, spillableSet.getHead()));
       spillableSet.clear();
       removedSets.add(spillableSet);
@@ -199,7 +199,7 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
     if (cache.contains((K)key)) {
       return true;
     }
-    Slice keySlice = SliceUtils.concatenate(serdeKey.serialize((K)key), META_KEY_SUFFIX);
+    Slice keySlice = keyValueSerdeManager.serializeMetaKey((K)key, false);
     Pair<Integer, V> meta = map.get(keySlice);
     return meta != null && meta.getLeft() > 0;
   }
@@ -227,8 +227,8 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
     SpillableSetImpl<V> spillableSet = getHelper(key);
 
     if (spillableSet == null) {
-      Slice keyPrefix = SliceUtils.concatenate(identifier, serdeKey.serialize(key));
-      spillableSet = new SpillableSetImpl<>(bucket, keyPrefix.toByteArray(), store, serdeValue);
+      spillableSet = new SpillableSetImpl<V>(bucket, keyValueSerdeManager.serializeDataKey(key, true).toByteArray(), store, valueSerde);
+      spillableSet.setup(context);
       cache.put(key, spillableSet);
     }
     return spillableSet.add(value);
@@ -284,13 +284,16 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
   @Override
   public void setup(Context.OperatorContext context)
   {
+    this.context = context;
     map.setup(context);
+    keyValueSerdeManager.setup(store, bucket);
   }
 
   @Override
   public void beginWindow(long windowId)
   {
     map.beginWindow(windowId);
+    keyValueSerdeManager.beginWindow(windowId);
   }
 
   @Override
@@ -301,7 +304,7 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
       SpillableSetImpl<V> spillableSet = cache.get(key);
       spillableSet.endWindow();
 
-      map.put(SliceUtils.concatenate(serdeKey.serialize(key), META_KEY_SUFFIX),
+      map.put(keyValueSerdeManager.serializeMetaKey(key, true),
           new ImmutablePair<>(spillableSet.size(), spillableSet.getHead()));
     }
 
@@ -311,6 +314,8 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
 
     cache.endWindow();
     map.endWindow();
+
+    keyValueSerdeManager.resetReadBuffer();
   }
 
   @Override

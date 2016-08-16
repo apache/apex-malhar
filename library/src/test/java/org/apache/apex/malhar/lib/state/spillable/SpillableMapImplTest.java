@@ -23,7 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.apex.malhar.lib.state.spillable.inmem.InMemSpillableStateStore;
-import org.apache.apex.malhar.lib.utils.serde.SerdeStringSlice;
+import org.apache.apex.malhar.lib.utils.serde.StringSerde;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
@@ -47,6 +47,7 @@ public class SpillableMapImplTest
     simpleGetAndPutTestHelper(store);
   }
 
+
   @Test
   public void simpleGetAndPutManagedStateTest()
   {
@@ -55,11 +56,7 @@ public class SpillableMapImplTest
 
   private void simpleGetAndPutTestHelper(SpillableStateStore store)
   {
-    SerdeStringSlice sss = new SerdeStringSlice();
-
-    SpillableMapImpl<String, String> map = new SpillableMapImpl<>(store, ID1, 0L,
-        new SerdeStringSlice(),
-        new SerdeStringSlice());
+    SpillableMapImpl<String, String> map = createSpillableMap(store);
 
     store.setup(testMeta.operatorContext);
     map.setup(testMeta.operatorContext);
@@ -157,9 +154,9 @@ public class SpillableMapImplTest
   public void simpleRemoveTest()
   {
     InMemSpillableStateStore store = new InMemSpillableStateStore();
-
     simpleRemoveTestHelper(store);
   }
+
 
   @Test
   public void simpleRemoveManagedStateTest()
@@ -167,13 +164,15 @@ public class SpillableMapImplTest
     simpleRemoveTestHelper(testMeta.store);
   }
 
+  protected SpillableMapImpl<String, String> createSpillableMap(SpillableStateStore store)
+  {
+    return new SpillableMapImpl<String, String>(store, ID1, 0L, new StringSerde(),
+        new StringSerde());
+  }
+
   private void simpleRemoveTestHelper(SpillableStateStore store)
   {
-    SerdeStringSlice sss = new SerdeStringSlice();
-
-    SpillableMapImpl<String, String> map = new SpillableMapImpl<>(store, ID1, 0L,
-        new SerdeStringSlice(),
-        new SerdeStringSlice());
+    SpillableMapImpl<String, String> map = createSpillableMap(store);
 
     store.setup(testMeta.operatorContext);
     map.setup(testMeta.operatorContext);
@@ -324,14 +323,14 @@ public class SpillableMapImplTest
 
   public void multiMapPerBucketTestHelper(SpillableStateStore store)
   {
-    SerdeStringSlice sss = new SerdeStringSlice();
+    StringSerde sss = new StringSerde();
 
     SpillableMapImpl<String, String> map1 = new SpillableMapImpl<>(store, ID1, 0L,
-        new SerdeStringSlice(),
-        new SerdeStringSlice());
+        new StringSerde(),
+        new StringSerde());
     SpillableMapImpl<String, String> map2 = new SpillableMapImpl<>(store, ID2, 0L,
-        new SerdeStringSlice(),
-        new SerdeStringSlice());
+        new StringSerde(),
+        new StringSerde());
 
     store.setup(testMeta.operatorContext);
     map1.setup(testMeta.operatorContext);
@@ -413,11 +412,11 @@ public class SpillableMapImplTest
   @Test
   public void recoveryWithManagedStateTest() throws Exception
   {
-    SerdeStringSlice sss = new SerdeStringSlice();
+    StringSerde sss = new StringSerde();
 
     SpillableMapImpl<String, String> map1 = new SpillableMapImpl<>(testMeta.store, ID1, 0L,
-        new SerdeStringSlice(),
-        new SerdeStringSlice());
+        new StringSerde(),
+        new StringSerde());
 
     testMeta.store.setup(testMeta.operatorContext);
     map1.setup(testMeta.operatorContext);

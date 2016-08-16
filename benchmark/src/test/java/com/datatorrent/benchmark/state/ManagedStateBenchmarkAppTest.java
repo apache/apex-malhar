@@ -36,7 +36,7 @@ import com.datatorrent.benchmark.state.StoreOperator.ExecMode;
  * Provides this class to give developers the convenience to run in local IDE environment.
  *
  */
-public class ManagedStateBenchmarkAppTester extends ManagedStateBenchmarkApp
+public class ManagedStateBenchmarkAppTest extends ManagedStateBenchmarkApp
 {
   public static final String basePath = "target/temp";
 

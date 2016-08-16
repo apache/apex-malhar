@@ -24,6 +24,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.esotericsoftware.kryo.io.Input;
 import com.google.common.collect.Lists;
 
 import com.datatorrent.netlet.util.Slice;
@@ -31,7 +32,7 @@ import com.datatorrent.netlet.util.Slice;
 /**
  * SerdeKryoSlice unit tests
  */
-public class SerdeKryoSliceTest
+public class GenericSerdeTest
 {
   public static class TestPojo
   {
@@ -59,21 +60,25 @@ public class SerdeKryoSliceTest
   @Test
   public void stringListTest()
   {
-    SerdeKryoSlice<ArrayList> serdeList = new SerdeKryoSlice<>(ArrayList.class);
+    GenericSerde<ArrayList> serdeList = new GenericSerde<>(ArrayList.class);
 
     ArrayList<String> stringList = Lists.newArrayList("a", "b", "c");
-    Slice slice = serdeList.serialize(stringList);
-    List<String> deserializedList = serdeList.deserialize(slice);
+    SerializationBuffer buffer = new SerializationBuffer(new WindowedBlockStream());
+    serdeList.serialize(stringList, buffer);
+    Slice slice = buffer.toSlice();
+    List<String> deserializedList = serdeList.deserialize(new Input(slice.buffer, slice.offset, slice.length));
     Assert.assertEquals(stringList, deserializedList);
   }
 
   @Test
   public void pojoTest()
   {
-    SerdeKryoSlice<TestPojo> serdePojo = new SerdeKryoSlice<>();
+    GenericSerde<TestPojo> serdePojo = new GenericSerde<>();
     TestPojo pojo = new TestPojo(345, "xyz");
-    Slice slice = serdePojo.serialize(pojo);
-    TestPojo deserializedPojo = serdePojo.deserialize(slice);
+    SerializationBuffer buffer = new SerializationBuffer(new WindowedBlockStream());
+    serdePojo.serialize(pojo, buffer);
+    Slice slice = buffer.toSlice();
+    TestPojo deserializedPojo = serdePojo.deserialize(new Input(slice.buffer, slice.offset, slice.length));
     Assert.assertEquals(pojo, deserializedPojo);
   }
 }

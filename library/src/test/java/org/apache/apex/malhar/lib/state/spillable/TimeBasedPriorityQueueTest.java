@@ -25,9 +25,6 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 
-/**
- * Created by tfarkas on 6/4/16.
- */
 public class TimeBasedPriorityQueueTest
 {
   @Test

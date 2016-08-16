@@ -18,38 +18,51 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.hadoop.classification.InterfaceStability;
-
-import com.datatorrent.lib.appdata.gpo.GPOUtils;
-import com.datatorrent.netlet.util.Slice;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 
 /**
- * An implementation of {@link Serde} which serializes and deserializes {@link String}s.
+ * AffixSerde provides serde for adding prefix or suffix
  *
- * @since 3.5.0
+ * @param <T>
  */
-@InterfaceStability.Evolving
-public class SerdeStringSlice implements Serde<String, Slice>
+public class AffixSerde<T> implements Serde<T>
 {
-  @Override
-  public Slice serialize(String object)
+  private Serde<T> serde;
+  private byte[] prefix;
+  private byte[] suffix;
+
+  private AffixSerde()
   {
-    return new Slice(GPOUtils.serializeString(object));
+    //kyro
+  }
+
+  public AffixSerde(byte[] prefix, Serde<T> serde, byte[] suffix)
+  {
+    this.prefix = prefix;
+    this.suffix = suffix;
+    this.serde = serde;
   }
 
   @Override
-  public String deserialize(Slice object, MutableInt offset)
+  public void serialize(T object, Output output)
   {
-    offset.add(object.offset);
-    String string = GPOUtils.deserializeString(object.buffer, offset);
-    offset.subtract(object.offset);
-    return string;
+    if (prefix != null && prefix.length > 0) {
+      output.write(prefix);
+    }
+    serde.serialize(object, output);
+    if (suffix != null && suffix.length > 0) {
+      output.write(suffix);
+    }
   }
 
   @Override
-  public String deserialize(Slice object)
+  public T deserialize(Input input)
   {
-    return deserialize(object, new MutableInt(0));
+    if (prefix != null && prefix.length > 0) {
+      input.skip(prefix.length);
+    }
+    return serde.deserialize(input);
   }
+
 }

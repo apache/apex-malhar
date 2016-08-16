@@ -16,23 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.state.spillable;
-
-import org.apache.apex.malhar.lib.state.BucketedState;
-import org.apache.apex.malhar.lib.state.managed.BucketProvider;
-import org.apache.hadoop.classification.InterfaceStability;
-
-import com.datatorrent.api.Component;
-import com.datatorrent.api.Context;
-import com.datatorrent.api.Operator;
+package org.apache.apex.malhar.lib.utils.serde;
 
 /**
- * Implementations of this interface are used by Spillable datastructures to spill data to disk.
+ * This interface provides methods for stream for key/value.
+ * The implementation can separate the stream for key and value or share the same one.
  *
- * @since 3.5.0
  */
-@InterfaceStability.Evolving
-public interface SpillableStateStore extends BucketedState, Component<Context.OperatorContext>,
-    Operator.CheckpointNotificationListener, WindowListener, BucketProvider
+public interface KeyValueByteStreamProvider
 {
+  /**
+   * @return The stream for keeping key
+   */
+  WindowedBlockStream getKeyStream();
+
+  /**
+   * @return The stream for keeping value
+   */
+  WindowedBlockStream getValueStream();
 }

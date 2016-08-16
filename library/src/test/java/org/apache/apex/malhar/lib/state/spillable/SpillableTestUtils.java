@@ -27,14 +27,15 @@ import org.junit.runner.Description;
 
 import org.apache.apex.malhar.lib.state.managed.ManagedStateTestUtils;
 import org.apache.apex.malhar.lib.state.spillable.managed.ManagedStateSpillableStateStore;
+import org.apache.apex.malhar.lib.utils.serde.CollectionSerde;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
-import org.apache.apex.malhar.lib.utils.serde.SerdeCollectionSlice;
-import org.apache.apex.malhar.lib.utils.serde.SerdeStringSlice;
-import org.apache.apex.malhar.lib.utils.serde.SliceUtils;
-import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.apex.malhar.lib.utils.serde.SerializationBuffer;
+import org.apache.apex.malhar.lib.utils.serde.StringSerde;
+import org.apache.apex.malhar.lib.utils.serde.WindowedBlockStream;
+
+import com.esotericsoftware.kryo.io.Input;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.fileaccess.FileAccessFSImpl;
 import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.netlet.util.Slice;
@@ -44,9 +45,9 @@ import com.datatorrent.netlet.util.Slice;
  */
 public class SpillableTestUtils
 {
-  public static SerdeStringSlice SERDE_STRING_SLICE = new SerdeStringSlice();
-  public static SerdeCollectionSlice<String, List<String>> SERDE_STRING_LIST_SLICE = new SerdeCollectionSlice<>(new SerdeStringSlice(),
-      (Class<List<String>>)(Class)ArrayList.class);
+  public static StringSerde STRING_SERDE = new StringSerde();
+  public static CollectionSerde<String, List<String>> STRING_LIST_SERDE = new CollectionSerde<>(new StringSerde(),
+      (Class)ArrayList.class);
 
   private SpillableTestUtils()
   {
@@ -77,34 +78,41 @@ public class SpillableTestUtils
     }
   }
 
+  protected static SerializationBuffer buffer = new SerializationBuffer(new WindowedBlockStream());
+
   public static Slice getKeySlice(byte[] id, String key)
   {
-    return SliceUtils.concatenate(id, SERDE_STRING_SLICE.serialize(key));
+    buffer.writeBytes(id);
+    STRING_SERDE.serialize(key, buffer);
+    return buffer.toSlice();
   }
 
   public static Slice getKeySlice(byte[] id, int index, String key)
   {
-    return SliceUtils.concatenate(id,
-        SliceUtils.concatenate(GPOUtils.serializeInt(index),
-            SERDE_STRING_SLICE.serialize(key)));
+    buffer.writeBytes(id);
+    buffer.writeInt(index);
+    STRING_SERDE.serialize(key, buffer);
+    return buffer.toSlice();
   }
 
   public static void checkValue(SpillableStateStore store, long bucketId, String key,
       byte[] prefix, String expectedValue)
   {
-    checkValue(store, bucketId, SliceUtils.concatenate(prefix, SERDE_STRING_SLICE.serialize(key)).buffer,
-        expectedValue, 0, SERDE_STRING_SLICE);
+    buffer.writeBytes(prefix);
+    STRING_SERDE.serialize(key, buffer);
+    checkValue(store, bucketId, buffer.toSlice().toByteArray(), expectedValue, 0, STRING_SERDE);
   }
 
   public static void checkValue(SpillableStateStore store, long bucketId,
       byte[] prefix, int index, List<String> expectedValue)
   {
-    checkValue(store, bucketId, SliceUtils.concatenate(prefix, GPOUtils.serializeInt(index)), expectedValue, 0,
-        SERDE_STRING_LIST_SLICE);
+    buffer.writeBytes(prefix);
+    buffer.writeInt(index);
+    checkValue(store, bucketId, buffer.toSlice().toByteArray(), expectedValue, 0, STRING_LIST_SERDE);
   }
 
-  public static <T> void  checkValue(SpillableStateStore store, long bucketId, byte[] bytes,
-      T expectedValue, int offset, Serde<T, Slice> serde)
+  public static <T> void checkValue(SpillableStateStore store, long bucketId, byte[] bytes,
+      T expectedValue, int offset, Serde<T> serde)
   {
     Slice slice = store.getSync(bucketId, new Slice(bytes));
 
@@ -116,7 +124,7 @@ public class SpillableTestUtils
       }
     }
 
-    T string = serde.deserialize(slice, new MutableInt(offset));
+    T string = serde.deserialize(new Input(slice.buffer, slice.offset + offset, slice.length));
 
     Assert.assertEquals(expectedValue, string);
   }

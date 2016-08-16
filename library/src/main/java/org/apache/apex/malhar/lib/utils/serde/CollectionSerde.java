@@ -22,14 +22,12 @@ import java.util.Collection;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.classification.InterfaceStability;
 
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
-
-import com.datatorrent.lib.appdata.gpo.GPOUtils;
-import com.datatorrent.netlet.util.Slice;
 
 /**
  * This is an implementation of {@link Serde} which serializes and deserializes lists.
@@ -37,84 +35,63 @@ import com.datatorrent.netlet.util.Slice;
  * @since 3.5.0
  */
 @InterfaceStability.Evolving
-public class SerdeCollectionSlice<T, CollectionT extends Collection<T>> implements Serde<CollectionT, Slice>
+public class CollectionSerde<T, CollectionT extends Collection<T>> implements Serde<CollectionT>
 {
   @NotNull
-  private Serde<T, Slice> serde;
+  private Serde<T> serde;
 
   @NotNull
   private Class<? extends CollectionT> collectionClass;
 
-  private SerdeCollectionSlice()
+  private CollectionSerde()
   {
     // for Kryo
   }
 
   /**
-   * Creates a {@link SerdeCollectionSlice}.
+   * Creates a {@link CollectionSerde}.
    * @param serde The {@link Serde} that is used to serialize and deserialize each element of a list.
    */
-  public SerdeCollectionSlice(@NotNull Serde<T, Slice> serde, @NotNull Class<? extends CollectionT> collectionClass)
+  public CollectionSerde(@NotNull Serde<T> serde, @NotNull Class<? extends CollectionT> collectionClass /*Class<? extends C1> collectionClass*/ )
   {
     this.serde = Preconditions.checkNotNull(serde);
     this.collectionClass = Preconditions.checkNotNull(collectionClass);
   }
 
   @Override
-  public Slice serialize(CollectionT objects)
+  public void serialize(CollectionT objects, Output output)
   {
-    Slice[] slices = new Slice[objects.size()];
-
-    int size = 4;
-
-    int index = 0;
+    if (objects.size() == 0) {
+      return;
+    }
+    output.writeInt(objects.size(), true);
+    Serde<T> serializer = getItemSerde();
     for (T object : objects) {
-      Slice slice = serde.serialize(object);
-      slices[index++] = slice;
-      size += slice.length;
+      serializer.serialize(object, output);
     }
-
-    byte[] bytes = new byte[size];
-    int offset = 0;
-
-    byte[] sizeBytes = GPOUtils.serializeInt(objects.size());
-    System.arraycopy(sizeBytes, 0, bytes, offset, 4);
-    offset += 4;
-
-    for (index = 0; index < slices.length; index++) {
-      Slice slice = slices[index];
-      System.arraycopy(slice.buffer, slice.offset, bytes, offset, slice.length);
-      offset += slice.length;
-    }
-
-    return new Slice(bytes);
   }
 
   @Override
-  public CollectionT deserialize(Slice slice, MutableInt offset)
+  public CollectionT deserialize(Input input)
   {
-    MutableInt sliceOffset = new MutableInt(slice.offset + offset.intValue());
+    int numElements = input.readInt(true);
 
-    int numElements = GPOUtils.deserializeInt(slice.buffer, sliceOffset);
-    sliceOffset.subtract(slice.offset);
     try {
       CollectionT collection = collectionClass.newInstance();
 
       for (int index = 0; index < numElements; index++) {
-        T object = serde.deserialize(slice, sliceOffset);
+        T object = serde.deserialize(input);
         collection.add(object);
       }
 
-      offset.setValue(sliceOffset.intValue());
       return collection;
     } catch (Exception ex) {
       throw Throwables.propagate(ex);
     }
   }
 
-  @Override
-  public CollectionT deserialize(Slice slice)
+  protected Serde<T> getItemSerde()
   {
-    return deserialize(slice, new MutableInt(0));
+    return serde;
   }
 }
