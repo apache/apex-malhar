@@ -18,37 +18,22 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.hadoop.classification.InterfaceStability;
-
-import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.netlet.util.Slice;
 
-/**
- * An implementation of {@link Serde} which serializes and deserializes {@link String}s.
- */
-@InterfaceStability.Evolving
-public class SerdeStringSlice implements Serde<String, Slice>
+public interface ByteStream
 {
-  @Override
-  public Slice serialize(String object)
-  {
-    return new Slice(GPOUtils.serializeString(object));
-  }
+  void write(byte[] data);
 
+  void write(byte[] data, final int offset, final int length);
+
+  int size();
+
+  Slice toSlice();
+
+  void reset();
+  
   /**
-   * The slice could be a buffer of multiple objects, 
-   * We should not assume deserialize whole slice, the offset indicates where to start.
+   * release allocated resource
    */
-  @Override
-  public String deserialize(Slice object, MutableInt offset)
-  {
-    return GPOUtils.deserializeString(object.buffer, offset);
-  }
-
-  @Override
-  public String deserialize(Slice object)
-  {
-    return deserialize(object, new MutableInt(object.offset));
-  }
+  void release();
 }

@@ -18,37 +18,49 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.hadoop.classification.InterfaceStability;
+import java.util.List;
 
-import com.datatorrent.lib.appdata.gpo.GPOUtils;
+import javax.validation.constraints.NotNull;
+
+import com.google.common.base.Preconditions;
+
 import com.datatorrent.netlet.util.Slice;
 
-/**
- * An implementation of {@link Serde} which serializes and deserializes {@link String}s.
- */
-@InterfaceStability.Evolving
-public class SerdeStringSlice implements Serde<String, Slice>
+public class SerdeListSliceWithLVBuffer<T> extends SerdeListSlice<T> implements SerToLVBuffer<List<T>>
 {
-  @Override
-  public Slice serialize(String object)
+  protected SerToLVBuffer<T> itemSerTo;
+  protected LengthValueBuffer buffer;
+  
+  protected SerdeListSliceWithLVBuffer()
   {
-    return new Slice(GPOUtils.serializeString(object));
+    // for Kryo
   }
 
-  /**
-   * The slice could be a buffer of multiple objects, 
-   * We should not assume deserialize whole slice, the offset indicates where to start.
-   */
-  @Override
-  public String deserialize(Slice object, MutableInt offset)
+  public SerdeListSliceWithLVBuffer(@NotNull SerToLVBuffer<T> serde, LengthValueBuffer buffer)
   {
-    return GPOUtils.deserializeString(object.buffer, offset);
+    this.itemSerTo = Preconditions.checkNotNull(serde);
+    this.buffer = Preconditions.checkNotNull(buffer);
   }
 
   @Override
-  public String deserialize(Slice object)
+  public Slice serialize(List<T> objects)
   {
-    return deserialize(object, new MutableInt(object.offset));
+    serTo(objects, buffer);
+    return buffer.toSlice();
   }
+  
+  @Override
+  public void serTo(List<T> objects, LengthValueBuffer buffer)
+  {
+    buffer.setObjectLength(objects.size());
+    for (T object : objects) {
+      itemSerTo.serTo(object, buffer);;
+    }
+  }
+
+  public void reset()
+  {
+    buffer.reset();
+  }
+  
 }

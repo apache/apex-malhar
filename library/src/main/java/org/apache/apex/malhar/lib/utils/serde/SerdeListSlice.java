@@ -38,9 +38,9 @@ import com.datatorrent.netlet.util.Slice;
 public class SerdeListSlice<T> implements Serde<List<T>, Slice>
 {
   @NotNull
-  private Serde<T, Slice> serde;
+  protected Serde<T, Slice> serde;
 
-  private SerdeListSlice()
+  protected SerdeListSlice()
   {
     // for Kryo
   }

@@ -18,37 +18,57 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.hadoop.classification.InterfaceStability;
+import com.google.common.base.Preconditions;
 
-import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.netlet.util.Slice;
 
-/**
- * An implementation of {@link Serde} which serializes and deserializes {@link String}s.
- */
-@InterfaceStability.Evolving
-public class SerdeStringSlice implements Serde<String, Slice>
+public class SerdeStringWithLVBuffer extends SerdeStringSlice implements SerToLVBuffer<String>
 {
+  //implement with shared buff
+  protected LengthValueBuffer buffer;
+  
+  /**
+   * if don't use SerdeStringWithLVBuffer.serialize(String), can ignore LVBuffer
+   */
+  public SerdeStringWithLVBuffer()
+  {
+  }
+  
+  public SerdeStringWithLVBuffer(LengthValueBuffer buffer)
+  {
+    this.buffer = Preconditions.checkNotNull(buffer);
+  }
+  
   @Override
   public Slice serialize(String object)
   {
-    return new Slice(GPOUtils.serializeString(object));
+    if (buffer == null) {
+      buffer = new LengthValueBuffer();
+    }
+    serTo(object, buffer);
+    return buffer.toSlice();
   }
 
-  /**
-   * The slice could be a buffer of multiple objects, 
-   * We should not assume deserialize whole slice, the offset indicates where to start.
-   */
+// implement with tmp buffer  
+//  @Override
+//  public Slice serialize(String object)
+//  {
+//    LVBuffer buffer = new LVBuffer();
+//    serTo(object, buffer);
+//    return buffer.toSlice();
+//  }
+  
   @Override
-  public String deserialize(Slice object, MutableInt offset)
+  public void serTo(String str, LengthValueBuffer buffer)
   {
-    return GPOUtils.deserializeString(object.buffer, offset);
+    buffer.setObjectWithValue(str.getBytes());
   }
 
   @Override
-  public String deserialize(Slice object)
+  public void reset()
   {
-    return deserialize(object, new MutableInt(object.offset));
+    if (buffer != null) {
+      buffer.reset();
+    }
   }
 }
