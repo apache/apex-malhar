@@ -11,4 +11,5 @@ pages:
     - File Input: operators/fsInputOperator.md
     - File Output: operators/file_output.md
     - Enricher: operators/enricher.md
+    - Filter: operators/filter.md
     - Deduper: operators/deduper.md
