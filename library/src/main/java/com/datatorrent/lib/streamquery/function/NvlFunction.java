@@ -24,6 +24,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 /**
  * An implementation of function NVL which lets you substitute a value when a null
@@ -57,39 +58,19 @@ public class NvlFunction<T> extends BaseOperator
     /**
      * Array to store column inputs during window.
      */
-    private ArrayList<T> columns = new ArrayList<T>();
+    private transient LinkedList<T> columns = new LinkedList<T>();
 
     /**
      * Array to store aliases input during window.
      */
-    private ArrayList<T> aliases = new ArrayList<T>();
-
-    /**
-     * Number of input pairs processed in current window.
-     */
-    private int index = 0;
+    private transient LinkedList<T> aliases = new LinkedList<T>();
 
     /**
      * Helper to process a tuple
      */
-    private void processInternal(T tuple, boolean isAlias) {
-        int size;
-        if (isAlias) {
-            aliases.add(tuple);
-            size = columns.size();
-        }
-        else {
-            columns.add(tuple);
-            size = aliases.size();
-        }
-
-        if (size > index) {
-            int loc = aliases.size();
-            if (loc > columns.size()) {
-                loc = columns.size();
-            }
-            emit(columns.get(loc - 1), aliases.get(loc - 1));
-            index++;
+    private void processInternal(T tuple) {
+        if (aliases.size() > 0 && columns.size() > 0) {
+            emit(columns.remove(0), aliases.remove(0));
         }
     }
 
@@ -100,7 +81,8 @@ public class NvlFunction<T> extends BaseOperator
     {
         @Override
         public void process(T tuple) {
-            processInternal(tuple, false);
+            columns.add(tuple);
+            processInternal(tuple);
         }
     };
 
@@ -115,7 +97,8 @@ public class NvlFunction<T> extends BaseOperator
                 errordata.emit("Error(null alias not allowed)");
                 return;
             }
-            processInternal(tuple, true);
+            aliases.add(tuple);
+            processInternal(tuple);
         }
     };
 
@@ -135,12 +118,4 @@ public class NvlFunction<T> extends BaseOperator
      */
     @OutputPortFieldAnnotation(optional = true)
     public final transient DefaultOutputPort<String> errordata = new DefaultOutputPort<String>();
-
-    @Override
-    public void endWindow()
-    {
-        columns.clear();
-        aliases.clear();
-        index = 0;
-    }
 }
