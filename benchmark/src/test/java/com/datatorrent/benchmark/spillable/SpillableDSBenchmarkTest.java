@@ -20,6 +20,7 @@ package com.datatorrent.benchmark.spillable;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.Rule;
@@ -44,6 +45,10 @@ public class SpillableDSBenchmarkTest
   public static final transient Logger logger = LoggerFactory.getLogger(SpillableDSBenchmarkTest.class);
   protected static final transient int loopCount = 100000000;
   protected static final transient long oneMB = 1024*1024;
+  protected static final transient int keySize = 1000000;
+  protected static final transient int valueSize = 100000000;
+  
+  protected final transient Random random = new Random();
   
   @Rule
   public SpillableTestUtils.TestMeta testMeta = new SpillableTestUtils.TestMeta();
@@ -121,7 +126,6 @@ public class SpillableDSBenchmarkTest
     String[] strs = new String[]{"123", "45678", "abcdef", "dfaqecdgr"};
 
     final long startTime = System.currentTimeMillis();
-    long key = 0;
 
     long windowId = 0;
     store.beginWindow(++windowId);
@@ -129,9 +133,7 @@ public class SpillableDSBenchmarkTest
 
     int outputTimes = 0;
     for (int i = 0; i < loopCount; ++i) {
-      for (String str : strs) {
-        multiMap.put("" + key, str);
-      }
+      putEntry(multiMap);
 
       if (i % 100000 == 0) {
         multiMap.endWindow();
@@ -139,8 +141,6 @@ public class SpillableDSBenchmarkTest
 
         //NOTES: it will great impact the performance if the size of buffer is too large
         resetBuffer();
-
-        ++key;
 
         //next window
         store.beginWindow(++windowId);
@@ -160,6 +160,15 @@ public class SpillableDSBenchmarkTest
 
     logger.info("Spent {} mills for {} operation. average: {}", spentTime, strs.length * loopCount,
         strs.length * loopCount / spentTime);
+  }
+
+  /**
+   * put the entry into the map
+   * @param multiMap
+   */
+  public void putEntry(SpillableByteArrayListMultimapImpl<String, String> multiMap)
+  {
+    multiMap.put(String.valueOf(random.nextInt(keySize)), String.valueOf(random.nextInt(valueSize)));
   }
 
   public void checkEnvironment()
