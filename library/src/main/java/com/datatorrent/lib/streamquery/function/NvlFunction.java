@@ -23,7 +23,6 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 /**
@@ -68,7 +67,7 @@ public class NvlFunction<T> extends BaseOperator
     /**
      * Helper to process a tuple
      */
-    private void processInternal(T tuple) {
+    private void processInternal() {
         if (aliases.size() > 0 && columns.size() > 0) {
             emit(columns.remove(0), aliases.remove(0));
         }
@@ -82,7 +81,7 @@ public class NvlFunction<T> extends BaseOperator
         @Override
         public void process(T tuple) {
             columns.add(tuple);
-            processInternal(tuple);
+            processInternal();
         }
     };
 
@@ -94,11 +93,12 @@ public class NvlFunction<T> extends BaseOperator
         @Override
         public void process(T tuple) {
             if (tuple == null) {
+                columns.removeLast();
                 errordata.emit("Error(null alias not allowed)");
                 return;
             }
             aliases.add(tuple);
-            processInternal(tuple);
+            processInternal();
         }
     };
 
@@ -118,4 +118,12 @@ public class NvlFunction<T> extends BaseOperator
      */
     @OutputPortFieldAnnotation(optional = true)
     public final transient DefaultOutputPort<String> errordata = new DefaultOutputPort<String>();
+
+    @Override
+    public void endWindow()
+    {
+        if (columns.size() != 0 || aliases.size() != 0) {
+            throw new IllegalArgumentException("Number of column values mismatches number of aliases");
+        }
+    }
 }

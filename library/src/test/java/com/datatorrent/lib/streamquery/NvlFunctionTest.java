@@ -74,6 +74,35 @@ public class NvlFunctionTest
   }
 
   /**
+   * Test operator logic: throws exception when number of column values
+   * doesn't match number of aliases
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  @Test
+  public void testNodeProcessingException()
+  {
+    NvlFunction<String> strOper = new NvlFunction<String>();
+    Throwable e = null;
+
+    CollectorTestSink strSink = new CollectorTestSink();
+    CollectorTestSink eSink = new CollectorTestSink();
+    strOper.out.setSink(strSink);
+    strOper.errordata.setSink(eSink);
+
+    // negative case: nvl("abc", --) i.e. no alias input --> exception
+    try {
+      strOper.beginWindow(0);
+      strOper.column.process("abc");
+      strOper.endWindow();
+    }
+    catch (Throwable ex) {
+      e = ex;
+    }
+
+    Assert.assertTrue(e instanceof IllegalArgumentException);
+  }
+
+  /**
    * Test operator logic emits correct results.
    * Data type: Integer
    */
