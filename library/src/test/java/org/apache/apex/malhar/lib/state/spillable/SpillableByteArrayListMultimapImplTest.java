@@ -19,6 +19,7 @@
 package org.apache.apex.malhar.lib.state.spillable;
 
 import java.util.List;
+import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.Rule;
@@ -337,5 +338,34 @@ public class SpillableByteArrayListMultimapImplTest
 
     map.teardown();
     store.teardown();
+  }
+  
+  @Test
+  public void testLoad()
+  {
+    Random random = new Random();
+    final int keySize = 1000000;
+    final int valueSize = 100000000;
+    final int numOfEntry = 100000;
+
+    SpillableStateStore store = testMeta.store;
+    
+    SpillableByteArrayListMultimapImpl<String, String> multimap = new SpillableByteArrayListMultimapImpl<>(
+        this.testMeta.store, ID1, 0L, new SerdeStringSlice(), new SerdeStringSlice());
+    
+    Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
+    attributes.put(DAG.APPLICATION_PATH, testMeta.applicationPath);
+    Context.OperatorContext context =
+        new OperatorContextTestHelper.TestIdOperatorContext(testMeta.operatorContext.getId(), attributes);
+    store.setup(context);
+    multimap.setup(context);
+
+    store.beginWindow(1);
+    multimap.beginWindow(1);
+    for (int i = 0; i < numOfEntry; ++i) {
+      multimap.put(String.valueOf(random.nextInt(keySize)), String.valueOf(random.nextInt(valueSize)));
+    }
+    multimap.endWindow();
+    store.endWindow();
   }
 }
