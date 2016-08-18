@@ -74,7 +74,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @since 3.3.0
  */
 @InterfaceStability.Evolving
-public abstract class AbstractKafkaInputOperator implements InputOperator, Operator.ActivationListener<Context.OperatorContext>, Operator.CheckpointListener, Partitioner<AbstractKafkaInputOperator>, StatsListener, OffsetCommitCallback
+public abstract class AbstractKafkaInputOperator implements InputOperator, Operator.ActivationListener<Context.OperatorContext>, Operator.CheckpointNotificationListener, Partitioner<AbstractKafkaInputOperator>, StatsListener, OffsetCommitCallback
 {
 
   private static final Logger logger = LoggerFactory.getLogger(AbstractKafkaInputOperator.class);
@@ -186,6 +186,12 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
 
   @Override
   public void checkpointed(long l)
+  {
+
+  }
+
+  @Override
+  public void beforeCheckpoint(long windowId)
   {
 
   }
