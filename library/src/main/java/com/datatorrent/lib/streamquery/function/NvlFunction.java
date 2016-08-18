@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,12 +18,12 @@
  */
 package com.datatorrent.lib.streamquery.function;
 
+import java.util.LinkedList;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
-
-import java.util.LinkedList;
 
 /**
  * An implementation of function NVL which lets you substitute a value when a null
@@ -46,84 +46,82 @@ import java.util.LinkedList;
  *      dave   1500
  *      SELECT NVL(salary, 0) FROM emp WHERE name='ben' will return 0.
  *      SELECT NVL(salary, 0) FROM emp WHERE name='dave' will return 1500.
- *
- * @displayName NVL Function
- * @category Stream Manipulators
- * @tags sql nvl
- * @since 0.3.4
  */
 public class NvlFunction<T> extends BaseOperator
 {
-    /**
-     * Array to store column inputs during window.
-     */
-    private transient LinkedList<T> columns = new LinkedList<T>();
+  /**
+   * Array to store column inputs during window.
+   */
+  private transient LinkedList<T> columns = new LinkedList<>();
 
-    /**
-     * Array to store aliases input during window.
-     */
-    private transient LinkedList<T> aliases = new LinkedList<T>();
+  /**
+   * Array to store aliases input during window.
+   */
+  private transient LinkedList<T> aliases = new LinkedList<>();
 
-    /**
-     * Helper to process a tuple
-     */
-    private void processInternal() {
-        if (aliases.size() > 0 && columns.size() > 0) {
-            emit(columns.remove(0), aliases.remove(0));
-        }
+  /**
+   * Helper to process a tuple
+   */
+  private void processInternal()
+  {
+    if (aliases.size() > 0 && columns.size() > 0) {
+      emit(columns.remove(0), aliases.remove(0));
     }
+  }
 
-    /**
-     * Column input port
-     */
-    public final transient DefaultInputPort<T> column = new DefaultInputPort<T>()
-    {
-        @Override
-        public void process(T tuple) {
-            columns.add(tuple);
-            processInternal();
-        }
-    };
-
-    /**
-     * Alias input port
-     */
-    public final transient DefaultInputPort<T> alias = new DefaultInputPort<T>()
-    {
-        @Override
-        public void process(T tuple) {
-            if (tuple == null) {
-                columns.removeLast();
-                errordata.emit("Error(null alias not allowed)");
-                return;
-            }
-            aliases.add(tuple);
-            processInternal();
-        }
-    };
-
-    /**
-     * Output port
-     */
-    @OutputPortFieldAnnotation(optional = true)
-    public final transient DefaultOutputPort<T> out = new DefaultOutputPort<T>();
-
-    public void emit(T column, T alias)
-    {
-        out.emit(column == null ? alias : column);
-    }
-
-    /**
-     * Error data output port.
-     */
-    @OutputPortFieldAnnotation(optional = true)
-    public final transient DefaultOutputPort<String> errordata = new DefaultOutputPort<String>();
-
+  /**
+   * Column input port
+   */
+  public final transient DefaultInputPort<T> column = new DefaultInputPort<T>()
+  {
     @Override
-    public void endWindow()
+    public void process(T tuple)
     {
-        if (columns.size() != 0 || aliases.size() != 0) {
-            throw new IllegalArgumentException("Number of column values mismatches number of aliases");
-        }
+      columns.add(tuple);
+      processInternal();
     }
+  };
+
+  /**
+   * Alias input port
+   */
+  public final transient DefaultInputPort<T> alias = new DefaultInputPort<T>()
+  {
+    @Override
+    public void process(T tuple)
+    {
+      if (tuple == null) {
+        columns.removeLast();
+        errordata.emit("Error(null alias not allowed)");
+        return;
+      }
+      aliases.add(tuple);
+      processInternal();
+    }
+  };
+
+  /**
+   * Output port
+   */
+  @OutputPortFieldAnnotation(optional = true)
+  public final transient DefaultOutputPort<T> out = new DefaultOutputPort<>();
+
+  public void emit(T column, T alias)
+  {
+    out.emit(column == null ? alias : column);
+  }
+
+  /**
+   * Error data output port.
+   */
+  @OutputPortFieldAnnotation(optional = true)
+  public final transient DefaultOutputPort<String> errordata = new DefaultOutputPort<>();
+
+  @Override
+  public void endWindow()
+  {
+    if (columns.size() != 0 || aliases.size() != 0) {
+      throw new IllegalArgumentException("Number of column values mismatches number of aliases");
+    }
+  }
 }

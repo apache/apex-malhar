@@ -18,10 +18,11 @@
  */
 package com.datatorrent.lib.streamquery;
 
-import com.datatorrent.lib.streamquery.function.NvlFunction;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.datatorrent.lib.streamquery.function.NvlFunction;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  * Functional tests for NvlFunction
@@ -37,7 +38,7 @@ public class NvlFunctionTest
   @Test
   public void testNodeProcessingString()
   {
-    NvlFunction<String> strOper = new NvlFunction<String>();
+    NvlFunction<String> strOper = new NvlFunction<>();
 
     CollectorTestSink strSink = new CollectorTestSink();
     CollectorTestSink eSink = new CollectorTestSink();
@@ -62,15 +63,11 @@ public class NvlFunctionTest
     strOper.endWindow();
 
     // Two positive results, one error
-    Assert.assertEquals("number of emitted tuples", 2,
-        strSink.collectedTuples.size());
-    Assert.assertEquals("NVL is", "abc",
-            strSink.collectedTuples.get(0));
-    Assert.assertEquals("NVL is", "default addr",
-            strSink.collectedTuples.get(1));
+    Assert.assertEquals("number of emitted tuples", 2, strSink.collectedTuples.size());
+    Assert.assertEquals("NVL is", "abc", strSink.collectedTuples.get(0));
+    Assert.assertEquals("NVL is", "default addr", strSink.collectedTuples.get(1));
 
-    Assert.assertEquals("number of error tuples", 1,
-        eSink.collectedTuples.size());
+    Assert.assertEquals("number of error tuples", 1, eSink.collectedTuples.size());
   }
 
   /**
@@ -81,7 +78,7 @@ public class NvlFunctionTest
   @Test
   public void testNodeProcessingException()
   {
-    NvlFunction<String> strOper = new NvlFunction<String>();
+    NvlFunction<String> strOper = new NvlFunction<>();
     Throwable e = null;
 
     CollectorTestSink strSink = new CollectorTestSink();
@@ -94,8 +91,7 @@ public class NvlFunctionTest
       strOper.beginWindow(0);
       strOper.column.process("abc");
       strOper.endWindow();
-    }
-    catch (Throwable ex) {
+    } catch (Throwable ex) {
       e = ex;
     }
 
@@ -110,7 +106,7 @@ public class NvlFunctionTest
   @Test
   public void testNodeProcessingInterger()
   {
-    NvlFunction<Integer> intOper = new NvlFunction<Integer>();
+    NvlFunction<Integer> intOper = new NvlFunction<>();
     CollectorTestSink intSink = new CollectorTestSink();
     CollectorTestSink eSink = new CollectorTestSink();
 
@@ -133,15 +129,11 @@ public class NvlFunctionTest
     intOper.endWindow();
 
     // Two positive results, one error
-    Assert.assertEquals("number of emitted tuples", 2,
-            intSink.collectedTuples.size());
-    Assert.assertEquals("NVL is", 123,
-            intSink.collectedTuples.get(0));
-    Assert.assertEquals("NVL is", 0,
-            intSink.collectedTuples.get(1));
+    Assert.assertEquals("number of emitted tuples", 2, intSink.collectedTuples.size());
+    Assert.assertEquals("NVL is", 123, intSink.collectedTuples.get(0));
+    Assert.assertEquals("NVL is", 0, intSink.collectedTuples.get(1));
 
-    Assert.assertEquals("number of error tuples", 1,
-            eSink.collectedTuples.size());
+    Assert.assertEquals("number of error tuples", 1, eSink.collectedTuples.size());
   }
 
   /**
@@ -152,7 +144,7 @@ public class NvlFunctionTest
   @Test
   public void testNodeProcessingFloat()
   {
-    NvlFunction<Double> doubleOper = new NvlFunction<Double>();
+    NvlFunction<Double> doubleOper = new NvlFunction<>();
     CollectorTestSink doubleSink = new CollectorTestSink();
     CollectorTestSink eSink = new CollectorTestSink();
 
@@ -175,14 +167,10 @@ public class NvlFunctionTest
     doubleOper.endWindow();
 
     // Two positive results, one error
-    Assert.assertEquals("number of emitted tuples", 2,
-            doubleSink.collectedTuples.size());
-    Assert.assertEquals("NVL is", 3.14,
-            doubleSink.collectedTuples.get(0));
-    Assert.assertEquals("NVL is", 0.0,
-            doubleSink.collectedTuples.get(1));
+    Assert.assertEquals("number of emitted tuples", 2, doubleSink.collectedTuples.size());
+    Assert.assertEquals("NVL is", 3.14, doubleSink.collectedTuples.get(0));
+    Assert.assertEquals("NVL is", 0.0, doubleSink.collectedTuples.get(1));
 
-    Assert.assertEquals("number of error tuples", 1,
-            eSink.collectedTuples.size());
+    Assert.assertEquals("number of error tuples", 1, eSink.collectedTuples.size());
   }
 }
