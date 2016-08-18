@@ -51,10 +51,10 @@ public class SpillableTestUtils
     //Shouldn't instantiate this
   }
 
-  static class TestMeta extends TestWatcher
+  public static class TestMeta extends TestWatcher
   {
     ManagedStateSpillableStateStore store;
-    Context.OperatorContext operatorContext;
+    public Context.OperatorContext operatorContext;
     String applicationPath;
 
     @Override
