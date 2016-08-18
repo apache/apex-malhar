@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<configuration>
+  <!-- 
+  <property>
+    <name>dt.application.{appName}.operator.{opName}.prop.{propName}</name>
+    <value>some-default-value (if value is not specified, it is required from the user or custom config when launching)</value>
+  </property>
+  -->
+  <!-- memory assigned to app master
+  <property>
+    <name>dt.attr.MASTER_MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  -->
+  <property>
+    <name>dt.application.CustomOutputFormatter.operator.jsonParser.prop.sleepTime
+    </name>
+    <value>100</value>
+  </property>
+  <property>
+    <name>dt.application.CustomOutputFormatter.operator.jsonParser.port.out.attr.TUPLE_CLASS
+    </name>
+    <value>com.demo.myapexapp.PojoEvent</value>
+  </property>
+
+
+  <property>
+    <name>dt.application.CustomOutputFormatter.operator.HDFSOutputOperator.prop.filePath
+    </name>
+    <value>/tmp/formatterApp</value>
+  </property>
+
+  <property>
+    <name>dt.application.CustomOutputFormatter.operator.HDFSOutputOperator.prop.outFileName
+    </name>
+    <value>customFormatResult</value>
+  </property>
+
+</configuration>
+
