@@ -115,8 +115,8 @@ public class TimeBasedPriorityQueue<T>
       } else if (this.timestamp > timeWrapper.getTimestamp()) {
         return 1;
       }
-
-      return 0;
+      
+      return key.equals(timeWrapper.key) ? 0 : 1;
     }
 
     @Override
