@@ -18,6 +18,8 @@
  */
 package com.datatorrent.lib.io;
 
+import java.io.PrintStream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +45,8 @@ public class ConsoleOutputOperator extends BaseOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(ConsoleOutputOperator.class);
 
+  private transient PrintStream stream = isStderr() ? System.err : System.out;
+
   /**
    * This is the input port which receives the tuples that will be written to stdout.
    */
@@ -59,7 +63,7 @@ public class ConsoleOutputOperator extends BaseOperator
         s = String.format(stringFormat, t);
       }
       if (!silent) {
-        System.out.println(s);
+        stream.println(s);
       }
       if (debug) {
         logger.info(s);
@@ -88,6 +92,11 @@ public class ConsoleOutputOperator extends BaseOperator
    * When set to true, tuples are also logged at INFO level.
    */
   private boolean debug;
+
+  /**
+   * When set to true, output to stderr
+   */
+  private boolean stderr = false;
   /**
    * A formatter for {@link String#format}
    */
@@ -101,6 +110,17 @@ public class ConsoleOutputOperator extends BaseOperator
   public void setDebug(boolean debug)
   {
     this.debug = debug;
+  }
+
+  public boolean isStderr()
+  {
+    return stderr;
+  }
+
+  public void setStderr(boolean stderr)
+  {
+    this.stderr = stderr;
+    stream = stderr ? System.err : System.out;
   }
 
   public String getStringFormat()
