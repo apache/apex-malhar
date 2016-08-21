@@ -46,6 +46,7 @@ public class FieldsDescriptorSerde implements Serde<FieldsDescriptor, Slice>
   @Override
   public FieldsDescriptor deserialize(Slice slice, MutableInt offset)
   {
+
     offset.add(slice.offset);
     int size = GPOUtils.deserializeInt(slice.buffer, offset);
 
@@ -57,6 +58,8 @@ public class FieldsDescriptorSerde implements Serde<FieldsDescriptor, Slice>
 
       fieldToType.put(key, Type.getTypeEx(value));
     }
+
+    offset.subtract(slice.offset);
 
     return new FieldsDescriptor(fieldToType);
   }
