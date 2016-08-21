@@ -16,7 +16,7 @@ import com.datatorrent.netlet.util.Slice;
  */
 public class FieldsDescriptorSerde implements Serde<FieldsDescriptor, Slice>
 {
-  private final GPOByteArrayList bytesList = new GPOByteArrayList();
+  private final transient GPOByteArrayList bytesList = new GPOByteArrayList();
 
   @Override
   public Slice serialize(FieldsDescriptor fd)
