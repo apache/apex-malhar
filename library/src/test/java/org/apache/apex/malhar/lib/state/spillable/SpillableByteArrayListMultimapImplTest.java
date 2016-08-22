@@ -368,4 +368,67 @@ public class SpillableByteArrayListMultimapImplTest
     multimap.endWindow();
     store.endWindow();
   }
+
+  @Test
+  public void testRemoveAll()
+  {
+    SpillableStateStore store = testMeta.store;
+    SpillableByteArrayListMultimapImpl<String, String> map =
+        new SpillableByteArrayListMultimapImpl<String, String>(store, ID1, 0L, new SerdeStringSlice(),
+            new SerdeStringSlice());
+
+    store.setup(testMeta.operatorContext);
+    map.setup(testMeta.operatorContext);
+
+    long windowId = 0L;
+
+    store.beginWindow(windowId);
+    map.beginWindow(windowId);
+    map.put("key1", "a1");
+    map.put("key1", "a2");
+    map.put("key2", "b");
+    map.put("key3", "c");
+    Assert.assertTrue(map.containsKey("key1"));
+    Assert.assertTrue(map.containsKey("key2"));
+    Assert.assertTrue(map.containsKey("key3"));
+
+    map.endWindow();
+    store.endWindow();
+    windowId++;
+
+    store.beginWindow(windowId);
+    map.beginWindow(windowId);
+    map.removeAll("key1");
+    map.removeAll("key2");
+    Assert.assertFalse(map.containsKey("key1"));
+    Assert.assertFalse(map.containsKey("key2"));
+    Assert.assertTrue(map.containsKey("key3"));
+    map.endWindow();
+    store.endWindow();
+    windowId++;
+
+    store.beginWindow(windowId);
+    map.beginWindow(windowId);
+    map.put("key1", "a3");
+    Assert.assertTrue(map.containsKey("key1"));
+    Assert.assertFalse(map.containsKey("key2"));
+    Assert.assertTrue(map.containsKey("key3"));
+    List<String> values = map.get("key1");
+    Assert.assertEquals(1, values.size());
+    Assert.assertEquals("a3", values.get(0));
+    int i = 0;
+    for (String val : values) {
+      i++;
+    }
+    Assert.assertEquals(1, i);
+    map.endWindow();
+    store.endWindow();
+    windowId++;
+
+    Assert.assertEquals(1, map.size());
+
+    map.endWindow();
+    store.endWindow();
+
+  }
 }
