@@ -157,14 +157,14 @@ public class SpillableArrayListImpl<T> implements Spillable.SpillableArrayList<T
       @Override
       public boolean hasNext()
       {
-        LOG.debug("hasNext {} {}", index, size);
+        LOG.debug("hasNext {} {} {}", System.identityHashCode(this), index, size);
         return index < size;
       }
 
       @Override
       public T next()
       {
-        LOG.debug("next {} {}", index, size);
+        LOG.debug("next {} {} {} {}", System.identityHashCode(this), get(index), index, size);
         return get(index++);
       }
 
@@ -208,6 +208,7 @@ public class SpillableArrayListImpl<T> implements Spillable.SpillableArrayList<T
 
     size++;
     map.put(batchIndex, batch);
+    LOG.debug("add {} {} {}", this, t, size, new Throwable());
     return true;
   }
 

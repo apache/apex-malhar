@@ -26,6 +26,9 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.apex.malhar.lib.utils.serde.PassThruByteArraySliceSerde;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
 import org.apache.apex.malhar.lib.utils.serde.SerdeIntSlice;
@@ -67,6 +70,8 @@ public class SpillableByteArrayListMultimapImpl<K, V> implements Spillable.Spill
   private long bucket;
   private Serde<K, Slice> serdeKey;
   private Serde<V, Slice> serdeValue;
+
+  private static final Logger LOG = LoggerFactory.getLogger(SpillableByteArrayListMultimapImpl.class);
 
   private SpillableByteArrayListMultimapImpl()
   {
@@ -155,6 +160,7 @@ public class SpillableByteArrayListMultimapImpl<K, V> implements Spillable.Spill
   @Override
   public List<V> removeAll(@Nullable Object key)
   {
+    LOG.debug("RemoveAll {}", key);
     SpillableArrayListImpl<V> spillableArrayList = getHelper((K)key);
 
     if (spillableArrayList != null) {
@@ -162,7 +168,6 @@ public class SpillableByteArrayListMultimapImpl<K, V> implements Spillable.Spill
       map.remove(SliceUtils.concatenate(keySlice, SIZE_KEY_SUFFIX).toByteArray());
       cache.remove((K)key);
     }
-    // TODO: need to mark this list to be deallocated from managed state
     return spillableArrayList;
   }
 
@@ -296,7 +301,7 @@ public class SpillableByteArrayListMultimapImpl<K, V> implements Spillable.Spill
   {
     isInWindow = false;
     for (K key : cache.getChangedKeys()) {
-
+      LOG.debug("Changed key {}", key);
       SpillableArrayListImpl<V> spillableArrayList = cache.get(key);
       spillableArrayList.endWindow();
 
@@ -305,6 +310,7 @@ public class SpillableByteArrayListMultimapImpl<K, V> implements Spillable.Spill
     }
     for (K key : cache.getRemovedKeys()) {
       // TODO: Need to find out from Tim on exactly what to do here
+      LOG.debug("Removed key {}", key);
       map.remove(SliceUtils.concatenate(serdeKey.serialize(key), SIZE_KEY_SUFFIX).toByteArray());
     }
 

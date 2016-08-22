@@ -25,6 +25,9 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.apex.malhar.lib.state.spillable.Spillable;
 import org.apache.apex.malhar.lib.state.spillable.SpillableComplexComponent;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
@@ -55,6 +58,8 @@ public class SpillableWindowedKeyedStorage<K, V> implements WindowedStorage.Wind
 
   protected Spillable.SpillableByteMap<Pair<Window, K>, V> windowKeyToValueMap;
   protected Spillable.SpillableByteArrayListMultimap<Window, K> windowToKeysMap;
+
+  private static final Logger LOG = LoggerFactory.getLogger(SpillableWindowedKeyedStorage.class);
 
   private class KVIterator implements Iterator<Map.Entry<K, V>>
   {
@@ -145,11 +150,15 @@ public class SpillableWindowedKeyedStorage<K, V> implements WindowedStorage.Wind
   @Override
   public void remove(Window window)
   {
+    LOG.debug("before windowKeyToValueMap size {}", windowKeyToValueMap.size());
+    LOG.debug("before windowKeyToValueMap size {}", windowToKeysMap.size());
     List<K> keys = windowToKeysMap.get(window);
     for (K key : keys) {
       windowKeyToValueMap.remove(new ImmutablePair<>(window, key));
     }
+    LOG.debug("after windowKeyToValueMap size {}", windowKeyToValueMap.size());
     windowToKeysMap.removeAll(window);
+    LOG.debug("after windowKeyToValueMap size {}", windowToKeysMap.size());
   }
 
   @Override

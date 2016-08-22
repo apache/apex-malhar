@@ -74,6 +74,12 @@ public interface Window<WINDOW extends Window> extends Comparable<WINDOW>
     {
       return 0;
     }
+
+    @Override
+    public String toString()
+    {
+      return "[GlobalWindow]";
+    }
   }
 
   /**
@@ -150,6 +156,12 @@ public interface Window<WINDOW extends Window> extends Comparable<WINDOW>
       }
       return 0;
     }
+
+    @Override
+    public String toString()
+    {
+      return "[TimeWindow " + getBeginTimestamp() + "(" + getDurationMillis() + ")]";
+    }
   }
 
   /**
@@ -215,6 +227,12 @@ public interface Window<WINDOW extends Window> extends Comparable<WINDOW>
       } else {
         return val;
       }
+    }
+
+    @Override
+    public String toString()
+    {
+      return "[SessionWindow key=" + getKey() + " " + getBeginTimestamp() + "(" + getDurationMillis() + ")]";
     }
   }
 }
