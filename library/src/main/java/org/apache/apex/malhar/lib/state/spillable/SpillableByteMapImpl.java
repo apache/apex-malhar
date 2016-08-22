@@ -215,12 +215,12 @@ public class SpillableByteMapImpl<K, V> implements Spillable.SpillableByteMap<K,
   @Override
   public void endWindow()
   {
-    for (K key: cache.getChangedKeys()) {
+    for (K key : cache.getChangedKeys()) {
       store.put(this.bucket, SliceUtils.concatenate(identifier, serdeKey.serialize(key)),
           serdeValue.serialize(cache.get(key)));
     }
 
-    for (K key: cache.getRemovedKeys()) {
+    for (K key : cache.getRemovedKeys()) {
       store.put(this.bucket, SliceUtils.concatenate(identifier, serdeKey.serialize(key)),
           new Slice(ArrayUtils.EMPTY_BYTE_ARRAY));
     }
