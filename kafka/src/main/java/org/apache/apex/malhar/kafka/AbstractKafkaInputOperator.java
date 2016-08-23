@@ -38,10 +38,13 @@ import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.classification.InterfaceStability;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.consumer.OffsetCommitCallback;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -78,6 +81,12 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
 {
 
   private static final Logger logger = LoggerFactory.getLogger(AbstractKafkaInputOperator.class);
+
+  static {
+    // We create new consumers periodically to pull metadata (Kafka consumer keeps metadata in cache)
+    // Skip log4j log for ConsumerConfig class to avoid too much noise in application
+    LogManager.getLogger(ConsumerConfig.class).setLevel(Level.WARN);
+  }
 
   public enum InitialOffset
   {
