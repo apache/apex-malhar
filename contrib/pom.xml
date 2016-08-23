@@ -658,5 +658,11 @@
       <version>1.8.0.7</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.univocity</groupId>
+      <artifactId>univocity-parsers</artifactId>
+      <version>2.0.0</version>
+      <optional>true</optional>
+    </dependency>
   </dependencies>
 </project>
