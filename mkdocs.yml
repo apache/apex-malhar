@@ -9,3 +9,4 @@ pages:
     - Block Reader: operators/block_reader.md
     - File Output: operators/file_output.md
     - Enricher: operators/enricher.md
+    - CsvFormatter: operators/csvformatter.md

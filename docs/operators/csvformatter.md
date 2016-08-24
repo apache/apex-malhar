@@ -129,7 +129,7 @@ Below is the code snippet to configure:
     
 ```
 
-Example Json String: 
+Example for schema Json String: 
 
 ```json
 {
