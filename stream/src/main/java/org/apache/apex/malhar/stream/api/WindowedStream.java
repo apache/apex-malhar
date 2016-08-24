@@ -27,9 +27,9 @@ import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.apex.malhar.lib.window.impl.KeyedWindowedOperatorImpl;
 import org.apache.apex.malhar.lib.window.impl.WindowedOperatorImpl;
+import org.apache.apex.malhar.lib.window.impl.accumulation.FoldFn;
+import org.apache.apex.malhar.lib.window.impl.accumulation.ReduceFn;
 import org.apache.apex.malhar.stream.api.function.Function;
-import org.apache.apex.malhar.stream.api.impl.accumulation.FoldFn;
-import org.apache.apex.malhar.stream.api.impl.accumulation.ReduceFn;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.lib.util.KeyValPair;

@@ -18,18 +18,32 @@
  */
 package org.apache.apex.malhar.stream.sample.cookbook;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.apex.malhar.lib.window.WindowOption;
+import org.apache.apex.malhar.lib.window.impl.accumulation.ReduceFn;
 import org.apache.apex.malhar.stream.api.ApexStream;
 import org.apache.apex.malhar.stream.api.CompositeStreamTransform;
+import org.apache.apex.malhar.stream.api.WindowedStream;
 import org.apache.apex.malhar.stream.api.function.Function;
 import org.apache.apex.malhar.stream.api.impl.StreamFactory;
-import org.apache.apex.malhar.stream.api.impl.accumulation.ReduceFn;
+
+import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.util.KeyValPair;
+
+import static org.apache.apex.malhar.stream.api.Option.Options.name;
 
 /**
  * An example that reads the public 'Shakespeare' data, and for each word in
@@ -40,12 +54,13 @@ import com.datatorrent.lib.util.KeyValPair;
  * key-grouped Collection
  *
  */
-public class CombinePerKeyExamples
+@ApplicationAnnotation(name = "CombinePerKeyExamples")
+public class CombinePerKeyExamples implements StreamingApplication
 {
   // Use the shakespeare public BigQuery sample
   private static final String SHAKESPEARE_TABLE = "publicdata:samples.shakespeare";
   // We'll track words >= this word length across all plays in the table.
-  private static final int MIN_WORD_LENGTH = 9;
+  private static final int MIN_WORD_LENGTH = 0;
 
   /**
    * Examines each row in the input table. If the word is greater than or equal to MIN_WORD_LENGTH,
@@ -76,70 +91,59 @@ public class CombinePerKeyExamples
     @Override
     public SampleBean f(Tuple.WindowedTuple<KeyValPair<String, String>> input)
     {
-      return new SampleBean(input.getValue().getKey(), input.getValue().getValue(), null);
+      return new SampleBean(input.getValue().getKey(), input.getValue().getValue());
     }
   }
-
+  
+  /**
+   * A reduce function to concat two strings together.
+   */
+  public static class Concat extends ReduceFn<String>
+  {
+    @Override
+    public String reduce(String input1, String input2)
+    {
+      return input1 + ", " + input2;
+    }
+  }
+  
   /**
    * Reads the public 'Shakespeare' data, and for each word in the dataset
    * over a given length, generates a string containing the list of play names
    * in which that word appears.
    */
-  static class PlaysForWord
-      extends CompositeStreamTransform<SampleBean, SampleBean>
+  private static class PlaysForWord extends CompositeStreamTransform<ApexStream<SampleBean>, WindowedStream<SampleBean>>
   {
-
+    
     @Override
-    public ApexStream<SampleBean> compose(ApexStream<SampleBean> inputStream)
+    public WindowedStream<SampleBean> compose(ApexStream<SampleBean> inputStream)
     {
-      // fix this later
-      return inputStream.map(new ExtractLargeWordsFn())
-          .window(new WindowOption.GlobalWindow())
-          .reduceByKey(new ReduceFn<String>()
-          {
-            @Override
-            public String defaultAccumulatedValue()
-            {
-              return "";
-            }
-
-            @Override
-            public String accumulate(String accumulatedValue, String input)
-            {
-              return accumulatedValue + "," + input;
-            }
-
-            @Override
-            public String merge(String accumulatedValue1, String accumulatedValue2)
-            {
-              return accumulatedValue1 + "," + accumulatedValue2;
-            }
-
-            @Override
-            public String getOutput(String accumulatedValue)
-            {
-              return accumulatedValue;
-            }
-
-            @Override
-            public String getRetraction(String value)
-            {
-              return value;
-            }
-          }, new Function.MapFunction<KeyValPair<String, String>, Tuple<KeyValPair<String, String>>>()
-
+      return inputStream
+          // Extract words from the input SampleBeam stream.
+          .map(new ExtractLargeWordsFn(), name("ExtractLargeWordsFn"))
+          
+          // Apply window and trigger option to the streams.
+          .window(new WindowOption.GlobalWindow(), new TriggerOption().accumulatingFiredPanes().withEarlyFiringsAtEvery(1))
+        
+          // Apply reduceByKey transformation to concat the names of all the plays that a word has appeared in together.
+          .reduceByKey(new Concat(), new Function.ToKeyValue<KeyValPair<String,String>, String, String>()
           {
             @Override
             public Tuple<KeyValPair<String, String>> f(KeyValPair<String, String> input)
             {
-              return null;
+              return new Tuple.PlainTuple<KeyValPair<String, String>>(input);
             }
-          })
-          .map(new FormatShakespeareOutputFn());
+          }, name("Concat"))
+        
+          // Format the output back to a SampleBeam object.
+          .map(new FormatShakespeareOutputFn(), name("FormatShakespeareOutputFn"));
     }
   }
-
-
+  
+  
+  /**
+   * A Java Beam class that contains information about a word appears in a corpus written by Shakespeare.
+   */
   public static class SampleBean
   {
 
@@ -148,16 +152,19 @@ public class CombinePerKeyExamples
 
     }
 
-    public SampleBean(String word, String all_plays, String corpus)
+    public SampleBean(String word, String corpus)
     {
       this.word = word;
-      this.all_plays = all_plays;
       this.corpus = corpus;
     }
-
+  
+    @Override
+    public String toString()
+    {
+      return this.word + " : "  + this.corpus;
+    }
+  
     private String word;
-
-    private String all_plays;
 
     private String corpus;
 
@@ -180,58 +187,87 @@ public class CombinePerKeyExamples
     {
       return corpus;
     }
-
-    public void setAll_plays(String all_plays)
-    {
-      this.all_plays = all_plays;
-    }
-
-    public String getAll_plays()
-    {
-      return all_plays;
-    }
   }
-
-  public static class SampleInput implements InputOperator
+  
+  /**
+   * A dummy info generator to generate {@link SampleBean} objects to mimic reading from real 'Shakespeare'
+   * data.
+   */
+  public static class SampleInput extends BaseOperator implements InputOperator
   {
 
     public final transient DefaultOutputPort<SampleBean> beanOutput = new DefaultOutputPort();
-
-    @Override
-    public void emitTuples()
+    private String[] words = new String[]{"A", "B", "C", "D", "E", "F", "G"};
+    private String[] corpuses = new String[]{"1", "2", "3", "4", "5", "6", "7", "8"};
+    private static int i;
+  
+    public static int getI()
     {
-
+      return i;
     }
-
-    @Override
-    public void beginWindow(long l)
-    {
-
-    }
-
-    @Override
-    public void endWindow()
-    {
-
-    }
-
+  
     @Override
     public void setup(Context.OperatorContext context)
     {
-
+      super.setup(context);
+      i = 0;
     }
-
+  
     @Override
-    public void teardown()
+    public void emitTuples()
     {
-
+      while (i < 1) {
+        for (String word : words) {
+          for (String corpus : corpuses) {
+            beanOutput.emit(new SampleBean(word, corpus));
+            try {
+              Thread.sleep(100);
+            } catch (InterruptedException e) {
+              // Ignore it
+            }
+          }
+        }
+        i++;
+      }
+    
     }
   }
-
-
-  public static void main(String[] args) throws Exception
+  
+  public static class Collector extends BaseOperator
+  {
+    static List<SampleBean> result;
+  
+    @Override
+    public void setup(Context.OperatorContext context)
+    {
+      result = new ArrayList<>();
+    }
+  
+    public final transient DefaultInputPort<SampleBean> input = new DefaultInputPort<SampleBean>()
+    {
+      @Override
+      public void process(SampleBean tuple)
+      {
+        result.add(tuple);
+      }
+    };
+  }
+  
+  /**
+   * Populate dag using High-Level API.
+   * @param dag
+   * @param conf
+   */
+  @Override
+  public void populateDAG(DAG dag, Configuration conf)
   {
     SampleInput input = new SampleInput();
-    StreamFactory.fromInput(input, input.beanOutput).addCompositeStreams(new PlaysForWord());
+    Collector collector = new Collector();
+    StreamFactory.fromInput(input, input.beanOutput, name("input"))
+      .addCompositeStreams(new PlaysForWord())
+      .print()
+      .endWith(collector, collector.input, name("Collector"))
+      .populateDag(dag);
+    
   }
 }

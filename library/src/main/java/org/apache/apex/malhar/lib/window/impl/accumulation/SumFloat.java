@@ -16,50 +16,45 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.stream.api.impl.accumulation;
+package org.apache.apex.malhar.lib.window.impl.accumulation;
 
 import org.apache.apex.malhar.lib.window.Accumulation;
+import org.apache.commons.lang.mutable.MutableFloat;
 
 /**
- * Fold Accumulation Adaptor class
+ * Sum Accumulation for floats.
  */
-public abstract class FoldFn<INPUT, OUTPUT> implements Accumulation<INPUT, OUTPUT, OUTPUT>
+public class SumFloat implements Accumulation<Float, MutableFloat, Float>
 {
-
-  public FoldFn()
-  {
-  }
-
-  public FoldFn(OUTPUT initialVal)
-  {
-    this.initialVal = initialVal;
-  }
-
-  private OUTPUT initialVal;
-
   @Override
-  public OUTPUT defaultAccumulatedValue()
+  public MutableFloat defaultAccumulatedValue()
   {
-    return initialVal;
+    return new MutableFloat(0.);
   }
-
+  
   @Override
-  public OUTPUT accumulate(OUTPUT accumulatedValue, INPUT input)
+  public MutableFloat accumulate(MutableFloat accumulatedValue, Float input)
   {
-    return fold(accumulatedValue, input);
-  }
-
-  @Override
-  public OUTPUT getOutput(OUTPUT accumulatedValue)
-  {
+    accumulatedValue.add(input);
     return accumulatedValue;
   }
-
+  
   @Override
-  public OUTPUT getRetraction(OUTPUT value)
+  public MutableFloat merge(MutableFloat accumulatedValue1, MutableFloat accumulatedValue2)
   {
-    return null;
+    accumulatedValue1.add(accumulatedValue2);
+    return accumulatedValue1;
   }
-
-  abstract OUTPUT fold(OUTPUT result, INPUT input);
+  
+  @Override
+  public Float getOutput(MutableFloat accumulatedValue)
+  {
+    return accumulatedValue.floatValue();
+  }
+  
+  @Override
+  public Float getRetraction(Float value)
+  {
+    return -value;
+  }
 }

@@ -16,50 +16,60 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.stream.api.impl.accumulation;
+package org.apache.apex.malhar.lib.window.impl.accumulation;
 
+import java.util.Comparator;
 import org.apache.apex.malhar.lib.window.Accumulation;
 
 /**
- * An easy to use reduce Accumulation
- * @param <INPUT>
+ * Max accumulation.
  */
-public abstract class ReduceFn<INPUT> implements Accumulation<INPUT, INPUT, INPUT>
+public class Max<T> implements Accumulation<T, T, T>
 {
+  
+  Comparator<T> comparator;
+  
+  public void setComparator(Comparator<T> comparator)
+  {
+    this.comparator = comparator;
+  }
+  
   @Override
-  public INPUT defaultAccumulatedValue()
+  public T defaultAccumulatedValue()
   {
     return null;
   }
-
+  
   @Override
-  public INPUT accumulate(INPUT accumulatedValue, INPUT input)
+  public T accumulate(T accumulatedValue, T input)
   {
     if (accumulatedValue == null) {
       return input;
+    } else if (comparator != null) {
+      return (comparator.compare(input, accumulatedValue) > 0) ? input : accumulatedValue;
+    } else if (input instanceof Comparable) {
+      return (((Comparable)input).compareTo(accumulatedValue) > 0) ? input : accumulatedValue;
+    } else {
+      throw new RuntimeException("Tuple cannot be compared");
     }
-    return reduce(accumulatedValue, input);
   }
-
+  
   @Override
-  public INPUT merge(INPUT accumulatedValue1, INPUT accumulatedValue2)
+  public T merge(T accumulatedValue1, T accumulatedValue2)
   {
-    return reduce(accumulatedValue1, accumulatedValue2);
+    return accumulate(accumulatedValue1, accumulatedValue2);
   }
-
+  
   @Override
-  public INPUT getOutput(INPUT accumulatedValue)
+  public T getOutput(T accumulatedValue)
   {
     return accumulatedValue;
   }
-
+  
   @Override
-  public INPUT getRetraction(INPUT value)
+  public T getRetraction(T value)
   {
+    // TODO: Need to add implementation for retraction.
     return null;
   }
-
-  public abstract INPUT reduce(INPUT input1, INPUT input2);
-
-
 }

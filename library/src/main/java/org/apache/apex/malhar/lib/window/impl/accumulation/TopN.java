@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.stream.api.impl.accumulation;
+package org.apache.apex.malhar.lib.window.impl.accumulation;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,7 +30,6 @@ import org.apache.apex.malhar.lib.window.Accumulation;
  */
 public class TopN<T> implements Accumulation<T, List<T>, List<T>>
 {
-
   int n;
 
   Comparator<T> comparator;

@@ -24,6 +24,7 @@ import java.util.Objects;
 import org.joda.time.Duration;
 
 import org.apache.apex.malhar.lib.window.TriggerOption;
+import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.apex.malhar.lib.window.WindowOption;
 import org.apache.apex.malhar.stream.api.ApexStream;
 import org.apache.apex.malhar.stream.api.CompositeStreamTransform;
@@ -85,31 +86,31 @@ import com.datatorrent.lib.util.KeyValPair;
  * Note: When you start up your pipeline, you'll initially see results from 'late' data. Wait after
  * the window duration, until the first pane of non-late data has been emitted, to see more
  * interesting results.
- * {@code SELECT * FROM enter_table_name WHERE trigger_type = "default" ORDER BY window DESC}
+ * {@code SELECT * FROM enter_table_name WHERE triggerType = "default" ORDER BY window DESC}
  *
  * <p> To see the late data i.e. dropped by the default trigger,
- * {@code SELECT * FROM <enter_table_name> WHERE trigger_type = "withAllowedLateness" and
- * (timing = "LATE" or timing = "ON_TIME") and freeway = "5" ORDER BY window DESC, processing_time}
+ * {@code SELECT * FROM <enter_table_name> WHERE triggerType = "withAllowedLateness" and
+ * (timing = "LATE" or timing = "ON_TIME") and freeway = "5" ORDER BY window DESC, processingTime}
  *
  * <p>To see the the difference between accumulation mode and discarding mode,
  * {@code SELECT * FROM <enter_table_name> WHERE (timing = "LATE" or timing = "ON_TIME") AND
- * (trigger_type = "withAllowedLateness" or trigger_type = "sequential") and freeway = "5" ORDER BY
- * window DESC, processing_time}
+ * (triggerType = "withAllowedLateness" or triggerType = "sequential") and freeway = "5" ORDER BY
+ * window DESC, processingTime}
  *
  * <p> To see speculative results every minute,
- * {@code SELECT * FROM <enter_table_name> WHERE trigger_type = "speculative" and freeway = "5"
- * ORDER BY window DESC, processing_time}
+ * {@code SELECT * FROM <enter_table_name> WHERE triggerType = "speculative" and freeway = "5"
+ * ORDER BY window DESC, processingTime}
  *
  * <p> To see speculative results every five minutes after the end of the window
- * {@code SELECT * FROM <enter_table_name> WHERE trigger_type = "sequential" and timing != "EARLY"
- * and freeway = "5" ORDER BY window DESC, processing_time}
+ * {@code SELECT * FROM <enter_table_name> WHERE triggerType = "sequential" and timing != "EARLY"
+ * and freeway = "5" ORDER BY window DESC, processingTime}
  *
  * <p> To see the first and the last pane for a freeway in a window for all the trigger types,
  * {@code SELECT * FROM <enter_table_name> WHERE (isFirst = true or isLast = true) ORDER BY window}
  *
  * <p> To reduce the number of results for each query we can add additional where clauses.
  * For examples, To see the results of the default trigger,
- * {@code SELECT * FROM <enter_table_name> WHERE trigger_type = "default" AND freeway = "5" AND
+ * {@code SELECT * FROM <enter_table_name> WHERE triggerType = "default" AND freeway = "5" AND
  * window = "<enter_window_interval>"}
  *
  * <p> The example will try to cancel the pipelines on the signal to terminate the process (CTRL-C)
@@ -135,7 +136,7 @@ public class TriggerExample
    * The example uses "freeway" as the key. Event time is the timestamp associated with the data
    * element and processing time is the time when the data element gets processed in the pipeline.
    * For freeway 5, suppose there are 10 elements in the [10:00:00, 10:30:00) window.
-   * Key (freeway) | Value (total_flow) | event time | processing time
+   * Key (freeway) | Value (totalFlow) | event time | processing time
    * 5             | 50                 | 10:00:03   | 10:00:47
    * 5             | 30                 | 10:01:00   | 10:01:03
    * 5             | 30                 | 10:02:00   | 11:07:00
@@ -157,7 +158,7 @@ public class TriggerExample
    * close at 10:44:59, when the watermark passes 10:30:00.
    */
   static class CalculateTotalFlow
-      extends CompositeStreamTransform<String, SampleBean>
+      extends CompositeStreamTransform<ApexStream<String>, WindowedStream<SampleBean>>
   {
     private int windowDuration;
 
@@ -167,7 +168,7 @@ public class TriggerExample
     }
 
     @Override
-    public ApexStream<SampleBean> compose(ApexStream<String> inputStream)
+    public WindowedStream<SampleBean> compose(ApexStream<String> inputStream)
     {
       // Concept #1: The default triggering behavior
       // By default Dataflow uses a trigger which fires when the watermark has passed the end of the
@@ -182,14 +183,14 @@ public class TriggerExample
 
       // The results for the example above with the default trigger and zero allowed lateness
       // would be:
-      // Key (freeway) | Value (total_flow) | number_of_records | isFirst | isLast | timing
+      // Key (freeway) | Value (totalFlow) | numberOfRecords | isFirst | isLast | timing
       // 5             | 260                | 6                 | true    | true   | ON_TIME
 
       // At 11:03:00 (processing time) the system watermark may have advanced to 10:54:00. As a
       // result, when the data record with event time 10:05:00 arrives at 11:03:00, it is considered
       // late, and dropped.
-
-      ApexStream<SampleBean> defaultTriggerResults = inputStream
+  
+      WindowedStream<SampleBean> defaultTriggerResults = inputStream
           .window(new WindowOption.TimeWindows(Duration.standardMinutes(windowDuration)),
           new TriggerOption().discardingFiredPanes())
           .addCompositeStreams(new TotalFlow("default"));
@@ -205,13 +206,13 @@ public class TriggerExample
 
       // The results for the example above with the default trigger and ONE_DAY allowed lateness
       // would be:
-      // Key (freeway) | Value (total_flow) | number_of_records | isFirst | isLast | timing
+      // Key (freeway) | Value (totalFlow) | numberOfRecords | isFirst | isLast | timing
       // 5             | 260                | 6                 | true    | false  | ON_TIME
       // 5             | 60                 | 1                 | false   | false  | LATE
       // 5             | 30                 | 1                 | false   | false  | LATE
       // 5             | 20                 | 1                 | false   | false  | LATE
       // 5             | 60                 | 1                 | false   | false  | LATE
-      ApexStream<SampleBean> withAllowedLatenessResults = inputStream
+      WindowedStream<SampleBean> withAllowedLatenessResults = inputStream
           .window(new WindowOption.TimeWindows(Duration.standardMinutes(windowDuration)),
           new TriggerOption().discardingFiredPanes(),
           Duration.standardDays(1))
@@ -226,7 +227,7 @@ public class TriggerExample
       // We also use accumulatingFiredPanes to build up the results across each pane firing.
 
       // The results for the example above for this trigger would be:
-      // Key (freeway) | Value (total_flow) | number_of_records | isFirst | isLast | timing
+      // Key (freeway) | Value (totalFlow) | numberOfRecords | isFirst | isLast | timing
       // 5             | 80                 | 2                 | true    | false  | EARLY
       // 5             | 100                | 3                 | false   | false  | EARLY
       // 5             | 260                | 6                 | false   | false  | EARLY
@@ -258,7 +259,7 @@ public class TriggerExample
       // Every pane produced will either be EARLY, ON_TIME or LATE.
 
       // The results for the example above for this trigger would be:
-      // Key (freeway) | Value (total_flow) | number_of_records | isFirst | isLast | timing
+      // Key (freeway) | Value (totalFlow) | numberOfRecords | isFirst | isLast | timing
       // 5             | 80                 | 2                 | true    | false  | EARLY
       // 5             | 100                | 3                 | false   | false  | EARLY
       // 5             | 260                | 6                 | false   | false  | EARLY
@@ -267,7 +268,7 @@ public class TriggerExample
       // 5             | 430                | 10                | false   | false  | LATE
 
       // For more possibilities of how to build advanced triggers, see {@link Trigger}.
-      ApexStream<SampleBean> sequentialResults = inputStream
+      WindowedStream<SampleBean> sequentialResults = inputStream
           .window(new WindowOption.TimeWindows(Duration.standardMinutes(windowDuration)),
               // Speculative every ONE_MINUTE
           new TriggerOption().withEarlyFiringsAtEvery(Duration.standardMinutes(1))
@@ -293,7 +294,7 @@ public class TriggerExample
    * objects, to save to BigQuery.
    */
   static class TotalFlow extends
-      CompositeStreamTransform<String, SampleBean>
+      CompositeStreamTransform<WindowedStream<String>, WindowedStream<SampleBean>>
   {
     private String triggerType;
 
@@ -303,13 +304,10 @@ public class TriggerExample
     }
 
     @Override
-    public ApexStream<SampleBean> compose(ApexStream<String> inputStream)
+    public WindowedStream<SampleBean> compose(WindowedStream<String> inputStream)
     {
-      if (!(inputStream instanceof WindowedStream)) {
-        throw new RuntimeException("Not supported here");
-      }
-      WindowedStream<String> windowedStream = (WindowedStream<String>)inputStream;
-      ApexStream<KeyValPair<String, Iterable<Integer>>> flowPerFreeway = windowedStream
+  
+      WindowedStream<KeyValPair<String, Iterable<Integer>>> flowPerFreeway = inputStream
           .groupByKey(new ExtractFlowInfo());
 
       return flowPerFreeway
@@ -361,13 +359,13 @@ public class TriggerExample
     {
     }
 
-    private String trigger_type;
+    private String triggerType;
 
     private String freeway;
 
-    private int total_flow;
+    private int totalFlow;
 
-    private long number_of_records;
+    private long numberOfRecords;
 
     private String window;
 
@@ -377,9 +375,9 @@ public class TriggerExample
 
     private Date timing;
 
-    private Date event_time;
+    private Date eventTime;
 
-    private Date processing_time;
+    private Date processingTime;
 
     @Override
     public boolean equals(Object o)
@@ -391,50 +389,49 @@ public class TriggerExample
         return false;
       }
       SampleBean that = (SampleBean)o;
-      return total_flow == that.total_flow &&
-          number_of_records == that.number_of_records &&
+      return totalFlow == that.totalFlow &&
+          numberOfRecords == that.numberOfRecords &&
           isFirst == that.isFirst &&
           isLast == that.isLast &&
-          Objects.equals(trigger_type, that.trigger_type) &&
+          Objects.equals(triggerType, that.triggerType) &&
           Objects.equals(freeway, that.freeway) &&
           Objects.equals(window, that.window) &&
           Objects.equals(timing, that.timing) &&
-          Objects.equals(event_time, that.event_time) &&
-          Objects.equals(processing_time, that.processing_time);
+          Objects.equals(eventTime, that.eventTime) &&
+          Objects.equals(processingTime, that.processingTime);
     }
 
     @Override
     public int hashCode()
     {
       return Objects
-          .hash(trigger_type, freeway, total_flow, number_of_records, window, isFirst, isLast, timing, event_time,
-              processing_time);
+          .hash(triggerType, freeway, totalFlow, numberOfRecords, window, isFirst, isLast, timing, eventTime,
+            processingTime);
     }
 
-    public SampleBean(String trigger_type, String freeway, int total_flow, long number_of_records, String window,
-        boolean isFirst, boolean isLast, Date timing, Date event_time, Date processing_time)
+    public SampleBean(String triggerType, String freeway, int totalFlow, long numberOfRecords, String window, boolean isFirst, boolean isLast, Date timing, Date eventTime, Date processingTime)
     {
 
-      this.trigger_type = trigger_type;
+      this.triggerType = triggerType;
       this.freeway = freeway;
-      this.total_flow = total_flow;
-      this.number_of_records = number_of_records;
+      this.totalFlow = totalFlow;
+      this.numberOfRecords = numberOfRecords;
       this.window = window;
       this.isFirst = isFirst;
       this.isLast = isLast;
       this.timing = timing;
-      this.event_time = event_time;
-      this.processing_time = processing_time;
+      this.eventTime = eventTime;
+      this.processingTime = processingTime;
     }
 
-    public String getTrigger_type()
+    public String getTriggerType()
     {
-      return trigger_type;
+      return triggerType;
     }
 
-    public void setTrigger_type(String trigger_type)
+    public void setTriggerType(String triggerType)
     {
-      this.trigger_type = trigger_type;
+      this.triggerType = triggerType;
     }
 
     public String getFreeway()
@@ -447,24 +444,24 @@ public class TriggerExample
       this.freeway = freeway;
     }
 
-    public int getTotal_flow()
+    public int getTotalFlow()
     {
-      return total_flow;
+      return totalFlow;
     }
 
-    public void setTotal_flow(int total_flow)
+    public void setTotalFlow(int totalFlow)
     {
-      this.total_flow = total_flow;
+      this.totalFlow = totalFlow;
     }
 
-    public long getNumber_of_records()
+    public long getNumberOfRecords()
     {
-      return number_of_records;
+      return numberOfRecords;
     }
 
-    public void setNumber_of_records(long number_of_records)
+    public void setNumberOfRecords(long numberOfRecords)
     {
-      this.number_of_records = number_of_records;
+      this.numberOfRecords = numberOfRecords;
     }
 
     public String getWindow()
@@ -507,24 +504,24 @@ public class TriggerExample
       this.timing = timing;
     }
 
-    public Date getEvent_time()
+    public Date getEventTime()
     {
-      return event_time;
+      return eventTime;
     }
 
-    public void setEvent_time(Date event_time)
+    public void setEventTime(Date eventTime)
     {
-      this.event_time = event_time;
+      this.eventTime = eventTime;
     }
 
-    public Date getProcessing_time()
+    public Date getProcessingTime()
     {
-      return processing_time;
+      return processingTime;
     }
 
-    public void setProcessing_time(Date processing_time)
+    public void setProcessingTime(Date processingTime)
     {
-      this.processing_time = processing_time;
+      this.processingTime = processingTime;
     }
   }
 
@@ -532,10 +529,10 @@ public class TriggerExample
    * Extract the freeway and total flow in a reading.
    * Freeway is used as key since we are calculating the total flow for each freeway.
    */
-  static class ExtractFlowInfo implements Function.MapFunction<String, KeyValPair<String, Integer>>
+  static class ExtractFlowInfo implements Function.ToKeyValue<String, String, Integer>
   {
     @Override
-    public KeyValPair<String, Integer> f(String input)
+    public Tuple<KeyValPair<String, Integer>> f(String input)
     {
       String[] laneInfo = input.split(",");
       if (laneInfo[0].equals("timestamp")) {
@@ -553,7 +550,7 @@ public class TriggerExample
       if (totalFlow == null || totalFlow <= 0) {
         return null;
       }
-      return new KeyValPair<>(freeway, totalFlow);
+      return new Tuple.PlainTuple<>(new KeyValPair<>(freeway, totalFlow));
     }
   }
 

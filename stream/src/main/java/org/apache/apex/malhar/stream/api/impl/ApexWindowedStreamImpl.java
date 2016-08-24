@@ -32,15 +32,16 @@ import org.apache.apex.malhar.lib.window.impl.InMemoryWindowedKeyedStorage;
 import org.apache.apex.malhar.lib.window.impl.InMemoryWindowedStorage;
 import org.apache.apex.malhar.lib.window.impl.KeyedWindowedOperatorImpl;
 import org.apache.apex.malhar.lib.window.impl.WindowedOperatorImpl;
+import org.apache.apex.malhar.lib.window.impl.accumulation.Count;
+import org.apache.apex.malhar.lib.window.impl.accumulation.FoldFn;
+import org.apache.apex.malhar.lib.window.impl.accumulation.ReduceFn;
+import org.apache.apex.malhar.lib.window.impl.accumulation.TopN;
+
 import org.apache.apex.malhar.stream.api.ApexStream;
 import org.apache.apex.malhar.stream.api.Option;
 import org.apache.apex.malhar.stream.api.WindowedStream;
 import org.apache.apex.malhar.stream.api.function.Function;
 
-import org.apache.apex.malhar.stream.api.impl.accumulation.Count;
-import org.apache.apex.malhar.stream.api.impl.accumulation.FoldFn;
-import org.apache.apex.malhar.stream.api.impl.accumulation.ReduceFn;
-import org.apache.apex.malhar.stream.api.impl.accumulation.TopN;
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.apache.hadoop.classification.InterfaceStability;
 
@@ -62,7 +63,7 @@ public class ApexWindowedStreamImpl<T> extends ApexStreamImpl<T> implements Wind
 
   protected Duration allowedLateness;
 
-  private class ConvertFn<T> implements Function.MapFunction<T, Tuple<T>>
+  private static class ConvertFn<T> implements Function.MapFunction<T, Tuple<T>>
   {
 
     @Override
