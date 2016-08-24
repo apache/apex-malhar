@@ -159,12 +159,6 @@ public class ParquetFilePOJOReader extends AbstractParquetFileReader<Object>
   }
 
   @Override
-  public String getDirectory()
-  {
-    return super.getDirectory();
-  }
-
-  @Override
   protected void emit(Object tuple)
   {
     output.emit(tuple);
