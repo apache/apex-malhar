@@ -172,6 +172,8 @@ public abstract class AbstractManagedStateImpl
   protected final transient ListMultimap<Long, ValueFetchTask> tasksPerBucketId =
       Multimaps.synchronizedListMultimap(ArrayListMultimap.<Long, ValueFetchTask>create());
 
+  protected Bucket.ReadSource asyncReadSource = Bucket.ReadSource.ALL;
+
   @Override
   public void setup(OperatorContext context)
   {
@@ -569,7 +571,7 @@ public abstract class AbstractManagedStateImpl
         synchronized (bucket) {
           //a particular bucket should only be handled by one thread at any point of time. Handling of bucket here
           //involves creating readers for the time buckets and de-serializing key/value from a reader.
-          Slice value = bucket.get(key, timeBucketId, Bucket.ReadSource.ALL);
+          Slice value = bucket.get(key, timeBucketId, this.managedState.asyncReadSource);
           managedState.tasksPerBucketId.remove(bucket.getBucketId(), this);
           return value;
         }
