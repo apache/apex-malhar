@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.apache.apex.malhar.stream.api.function.Function;
 import org.apache.apex.malhar.stream.api.impl.StreamFactory;
 
+import com.datatorrent.lib.window.WindowOption;
 
 /**
  * A embedded application test without creating Streaming Application
@@ -41,7 +42,7 @@ public class LocalTestWithoutStreamApplication
   public void testNonStreamApplicationWordcount() throws Exception
   {
 
-    TupleCollector<Map<Object, Integer>> collector = new TupleCollector<>();
+    TupleCollector<Map.Entry<Object, Integer>> collector = new TupleCollector<>();
     collector.id = "testNonStreamApplicationWordcount";
     final Map<Object, Integer> expected = new HashMap<>();
     expected.put("error", 2);
@@ -58,8 +59,11 @@ public class LocalTestWithoutStreamApplication
       @Override
       public Boolean call() throws Exception
       {
-        List<Map<Object, Integer>> data = (List<Map<Object, Integer>>)TupleCollector.results.get("testNonStreamApplicationWordcount");
-        return (data != null) && data.size() >= 1 && expected.equals(data.get(data.size() - 1));
+        Map<Object, Integer> data = new HashMap<>();
+        for (Map.Entry<Object, Integer> entry : (List<Map.Entry<Object, Integer>>)TupleCollector.results.get("testNonStreamApplicationWordcount")) {
+          data.put(entry.getKey(), entry.getValue());
+        }
+        return data.size() >= 8 && expected.equals(data.get(data.size() - 1));
       }
     };
 
@@ -73,6 +77,7 @@ public class LocalTestWithoutStreamApplication
             return Arrays.asList(input.split(" "));
           }
         })
+        .window(WindowOption.WindowOptionBuilder.all())
         .countByKey().addOperator(collector, collector.inputPort, collector.outputPort).print().runEmbedded(false, 30000, exitCondition);
 
 

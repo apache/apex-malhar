@@ -30,6 +30,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator;
+import com.datatorrent.lib.window.WindowOption;
 
 /**
  * The stream interface to build a DAG
@@ -94,65 +95,6 @@ public interface ApexStream<T>
    */
   <STREAM extends ApexStream<T>> STREAM filter(String name, Function.FilterFunction<T> filter);
 
-  /**
-   * Reduce transformation<br>
-   * Add an operator to the DAG which merge tuple t1, t2 to new tuple
-   * @param reduce reduce function
-   * @return new stream of same type
-   */
-  <STREAM extends ApexStream<T>> STREAM reduce(Function.ReduceFunction<T> reduce);
-
-  /**
-   * Reduce transformation<br>
-   * Add an operator to the DAG which merge tuple t1, t2 to new tuple
-   * @param name operator name
-   * @param reduce reduce function
-   * @return new stream of same type
-   */
-  <STREAM extends ApexStream<T>> STREAM reduce(String name, Function.ReduceFunction<T> reduce);
-
-  /**
-   * Fold transformation<br>
-   * Add an operator to the DAG which merge tuple T to accumulated result tuple O
-   * @param initialValue initial result value
-   * @param fold fold function
-   * @param <O> Result type
-   * @return new stream of type O
-   */
-  <O, STREAM extends ApexStream<O>> STREAM fold(O initialValue, Function.FoldFunction<T, O> fold);
-
-  /**
-   * Fold transformation<br>
-   * Add an operator to the DAG which merge tuple T to accumulated result tuple O
-   * @param name name of the operator
-   * @param initialValue initial result value
-   * @param fold fold function
-   * @param <O> Result type
-   * @return new stream of type O
-   */
-  <O, STREAM extends ApexStream<O>> STREAM fold(String name, O initialValue, Function.FoldFunction<T, O> fold);
-
-  /**
-   * Count of all tuples
-   * @return new stream of Integer
-   */
-  <STREAM extends ApexStream<Integer>> STREAM count();
-
-  /**
-   * Count tuples by the key<br>
-   * If the input is KeyedTuple it will get the key from getKey method from the tuple<br>
-   * If not, use the tuple itself as a key
-   * @return new stream of Map
-   */
-  <STREAM extends ApexStream<Map<Object, Integer>>> STREAM countByKey();
-
-  /**
-   *
-   * Count tuples by the indexed key
-   * @param key the index of the field in the tuple that are used as key
-   * @return new stream of Map
-   */
-  <STREAM extends ApexStream<Map<Object, Integer>>> STREAM countByKey(int key);
 
   /**
    * Extend the dag by adding one operator<br>
@@ -174,6 +116,13 @@ public interface ApexStream<T>
    * @return new stream of type O
    */
   <O, STREAM extends ApexStream<O>> STREAM addOperator(String opName, Operator op, Operator.InputPort<T> inputPort,  Operator.OutputPort<O> outputPort);
+
+  /**
+   * Extend the dag by adding one {@see CompositeStreamTransform}
+   * @param compositeStreamTransform Composite Streams and Transforms
+   * @return new stream of type O
+   */
+  <O, STREAM extends ApexStream<O>> STREAM addCompositeStreams(CompositeStreamTransform<T, O> compositeStreamTransform);
 
   /**
    * Union multiple stream into one
@@ -259,5 +208,13 @@ public interface ApexStream<T>
    * Submit the application to cluster
    */
   void run();
+
+  /**
+   * Chunk tuples into Windows
+   * Window Transform are defined in {@see WindowedStream}
+   * @param option
+   * @return
+   */
+  WindowedStream<T> window(WindowOption option);
 
 }

@@ -28,6 +28,7 @@ import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.lib.window.WindowOption;
 
 /**
  * An application example with stream api
@@ -51,7 +52,7 @@ public class ApplicationWithStreamAPI implements StreamingApplication
           }
         });
     stream.print();
-    stream.countByKey().print();
+    stream.window(WindowOption.WindowOptionBuilder.all()).countByKey().print();
     stream.populateDag(dag);
   }
 }
