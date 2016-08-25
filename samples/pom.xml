@@ -40,8 +40,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>malhar-library</artifactId>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>malhar-contrib</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

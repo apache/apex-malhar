@@ -61,8 +61,9 @@ import com.datatorrent.lib.util.UnifierSumNumber;
  * @tags count, key value
  *
  * @since 0.3.2
+ * @deprecated
  */
-
+@Deprecated
 @OperatorAnnotation(partitionable = true)
 public class CompareExceptCountMap<K, V extends Number> extends MatchMap<K, V>
 {

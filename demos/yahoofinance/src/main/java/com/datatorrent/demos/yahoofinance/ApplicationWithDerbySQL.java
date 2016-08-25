@@ -18,14 +18,14 @@
  */
 package com.datatorrent.demos.yahoofinance;
 
+import org.apache.apex.malhar.contrib.misc.streamquery.AbstractSqlStreamOperator;
+import org.apache.apex.malhar.contrib.misc.streamquery.DerbySqlStreamOperator;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.streamquery.AbstractSqlStreamOperator;
-import com.datatorrent.lib.streamquery.DerbySqlStreamOperator;
 
 /**
  * This demo will output the stock market data from yahoo finance

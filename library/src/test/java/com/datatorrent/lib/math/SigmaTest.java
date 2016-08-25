@@ -26,11 +26,12 @@ import org.junit.Test;
 import com.datatorrent.lib.testbench.SumTestSink;
 
 /**
- * 
+ *
  * Functional tests for {@link com.datatorrent.lib.math.Sigma}
  * <p>
  * 
  */
+
 public class SigmaTest
 {
   /**

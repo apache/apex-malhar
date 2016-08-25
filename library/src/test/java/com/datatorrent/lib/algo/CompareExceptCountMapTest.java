@@ -21,16 +21,16 @@ package com.datatorrent.lib.algo;
 import java.util.HashMap;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 /**
- *
+ * @deprecated
  * Functional tests for {@link com.datatorrent.lib.algo.CompareExceptCountMap} <p>
- *
+ * (Deprecating inclass) Comment: CompareExceptCountMap is deprecated.
  */
+@Deprecated
 public class CompareExceptCountMapTest
 {
   /**

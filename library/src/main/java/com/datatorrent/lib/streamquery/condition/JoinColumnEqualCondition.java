@@ -23,7 +23,6 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
-
 /**
  * An implementation of equal join condition class.
  * <p>

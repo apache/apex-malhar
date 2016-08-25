@@ -18,12 +18,12 @@
  */
 package com.datatorrent.samples.lib.math;
 
+import org.apache.apex.malhar.contrib.misc.math.Change;
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.math.Change;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 /**

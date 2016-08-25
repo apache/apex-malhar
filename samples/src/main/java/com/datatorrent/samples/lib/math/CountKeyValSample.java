@@ -18,15 +18,13 @@
  */
 package com.datatorrent.samples.lib.math;
 
-
+import org.apache.apex.malhar.contrib.misc.math.CountKeyVal;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
-
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.math.CountKeyVal;
 
 /**
  * This sample application code for showing sample usage of malhar operator(s). <br>

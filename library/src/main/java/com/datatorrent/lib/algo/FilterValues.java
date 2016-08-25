@@ -18,7 +18,8 @@
  */
 package com.datatorrent.lib.algo;
 
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import javax.validation.constraints.NotNull;
 
@@ -72,7 +73,7 @@ public class FilterValues<T> extends BaseOperator
     @Override
     public void process(T tuple)
     {
-      boolean contains = values.containsKey(tuple);
+      boolean contains = values.contains(tuple);
       if ((contains && !inverse) || (!contains && inverse)) {
         filter.emit(cloneValue(tuple));
       }
@@ -85,7 +86,7 @@ public class FilterValues<T> extends BaseOperator
   public final transient DefaultOutputPort<T> filter = new DefaultOutputPort<T>();
 
   @NotNull()
-  HashMap<T, Object> values = new HashMap<T, Object>();
+  HashSet<T> values = new HashSet<T>();
   boolean inverse = false;
 
   /**
@@ -114,7 +115,7 @@ public class FilterValues<T> extends BaseOperator
   public void setValue(T val)
   {
     if (val != null) {
-      values.put(val, null);
+      values.add(val);
     }
   }
 
@@ -126,9 +127,7 @@ public class FilterValues<T> extends BaseOperator
   public void setValues(T[] list)
   {
     if (list != null) {
-      for (T e: list) {
-        values.put(e, null);
-      }
+      values.addAll(Arrays.asList(list));
     }
   }
 
@@ -136,7 +135,7 @@ public class FilterValues<T> extends BaseOperator
    * Gets the values to be filtered.
    * @return The values to be filtered.
    */
-  public HashMap<T, Object> getValues()
+  public HashSet<T> getValues()
   {
     return values;
   }
@@ -146,7 +145,7 @@ public class FilterValues<T> extends BaseOperator
    * values are set to be null.
    * @param values The values to be filtered.
    */
-  public void setValues(HashMap<T, Object> values)
+  public void setValues(HashSet<T> values)
   {
     this.values = values;
   }

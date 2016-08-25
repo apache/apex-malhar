@@ -65,7 +65,9 @@ import com.datatorrent.lib.util.UnifierHashMap;
  * @tags filter, key value, numeric
  *
  * @since 0.3.2
+ * @deprecated
  */
+@Deprecated
 @Stateless
 @OperatorAnnotation(partitionable = true)
 public class MatchMap<K,V extends Number> extends BaseMatchOperator<K, V>

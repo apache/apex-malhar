@@ -66,8 +66,9 @@ import com.datatorrent.lib.util.UnifierBooleanOr;
  * @tags filter, key value
  *
  * @since 0.3.2
+ * @deprecated
  */
-
+@Deprecated
 @OperatorAnnotation(partitionable = true)
 public class MatchAnyMap<K, V extends Number> extends BaseMatchOperator<K,V>
 {
