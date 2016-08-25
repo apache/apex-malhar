@@ -16,38 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.window.impl.accumulation;
+package org.apache.apex.malhar.lib.window.accumulation;
 
-import java.util.Comparator;
 import org.junit.Assert;
 import org.junit.Test;
+import org.apache.commons.lang3.tuple.MutablePair;
 
 /**
- * Test for Max accumulation
+ * Test for {@link Average}.
  */
-public class MaxTest
+public class AverageTest
 {
   @Test
-  public void MaxTest()
+  public void AverageTest()
   {
-    Max<Integer> max = new Max<>();
+    Average ave = new Average();
+    MutablePair<Double, Long> accu = ave.defaultAccumulatedValue();
     
-    Assert.assertEquals((Integer)5, max.accumulate(5, 3));
-    Assert.assertEquals((Integer)6, max.accumulate(4, 6));
-    Assert.assertEquals((Integer)5, max.merge(5, 2));
-  
-    Comparator<Integer> com = new Comparator<Integer>()
-    {
-      @Override
-      public int compare(Integer o1, Integer o2)
-      {
-        return -(o1.compareTo(o2));
-      }
-    };
-    
-    max.setComparator(com);
-    Assert.assertEquals((Integer)3, max.accumulate(5, 3));
-    Assert.assertEquals((Integer)4, max.accumulate(4, 6));
-    Assert.assertEquals((Integer)2, max.merge(5, 2));
+    for (int i = 1; i <= 10; i++) {
+      accu = ave.accumulate(accu, (double)i);
+    }
+    Assert.assertTrue(5.5 == accu.getLeft());
   }
 }

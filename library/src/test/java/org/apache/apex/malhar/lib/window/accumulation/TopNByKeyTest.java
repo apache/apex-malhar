@@ -16,12 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.window.impl.accumulation;
+package org.apache.apex.malhar.lib.window.accumulation;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -16,45 +16,57 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.window.impl.accumulation;
+package org.apache.apex.malhar.lib.window.accumulation;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.apex.malhar.lib.window.Accumulation;
-import org.apache.commons.lang.mutable.MutableInt;
 
 /**
- * Sum accumulation for integers.
+ * RemoveDuplicates Accumulation.
+ * @param <T>
  */
-public class SumInt implements Accumulation<Integer, MutableInt, Integer>
+public class RemoveDuplicates<T> implements Accumulation<T, Set<T>, List<T>>
 {
   @Override
-  public MutableInt defaultAccumulatedValue()
+  public Set<T> defaultAccumulatedValue()
   {
-    return new MutableInt(0);
+    return new HashSet<>();
   }
   
   @Override
-  public MutableInt accumulate(MutableInt accumulatedValue, Integer input)
+  public Set<T> accumulate(Set<T> accumulatedValue, T input)
   {
     accumulatedValue.add(input);
     return accumulatedValue;
   }
   
   @Override
-  public MutableInt merge(MutableInt accumulatedValue1, MutableInt accumulatedValue2)
+  public Set<T> merge(Set<T> accumulatedValue1, Set<T> accumulatedValue2)
   {
-    accumulatedValue1.add(accumulatedValue2);
+    for (T item : accumulatedValue2) {
+      accumulatedValue1.add(item);
+    }
     return accumulatedValue1;
   }
   
   @Override
-  public Integer getOutput(MutableInt accumulatedValue)
+  public List<T> getOutput(Set<T> accumulatedValue)
   {
-    return accumulatedValue.intValue();
+    if (accumulatedValue == null) {
+      return new ArrayList<>();
+    } else {
+      return new ArrayList<>(accumulatedValue);
+    }
   }
   
   @Override
-  public Integer getRetraction(Integer value)
+  public List<T> getRetraction(List<T> value)
   {
-    return -value;
+    // TODO: Need to add implementation for retraction.
+    return new ArrayList<>(value);
   }
 }

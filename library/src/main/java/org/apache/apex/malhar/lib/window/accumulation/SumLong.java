@@ -16,43 +16,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.window.impl.accumulation;
+package org.apache.apex.malhar.lib.window.accumulation;
 
 import org.apache.apex.malhar.lib.window.Accumulation;
-import org.apache.commons.lang3.mutable.MutableLong;
+import org.apache.commons.lang.mutable.MutableLong;
 
 /**
- * Count Accumulation
+ * Sum accumulation for longs.
  */
-public class Count implements Accumulation<Long, MutableLong, Long>
+public class SumLong implements Accumulation<Long, MutableLong, Long>
 {
-
   @Override
   public MutableLong defaultAccumulatedValue()
   {
-    return new MutableLong(0);
+    return new MutableLong(0L);
   }
-
+  
   @Override
   public MutableLong accumulate(MutableLong accumulatedValue, Long input)
   {
     accumulatedValue.add(input);
     return accumulatedValue;
   }
-
+  
   @Override
   public MutableLong merge(MutableLong accumulatedValue1, MutableLong accumulatedValue2)
   {
     accumulatedValue1.add(accumulatedValue2);
     return accumulatedValue1;
   }
-
+  
   @Override
   public Long getOutput(MutableLong accumulatedValue)
   {
-    return accumulatedValue.getValue();
+    return accumulatedValue.longValue();
   }
-
+  
   @Override
   public Long getRetraction(Long value)
   {

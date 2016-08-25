@@ -32,7 +32,7 @@ import org.joda.time.Duration;
 import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.apex.malhar.lib.window.WindowOption;
-import org.apache.apex.malhar.lib.window.impl.accumulation.Group;
+import org.apache.apex.malhar.lib.window.accumulation.Group;
 import org.apache.apex.malhar.stream.api.ApexStream;
 import org.apache.apex.malhar.stream.api.CompositeStreamTransform;
 import org.apache.apex.malhar.stream.api.WindowedStream;

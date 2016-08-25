@@ -16,50 +16,50 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.window.impl.accumulation;
+package org.apache.apex.malhar.lib.window.accumulation;
 
 import org.apache.apex.malhar.lib.window.Accumulation;
 
 /**
- * An easy to use reduce Accumulation
- * @param <INPUT>
+ * Fold Accumulation Adaptor class
  */
-public abstract class ReduceFn<INPUT> implements Accumulation<INPUT, INPUT, INPUT>
+public abstract class FoldFn<INPUT, OUTPUT> implements Accumulation<INPUT, OUTPUT, OUTPUT>
 {
-  @Override
-  public INPUT defaultAccumulatedValue()
+
+  public FoldFn()
   {
-    return null;
+  }
+
+  public FoldFn(OUTPUT initialVal)
+  {
+    this.initialVal = initialVal;
+  }
+
+  private OUTPUT initialVal;
+
+  @Override
+  public OUTPUT defaultAccumulatedValue()
+  {
+    return initialVal;
   }
 
   @Override
-  public INPUT accumulate(INPUT accumulatedValue, INPUT input)
+  public OUTPUT accumulate(OUTPUT accumulatedValue, INPUT input)
   {
-    if (accumulatedValue == null) {
-      return input;
-    }
-    return reduce(accumulatedValue, input);
+    return fold(accumulatedValue, input);
   }
 
   @Override
-  public INPUT merge(INPUT accumulatedValue1, INPUT accumulatedValue2)
-  {
-    return reduce(accumulatedValue1, accumulatedValue2);
-  }
-
-  @Override
-  public INPUT getOutput(INPUT accumulatedValue)
+  public OUTPUT getOutput(OUTPUT accumulatedValue)
   {
     return accumulatedValue;
   }
 
   @Override
-  public INPUT getRetraction(INPUT value)
+  public OUTPUT getRetraction(OUTPUT value)
   {
     return null;
   }
 
-  public abstract INPUT reduce(INPUT input1, INPUT input2);
-
-
+  abstract OUTPUT fold(OUTPUT result, INPUT input);
 }

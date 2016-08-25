@@ -28,14 +28,14 @@ import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.apex.malhar.lib.window.WindowOption;
 import org.apache.apex.malhar.lib.window.WindowState;
 
+import org.apache.apex.malhar.lib.window.accumulation.Count;
+import org.apache.apex.malhar.lib.window.accumulation.FoldFn;
+import org.apache.apex.malhar.lib.window.accumulation.ReduceFn;
+import org.apache.apex.malhar.lib.window.accumulation.TopN;
 import org.apache.apex.malhar.lib.window.impl.InMemoryWindowedKeyedStorage;
 import org.apache.apex.malhar.lib.window.impl.InMemoryWindowedStorage;
 import org.apache.apex.malhar.lib.window.impl.KeyedWindowedOperatorImpl;
 import org.apache.apex.malhar.lib.window.impl.WindowedOperatorImpl;
-import org.apache.apex.malhar.lib.window.impl.accumulation.Count;
-import org.apache.apex.malhar.lib.window.impl.accumulation.FoldFn;
-import org.apache.apex.malhar.lib.window.impl.accumulation.ReduceFn;
-import org.apache.apex.malhar.lib.window.impl.accumulation.TopN;
 
 import org.apache.apex.malhar.stream.api.ApexStream;
 import org.apache.apex.malhar.stream.api.Option;

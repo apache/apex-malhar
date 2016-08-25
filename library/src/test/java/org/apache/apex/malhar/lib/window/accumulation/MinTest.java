@@ -16,35 +16,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.window.impl.accumulation;
+package org.apache.apex.malhar.lib.window.accumulation;
 
+import java.util.Comparator;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Test for {@link ReduceFn}.
+ * Test for {@link Min}.
  */
-public class ReduceFnTest
+public class MinTest
 {
-  
   @Test
-  public void ReduceFnTest()
+  public void MinTest()
   {
-    ReduceFn<String> concat = new ReduceFn<String>()
+    Min<Integer> min = new Min<>();
+    
+    Assert.assertEquals((Integer)3, min.accumulate(5, 3));
+    Assert.assertEquals((Integer)4, min.accumulate(4, 6));
+    Assert.assertEquals((Integer)2, min.merge(5, 2));
+    
+    Comparator<Integer> com = new Comparator<Integer>()
     {
       @Override
-      public String reduce(String input1, String input2)
+      public int compare(Integer o1, Integer o2)
       {
-        return input1 + ", " + input2;
+        return -(o1.compareTo(o2));
       }
     };
     
-    String[] ss = new String[]{"b", "c", "d", "e"};
-    String base = "a";
-    
-    for (String s : ss) {
-      base = concat.accumulate(base, s);
-    }
-    Assert.assertEquals("a, b, c, d, e", base);
+    min.setComparator(com);
+    Assert.assertEquals((Integer)5, min.accumulate(5, 3));
+    Assert.assertEquals((Integer)6, min.accumulate(4, 6));
+    Assert.assertEquals((Integer)5, min.merge(5, 2));
   }
 }

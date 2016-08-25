@@ -16,45 +16,50 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.window.impl.accumulation;
+package org.apache.apex.malhar.lib.window.accumulation;
 
 import org.apache.apex.malhar.lib.window.Accumulation;
-import org.apache.commons.lang.mutable.MutableFloat;
 
 /**
- * Sum Accumulation for floats.
+ * An easy to use reduce Accumulation
+ * @param <INPUT>
  */
-public class SumFloat implements Accumulation<Float, MutableFloat, Float>
+public abstract class ReduceFn<INPUT> implements Accumulation<INPUT, INPUT, INPUT>
 {
   @Override
-  public MutableFloat defaultAccumulatedValue()
+  public INPUT defaultAccumulatedValue()
   {
-    return new MutableFloat(0.);
+    return null;
   }
-  
+
   @Override
-  public MutableFloat accumulate(MutableFloat accumulatedValue, Float input)
+  public INPUT accumulate(INPUT accumulatedValue, INPUT input)
   {
-    accumulatedValue.add(input);
+    if (accumulatedValue == null) {
+      return input;
+    }
+    return reduce(accumulatedValue, input);
+  }
+
+  @Override
+  public INPUT merge(INPUT accumulatedValue1, INPUT accumulatedValue2)
+  {
+    return reduce(accumulatedValue1, accumulatedValue2);
+  }
+
+  @Override
+  public INPUT getOutput(INPUT accumulatedValue)
+  {
     return accumulatedValue;
   }
-  
+
   @Override
-  public MutableFloat merge(MutableFloat accumulatedValue1, MutableFloat accumulatedValue2)
+  public INPUT getRetraction(INPUT value)
   {
-    accumulatedValue1.add(accumulatedValue2);
-    return accumulatedValue1;
+    return null;
   }
-  
-  @Override
-  public Float getOutput(MutableFloat accumulatedValue)
-  {
-    return accumulatedValue.floatValue();
-  }
-  
-  @Override
-  public Float getRetraction(Float value)
-  {
-    return -value;
-  }
+
+  public abstract INPUT reduce(INPUT input1, INPUT input2);
+
+
 }

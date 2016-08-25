@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.window.impl.accumulation;
+package org.apache.apex.malhar.lib.window.accumulation;
 
 import java.util.Comparator;
 import org.apache.apex.malhar.lib.window.Accumulation;
 
 /**
- * Max accumulation.
+ * Min accumulation
  */
-public class Max<T> implements Accumulation<T, T, T>
+public class Min<T> implements Accumulation<T, T, T>
 {
   
   Comparator<T> comparator;
@@ -46,9 +46,9 @@ public class Max<T> implements Accumulation<T, T, T>
     if (accumulatedValue == null) {
       return input;
     } else if (comparator != null) {
-      return (comparator.compare(input, accumulatedValue) > 0) ? input : accumulatedValue;
+      return (comparator.compare(input, accumulatedValue) < 0) ? input : accumulatedValue;
     } else if (input instanceof Comparable) {
-      return (((Comparable)input).compareTo(accumulatedValue) > 0) ? input : accumulatedValue;
+      return (((Comparable)input).compareTo(accumulatedValue) < 0) ? input : accumulatedValue;
     } else {
       throw new RuntimeException("Tuple cannot be compared");
     }
@@ -72,4 +72,5 @@ public class Max<T> implements Accumulation<T, T, T>
     // TODO: Need to add implementation for retraction.
     return null;
   }
+
 }

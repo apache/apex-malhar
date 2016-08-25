@@ -16,38 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.window.impl.accumulation;
+package org.apache.apex.malhar.lib.window.accumulation;
 
-import java.util.Comparator;
+import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Test for {@link Min}.
+ * Test for {@link RemoveDuplicates}.
  */
-public class MinTest
+public class RemoveDuplicatesTest
 {
   @Test
-  public void MinTest()
+  public void RemoveDuplicatesTest()
   {
-    Min<Integer> min = new Min<>();
+    RemoveDuplicates<Integer> rd = new RemoveDuplicates<>();
     
-    Assert.assertEquals((Integer)3, min.accumulate(5, 3));
-    Assert.assertEquals((Integer)4, min.accumulate(4, 6));
-    Assert.assertEquals((Integer)2, min.merge(5, 2));
-    
-    Comparator<Integer> com = new Comparator<Integer>()
-    {
-      @Override
-      public int compare(Integer o1, Integer o2)
-      {
-        return -(o1.compareTo(o2));
-      }
-    };
-    
-    min.setComparator(com);
-    Assert.assertEquals((Integer)5, min.accumulate(5, 3));
-    Assert.assertEquals((Integer)6, min.accumulate(4, 6));
-    Assert.assertEquals((Integer)5, min.merge(5, 2));
+    Set<Integer> accu = rd.defaultAccumulatedValue();
+    Assert.assertEquals(0, accu.size());
+    Assert.assertEquals(1, rd.accumulate(accu, 10).size());
+    Assert.assertEquals(2, rd.accumulate(accu, 11).size());
+    Assert.assertEquals(2, rd.accumulate(accu, 11).size());
   }
 }

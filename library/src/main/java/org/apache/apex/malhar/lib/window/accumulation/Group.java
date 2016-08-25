@@ -16,61 +16,48 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.window.impl.accumulation;
+package org.apache.apex.malhar.lib.window.accumulation;
 
-import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.apex.malhar.lib.window.Accumulation;
 
 /**
- * Min accumulation
+ * Group accumulation.
  */
-public class Min<T> implements Accumulation<T, T, T>
+public class Group<T> implements Accumulation<T, List<T>, List<T>>
 {
-  
-  Comparator<T> comparator;
-  
-  public void setComparator(Comparator<T> comparator)
+  @Override
+  public List<T> defaultAccumulatedValue()
   {
-    this.comparator = comparator;
+    return new ArrayList<>();
   }
   
   @Override
-  public T defaultAccumulatedValue()
+  public List<T> accumulate(List<T> accumulatedValue, T input)
   {
-    return null;
+    accumulatedValue.add(input);
+    return accumulatedValue;
   }
   
   @Override
-  public T accumulate(T accumulatedValue, T input)
+  public List<T> merge(List<T> accumulatedValue1, List<T> accumulatedValue2)
   {
-    if (accumulatedValue == null) {
-      return input;
-    } else if (comparator != null) {
-      return (comparator.compare(input, accumulatedValue) < 0) ? input : accumulatedValue;
-    } else if (input instanceof Comparable) {
-      return (((Comparable)input).compareTo(accumulatedValue) < 0) ? input : accumulatedValue;
-    } else {
-      throw new RuntimeException("Tuple cannot be compared");
-    }
+    accumulatedValue1.addAll(accumulatedValue2);
+    return accumulatedValue1;
   }
   
   @Override
-  public T merge(T accumulatedValue1, T accumulatedValue2)
-  {
-    return accumulate(accumulatedValue1, accumulatedValue2);
-  }
-  
-  @Override
-  public T getOutput(T accumulatedValue)
+  public List<T> getOutput(List<T> accumulatedValue)
   {
     return accumulatedValue;
   }
   
   @Override
-  public T getRetraction(T value)
+  public List<T> getRetraction(List<T> value)
   {
     // TODO: Need to add implementation for retraction.
-    return null;
+    return new ArrayList<>();
   }
-
 }

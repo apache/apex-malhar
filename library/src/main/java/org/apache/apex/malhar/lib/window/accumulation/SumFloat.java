@@ -16,44 +16,44 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.window.impl.accumulation;
+package org.apache.apex.malhar.lib.window.accumulation;
 
 import org.apache.apex.malhar.lib.window.Accumulation;
-import org.apache.commons.lang.mutable.MutableDouble;
+import org.apache.commons.lang.mutable.MutableFloat;
 
 /**
- * Sum Accumulation for doubles.
+ * Sum Accumulation for floats.
  */
-public class SumDouble implements Accumulation<Double, MutableDouble, Double>
+public class SumFloat implements Accumulation<Float, MutableFloat, Float>
 {
   @Override
-  public MutableDouble defaultAccumulatedValue()
+  public MutableFloat defaultAccumulatedValue()
   {
-    return new MutableDouble(0.0);
+    return new MutableFloat(0.);
   }
   
   @Override
-  public MutableDouble accumulate(MutableDouble accumulatedValue, Double input)
+  public MutableFloat accumulate(MutableFloat accumulatedValue, Float input)
   {
     accumulatedValue.add(input);
     return accumulatedValue;
   }
   
   @Override
-  public MutableDouble merge(MutableDouble accumulatedValue1, MutableDouble accumulatedValue2)
+  public MutableFloat merge(MutableFloat accumulatedValue1, MutableFloat accumulatedValue2)
   {
     accumulatedValue1.add(accumulatedValue2);
     return accumulatedValue1;
   }
   
   @Override
-  public Double getOutput(MutableDouble accumulatedValue)
+  public Float getOutput(MutableFloat accumulatedValue)
   {
-    return accumulatedValue.doubleValue();
+    return accumulatedValue.floatValue();
   }
   
   @Override
-  public Double getRetraction(Double value)
+  public Float getRetraction(Float value)
   {
     return -value;
   }

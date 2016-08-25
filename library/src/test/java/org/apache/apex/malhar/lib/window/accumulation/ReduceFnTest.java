@@ -16,50 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.window.impl.accumulation;
+package org.apache.apex.malhar.lib.window.accumulation;
 
-import org.apache.apex.malhar.lib.window.Accumulation;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
- * Fold Accumulation Adaptor class
+ * Test for {@link ReduceFn}.
  */
-public abstract class FoldFn<INPUT, OUTPUT> implements Accumulation<INPUT, OUTPUT, OUTPUT>
+public class ReduceFnTest
 {
-
-  public FoldFn()
+  
+  @Test
+  public void ReduceFnTest()
   {
+    ReduceFn<String> concat = new ReduceFn<String>()
+    {
+      @Override
+      public String reduce(String input1, String input2)
+      {
+        return input1 + ", " + input2;
+      }
+    };
+    
+    String[] ss = new String[]{"b", "c", "d", "e"};
+    String base = "a";
+    
+    for (String s : ss) {
+      base = concat.accumulate(base, s);
+    }
+    Assert.assertEquals("a, b, c, d, e", base);
   }
-
-  public FoldFn(OUTPUT initialVal)
-  {
-    this.initialVal = initialVal;
-  }
-
-  private OUTPUT initialVal;
-
-  @Override
-  public OUTPUT defaultAccumulatedValue()
-  {
-    return initialVal;
-  }
-
-  @Override
-  public OUTPUT accumulate(OUTPUT accumulatedValue, INPUT input)
-  {
-    return fold(accumulatedValue, input);
-  }
-
-  @Override
-  public OUTPUT getOutput(OUTPUT accumulatedValue)
-  {
-    return accumulatedValue;
-  }
-
-  @Override
-  public OUTPUT getRetraction(OUTPUT value)
-  {
-    return null;
-  }
-
-  abstract OUTPUT fold(OUTPUT result, INPUT input);
 }
