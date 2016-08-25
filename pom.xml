@@ -207,6 +207,7 @@
   <modules>
     <module>library</module>
     <module>contrib</module>
+    <module>kafka</module>
   </modules>
 
   <dependencies>
