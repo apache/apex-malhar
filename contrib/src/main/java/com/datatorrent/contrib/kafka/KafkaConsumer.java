@@ -537,13 +537,19 @@ public abstract class KafkaConsumer implements Closeable
       String clusterId = parts.length == 1 ? KafkaPartition.DEFAULT_CLUSTERID : parts[0];
       String[] hostNames = parts.length == 1 ? parts[0].split(",") : parts[1].split(",");
       String portId = "";
+      String rootPath = "";
       for (int idx = hostNames.length - 1; idx >= 0; idx--) {
         String[] zkParts = hostNames[idx].split(":");
         if (zkParts.length == 2) {
           portId = zkParts[1];
+          if (portId.contains("/")) {
+            rootPath = portId.substring(portId.indexOf("/"));
+            portId = portId.substring(0,portId.indexOf("/"));
+          }
+
         }
         if (!portId.isEmpty() && portId != "") {
-          theClusters.put(clusterId, zkParts[0] + ":" + portId);
+          theClusters.put(clusterId, zkParts[0] + ":" + portId + rootPath);
         } else {
           throw new IllegalArgumentException("Wrong zookeeper string: " + zookeeper + "\n"
               + " Expected format should be cluster1::zookeeper1,zookeeper2:port1;cluster2::zookeeper3:port2 or zookeeper1:port1,zookeeper:port2");
