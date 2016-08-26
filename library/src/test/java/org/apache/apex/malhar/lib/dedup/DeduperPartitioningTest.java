@@ -191,5 +191,6 @@ public class DeduperPartitioningTest
     lc.runAsync();
     app.dedup.latch.await();
     Assert.assertFalse(testFailed);
+    lc.shutdown();
   }
 }

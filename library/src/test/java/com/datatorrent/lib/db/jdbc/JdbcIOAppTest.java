@@ -126,6 +126,7 @@ public class JdbcIOAppTest
       Thread.sleep(3000);
 
       Assert.assertEquals("Events in store", 10, getNumOfEventsInStore());
+      lc.shutdown();
 
     } catch (ConstraintViolationException e) {
       Assert.fail("constraint violations: " + e.getConstraintViolations());

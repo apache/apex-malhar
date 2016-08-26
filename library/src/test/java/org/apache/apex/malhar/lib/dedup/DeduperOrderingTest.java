@@ -109,6 +109,7 @@ public class DeduperOrderingTest
         TestPojo pojo = new TestPojo(sequenceId, new Date(), sequenceId);
         output.emit(pojo);
         sequenceId++;
+        windowCount++;
       }
     }
   }

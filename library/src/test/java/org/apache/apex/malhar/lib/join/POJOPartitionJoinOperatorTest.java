@@ -189,6 +189,7 @@ public class POJOPartitionJoinOperatorTest
     lc.runAsync();
     app.joinOp.latch.await();
     Assert.assertFalse(testFailed);
+    lc.shutdown();
   }
 
 }
