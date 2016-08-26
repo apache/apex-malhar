@@ -105,10 +105,14 @@ public class KafkaMetadataUtil
       }});
   }
 
-
+  /**
+   * There is always only one string in zkHost
+   * @param zkHost
+   * @return
+   */
   public static Set<String> getBrokers(Set<String> zkHost){
 
-    ZkClient zkclient = new ZkClient(StringUtils.join(zkHost, ',') ,30000, 30000, ZKStringSerializer$.MODULE$);
+    ZkClient zkclient = new ZkClient(zkHost.iterator().next(), 30000, 30000, ZKStringSerializer$.MODULE$);
     Set<String> brokerHosts = new HashSet<String>();
     for (Broker b : JavaConversions.asJavaIterable(ZkUtils.getAllBrokersInCluster(zkclient))) {
       brokerHosts.add(b.connectionString());
