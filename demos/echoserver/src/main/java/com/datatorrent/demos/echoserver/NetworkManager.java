@@ -23,8 +23,15 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.nio.channels.*;
-import java.util.*;
+import java.nio.channels.DatagramChannel;
+import java.nio.channels.SelectableChannel;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.slf4j.Logger;
@@ -37,7 +44,11 @@ public class NetworkManager implements Runnable
 {
   private static final Logger logger = LoggerFactory.getLogger(NetworkManager.class);
 
-  public static enum ConnectionType { TCP, UDP };
+  public static enum ConnectionType
+  {
+    TCP,
+    UDP
+  }
 
   private static NetworkManager _instance;
   private Selector selector;
@@ -180,36 +191,48 @@ public class NetworkManager implements Runnable
     }
   }
 
-  public static interface ChannelListener<T extends SelectableChannel> {
+  public static interface ChannelListener<T extends SelectableChannel>
+  {
     public void ready(ChannelAction<T> action, int readyOps);
   }
 
-  public static class ChannelConfiguration<T extends SelectableChannel> {
+  public static class ChannelConfiguration<T extends SelectableChannel>
+  {
     public T channel;
     public ConnectionInfo connectionInfo;
     public Collection<ChannelAction> actions;
   }
 
-  public static class ChannelAction<T extends SelectableChannel> {
+  public static class ChannelAction<T extends SelectableChannel>
+  {
     public ChannelConfiguration<T> channelConfiguration;
     public ChannelListener<T> listener;
     public int ops;
   }
 
-  private static class ConnectionInfo {
+  private static class ConnectionInfo
+  {
     public SocketAddress address;
     public ConnectionType connectionType;
 
     @Override
     public boolean equals(Object o)
     {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
 
-      ConnectionInfo that = (ConnectionInfo) o;
+      ConnectionInfo that = (ConnectionInfo)o;
 
-      if (connectionType != that.connectionType) return false;
-      if (!address.equals(that.address)) return false;
+      if (connectionType != that.connectionType) {
+        return false;
+      }
+      if (!address.equals(that.address)) {
+        return false;
+      }
 
       return true;
     }

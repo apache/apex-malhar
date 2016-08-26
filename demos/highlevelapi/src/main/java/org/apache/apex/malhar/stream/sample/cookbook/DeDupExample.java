@@ -47,22 +47,22 @@ import static org.apache.apex.malhar.stream.api.Option.Options.name;
 @ApplicationAnnotation(name = "DeDupExample")
 public class DeDupExample implements StreamingApplication
 {
-  
+
   public static class Collector extends BaseOperator
   {
     private static Tuple.WindowedTuple<List<String>> result;
     private static boolean done = false;
-  
+
     public static Tuple.WindowedTuple<List<String>> getResult()
     {
       return result;
     }
-  
+
     public static boolean isDone()
     {
       return done;
     }
-  
+
     @Override
     public void setup(Context.OperatorContext context)
     {
@@ -70,7 +70,7 @@ public class DeDupExample implements StreamingApplication
       result = new Tuple.WindowedTuple<>();
       done = false;
     }
-  
+
     public transient DefaultInputPort<Tuple.WindowedTuple<List<String>>> input = new DefaultInputPort<Tuple.WindowedTuple<List<String>>>()
     {
       @Override
@@ -83,15 +83,15 @@ public class DeDupExample implements StreamingApplication
       }
     };
   }
-    
+
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
     Collector collector = new Collector();
-    
+
     // Create a stream that reads from files in a local folder and output lines one by one to downstream.
     ApexStream<String> stream = StreamFactory.fromFolder("./src/test/resources/wordcount", name("textInput"))
-      
+
         // Extract all the words from the input line of text.
         .flatMap(new Function.FlatMapFunction<String, String>()
         {
@@ -101,7 +101,7 @@ public class DeDupExample implements StreamingApplication
             return Arrays.asList(input.split("[\\p{Punct}\\s]+"));
           }
         }, name("ExtractWords"))
-      
+
         // Change the words to lower case, also shutdown the app when the word "bye" is detected.
         .map(new Function.MapFunction<String, String>()
         {
@@ -111,14 +111,14 @@ public class DeDupExample implements StreamingApplication
             return input.toLowerCase();
           }
         }, name("ToLowerCase"));
-    
+
     // Apply window and trigger option.
     stream.window(new WindowOption.GlobalWindow(),
         new TriggerOption().accumulatingFiredPanes().withEarlyFiringsAtEvery(Duration.standardSeconds(1)))
-        
+
         // Remove the duplicate words and print out the result.
         .accumulate(new RemoveDuplicates<String>(), name("RemoveDuplicates")).print().endWith(collector, collector.input)
-    
+
         .populateDag(dag);
   }
 }

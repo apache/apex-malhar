@@ -18,9 +18,9 @@
  */
 package com.datatorrent.demos.uniquecount;
 
-import com.datatorrent.api.LocalMode;
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
+import org.apache.hadoop.conf.Configuration;
+import com.datatorrent.api.LocalMode;
 
 /**
  * Test the DAG declaration in local mode.

@@ -38,7 +38,7 @@ public class DeDupExampleTest
   {
     LocalMode lma = LocalMode.newInstance();
     Configuration conf = new Configuration(false);
-    
+
     DeDupExample app = new DeDupExample();
     lma.prepareDAG(app, conf);
     LocalMode.Controller lc = lma.getController();
@@ -51,9 +51,9 @@ public class DeDupExampleTest
       }
     });
     lc.run(50000);
-  
+
     Assert.assertEquals(9, DeDupExample.Collector.getResult().getValue().size());
-    
+
   }
-  
+
 }

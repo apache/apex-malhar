@@ -18,20 +18,21 @@
  */
 package com.datatorrent.demos.frauddetect.util;
 
-import org.codehaus.jackson.map.ObjectMapper;
-
 import java.io.IOException;
+
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * Utility class to deal with JSON and Object
  *
  * @since 0.9.0
  */
-public class JsonUtils {
+public class JsonUtils
+{
+  private static final ObjectMapper mapper = new ObjectMapper();
 
-    private static final ObjectMapper mapper = new ObjectMapper();
-
-    public static String toJson(Object obj) throws IOException {
-        return mapper.writeValueAsString(obj);
-    }
+  public static String toJson(Object obj) throws IOException
+  {
+    return mapper.writeValueAsString(obj);
+  }
 }

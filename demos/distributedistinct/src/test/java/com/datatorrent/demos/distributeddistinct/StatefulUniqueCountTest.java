@@ -18,20 +18,29 @@
  */
 package com.datatorrent.demos.distributeddistinct;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
 
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.datatorrent.api.*;
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.demos.distributeddistinct.IntegerUniqueValueCountAppender;
 
 import com.datatorrent.lib.algo.UniqueValueCount;
 import com.datatorrent.lib.util.KeyValPair;
@@ -96,7 +105,8 @@ public class StatefulUniqueCountTest
     private static final String INMEM_DB_DRIVER = "org.hsqldb.jdbc.JDBCDriver";
     protected static final String TABLE_NAME = "Test_Lookup_Cache";
 
-    public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>() {
+    public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
+    {
       @Override
       public void process(Object tuple)
       {
@@ -196,7 +206,8 @@ public class StatefulUniqueCountTest
   }
 
   @BeforeClass
-  public static void setup(){
+  public static void setup()
+  {
     try {
       Class.forName(INMEM_DB_DRIVER).newInstance();
       Connection con = DriverManager.getConnection(INMEM_DB_URL, new Properties());

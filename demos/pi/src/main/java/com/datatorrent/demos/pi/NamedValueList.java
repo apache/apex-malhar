@@ -25,10 +25,10 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
-import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * <p>An operator which converts a raw value to a named value singleton list.</p>
@@ -47,9 +47,11 @@ public class NamedValueList<T> extends BaseOperator
   private List<Map<String, T>> valueList;
   private Map<String, T> valueMap;
 
-  public final transient DefaultInputPort<T> inPort = new DefaultInputPort<T>() {
+  public final transient DefaultInputPort<T> inPort = new DefaultInputPort<T>()
+  {
     @Override
-    public void process(T val) {
+    public void process(T val)
+    {
       valueMap.put(valueName, val);
       outPort.emit(valueList);
     }
@@ -80,11 +82,13 @@ public class NamedValueList<T> extends BaseOperator
   {
   }
 
-  public String getValueName() {
+  public String getValueName()
+  {
     return valueName;
   }
 
-  public void setValueName(String name) {
+  public void setValueName(String name)
+  {
     valueName = name;
   }
 }

@@ -18,6 +18,9 @@
  */
 package com.datatorrent.demos.twitter;
 
+import java.net.URI;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator.InputPort;
@@ -31,10 +34,7 @@ import com.datatorrent.contrib.twitter.TwitterSampleInput;
 import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
-import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.conf.Configuration;
 
-import java.net.URI;
 /**
  * Twitter Demo Application: <br>
  * This demo application samples random public status from twitter, send to Hashtag
@@ -167,7 +167,7 @@ import java.net.URI;
  *
  * @since 2.0.0
  */
-@ApplicationAnnotation(name="TwitterKinesisDemo")
+@ApplicationAnnotation(name = "TwitterKinesisDemo")
 public class KinesisHashtagsApplication implements StreamingApplication
 {
   private final Locality locality = null;

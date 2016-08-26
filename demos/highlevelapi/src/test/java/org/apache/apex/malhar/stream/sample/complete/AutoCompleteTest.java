@@ -41,7 +41,7 @@ public class AutoCompleteTest
     Configuration conf = new Configuration(false);
     lma.prepareDAG(new AutoComplete(), conf);
     LocalMode.Controller lc = lma.getController();
-    
+
     ((StramLocalCluster)lc).setExitCondition(new Callable<Boolean>()
     {
       @Override
@@ -50,9 +50,9 @@ public class AutoCompleteTest
         return AutoComplete.TweetsInput.isDone();
       }
     });
-    
+
     lc.run(200000);
-  
+
     Assert.assertTrue(AutoComplete.Collector.getResult().containsKey("chi"));
     Assert.assertTrue(AutoComplete.Collector.getResult().containsKey("china"));
     Assert.assertEquals(2, AutoComplete.Collector.getResult().get("china").get(0).getCount());
@@ -61,6 +61,6 @@ public class AutoCompleteTest
     Assert.assertEquals(3, AutoComplete.Collector.getResult().get("f").size());
     Assert.assertTrue(AutoComplete.Collector.getResult().get("f").get(0).getCount() >= AutoComplete.Collector.getResult().get("f").get(1).getCount());
     Assert.assertTrue(AutoComplete.Collector.getResult().get("f").get(1).getCount() >= AutoComplete.Collector.getResult().get("f").get(2).getCount());
-  
+
   }
 }

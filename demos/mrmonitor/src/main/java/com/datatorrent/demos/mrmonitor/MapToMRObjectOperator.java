@@ -33,7 +33,8 @@ import com.datatorrent.api.Operator;
 public class MapToMRObjectOperator implements Operator
 {
 
-  public final transient DefaultInputPort<Map<String, String>> input = new DefaultInputPort<Map<String, String>>() {
+  public final transient DefaultInputPort<Map<String, String>> input = new DefaultInputPort<Map<String, String>>()
+  {
     @Override
     public void process(Map<String, String> tuple)
     {

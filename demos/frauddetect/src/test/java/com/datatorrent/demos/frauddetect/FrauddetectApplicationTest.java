@@ -18,33 +18,33 @@
  */
 package com.datatorrent.demos.frauddetect;
 
-import com.datatorrent.api.LocalMode;
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
+import org.apache.hadoop.conf.Configuration;
+import com.datatorrent.api.LocalMode;
 
 /**
  * Fraud detection application test
  */
-public class FrauddetectApplicationTest {
+public class FrauddetectApplicationTest
+{
 
-    public FrauddetectApplicationTest() {
-    }
+  public FrauddetectApplicationTest()
+  {
+  }
 
-    @Test
-    public void testApplication() throws Exception {
-      try
-      {
-        Application application = new Application();
-        Configuration conf = new Configuration(false);
-        conf.addResource("dt-site-frauddetect.xml");
-        LocalMode lma = LocalMode.newInstance();
-        lma.prepareDAG(application, conf);
-        lma.getController().run(120000);
-      }
-      catch(Exception e)
-      {
-        e.printStackTrace();
-      }
+  @Test
+  public void testApplication() throws Exception
+  {
+    try {
+      Application application = new Application();
+      Configuration conf = new Configuration(false);
+      conf.addResource("dt-site-frauddetect.xml");
+      LocalMode lma = LocalMode.newInstance();
+      lma.prepareDAG(application, conf);
+      lma.getController().run(120000);
+    } catch (Exception e) {
+      e.printStackTrace();
     }
+  }
 
 }

@@ -20,23 +20,22 @@ package com.datatorrent.demos.wordcount;
 
 import java.net.URI;
 
-import org.apache.commons.lang.StringUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.api.StreamingApplication;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator;
+import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.appdata.snapshot.AppDataSnapshotServerMap;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-
-import org.apache.hadoop.conf.Configuration;
 
 /**
  * Simple demo that computes word frequencies from any file dropped into a
@@ -49,7 +48,7 @@ import org.apache.hadoop.conf.Configuration;
  * <p>
  * @since 3.2.0
  */
-@ApplicationAnnotation(name="TopNWordsWithQueries")
+@ApplicationAnnotation(name = "TopNWordsWithQueries")
 public class ApplicationWithQuerySupport implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationWithQuerySupport.class);
@@ -87,13 +86,13 @@ public class ApplicationWithQuerySupport implements StreamingApplication
 
     String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
 
-    if ( ! StringUtils.isEmpty(gatewayAddress)) {        // add query support
+    if (!StringUtils.isEmpty(gatewayAddress)) {        // add query support
       URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
 
       AppDataSnapshotServerMap snapshotServerFile
-        = dag.addOperator("snapshotServerFile", new AppDataSnapshotServerMap());
+          = dag.addOperator("snapshotServerFile", new AppDataSnapshotServerMap());
       AppDataSnapshotServerMap snapshotServerGlobal
-        = dag.addOperator("snapshotServerGlobal", new AppDataSnapshotServerMap());
+          = dag.addOperator("snapshotServerGlobal", new AppDataSnapshotServerMap());
 
       String snapshotServerJSON = SchemaUtils.jarResourceFileToString(SNAPSHOT_SCHEMA);
       snapshotServerFile.setSnapshotSchemaJSON(snapshotServerJSON);
@@ -108,19 +107,17 @@ public class ApplicationWithQuerySupport implements StreamingApplication
       snapshotServerGlobal.setEmbeddableQueryInfoProvider(wsQueryGlobal);
 
       PubSubWebSocketAppDataResult wsResultFile
-        = dag.addOperator("wsResultFile", new PubSubWebSocketAppDataResult());
+          = dag.addOperator("wsResultFile", new PubSubWebSocketAppDataResult());
       PubSubWebSocketAppDataResult wsResultGlobal
-        = dag.addOperator("wsResultGlobal", new PubSubWebSocketAppDataResult());
+          = dag.addOperator("wsResultGlobal", new PubSubWebSocketAppDataResult());
       wsResultFile.setUri(uri);
       wsResultGlobal.setUri(uri);
 
       Operator.InputPort<String> queryResultFilePort = wsResultFile.input;
       Operator.InputPort<String> queryResultGlobalPort = wsResultGlobal.input;
 
-      dag.addStream("WordCountsFile", fileWordCount.outputPerFile,
-                    snapshotServerFile.input, console.input);
-      dag.addStream("WordCountsGlobal", fileWordCount.outputGlobal,
-                    snapshotServerGlobal.input);
+      dag.addStream("WordCountsFile", fileWordCount.outputPerFile, snapshotServerFile.input, console.input);
+      dag.addStream("WordCountsGlobal", fileWordCount.outputGlobal, snapshotServerGlobal.input);
 
       dag.addStream("ResultFile", snapshotServerFile.queryResult, queryResultFilePort);
       dag.addStream("ResultGlobal", snapshotServerGlobal.queryResult, queryResultGlobalPort);
@@ -129,7 +126,7 @@ public class ApplicationWithQuerySupport implements StreamingApplication
       dag.addStream("WordCounts", fileWordCount.outputPerFile, console.input);
     }
 
-    System.out.println("done with populateDAG, isDebugEnabled = " + LOG.isDebugEnabled());
+    LOG.info("done with populateDAG, isDebugEnabled = " + LOG.isDebugEnabled());
     LOG.info("Returning from populateDAG");
   }
 

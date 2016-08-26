@@ -24,8 +24,6 @@ import java.sql.SQLException;
 import javax.annotation.Nonnull;
 
 import org.apache.hadoop.conf.Configuration;
-import twitter4j.Status;
-
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
@@ -33,6 +31,8 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 import com.datatorrent.contrib.twitter.TwitterSampleInput;
 import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
+
+import twitter4j.Status;
 
 /**
  * An application which connects to Twitter Sample Input and stores all the
@@ -63,7 +63,7 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
  *
  * @since 0.9.4
  */
-@ApplicationAnnotation(name="TwitterDumpDemo")
+@ApplicationAnnotation(name = "TwitterDumpDemo")
 public class TwitterDumpApplication implements StreamingApplication
 {
   public static class Status2Database extends AbstractJdbcTransactionableOutputOperator<Status>

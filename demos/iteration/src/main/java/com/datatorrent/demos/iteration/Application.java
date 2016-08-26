@@ -18,23 +18,24 @@
  */
 package com.datatorrent.demos.iteration;
 
-import com.datatorrent.api.Context;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.api.Context;
+import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.common.util.DefaultDelayOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
 
 /**
  * Iteration demo : <br>
@@ -64,10 +65,10 @@ import java.io.PrintStream;
  *
  * @since 3.4.0
  */
-@ApplicationAnnotation(name="IterationDemo")
+@ApplicationAnnotation(name = "IterationDemo")
 public class Application implements StreamingApplication
 {
-  private final static Logger LOG = LoggerFactory.getLogger(Application.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Application.class);
   private String extraOutputFileName; // for unit test
 
   public static class FibonacciOperator extends BaseOperator
@@ -117,7 +118,7 @@ public class Application implements StreamingApplication
       public void process(Object t)
       {
         String s = t.toString();
-        System.out.println(s);
+        LOG.info(s);
         if (extraOutputStream != null) {
           extraOutputStream.println(s);
         }

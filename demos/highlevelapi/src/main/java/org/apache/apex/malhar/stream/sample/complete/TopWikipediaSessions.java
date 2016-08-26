@@ -63,23 +63,23 @@ public class TopWikipediaSessions implements StreamingApplication
   {
     private String[] names = new String[]{"user1", "user2", "user3", "user4"};
     public transient DefaultOutputPort<KeyValPair<String, Long>> output = new DefaultOutputPort<>();
-  
+
     private static final Duration RAND_RANGE = Duration.standardDays(365);
     private Long minTimestamp;
     private long sleepTime;
     private static int tupleCount = 0;
-  
+
     public static int getTupleCount()
     {
       return tupleCount;
     }
-  
+
     private String randomName(String[] names)
     {
       int index = new Random().nextInt(names.length);
       return names[index];
     }
-  
+
     @Override
     public void setup(Context.OperatorContext context)
     {
@@ -88,7 +88,7 @@ public class TopWikipediaSessions implements StreamingApplication
       minTimestamp = System.currentTimeMillis();
       sleepTime = context.getValue(Context.OperatorContext.SPIN_MILLIS);
     }
-  
+
     @Override
     public void emitTuples()
     {
@@ -103,17 +103,17 @@ public class TopWikipediaSessions implements StreamingApplication
       }
     }
   }
-  
+
   public static class Collector extends BaseOperator
   {
     private final int resultSize = 5;
     private static List<List<TempWrapper>> result = new ArrayList<>();
-  
+
     public static List<List<TempWrapper>> getResult()
     {
       return result;
     }
-  
+
     public final transient DefaultInputPort<Tuple.WindowedTuple<List<TempWrapper>>> input = new DefaultInputPort<Tuple.WindowedTuple<List<TempWrapper>>>()
     {
       @Override
@@ -126,8 +126,8 @@ public class TopWikipediaSessions implements StreamingApplication
       }
     };
   }
-  
-  
+
+
   /**
    * Convert the upstream (user, time) combination to a timestamped tuple of user.
    */
@@ -138,13 +138,13 @@ public class TopWikipediaSessions implements StreamingApplication
     {
       long timestamp = input.getValue();
       String userName = input.getKey();
-   
+
       // Sets the implicit timestamp field to be used in windowing.
       return new Tuple.TimestampedTuple<>(timestamp, userName);
-      
+
     }
   }
-  
+
   /**
    * Computes the number of edits in each user session.  A session is defined as
    * a string of edits where each is separated from the next by less than an hour.
@@ -156,10 +156,10 @@ public class TopWikipediaSessions implements StreamingApplication
     public WindowedStream<Tuple.WindowedTuple<KeyValPair<String, Long>>> compose(ApexStream<Tuple.TimestampedTuple<String>> inputStream)
     {
       return inputStream
-        
+
         // Chuck the stream into session windows.
         .window(new WindowOption.SessionWindows(Duration.standardHours(1)), new TriggerOption().accumulatingFiredPanes().withEarlyFiringsAtEvery(1))
-        
+
         // Count the number of edits for a user within one session.
         .countByKey(new Function.ToKeyValue<Tuple.TimestampedTuple<String>, String, Long>()
         {
@@ -171,7 +171,7 @@ public class TopWikipediaSessions implements StreamingApplication
         }, name("ComputeSessions"));
     }
   }
-  
+
   /**
    * A comparator class used for comparing two TempWrapper objects.
    */
@@ -183,7 +183,7 @@ public class TopWikipediaSessions implements StreamingApplication
       return Long.compare(o1.getValue().getValue(), o2.getValue().getValue());
     }
   }
-  
+
   /**
    * A function to extract timestamp from a TempWrapper object.
    */
@@ -196,7 +196,7 @@ public class TopWikipediaSessions implements StreamingApplication
       return input.getTimestamp();
     }
   }
-  
+
   /**
    * A temporary wrapper to wrap a KeyValPair and a timestamp together to represent a timestamped tuple, the reason
    * for this is that we cannot resolve a type conflict when calling accumulate(). After the issue resolved, we can
@@ -206,39 +206,39 @@ public class TopWikipediaSessions implements StreamingApplication
   {
     private KeyValPair<String, Long> value;
     private Long timestamp;
-    
+
     public TempWrapper()
     {
-      
+
     }
-    
+
     public TempWrapper(KeyValPair<String, Long> value, Long timestamp)
     {
       this.value = value;
       this.timestamp = timestamp;
     }
-  
+
     @Override
     public String toString()
     {
       return this.value + "  -  " + this.timestamp;
     }
-  
+
     public Long getTimestamp()
     {
       return timestamp;
     }
-  
+
     public void setTimestamp(Long timestamp)
     {
       this.timestamp = timestamp;
     }
-  
+
     public KeyValPair<String, Long> getValue()
     {
       return value;
     }
-  
+
     public void setValue(KeyValPair<String, Long> value)
     {
       this.value = value;
@@ -251,16 +251,16 @@ public class TopWikipediaSessions implements StreamingApplication
   private static class TopPerMonth
       extends CompositeStreamTransform<ApexStream<Tuple.WindowedTuple<KeyValPair<String, Long>>>, WindowedStream<Tuple.WindowedTuple<List<TempWrapper>>>>
   {
-    
+
     @Override
     public WindowedStream<Tuple.WindowedTuple<List<TempWrapper>>> compose(ApexStream<Tuple.WindowedTuple<KeyValPair<String, Long>>> inputStream)
     {
       TopN<TempWrapper> topN = new TopN<>();
       topN.setN(10);
       topN.setComparator(new Comp());
-      
+
       return inputStream
-        
+
         // Map the input WindowedTuple to a TempWrapper object.
         .map(new Function.MapFunction<Tuple.WindowedTuple<KeyValPair<String, Long>>, TempWrapper>()
         {
@@ -270,15 +270,15 @@ public class TopWikipediaSessions implements StreamingApplication
             return new TempWrapper(input.getValue(), input.getWindows().get(0).getBeginTimestamp());
           }
         }, name("TempWrapper"))
-        
+
         // Apply window and trigger option again, this time chuck the stream into fixed time windows.
         .window(new WindowOption.TimeWindows(Duration.standardDays(30)), new TriggerOption().accumulatingFiredPanes().withEarlyFiringsAtEvery(Duration.standardSeconds(5)))
-        
+
         // Compute the top 10 user-sessions with most number of edits.
         .accumulate(topN, name("TopN")).with("timestampExtractor", new TimestampExtractor());
     }
   }
-  
+
   /**
    * A map function that combine the user and his/her edit session together to a string and use that string as a key
    * with number of edits in that session as value to create a new key value pair to send to downstream.
@@ -293,7 +293,7 @@ public class TopWikipediaSessions implements StreamingApplication
         input.getValue().getValue()));
     }
   }
-  
+
   /**
    * A flapmap function that turns the result into readable format.
    */
@@ -311,7 +311,7 @@ public class TopWikipediaSessions implements StreamingApplication
       return result;
     }
   }
-  
+
   /**
    * A composite transform that compute the top wikipedia sessions.
    */
@@ -327,7 +327,7 @@ public class TopWikipediaSessions implements StreamingApplication
         .addCompositeStreams(new TopPerMonth());
     }
   }
-  
+
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {

@@ -18,11 +18,10 @@
  */
 package com.datatorrent.demos.twitter;
 
+import org.junit.Test;
+import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.contrib.twitter.TwitterSampleInput;
-
-import org.apache.hadoop.conf.Configuration;
-import org.junit.Test;
 
 /**
  * Test the DAG declaration in local mode.
@@ -38,9 +37,9 @@ public class TwitterTopWordsTest
   @Test
   public void testApplication() throws Exception
   {
-	TwitterTopWordsApplication app = new TwitterTopWordsApplication();
-	Configuration conf =new Configuration(false);
-	conf.addResource("dt-site-rollingtopwords.xml");
+    TwitterTopWordsApplication app = new TwitterTopWordsApplication();
+    Configuration conf = new Configuration(false);
+    conf.addResource("dt-site-rollingtopwords.xml");
     LocalMode lma = LocalMode.newInstance();
     lma.prepareDAG(app, conf);
     LocalMode.Controller lc = lma.getController();

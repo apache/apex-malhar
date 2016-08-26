@@ -18,18 +18,6 @@
  */
 package com.datatorrent.demos.machinedata.operator;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-
-import com.datatorrent.demos.machinedata.data.MachineInfo;
-import com.datatorrent.demos.machinedata.data.MachineKey;
-import com.datatorrent.demos.machinedata.data.AverageData;
-import com.datatorrent.lib.util.KeyHashValPair;
-import com.datatorrent.lib.util.KeyValPair;
-
-import com.google.common.collect.Maps;
-
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -37,6 +25,18 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.google.common.collect.Maps;
+
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
+
+import com.datatorrent.demos.machinedata.data.AverageData;
+import com.datatorrent.demos.machinedata.data.MachineInfo;
+import com.datatorrent.demos.machinedata.data.MachineKey;
+import com.datatorrent.lib.util.KeyHashValPair;
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * This class calculates the average for various resources across different devices for a given key
@@ -184,7 +184,7 @@ public class MachineInfoAveragingOperator extends BaseOperator
   {
     StringBuilder sb = new StringBuilder();
     if (key instanceof MachineKey) {
-      MachineKey mkey = (MachineKey) key;
+      MachineKey mkey = (MachineKey)key;
       Integer customer = mkey.getCustomer();
       if (customer != null) {
         sb.append("customer: " + customer + "\n");

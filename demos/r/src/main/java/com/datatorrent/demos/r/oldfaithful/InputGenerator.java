@@ -82,8 +82,9 @@ public class InputGenerator implements InputOperator
   {
     int id;
     do {
-      id = (int) Math.abs(Math.round(random.nextGaussian() * max));
-    } while (id >= max);
+      id = (int)Math.abs(Math.round(random.nextGaussian() * max));
+    }
+    while (id >= max);
 
     if (id < min) {
       id = min;

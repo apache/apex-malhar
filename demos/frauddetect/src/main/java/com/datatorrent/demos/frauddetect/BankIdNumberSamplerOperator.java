@@ -18,22 +18,25 @@
  */
 package com.datatorrent.demos.frauddetect;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.demos.frauddetect.util.JsonUtils;
-import org.apache.commons.lang.mutable.MutableLong;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang.mutable.MutableLong;
+
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.demos.frauddetect.util.JsonUtils;
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Count the transactions for the underlying aggregation window if the same BIN is
@@ -44,19 +47,19 @@ import org.codehaus.jackson.map.ObjectMapper;
  */
 public class BankIdNumberSamplerOperator extends BaseOperator
 {
-  private transient final JsonFactory jsonFactory = new JsonFactory();
-  private transient final ObjectMapper mapper = new ObjectMapper(jsonFactory);
+  private final transient JsonFactory jsonFactory = new JsonFactory();
+  private final transient ObjectMapper mapper = new ObjectMapper(jsonFactory);
   private int threshold;
   private Map<MerchantKey, Map<String, BankIdNumData>> bankIdNumCountMap = new HashMap<MerchantKey, Map<String, BankIdNumData>>();
   private static final String ALERT_MSG =
-          "Potential fraudulent CC transactions (same bank id %s and merchant %s) total transactions: %d";
+      "Potential fraudulent CC transactions (same bank id %s and merchant %s) total transactions: %d";
   /**
    * Output the key-value pair for the BIN as key with the count as value.
    */
   public final transient DefaultOutputPort<String> countAlertOutputPort =
-          new DefaultOutputPort<String>();
+      new DefaultOutputPort<String>();
   public final transient DefaultOutputPort<Map<String, Object>> countAlertNotificationPort =
-          new DefaultOutputPort<Map<String, Object>>();
+      new DefaultOutputPort<Map<String, Object>>();
 
   public int getThreshold()
   {
@@ -103,7 +106,7 @@ public class BankIdNumberSamplerOperator extends BaseOperator
   */
 
   public final transient DefaultInputPort<KeyValPair<KeyValPair<MerchantKey, String>, Integer>> txCountInputPort =
-          new DefaultInputPort<KeyValPair<KeyValPair<MerchantKey, String>, Integer>>()
+      new DefaultInputPort<KeyValPair<KeyValPair<MerchantKey, String>, Integer>>()
   {
     @Override
     public void process(KeyValPair<KeyValPair<MerchantKey, String>, Integer> tuple)
@@ -162,8 +165,7 @@ public class BankIdNumberSamplerOperator extends BaseOperator
           try {
             countAlertOutputPort.emit(JsonUtils.toJson(data));
             countAlertNotificationPort.emit(getOutputData(data));
-          }
-          catch (IOException e) {
+          } catch (IOException e) {
             logger.warn("Exception while converting object to JSON: ", e);
           }
         }
@@ -196,15 +198,14 @@ public class BankIdNumberSamplerOperator extends BaseOperator
     try {
       String str = mapper.writeValueAsString(output);
       logger.debug("user generated tx alert: " + str);
-    }
-    catch (Exception exc) {
+    } catch (Exception exc) {
       //ignore
     }
 
     return output;
   }
 
-  public final static class BankIdNumData
+  public static final class BankIdNumData
   {
     public String bankIdNum;
     public MutableLong count = new MutableLong();

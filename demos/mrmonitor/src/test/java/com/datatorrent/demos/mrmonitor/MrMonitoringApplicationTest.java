@@ -28,9 +28,8 @@ import org.junit.Test;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
-
 import com.datatorrent.api.LocalMode;
+import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
 
 /**
  * <p>MapReduceDebuggerApplicationTest class.</p>
@@ -53,7 +52,7 @@ public class MrMonitoringApplicationTest
     contextHandler.addServlet(sh, "/pubsub");
     contextHandler.addServlet(sh, "/*");
     server.start();
-    Connector connector[] = server.getConnectors();
+    Connector[] connector = server.getConnectors();
     conf.set("dt.attr.GATEWAY_CONNECT_ADDRESS", "localhost:" + connector[0].getLocalPort());
 
     MRMonitoringApplication application = new MRMonitoringApplication();

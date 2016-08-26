@@ -23,13 +23,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.conf.Configuration;
 
 import com.google.common.collect.Maps;
 
@@ -58,7 +59,7 @@ public class WordCountMRApplicationTest
     List<String> readLines = FileUtils.readLines(new File(testMeta.testDir + "/output.txt"));
     Map<String,Integer> readMap = Maps.newHashMap();
     Iterator<String> itr = readLines.iterator();
-    while(itr.hasNext()){
+    while (itr.hasNext()) {
       String[] splits = itr.next().split("=");
       readMap.put(splits[0],Integer.valueOf(splits[1]));
     }

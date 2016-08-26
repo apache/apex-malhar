@@ -94,7 +94,7 @@ public class CombinePerKeyExamples implements StreamingApplication
       return new SampleBean(input.getValue().getKey(), input.getValue().getValue());
     }
   }
-  
+
   /**
    * A reduce function to concat two strings together.
    */
@@ -106,7 +106,7 @@ public class CombinePerKeyExamples implements StreamingApplication
       return input1 + ", " + input2;
     }
   }
-  
+
   /**
    * Reads the public 'Shakespeare' data, and for each word in the dataset
    * over a given length, generates a string containing the list of play names
@@ -114,17 +114,17 @@ public class CombinePerKeyExamples implements StreamingApplication
    */
   private static class PlaysForWord extends CompositeStreamTransform<ApexStream<SampleBean>, WindowedStream<SampleBean>>
   {
-    
+
     @Override
     public WindowedStream<SampleBean> compose(ApexStream<SampleBean> inputStream)
     {
       return inputStream
           // Extract words from the input SampleBeam stream.
           .map(new ExtractLargeWordsFn(), name("ExtractLargeWordsFn"))
-          
+
           // Apply window and trigger option to the streams.
           .window(new WindowOption.GlobalWindow(), new TriggerOption().accumulatingFiredPanes().withEarlyFiringsAtEvery(1))
-        
+
           // Apply reduceByKey transformation to concat the names of all the plays that a word has appeared in together.
           .reduceByKey(new Concat(), new Function.ToKeyValue<KeyValPair<String,String>, String, String>()
           {
@@ -134,13 +134,13 @@ public class CombinePerKeyExamples implements StreamingApplication
               return new Tuple.PlainTuple<KeyValPair<String, String>>(input);
             }
           }, name("Concat"))
-        
+
           // Format the output back to a SampleBeam object.
           .map(new FormatShakespeareOutputFn(), name("FormatShakespeareOutputFn"));
     }
   }
-  
-  
+
+
   /**
    * A Java Beam class that contains information about a word appears in a corpus written by Shakespeare.
    */
@@ -157,13 +157,13 @@ public class CombinePerKeyExamples implements StreamingApplication
       this.word = word;
       this.corpus = corpus;
     }
-  
+
     @Override
     public String toString()
     {
       return this.word + " : "  + this.corpus;
     }
-  
+
     private String word;
 
     private String corpus;
@@ -188,7 +188,7 @@ public class CombinePerKeyExamples implements StreamingApplication
       return corpus;
     }
   }
-  
+
   /**
    * A dummy info generator to generate {@link SampleBean} objects to mimic reading from real 'Shakespeare'
    * data.
@@ -200,19 +200,19 @@ public class CombinePerKeyExamples implements StreamingApplication
     private String[] words = new String[]{"A", "B", "C", "D", "E", "F", "G"};
     private String[] corpuses = new String[]{"1", "2", "3", "4", "5", "6", "7", "8"};
     private static int i;
-  
+
     public static int getI()
     {
       return i;
     }
-  
+
     @Override
     public void setup(Context.OperatorContext context)
     {
       super.setup(context);
       i = 0;
     }
-  
+
     @Override
     public void emitTuples()
     {
@@ -229,20 +229,20 @@ public class CombinePerKeyExamples implements StreamingApplication
         }
         i++;
       }
-    
+
     }
   }
-  
+
   public static class Collector extends BaseOperator
   {
     static List<SampleBean> result;
-  
+
     @Override
     public void setup(Context.OperatorContext context)
     {
       result = new ArrayList<>();
     }
-  
+
     public final transient DefaultInputPort<SampleBean> input = new DefaultInputPort<SampleBean>()
     {
       @Override
@@ -252,7 +252,7 @@ public class CombinePerKeyExamples implements StreamingApplication
       }
     };
   }
-  
+
   /**
    * Populate dag using High-Level API.
    * @param dag
@@ -268,6 +268,6 @@ public class CombinePerKeyExamples implements StreamingApplication
       .print()
       .endWith(collector, collector.input, name("Collector"))
       .populateDag(dag);
-    
+
   }
 }

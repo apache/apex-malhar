@@ -30,7 +30,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
  *
  * @since 0.9.0
  */
-@ApplicationAnnotation(name="LogsCountDemo")
+@ApplicationAnnotation(name = "LogsCountDemo")
 public class LogsCountApplication extends MapReduceApplication<LongWritable, Text, DateWritable, IntWritable>
 {
 

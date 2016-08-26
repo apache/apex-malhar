@@ -18,16 +18,18 @@
  */
 package com.datatorrent.demos.yahoofinance;
 
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.demos.yahoofinance.ApplicationWithDerbySQL;
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.hadoop.conf.Configuration;
+import com.datatorrent.api.LocalMode;
 
 /**
  *
  */
 public class ApplicationWithDerbySQLTest
 {
+  private final transient Logger LOG = LoggerFactory.getLogger(ApplicationWithDerbySQLTest.class);
   public ApplicationWithDerbySQLTest()
   {
   }
@@ -42,7 +44,7 @@ public class ApplicationWithDerbySQLTest
     long start = System.currentTimeMillis();
     lc.run();
     long end = System.currentTimeMillis();
-    long time = end -start;
-    System.out.println("Test used "+time+" ms");
+    long time = end - start;
+    LOG.debug("Test used " + time + " ms");
   }
 }

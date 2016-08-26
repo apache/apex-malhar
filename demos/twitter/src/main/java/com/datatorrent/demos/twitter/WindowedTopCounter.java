@@ -18,22 +18,24 @@
  */
 package com.datatorrent.demos.twitter;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.Context.OperatorContext;
-
-import com.datatorrent.common.util.BaseOperator;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  *
@@ -114,8 +116,7 @@ public class WindowedTopCounter<T> extends BaseOperator
 
       if (holder.totalCount == 0) {
         iterator.remove();
-      }
-      else {
+      } else {
         topCounter.add(holder);
         if (--i == 0) {
           break;
@@ -138,8 +139,7 @@ public class WindowedTopCounter<T> extends BaseOperator
           topCounter.poll();
           topCounter.add(holder);
           smallest = topCounter.peek().totalCount;
-        }
-        else if (holder.totalCount == 0) {
+        } else if (holder.totalCount == 0) {
           iterator.remove();
         }
       }
@@ -149,7 +149,7 @@ public class WindowedTopCounter<T> extends BaseOperator
 
     Iterator<SlidingContainer<T>> topIter = topCounter.iterator();
 
-    while(topIter.hasNext()) {
+    while (topIter.hasNext()) {
       final SlidingContainer<T> wh = topIter.next();
       Map<String, Object> tableRow = Maps.newHashMap();
 
@@ -254,8 +254,7 @@ public class WindowedTopCounter<T> extends BaseOperator
     {
       if (o1.totalCount > o2.totalCount) {
         return 1;
-      }
-      else if (o1.totalCount < o2.totalCount) {
+      } else if (o1.totalCount < o2.totalCount) {
         return -1;
       }
 
@@ -274,8 +273,8 @@ public class WindowedTopCounter<T> extends BaseOperator
     @Override
     public int compare(Map<String, Object> o1, Map<String, Object> o2)
     {
-      Integer count1 = (Integer) o1.get(FIELD_COUNT);
-      Integer count2 = (Integer) o2.get(FIELD_COUNT);
+      Integer count1 = (Integer)o1.get(FIELD_COUNT);
+      Integer count2 = (Integer)o2.get(FIELD_COUNT);
 
       return count1.compareTo(count2);
     }

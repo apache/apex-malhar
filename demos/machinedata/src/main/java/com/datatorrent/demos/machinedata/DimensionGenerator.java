@@ -18,17 +18,12 @@
  */
 package com.datatorrent.demos.machinedata;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.demos.machinedata.data.MachineInfo;
 import com.datatorrent.demos.machinedata.data.MachineKey;
-
-import java.util.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -42,9 +37,10 @@ public class DimensionGenerator extends BaseOperator
 {
   public transient DefaultOutputPort<MachineInfo> outputInline = new DefaultOutputPort<>();
   public transient DefaultOutputPort<MachineInfo> output = new DefaultOutputPort<>();
-  private int threshold=90;
+  private int threshold = 90;
 
-  public final transient DefaultInputPort<MachineInfo> inputPort = new DefaultInputPort<MachineInfo>() {
+  public final transient DefaultInputPort<MachineInfo> inputPort = new DefaultInputPort<MachineInfo>()
+  {
 
     @Override
     public void process(MachineInfo tuple)
@@ -113,9 +109,9 @@ public class DimensionGenerator extends BaseOperator
       int hdd = tuple.getHdd();
       MachineInfo machineInfo = new MachineInfo();
       machineInfo.setMachineKey(machineKey);
-      machineInfo.setCpu((cpu < threshold)?cpu:threshold);
-      machineInfo.setRam((ram < threshold)?ram:threshold);
-      machineInfo.setHdd((hdd < threshold)?hdd:threshold);
+      machineInfo.setCpu((cpu < threshold) ? cpu : threshold);
+      machineInfo.setRam((ram < threshold) ? ram : threshold);
+      machineInfo.setHdd((hdd < threshold) ? hdd : threshold);
       outputInline.emit(machineInfo);
       output.emit(machineInfo);
     }

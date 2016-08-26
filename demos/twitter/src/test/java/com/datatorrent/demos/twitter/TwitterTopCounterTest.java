@@ -18,11 +18,10 @@
  */
 package com.datatorrent.demos.twitter;
 
+import org.junit.Test;
+import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.contrib.twitter.TwitterSampleInput;
-import com.datatorrent.demos.twitter.TwitterTopCounterApplication;
-import org.apache.hadoop.conf.Configuration;
-import org.junit.Test;
 
 /**
  * Test the DAG declaration in local mode.

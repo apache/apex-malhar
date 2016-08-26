@@ -48,8 +48,8 @@ public class DistributedDistinctTest
 {
   private static final Logger logger = LoggerFactory.getLogger(DistributedDistinctTest.class);
 
-  private final static String APP_ID = "DistributedDistinctTest";
-  private final static int OPERATOR_ID = 0;
+  private static final String APP_ID = "DistributedDistinctTest";
+  private static final int OPERATOR_ID = 0;
 
   public static final String INMEM_DB_URL = "jdbc:hsqldb:mem:test;sql.syntax_mys=true";
   public static final String INMEM_DB_DRIVER = "org.hsqldb.jdbc.JDBCDriver";

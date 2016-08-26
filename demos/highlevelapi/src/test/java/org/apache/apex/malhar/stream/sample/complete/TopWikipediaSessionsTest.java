@@ -41,7 +41,7 @@ public class TopWikipediaSessionsTest
     Configuration conf = new Configuration(false);
     lma.prepareDAG(new TopWikipediaSessions(), conf);
     LocalMode.Controller lc = lma.getController();
-    
+
     ((StramLocalCluster)lc).setExitCondition(new Callable<Boolean>()
     {
       @Override
@@ -50,14 +50,14 @@ public class TopWikipediaSessionsTest
         return TopWikipediaSessions.SessionGen.getTupleCount() >= 250;
       }
     });
-    
+
     lc.run(30000);
-    
+
     for (int i = 0; i < TopWikipediaSessions.Collector.getResult().size(); i++) {
       Assert.assertTrue(isInOrder(TopWikipediaSessions.Collector.getResult().get(i)));
     }
   }
-  
+
   public boolean isInOrder(List<TopWikipediaSessions.TempWrapper> input)
   {
     if (input.size() == 0 || input.size() == 1) {

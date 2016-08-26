@@ -305,25 +305,29 @@ public class MachineKey
     if (!(obj instanceof MachineKey)) {
       return false;
     }
-    MachineKey mkey = (MachineKey) obj;
+    MachineKey mkey = (MachineKey)obj;
     return checkStringEqual(this.timeKey, mkey.timeKey) && checkStringEqual(this.day, mkey.day) && checkIntEqual(this.customer, mkey.customer) && checkIntEqual(this.product, mkey.product) && checkIntEqual(this.os, mkey.os) && checkIntEqual(this.software1, mkey.software1) && checkIntEqual(this.software2, mkey.software2) && checkIntEqual(this.software3, mkey.software3) && checkIntEqual(this.deviceId, mkey.deviceId);
   }
 
   private boolean checkIntEqual(Integer a, Integer b)
   {
-    if ((a == null) && (b == null))
+    if ((a == null) && (b == null)) {
       return true;
-    if ((a != null) && a.equals(b))
+    }
+    if ((a != null) && a.equals(b)) {
       return true;
+    }
     return false;
   }
 
   private boolean checkStringEqual(String a, String b)
   {
-    if ((a == null) && (b == null))
+    if ((a == null) && (b == null)) {
       return true;
-    if ((a != null) && a.equals(b))
+    }
+    if ((a != null) && a.equals(b)) {
       return true;
+    }
     return false;
   }
 
@@ -331,20 +335,27 @@ public class MachineKey
   public String toString()
   {
     StringBuilder sb = new StringBuilder(timeKey);
-    if (customer != null)
+    if (customer != null) {
       sb.append("|0:").append(customer);
-    if (product != null)
+    }
+    if (product != null) {
       sb.append("|1:").append(product);
-    if (os != null)
+    }
+    if (os != null) {
       sb.append("|2:").append(os);
-    if (software1 != null)
+    }
+    if (software1 != null) {
       sb.append("|3:").append(software1);
-    if (software2 != null)
+    }
+    if (software2 != null) {
       sb.append("|4:").append(software2);
-    if (software3 != null)
+    }
+    if (software3 != null) {
       sb.append("|5:").append(software3);
-    if (deviceId != null)
+    }
+    if (deviceId != null) {
       sb.append("|6:").append(deviceId);
+    }
     return sb.toString();
   }
 

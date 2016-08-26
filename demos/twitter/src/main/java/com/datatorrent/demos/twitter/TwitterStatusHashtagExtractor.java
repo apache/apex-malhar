@@ -18,12 +18,12 @@
  */
 package com.datatorrent.demos.twitter;
 
-import twitter4j.HashtagEntity;
-import twitter4j.Status;
-
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
+
+import twitter4j.HashtagEntity;
+import twitter4j.Status;
 
 /**
  * <p>TwitterStatusHashtagExtractor class.</p>

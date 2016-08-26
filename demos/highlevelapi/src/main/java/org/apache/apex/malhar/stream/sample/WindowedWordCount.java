@@ -57,7 +57,7 @@ import static org.apache.apex.malhar.stream.api.Option.Options.name;
 public class WindowedWordCount implements StreamingApplication
 {
   static final int WINDOW_SIZE = 1;  // Default window duration in minutes
-  
+
   /**
    * A input operator that reads from and output a file line by line to downstream with a time gap between
    * every two lines.
@@ -65,23 +65,23 @@ public class WindowedWordCount implements StreamingApplication
   public static class TextInput extends BaseOperator implements InputOperator
   {
     private static boolean done = false;
-    
+
     public final transient DefaultOutputPort<String> output = new DefaultOutputPort<>();
-    
+
     private transient BufferedReader reader;
-  
+
     public static boolean isDone()
     {
       return done;
     }
-  
+
     @Override
     public void setup(Context.OperatorContext context)
     {
       done = false;
       initReader();
     }
-    
+
     private void initReader()
     {
       try {
@@ -91,13 +91,13 @@ public class WindowedWordCount implements StreamingApplication
         throw Throwables.propagate(ex);
       }
     }
-    
+
     @Override
     public void teardown()
     {
       IOUtils.closeQuietly(reader);
     }
-    
+
     @Override
     public void emitTuples()
     {
@@ -118,16 +118,16 @@ public class WindowedWordCount implements StreamingApplication
       }
     }
   }
-  
+
   public static class Collector extends BaseOperator
   {
     private static Map<KeyValPair<Long, String>, Long> result = new HashMap<>();
-  
+
     public static Map<KeyValPair<Long, String>, Long> getResult()
     {
       return result;
     }
-  
+
     public final transient DefaultInputPort<PojoEvent> input = new DefaultInputPort<PojoEvent>()
     {
       @Override
@@ -137,7 +137,7 @@ public class WindowedWordCount implements StreamingApplication
       }
     };
   }
-  
+
   /**
    * A Pojo Tuple class used for outputting result to JDBC.
    */
@@ -146,44 +146,44 @@ public class WindowedWordCount implements StreamingApplication
     private String word;
     private long count;
     private long timestamp;
-  
+
     @Override
     public String toString()
     {
       return "PojoEvent (word=" + getWord() + ", count=" + getCount() + ", timestamp=" + getTimestamp() + ")";
     }
-  
+
     public String getWord()
     {
       return word;
     }
-  
+
     public void setWord(String word)
     {
       this.word = word;
     }
-  
+
     public long getCount()
     {
       return count;
     }
-  
+
     public void setCount(long count)
     {
       this.count = count;
     }
-  
+
     public long getTimestamp()
     {
       return timestamp;
     }
-  
+
     public void setTimestamp(long timestamp)
     {
       this.timestamp = timestamp;
     }
   }
-  
+
   /**
    * A map function that wrap the input string with a random generated timestamp.
    */
@@ -191,12 +191,12 @@ public class WindowedWordCount implements StreamingApplication
   {
     private static final Duration RAND_RANGE = Duration.standardMinutes(10);
     private final Long minTimestamp;
-    
+
     AddTimestampFn()
     {
       this.minTimestamp = System.currentTimeMillis();
     }
-    
+
     @Override
     public Tuple.TimestampedTuple<String> f(String input)
     {
@@ -207,7 +207,7 @@ public class WindowedWordCount implements StreamingApplication
       return new Tuple.TimestampedTuple<>(randomTimestamp, input);
     }
   }
-  
+
   /** A MapFunction that converts a Word and Count into a PojoEvent. */
   public static class FormatAsTableRowFn implements Function.MapFunction<Tuple.WindowedTuple<KeyValPair<String, Long>>, PojoEvent>
   {
@@ -221,7 +221,7 @@ public class WindowedWordCount implements StreamingApplication
       return row;
     }
   }
-  
+
   /**
    * Populate dag with High-Level API.
    * @param dag
@@ -232,10 +232,10 @@ public class WindowedWordCount implements StreamingApplication
   {
     TextInput input = new TextInput();
     Collector collector = new Collector();
-    
+
     // Create stream from the TextInput operator.
     ApexStream<Tuple.TimestampedTuple<String>> stream = StreamFactory.fromInput(input, input.output, name("input"))
-      
+
         // Extract all the words from the input line of text.
         .flatMap(new Function.FlatMapFunction<String, String>()
         {
@@ -245,18 +245,18 @@ public class WindowedWordCount implements StreamingApplication
             return Arrays.asList(input.split("[\\p{Punct}\\s]+"));
           }
         }, name("ExtractWords"))
-      
+
         // Wrap the word with a randomly generated timestamp.
         .map(new AddTimestampFn(), name("AddTimestampFn"));
-    
-   
+
+
     // apply window and trigger option.
     // TODO: change trigger option to atWaterMark when available.
     WindowedStream<Tuple.TimestampedTuple<String>> windowedWords = stream
         .window(new WindowOption.TimeWindows(Duration.standardMinutes(WINDOW_SIZE)),
         new TriggerOption().accumulatingFiredPanes().withEarlyFiringsAtEvery(1));
-    
-    
+
+
     WindowedStream<PojoEvent> wordCounts =
         // Perform a countByKey transformation to count the appearance of each word in every time window.
         windowedWords.countByKey(new Function.ToKeyValue<Tuple.TimestampedTuple<String>, String, Long>()
@@ -268,10 +268,10 @@ public class WindowedWordCount implements StreamingApplication
               new KeyValPair<String, Long>(input.getValue(), 1L));
           }
         }, name("count words"))
-          
+
         // Format the output and print out the result.
         .map(new FormatAsTableRowFn(), name("FormatAsTableRowFn")).print();
-    
+
     wordCounts.endWith(collector, collector.input, name("Collector")).populateDag(dag);
   }
 }

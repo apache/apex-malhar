@@ -189,7 +189,7 @@ public class TriggerExample
       // At 11:03:00 (processing time) the system watermark may have advanced to 10:54:00. As a
       // result, when the data record with event time 10:05:00 arrives at 11:03:00, it is considered
       // late, and dropped.
-  
+
       WindowedStream<SampleBean> defaultTriggerResults = inputStream
           .window(new WindowOption.TimeWindows(Duration.standardMinutes(windowDuration)),
           new TriggerOption().discardingFiredPanes())
@@ -306,7 +306,7 @@ public class TriggerExample
     @Override
     public WindowedStream<SampleBean> compose(WindowedStream<String> inputStream)
     {
-  
+
       WindowedStream<KeyValPair<String, Iterable<Integer>>> flowPerFreeway = inputStream
           .groupByKey(new ExtractFlowInfo());
 

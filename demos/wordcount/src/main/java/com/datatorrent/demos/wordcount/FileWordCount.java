@@ -28,11 +28,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.common.util.BaseOperator;
 
 /**
@@ -169,14 +169,14 @@ public class FileWordCount extends BaseOperator
    * Output port for current file output
    */
   public final transient DefaultOutputPort<List<Map<String, Object>>>
-    outputPerFile = new DefaultOutputPort<>();
+      outputPerFile = new DefaultOutputPort<>();
 
   /**
    * Output port for global output
    */
   @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<List<Map<String, Object>>>
-    outputGlobal = new DefaultOutputPort<>();
+      outputGlobal = new DefaultOutputPort<>();
 
   /**
    * Tuple is singleton map {@code fileName => TopNMap} where {@code TopNMap} is the final
@@ -184,12 +184,13 @@ public class FileWordCount extends BaseOperator
    * {@code endWindow()} call after an EOF
    */
   public final transient DefaultOutputPort<Map<String, Object>>
-    fileOutput = new DefaultOutputPort<>();
+      fileOutput = new DefaultOutputPort<>();
 
   /**
    * Get the number of top (word, frequency) pairs that will be output
    */
-  public int getTopN() {
+  public int getTopN()
+  {
     return topN;
   }
 
@@ -197,7 +198,8 @@ public class FileWordCount extends BaseOperator
    * Set the number of top (word, frequency) pairs that will be output
    * @param n The new number
    */
-  public void setTopN(int n) {
+  public void setTopN(int n)
+  {
     topN = n;
   }
 
@@ -250,8 +252,7 @@ public class FileWordCount extends BaseOperator
       return;
     }
 
-    LOG.info("FileWordCount: endWindow for {}, wordMapFile.size = {}, topN = {}",
-             fileName, wordMapFile.size(), topN);
+    LOG.info("FileWordCount: endWindow for {}, wordMapFile.size = {}, topN = {}", fileName, wordMapFile.size(), topN);
 
     // get topN list for this file and, if we have EOF, emit to fileOutput port
 
@@ -293,13 +294,15 @@ public class FileWordCount extends BaseOperator
     final ArrayList<WCPair> list = new ArrayList<>(map.values());
 
     // sort entries in descending order of frequency
-    Collections.sort(list, new Comparator<WCPair>() {
-        @Override
-        public int compare(WCPair o1, WCPair o2) {
-          return (int)(o2.freq - o1.freq);
-        }
+    Collections.sort(list, new Comparator<WCPair>()
+    {
+      @Override
+      public int compare(WCPair o1, WCPair o2)
+      {
+        return (int)(o2.freq - o1.freq);
+      }
     });
-  
+
     if (topN > 0) {
       list.subList(topN, map.size()).clear();      // retain only the first topN entries
     }
@@ -329,13 +332,15 @@ public class FileWordCount extends BaseOperator
     fileFinalList.addAll(map.values());
 
     // sort entries in descending order of frequency
-    Collections.sort(fileFinalList, new Comparator<WCPair>() {
-        @Override
-        public int compare(WCPair o1, WCPair o2) {
-          return (int)(o2.freq - o1.freq);
-        }
+    Collections.sort(fileFinalList, new Comparator<WCPair>()
+    {
+      @Override
+      public int compare(WCPair o1, WCPair o2)
+      {
+        return (int)(o2.freq - o1.freq);
+      }
     });
-  
+
     if (topN > 0) {
       fileFinalList.subList(topN, map.size()).clear();      // retain only the first topN entries
     }

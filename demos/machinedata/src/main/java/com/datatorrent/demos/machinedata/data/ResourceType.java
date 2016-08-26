@@ -18,9 +18,9 @@
  */
 package com.datatorrent.demos.machinedata.data;
 
-import com.google.common.collect.Maps;
-
 import java.util.Map;
+
+import com.google.common.collect.Maps;
 
 /**
  * This class captures the resources whose usage is collected for each device
@@ -28,35 +28,39 @@ import java.util.Map;
  *
  * @since 0.3.5
  */
-public enum ResourceType {
+public enum ResourceType
+{
 
-    CPU("cpu"), RAM("ram"), HDD("hdd");
+  CPU("cpu"), RAM("ram"), HDD("hdd");
 
-    private static Map<String, ResourceType> descToResource = Maps.newHashMap();
+  private static Map<String, ResourceType> descToResource = Maps.newHashMap();
 
-    static {
-        for (ResourceType type : ResourceType.values()) {
-            descToResource.put(type.desc, type);
-        }
+  static {
+    for (ResourceType type : ResourceType.values()) {
+      descToResource.put(type.desc, type);
     }
+  }
 
-    private String desc;
+  private String desc;
 
-    private ResourceType(String desc) {
-        this.desc = desc;
-    }
+  private ResourceType(String desc)
+  {
+    this.desc = desc;
+  }
 
-    @Override
-    public String toString() {
-        return desc;
-    }
+  @Override
+  public String toString()
+  {
+    return desc;
+  }
 
-    /**
-     * This method returns ResourceType for the given description
-     * @param desc the description
-     * @return
-     */
-    public static ResourceType getResourceTypeOf(String desc) {
-        return descToResource.get(desc);
-    }
+  /**
+   * This method returns ResourceType for the given description
+   * @param desc the description
+   * @return
+   */
+  public static ResourceType getResourceTypeOf(String desc)
+  {
+    return descToResource.get(desc);
+  }
 }

@@ -23,9 +23,9 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * @since 2.1.0
@@ -40,7 +40,7 @@ public class MessageResponder extends BaseOperator
   private transient NetworkManager.ChannelAction<DatagramChannel> action;
   private transient ByteBuffer buffer;
 
-  public transient final DefaultInputPort<Message> messageInput = new DefaultInputPort<Message>()
+  public final transient DefaultInputPort<Message> messageInput = new DefaultInputPort<Message>()
   {
     @Override
     public void process(Message message)

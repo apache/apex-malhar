@@ -21,7 +21,6 @@ package com.datatorrent.demos.distributeddistinct;
 import org.junit.Test;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.demos.distributeddistinct.Application;
 
 public class ApplicationTest
 {

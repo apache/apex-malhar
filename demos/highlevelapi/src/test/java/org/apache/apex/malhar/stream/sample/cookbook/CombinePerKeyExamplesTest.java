@@ -35,11 +35,11 @@ public class CombinePerKeyExamplesTest
   {
     LocalMode lma = LocalMode.newInstance();
     Configuration conf = new Configuration(false);
-  
+
     CombinePerKeyExamples app = new CombinePerKeyExamples();
-      
+
     lma.prepareDAG(app, conf);
-    
+
     LocalMode.Controller lc = lma.getController();
     ((StramLocalCluster)lc).setExitCondition(new Callable<Boolean>()
     {
@@ -50,7 +50,7 @@ public class CombinePerKeyExamplesTest
       }
     });
     lc.run(100000);
-  
+
     Assert.assertTrue(CombinePerKeyExamples.Collector.result.get(CombinePerKeyExamples.Collector.result.size() - 1).getCorpus().contains("1, 2, 3, 4, 5, 6, 7, 8"));
   }
 }

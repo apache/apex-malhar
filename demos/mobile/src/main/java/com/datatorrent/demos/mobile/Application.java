@@ -18,6 +18,18 @@
  */
 package com.datatorrent.demos.mobile;
 
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Random;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang.mutable.MutableLong;
+import org.apache.commons.lang3.Range;
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StatsListener;
@@ -28,16 +40,6 @@ import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.lib.partitioner.StatelessThroughputBasedPartitioner;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
-import org.apache.commons.lang.mutable.MutableLong;
-import org.apache.commons.lang3.Range;
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.net.URI;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Random;
 
 /**
  * Mobile Demo Application:

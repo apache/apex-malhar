@@ -18,21 +18,22 @@
  */
 package com.datatorrent.demos.machinedata;
 
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
+import com.datatorrent.contrib.redis.RedisKeyValPairOutputOperator;
 import com.datatorrent.demos.machinedata.data.MachineKey;
 import com.datatorrent.demos.machinedata.operator.MachineInfoAveragingOperator;
 import com.datatorrent.demos.machinedata.operator.MachineInfoAveragingPrerequisitesOperator;
-import com.datatorrent.contrib.redis.RedisKeyValPairOutputOperator;
 import com.datatorrent.lib.io.SmtpOutputOperator;
-
-import java.util.Map;
-
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>

@@ -23,8 +23,8 @@ package com.datatorrent.demos.wordcount;
  *
  * @since 3.2.0
  */
-public class WCPair {
-
+public class WCPair
+{
   /**
    * The word
    */
@@ -38,20 +38,25 @@ public class WCPair {
   /**
    * Default constructor
    */
-  public WCPair() {}
+  public WCPair()
+  {
+
+  }
 
   /**
    * Create new object with given values
    * @param w The word
    * @param f The frequency
    */
-  public WCPair(String w, int f) {
+  public WCPair(String w, int f)
+  {
     word = w;
     freq = f;
   }
-  
+
   @Override
-  public String toString() {
+  public String toString()
+  {
     return String.format("(%s, %d)", word, freq);
   }
 }

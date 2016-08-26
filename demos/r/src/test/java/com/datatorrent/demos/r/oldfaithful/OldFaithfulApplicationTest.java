@@ -29,7 +29,7 @@ import com.datatorrent.api.LocalMode;
 
 public class OldFaithfulApplicationTest
 {
-  
+
   private static final Logger LOG = LoggerFactory.getLogger(OldFaithfulApplicationTest.class);
 
   @Test

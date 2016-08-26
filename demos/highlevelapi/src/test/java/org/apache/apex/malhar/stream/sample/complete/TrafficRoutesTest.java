@@ -43,7 +43,7 @@ public class TrafficRoutesTest
     Configuration conf = new Configuration(false);
     lma.prepareDAG(new TrafficRoutes(), conf);
     LocalMode.Controller lc = lma.getController();
-    
+
     ((StramLocalCluster)lc).setExitCondition(new Callable<Boolean>()
     {
       @Override
@@ -52,9 +52,9 @@ public class TrafficRoutesTest
         return TrafficRoutes.InfoGen.getTupleCount() >= 100;
       }
     });
-    
+
     lc.run(60000);
-    
+
     Assert.assertTrue(!TrafficRoutes.Collector.getResult().isEmpty());
     for (Map.Entry<KeyValPair<Long, String>, KeyValPair<Double, Boolean>> entry : TrafficRoutes.Collector.getResult().entrySet()) {
       Assert.assertTrue(entry.getValue().getKey() <= 75);
@@ -62,5 +62,5 @@ public class TrafficRoutesTest
       Assert.assertTrue(entry.getKey().getValue().equals("SDRoute1") || entry.getKey().getValue().equals("SDRoute2"));
     }
   }
-  
+
 }

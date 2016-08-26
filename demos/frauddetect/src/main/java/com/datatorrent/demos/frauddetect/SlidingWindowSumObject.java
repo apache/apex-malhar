@@ -33,12 +33,14 @@ public class SlidingWindowSumObject extends SimpleMovingAverageObject
 
   MutableDouble sum = new MutableDouble(0);
 
-  public void add(Number n) {
+  public void add(Number n)
+  {
     sum.add(n);
   }
 
   @Override
-  public double getSum() {
+  public double getSum()
+  {
     return sum.doubleValue();
   }
 

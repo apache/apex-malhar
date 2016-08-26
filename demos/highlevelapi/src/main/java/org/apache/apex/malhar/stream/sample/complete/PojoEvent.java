@@ -24,18 +24,18 @@ package org.apache.apex.malhar.stream.sample.complete;
 public class PojoEvent extends Object
 {
   private String stringValue;
-  
+
   @Override
   public String toString()
   {
     return "PojoEvent [stringValue=" + getStringValue() + "]";
   }
-  
+
   public void setStringValue(String newString)
   {
     this.stringValue = newString;
   }
-  
+
   public String getStringValue()
   {
     return this.stringValue;

@@ -32,7 +32,7 @@ public class SlidingContainer<T> implements Serializable
   T identifier;
   int totalCount;
   int position;
-  int windowedCount[];
+  int[] windowedCount;
 
   @SuppressWarnings("unused")
   private SlidingContainer()

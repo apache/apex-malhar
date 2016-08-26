@@ -79,12 +79,12 @@ public class AutoComplete implements StreamingApplication
     public final transient DefaultOutputPort<String> output = new DefaultOutputPort<>();
 
     private transient BufferedReader reader;
-  
+
     public static boolean isDone()
     {
       return done;
     }
-  
+
     @Override
     public void setup(OperatorContext context)
     {
@@ -128,16 +128,16 @@ public class AutoComplete implements StreamingApplication
       }
     }
   }
-  
+
   public static class Collector extends BaseOperator
   {
     private static Map<String, List<CompletionCandidate>> result = new HashMap<>();
-  
+
     public static Map<String, List<CompletionCandidate>> getResult()
     {
       return result;
     }
-  
+
     public final transient DefaultInputPort<Tuple.WindowedTuple<KeyValPair<String, List<CompletionCandidate>>>> input = new DefaultInputPort<Tuple.WindowedTuple<KeyValPair<String, List<CompletionCandidate>>>>()
     {
       @Override
@@ -193,7 +193,7 @@ public class AutoComplete implements StreamingApplication
           @Override
           public Tuple<KeyValPair<String, CompletionCandidate>> f(KeyValPair<String, CompletionCandidate> tuple)
           {
-            // TODO: Should be removed after Auto-wrapping is supported. 
+            // TODO: Should be removed after Auto-wrapping is supported.
             return new Tuple.WindowedTuple<>(Window.GLOBAL_WINDOW, tuple);
           }
         });
@@ -271,7 +271,8 @@ public class AutoComplete implements StreamingApplication
             {
               return new Tuple.PlainTuple<>(new KeyValPair<>(input, 1L));
             }
-          }, name("countByKey")).map(new Function.MapFunction<Tuple.WindowedTuple<KeyValPair<String,Long>>, CompletionCandidate>()
+          }, name("countByKey"))
+          .map(new Function.MapFunction<Tuple.WindowedTuple<KeyValPair<String,Long>>, CompletionCandidate>()
           {
             @Override
             public CompletionCandidate f(Tuple.WindowedTuple<KeyValPair<String, Long>> input)
@@ -300,7 +301,7 @@ public class AutoComplete implements StreamingApplication
 
     ApexStream<String> tags = StreamFactory.fromInput(input, input.output, name("tweetSampler"))
         .flatMap(new ExtractHashtags());
-    
+
     tags.window(windowOption, new TriggerOption().accumulatingFiredPanes().withEarlyFiringsAtEvery(1))
         .addCompositeStreams(ComputeTopCompletions.top(10, true)).endWith(collector, collector.input, name("collector"))
         .populateDag(dag);

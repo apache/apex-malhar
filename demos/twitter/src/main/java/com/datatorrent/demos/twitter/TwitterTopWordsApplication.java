@@ -18,6 +18,7 @@
  */
 package com.datatorrent.demos.twitter;
 
+import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
@@ -25,9 +26,6 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.twitter.TwitterSampleInput;
 import com.datatorrent.lib.algo.UniqueCounter;
-import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.conf.Configuration;
-
 
 /**
  * This application is same as other twitter demo
@@ -43,7 +41,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name=TwitterTopWordsApplication.APP_NAME)
+@ApplicationAnnotation(name = TwitterTopWordsApplication.APP_NAME)
 public class TwitterTopWordsApplication implements StreamingApplication
 {
   public static final String SNAPSHOT_SCHEMA = "twitterWordDataSchema.json";

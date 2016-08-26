@@ -21,8 +21,8 @@ package com.datatorrent.demos.machinedata.operator;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
 
 import com.datatorrent.demos.machinedata.data.AverageData;
@@ -80,8 +80,7 @@ public class MachineInfoAveragingUnifier implements Unifier<KeyHashValPair<Machi
     AverageData tupleValue = arg0.getValue();
     if (averageData == null) {
       sums.put(tupleKey, tupleValue);
-    }
-    else {
+    } else {
       averageData.setCpu(averageData.getCpu() + tupleValue.getCpu());
       averageData.setRam(averageData.getRam() + tupleValue.getRam());
       averageData.setHdd(averageData.getHdd() + tupleValue.getHdd());

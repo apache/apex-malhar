@@ -23,13 +23,13 @@ import java.nio.ByteBuffer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Put;
 
-import com.datatorrent.contrib.hbase.AbstractHBasePutOutputOperator;
-import com.datatorrent.contrib.twitter.TwitterSampleInput;
-
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+
+import com.datatorrent.contrib.hbase.AbstractHBasePutOutputOperator;
+import com.datatorrent.contrib.twitter.TwitterSampleInput;
 
 import twitter4j.Status;
 
@@ -47,7 +47,7 @@ import twitter4j.Status;
  *
  * @since 1.0.2
  */
-@ApplicationAnnotation(name="TwitterDumpHBaseDemo")
+@ApplicationAnnotation(name = "TwitterDumpHBaseDemo")
 public class TwitterDumpHBaseApplication implements StreamingApplication
 {
 

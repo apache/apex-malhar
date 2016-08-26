@@ -27,7 +27,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 /**
  * @since 2.1.0
  */
-@ApplicationAnnotation(name="EchoServer")
+@ApplicationAnnotation(name = "EchoServer")
 public class Application implements StreamingApplication
 {
 

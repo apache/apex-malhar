@@ -37,11 +37,11 @@ public class MinimalWordCountTest
   {
     LocalMode lma = LocalMode.newInstance();
     Configuration conf = new Configuration(false);
-  
+
     MinimalWordCount app = new MinimalWordCount();
 
     lma.prepareDAG(app, conf);
- 
+
     LocalMode.Controller lc = lma.getController();
     ((StramLocalCluster)lc).setExitCondition(new Callable<Boolean>()
     {
@@ -51,9 +51,9 @@ public class MinimalWordCountTest
         return MinimalWordCount.Collector.isDone();
       }
     });
-    
+
     lc.run(10000);
-  
+
     Assert.assertTrue(MinimalWordCount.Collector.result.get("error") == 7);
     Assert.assertTrue(MinimalWordCount.Collector.result.get("word") == 119);
     Assert.assertTrue(MinimalWordCount.Collector.result.get("bye") == 1);

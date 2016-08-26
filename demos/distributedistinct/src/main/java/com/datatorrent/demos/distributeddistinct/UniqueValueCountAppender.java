@@ -29,19 +29,18 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.validation.constraints.Min;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.algo.UniqueValueCount;
-import com.datatorrent.lib.algo.UniqueValueCount.InternalCountOutput;
-import com.datatorrent.lib.db.jdbc.JDBCLookupCacheBackedOperator;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
+import com.datatorrent.lib.algo.UniqueValueCount;
+import com.datatorrent.lib.algo.UniqueValueCount.InternalCountOutput;
+import com.datatorrent.lib.db.jdbc.JDBCLookupCacheBackedOperator;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
@@ -106,8 +105,7 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
           deleteStatement.executeUpdate();
         }
       }
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException(e);
     }
   }
@@ -118,7 +116,7 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
 
     Object key = getKeyFromTuple(tuple);
     @SuppressWarnings("unchecked")
-    Set<Object> values = (Set<Object>) cacheManager.get(key);
+    Set<Object> values = (Set<Object>)cacheManager.get(key);
     if (values == null) {
       values = Sets.newHashSet();
     }
@@ -154,8 +152,7 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
         putStatement.executeBatch();
         putStatement.clearBatch();
       }
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException("while executing insert", e);
     }
   }
@@ -210,8 +207,7 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
         UniqueValueCountAppender<V> statefulUniqueCount = this.getClass().newInstance();
         DefaultPartition<UniqueValueCountAppender<V>> partition = new DefaultPartition<UniqueValueCountAppender<V>>(statefulUniqueCount);
         newPartitions.add(partition);
-      }
-      catch (Throwable cause) {
+      } catch (Throwable cause) {
         DTThrowable.rethrow(cause);
       }
     }

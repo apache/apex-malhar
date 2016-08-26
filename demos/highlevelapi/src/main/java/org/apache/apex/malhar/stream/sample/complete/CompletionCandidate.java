@@ -45,7 +45,7 @@ public class CompletionCandidate implements Comparable<CompletionCandidate>
   // Empty constructor required for Kryo.
   public CompletionCandidate()
   {
-    
+
   }
 
   @Override

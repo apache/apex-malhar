@@ -54,10 +54,10 @@ public class StreamingWordExtractTest
   {
     try {
       Class.forName(DB_DRIVER).newInstance();
-      
+
       Connection con = DriverManager.getConnection(DB_URL,USER_NAME,PSW);
       Statement stmt = con.createStatement();
-      
+
       String createMetaTable = "CREATE TABLE IF NOT EXISTS " + JdbcTransactionalStore.DEFAULT_META_TABLE + " ( "
           + JdbcTransactionalStore.DEFAULT_APP_ID_COL + " VARCHAR(100) NOT NULL, "
           + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT NOT NULL, "
@@ -66,16 +66,16 @@ public class StreamingWordExtractTest
           + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + ", " + JdbcTransactionalStore.DEFAULT_WINDOW_COL + ") "
           + ")";
       stmt.executeUpdate(createMetaTable);
-      
+
       String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME
           + "(STRINGVALUE VARCHAR(255))";
       stmt.executeUpdate(createTable);
-      
+
     } catch (Throwable e) {
       throw Throwables.propagate(e);
     }
   }
-  
+
   @After
   public void cleanTable()
   {
@@ -88,7 +88,7 @@ public class StreamingWordExtractTest
       throw new RuntimeException(e);
     }
   }
-  
+
   public void setConfig(Configuration conf)
   {
     conf.set("dt.operator.jdbcOutput.prop.store.userName", USER_NAME);
@@ -99,14 +99,14 @@ public class StreamingWordExtractTest
     conf.set("dt.operator.jdbcOutput.prop.store.databaseUrl", DB_URL);
     conf.set("dt.operator.jdbcOutput.prop.tablename", TABLE_NAME);
   }
-  
+
   public int getNumOfEventsInStore()
   {
     Connection con;
     try {
       con = DriverManager.getConnection(DB_URL,USER_NAME,PSW);
       Statement stmt = con.createStatement();
-      
+
       String countQuery = "SELECT count(*) from " + TABLE_NAME;
       ResultSet resultSet = stmt.executeQuery(countQuery);
       resultSet.next();
@@ -115,7 +115,7 @@ public class StreamingWordExtractTest
       throw new RuntimeException("fetching count", e);
     }
   }
-  
+
   @Test
   public void StreamingWordExtractTest() throws Exception
   {
@@ -125,7 +125,7 @@ public class StreamingWordExtractTest
     StreamingWordExtract app = new StreamingWordExtract();
     lma.prepareDAG(app, conf);
     LocalMode.Controller lc = lma.getController();
-    
+
     ((StramLocalCluster)lc).setExitCondition(new Callable<Boolean>()
     {
       @Override
@@ -134,11 +134,11 @@ public class StreamingWordExtractTest
         return getNumOfEventsInStore() == 36;
       }
     });
-    
+
     lc.run(10000);
-  
+
     Assert.assertEquals(app.getWordCount(), getNumOfEventsInStore());
     Assert.assertEquals(app.getEntriesMapped(), getNumOfEventsInStore());
   }
-  
+
 }

@@ -56,16 +56,16 @@ public class WindowedWordCountTest
         return WindowedWordCount.TextInput.isDone();
       }
     });
-    
+
     lc.run(60000);
-    
+
     Assert.assertEquals(127, countSum(WindowedWordCount.Collector.getResult()));
     Assert.assertEquals(28, countSumWord(WindowedWordCount.Collector.getResult(), "word2"));
     Assert.assertEquals(7, countSumWord(WindowedWordCount.Collector.getResult(), "error"));
     Assert.assertEquals(21, countSumWord(WindowedWordCount.Collector.getResult(), "word9"));
     Assert.assertEquals(1, countSumWord(WindowedWordCount.Collector.getResult(), "bye"));
   }
-  
+
   public long countSum(Map<KeyValPair<Long, String>, Long> map)
   {
     long sum = 0;
@@ -74,7 +74,7 @@ public class WindowedWordCountTest
     }
     return sum;
   }
-  
+
   public long countSumWord(Map<KeyValPair<Long, String>, Long> map, String word)
   {
     long sum = 0;
@@ -85,6 +85,6 @@ public class WindowedWordCountTest
     }
     return sum;
   }
-  
+
 }
 

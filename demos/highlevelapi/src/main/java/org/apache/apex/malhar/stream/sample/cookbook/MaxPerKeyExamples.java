@@ -55,7 +55,7 @@ import static org.apache.apex.malhar.stream.api.Option.Options.name;
 @ApplicationAnnotation(name = "MaxPerKeyExamples")
 public class MaxPerKeyExamples implements StreamingApplication
 {
-  
+
   /**
    *  A map function to extract the mean temperature from {@link InputPojo}.
    */
@@ -69,8 +69,8 @@ public class MaxPerKeyExamples implements StreamingApplication
       return new KeyValPair<Integer, Double>(month, meanTemp);
     }
   }
-  
-  
+
+
   /**
    * A map function to format output to {@link OutputPojo}.
    */
@@ -85,7 +85,7 @@ public class MaxPerKeyExamples implements StreamingApplication
       return row;
     }
   }
-  
+
   /**
    * A composite transformation to perform three tasks:
    * 1. extract the month and its mean temperature from input pojo.
@@ -99,7 +99,7 @@ public class MaxPerKeyExamples implements StreamingApplication
     {
       // InputPojo... => <month, meanTemp> ...
       WindowedStream<KeyValPair<Integer, Double>> temps = rows.map(new ExtractTempFn(), name("ExtractTempFn"));
-      
+
       // month, meanTemp... => <month, max mean temp>...
       WindowedStream<Tuple.WindowedTuple<KeyValPair<Integer, Double>>> tempMaxes =
           temps.accumulateByKey(new Max<Double>(),
@@ -111,14 +111,14 @@ public class MaxPerKeyExamples implements StreamingApplication
                 return new Tuple.WindowedTuple<KeyValPair<Integer, Double>>(Window.GLOBAL_WINDOW, input);
               }
             }, name("MaxPerMonth"));
-      
+
       // <month, max>... => OutputPojo...
       WindowedStream<OutputPojo> results = tempMaxes.map(new FormatMaxesFn(), name("FormatMaxesFn"));
-      
+
       return results;
     }
   }
-  
+
   /**
    * Method to set field info for {@link JdbcPOJOInputOperator}.
    * @return
@@ -132,7 +132,7 @@ public class MaxPerKeyExamples implements StreamingApplication
     fieldInfos.add(new FieldInfo("MEANTEMP", "meanTemp", FieldInfo.SupportType.DOUBLE));
     return fieldInfos;
   }
-  
+
   /**
    * Method to set field info for {@link JdbcPOJOInsertOutputOperator}.
    * @return
@@ -144,8 +144,8 @@ public class MaxPerKeyExamples implements StreamingApplication
     fieldInfos.add(new JdbcFieldInfo("MEANTEMP", "meanTemp", JdbcFieldInfo.SupportType.DOUBLE, DOUBLE));
     return fieldInfos;
   }
-  
-  
+
+
   /**
    * Populate the dag using High-Level API.
    * @param dag
@@ -156,21 +156,21 @@ public class MaxPerKeyExamples implements StreamingApplication
   {
     JdbcPOJOInputOperator jdbcInput = new JdbcPOJOInputOperator();
     jdbcInput.setFieldInfos(addInputFieldInfos());
-  
+
     JdbcStore store = new JdbcStore();
     jdbcInput.setStore(store);
-  
+
     JdbcPOJOInsertOutputOperator jdbcOutput = new JdbcPOJOInsertOutputOperator();
     jdbcOutput.setFieldInfos(addOutputFieldInfos());
     JdbcTransactionalStore outputStore = new JdbcTransactionalStore();
     jdbcOutput.setStore(outputStore);
-    
+
     // Create stream that reads from a Jdbc Input.
     ApexStream<Object> stream = StreamFactory.fromInput(jdbcInput, jdbcInput.outputPort, name("jdbcInput"))
-      
+
         // Apply window and trigger option to the stream.
         .window(new WindowOption.GlobalWindow(), new TriggerOption().accumulatingFiredPanes().withEarlyFiringsAtEvery(1))
-      
+
         // Because Jdbc Input sends out a stream of Object, need to cast them to InputPojo.
         .map(new Function.MapFunction<Object, InputPojo>()
         {
@@ -180,10 +180,10 @@ public class MaxPerKeyExamples implements StreamingApplication
             return (InputPojo)input;
           }
         }, name("ObjectToInputPojo"))
-      
+
         // Plug in the composite transformation to the stream to calculate the maximum temperature for each month.
         .addCompositeStreams(new MaxMeanTemp())
-      
+
         // Cast the resulted OutputPojo to Object for Jdbc Output to consume.
         .map(new Function.MapFunction<OutputPojo, Object>()
         {
@@ -193,11 +193,11 @@ public class MaxPerKeyExamples implements StreamingApplication
             return (Object)input;
           }
         }, name("OutputPojoToObject"))
-      
+
         // Output the result to Jdbc Output.
         .endWith(jdbcOutput, jdbcOutput.input, name("jdbcOutput"));
-    
+
     stream.populateDag(dag);
-  
+
   }
 }

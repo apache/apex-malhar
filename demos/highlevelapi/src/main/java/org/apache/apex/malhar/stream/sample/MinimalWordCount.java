@@ -49,19 +49,19 @@ public class MinimalWordCount implements StreamingApplication
   {
     static Map<String, Long> result;
     private static boolean done = false;
-  
+
     public static boolean isDone()
     {
       return done;
     }
-  
+
     @Override
     public void setup(Context.OperatorContext context)
     {
       done = false;
       result = new HashMap<>();
     }
-    
+
     public final transient DefaultInputPort<KeyValPair<String, Long>> input = new DefaultInputPort<KeyValPair<String, Long>>()
     {
       @Override
@@ -74,7 +74,7 @@ public class MinimalWordCount implements StreamingApplication
       }
     };
   }
-  
+
   /**
    * Populate the dag using High-Level API.
    * @param dag
@@ -93,7 +93,7 @@ public class MinimalWordCount implements StreamingApplication
           public Iterable<String> f(String input)
           {
             return Arrays.asList(input.split("[^a-zA-Z']+"));
-          
+
           }
         }, name("ExtractWords"))
         // Apply windowing to the stream for counting, in this case, the window option is global window.

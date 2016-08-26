@@ -63,7 +63,7 @@ public class TrafficRoutes implements StreamingApplication
   static Map<String, String> sdStations = buildStationInfo();
   static final int WINDOW_DURATION = 3;  // Default sliding window duration in minutes
   static final int WINDOW_SLIDE_EVERY = 1;  // Default window 'slide every' setting in minutes
-  
+
   /**
    * This class holds information about a station reading's average speed.
    */
@@ -75,54 +75,54 @@ public class TrafficRoutes implements StreamingApplication
     Double avgSpeed;
     @Nullable
     Long timestamp;
-    
+
     public StationSpeed() {}
-    
+
     public StationSpeed(String stationId, Double avgSpeed, Long timestamp)
     {
       this.stationId = stationId;
       this.avgSpeed = avgSpeed;
       this.timestamp = timestamp;
     }
-  
+
     public void setAvgSpeed(@Nullable Double avgSpeed)
     {
       this.avgSpeed = avgSpeed;
     }
-  
+
     public void setStationId(@Nullable String stationId)
     {
       this.stationId = stationId;
     }
-  
+
     public void setTimestamp(@Nullable Long timestamp)
     {
       this.timestamp = timestamp;
     }
-  
+
     @Nullable
     public Long getTimestamp()
     {
       return timestamp;
     }
-  
+
     public String getStationId()
     {
       return this.stationId;
     }
-    
+
     public Double getAvgSpeed()
     {
       return this.avgSpeed;
     }
-    
+
     @Override
     public int compareTo(StationSpeed other)
     {
       return Long.compare(this.timestamp, other.timestamp);
     }
   }
-  
+
   /**
    * This class holds information about a route's speed/slowdown.
    */
@@ -134,63 +134,63 @@ public class TrafficRoutes implements StreamingApplication
     Double avgSpeed;
     @Nullable
     Boolean slowdownEvent;
-    
+
     public RouteInfo()
     {
-      
+
     }
-    
+
     public RouteInfo(String route, Double avgSpeed, Boolean slowdownEvent)
     {
       this.route = route;
       this.avgSpeed = avgSpeed;
       this.slowdownEvent = slowdownEvent;
     }
-    
+
     public String getRoute()
     {
       return this.route;
     }
-    
+
     public Double getAvgSpeed()
     {
       return this.avgSpeed;
     }
-    
+
     public Boolean getSlowdownEvent()
     {
       return this.slowdownEvent;
     }
   }
-  
+
   /**
    * Extract the timestamp field from the input string, and wrap the input string in a {@link Tuple.TimestampedTuple}
    * with the extracted timestamp.
    */
   static class ExtractTimestamps implements Function.MapFunction<String, Tuple.TimestampedTuple<String>>
   {
-    
+
     @Override
     public Tuple.TimestampedTuple<String> f(String input)
     {
       String[] items = input.split(",");
       String timestamp = tryParseTimestamp(items);
-    
+
       return new Tuple.TimestampedTuple<>(Long.parseLong(timestamp), input);
     }
   }
-  
+
   /**
    * Filter out readings for the stations along predefined 'routes', and output
    * (station, speed info) keyed on route.
    */
   static class ExtractStationSpeedFn implements Function.FlatMapFunction<Tuple.TimestampedTuple<String>, KeyValPair<String, StationSpeed>>
   {
-    
+
     @Override
     public Iterable<KeyValPair<String, StationSpeed>> f(Tuple.TimestampedTuple<String> input)
     {
-      
+
       ArrayList<KeyValPair<String, StationSpeed>> result = new ArrayList<>();
       String[] items = input.getValue().split(",");
       String stationType = tryParseStationType(items);
@@ -210,7 +210,7 @@ public class TrafficRoutes implements StreamingApplication
       return result;
     }
   }
-  
+
   /**
    * For a given route, track average speed for the window. Calculate whether
    * traffic is currently slowing down, via a predefined threshold. If a supermajority of
@@ -261,7 +261,7 @@ public class TrafficRoutes implements StreamingApplication
       return result;
     }
   }
-  
+
   /**
    * Output Pojo class for outputting result to JDBC.
    */
@@ -271,11 +271,11 @@ public class TrafficRoutes implements StreamingApplication
     private Boolean slowdownEvent;
     private String key;
     private Long timestamp;
-    
+
     public OutputPojo()
     {
     }
- 
+
     public OutputPojo(Double avgSpeed, Boolean slowdownEvent, String key, Long timestamp)
     {
       this.avgSpeed = avgSpeed;
@@ -283,64 +283,64 @@ public class TrafficRoutes implements StreamingApplication
       this.key = key;
       this.timestamp = timestamp;
     }
-  
+
     @Override
     public String toString()
     {
       return key + " + " + avgSpeed + " + " + slowdownEvent + " + " + timestamp;
     }
-  
+
     public void setTimestamp(Long timestamp)
     {
       this.timestamp = timestamp;
     }
-  
+
     public Long getTimestamp()
     {
       return timestamp;
     }
-  
+
     public void setAvgSpeed(Double avgSpeed)
     {
       this.avgSpeed = avgSpeed;
     }
-  
+
     public Double getAvgSpeed()
     {
       return avgSpeed;
     }
-  
+
     public void setKey(String key)
     {
       this.key = key;
     }
-  
+
     public String getKey()
     {
       return key;
     }
-  
+
     public void setSlowdownEvent(Boolean slowdownEvent)
     {
       this.slowdownEvent = slowdownEvent;
     }
-  
+
     public Boolean getSlowdownEvent()
     {
       return slowdownEvent;
     }
-    
+
   }
-  
+
   public static class Collector extends BaseOperator
   {
     private static Map<KeyValPair<Long, String>, KeyValPair<Double, Boolean>> result = new HashMap<>();
-  
+
     public static Map<KeyValPair<Long, String>, KeyValPair<Double, Boolean>> getResult()
     {
       return result;
     }
-    
+
     public final transient DefaultInputPort<OutputPojo> input = new DefaultInputPort<OutputPojo>()
     {
       @Override
@@ -350,7 +350,7 @@ public class TrafficRoutes implements StreamingApplication
       }
     };
   }
-  
+
   /**
    * Format the results of the slowdown calculations to a OutputPojo.
    */
@@ -364,8 +364,8 @@ public class TrafficRoutes implements StreamingApplication
       return row;
     }
   }
-    
-  
+
+
   /**
    * This composite transformation extracts speed info from traffic station readings.
    * It groups the readings by 'route' and analyzes traffic slowdown for that route.
@@ -389,19 +389,19 @@ public class TrafficRoutes implements StreamingApplication
               return new Tuple.TimestampedTuple<>(input.getValue().getTimestamp(), input);
             }
           }, name("GroupByKey"));
-      
+
       // Analyze 'slowdown' over the route readings.
       WindowedStream<Tuple.TimestampedTuple<KeyValPair<String, RouteInfo>>> stats = timeGroup
           .flatMap(new GatherStats(), name("GatherStats"));
-      
+
       // Format the results for writing to JDBC table.
       WindowedStream<OutputPojo> results = stats.map(new FormatStatsFn(), name("FormatStatsFn"));
-      
+
       return results;
     }
   }
-  
-  
+
+
   private static Double tryParseAvgSpeed(String[] inputItems)
   {
     try {
@@ -412,27 +412,27 @@ public class TrafficRoutes implements StreamingApplication
       return null;
     }
   }
-  
+
   private static String tryParseStationType(String[] inputItems)
   {
     return tryParseString(inputItems, 2);
   }
-  
+
   private static String tryParseStationId(String[] inputItems)
   {
     return tryParseString(inputItems, 1);
   }
-  
+
   private static String tryParseTimestamp(String[] inputItems)
   {
     return tryParseString(inputItems, 0);
   }
-  
+
   private static String tryParseString(String[] inputItems, int index)
   {
     return inputItems.length >= index ? inputItems[index] : null;
   }
-  
+
   /**
    * Define some small hard-wired San Diego 'routes' to track based on sensor station ID.
    */
@@ -444,33 +444,33 @@ public class TrafficRoutes implements StreamingApplication
     stations.put("1108702", "SDRoute2");
     return stations;
   }
-  
+
   /**
    * A dummy generator to generate some traffic information.
    */
   public static class InfoGen extends BaseOperator implements InputOperator
   {
     public transient DefaultOutputPort<String> output = new DefaultOutputPort<>();
-    
+
     private String[] stationTypes = new String[]{"ML", "BL", "GL"};
     private int[] stationIDs = new int[]{1108413, 1108699, 1108702};
     private double ave = 55.0;
     private long timestamp;
     private static final Duration RAND_RANGE = Duration.standardMinutes(10);
     private static int tupleCount = 0;
-  
+
     public static int getTupleCount()
     {
       return tupleCount;
     }
-  
+
     @Override
     public void setup(Context.OperatorContext context)
     {
       tupleCount = 0;
       timestamp = System.currentTimeMillis();
     }
-  
+
     @Override
     public void emitTuples()
     {
@@ -481,7 +481,7 @@ public class TrafficRoutes implements StreamingApplication
           try {
             output.emit(time + "," + stationID + "," + stationType + "," + speed);
             tupleCount++;
-         
+
             Thread.sleep(50);
           } catch (Exception e) {
             // Ignore it
@@ -490,29 +490,29 @@ public class TrafficRoutes implements StreamingApplication
       }
     }
   }
-  
+
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
     InfoGen infoGen = new InfoGen();
     Collector collector = new Collector();
-    
+
     // Create a stream from the input operator.
     ApexStream<Tuple.TimestampedTuple<String>> stream = StreamFactory.fromInput(infoGen, infoGen.output, name("infoGen"))
-        
+
         // Extract the timestamp from the input and wrap it into a TimestampedTuple.
         .map(new ExtractTimestamps(), name("ExtractTimestamps"));
-    
+
     stream
         // Extract the average speed of a station.
         .flatMap(new ExtractStationSpeedFn(), name("ExtractStationSpeedFn"))
-      
+
         // Apply window and trigger option.
         .window(new WindowOption.SlidingTimeWindows(Duration.standardMinutes(WINDOW_DURATION), Duration.standardMinutes(WINDOW_SLIDE_EVERY)), new TriggerOption().withEarlyFiringsAtEvery(Duration.millis(5000)).accumulatingFiredPanes())
-        
+
         // Apply TrackSpeed composite transformation to compute the route information.
         .addCompositeStreams(new TrackSpeed())
-      
+
         // print the result to console.
         .print()
         .endWith(collector, collector.input, name("Collector"))

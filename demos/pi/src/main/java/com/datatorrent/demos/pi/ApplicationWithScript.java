@@ -18,16 +18,15 @@
  */
 package com.datatorrent.demos.pi;
 
-
 import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.script.JavaScriptOperator;
 import com.datatorrent.lib.stream.RoundRobinHashMap;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 /**
  * Monte Carlo PI estimation demo : <br>
@@ -78,7 +77,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="PiJavaScriptDemo")
+@ApplicationAnnotation(name = "PiJavaScriptDemo")
 public class ApplicationWithScript implements StreamingApplication
 {
 
@@ -92,13 +91,13 @@ public class ApplicationWithScript implements StreamingApplication
     rand.setMaxvalue(maxValue);
 
     RoundRobinHashMap<String,Object> rrhm = dag.addOperator("rrhm", new RoundRobinHashMap<String, Object>());
-    rrhm.setKeys(new String[] { "x", "y" });
+    rrhm.setKeys(new String[]{"x", "y"});
 
     JavaScriptOperator calc = dag.addOperator("picalc", new JavaScriptOperator());
     calc.setPassThru(false);
     calc.put("i",0);
     calc.put("count",0);
-    calc.addSetupScript("function pi() { if (x*x+y*y <= "+maxValue*maxValue+") { i++; } count++; return i / count * 4; }");
+    calc.addSetupScript("function pi() { if (x*x+y*y <= " + maxValue * maxValue + ") { i++; } count++; return i / count * 4; }");
 
     calc.setInvoke("pi");
 

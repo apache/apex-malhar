@@ -200,7 +200,8 @@ public class TwitterAutoComplete implements StreamingApplication
             {
               return new Tuple.PlainTuple<>(new KeyValPair<>(input, 1L));
             }
-          }, name("Hashtag Count")).map(new Function.MapFunction<Tuple.WindowedTuple<KeyValPair<String,Long>>, CompletionCandidate>()
+          }, name("Hashtag Count"))
+          .map(new Function.MapFunction<Tuple.WindowedTuple<KeyValPair<String,Long>>, CompletionCandidate>()
           {
             @Override
             public CompletionCandidate f(Tuple.WindowedTuple<KeyValPair<String, Long>> input)

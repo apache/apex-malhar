@@ -18,11 +18,11 @@
  */
 package com.datatorrent.demos.frauddetect.operator;
 
+import java.io.File;
+
 import com.datatorrent.api.Context.DAGContext;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
-
-import java.io.File;
 
 /**
  * Adapter for writing Strings to HDFS
@@ -65,8 +65,7 @@ public class HdfsStringOutputOperator extends AbstractFileOutputOperator<String>
   }
 
   @Override
-  public String getPartFileName(String fileName,
-                                int part)
+  public String getPartFileName(String fileName, int part)
   {
     return fileName + part;
   }
