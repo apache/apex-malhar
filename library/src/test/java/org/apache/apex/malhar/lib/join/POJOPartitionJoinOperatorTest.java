@@ -188,8 +188,8 @@ public class POJOPartitionJoinOperatorTest
     LocalMode.Controller lc = lma.getController();
     lc.runAsync();
     app.joinOp.latch.await();
-    Assert.assertFalse(testFailed);
     lc.shutdown();
+    Assert.assertFalse(testFailed);
   }
 
 }
