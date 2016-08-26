@@ -498,4 +498,22 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     Assert.assertEquals("Nodes in cluster2 ", "[node4:2181]", testMeta.operator.getConsumer().zookeeperMap.get("cluster2").toString());
   }
 
+  @Test
+  public void testZookeeperUnderchroot() throws Exception
+  {
+    // initial the latch for this test
+    latch = new CountDownLatch(50);
+
+    testMeta.operator = new KafkaSinglePortStringInputOperator();
+
+    KafkaConsumer consumer = new SimpleKafkaConsumer();
+    consumer.setTopic(TEST_TOPIC);
+
+    testMeta.operator.setConsumer(consumer);
+    testMeta.operator.setZookeeper("node0:2182,node1:2181,node2:2181/chroot/path");
+    latch.await(500, TimeUnit.MILLISECONDS);
+
+    Assert.assertEquals("Total size of clusters ", 3, testMeta.operator.getConsumer().zookeeperMap.size());
+    Assert.assertEquals("Nodes in cluster ", "[node2:2181/chroot/path, node1:2181/chroot/path, node0:2182/chroot/path]", testMeta.operator.getConsumer().zookeeperMap.get(KafkaPartition.DEFAULT_CLUSTERID).toString());
+  }
 }
