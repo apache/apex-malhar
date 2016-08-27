@@ -19,7 +19,6 @@
 package com.datatorrent.lib.io.jms;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -43,6 +42,7 @@ import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.commons.lang.mutable.MutableLong;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -54,7 +54,6 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.ActivationListener;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.counters.BasicCounters;
-import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * This is the base implementation of a JMS input operator.<br/>
@@ -107,7 +106,6 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
 
   @NotNull
   protected WindowDataManager windowDataManager;
-  private transient long[] operatorRecoveredWindows;
   protected transient long currentWindowId;
   protected transient int emitCount;
 
@@ -202,14 +200,6 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
     counters.setCounter(CounterKeys.RECEIVED, new MutableLong());
     counters.setCounter(CounterKeys.REDELIVERED, new MutableLong());
     windowDataManager.setup(context);
-    try {
-      operatorRecoveredWindows = windowDataManager.getWindowIds(context.getId());
-      if (operatorRecoveredWindows != null) {
-        Arrays.sort(operatorRecoveredWindows);
-      }
-    } catch (IOException e) {
-      throw new RuntimeException("fetching windows", e);
-    }
   }
 
   /**
@@ -262,7 +252,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
   public void beginWindow(long windowId)
   {
     currentWindowId = windowId;
-    if (windowId <= windowDataManager.getLargestRecoveryWindow()) {
+    if (windowId <= windowDataManager.getLargestCompletedWindow()) {
       replay(windowId);
     }
   }
@@ -271,11 +261,17 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
   {
     try {
       @SuppressWarnings("unchecked")
-      Map<String, T> recoveredData = (Map<String, T>)windowDataManager.load(context.getId(), windowId);
+      Map<String, T> recoveredData = (Map<String, T>)windowDataManager.retrieve(windowId);
       if (recoveredData == null) {
         return;
       }
       for (Map.Entry<String, T> recoveredEntry : recoveredData.entrySet()) {
+        /*
+          It is important to add the recovered message ids to the pendingAck set because there is no guarantee
+          that acknowledgement completed after state was persisted by windowDataManager. In that case, the messages are
+          re-delivered by the message bus. Therefore, we compare each message against this set and ignore re-delivered
+          messages.
+         */
         pendingAck.add(recoveredEntry.getKey());
         emit(recoveredEntry.getValue());
       }
@@ -287,7 +283,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
   @Override
   public void emitTuples()
   {
-    if (currentWindowId <= windowDataManager.getLargestRecoveryWindow()) {
+    if (currentWindowId <= windowDataManager.getLargestCompletedWindow()) {
       return;
     }
 
@@ -329,7 +325,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
         throw new RuntimeException(ie);
       }
     } else {
-      DTThrowable.rethrow(lthrowable);
+      Throwables.propagate(lthrowable);
     }
   }
 
@@ -347,10 +343,8 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
   @Override
   public void endWindow()
   {
-    if (currentWindowId > windowDataManager.getLargestRecoveryWindow()) {
+    if (currentWindowId > windowDataManager.getLargestCompletedWindow()) {
       synchronized (lock) {
-        boolean stateSaved = false;
-        boolean ackCompleted = false;
         try {
           //No more messages can be consumed now. so we will call emit tuples once more
           //so that any pending messages can be emitted.
@@ -360,33 +354,25 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
             emitCount++;
             lastMsg = msg;
           }
-          windowDataManager.save(currentWindowRecoveryState, context.getId(), currentWindowId);
-          stateSaved = true;
-
+          windowDataManager.save(currentWindowRecoveryState, currentWindowId);
           currentWindowRecoveryState.clear();
           if (lastMsg != null) {
             acknowledge();
           }
-          ackCompleted = true;
           pendingAck.clear();
         } catch (Throwable t) {
-          if (!ackCompleted) {
-            LOG.info("confirm recovery of {} for {} does not exist", context.getId(), currentWindowId, t);
-          }
-          DTThrowable.rethrow(t);
-        } finally {
-          if (stateSaved && !ackCompleted) {
-            try {
-              windowDataManager.delete(context.getId(), currentWindowId);
-            } catch (IOException e) {
-              LOG.error("unable to delete corrupted state", e);
-            }
-          }
+          /*
+            When acknowledgement fails after state is persisted by windowDataManager, then this window is considered
+            as completed by the operator instance after recovery. However, since the acknowledgement failed, the
+            messages will be re-sent by the message bus. In order to address that, while re-playing, we add the messages
+            to the pendingAck set. When these messages are re-delivered, we compare it against this set and ignore them
+            if there id is already in the set.
+          */
+          Throwables.propagate(t);
         }
       }
       emitCount = 0; //reset emit count
-    } else if (operatorRecoveredWindows != null &&
-        currentWindowId < operatorRecoveredWindows[operatorRecoveredWindows.length - 1]) {
+    } else if (currentWindowId < windowDataManager.getLargestCompletedWindow()) {
       //pendingAck is not cleared for the last replayed window of this operator. This is because there is
       //still a chance that in the previous run the operator crashed after saving the state but before acknowledgement.
       pendingAck.clear();
@@ -417,7 +403,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase
   public void committed(long windowId)
   {
     try {
-      windowDataManager.deleteUpTo(context.getId(), windowId);
+      windowDataManager.committed(windowId);
     } catch (IOException e) {
       throw new RuntimeException("committing", e);
     }

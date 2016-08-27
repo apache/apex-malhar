@@ -145,8 +145,8 @@ public abstract class AbstractManagedStateInnerJoinOperator<K,T> extends Abstrac
     super.setup(context);
     ((FileAccessFSImpl)stream1Store.getFileAccess()).setBasePath(context.getValue(DAG.APPLICATION_PATH) + Path.SEPARATOR + stateDir + Path.SEPARATOR + String.valueOf(context.getId()) + Path.SEPARATOR + stream1State);
     ((FileAccessFSImpl)stream2Store.getFileAccess()).setBasePath(context.getValue(DAG.APPLICATION_PATH) + Path.SEPARATOR + stateDir + Path.SEPARATOR + String.valueOf(context.getId()) + Path.SEPARATOR + stream2State);
-    stream1Store.getCheckpointManager().setRecoveryPath("managed_state_" + stream1State);
-    stream1Store.getCheckpointManager().setRecoveryPath("managed_state_" + stream2State);
+    stream1Store.getCheckpointManager().setStatePath("managed_state_" + stream1State);
+    stream1Store.getCheckpointManager().setStatePath("managed_state_" + stream2State);
     stream1Store.setup(context);
     stream2Store.setup(context);
   }

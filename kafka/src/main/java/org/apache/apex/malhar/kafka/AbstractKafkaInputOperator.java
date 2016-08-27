@@ -223,7 +223,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
     }
     if (isIdempotent()) {
       try {
-        windowDataManager.deleteUpTo(operatorId, windowId);
+        windowDataManager.committed(windowId);
       } catch (IOException e) {
         DTThrowable.rethrow(e);
       }
@@ -259,7 +259,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
     emitCount = 0;
     currentWindowId = wid;
     windowStartOffset.clear();
-    if (isIdempotent() && wid <= windowDataManager.getLargestRecoveryWindow()) {
+    if (isIdempotent() && wid <= windowDataManager.getLargestCompletedWindow()) {
       replay(wid);
     } else {
       consumerWrapper.afterReplay();
@@ -269,8 +269,9 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   private void replay(long windowId)
   {
     try {
+      @SuppressWarnings("unchecked")
       Map<AbstractKafkaPartitioner.PartitionMeta, Pair<Long, Long>> windowData =
-          (Map<AbstractKafkaPartitioner.PartitionMeta, Pair<Long, Long>>)windowDataManager.load(operatorId, windowId);
+          (Map<AbstractKafkaPartitioner.PartitionMeta, Pair<Long, Long>>)windowDataManager.retrieve(windowId);
       consumerWrapper.emitImmediately(windowData);
     } catch (IOException e) {
       DTThrowable.rethrow(e);
@@ -294,7 +295,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
         for (Map.Entry<AbstractKafkaPartitioner.PartitionMeta, Long> e : windowStartOffset.entrySet()) {
           windowData.put(e.getKey(), new MutablePair<>(e.getValue(), offsetTrack.get(e.getKey()) - e.getValue()));
         }
-        windowDataManager.save(windowData, operatorId, currentWindowId);
+        windowDataManager.save(windowData, currentWindowId);
       } catch (IOException e) {
         DTThrowable.rethrow(e);
       }

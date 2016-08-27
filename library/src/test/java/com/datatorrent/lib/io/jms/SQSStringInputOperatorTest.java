@@ -197,7 +197,7 @@ public class SQSStringInputOperatorTest
     testMeta.operator.activate(testMeta.context);
 
     Assert.assertEquals("largest recovery window", 1,
-        testMeta.operator.getWindowDataManager().getLargestRecoveryWindow());
+        testMeta.operator.getWindowDataManager().getLargestCompletedWindow());
 
     testMeta.operator.beginWindow(1);
     testMeta.operator.endWindow();
@@ -254,7 +254,7 @@ public class SQSStringInputOperatorTest
     testMeta.operator.activate(testMeta.context);
 
     Assert.assertEquals("window 1 should exist", 1,
-        testMeta.operator.getWindowDataManager().getLargestRecoveryWindow());
+        testMeta.operator.getWindowDataManager().getLargestCompletedWindow());
   }
 
 

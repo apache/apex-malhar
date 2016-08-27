@@ -109,7 +109,7 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
   public void beginWindow(long windowId)
   {
     currentWindowId = windowId;    
-    largestRecoveryWindowId = windowDataManager.getLargestRecoveryWindow();
+    largestRecoveryWindowId = windowDataManager.getLargestCompletedWindow();
     if (windowId <= largestRecoveryWindowId) {
       // Do not resend already sent tuples
       skipProcessingTuple = true;
@@ -132,7 +132,7 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
       return;
     }
     try {
-      windowDataManager.save("processedWindow", operatorContextId, currentWindowId);
+      windowDataManager.save("processedWindow", currentWindowId);
     } catch (IOException e) {
       DTThrowable.rethrow(e);
     }

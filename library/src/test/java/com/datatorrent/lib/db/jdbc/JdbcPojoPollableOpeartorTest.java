@@ -178,8 +178,8 @@ public class JdbcPojoPollableOpeartorTest extends JdbcOperatorTest
   public void testRecovery() throws IOException
   {
     int operatorId = 1;
-    when(windowDataManagerMock.getLargestRecoveryWindow()).thenReturn(1L);
-    when(windowDataManagerMock.load(operatorId, 1)).thenReturn(new MutablePair<Integer, Integer>(0, 4));
+    when(windowDataManagerMock.getLargestCompletedWindow()).thenReturn(1L);
+    when(windowDataManagerMock.retrieve(1)).thenReturn(new MutablePair<Integer, Integer>(0, 4));
 
     insertEvents(10, true, 0);
 

@@ -190,7 +190,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
   public void beginWindow(long windowId)
   {
     currentWindowId = windowId;
-    if (windowId <= this.windowDataManager.getLargestRecoveryWindow()) {
+    if (windowId <= this.windowDataManager.getLargestCompletedWindow()) {
       replay(windowId);
     }
   }
@@ -199,7 +199,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
   private void replay(long windowId) {      
     Map<Long, byte[]> recoveredData;
     try {
-      recoveredData = (Map<Long, byte[]>) this.windowDataManager.load(operatorContextId, windowId);
+      recoveredData = (Map<Long, byte[]>)this.windowDataManager.retrieve(windowId);
       if (recoveredData == null) {
         return;
       }
@@ -225,7 +225,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
     }
     
     try {
-      this.windowDataManager.save(currentWindowRecoveryState, operatorContextId, currentWindowId);
+      this.windowDataManager.save(currentWindowRecoveryState, currentWindowId);
     } catch (IOException e) {
       DTThrowable.rethrow(e);
     }
@@ -320,7 +320,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
   public void committed(long windowId)
   {
     try {
-      windowDataManager.deleteUpTo(operatorContextId, windowId);
+      windowDataManager.committed(windowId);
     }
     catch (IOException e) {
       throw new RuntimeException("committing", e);

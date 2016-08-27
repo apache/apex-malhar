@@ -133,7 +133,7 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
   {
     this.windowId = windowId;
 
-    if (windowId == windowDataManager.getLargestRecoveryWindow()) {
+    if (windowId == windowDataManager.getLargestCompletedWindow()) {
       rebuildPartialWindow();
     }
   }
@@ -147,7 +147,7 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
   public void committed(long windowId)
   {
     try {
-      windowDataManager.deleteUpTo(operatorId, windowId);
+      windowDataManager.committed(windowId);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -168,7 +168,7 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
   @Override
   public void endWindow()
   {
-    if (!partialWindowTuples.isEmpty() && windowId > windowDataManager.getLargestRecoveryWindow()) {
+    if (!partialWindowTuples.isEmpty() && windowId > windowDataManager.getLargestCompletedWindow()) {
       throw new RuntimeException("Violates Exactly once. Not all the tuples received after operator reset.");
     }
 
@@ -176,7 +176,7 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
     getProducer().flush();
 
     try {
-      this.windowDataManager.save(getPartitionsAndOffsets(true), operatorId, windowId);
+      this.windowDataManager.save(getPartitionsAndOffsets(true), windowId);
     } catch (IOException | InterruptedException | ExecutionException e) {
       throw new RuntimeException(e);
     }
@@ -209,7 +209,7 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
 
   private boolean alreadyInKafka(T message)
   {
-    if ( windowId <= windowDataManager.getLargestRecoveryWindow() ) {
+    if ( windowId <= windowDataManager.getLargestCompletedWindow() ) {
       return true;
     }
 
@@ -265,20 +265,20 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
 
   private void rebuildPartialWindow()
   {
-    logger.info("Rebuild the partial window after " + windowDataManager.getLargestRecoveryWindow());
+    logger.info("Rebuild the partial window after " + windowDataManager.getLargestCompletedWindow());
 
     Map<Integer,Long> storedOffsets;
     Map<Integer,Long> currentOffsets;
 
     try {
-      storedOffsets = (Map<Integer,Long>)this.windowDataManager.load(operatorId, windowId);
+      storedOffsets = (Map<Integer,Long>)this.windowDataManager.retrieve(windowId);
       currentOffsets = getPartitionsAndOffsets(true);
     } catch (IOException | ExecutionException | InterruptedException e) {
       throw new RuntimeException(e);
     }
 
     if (currentOffsets == null) {
-      logger.debug("No tuples found while building partial window " + windowDataManager.getLargestRecoveryWindow());
+      logger.debug("No tuples found while building partial window " + windowDataManager.getLargestCompletedWindow());
       return;
     }
 

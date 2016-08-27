@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
@@ -110,7 +111,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
     windowDataManager.setup(context);
     super.setup(context);
 
-    long largestRecoveryWindow = windowDataManager.getLargestRecoveryWindow();
+    long largestRecoveryWindow = windowDataManager.getLargestCompletedWindow();
     if (largestRecoveryWindow == Stateless.WINDOW_ID || context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID) >
         largestRecoveryWindow) {
       scanner.startScanning(Collections.unmodifiableMap(referenceTimes));
@@ -121,7 +122,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   public void beginWindow(long windowId)
   {
     super.beginWindow(windowId);
-    if (windowId <= windowDataManager.getLargestRecoveryWindow()) {
+    if (windowId <= windowDataManager.getLargestCompletedWindow()) {
       replay(windowId);
     }
   }
@@ -130,7 +131,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   {
     try {
       @SuppressWarnings("unchecked")
-      LinkedList<ScannedFileInfo> recoveredData = (LinkedList<ScannedFileInfo>)windowDataManager.load(operatorId, windowId);
+      LinkedList<ScannedFileInfo> recoveredData = (LinkedList<ScannedFileInfo>)windowDataManager.retrieve(windowId);
       if (recoveredData == null) {
         //This could happen when there are multiple physical instances and one of them is ahead in processing windows.
         return;
@@ -151,7 +152,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
     } catch (IOException e) {
       throw new RuntimeException("replay", e);
     }
-    if (windowId == windowDataManager.getLargestRecoveryWindow()) {
+    if (windowId == windowDataManager.getLargestCompletedWindow()) {
       scanner.startScanning(Collections.unmodifiableMap(referenceTimes));
     }
   }
@@ -159,7 +160,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   @Override
   public void emitTuples()
   {
-    if (currentWindowId <= windowDataManager.getLargestRecoveryWindow()) {
+    if (currentWindowId <= windowDataManager.getLargestCompletedWindow()) {
       return;
     }
 
@@ -206,9 +207,9 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   @Override
   public void endWindow()
   {
-    if (currentWindowId > windowDataManager.getLargestRecoveryWindow()) {
+    if (currentWindowId > windowDataManager.getLargestCompletedWindow()) {
       try {
-        windowDataManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
+        windowDataManager.save(currentWindowRecoveryState, currentWindowId);
       } catch (IOException e) {
         throw new RuntimeException("saving recovery", e);
       }
@@ -237,7 +238,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   public void committed(long l)
   {
     try {
-      windowDataManager.deleteUpTo(operatorId, l);
+      windowDataManager.committed(l);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -274,16 +275,16 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
     private static long DEF_SCAN_INTERVAL_MILLIS = 5000;
     private static String FILE_BEING_COPIED = "_COPYING_";
 
-    private boolean recursive;
+    private boolean recursive = true;
 
     private transient volatile boolean trigger;
 
     @NotNull
     @Size(min = 1)
-    private final Set<String> files;
+    private final Set<String> files = new LinkedHashSet<>();
 
     @Min(0)
-    private long scanIntervalMillis;
+    private long scanIntervalMillis = DEF_SCAN_INTERVAL_MILLIS;
     private String filePatternRegularExp;
 
     private String ignoreFilePatternRegularExp;
@@ -306,19 +307,9 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
     private transient ScannedFileInfo lastScannedInfo;
     private transient int numDiscoveredPerIteration;
 
-    public TimeBasedDirectoryScanner()
-    {
-      recursive = true;
-      scanIntervalMillis = DEF_SCAN_INTERVAL_MILLIS;
-      files = Sets.newLinkedHashSet();
-    }
-
     @Override
     public void setup(Context.OperatorContext context)
     {
-      if (scanService != null) {
-        throw new RuntimeException("multiple calls to setup() detected!");
-      }
       scanService = Executors.newSingleThreadExecutor();
       discoveredFiles = new LinkedBlockingDeque<>();
       atomicThrowable = new AtomicReference<>();
