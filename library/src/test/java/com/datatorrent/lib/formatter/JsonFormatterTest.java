@@ -218,7 +218,7 @@ public class JsonFormatterTest
       JsonFormatter formatter = dag.addOperator("formatter", new JsonFormatter());
       dag.getMeta(formatter).getMeta(formatter.in).getAttributes().put(Context.PortContext.TUPLE_CLASS, Ad.class);
       ConsoleOutputOperator output = dag.addOperator("output", new ConsoleOutputOperator());
-      output.setDebug(true);
+      output.setDebug(false);
       dag.addStream("input", input.output, formatter.in);
       dag.addStream("output", formatter.out, output.input);
     }
