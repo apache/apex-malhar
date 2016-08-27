@@ -305,7 +305,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     operator.deactivate();
 
     operator = createAndDeployOperator(true);
-    Assert.assertEquals("largest recovery window", 2, operator.getWindowDataManager().getLargestRecoveryWindow());
+    Assert.assertEquals("largest recovery window", 2, operator.getWindowDataManager().getLargestCompletedWindow());
 
     operator.beginWindow(1);
     operator.emitTuples();
@@ -390,7 +390,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 
     if (isIdempotency) {
       FSWindowDataManager storageManager = new FSWindowDataManager();
-      storageManager.setRecoveryPath(testMeta.recoveryDir);
+      storageManager.setStatePath(testMeta.recoveryDir);
       testMeta.operator.setWindowDataManager(storageManager);
     }
 

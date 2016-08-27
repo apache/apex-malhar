@@ -18,32 +18,46 @@
  */
 package com.datatorrent.contrib.kinesis;
 
-import com.amazonaws.services.kinesis.model.Record;
-import com.amazonaws.services.kinesis.model.Shard;
-import com.amazonaws.services.kinesis.model.ShardIteratorType;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.*;
-import com.datatorrent.api.Operator.ActivationListener;
-import com.datatorrent.common.util.Pair;
-import com.datatorrent.lib.util.KryoCloneUtils;
-
-import com.esotericsoftware.kryo.DefaultSerializer;
-import com.esotericsoftware.kryo.serializers.JavaSerializer;
-import com.google.common.collect.Sets;
-
-import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
-import org.apache.apex.malhar.lib.wal.WindowDataManager;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
+import org.apache.commons.lang3.StringUtils;
+
+import com.amazonaws.services.kinesis.model.Record;
+import com.amazonaws.services.kinesis.model.Shard;
+import com.amazonaws.services.kinesis.model.ShardIteratorType;
+import com.esotericsoftware.kryo.DefaultSerializer;
+import com.esotericsoftware.kryo.serializers.JavaSerializer;
+import com.google.common.collect.Sets;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.Operator.ActivationListener;
+import com.datatorrent.api.Partitioner;
+import com.datatorrent.api.Stats;
+import com.datatorrent.api.StatsListener;
+import com.datatorrent.common.util.Pair;
+import com.datatorrent.lib.util.KryoCloneUtils;
 
 @DefaultSerializer(JavaSerializer.class)
 class KinesisPair <F, S> extends Pair<F, S>
@@ -168,7 +182,6 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
 
     // Operator partitions
     List<Partition<AbstractKinesisInputOperator>> newPartitions = null;
-    Collection<WindowDataManager> newManagers = Sets.newHashSet();
     Set<Integer> deletedOperators =  Sets.newHashSet();
 
     // initialize the shard positions
@@ -188,7 +201,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
         newPartitions = new ArrayList<Partition<AbstractKinesisInputOperator>>(shards.size());
         for (int i = 0; i < shards.size(); i++) {
           logger.info("[ONE_TO_ONE]: Create operator partition for kinesis partition: " + shards.get(i).getShardId() + ", StreamName: " + this.getConsumer().streamName);
-          newPartitions.add(createPartition(Sets.newHashSet(shards.get(i).getShardId()), initShardPos, newManagers));
+          newPartitions.add(createPartition(Sets.newHashSet(shards.get(i).getShardId()), initShardPos));
         }
       } else if (newWaitingPartition.size() != 0) {
         // Remove the partitions for the closed shards
@@ -196,10 +209,15 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
         // add partition for new kinesis shard
         for (String pid : newWaitingPartition) {
           logger.info("[ONE_TO_ONE]: Add operator partition for kinesis partition " + pid);
-          partitions.add(createPartition(Sets.newHashSet(pid), null, newManagers));
+          partitions.add(createPartition(Sets.newHashSet(pid), null));
         }
         newWaitingPartition.clear();
-        windowDataManager.partitioned(newManagers, deletedOperators);
+        List<WindowDataManager> managers = windowDataManager.partition(partitions.size(), deletedOperators);
+        int i = 0;
+        for (Partition<AbstractKinesisInputOperator> partition : partitions) {
+          partition.getPartitionedInstance().setWindowDataManager(managers.get(i));
+          i++;
+        }
         return partitions;
       }
       break;
@@ -211,11 +229,10 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
          2. Static Partition: Number of DT partitions is fixed, whether the number of shards are increased/decreased.
       */
       int size = initialPartitionCount;
-      if(newWaitingPartition.size() != 0)
-      {
+      if (newWaitingPartition.size() != 0) {
         // Get the list of open shards
         shards = getOpenShards(partitions);
-        if(shardsPerPartition > 1)
+        if (shardsPerPartition > 1)
           size = (int)Math.ceil(shards.size() / (shardsPerPartition * 1.0));
         initShardPos = shardManager.loadInitialShardPositions();
       }
@@ -238,20 +255,26 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
         newWaitingPartition.clear();
       }
       // Add the existing partition Ids to the deleted operators
-      for(Partition<AbstractKinesisInputOperator> op : partitions)
-      {
+      for (Partition<AbstractKinesisInputOperator> op : partitions) {
         deletedOperators.add(op.getPartitionedInstance().operatorId);
       }
+
       for (int i = 0; i < pIds.length; i++) {
         logger.info("[MANY_TO_ONE]: Create operator partition for kinesis partition(s): " + StringUtils.join(pIds[i], ", ") + ", StreamName: " + this.getConsumer().streamName);
-        if(pIds[i] != null)
-          newPartitions.add(createPartition(pIds[i], initShardPos, newManagers));
+
+        if (pIds[i] != null) {
+          newPartitions.add(createPartition(pIds[i], initShardPos));
+        }
       }
       break;
     default:
       break;
     }
-    windowDataManager.partitioned(newManagers, deletedOperators);
+    int i = 0;
+    List<WindowDataManager> managers = windowDataManager.partition(partitions.size(), deletedOperators);
+    for (Partition<AbstractKinesisInputOperator> partition : partitions) {
+      partition.getPartitionedInstance().setWindowDataManager(managers.get(i++));
+    }
     return newPartitions;
   }
 
@@ -371,10 +394,9 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   }
   // Create a new partition with the shardIds and initial shard positions
   private
-  Partition<AbstractKinesisInputOperator> createPartition(Set<String> shardIds, Map<String, String> initShardPos, Collection<WindowDataManager> newManagers)
+  Partition<AbstractKinesisInputOperator> createPartition(Set<String> shardIds, Map<String, String> initShardPos)
   {
     Partition<AbstractKinesisInputOperator> p = new DefaultPartition<AbstractKinesisInputOperator>(KryoCloneUtils.cloneObject(this));
-    newManagers.add(p.getPartitionedInstance().windowDataManager);
     p.getPartitionedInstance().getConsumer().setShardIds(shardIds);
     p.getPartitionedInstance().getConsumer().resetShardPositions(initShardPos);
 
@@ -403,7 +425,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
     operatorId = context.getId();
     windowDataManager.setup(context);
     shardPosition.clear();
-    if (context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) < windowDataManager.getLargestRecoveryWindow()) {
+    if (context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) < windowDataManager.getLargestCompletedWindow()) {
       isReplayState = true;
     }
   }
@@ -426,7 +448,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   {
     emitCount = 0;
     currentWindowId = windowId;
-    if (windowId <= windowDataManager.getLargestRecoveryWindow()) {
+    if (windowId <= windowDataManager.getLargestCompletedWindow()) {
       replay(windowId);
     }
   }
@@ -436,7 +458,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
     try {
       @SuppressWarnings("unchecked")
       Map<String, KinesisPair<String, Integer>> recoveredData =
-          (Map<String, KinesisPair<String, Integer>>)windowDataManager.load(operatorId, windowId);
+          (Map<String, KinesisPair<String, Integer>>)windowDataManager.retrieve(windowId);
       if (recoveredData == null) {
         return;
       }
@@ -466,10 +488,10 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   @Override
   public void endWindow()
   {
-    if (currentWindowId > windowDataManager.getLargestRecoveryWindow()) {
+    if (currentWindowId > windowDataManager.getLargestCompletedWindow()) {
       context.setCounters(getConsumer().getConsumerStats(shardPosition));
       try {
-        windowDataManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
+        windowDataManager.save(currentWindowRecoveryState, currentWindowId);
       }
       catch (IOException e) {
         throw new RuntimeException("saving recovery", e);
@@ -497,7 +519,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   public void committed(long windowId)
   {
     try {
-      windowDataManager.deleteUpTo(operatorId, windowId);
+      windowDataManager.committed(windowId);
     }
     catch (IOException e) {
       throw new RuntimeException("deleting state", e);
@@ -523,7 +545,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   @Override
   public void emitTuples()
   {
-    if (currentWindowId <= windowDataManager.getLargestRecoveryWindow()) {
+    if (currentWindowId <= windowDataManager.getLargestCompletedWindow()) {
       return;
     }
     int count = consumer.getQueueSize();

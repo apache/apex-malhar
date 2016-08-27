@@ -145,7 +145,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
       blockSize = fs.getDefaultBlockSize(new Path(scanner.files.iterator().next()));
     }
 
-    if (context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID) < windowDataManager.getLargestRecoveryWindow()) {
+    if (context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID) < windowDataManager.getLargestCompletedWindow()) {
       blockMetadataIterator = null;
     } else {
       //don't setup scanner while recovery
@@ -175,7 +175,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
   {
     blockCount = 0;
     currentWindowId = windowId;
-    if (windowId <= windowDataManager.getLargestRecoveryWindow()) {
+    if (windowId <= windowDataManager.getLargestCompletedWindow()) {
       replay(windowId);
     }
   }
@@ -184,7 +184,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
   {
     try {
       @SuppressWarnings("unchecked")
-      LinkedList<FileInfo> recoveredData = (LinkedList<FileInfo>)windowDataManager.load(operatorId, windowId);
+      LinkedList<FileInfo> recoveredData = (LinkedList<FileInfo>)windowDataManager.retrieve(windowId);
       if (recoveredData == null) {
         //This could happen when there are multiple physical instances and one of them is ahead in processing windows.
         return;
@@ -209,7 +209,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
         }
       }
 
-      if (windowId == windowDataManager.getLargestRecoveryWindow()) {
+      if (windowId == windowDataManager.getLargestCompletedWindow()) {
         scanner.setup(context);
       }
     } catch (IOException e) {
@@ -220,7 +220,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
   @Override
   public void emitTuples()
   {
-    if (currentWindowId <= windowDataManager.getLargestRecoveryWindow()) {
+    if (currentWindowId <= windowDataManager.getLargestCompletedWindow()) {
       return;
     }
 
@@ -259,9 +259,9 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
   @Override
   public void endWindow()
   {
-    if (currentWindowId > windowDataManager.getLargestRecoveryWindow()) {
+    if (currentWindowId > windowDataManager.getLargestCompletedWindow()) {
       try {
-        windowDataManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
+        windowDataManager.save(currentWindowRecoveryState, currentWindowId);
       } catch (IOException e) {
         throw new RuntimeException("saving recovery", e);
       }
@@ -388,7 +388,7 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
   public void committed(long l)
   {
     try {
-      windowDataManager.deleteUpTo(operatorId, l);
+      windowDataManager.committed(l);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

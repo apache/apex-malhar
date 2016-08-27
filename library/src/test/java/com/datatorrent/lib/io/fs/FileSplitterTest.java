@@ -346,7 +346,7 @@ public class FileSplitterTest
   public void testRecoveryOfPartialFile() throws InterruptedException
   {
     FSWindowDataManager fsIdempotentStorageManager = new FSWindowDataManager();
-    fsIdempotentStorageManager.setRecoveryPath(testMeta.dataDirectory + '/' + "recovery");
+    fsIdempotentStorageManager.setStatePath(testMeta.dataDirectory + '/' + "recovery");
     testMeta.fileSplitter.setWindowDataManager(fsIdempotentStorageManager);
     testMeta.fileSplitter.setBlockSize(2L);
     testMeta.fileSplitter.setBlocksThreshold(2);

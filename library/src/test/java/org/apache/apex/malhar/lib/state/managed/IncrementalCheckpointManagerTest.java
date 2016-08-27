@@ -98,14 +98,15 @@ public class IncrementalCheckpointManagerTest
   {
     testMeta.checkpointManager.setup(testMeta.managedStateContext);
     Map<Long, Map<Slice, Bucket.BucketedValue>> buckets5 = ManagedStateTestUtils.getTestData(0, 5, 0);
-    testMeta.checkpointManager.save(buckets5, testMeta.operatorId, 10, false);
+    testMeta.checkpointManager.save(buckets5, 10, false);
     testMeta.checkpointManager.teardown();
 
-    testMeta.checkpointManager = new IncrementalCheckpointManager();
+    KryoCloneUtils<IncrementalCheckpointManager> cloneUtils = KryoCloneUtils.createCloneUtils(testMeta.checkpointManager);
+    testMeta.checkpointManager = cloneUtils.getClone();
     testMeta.checkpointManager.setup(testMeta.managedStateContext);
     @SuppressWarnings("unchecked")
     Map<Long, Map<Slice, Bucket.BucketedValue>> buckets5After = (Map<Long, Map<Slice, Bucket.BucketedValue>>)
-        testMeta.checkpointManager.load(testMeta.operatorId, 10);
+        testMeta.checkpointManager.retrieve(10);
 
     Assert.assertEquals("saved", buckets5, buckets5After);
     testMeta.checkpointManager.teardown();
@@ -117,12 +118,12 @@ public class IncrementalCheckpointManagerTest
     testMeta.checkpointManager.setup(testMeta.managedStateContext);
 
     Map<Long, Map<Slice, Bucket.BucketedValue>> buckets5 = ManagedStateTestUtils.getTestData(0, 5, 0);
-    testMeta.checkpointManager.save(buckets5, testMeta.operatorId, 10, false);
+    testMeta.checkpointManager.save(buckets5, 10, false);
     //Need to synchronously call transfer window files so shutting down the other thread.
     testMeta.checkpointManager.teardown();
     Thread.sleep(500);
 
-    testMeta.checkpointManager.committed(testMeta.operatorId, 10);
+    testMeta.checkpointManager.committed(10);
     testMeta.checkpointManager.transferWindowFiles();
 
     for (int i = 0; i < 5; i++) {
@@ -143,8 +144,8 @@ public class IncrementalCheckpointManagerTest
     testMeta.checkpointManager.setup(testMeta.managedStateContext);
 
     Map<Long, Map<Slice, Bucket.BucketedValue>> data = ManagedStateTestUtils.getTestData(0, 5, 0);
-    testMeta.checkpointManager.save(data, testMeta.operatorId, 10, false);
-    testMeta.checkpointManager.committed(testMeta.operatorId, 10);
+    testMeta.checkpointManager.save(data, 10, false);
+    testMeta.checkpointManager.committed(10);
     latch.await();
     testMeta.checkpointManager.teardown();
     Thread.sleep(500);
@@ -183,8 +184,8 @@ public class IncrementalCheckpointManagerTest
     }
 
     @Override
-    protected void writeBucketData(long windowId, long bucketId, Map<Slice, Bucket.BucketedValue> data)
-        throws IOException
+    protected void writeBucketData(long windowId, long bucketId, Map<Slice,
+        Bucket.BucketedValue> data) throws IOException
     {
       super.writeBucketData(windowId, bucketId, data);
       if (windowId == 10) {

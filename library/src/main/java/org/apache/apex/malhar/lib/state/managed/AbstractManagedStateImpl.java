@@ -202,28 +202,23 @@ public abstract class AbstractManagedStateImpl
     long activationWindow = context.getValue(OperatorContext.ACTIVATION_WINDOW_ID);
 
     if (activationWindow != Stateless.WINDOW_ID) {
-      //delete all the wal files with windows > activationWindow.
       //All the wal files with windows <= activationWindow are loaded and kept separately as recovered data.
       try {
-        long[] recoveredWindows = checkpointManager.getWindowIds(operatorContext.getId());
-        if (recoveredWindows != null) {
-          for (long recoveredWindow : recoveredWindows) {
-            if (recoveredWindow <= activationWindow) {
-              @SuppressWarnings("unchecked")
-              Map<Long, Map<Slice, Bucket.BucketedValue>> recoveredData = (Map<Long, Map<Slice, Bucket.BucketedValue>>)
-                  checkpointManager.load(operatorContext.getId(), recoveredWindow);
-              if (recoveredData != null && !recoveredData.isEmpty()) {
-                for (Map.Entry<Long, Map<Slice, Bucket.BucketedValue>> entry : recoveredData.entrySet()) {
-                  int bucketIdx = prepareBucket(entry.getKey());
-                  buckets[bucketIdx].recoveredData(recoveredWindow, entry.getValue());
-                }
-              }
-              checkpointManager.save(recoveredData, operatorContext.getId(), recoveredWindow,
-                  true /*skipWritingToWindowFile*/);
-            } else {
-              checkpointManager.delete(operatorContext.getId(), recoveredWindow);
+
+        Map<Long, Object> statePerWindow = checkpointManager.retrieveAllWindows();
+        for (Map.Entry<Long, Object> stateEntry : statePerWindow.entrySet()) {
+          Preconditions.checkArgument(stateEntry.getKey() <= activationWindow,
+              stateEntry.getKey() + " greater than " + activationWindow);
+          @SuppressWarnings("unchecked")
+          Map<Long, Map<Slice, Bucket.BucketedValue>> state = (Map<Long, Map<Slice, Bucket.BucketedValue>>)
+              stateEntry.getValue();
+          if (state != null && !state.isEmpty()) {
+            for (Map.Entry<Long, Map<Slice, Bucket.BucketedValue>> bucketEntry : state.entrySet()) {
+              int bucketIdx = prepareBucket(bucketEntry.getKey());
+              buckets[bucketIdx].recoveredData(stateEntry.getKey(), bucketEntry.getValue());
             }
           }
+          checkpointManager.save(state, stateEntry.getKey(), true /*skipWritingToWindowFile*/);
         }
       } catch (IOException e) {
         throw new RuntimeException("recovering", e);
@@ -354,7 +349,7 @@ public abstract class AbstractManagedStateImpl
     }
     if (!flashData.isEmpty()) {
       try {
-        checkpointManager.save(flashData, operatorContext.getId(), windowId, false);
+        checkpointManager.save(flashData, windowId, false);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -379,8 +374,8 @@ public abstract class AbstractManagedStateImpl
             }
           }
         }
-        checkpointManager.committed(operatorContext.getId(), windowId);
-      } catch (IOException | InterruptedException e) {
+        checkpointManager.committed(windowId);
+      } catch (IOException e) {
         throw new RuntimeException("committing " + windowId, e);
       }
     }

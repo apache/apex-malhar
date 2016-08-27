@@ -169,7 +169,7 @@ public class RedisInputOperatorTest
       operator.outputPort.setSink(sink);
       operator.setup(context);
 
-      Assert.assertEquals("largest recovery window", 2, operator.getWindowDataManager().getLargestRecoveryWindow());
+      Assert.assertEquals("largest recovery window", 2, operator.getWindowDataManager().getLargestCompletedWindow());
 
       operator.beginWindow(1);
       operator.emitTuples();
@@ -189,7 +189,7 @@ public class RedisInputOperatorTest
         testStore.remove(entry.getKey());
       }
       sink.collectedTuples.clear();
-      operator.getWindowDataManager().deleteUpTo(context.getId(), 5);
+      operator.getWindowDataManager().committed(5);
       operator.teardown();
     }
   }

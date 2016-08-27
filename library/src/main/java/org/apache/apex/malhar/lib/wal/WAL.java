@@ -51,7 +51,7 @@ public interface WAL<READER extends WAL.WALReader, WRITER extends WAL.WALWriter>
    * Provides iterator like interface to read entries from the WAL.
    * @param <P> type of Pointer in the WAL
    */
-  interface WALReader<P>
+  interface WALReader<P> extends AutoCloseable
   {
     /**
      * Seek to middle of the WAL. This is used primarily during recovery,
@@ -66,6 +66,11 @@ public interface WAL<READER extends WAL.WALReader, WRITER extends WAL.WALWriter>
     Slice next() throws IOException;
 
     /**
+     * Skips the next entry in the WAL.
+     */
+    void skipNext() throws IOException;
+
+    /**
      * Returns the start pointer from which data is available to read.<br/>
      * WAL Writer supports purging of aged data so the start pointer will change over time.
      *
@@ -78,7 +83,7 @@ public interface WAL<READER extends WAL.WALReader, WRITER extends WAL.WALWriter>
    * Provide method to write entries to the WAL.
    * @param <P> type of Pointer in the WAL
    */
-  interface WALWriter<P>
+  interface WALWriter<P> extends AutoCloseable
   {
     /**
      * Write an entry to the WAL

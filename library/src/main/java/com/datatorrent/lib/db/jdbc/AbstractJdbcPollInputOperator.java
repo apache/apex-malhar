@@ -161,7 +161,7 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
   public void activate(OperatorContext context)
   {
     initializePreparedStatement();
-    long largestRecoveryWindow = windowManager.getLargestRecoveryWindow();
+    long largestRecoveryWindow = windowManager.getLargestCompletedWindow();
     if (largestRecoveryWindow == Stateless.WINDOW_ID
         || context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID) > largestRecoveryWindow) {
       scanService.scheduleAtFixedRate(new DBPoller(), 0, pollInterval, TimeUnit.MILLISECONDS);
@@ -191,7 +191,7 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
   public void beginWindow(long windowId)
   {
     currentWindowId = windowId;
-    if (currentWindowId <= windowManager.getLargestRecoveryWindow()) {
+    if (currentWindowId <= windowManager.getLargestCompletedWindow()) {
       try {
         replay(currentWindowId);
         return;
@@ -228,7 +228,7 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
   @Override
   public void emitTuples()
   {
-    if (currentWindowId <= windowManager.getLargestRecoveryWindow()) {
+    if (currentWindowId <= windowManager.getLargestCompletedWindow()) {
       return;
     }
     int pollSize = (emitQueue.size() < batchSize) ? emitQueue.size() : batchSize;
@@ -247,9 +247,9 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
   public void endWindow()
   {
     try {
-      if (currentWindowId > windowManager.getLargestRecoveryWindow()) {
+      if (currentWindowId > windowManager.getLargestCompletedWindow()) {
         currentWindowRecoveryState = new MutablePair<>(lowerBound, lastEmittedRow);
-        windowManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
+        windowManager.save(currentWindowRecoveryState, currentWindowId);
       }
     } catch (IOException e) {
       throw new RuntimeException("saving recovery", e);
@@ -301,8 +301,8 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
   {
 
     try {
-      MutablePair<Integer, Integer> recoveredData = (MutablePair<Integer, Integer>)windowManager.load(operatorId,
-          windowId);
+      @SuppressWarnings("unchecked")
+      MutablePair<Integer, Integer> recoveredData = (MutablePair<Integer, Integer>)windowManager.retrieve(windowId);
 
       if (recoveredData != null && shouldReplayWindow(recoveredData)) {
         LOG.debug("[Recovering Window ID - {} for record range: {}, {}]", windowId, recoveredData.left,
@@ -317,7 +317,7 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
 
       }
 
-      if (currentWindowId == windowManager.getLargestRecoveryWindow()) {
+      if (currentWindowId == windowManager.getLargestCompletedWindow()) {
         try {
           if (!isPollerPartition && rangeQueryPair.getValue() != null) {
             ps = store.getConnection().prepareStatement(
