@@ -190,7 +190,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
   public void beginWindow(long windowId)
   {
     currentWindowId = windowId;
-    if (windowId <= this.windowDataManager.getLargestRecoveryWindow()) {
+    if (windowId <= this.windowDataManager.getLargestCompletedWindow()) {
       replay(windowId);
     }
   }

@@ -30,9 +30,9 @@ import com.google.common.collect.TreeMultimap;
 import com.datatorrent.netlet.util.Slice;
 
 /**
- * A FileSystemWAL that WindowDataManager uses to save state of every window.
+ * A {@link FileSystemWAL} that WindowDataManager uses to save state of every window.
  */
-class FSWindowReplayWAL extends FileSystemWAL
+public class FSWindowReplayWAL extends FileSystemWAL
 {
   transient boolean readOnly;
 
@@ -71,7 +71,12 @@ class FSWindowReplayWAL extends FileSystemWAL
       throw new RuntimeException("while setup");
     }
   }
-
+  
+  public FileSystemWALPointer getWalEndPointerAfterRecovery()
+  {
+    return walEndPointerAfterRecovery;
+  }
+  
   /**
    * Finalizes files just after rotation. Doesn't wait for the window to be committed.
    */

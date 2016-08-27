@@ -105,7 +105,7 @@ public abstract class AbstractNiFiInputOperator<T> implements InputOperator
     currentWindowId = windowId;
 
     // if the current window is now less than the largest window, then we need to replay data
-    if (currentWindowId <= windowDataManager.getLargestRecoveryWindow()) {
+    if (currentWindowId <= windowDataManager.getLargestCompletedWindow()) {
       try {
         List<T> recoveredData =  (List<T>)this.windowDataManager.retrieve(windowId);
         if (recoveredData == null) {

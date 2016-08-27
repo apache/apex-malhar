@@ -77,7 +77,7 @@ public class FSWindowDataManagerTest
   {
     Pair<Context.OperatorContext, FSWindowDataManager> pair = createManagerAndContextFor(1);
     pair.second.setup(pair.first);
-    Assert.assertEquals("largest recovery", Stateless.WINDOW_ID, pair.second.getLargestRecoveryWindow());
+    Assert.assertEquals("largest recovery", Stateless.WINDOW_ID, pair.second.getLargestCompletedWindow());
     pair.second.teardown();
   }
 
@@ -193,22 +193,52 @@ public class FSWindowDataManagerTest
     pair2.second.save(dataOf2, 2);
 
     pair1.second.setup(pair1.first);
-    Assert.assertEquals("largest recovery window", 1, pair1.second.getLargestRecoveryWindow());
+    Assert.assertEquals("largest recovery window", 1, pair1.second.getLargestCompletedWindow());
 
     pair2.second.setup(pair2.first);
-    Assert.assertEquals("largest recovery window", 2, pair2.second.getLargestRecoveryWindow());
+    Assert.assertEquals("largest recovery window", 2, pair2.second.getLargestCompletedWindow());
 
     pair1.second.teardown();
     pair2.second.teardown();
 
     WindowDataManager manager = pair1.second.partition(1, Sets.newHashSet(2)).get(0);
     manager.setup(pair1.first);
-    Assert.assertEquals("largest recovery window", 1, manager.getLargestRecoveryWindow());
+    Assert.assertEquals("largest recovery window", 1, manager.getLargestCompletedWindow());
     manager.teardown();
+  }
+  
+  @Test
+  public void testDelete() throws IOException
+  {
+    Pair<Context.OperatorContext, FSWindowDataManager> pair1 = createManagerAndContextFor(1);
+    pair1.second.getWal().setMaxLength(2);
+    pair1.second.setup(pair1.first);
+    
+    Map<Integer, String> dataOf1 = Maps.newHashMap();
+    dataOf1.put(1, "one");
+    dataOf1.put(2, "two");
+    dataOf1.put(3, "three");
+    
+    for (int i = 1; i <= 9; ++i) {
+      pair1.second.save(dataOf1, i);
+    }
+    
+    pair1.second.committed(3);
+    pair1.second.teardown();
+    
+    Pair<Context.OperatorContext, FSWindowDataManager> pair1AfterRecovery = createManagerAndContextFor(1);
+    testMeta.attributes.put(Context.OperatorContext.ACTIVATION_WINDOW_ID, 1L);
+    pair1AfterRecovery.second.setup(pair1AfterRecovery.first);
+    
+    Assert.assertEquals("window 1 deleted", null, pair1AfterRecovery.second.retrieve(1));
+    Assert.assertEquals("window 3 deleted", null, pair1AfterRecovery.second.retrieve(3));
+    
+    Assert.assertEquals("window 4 exists", dataOf1, pair1AfterRecovery.second.retrieve(4));
+    pair1.second.teardown();
   }
 
   @Test
-  public void testDelete() throws IOException
+  public void testDeleteDoesNotRemoveTmpFiles() throws IOException
   {
     Pair<Context.OperatorContext, FSWindowDataManager> pair1 = createManagerAndContextFor(1);
     pair1.second.setup(pair1.first);
@@ -253,7 +283,7 @@ public class FSWindowDataManagerTest
     FSWindowDataManager fsManager = (FSWindowDataManager)pair1.second.partition(1, Sets.newHashSet(2, 3)).get(0);
     fsManager.setup(pair1.first);
 
-    Assert.assertEquals("recovery window", 3, fsManager.getLargestRecoveryWindow());
+    Assert.assertEquals("recovery window", 3, fsManager.getLargestCompletedWindow());
 
     Map<Integer, Object> artifacts = fsManager.retrieveAllPartitions(1);
     Assert.assertEquals("num artifacts", 3, artifacts.size());
@@ -263,7 +293,7 @@ public class FSWindowDataManagerTest
 
     testMeta.attributes.put(Context.OperatorContext.ACTIVATION_WINDOW_ID, 3L);
     fsManager.setup(pair1.first);
-    Assert.assertEquals("recovery window", Stateless.WINDOW_ID, fsManager.getLargestRecoveryWindow());
+    Assert.assertEquals("recovery window", Stateless.WINDOW_ID, fsManager.getLargestCompletedWindow());
     fsManager.teardown();
   }
 
@@ -271,9 +301,9 @@ public class FSWindowDataManagerTest
   public void testAbsoluteRecoveryPath() throws IOException
   {
     Pair<Context.OperatorContext, FSWindowDataManager> pair = createManagerAndContextFor(1);
-    pair.second.setRecoveryPathRelativeToAppPath(false);
+    pair.second.setStatePathRelativeToAppPath(false);
     long time = System.currentTimeMillis();
-    pair.second.setRecoveryPath("target/" + time);
+    pair.second.setStatePath("target/" + time);
 
     pair.second.setup(pair.first);
     Map<Integer, String> data = Maps.newHashMap();

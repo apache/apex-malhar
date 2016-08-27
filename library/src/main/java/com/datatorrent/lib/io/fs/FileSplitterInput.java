@@ -111,7 +111,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
     windowDataManager.setup(context);
     super.setup(context);
 
-    long largestRecoveryWindow = windowDataManager.getLargestRecoveryWindow();
+    long largestRecoveryWindow = windowDataManager.getLargestCompletedWindow();
     if (largestRecoveryWindow == Stateless.WINDOW_ID || context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID) >
         largestRecoveryWindow) {
       scanner.startScanning(Collections.unmodifiableMap(referenceTimes));
@@ -122,7 +122,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   public void beginWindow(long windowId)
   {
     super.beginWindow(windowId);
-    if (windowId <= windowDataManager.getLargestRecoveryWindow()) {
+    if (windowId <= windowDataManager.getLargestCompletedWindow()) {
       replay(windowId);
     }
   }
@@ -152,7 +152,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
     } catch (IOException e) {
       throw new RuntimeException("replay", e);
     }
-    if (windowId == windowDataManager.getLargestRecoveryWindow()) {
+    if (windowId == windowDataManager.getLargestCompletedWindow()) {
       scanner.startScanning(Collections.unmodifiableMap(referenceTimes));
     }
   }
@@ -160,7 +160,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   @Override
   public void emitTuples()
   {
-    if (currentWindowId <= windowDataManager.getLargestRecoveryWindow()) {
+    if (currentWindowId <= windowDataManager.getLargestCompletedWindow()) {
       return;
     }
 
@@ -207,7 +207,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   @Override
   public void endWindow()
   {
-    if (currentWindowId > windowDataManager.getLargestRecoveryWindow()) {
+    if (currentWindowId > windowDataManager.getLargestCompletedWindow()) {
       try {
         windowDataManager.save(currentWindowRecoveryState, currentWindowId);
       } catch (IOException e) {

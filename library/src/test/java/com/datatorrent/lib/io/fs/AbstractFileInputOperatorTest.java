@@ -616,7 +616,7 @@ public class AbstractFileInputOperatorTest
 
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     FSWindowDataManager manager = new FSWindowDataManager();
-    manager.setRecoveryPath(testMeta.dir + "/recovery");
+    manager.setStatePath(testMeta.dir + "/recovery");
 
     oper.setWindowDataManager(manager);
 
@@ -665,7 +665,7 @@ public class AbstractFileInputOperatorTest
 
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     FSWindowDataManager manager = new FSWindowDataManager();
-    manager.setRecoveryPath(testMeta.dir + "/recovery");
+    manager.setStatePath(testMeta.dir + "/recovery");
 
     oper.setWindowDataManager(manager);
 
@@ -708,7 +708,7 @@ public class AbstractFileInputOperatorTest
 
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     FSWindowDataManager manager = new FSWindowDataManager();
-    manager.setRecoveryPath(testMeta.dir + "/recovery");
+    manager.setStatePath(testMeta.dir + "/recovery");
     oper.setEmitBatchSize(5);
 
     oper.setWindowDataManager(manager);
@@ -771,7 +771,7 @@ public class AbstractFileInputOperatorTest
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
 
     FSWindowDataManager manager = new FSWindowDataManager();
-    manager.setRecoveryPath(testMeta.dir + "/recovery");
+    manager.setStatePath(testMeta.dir + "/recovery");
 
     oper.setWindowDataManager(manager);
 

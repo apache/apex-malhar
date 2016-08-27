@@ -133,7 +133,7 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
   {
     this.windowId = windowId;
 
-    if (windowId == windowDataManager.getLargestRecoveryWindow()) {
+    if (windowId == windowDataManager.getLargestCompletedWindow()) {
       rebuildPartialWindow();
     }
   }
@@ -168,7 +168,7 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
   @Override
   public void endWindow()
   {
-    if (!partialWindowTuples.isEmpty() && windowId > windowDataManager.getLargestRecoveryWindow()) {
+    if (!partialWindowTuples.isEmpty() && windowId > windowDataManager.getLargestCompletedWindow()) {
       throw new RuntimeException("Violates Exactly once. Not all the tuples received after operator reset.");
     }
 
@@ -209,7 +209,7 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
 
   private boolean alreadyInKafka(T message)
   {
-    if ( windowId <= windowDataManager.getLargestRecoveryWindow() ) {
+    if ( windowId <= windowDataManager.getLargestCompletedWindow() ) {
       return true;
     }
 
@@ -265,7 +265,7 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
 
   private void rebuildPartialWindow()
   {
-    logger.info("Rebuild the partial window after " + windowDataManager.getLargestRecoveryWindow());
+    logger.info("Rebuild the partial window after " + windowDataManager.getLargestCompletedWindow());
 
     Map<Integer,Long> storedOffsets;
     Map<Integer,Long> currentOffsets;
@@ -278,7 +278,7 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
     }
 
     if (currentOffsets == null) {
-      logger.debug("No tuples found while building partial window " + windowDataManager.getLargestRecoveryWindow());
+      logger.debug("No tuples found while building partial window " + windowDataManager.getLargestCompletedWindow());
       return;
     }
 

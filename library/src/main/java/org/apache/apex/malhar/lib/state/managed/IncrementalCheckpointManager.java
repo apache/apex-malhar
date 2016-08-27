@@ -19,6 +19,7 @@
 package org.apache.apex.malhar.lib.state.managed;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutorService;
@@ -33,10 +34,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
+import org.apache.apex.malhar.lib.wal.FileSystemWAL;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Queues;
+import com.google.common.primitives.Longs;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.annotation.Stateless;
@@ -78,7 +81,7 @@ public class IncrementalCheckpointManager extends FSWindowDataManager
   public IncrementalCheckpointManager()
   {
     super();
-    setRecoveryPath(WAL_RELATIVE_PATH);
+    setStatePath(WAL_RELATIVE_PATH);
     setRelyOnCheckpoints(true);
   }
 
@@ -181,19 +184,41 @@ public class IncrementalCheckpointManager extends FSWindowDataManager
   }
 
   /**
+   * Retrieves artifacts available for all the windows saved by the enclosing partitions.
+   * @return  artifact saved per window.
+   * @throws IOException
+   */
+  public Map<Long, Object> retrieveAllWindows() throws IOException
+  {
+    Map<Long, Object> artifactPerWindow = new HashMap<>();
+    FileSystemWAL.FileSystemWALReader reader = getWal().getReader();
+    reader.seek(getWal().getWalStartPointer());
+    
+    Slice windowSlice = readNext(reader);
+    while (reader.getCurrentPointer().compareTo(getWal().getWalEndPointerAfterRecovery()) < 0 && windowSlice != null) {
+      long window = Longs.fromByteArray(windowSlice.toByteArray());
+      Object data = fromSlice(readNext(reader));
+      artifactPerWindow.put(window, data);
+      windowSlice = readNext(reader); //null or next window
+    }
+    reader.seek(getWal().getWalStartPointer());
+    return artifactPerWindow;
+  }
+
+  /**
    * Transfers the data which has been committed till windowId to data files.
    *
-   * @param windowId   window id
+   * @param committedWindowId   window id
    */
   @Override
-  public void committed(long windowId) throws IOException
+  public void committed(long committedWindowId) throws IOException
   {
-    LOG.debug("data manager committed {}", windowId);
+    LOG.debug("data manager committed {}", committedWindowId);
     for (Long currentWindow : savedWindows.keySet()) {
       if (currentWindow <= largestWindowAddedToTransferQueue) {
         continue;
       }
-      if (currentWindow <= windowId) {
+      if (currentWindow <= committedWindowId) {
         LOG.debug("to transfer {}", currentWindow);
         largestWindowAddedToTransferQueue = currentWindow;
         windowsToTransfer.add(currentWindow);

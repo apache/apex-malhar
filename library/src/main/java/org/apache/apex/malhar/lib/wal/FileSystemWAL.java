@@ -163,6 +163,14 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
   {
     return filePath + "_" + partNumber;
   }
+  
+  /**
+   * @return the wal start pointer
+   */
+  public FileSystemWALPointer getWalStartPointer()
+  {
+    return walStartPointer;
+  }
 
   @Override
   public FileSystemWALReader getReader()
@@ -257,7 +265,7 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
   /**
    * @return true if writing in batch mode; false otherwise.
    */
-  public boolean isInBatchMode()
+  protected boolean isInBatchMode()
   {
     return inBatchMode;
   }
@@ -268,7 +276,7 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
    *
    * @param inBatchMode write in batch mode or not.
    */
-  public void setInBatchMode(boolean inBatchMode)
+  protected void setInBatchMode(boolean inBatchMode)
   {
     this.inBatchMode = inBatchMode;
   }
@@ -459,7 +467,7 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
       return null;
     }
 
-    FileSystemWALPointer getCurrentPointer()
+    public FileSystemWALPointer getCurrentPointer()
     {
       return currentPointer;
     }
@@ -700,7 +708,11 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
       rotated(partNum);
     }
 
-    public void batchCompleted() throws IOException
+    /**
+     * When the wal is used in batch-mode, this method will trigger rotation if the current part file is completed.
+     * @throws IOException
+     */
+    protected void rotateIfNecessary() throws IOException
     {
       if (fileSystemWAL.inBatchMode && currentPointer.offset >= fileSystemWAL.maxLength) {
         //if the file is completed then we can rotate it

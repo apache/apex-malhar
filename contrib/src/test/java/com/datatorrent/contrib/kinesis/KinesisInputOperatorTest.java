@@ -232,7 +232,7 @@ public class KinesisInputOperatorTest extends KinesisOperatorTestBase
     testMeta.operator.setup(testMeta.context);
     testMeta.operator.activate(testMeta.context);
 
-    Assert.assertEquals("largest recovery window", 1, testMeta.operator.getWindowDataManager().getLargestRecoveryWindow());
+    Assert.assertEquals("largest recovery window", 1, testMeta.operator.getWindowDataManager().getLargestCompletedWindow());
 
     testMeta.operator.beginWindow(1);
     testMeta.operator.endWindow();

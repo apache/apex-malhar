@@ -109,7 +109,7 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
   public void beginWindow(long windowId)
   {
     currentWindowId = windowId;    
-    largestRecoveryWindowId = windowDataManager.getLargestRecoveryWindow();
+    largestRecoveryWindowId = windowDataManager.getLargestCompletedWindow();
     if (windowId <= largestRecoveryWindowId) {
       // Do not resend already sent tuples
       skipProcessingTuple = true;

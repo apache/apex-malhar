@@ -94,7 +94,7 @@ public abstract class AbstractRedisInputOperator<T> extends AbstractKeyValueStor
     currentWindowId = windowId;
     scanCallsInCurrentWindow = 0;
     replay = false;
-    if (currentWindowId <= getWindowDataManager().getLargestRecoveryWindow()) {
+    if (currentWindowId <= getWindowDataManager().getLargestCompletedWindow()) {
       replay(windowId);
     }
   }
@@ -183,7 +183,7 @@ public abstract class AbstractRedisInputOperator<T> extends AbstractKeyValueStor
     recoveryState.scanOffsetAtBeginWindow = scanOffset;
     recoveryState.numberOfScanCallsInWindow = scanCallsInCurrentWindow;
 
-    if (currentWindowId > getWindowDataManager().getLargestRecoveryWindow()) {
+    if (currentWindowId > getWindowDataManager().getLargestCompletedWindow()) {
       try {
         getWindowDataManager().save(recoveryState, currentWindowId);
       } catch (IOException e) {

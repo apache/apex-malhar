@@ -425,7 +425,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
     operatorId = context.getId();
     windowDataManager.setup(context);
     shardPosition.clear();
-    if (context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) < windowDataManager.getLargestRecoveryWindow()) {
+    if (context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) < windowDataManager.getLargestCompletedWindow()) {
       isReplayState = true;
     }
   }
@@ -448,7 +448,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   {
     emitCount = 0;
     currentWindowId = windowId;
-    if (windowId <= windowDataManager.getLargestRecoveryWindow()) {
+    if (windowId <= windowDataManager.getLargestCompletedWindow()) {
       replay(windowId);
     }
   }
@@ -488,7 +488,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   @Override
   public void endWindow()
   {
-    if (currentWindowId > windowDataManager.getLargestRecoveryWindow()) {
+    if (currentWindowId > windowDataManager.getLargestCompletedWindow()) {
       context.setCounters(getConsumer().getConsumerStats(shardPosition));
       try {
         windowDataManager.save(currentWindowRecoveryState, currentWindowId);
@@ -545,7 +545,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   @Override
   public void emitTuples()
   {
-    if (currentWindowId <= windowDataManager.getLargestRecoveryWindow()) {
+    if (currentWindowId <= windowDataManager.getLargestCompletedWindow()) {
       return;
     }
     int count = consumer.getQueueSize();

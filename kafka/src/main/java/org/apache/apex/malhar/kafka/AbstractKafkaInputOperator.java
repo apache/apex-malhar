@@ -244,7 +244,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
     emitCount = 0;
     currentWindowId = wid;
     windowStartOffset.clear();
-    if (isIdempotent() && wid <= windowDataManager.getLargestRecoveryWindow()) {
+    if (isIdempotent() && wid <= windowDataManager.getLargestCompletedWindow()) {
       replay(wid);
     } else {
       consumerWrapper.afterReplay();

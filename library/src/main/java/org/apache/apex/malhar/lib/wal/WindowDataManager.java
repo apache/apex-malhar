@@ -66,17 +66,10 @@ public interface WindowDataManager extends Component<Context.OperatorContext>
   Object retrieve(long windowId) throws IOException;
 
   /**
-   * Delete the artifact corresponding to the last window.
-   *
-   * @throws IOException
-   */
-  void deleteLastWindow() throws IOException;
-
-  /**
-   * Gets the largest window for which there is recovery data.
+   * Gets the largest window which was completed.
    * @return Returns the window id
    */
-  long getLargestRecoveryWindow();
+  long getLargestCompletedWindow();
 
   /**
    * Fetches the state saved for a window id for all the partitions.
@@ -117,8 +110,7 @@ public interface WindowDataManager extends Component<Context.OperatorContext>
    */
   class NoopWindowDataManager implements WindowDataManager
   {
-    @Override
-    public long getLargestRecoveryWindow()
+    public long getLargestCompletedWindow()
     {
       return Stateless.WINDOW_ID;
     }
@@ -158,11 +150,6 @@ public interface WindowDataManager extends Component<Context.OperatorContext>
     public Object retrieve(long windowId) throws IOException
     {
       return null;
-    }
-
-    @Override
-    public void deleteLastWindow() throws IOException
-    {
     }
 
     @Override

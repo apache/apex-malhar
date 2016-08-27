@@ -169,7 +169,7 @@ public class RedisInputOperatorTest
       operator.outputPort.setSink(sink);
       operator.setup(context);
 
-      Assert.assertEquals("largest recovery window", 2, operator.getWindowDataManager().getLargestRecoveryWindow());
+      Assert.assertEquals("largest recovery window", 2, operator.getWindowDataManager().getLargestCompletedWindow());
 
       operator.beginWindow(1);
       operator.emitTuples();

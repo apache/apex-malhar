@@ -457,7 +457,7 @@ public abstract class AbstractFileInputOperator<T>
     fileCounters.setCounter(FileCounters.PENDING_FILES, pendingFileCount);
 
     windowDataManager.setup(context);
-    if (context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) < windowDataManager.getLargestRecoveryWindow()) {
+    if (context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) < windowDataManager.getLargestCompletedWindow()) {
       //reset current file and offset in case of replay
       currentFile = null;
       offset = 0;
@@ -519,7 +519,7 @@ public abstract class AbstractFileInputOperator<T>
   public void beginWindow(long windowId)
   {
     currentWindowId = windowId;
-    if (windowId <= windowDataManager.getLargestRecoveryWindow()) {
+    if (windowId <= windowDataManager.getLargestCompletedWindow()) {
       replay(windowId);
     }
   }
@@ -527,7 +527,7 @@ public abstract class AbstractFileInputOperator<T>
   @Override
   public void endWindow()
   {
-    if (currentWindowId > windowDataManager.getLargestRecoveryWindow()) {
+    if (currentWindowId > windowDataManager.getLargestCompletedWindow()) {
       try {
         windowDataManager.save(currentWindowRecoveryState, currentWindowId);
       } catch (IOException e) {
@@ -615,7 +615,7 @@ public abstract class AbstractFileInputOperator<T>
   @Override
   public void emitTuples()
   {
-    if (currentWindowId <= windowDataManager.getLargestRecoveryWindow()) {
+    if (currentWindowId <= windowDataManager.getLargestCompletedWindow()) {
       return;
     }
 

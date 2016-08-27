@@ -221,7 +221,7 @@ public class RabbitMQInputOperatorTest
     operator.setup(context);
     operator.activate(context);
 
-    Assert.assertEquals("largest recovery window", 1, operator.getWindowDataManager().getLargestRecoveryWindow());
+    Assert.assertEquals("largest recovery window", 1, operator.getWindowDataManager().getLargestCompletedWindow());
     operator.beginWindow(1);
     operator.endWindow();
     Assert.assertEquals("num of messages in window 1", 15, sink.collectedTuples.size());

@@ -104,7 +104,7 @@ public abstract class AbstractNiFiOutputOperator<T> extends BaseOperator
   public void beginWindow(long windowId)
   {
     currentWindowId = windowId;
-    largestRecoveryWindowId = windowDataManager.getLargestRecoveryWindow();
+    largestRecoveryWindowId = windowDataManager.getLargestCompletedWindow();
 
     // if processing a window we've already seen, don't resend the tuples
     if (currentWindowId <= largestRecoveryWindowId) {
