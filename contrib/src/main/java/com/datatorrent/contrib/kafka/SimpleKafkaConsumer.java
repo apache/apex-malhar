@@ -508,6 +508,10 @@ public class SimpleKafkaConsumer extends KafkaConsumer
               continue;
             }
             Broker b = pm.leader();
+            if (b == null) {
+              logger.info("No Leader broker for Kafka Partition {}. Skipping it for time until new leader is elected", kp.getPartitionId());
+              continue;
+            }
             Broker oldB = partitionToBroker.put(kp, b);
             if (b.equals(oldB)) {
               continue;
