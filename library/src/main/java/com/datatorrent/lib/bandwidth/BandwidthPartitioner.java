@@ -25,6 +25,9 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.common.partitioner.StatelessPartitioner;
 
+/**
+ * @since 3.5.0
+ */
 public class BandwidthPartitioner<T extends BandwidthLimitingOperator> extends StatelessPartitioner<T>
 {
   private static final long serialVersionUID = -7502505996637650237L;

@@ -42,6 +42,8 @@ import com.datatorrent.lib.fileaccess.FileAccessFSImpl;
  * <b>Properties:</b><br>
  * <b>noOfBuckets</b>: Number of buckets required for Managed state. <br>
  * <b>bucketSpanTime</b>: Indicates the length of the time bucket. <br>
+ *
+ * @since 3.5.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractManagedStateInnerJoinOperator<K,T> extends AbstractInnerJoinOperator<K,T> implements

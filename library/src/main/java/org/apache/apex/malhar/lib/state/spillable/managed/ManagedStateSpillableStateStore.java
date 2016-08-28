@@ -25,6 +25,9 @@ import com.esotericsoftware.kryo.DefaultSerializer;
 import com.esotericsoftware.kryo.serializers.FieldSerializer;
 
 @DefaultSerializer(FieldSerializer.class)
+/**
+ * @since 3.5.0
+ */
 public class ManagedStateSpillableStateStore extends ManagedStateImpl implements SpillableStateStore
 {
   public ManagedStateSpillableStateStore()

@@ -33,6 +33,8 @@ import com.datatorrent.netlet.util.Slice;
 
 /**
  * A simple in memory implementation of a {@link SpillableStateStore} backed by a {@link Map}.
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public class InMemSpillableStateStore implements SpillableStateStore

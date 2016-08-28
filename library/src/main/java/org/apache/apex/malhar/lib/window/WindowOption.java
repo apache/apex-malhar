@@ -29,6 +29,8 @@ import com.esotericsoftware.kryo.serializers.JavaSerializer;
  * This class describes how windowing is done
  *
  *  This is used by both the high level API and by the WindowedOperator
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public interface WindowOption

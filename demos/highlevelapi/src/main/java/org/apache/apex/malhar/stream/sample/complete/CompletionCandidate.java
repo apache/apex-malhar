@@ -20,6 +20,8 @@ package org.apache.apex.malhar.stream.sample.complete;
 
 /**
  * Class used to store tag-count pairs in Auto Complete Demo.
+ *
+ * @since 3.5.0
  */
 public class CompletionCandidate implements Comparable<CompletionCandidate>
 {

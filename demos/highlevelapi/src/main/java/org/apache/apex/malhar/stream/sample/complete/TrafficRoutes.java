@@ -56,6 +56,8 @@ import static org.apache.apex.malhar.stream.api.Option.Options.name;
 
 /**
  * Beam's TrafficRoutes example.
+ *
+ * @since 3.5.0
  */
 @ApplicationAnnotation(name = "TrafficRoutes")
 public class TrafficRoutes implements StreamingApplication

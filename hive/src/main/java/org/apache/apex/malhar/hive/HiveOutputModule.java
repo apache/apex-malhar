@@ -42,6 +42,8 @@ import com.datatorrent.contrib.hive.HiveStore;
  * HiveOutputModule provides abstraction for the operators needed for writing
  * tuples to hive. This module will be expanded to FSPojoToHiveOperator and
  * HiveOperator in physical plan.
+ *
+ * @since 3.5.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public class HiveOutputModule implements Module

@@ -35,6 +35,8 @@ import com.datatorrent.lib.io.block.ReaderContext;
  * 
  * Typically, this operator will be connected to output of FileSplitterInput to
  * read records in parallel.
+ *
+ * @since 3.5.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public class FSRecordReader extends FSSliceReader

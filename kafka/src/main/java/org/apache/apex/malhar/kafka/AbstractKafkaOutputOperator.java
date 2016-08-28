@@ -34,6 +34,8 @@ import com.datatorrent.api.Operator;
  * @category Messaging
  * @tags output operator
  *
+ *
+ * @since 3.5.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractKafkaOutputOperator<K, V> implements Operator

@@ -31,6 +31,8 @@ import org.apache.hadoop.classification.InterfaceStability;
  * This is the in-memory implementation of {@link WindowedStorage}. Do not use this class if you have a large state that
  * can't be fit in memory. Also, this class may go away soon as there are plans to incorporate {@link Spillable} data
  * structures in the near future.
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Unstable
 public class InMemoryWindowedStorage<T> implements WindowedStorage<T>

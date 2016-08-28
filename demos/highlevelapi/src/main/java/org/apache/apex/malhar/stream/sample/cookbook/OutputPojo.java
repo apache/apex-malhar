@@ -20,6 +20,8 @@ package org.apache.apex.malhar.stream.sample.cookbook;
 
 /**
  * OutputPojo Tuple Class for jdbcOutput of {@link MaxPerKeyExamples}.
+ *
+ * @since 3.5.0
  */
 public class OutputPojo
 {

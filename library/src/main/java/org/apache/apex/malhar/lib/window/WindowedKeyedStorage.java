@@ -31,6 +31,8 @@ import org.apache.hadoop.classification.InterfaceStability;
  *
  * Note that this interface expects that the implementation takes care of checkpoint recovery.
  *
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Unstable
 public interface WindowedKeyedStorage<K, V> extends WindowedStorage<Map<K, V>>

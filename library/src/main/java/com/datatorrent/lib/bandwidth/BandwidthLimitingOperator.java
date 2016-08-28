@@ -22,6 +22,8 @@ import com.datatorrent.api.Operator;
 
 /**
  * Operator which limits bandwidth consumption. It should have instance of BandwidthManager.
+ *
+ * @since 3.5.0
  */
 public interface BandwidthLimitingOperator extends Operator
 {

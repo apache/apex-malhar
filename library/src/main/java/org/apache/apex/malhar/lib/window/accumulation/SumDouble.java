@@ -23,6 +23,8 @@ import org.apache.commons.lang.mutable.MutableDouble;
 
 /**
  * Sum Accumulation for doubles.
+ *
+ * @since 3.5.0
  */
 public class SumDouble implements Accumulation<Double, MutableDouble, Double>
 {

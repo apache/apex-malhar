@@ -23,6 +23,8 @@ import org.apache.apex.malhar.lib.window.Accumulation;
 /**
  * An easy to use reduce Accumulation
  * @param <INPUT>
+ *
+ * @since 3.5.0
  */
 public abstract class ReduceFn<INPUT> implements Accumulation<INPUT, INPUT, INPUT>
 {

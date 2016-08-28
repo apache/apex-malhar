@@ -24,6 +24,8 @@ import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * This interface describes the individual window.
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public interface Window

@@ -23,6 +23,8 @@ import org.apache.apex.malhar.lib.window.Accumulation;
 
 /**
  * Min accumulation
+ *
+ * @since 3.5.0
  */
 public class Min<T> implements Accumulation<T, T, T>
 {

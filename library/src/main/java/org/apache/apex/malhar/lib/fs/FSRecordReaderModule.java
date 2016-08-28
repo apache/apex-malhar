@@ -58,6 +58,8 @@ import com.datatorrent.lib.io.fs.FileSplitterInput;
  * instead of reading different offsets of the same file. <br/>
  * (File level parallelism instead of block level parallelism)<br/>
  * 8. blocksThreshold: number of blocks emitted per window
+ *
+ * @since 3.5.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public class FSRecordReaderModule implements Module

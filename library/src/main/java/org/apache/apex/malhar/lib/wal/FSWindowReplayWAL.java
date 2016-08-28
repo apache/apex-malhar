@@ -31,6 +31,8 @@ import com.datatorrent.netlet.util.Slice;
 
 /**
  * A {@link FileSystemWAL} that WindowDataManager uses to save state of every window.
+ *
+ * @since 3.5.0
  */
 public class FSWindowReplayWAL extends FileSystemWAL
 {

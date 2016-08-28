@@ -48,6 +48,8 @@ import com.datatorrent.netlet.util.Slice;
  * <b>isKeyContainsMultiValue</b>: Specifies whether the key has multiple value or not. <br>
  * <b>timeBucket</b>: Specifies the lenght of the time bucket.
  *
+ *
+ * @since 3.5.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public class ManagedTimeStateMultiValue<K,V> implements Spillable.SpillableByteArrayListMultimap<K,V>

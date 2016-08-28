@@ -43,6 +43,8 @@ import static org.apache.apex.malhar.stream.api.Option.Options.name;
 
 /**
  * Beam DeDupExample.
+ *
+ * @since 3.5.0
  */
 @ApplicationAnnotation(name = "DeDupExample")
 public class DeDupExample implements StreamingApplication

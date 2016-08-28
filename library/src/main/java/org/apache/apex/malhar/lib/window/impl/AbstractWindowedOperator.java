@@ -58,6 +58,8 @@ import com.datatorrent.common.util.BaseOperator;
  * @param <DataStorageT> The type of the data storage
  * @param <RetractionStorageT> The type of the retraction storage
  * @param <AccumulationT> The type of the accumulation
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT extends WindowedStorage, RetractionStorageT extends WindowedStorage, AccumulationT extends Accumulation>

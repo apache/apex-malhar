@@ -36,6 +36,8 @@ import com.datatorrent.netlet.util.Slice;
  * operator and forwarding the appropriate operator callbacks are called on the {@link SpillableComplexComponentImpl}.
  * Spillable datastructures are created by called the appropriate factory methods on the
  * {@link SpillableComplexComponentImpl} in the setup method of an operator.
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public class SpillableComplexComponentImpl implements SpillableComplexComponent

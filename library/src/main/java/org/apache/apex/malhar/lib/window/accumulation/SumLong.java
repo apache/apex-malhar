@@ -23,6 +23,8 @@ import org.apache.commons.lang.mutable.MutableLong;
 
 /**
  * Sum accumulation for longs.
+ *
+ * @since 3.5.0
  */
 public class SumLong implements Accumulation<Long, MutableLong, Long>
 {

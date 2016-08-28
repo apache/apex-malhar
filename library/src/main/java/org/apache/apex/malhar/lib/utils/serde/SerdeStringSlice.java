@@ -26,6 +26,8 @@ import com.datatorrent.netlet.util.Slice;
 
 /**
  * An implementation of {@link Serde} which serializes and deserializes {@link String}s.
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public class SerdeStringSlice implements Serde<String, Slice>

@@ -28,6 +28,8 @@ import org.apache.hadoop.classification.InterfaceStability;
  *
  * @param <K> The key type
  * @param <V> The value type
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public interface SessionWindowedStorage<K, V> extends WindowedKeyedStorage<K, V>

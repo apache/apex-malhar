@@ -43,6 +43,8 @@ import com.datatorrent.lib.util.ReusableStringReader;
  * file.User needs to provide a schema as a string specified in a json format as
  * per {@link DelimitedSchema} that contains information of name and type of
  * field
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public class DelimitedFSLoader extends FSLoader

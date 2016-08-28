@@ -23,6 +23,8 @@ import org.apache.commons.lang3.mutable.MutableLong;
 
 /**
  * Count Accumulation
+ *
+ * @since 3.5.0
  */
 public class Count implements Accumulation<Long, MutableLong, Long>
 {

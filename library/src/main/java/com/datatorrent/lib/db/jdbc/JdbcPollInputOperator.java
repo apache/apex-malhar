@@ -37,6 +37,8 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * @displayName Jdbc Polling Input Operator
  * @category Input
  * @tags database, sql, jdbc
+ *
+ * @since 3.5.0
  */
 @Evolving
 public class JdbcPollInputOperator extends AbstractJdbcPollInputOperator<String>

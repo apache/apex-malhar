@@ -20,6 +20,8 @@ package org.apache.apex.malhar.stream.sample.complete;
 
 /**
  * Tuple Class for JdbcOutput of StreamingWordExtract.
+ *
+ * @since 3.5.0
  */
 public class PojoEvent extends Object
 {
