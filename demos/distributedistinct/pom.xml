@@ -31,7 +31,7 @@
   <parent>
     <groupId>org.apache.apex</groupId>
     <artifactId>malhar-demos</artifactId>
-    <version>3.5.0-SNAPSHOT</version>
+    <version>3.5.0</version>
   </parent>
 
   <properties>
