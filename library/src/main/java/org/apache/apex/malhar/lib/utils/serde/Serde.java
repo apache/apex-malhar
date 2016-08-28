@@ -18,8 +18,6 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
-import org.apache.commons.lang3.mutable.MutableInt;
-
 /**
  * This is an interface for a Serializer/Deserializer class.
  * @param <OBJ> The type of the object to Serialize and Deserialize.
@@ -27,37 +25,6 @@ import org.apache.commons.lang3.mutable.MutableInt;
  *
  * @since 3.4.0
  */
-public interface Serde<OBJ, SER>
+public interface Serde<OBJ, SER> extends Serializer<OBJ, SER>, Deserializer<OBJ, SER>
 {
-  /**
-   * Serialized the given object.
-   * @param object The object to serialize.
-   * @return The serialized representation of the object.
-   */
-  SER serialize(OBJ object);
-
-  /**
-   * Deserializes the given serialized representation of an object.
-   * @param object The serialized representation of an object.
-   * @param offset An offset in the serialized representation of the object. After the
-   * deserialize method completes the offset is updated, so that the offset points to
-   * the remaining unprocessed portion of the serialized object. For example:<br/>
-   * {@code
-   * Object obj;
-   * MutableInt mi;
-   * someObj1 = deserialize(obj, mi);
-   * someObj2 = deserialize(obj, mi);
-   * }
-   *
-   * @return The deserialized object.
-   */
-  OBJ deserialize(SER object, MutableInt offset);
-
-  /**
-   * Deserializes the given serialized representation of an object.
-   * @param object The serialized representation of an object.
-   *
-   * @return The deserialized object.
-   */
-  OBJ deserialize(SER object);
 }
