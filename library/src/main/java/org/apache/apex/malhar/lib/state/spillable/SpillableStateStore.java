@@ -27,6 +27,8 @@ import com.datatorrent.api.Operator;
 
 /**
  * Implementations of this interface are used by Spillable datastructures to spill data to disk.
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public interface SpillableStateStore extends BucketedState, Component<Context.OperatorContext>,

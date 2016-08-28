@@ -22,6 +22,8 @@ import org.apache.apex.malhar.lib.window.Accumulation;
 
 /**
  * Fold Accumulation Adaptor class
+ *
+ * @since 3.5.0
  */
 public abstract class FoldFn<INPUT, OUTPUT> implements Accumulation<INPUT, OUTPUT, OUTPUT>
 {

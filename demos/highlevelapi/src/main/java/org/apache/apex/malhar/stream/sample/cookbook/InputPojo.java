@@ -20,6 +20,8 @@ package org.apache.apex.malhar.stream.sample.cookbook;
 
 /**
  * Tuple class for JDBC input of {@link MaxPerKeyExamples}.
+ *
+ * @since 3.5.0
  */
 public class InputPojo extends Object
 {

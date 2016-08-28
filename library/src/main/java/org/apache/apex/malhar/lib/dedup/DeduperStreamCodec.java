@@ -30,6 +30,8 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
  * This helps in partitioning the tuples depending on the key field in the tuple.
  * The {@link #getPartition(Object)} function returns the hash code of the key field
  *
+ *
+ * @since 3.5.0
  */
 @Evolving
 public class DeduperStreamCodec extends KryoSerializableStreamCodec<Object>

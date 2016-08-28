@@ -1,6 +1,84 @@
 Apex Malhar Changelog
 ========================================================================================================================
 
+Version 3.5.0 - 2016-08-31
+------------------------------------------------------------------------------------------------------------------------
+
+### Sub-task
+* [APEXMALHAR-2047] - Create Factory Which Can Easily Create A Single Spillable Data Structure
+* [APEXMALHAR-2048] - Create concrete implementation of ArrayListMultiMap using managed state.
+* [APEXMALHAR-2070] - Create In Memory Implementation of ArrayList Multimap
+* [APEXMALHAR-2202] - Move accumulations to correct package
+* [APEXMALHAR-2208] - High-level API beam examples
+
+### Bug
+* [APEXMALHAR-998] - Compilation error while using UniqueValueCount operator.
+* [APEXMALHAR-1988] - CassandraInputOperator fetches less number of records inconsistenly
+* [APEXMALHAR-2103] - Scanner issues in FileSplitterInput class
+* [APEXMALHAR-2104] - BytesFileOutputOperator Refactoring
+* [APEXMALHAR-2112] - Contrib tests are failing because of inclusion of apache logger with geode dependency
+* [APEXMALHAR-2113] - Dag fails validation due to @NotNull on getUpdateCommand() in JdbcPOJOOutputOperator
+* [APEXMALHAR-2119] - Make DirectoryScanner in AbstractFileInputOperator inheritance friendly. 
+* [APEXMALHAR-2120] - Fix bugs on KafkaInputOperatorTest and AbstractKafkaInputOperator
+* [APEXMALHAR-2128] - Update twitter4j version to the one support twitter APIs
+* [APEXMALHAR-2134] - Catch NullPointerException if some Kafka partition has no leader broker
+* [APEXMALHAR-2135] - Upgrade Kafka 0.8 input operator to support 0.8.2 client
+* [APEXMALHAR-2136] - Null pointer exception in AbstractManagedStateImpl
+* [APEXMALHAR-2138] - Multiple declaration of org.mockito.mockito-all-1.8.5 in Malhar library pom 
+* [APEXMALHAR-2140] - Move ActiveFieldInfo class to com.datatorrent.lib.util
+* [APEXMALHAR-2158] - Duplication of data emitted when the Kafka Input Operator(0.8 version) redeploys
+* [APEXMALHAR-2168] - The setter method for double field is not generated correctly in JdbcPOJOInputOperator.
+* [APEXMALHAR-2169] - KafkaInputoperator: Remove the stuff related to Partition Based on throughput.
+* [APEXMALHAR-2171] - In CacheStore maxCacheSize is not applied
+* [APEXMALHAR-2174] - S3 File Reader reading more data than expected
+* [APEXMALHAR-2195] - LineReaderContext gives incorrect results for files not ending with the newline
+* [APEXMALHAR-2197] - TimeBasedPriorityQueue.removeLRU throws NoSuchElementException
+* [APEXMALHAR-2199] - 0.8 kafka input operator doesn't support chroot zookeeper path (multitenant kafka support)
+
+### Documentation
+* [APEXMALHAR-2153] - Add user documentation for Enricher
+
+### Improvement
+* [APEXMALHAR-1953] - Add generic (insert, update, delete) support to JDBC Output Operator
+* [APEXMALHAR-1957] - Improve HBasePOJOInputOperator with support for threaded read
+* [APEXMALHAR-1966] - Cassandra output operator improvements
+* [APEXMALHAR-2028] - Add System.err to ConsoleOutputOperator 
+* [APEXMALHAR-2045] - Bandwidth control feature
+* [APEXMALHAR-2063] - Integrate WAL to FS WindowDataManager
+* [APEXMALHAR-2069] - FileSplitterInput and TimeBasedDirectoryScanner - move operational fields initialization from constructor to setup
+* [APEXMALHAR-2075] - Support fields of type Date,Time and Timestamp in Pojo Class for JdbcPOJOInputOperator 
+* [APEXMALHAR-2087] - Hive output module
+* [APEXMALHAR-2096] - Add blockThreshold parameter to FSInputModule
+* [APEXMALHAR-2105] - Enhance CSV Formatter to take in schema similar to Csv Parser
+* [APEXMALHAR-2111] - Projection Operator config params shall use List instead of comma-separated field names
+* [APEXMALHAR-2121] - KafkaInputOperator emitTuple method should be able to emit more than just message
+* [APEXMALHAR-2148] - Reduce the noise of kafka input operator
+* [APEXMALHAR-2154] - Update kafka 0.9 input operator to use new CheckpointNotificationListener
+* [APEXMALHAR-2156] - JMS Input operator enhancements
+* [APEXMALHAR-2157] - Improvements in JSON Formatter
+* [APEXMALHAR-2172] - Update JDBC poll input operator to fix issues
+* [APEXMALHAR-2180] - KafkaInput Operator partitions has to be unchanged in case of dynamic scaling of ONE_TO_MANY strategy.
+* [APEXMALHAR-2185] - Add a Deduper implementation for Bounded data
+
+### New Feature
+* [APEXMALHAR-1701] - Deduper backed by Managed State
+* [APEXMALHAR-2019] - S3 Input Module
+* [APEXMALHAR-2026] - Spill-able Datastructures
+* [APEXMALHAR-2066] - JDBC poller input operator
+* [APEXMALHAR-2082] - Data Filter Operator 
+* [APEXMALHAR-2085] - Implement Windowed Operators
+* [APEXMALHAR-2100] - Inner Join Operator using Spillable Datastructures
+* [APEXMALHAR-2116] - File Record reader module
+* [APEXMALHAR-2142] - High-level API window support
+* [APEXMALHAR-2151] - Enricher - Add delimited file format support to FSLoader
+
+### Task
+* [APEXMALHAR-2129] - ManagedState: Disable purging based on system time
+* [APEXMALHAR-2200] - Enable checkstyle for demos
+
+### Test
+* [APEXMALHAR-2161] - Add tests for AbstractThroughputFileInputOperator
+
 Version 3.4.0 - 2016-05-24
 ------------------------------------------------------------------------------------------------------------------------
 

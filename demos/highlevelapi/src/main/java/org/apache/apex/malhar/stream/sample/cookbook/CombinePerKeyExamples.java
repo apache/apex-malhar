@@ -53,6 +53,8 @@ import static org.apache.apex.malhar.stream.api.Option.Options.name;
  * <p>Concepts: the combine transform, which lets you combine the values in a
  * key-grouped Collection
  *
+ *
+ * @since 3.5.0
  */
 @ApplicationAnnotation(name = "CombinePerKeyExamples")
 public class CombinePerKeyExamples implements StreamingApplication

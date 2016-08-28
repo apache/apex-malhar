@@ -26,6 +26,8 @@ import com.datatorrent.netlet.util.Slice;
 /**
  * This is a {@link Serde} implementation which simply allows an input slice to pass through. No serialization or
  * deserialization transformation is performed on the input {@link Slice}s.
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public class PassThruSliceSerde implements Serde<Slice, Slice>

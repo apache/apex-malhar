@@ -38,6 +38,8 @@ import com.datatorrent.lib.util.PojoUtils;
  *
  * @displayName POJO Inner Join Operator
  * @tags join
+ *
+ * @since 3.5.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public class POJOInnerJoinOperator extends AbstractManagedStateInnerJoinOperator<Object,Object> implements Operator.ActivationListener<Context>

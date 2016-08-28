@@ -23,6 +23,8 @@ import org.apache.hadoop.classification.InterfaceStability;
 /**
  * The state that needs to be stored for each window. The state helps determine whether to throw away a window
  * (with allowed lateness in WindowOption), and whether to fire a trigger (with TriggerOption)
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public class WindowState

@@ -33,6 +33,8 @@ import com.datatorrent.netlet.util.Slice;
 
 /**
  * This is an implementation of {@link Serde} which serializes and deserializes lists.
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public class SerdeListSlice<T> implements Serde<List<T>, Slice>

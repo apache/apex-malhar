@@ -54,6 +54,8 @@ import com.datatorrent.lib.util.PojoUtils;
  * - falsePort emits POJOs not meeting the given condition
  * - error port emits any error situation while evaluating expression
  * 
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public class FilterOperator extends BaseOperator implements Operator.ActivationListener

@@ -38,6 +38,8 @@ import com.datatorrent.lib.io.block.ReaderContext;
 /**
  * S3BlockReader extends from BlockReader and serves the functionality of read objects and
  * parse Block metadata
+ *
+ * @since 3.5.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public class S3BlockReader extends FSSliceReader

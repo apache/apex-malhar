@@ -26,6 +26,8 @@ import com.datatorrent.lib.util.FieldInfo;
  * An {@link FieldInfo} object used for JDBC output sources must have the SQL data types.
  * This is needed to create correct getters and setters for the POJO,
  * as well as setting the right parameter types in the JDBC prepared statement.
+ *
+ * @since 3.5.0
  */
 public class JdbcFieldInfo extends FieldInfo
 {

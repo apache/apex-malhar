@@ -43,6 +43,8 @@ import com.datatorrent.netlet.util.Slice;
 
 /**
  * This is an implementation of Guava's ListMultimap which spills data to a {@link SpillableStateStore}.
+ *
+ * @since 3.5.0
  */
 @DefaultSerializer(FieldSerializer.class)
 @InterfaceStability.Evolving

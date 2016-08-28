@@ -18,10 +18,6 @@
  */
 package org.apache.apex.malhar.contrib.parser;
 
-/**
- * A concrete implementation of Json ContentHandler<br>
- * Matches JSON keys set from the {@link StreamingJsonParser }
- * */
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +26,12 @@ import org.json.simple.parser.ContentHandler;
 
 import com.google.protobuf.TextFormat.ParseException;
 
+/**
+ * A concrete implementation of Json ContentHandler<br>
+ * Matches JSON keys set from the {@link StreamingJsonParser }
+ *
+ * @since 3.5.0
+ */
 public class JsonKeyFinder implements ContentHandler
 {
   public JsonKeyFinder()

@@ -33,6 +33,8 @@ import com.datatorrent.api.Context.OperatorContext;
  * BandwidthManager keeps track of bandwidth consumption and provides limit on maximum bandwidth that can be consumed at
  * any moment. This accumulates bandwidth upto certain limits so that accumulated bandwidth can be used over a period of
  * time.
+ *
+ * @since 3.5.0
  */
 public class BandwidthManager implements Component<Context.OperatorContext>
 {

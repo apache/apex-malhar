@@ -32,6 +32,8 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 /**
  * A wrapper operator that intercept the tuples and convert them between {@link Tuple}
+ *
+ * @since 3.5.0
  */
 public class TupleWrapperOperator implements InputOperator, Operator.CheckpointNotificationListener
 {

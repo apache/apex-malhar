@@ -32,6 +32,8 @@ import org.apache.hadoop.classification.InterfaceStability;
  * @param <T> The type of the data that is stored per window
  *
  * TODO: Look at the possibility of integrating spillable data structure: https://issues.apache.org/jira/browse/APEXMALHAR-2026
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Unstable
 public interface WindowedStorage<T> extends Iterable<Map.Entry<Window, T>>

@@ -23,6 +23,8 @@ import org.apache.hadoop.classification.InterfaceStability;
 /**
  * Classes implementing this interface can be used as generators for identifiers for Spillable data structures. This is
  * mainly used in implementations of {@link SpillableComplexComponent}.
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public interface SpillableIdentifierGenerator

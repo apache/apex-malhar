@@ -55,6 +55,8 @@ import com.datatorrent.netlet.util.Slice;
  * that sqrt(max integer) = 46340. This implies that the number of buckets used will roughly be equal to the size of 
  * each bucket, thus spreading the load equally among each bucket.
  *
+ *
+ * @since 3.5.0
  */
 @Evolving
 public class BoundedDedupOperator extends AbstractDeduper<Object>
