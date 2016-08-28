@@ -28,6 +28,8 @@ import org.apache.apex.malhar.lib.window.Accumulation;
 
 /**
  * Specialized TopNByKey accumulation for AutoComplete Demo.
+ *
+ * @since 3.5.0
  */
 public class TopNByKey implements
     Accumulation<CompletionCandidate, Map<String, Long>, List<CompletionCandidate>>

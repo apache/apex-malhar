@@ -32,6 +32,8 @@ import com.google.common.base.Function;
  * TODO: We may wanna just use the abstract class {@link org.apache.apex.malhar.lib.window.impl.AbstractWindowedOperator}
  *
  * @param <InputT> The type of the input tuple
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public interface WindowedOperator<InputT>

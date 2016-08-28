@@ -51,6 +51,8 @@ import static org.apache.apex.malhar.stream.api.Option.Options.name;
 
 /**
  * MaxPerKeyExamples Application from Beam
+ *
+ * @since 3.5.0
  */
 @ApplicationAnnotation(name = "MaxPerKeyExamples")
 public class MaxPerKeyExamples implements StreamingApplication

@@ -25,6 +25,8 @@ import com.datatorrent.api.Operator;
 /**
  * This interface represents components which need to listen to the operator {@link Operator#beginWindow(long)} and
  * {@link Operator#endWindow()} callbacks.
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public interface WindowListener

@@ -22,6 +22,8 @@ import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * This is the interface for accumulation when joining multiple streams.
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public interface JoinAccumulation<InputT1, InputT2, InputT3, InputT4, InputT5, AccumT, OutputT> extends Accumulation<InputT1, AccumT, OutputT>

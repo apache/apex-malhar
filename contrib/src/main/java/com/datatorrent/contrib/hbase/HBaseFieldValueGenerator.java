@@ -25,6 +25,8 @@ import com.datatorrent.lib.util.PojoUtils;
 
 /**
  * A {@link FieldValueGenerator} implementation for {@link HBaseFieldInfo}
+ *
+ * @since 3.5.0
  */
 public class HBaseFieldValueGenerator extends FieldValueGenerator<HBaseFieldInfo>
 {

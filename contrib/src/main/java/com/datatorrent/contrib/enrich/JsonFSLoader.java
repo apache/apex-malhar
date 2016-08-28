@@ -44,6 +44,8 @@ import org.apache.hadoop.classification.InterfaceStability;
  * fields/value.
  * <p>
  *
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public class JsonFSLoader extends FSLoader

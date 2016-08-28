@@ -23,6 +23,8 @@ import org.apache.commons.lang3.tuple.MutablePair;
 
 /**
  * Average Accumulation
+ *
+ * @since 3.5.0
  */
 public class Average implements Accumulation<Double, MutablePair<Double, Long>, Double>
 {

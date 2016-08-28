@@ -23,6 +23,8 @@ import org.apache.commons.lang.mutable.MutableInt;
 
 /**
  * Sum accumulation for integers.
+ *
+ * @since 3.5.0
  */
 public class SumInt implements Accumulation<Integer, MutableInt, Integer>
 {

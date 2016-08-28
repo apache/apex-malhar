@@ -35,6 +35,8 @@ import com.esotericsoftware.kryo.serializers.JavaSerializer;
  * If a LATE trigger is specified and the accumulation mode is ACCUMULATING, it is important for the WindowOption to
  * specify the allowed lateness because otherwise, all states must be kept in storage.
  *
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public class TriggerOption

@@ -63,6 +63,8 @@ import com.datatorrent.netlet.util.Slice;
  * 3. Otherwise the tuple is a unique tuple.
  *
  * @param <T> type of events
+ *
+ * @since 3.5.0
  */
 @Evolving
 @OperatorAnnotation(checkpointableWithinAppWindow = false)

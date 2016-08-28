@@ -25,6 +25,8 @@ import org.apache.apex.malhar.lib.window.Accumulation;
 
 /**
  * Group accumulation.
+ *
+ * @since 3.5.0
  */
 public class Group<T> implements Accumulation<T, List<T>, List<T>>
 {

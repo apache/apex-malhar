@@ -23,6 +23,8 @@ import com.datatorrent.lib.util.PojoUtils;
 
 /**
  * Stream codec based on keyExpression for POJO Inner Join Operator.
+ *
+ * @since 3.5.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public class JoinStreamCodec extends KryoSerializableStreamCodec<Object>

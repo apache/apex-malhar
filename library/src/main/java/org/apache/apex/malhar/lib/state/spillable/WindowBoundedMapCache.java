@@ -33,6 +33,8 @@ import com.google.common.collect.Sets;
  * evicted from the cache.
  * @param <K> The type of the keys.
  * @param <V> The type of the values.
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public class WindowBoundedMapCache<K, V>

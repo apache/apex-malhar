@@ -27,6 +27,8 @@ import com.google.common.collect.Sets;
 
 /**
  * This is an id generator that generates single byte ids for Spillable datastructures.
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public class SequentialSpillableIdentifierGenerator implements SpillableIdentifierGenerator

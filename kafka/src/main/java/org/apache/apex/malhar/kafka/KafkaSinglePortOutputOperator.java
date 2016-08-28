@@ -25,6 +25,8 @@ import com.datatorrent.api.DefaultInputPort;
 /**
  * Kafka output operator with single input port (inputPort).
  * It supports atleast once processing guarantees
+ *
+ * @since 3.5.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public class KafkaSinglePortOutputOperator<K,V> extends AbstractKafkaOutputOperator

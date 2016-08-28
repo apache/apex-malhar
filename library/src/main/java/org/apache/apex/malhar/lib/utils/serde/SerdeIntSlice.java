@@ -26,6 +26,8 @@ import com.datatorrent.netlet.util.Slice;
 
 /**
  * This is an implementation of {@link Serde} which deserializes and serializes integers.
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public class SerdeIntSlice implements Serde<Integer, Slice>

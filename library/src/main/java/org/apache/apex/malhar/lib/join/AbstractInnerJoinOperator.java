@@ -62,6 +62,8 @@ import com.datatorrent.common.util.BaseOperator;
  *
  *  @displayName Abstract Inner Join Operator
  *  @tags join
+ *
+ * @since 3.5.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 @OperatorAnnotation(checkpointableWithinAppWindow = false)

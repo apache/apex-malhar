@@ -55,6 +55,8 @@ import com.datatorrent.lib.util.PojoUtils;
  * @displayName Jdbc Polling Input Operator
  * @category Input
  * @tags database, sql, jdbc
+ *
+ * @since 3.5.0
  */
 @Evolving
 public class JdbcPOJOPollInputOperator extends AbstractJdbcPollInputOperator<Object>

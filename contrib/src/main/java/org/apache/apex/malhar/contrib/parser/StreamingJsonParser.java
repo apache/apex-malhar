@@ -65,6 +65,8 @@ import com.datatorrent.lib.util.PojoUtils;
  * @displayName SimpleStreamingJsonParser
  * @category Parsers
  * @tags json pojo parser streaming
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public class StreamingJsonParser extends Parser<byte[], KeyValPair<String, String>>

@@ -39,6 +39,8 @@ import static java.sql.Types.VARCHAR;
 
 /**
  * Beam StreamingWordExtract Example.
+ *
+ * @since 3.5.0
  */
 @ApplicationAnnotation(name = "StreamingWordExtract")
 public class StreamingWordExtract implements StreamingApplication

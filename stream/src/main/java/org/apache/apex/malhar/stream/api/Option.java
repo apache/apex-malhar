@@ -24,6 +24,8 @@ import com.datatorrent.api.Attribute;
 
 /**
  * Options for the operators in the dag
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public interface Option

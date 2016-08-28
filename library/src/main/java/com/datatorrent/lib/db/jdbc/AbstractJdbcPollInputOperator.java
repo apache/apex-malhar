@@ -87,6 +87,8 @@ import static org.jooq.impl.DSL.field;
  * @displayName Jdbc Polling Input Operator
  * @category Input
  * @tags database, sql, jdbc, partitionable, idepotent, pollable
+ *
+ * @since 3.5.0
  */
 @Evolving
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
