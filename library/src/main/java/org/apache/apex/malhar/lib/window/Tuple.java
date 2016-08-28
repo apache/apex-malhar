@@ -25,6 +25,8 @@ import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * All tuples that use the WindowedOperator must be an implementation of this interface
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public interface Tuple<T>

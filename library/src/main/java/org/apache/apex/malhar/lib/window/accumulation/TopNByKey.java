@@ -29,6 +29,8 @@ import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Generalized TopNByKey accumulation
+ *
+ * @since 3.5.0
  */
 public class TopNByKey<K, V> implements
     Accumulation<KeyValPair<K, V>, Map<K, V>, List<KeyValPair<K, V>>>

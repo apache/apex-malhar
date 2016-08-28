@@ -23,6 +23,8 @@ import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * The implementation of the Watermark tuple
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public class WatermarkImpl implements ControlTuple.Watermark

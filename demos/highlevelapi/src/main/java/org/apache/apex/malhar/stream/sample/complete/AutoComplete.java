@@ -64,6 +64,8 @@ import static org.apache.apex.malhar.stream.api.Option.Options.name;
  *
  * <p>This will update the datastore every 10 seconds based on the last
  * 30 minutes of data received.
+ *
+ * @since 3.5.0
  */
 @ApplicationAnnotation(name = "AutoComplete")
 public class AutoComplete implements StreamingApplication

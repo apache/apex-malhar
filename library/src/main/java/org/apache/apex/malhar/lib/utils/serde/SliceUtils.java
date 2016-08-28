@@ -24,6 +24,8 @@ import com.datatorrent.netlet.util.Slice;
 
 /**
  * A utility class which contains static methods for manipulating byte arrays and {@link Slice}s
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public class SliceUtils

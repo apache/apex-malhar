@@ -52,6 +52,8 @@ import static org.apache.apex.malhar.stream.api.Option.Options.name;
 
 /**
  * Beam's TopWikipediaSessions Example.
+ *
+ * @since 3.5.0
  */
 @ApplicationAnnotation(name = "TopWikipediaSessions")
 public class TopWikipediaSessions implements StreamingApplication

@@ -71,6 +71,8 @@ import com.datatorrent.netlet.util.Slice;
  * 2. {@link #timeExpression} - The java expression to extract the time field in the incoming tuple (POJO).
  * In case there is no time field in the tuple, system time, when the tuple is processed, will be used.
  *
+ *
+ * @since 3.5.0
  */
 @Evolving
 public class TimeBasedDedupOperator extends AbstractDeduper<Object> implements ActivationListener<Context>

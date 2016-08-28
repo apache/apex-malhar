@@ -41,6 +41,8 @@ import static org.apache.apex.malhar.stream.api.Option.Options.name;
 
 /**
  * Beam MinimalWordCount Example
+ *
+ * @since 3.5.0
  */
 @ApplicationAnnotation(name = "MinimalWordCount")
 public class MinimalWordCount implements StreamingApplication

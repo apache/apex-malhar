@@ -115,6 +115,8 @@ import com.datatorrent.lib.util.KeyValPair;
  *
  * <p> The example will try to cancel the pipelines on the signal to terminate the process (CTRL-C)
  * and then exits.
+ *
+ * @since 3.5.0
  */
 
 public class TriggerExample

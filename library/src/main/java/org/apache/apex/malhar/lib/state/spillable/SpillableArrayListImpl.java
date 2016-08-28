@@ -41,6 +41,8 @@ import com.datatorrent.netlet.util.Slice;
 /**
  * A Spillable implementation of {@link List} backed by a {@link SpillableStateStore}.
  * @param <T> The type of object stored in the {@link SpillableArrayListImpl}.
+ *
+ * @since 3.5.0
  */
 @DefaultSerializer(FieldSerializer.class)
 @InterfaceStability.Evolving

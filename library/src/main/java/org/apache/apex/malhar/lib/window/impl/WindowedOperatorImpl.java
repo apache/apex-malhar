@@ -31,6 +31,8 @@ import org.apache.hadoop.classification.InterfaceStability;
  * @param <InputT> The type of the value of the input tuple
  * @param <AccumT> The type of the accumulated value in the operator state per window
  * @param <OutputT> The type of the value of the output tuple
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public class WindowedOperatorImpl<InputT, AccumT, OutputT>

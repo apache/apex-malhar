@@ -28,6 +28,8 @@ import org.apache.hadoop.classification.InterfaceStability;
  * different. For example, if we are doing the AVERAGE of doubles, InputT will be double, and we need the SUM and the
  * COUNT stored as type AccumT, and AccumT will be a pair of double and long, in which double is the sum of the inputs,
  * and long is the number of inputs. OutputT will be double, because it represents the average of the inputs.
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public interface Accumulation<InputT, AccumT, OutputT>

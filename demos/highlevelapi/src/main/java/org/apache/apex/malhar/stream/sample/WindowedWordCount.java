@@ -52,6 +52,8 @@ import static org.apache.apex.malhar.stream.api.Option.Options.name;
 
 /**
  * Beam WindowedWordCount Example.
+ *
+ * @since 3.5.0
  */
 @ApplicationAnnotation(name = "WindowedWordCount")
 public class WindowedWordCount implements StreamingApplication

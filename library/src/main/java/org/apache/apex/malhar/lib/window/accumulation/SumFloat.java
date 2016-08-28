@@ -23,6 +23,8 @@ import org.apache.commons.lang.mutable.MutableFloat;
 
 /**
  * Sum Accumulation for floats.
+ *
+ * @since 3.5.0
  */
 public class SumFloat implements Accumulation<Float, MutableFloat, Float>
 {

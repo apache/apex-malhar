@@ -43,6 +43,8 @@ import com.datatorrent.lib.util.KeyValPair;
  * @param <InputValT> The type of the value of the keyed input tuple
  * @param <AccumT> The type of the accumulated value in the operator state per key per window
  * @param <OutputValT> The type of the value of the keyed output tuple
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>

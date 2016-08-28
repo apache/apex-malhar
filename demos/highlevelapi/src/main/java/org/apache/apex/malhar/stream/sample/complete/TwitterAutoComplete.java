@@ -59,6 +59,8 @@ import static org.apache.apex.malhar.stream.api.Option.Options.name;
  * Your application consumer secret,
  * Your twitter access token, and
  * Your twitter access token secret.
+ *
+ * @since 3.5.0
  */
 @ApplicationAnnotation(name = "TwitterAutoComplete")
 public class TwitterAutoComplete implements StreamingApplication

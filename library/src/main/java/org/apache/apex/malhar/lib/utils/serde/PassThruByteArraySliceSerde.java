@@ -28,6 +28,8 @@ import com.datatorrent.netlet.util.Slice;
  * out of the {@link Slice} object.
  *
  * <b>Note:</b> The deserialized method doesn't use the offset argument in this implementation.
+ *
+ * @since 3.5.0
  */
 public class PassThruByteArraySliceSerde implements Serde<byte[], Slice>
 {

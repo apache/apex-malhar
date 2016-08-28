@@ -35,6 +35,8 @@ import com.google.common.collect.Sets;
  * A simple priority queue where the priority of an object is determined by the time at which it is inserted into the
  * queue. The object in the queue with the smallest time stamp is the first to be dequeued.
  * @param <T> The type of the objects inserted into the queue.
+ *
+ * @since 3.5.0
  */
 @InterfaceStability.Evolving
 public class TimeBasedPriorityQueue<T>

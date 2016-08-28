@@ -28,6 +28,8 @@ import org.apache.apex.malhar.lib.window.Accumulation;
 /**
  * RemoveDuplicates Accumulation.
  * @param <T>
+ *
+ * @since 3.5.0
  */
 public class RemoveDuplicates<T> implements Accumulation<T, Set<T>, List<T>>
 {
