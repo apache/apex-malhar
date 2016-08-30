@@ -97,10 +97,12 @@ public interface FileAccess extends Closeable
     void reset() throws IOException;
 
     /**
-     * Searches for a matching key, and positions the pointer before the start of the key.
+     * Searches for the minimum key that is greater than or equal to the given key, and positions the pointer before the start of
+     * that key.
+     *
      * @param key Byte array representing the key
      * @throws IOException
-     * @return true if a given key is found
+     * @return true if the pointer points to a key that equals the given key, false if the key is greater than the given key or if there is no key that is greater than or equal to the key
      */
     boolean seek(Slice key) throws IOException;
 
@@ -115,6 +117,14 @@ public interface FileAccess extends Closeable
      * @throws IOException
      */
     boolean next(Slice key, Slice value) throws IOException;
+
+    /**
+     * Returns whether the pointer is at the end of the file
+     *
+     * @return True if the pointer is at the end of the file
+     * @throws IOException
+     */
+    boolean hasNext();
 
   }
 

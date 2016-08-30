@@ -112,4 +112,10 @@ public class DTFileReader implements FileAccess.FileReader
     scanner.advance();
     return true;
   }
+
+  @Override
+  public boolean hasNext()
+  {
+    return !scanner.atEnd();
+  }
 }

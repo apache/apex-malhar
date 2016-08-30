@@ -18,6 +18,9 @@
  */
 package org.apache.apex.malhar.lib.state.managed;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 import javax.validation.constraints.Min;
@@ -32,13 +35,13 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.netlet.util.Slice;
 
 /**
- * This implementation of {@link AbstractManagedStateImpl} lets the client to specify the time for each key.
+ * This implementation of {@link AbstractManagedStateImpl} lets the user specify the time for each key.
  * The value of time is used to derive the time-bucket of a key.
  *
  * @since 3.4.0
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
-public class ManagedTimeStateImpl extends AbstractManagedStateImpl implements TimeSlicedBucketedState
+public class ManagedTimeStateImpl extends ManagedStateImpl implements TimeSlicedBucketedState
 {
   public ManagedTimeStateImpl()
   {
@@ -84,6 +87,16 @@ public class ManagedTimeStateImpl extends AbstractManagedStateImpl implements Ti
       return Futures.immediateFuture(BucketedState.EXPIRED);
     }
     return getValueFromBucketAsync(bucketId, timeBucket, key);
+  }
+
+  @Override
+  public Iterator<Map.Entry<Slice, Slice>> iterator(long bucketId, long time, Slice key)
+  {
+    long timeBucket = timeBucketAssigner.getTimeBucketAndAdjustBoundaries(time);
+    if (timeBucket == -1) {
+      return Collections.singletonMap(BucketedState.EXPIRED, BucketedState.EXPIRED).entrySet().iterator();
+    }
+    return iteratorFromBucket(bucketId, timeBucket, key);
   }
 
   @Min(1)
