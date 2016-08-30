@@ -125,6 +125,11 @@ public class TFileReader implements FileAccess.FileReader
     return true;
   }
 
+  @Override
+  public boolean hasNext()
+  {
+    return !scanner.atEnd();
+  }
 }
 
 

@@ -1,61 +1,39 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
 package org.apache.apex.malhar.lib.state.spillable;
 
 import java.io.Serializable;
+import java.util.AbstractMap;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
 import org.apache.apex.malhar.lib.state.BucketedState;
+import org.apache.apex.malhar.lib.state.managed.ManagedStateContext;
+import org.apache.apex.malhar.lib.state.managed.TimeBucketAssigner;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
 import org.apache.apex.malhar.lib.utils.serde.SliceUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.hadoop.classification.InterfaceStability;
 
-import com.esotericsoftware.kryo.DefaultSerializer;
-import com.esotericsoftware.kryo.serializers.FieldSerializer;
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.netlet.util.Slice;
 
 /**
- * A Spillable implementation of {@link Map}
- * @param <K> The types of keys.
- * @param <V> The types of values.
- *
- * @since 3.5.0
+ * Created by david on 8/31/16.
  */
-@DefaultSerializer(FieldSerializer.class)
-@InterfaceStability.Evolving
-public class SpillableByteMapImpl<K, V> implements Spillable.SpillableByteMap<K, V>, Spillable.SpillableComponent,
+public class SpillableTimeKeyedMapImpl<K, V> implements Spillable.SpillableIterableByteMap<K, V>, Spillable.SpillableComponent,
     Serializable
 {
   private transient WindowBoundedMapCache<K, V> cache = new WindowBoundedMapCache<>();
   private transient MutableInt tempOffset = new MutableInt();
 
   @NotNull
-  private SpillableStateStore store;
+  private SpillableTimeStateStore store;
   @NotNull
   private byte[] identifier;
   protected long bucket;
@@ -63,34 +41,41 @@ public class SpillableByteMapImpl<K, V> implements Spillable.SpillableByteMap<K,
   protected Serde<K, Slice> serdeKey;
   @NotNull
   protected Serde<V, Slice> serdeValue;
-
   private int size = 0;
 
-  private SpillableByteMapImpl()
-  {
-    //for kryo
-  }
+  @NotNull
+  private Function<K, Long> timestampExtractor;
+
+  private final long millisPerTimeBucket;
 
   /**
-   * Creates a {@link SpillableByteMapImpl}.
-   * @param store The {@link SpillableStateStore} in which to spill to.
-   * @param identifier The Id of this {@link SpillableByteMapImpl}.
+   * Creates a {@link SpillableTimeKeyedMapImpl}.
+   * @param store The {@link SpillableTimeStateStore} in which to spill to.
+   * @param identifier The Id of this {@link SpillableTimeKeyedMapImpl}.
    * @param bucket The Id of the bucket used to store this
-   * {@link SpillableByteMapImpl} in the provided {@link SpillableStateStore}.
+   * {@link SpillableTimeKeyedMapImpl} in the provided {@link SpillableTimeStateStore}.
    * @param serdeKey The {@link Serde} to use when serializing and deserializing keys.
    * @param serdeValue The {@link Serde} to use when serializing and deserializing values.
    */
-  public SpillableByteMapImpl(SpillableStateStore store, byte[] identifier, long bucket, Serde<K, Slice> serdeKey,
-      Serde<V, Slice> serdeValue)
+  public SpillableTimeKeyedMapImpl(SpillableTimeStateStore store, byte[] identifier, long bucket, Serde<K, Slice> serdeKey,
+      Serde<V, Slice> serdeValue, Function<K, Long> timestampExtractor, long millisPerTimeBucket)
   {
     this.store = Preconditions.checkNotNull(store);
     this.identifier = Preconditions.checkNotNull(identifier);
     this.bucket = bucket;
     this.serdeKey = Preconditions.checkNotNull(serdeKey);
     this.serdeValue = Preconditions.checkNotNull(serdeValue);
+    this.timestampExtractor = timestampExtractor;
+    this.millisPerTimeBucket = millisPerTimeBucket;
   }
 
-  public SpillableStateStore getStore()
+  private long extractTimeFromKey(K key)
+  {
+    return timestampExtractor.apply(key);
+  }
+
+
+  public SpillableTimeStateStore getStore()
   {
     return this.store;
   }
@@ -134,7 +119,8 @@ public class SpillableByteMapImpl<K, V> implements Spillable.SpillableByteMap<K,
       return val;
     }
 
-    Slice valSlice = store.getSync(bucket, SliceUtils.concatenate(identifier, serdeKey.serialize(key)));
+    long time = extractTimeFromKey(key);
+    Slice valSlice = store.getSync(bucket, time, SliceUtils.concatenate(identifier, serdeKey.serialize(key)));
 
     if (valSlice == null || valSlice == BucketedState.EXPIRED || valSlice.length == 0) {
       return null;
@@ -180,6 +166,43 @@ public class SpillableByteMapImpl<K, V> implements Spillable.SpillableByteMap<K,
     }
   }
 
+  /**
+   * This returns an iterator that iterates through entries with keys greater than or equal to the given key
+   * that are in the same time bucket.
+   * TODO: We might want to change this in the future to support returning keys in ALL time buckets
+   *
+   * @param key
+   * @return
+   */
+  @Override
+  public Iterator<Map.Entry<K, V>> iterator(final K key)
+  {
+
+    return new Iterator<Entry<K, V>>()
+    {
+      private Iterator<Map.Entry<Slice, Slice>> internalIterator = store.iterator(bucket, extractTimeFromKey(key), SliceUtils.concatenate(identifier, serdeKey.serialize(key)));
+
+      @Override
+      public boolean hasNext()
+      {
+        return internalIterator.hasNext();
+      }
+
+      @Override
+      public Map.Entry<K, V> next()
+      {
+        Map.Entry<Slice, Slice> nextEntry = internalIterator.next();
+        return new AbstractMap.SimpleEntry<>(serdeKey.deserialize(nextEntry.getKey()), serdeValue.deserialize(nextEntry.getValue()));
+      }
+
+      @Override
+      public void remove()
+      {
+        throw new UnsupportedOperationException();
+      }
+    };
+  }
+
   @Override
   public void clear()
   {
@@ -207,6 +230,7 @@ public class SpillableByteMapImpl<K, V> implements Spillable.SpillableByteMap<K,
   @Override
   public void setup(Context.OperatorContext context)
   {
+    this.store.setTimeBucketAssigner(new MyTimeBucketAssigner());
   }
 
   @Override
@@ -217,13 +241,16 @@ public class SpillableByteMapImpl<K, V> implements Spillable.SpillableByteMap<K,
   @Override
   public void endWindow()
   {
+
     for (K key: cache.getChangedKeys()) {
-      store.put(this.bucket, SliceUtils.concatenate(identifier, serdeKey.serialize(key)),
+      long time = extractTimeFromKey(key);
+      store.put(this.bucket, time, SliceUtils.concatenate(identifier, serdeKey.serialize(key)),
           serdeValue.serialize(cache.get(key)));
     }
 
     for (K key: cache.getRemovedKeys()) {
-      store.put(this.bucket, SliceUtils.concatenate(identifier, serdeKey.serialize(key)),
+      long time = extractTimeFromKey(key);
+      store.put(this.bucket, time, SliceUtils.concatenate(identifier, serdeKey.serialize(key)),
           new Slice(ArrayUtils.EMPTY_BYTE_ARRAY));
     }
 
@@ -233,5 +260,24 @@ public class SpillableByteMapImpl<K, V> implements Spillable.SpillableByteMap<K,
   @Override
   public void teardown()
   {
+  }
+
+  private class MyTimeBucketAssigner extends TimeBucketAssigner
+  {
+    @Override
+    public long getTimeBucketAndAdjustBoundaries(long value)
+    {
+      return value / millisPerTimeBucket;
+    }
+
+    @Override
+    public void setup(@NotNull ManagedStateContext managedStateContext)
+    {
+    }
+
+    @Override
+    public void endWindow()
+    {
+    }
   }
 }

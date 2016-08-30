@@ -20,6 +20,7 @@
 package org.apache.apex.malhar.lib.state.managed;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.junit.Assert;
@@ -97,6 +98,34 @@ public class DefaultBucketTest
     Slice value = testMeta.defaultBucket.get(one, -1, Bucket.ReadSource.READERS);
     Assert.assertEquals("value one", one, value);
 
+    testMeta.defaultBucket.teardown();
+  }
+
+  @Test
+  public void testIterator() throws Exception
+  {
+    testMeta.defaultBucket.setup(testMeta.managedStateContext);
+    Slice one = ManagedStateTestUtils.getSliceFor("1");
+    Slice two = ManagedStateTestUtils.getSliceFor("2");
+    Slice three = ManagedStateTestUtils.getSliceFor("3");
+
+    testMeta.defaultBucket.put(one, 1, one);
+    testMeta.defaultBucket.put(two, 1, two);
+    testMeta.defaultBucket.put(three, 1, three);
+    Map<Slice, Bucket.BucketedValue> unsaved = testMeta.defaultBucket.checkpoint(1);
+    testMeta.managedStateContext.getBucketsFileSystem().writeBucketData(1, 1, unsaved);
+    Assert.assertEquals(one, testMeta.defaultBucket.get(one, 1, Bucket.ReadSource.READERS));
+    Assert.assertEquals(two, testMeta.defaultBucket.get(two, 1, Bucket.ReadSource.READERS));
+    Assert.assertEquals(three, testMeta.defaultBucket.get(three, 1, Bucket.ReadSource.READERS));
+
+    Iterator<Map.Entry<Slice, Slice>> iterator = testMeta.defaultBucket.iterator(two, 1);
+    Map.Entry<Slice, Slice> next = iterator.next();
+    Assert.assertEquals(two, next.getKey());
+    Assert.assertEquals(two, next.getValue());
+    next = iterator.next();
+    Assert.assertEquals(three, next.getKey());
+    Assert.assertEquals(three, next.getValue());
+    Assert.assertFalse(iterator.hasNext());
     testMeta.defaultBucket.teardown();
   }
 
