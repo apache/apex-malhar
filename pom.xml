@@ -110,7 +110,7 @@
         <plugin>
           <groupId>com.github.siom79.japicmp</groupId>
           <artifactId>japicmp-maven-plugin</artifactId>
-          <version>0.7.1</version>
+          <version>0.7.2</version>
           <configuration>
             <oldVersion>
               <dependency>
@@ -130,12 +130,13 @@
               <breakBuildBasedOnSemanticVersioning>true</breakBuildBasedOnSemanticVersioning>
               <onlyBinaryIncompatible>false</onlyBinaryIncompatible>
               <includeSynthetic>false</includeSynthetic>
-              <ignoreMissingClasses>true</ignoreMissingClasses>
+              <ignoreMissingClasses>false</ignoreMissingClasses>
               <excludes>
                 <exclude>@org.apache.hadoop.classification.InterfaceStability$Evolving</exclude>
                 <exclude>@org.apache.hadoop.classification.InterfaceStability$Unstable</exclude>
+                <!-- remove after 3.5.0 release -->
                 <exclude>org.apache.apex.malhar.lib.fs.BytesFileOutputOperator</exclude>
-                <exclude>com.datatorrent.lib.projection</exclude>
+                <exclude>com.datatorrent.lib.projection.ProjectionOperator</exclude>
               </excludes>
             </parameter>
             <skip>${semver.plugin.skip}</skip>
