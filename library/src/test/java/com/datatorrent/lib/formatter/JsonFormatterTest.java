@@ -22,11 +22,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import javax.validation.ConstraintViolationException;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -36,22 +33,14 @@ import org.junit.Test;
 import org.junit.runner.Description;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.hadoop.conf.Configuration;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 
-import com.datatorrent.api.Context;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest.FSTestWatcher;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.KryoCloneUtils;
 import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 
@@ -196,54 +185,9 @@ public class JsonFormatterTest
   }
 
   @Test
-  public void testApplication() throws IOException, Exception
+  public void testOperatorSerialization()
   {
-    try {
-      LocalMode lma = LocalMode.newInstance();
-      Configuration conf = new Configuration(false);
-      lma.prepareDAG(new JsonFormatterApplication(), conf);
-      LocalMode.Controller lc = lma.getController();
-      lc.run(2000);// runs for 2 seconds and quits
-    } catch (ConstraintViolationException e) {
-      Assert.fail("constraint violations: " + e.getConstraintViolations());
-    }
-  }
-
-  public static class JsonFormatterApplication implements StreamingApplication
-  {
-    @Override
-    public void populateDAG(DAG dag, Configuration conf)
-    {
-      PojoEmitter input = dag.addOperator("data", new PojoEmitter());
-      JsonFormatter formatter = dag.addOperator("formatter", new JsonFormatter());
-      dag.getMeta(formatter).getMeta(formatter.in).getAttributes().put(Context.PortContext.TUPLE_CLASS, Ad.class);
-      ConsoleOutputOperator output = dag.addOperator("output", new ConsoleOutputOperator());
-      output.setDebug(false);
-      dag.addStream("input", input.output, formatter.in);
-      dag.addStream("output", formatter.out, output.input);
-    }
-  }
-
-  public static class PojoEmitter extends BaseOperator implements InputOperator
-  {
-    public final transient DefaultOutputPort<Object> output = new DefaultOutputPort<Object>();
-
-    @Override
-    public void emitTuples()
-    {
-      Ad test1Pojo = new Ad();
-      test1Pojo.adId = 1234;
-      test1Pojo.campaignId = 2319483L;
-      test1Pojo.description = "ad";
-      test1Pojo.sizes = new ArrayList<String>();
-      test1Pojo.sizes.add("250x350");
-      test1Pojo.sizes.add("800x600");
-      test1Pojo.startDate = new DateTime().withDate(2016, 1, 1).withHourOfDay(0).withMinuteOfHour(0)
-          .withSecondOfMinute(0).toDate();
-      test1Pojo.endDate = new DateTime().withDate(2016, 2, 1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0)
-          .withZone(DateTimeZone.UTC).toDate();
-      output.emit(test1Pojo);
-    }
+    Assert.assertNotNull("Serialization", KryoCloneUtils.cloneObject(this.operator));
   }
 
   public static class Ad
