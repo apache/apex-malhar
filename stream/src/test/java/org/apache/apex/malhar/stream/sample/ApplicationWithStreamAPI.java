@@ -35,6 +35,8 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.util.KeyValPair;
 
+import static org.apache.apex.malhar.stream.api.Option.Options.name;
+
 /**
  * An application example with stream api
  */
@@ -56,7 +58,7 @@ public class ApplicationWithStreamAPI implements StreamingApplication
             return Arrays.asList(input.split("[\\p{Punct}\\s]+"));
           }
         });
-    stream.print();
+    stream.print(name("WordOutput"));
     stream.window(new WindowOption.GlobalWindow(), new TriggerOption().withEarlyFiringsAtEvery(Duration
         .millis(1000)).accumulatingFiredPanes()).countByKey(new Function.ToKeyValue<String, String, Long>()
         {
@@ -65,7 +67,7 @@ public class ApplicationWithStreamAPI implements StreamingApplication
           {
             return new Tuple.PlainTuple(new KeyValPair<>(input, 1L));
           }
-        }).print();
+        }).print(name("WCOutput"));
     stream.populateDag(dag);
 
   }

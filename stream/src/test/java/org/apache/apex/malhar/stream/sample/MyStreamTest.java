@@ -162,7 +162,7 @@ public class MyStreamTest
       {
         return new Tuple.PlainTuple(new KeyValPair<>(input, 1L));
       }
-    }).addOperator(collector, collector.inputPort, collector.outputPort).print().runEmbedded(false, 30000, exitCondition);
+    }).addOperator(collector, collector.inputPort, collector.outputPort).runEmbedded(false, 30000, exitCondition);
 
 
     Map<String, Long> dataMap = new HashMap<>();

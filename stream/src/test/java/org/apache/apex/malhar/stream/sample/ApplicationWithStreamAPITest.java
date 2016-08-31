@@ -42,6 +42,8 @@ public class ApplicationWithStreamAPITest
   {
     LocalMode lma = LocalMode.newInstance();
     Configuration conf = new Configuration(false);
+    conf.set("dt.application.WordCountStreamingApiDemo.operator.WCOutput.silent", "true");
+    conf.set("dt.application.WordCountStreamingApiDemo.operator.WordOutput.silent", "true");
     lma.prepareDAG(new ApplicationWithStreamAPI(), conf);
     LocalMode.Controller lc = lma.getController();
     long start = System.currentTimeMillis();

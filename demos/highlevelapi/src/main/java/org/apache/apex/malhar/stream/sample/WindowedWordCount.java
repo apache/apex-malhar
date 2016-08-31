@@ -64,16 +64,10 @@ public class WindowedWordCount implements StreamingApplication
    */
   public static class TextInput extends BaseOperator implements InputOperator
   {
-    private static boolean done = false;
-
     public final transient DefaultOutputPort<String> output = new DefaultOutputPort<>();
+    private boolean done = false;
 
     private transient BufferedReader reader;
-
-    public static boolean isDone()
-    {
-      return done;
-    }
 
     @Override
     public void setup(Context.OperatorContext context)
@@ -101,20 +95,21 @@ public class WindowedWordCount implements StreamingApplication
     @Override
     public void emitTuples()
     {
-      try {
-        String line = reader.readLine();
-        if (line == null) {
-          done = true;
-          reader.close();
-          Thread.sleep(1000);
-        } else {
-          this.output.emit(line);
+      if (!done) {
+        try {
+          String line = reader.readLine();
+          if (line == null) {
+            done = true;
+            reader.close();
+          } else {
+            this.output.emit(line);
+          }
+          Thread.sleep(50);
+        } catch (IOException ex) {
+          throw new RuntimeException(ex);
+        } catch (InterruptedException e) {
+          throw Throwables.propagate(e);
         }
-        Thread.sleep(50);
-      } catch (IOException ex) {
-        throw new RuntimeException(ex);
-      } catch (InterruptedException e) {
-        throw Throwables.propagate(e);
       }
     }
   }
@@ -122,6 +117,19 @@ public class WindowedWordCount implements StreamingApplication
   public static class Collector extends BaseOperator
   {
     private static Map<KeyValPair<Long, String>, Long> result = new HashMap<>();
+    private static boolean done = false;
+
+    @Override
+    public void setup(Context.OperatorContext context)
+    {
+      super.setup(context);
+      done = false;
+    }
+
+    public static boolean isDone()
+    {
+      return done;
+    }
 
     public static Map<KeyValPair<Long, String>, Long> getResult()
     {
@@ -134,6 +142,9 @@ public class WindowedWordCount implements StreamingApplication
       public void process(PojoEvent tuple)
       {
         result.put(new KeyValPair<Long, String>(tuple.getTimestamp(), tuple.getWord()), tuple.getCount());
+        if (tuple.getWord().equals("bye")) {
+          done = true;
+        }
       }
     };
   }
@@ -270,7 +281,7 @@ public class WindowedWordCount implements StreamingApplication
         }, name("count words"))
 
         // Format the output and print out the result.
-        .map(new FormatAsTableRowFn(), name("FormatAsTableRowFn")).print();
+        .map(new FormatAsTableRowFn(), name("FormatAsTableRowFn")).print(name("console"));
 
     wordCounts.endWith(collector, collector.input, name("Collector")).populateDag(dag);
   }

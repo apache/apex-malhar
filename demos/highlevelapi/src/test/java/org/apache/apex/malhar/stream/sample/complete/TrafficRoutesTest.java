@@ -41,6 +41,7 @@ public class TrafficRoutesTest
   {
     LocalMode lma = LocalMode.newInstance();
     Configuration conf = new Configuration(false);
+    conf.set("dt.application.TrafficRoutes.operator.console.silent", "true");
     lma.prepareDAG(new TrafficRoutes(), conf);
     LocalMode.Controller lc = lma.getController();
 

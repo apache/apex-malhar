@@ -75,15 +75,10 @@ public class AutoComplete implements StreamingApplication
    */
   public static class TweetsInput extends BaseOperator implements InputOperator
   {
-    private static boolean done = false;
     public final transient DefaultOutputPort<String> output = new DefaultOutputPort<>();
+    private boolean done;
 
     private transient BufferedReader reader;
-
-    public static boolean isDone()
-    {
-      return done;
-    }
 
     @Override
     public void setup(OperatorContext context)
@@ -111,20 +106,21 @@ public class AutoComplete implements StreamingApplication
     @Override
     public void emitTuples()
     {
-      try {
-        String line = reader.readLine();
-        if (line == null) {
-          done = true;
-          reader.close();
-          Thread.sleep(1000);
-        } else {
-          this.output.emit(line);
+      if (!done) {
+        try {
+          String line = reader.readLine();
+          if (line == null) {
+            done = true;
+            reader.close();
+          } else {
+            this.output.emit(line);
+          }
+          Thread.sleep(50);
+        } catch (IOException ex) {
+          throw new RuntimeException(ex);
+        } catch (InterruptedException e) {
+          // Ignore it.
         }
-        Thread.sleep(50);
-      } catch (IOException ex) {
-        throw new RuntimeException(ex);
-      } catch (InterruptedException e) {
-        // Ignore it.
       }
     }
   }
@@ -132,6 +128,19 @@ public class AutoComplete implements StreamingApplication
   public static class Collector extends BaseOperator
   {
     private static Map<String, List<CompletionCandidate>> result = new HashMap<>();
+    private static boolean done = false;
+
+    public static boolean isDone()
+    {
+      return done;
+    }
+
+    @Override
+    public void setup(OperatorContext context)
+    {
+      super.setup(context);
+      done = false;
+    }
 
     public static Map<String, List<CompletionCandidate>> getResult()
     {
@@ -143,6 +152,9 @@ public class AutoComplete implements StreamingApplication
       @Override
       public void process(Tuple.WindowedTuple<KeyValPair<String, List<CompletionCandidate>>> tuple)
       {
+        if (tuple.getValue().getKey().equals("yarn")) {
+          done = true;
+        }
         result.put(tuple.getValue().getKey(), tuple.getValue().getValue());
       }
     };
@@ -303,7 +315,8 @@ public class AutoComplete implements StreamingApplication
         .flatMap(new ExtractHashtags());
 
     tags.window(windowOption, new TriggerOption().accumulatingFiredPanes().withEarlyFiringsAtEvery(1))
-        .addCompositeStreams(ComputeTopCompletions.top(10, true)).endWith(collector, collector.input, name("collector"))
+        .addCompositeStreams(ComputeTopCompletions.top(10, true)).print(name("console"))
+        .endWith(collector, collector.input, name("collector"))
         .populateDag(dag);
   }
 }

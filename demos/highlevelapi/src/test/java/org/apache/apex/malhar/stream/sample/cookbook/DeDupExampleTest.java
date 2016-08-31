@@ -38,7 +38,7 @@ public class DeDupExampleTest
   {
     LocalMode lma = LocalMode.newInstance();
     Configuration conf = new Configuration(false);
-
+    conf.set("dt.application.DeDupExample.operator.console.silent", "true");
     DeDupExample app = new DeDupExample();
     lma.prepareDAG(app, conf);
     LocalMode.Controller lc = lma.getController();

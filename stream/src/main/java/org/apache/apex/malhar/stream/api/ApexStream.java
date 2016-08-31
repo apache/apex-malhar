@@ -106,6 +106,12 @@ public interface ApexStream<T>
    * Add a stdout console output operator
    * @return stream itself
    */
+  <STREAM extends ApexStream<T>> STREAM print(Option... opts);
+
+  /**
+   * Add a stdout console output operator
+   * @return stream itself
+   */
   <STREAM extends ApexStream<T>> STREAM print();
 
   /**

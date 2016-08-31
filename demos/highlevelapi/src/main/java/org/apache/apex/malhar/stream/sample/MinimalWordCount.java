@@ -117,7 +117,7 @@ public class MinimalWordCount implements StreamingApplication
           }
         }, name("FormatResults"))
         // Print the result.
-        .print()
+        .print(name("console"))
         // Attach a collector to the stream to collect results.
         .endWith(collector, collector.input, name("Collector"))
         // populate the dag using the stream.

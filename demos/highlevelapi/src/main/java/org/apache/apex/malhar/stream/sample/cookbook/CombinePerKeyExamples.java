@@ -201,11 +201,6 @@ public class CombinePerKeyExamples implements StreamingApplication
     private String[] corpuses = new String[]{"1", "2", "3", "4", "5", "6", "7", "8"};
     private static int i;
 
-    public static int getI()
-    {
-      return i;
-    }
-
     @Override
     public void setup(Context.OperatorContext context)
     {
@@ -219,10 +214,10 @@ public class CombinePerKeyExamples implements StreamingApplication
       while (i < 1) {
         for (String word : words) {
           for (String corpus : corpuses) {
-            beanOutput.emit(new SampleBean(word, corpus));
             try {
-              Thread.sleep(100);
-            } catch (InterruptedException e) {
+              Thread.sleep(50);
+              beanOutput.emit(new SampleBean(word, corpus));
+            } catch (Exception e) {
               // Ignore it
             }
           }
@@ -235,12 +230,24 @@ public class CombinePerKeyExamples implements StreamingApplication
 
   public static class Collector extends BaseOperator
   {
-    static List<SampleBean> result;
+    private static List<SampleBean> result;
+    private static boolean done = false;
+
+    public static List<SampleBean> getResult()
+    {
+      return result;
+    }
+
+    public static boolean isDone()
+    {
+      return done;
+    }
 
     @Override
     public void setup(Context.OperatorContext context)
     {
       result = new ArrayList<>();
+      done = false;
     }
 
     public final transient DefaultInputPort<SampleBean> input = new DefaultInputPort<SampleBean>()
@@ -248,6 +255,9 @@ public class CombinePerKeyExamples implements StreamingApplication
       @Override
       public void process(SampleBean tuple)
       {
+        if (tuple.getWord().equals("F")) {
+          done = true;
+        }
         result.add(tuple);
       }
     };
@@ -265,7 +275,7 @@ public class CombinePerKeyExamples implements StreamingApplication
     Collector collector = new Collector();
     StreamFactory.fromInput(input, input.beanOutput, name("input"))
       .addCompositeStreams(new PlaysForWord())
-      .print()
+      .print(name("console"))
       .endWith(collector, collector.input, name("Collector"))
       .populateDag(dag);
 

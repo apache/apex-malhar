@@ -39,6 +39,7 @@ public class TopWikipediaSessionsTest
   {
     LocalMode lma = LocalMode.newInstance();
     Configuration conf = new Configuration(false);
+    conf.set("dt.application.TopWikipediaSessions.operator.console.silent", "true");
     lma.prepareDAG(new TopWikipediaSessions(), conf);
     LocalMode.Controller lc = lma.getController();
 

@@ -37,7 +37,7 @@ public class MinimalWordCountTest
   {
     LocalMode lma = LocalMode.newInstance();
     Configuration conf = new Configuration(false);
-
+    conf.set("dt.application.MinimalWordCount.operator.console.silent", "true");
     MinimalWordCount app = new MinimalWordCount();
 
     lma.prepareDAG(app, conf);

@@ -335,6 +335,7 @@ public class TopWikipediaSessions implements StreamingApplication
     Collector collector = new Collector();
     StreamFactory.fromInput(sg, sg.output, name("sessionGen"))
       .addCompositeStreams(new ComputeTopSessions())
+      .print(name("console"))
       .endWith(collector, collector.input, name("collector")).populateDag(dag);
   }
 }

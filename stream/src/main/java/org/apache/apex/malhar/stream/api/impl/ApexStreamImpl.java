@@ -307,6 +307,15 @@ public class ApexStreamImpl<T> implements ApexStream<T>
 
   @Override
   @SuppressWarnings("unchecked")
+  public ApexStreamImpl<T> print(Option... opts)
+  {
+    ConsoleOutputOperator consoleOutputOperator = new ConsoleOutputOperator();
+    addOperator(consoleOutputOperator, (Operator.InputPort<T>)consoleOutputOperator.input, null, opts);
+    return this;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
   public ApexStreamImpl<T> print()
   {
     ConsoleOutputOperator consoleOutputOperator = new ConsoleOutputOperator();

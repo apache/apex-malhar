@@ -35,7 +35,7 @@ public class CombinePerKeyExamplesTest
   {
     LocalMode lma = LocalMode.newInstance();
     Configuration conf = new Configuration(false);
-
+    conf.set("dt.application.CombinePerKeyExamples.operator.console.silent", "true");
     CombinePerKeyExamples app = new CombinePerKeyExamples();
 
     lma.prepareDAG(app, conf);
@@ -46,11 +46,11 @@ public class CombinePerKeyExamplesTest
       @Override
       public Boolean call() throws Exception
       {
-        return CombinePerKeyExamples.SampleInput.getI() >= 1;
+        return CombinePerKeyExamples.Collector.isDone();
       }
     });
     lc.run(100000);
 
-    Assert.assertTrue(CombinePerKeyExamples.Collector.result.get(CombinePerKeyExamples.Collector.result.size() - 1).getCorpus().contains("1, 2, 3, 4, 5, 6, 7, 8"));
+    Assert.assertTrue(CombinePerKeyExamples.Collector.getResult().get(CombinePerKeyExamples.Collector.getResult().size() - 2).getCorpus().contains("1, 2, 3, 4, 5, 6, 7, 8"));
   }
 }

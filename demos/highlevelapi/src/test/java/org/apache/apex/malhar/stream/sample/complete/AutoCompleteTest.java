@@ -39,6 +39,7 @@ public class AutoCompleteTest
   {
     LocalMode lma = LocalMode.newInstance();
     Configuration conf = new Configuration(false);
+    conf.set("dt.application.AutoComplete.operator.console.silent", "true");
     lma.prepareDAG(new AutoComplete(), conf);
     LocalMode.Controller lc = lma.getController();
 
@@ -47,7 +48,7 @@ public class AutoCompleteTest
       @Override
       public Boolean call() throws Exception
       {
-        return AutoComplete.TweetsInput.isDone();
+        return AutoComplete.Collector.isDone();
       }
     });
 

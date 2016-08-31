@@ -117,8 +117,9 @@ public class DeDupExample implements StreamingApplication
         new TriggerOption().accumulatingFiredPanes().withEarlyFiringsAtEvery(Duration.standardSeconds(1)))
 
         // Remove the duplicate words and print out the result.
-        .accumulate(new RemoveDuplicates<String>(), name("RemoveDuplicates")).print().endWith(collector, collector.input)
-
+        .accumulate(new RemoveDuplicates<String>(), name("RemoveDuplicates"))
+        .print(name("console"))
+        .endWith(collector, collector.input)
         .populateDag(dag);
   }
 }

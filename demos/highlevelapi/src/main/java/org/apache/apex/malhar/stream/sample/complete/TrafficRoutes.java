@@ -514,7 +514,7 @@ public class TrafficRoutes implements StreamingApplication
         .addCompositeStreams(new TrackSpeed())
 
         // print the result to console.
-        .print()
+        .print(name("console"))
         .endWith(collector, collector.input, name("Collector"))
         .populateDag(dag);
   }

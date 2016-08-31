@@ -46,6 +46,7 @@ public class WindowedWordCountTest
   {
     LocalMode lma = LocalMode.newInstance();
     Configuration conf = new Configuration(false);
+    conf.set("dt.application.WindowedWordCount.operator.console.silent", "true");
     lma.prepareDAG(new WindowedWordCount(), conf);
     LocalMode.Controller lc = lma.getController();
     ((StramLocalCluster)lc).setExitCondition(new Callable<Boolean>()
@@ -53,7 +54,7 @@ public class WindowedWordCountTest
       @Override
       public Boolean call() throws Exception
       {
-        return WindowedWordCount.TextInput.isDone();
+        return WindowedWordCount.Collector.isDone();
       }
     });
 
