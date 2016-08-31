@@ -43,6 +43,7 @@ public class SerdeListSlice<T> implements Serde<List<T>, Slice>
   protected SerdeListSlice()
   {
     // for Kryo
+    throw new RuntimeException("should only called by Kryo");
   }
 
   /**
@@ -91,12 +92,14 @@ public class SerdeListSlice<T> implements Serde<List<T>, Slice>
     int numElements = GPOUtils.deserializeInt(slice.buffer, sliceOffset);
     List<T> list = Lists.newArrayListWithCapacity(numElements);
     sliceOffset.subtract(slice.offset);
-
+try{
     for (int index = 0; index < numElements; index++) {
       T object = serde.deserialize(slice, sliceOffset);
       list.add(object);
     }
-
+}catch(NullPointerException e) {
+  e.printStackTrace();
+}
     offset.setValue(sliceOffset.intValue());
     return list;
   }

@@ -46,7 +46,7 @@ public class BlocksStream implements ByteStream
   protected Map<Integer, FixedBlock> blocks = Maps.newHashMap();
   //the index of current block, valid block index should >= 0
   protected int currentBlockIndex = 0;
-  protected int size = 0;
+  protected long size = 0;
 
   protected FixedBlock currentBlock;
 
@@ -118,16 +118,29 @@ public class BlocksStream implements ByteStream
     if (block == null) {
       block = new FixedBlock(blockCapacity);
       blocks.put(currentBlockIndex, block);
+      if (blocks.size() % 50 == 0) {
+        logger.info("blocks: {}, size of each block: {}", blocks.size(), blockCapacity);
+      }
     }
     return block;
   }
 
   @Override
-  public int size()
+  public long size()
   {
     return size;
   }
 
+  @Override
+  public long capacity()
+  {
+    long capacity = 0;
+    for (FixedBlock block : blocks.values()) {
+      capacity += block.capacity();
+    }
+    return capacity;
+  }
+  
   /**
    * 
    * this is the last call which represent the end of an object

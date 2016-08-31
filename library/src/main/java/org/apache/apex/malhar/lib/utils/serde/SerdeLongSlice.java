@@ -18,24 +18,29 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
+import org.apache.commons.lang3.mutable.MutableInt;
+
+import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.netlet.util.Slice;
 
-public interface ByteStream
+public class SerdeLongSlice implements Serde<Long, Slice>
 {
-  void write(byte[] data);
+  @Override
+  public Slice serialize(Long object)
+  {
+    return new Slice(GPOUtils.serializeLong(object));
+  }
 
-  void write(byte[] data, final int offset, final int length);
+  @Override
+  public Long deserialize(Slice slice, MutableInt offset)
+  {
+    return GPOUtils.deserializeLong(slice.buffer, offset);
+  }
 
-  long size();
-
-  long capacity();
-  
-  Slice toSlice();
-
-  void reset();
-  
-  /**
-   * release allocated resource
-   */
-  void release();
+  @Override
+  public Long deserialize(Slice object)
+  {
+    return deserialize(object, new MutableInt(0));
+  }
 }
+

@@ -26,18 +26,24 @@ import com.google.common.base.Preconditions;
 
 import com.datatorrent.netlet.util.Slice;
 
+/**
+ * The serialize was implemented by this class, the deserialize was inherited from super class
+ *
+ * @param <T> The type of serializer for item
+ */
 public class SerdeListSliceWithLVBuffer<T> extends SerdeListSlice<T> implements SerToLVBuffer<List<T>>
 {
   protected SerToLVBuffer<T> itemSerTo;
   protected LengthValueBuffer buffer;
   
-  protected SerdeListSliceWithLVBuffer()
+  private SerdeListSliceWithLVBuffer()
   {
     // for Kryo
   }
 
   public SerdeListSliceWithLVBuffer(@NotNull SerToLVBuffer<T> serde, LengthValueBuffer buffer)
   {
+    super(serde);
     this.itemSerTo = Preconditions.checkNotNull(serde);
     this.buffer = Preconditions.checkNotNull(buffer);
   }

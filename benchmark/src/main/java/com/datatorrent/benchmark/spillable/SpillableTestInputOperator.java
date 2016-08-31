@@ -16,26 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.utils.serde;
+package com.datatorrent.benchmark.spillable;
 
-import com.datatorrent.netlet.util.Slice;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.common.util.BaseOperator;
 
-public interface ByteStream
+public class SpillableTestInputOperator extends BaseOperator implements InputOperator
 {
-  void write(byte[] data);
+  public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
+  public long count = 0;
+  public int batchSize = 100;
+  public int sleepBetweenBatch = 1;
 
-  void write(byte[] data, final int offset, final int length);
-
-  long size();
-
-  long capacity();
-  
-  Slice toSlice();
-
-  void reset();
-  
-  /**
-   * release allocated resource
-   */
-  void release();
+  @Override
+  public void emitTuples()
+  {
+    for (int i = 0; i < batchSize; ++i) {
+      output.emit("" + ++count);
+    }
+    if (sleepBetweenBatch > 0) {
+      try {
+        Thread.sleep(sleepBetweenBatch);
+      } catch (Exception e) {
+        //ignore
+      }
+    }
+  }
 }

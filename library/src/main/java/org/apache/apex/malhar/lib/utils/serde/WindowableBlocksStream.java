@@ -130,4 +130,14 @@ public class WindowableBlocksStream extends BlocksStream implements WindowableBy
     size -= removedSize;
   }
 
+  @Override
+  public void reset()
+  {
+    super.reset();
+    
+    //all blocks are free now except the current one
+    freeBlockIds.addAll(blocks.keySet());
+    freeBlockIds.remove(currentBlockIndex);
+
+  }
 }

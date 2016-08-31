@@ -77,8 +77,6 @@ public class Block implements ByteStream
     //calculate the new capacity
     capacity = (size + length) * 2;
 
-    logger.info("Going to assign buffer size: {}", capacity);
-
     byte[] oldBuffer = buffer;
     buffer = new byte[capacity];
 
@@ -142,9 +140,15 @@ public class Block implements ByteStream
     return size + length < capacity;
   }
 
-  public int size()
+  public long size()
   {
     return size;
+  }
+  
+  @Override
+  public long capacity()
+  {
+    return capacity;
   }
   
   public boolean isFresh()

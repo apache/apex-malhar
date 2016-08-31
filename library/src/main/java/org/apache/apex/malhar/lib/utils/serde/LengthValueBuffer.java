@@ -20,7 +20,6 @@ package org.apache.apex.malhar.lib.utils.serde;
 
 import java.util.Map;
 
-import org.apache.apex.malhar.lib.state.spillable.WindowListener;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.google.common.collect.Maps;
@@ -103,7 +102,8 @@ public class LengthValueBuffer implements ResetableWindowListener
   public int markPlaceHolderForLength()
   {
     try {
-      int offset = windowableByteStream.size();
+      //the size/capacity of each block is int
+      int offset = (int)windowableByteStream.size();
       windowableByteStream.write(lengthPlaceHolder);
       return offset;
     } catch (Exception e) {
@@ -111,9 +111,14 @@ public class LengthValueBuffer implements ResetableWindowListener
     }
   }
 
-  public int getSize()
+  public long size()
   {
     return windowableByteStream.size();
+  }
+  
+  public long capacity()
+  {
+    return windowableByteStream.capacity();
   }
 
   /**
