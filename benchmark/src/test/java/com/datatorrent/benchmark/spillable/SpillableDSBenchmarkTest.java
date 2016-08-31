@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,9 +33,7 @@ import org.apache.apex.malhar.lib.state.spillable.SpillableByteArrayListMultimap
 import org.apache.apex.malhar.lib.state.spillable.SpillableByteMapImpl;
 import org.apache.apex.malhar.lib.state.spillable.SpillableTestUtils;
 import org.apache.apex.malhar.lib.state.spillable.managed.ManagedStateSpillableStateStore;
-import org.apache.apex.malhar.lib.utils.serde.LengthValueBuffer;
 import org.apache.apex.malhar.lib.utils.serde.SerdeStringSlice;
-import org.apache.apex.malhar.lib.utils.serde.SerdeStringWithLVBuffer;
 
 import com.google.common.collect.Maps;
 
@@ -62,7 +59,6 @@ public class SpillableDSBenchmarkTest
   
   protected String[] keys;
   protected String[] values;
-  protected LengthValueBuffer buffer = new LengthValueBuffer();
   
   @Rule
   public SpillableTestUtils.TestMeta testMeta = new SpillableTestUtils.TestMeta();
@@ -162,7 +158,6 @@ public class SpillableDSBenchmarkTest
 
         if(i % (tuplesPerWindow * checkPointWindows) == 0) {
           store.beforeCheckpoint(windowId);
-          resetBuffer();
         }
         
         //next window
@@ -173,7 +168,7 @@ public class SpillableDSBenchmarkTest
       long spentTime = System.currentTimeMillis() - startTime;
       if (spentTime > outputTimes * 5000) {
         ++outputTimes;
-        logger.info("Spent {} mills for {} operation. average: {}, buffer size: {}, buffer capacity: {}", spentTime, i, i / spentTime, buffer.size(), buffer.capacity());
+        logger.info("Spent {} mills for {} operation. average: {}", spentTime, i, i / spentTime);
         checkEnvironment();
       }
     }
@@ -223,16 +218,12 @@ public class SpillableDSBenchmarkTest
 
   protected SerdeStringSlice createKeySerde()
   {
-    return new SerdeStringWithLVBuffer(buffer);
+    return new SerdeStringSlice();
   }
 
   protected SerdeStringSlice createValueSerde()
   {
-    return new SerdeStringWithLVBuffer(buffer);
+    return new SerdeStringSlice();
   }
 
-  protected void resetBuffer()
-  {
-    buffer.reset();
-  }
 }
