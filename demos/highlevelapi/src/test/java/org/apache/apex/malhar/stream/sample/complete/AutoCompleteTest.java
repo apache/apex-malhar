@@ -53,14 +53,9 @@ public class AutoCompleteTest
 
     lc.run(200000);
 
-    Assert.assertTrue(AutoComplete.Collector.getResult().containsKey("chi"));
-    Assert.assertTrue(AutoComplete.Collector.getResult().containsKey("china"));
-    Assert.assertEquals(2, AutoComplete.Collector.getResult().get("china").get(0).getCount());
-    Assert.assertEquals("China", AutoComplete.Collector.getResult().get("china").get(0).getValue());
-    Assert.assertEquals(2, AutoComplete.Collector.getResult().get("d").size());
-    Assert.assertEquals(3, AutoComplete.Collector.getResult().get("f").size());
-    Assert.assertTrue(AutoComplete.Collector.getResult().get("f").get(0).getCount() >= AutoComplete.Collector.getResult().get("f").get(1).getCount());
-    Assert.assertTrue(AutoComplete.Collector.getResult().get("f").get(1).getCount() >= AutoComplete.Collector.getResult().get("f").get(2).getCount());
+    Assert.assertTrue(AutoComplete.Collector.getResult().containsKey("had"));
+    Assert.assertTrue(AutoComplete.Collector.getResult().containsKey("hadoop"));
+    Assert.assertEquals(2, AutoComplete.Collector.getResult().get("mapreduce").get(0).getCount());
 
   }
 }
