@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Random;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -30,9 +31,12 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.apex.malhar.lib.state.managed.Bucket;
 import org.apache.apex.malhar.lib.state.spillable.SpillableByteArrayListMultimapImpl;
+import org.apache.apex.malhar.lib.state.spillable.SpillableByteMapImpl;
 import org.apache.apex.malhar.lib.state.spillable.SpillableTestUtils;
 import org.apache.apex.malhar.lib.state.spillable.managed.ManagedStateSpillableStateStore;
+import org.apache.apex.malhar.lib.utils.serde.LengthValueBuffer;
 import org.apache.apex.malhar.lib.utils.serde.SerdeStringSlice;
+import org.apache.apex.malhar.lib.utils.serde.SerdeStringWithLVBuffer;
 
 import com.google.common.collect.Maps;
 
@@ -45,10 +49,20 @@ public class SpillableDSBenchmarkTest
   public static final transient Logger logger = LoggerFactory.getLogger(SpillableDSBenchmarkTest.class);
   protected static final transient int loopCount = 100000000;
   protected static final transient long oneMB = 1024*1024;
-  protected static final transient int keySize = 1000000;
-  protected static final transient int valueSize = 100000000;
+  protected static final transient int keySize = 100000;   
+  protected static final transient int valueSize = 100000;
+  protected static final transient int valuesPerKey = 100;
+  protected static final int maxKeyLength = 100;
+  protected static final int maxValueLength = 1000;
+  
+  protected static final int tuplesPerWindow = 10000;
+  protected static final int checkPointWindows = 10;
   
   protected final transient Random random = new Random();
+  
+  protected String[] keys;
+  protected String[] values;
+  protected LengthValueBuffer buffer = new LengthValueBuffer();
   
   @Rule
   public SpillableTestUtils.TestMeta testMeta = new SpillableTestUtils.TestMeta();
@@ -67,7 +81,6 @@ public class SpillableDSBenchmarkTest
     public void endWindow()
     {
       super.endWindow();
-      beforeCheckpoint(this.windowId);
     }
 
     /**
@@ -97,61 +110,72 @@ public class SpillableDSBenchmarkTest
         flashData.clear();
       }
     }
-
   }
+
+  @Before
+  public void setup()
+  {
+    keys = new String[keySize];
+    for (int i = 0; i < keys.length; ++i) {
+      keys[i] = this.randomString(maxKeyLength);
+    }
+
+    values = new String[valueSize];
+    for (int i = 0; i < values.length; ++i) {
+      values[i] = this.randomString(maxValueLength);
+    }
+  }
+  
+  
 
   @Test
-  public void testSpillableMutimap()
-  {
-    testSpillableMutimap(true);
-  }
-
-  public void testSpillableMutimap(boolean useLvBuffer)
+  public void testSpillableMap()
   {
     byte[] ID1 = new byte[]{(byte)1};
     OptimisedStateStore store = new OptimisedStateStore();
     ((TFileImpl.DTFileImpl)store.getFileAccess()).setBasePath("target/temp");
 
     SerdeStringSlice keySerde = createKeySerde();
-    ;
     SerdeStringSlice valueSerde = createValueSerde();
-    ;
 
-    SpillableByteArrayListMultimapImpl<String, String> multiMap = new SpillableByteArrayListMultimapImpl<String, String>(
-        store, ID1, 0L, keySerde, valueSerde);
 
+//    SpillableByteArrayListMultimapImpl<String, String> map = new SpillableByteArrayListMultimapImpl<String, String>(
+//        store, ID1, 0L, keySerde, valueSerde, buffer);
+
+    SpillableByteMapImpl<String, String> map = new SpillableByteMapImpl<String, String>(store, ID1, 0L, keySerde, valueSerde);
     store.setup(testMeta.operatorContext);
-    multiMap.setup(testMeta.operatorContext);
+    map.setup(testMeta.operatorContext);
 
     final long startTime = System.currentTimeMillis();
 
     long windowId = 0;
     store.beginWindow(++windowId);
-    multiMap.beginWindow(windowId);
+    map.beginWindow(windowId);
 
     int outputTimes = 0;
     for (int i = 0; i < loopCount; ++i) {
-      putEntry(multiMap);
+      putEntry(map);
 
-      if (i % 100000 == 0) {
-        multiMap.endWindow();
+      if (i % tuplesPerWindow == 0) {
+        map.endWindow();
         store.endWindow();
 
-        //NOTES: it will great impact the performance if the size of buffer is too large
-        resetBuffer();
-
+        if(i % (tuplesPerWindow * checkPointWindows) == 0) {
+          store.beforeCheckpoint(windowId);
+          resetBuffer();
+        }
+        
         //next window
         store.beginWindow(++windowId);
-        multiMap.beginWindow(windowId);
+        map.beginWindow(windowId);
       }
 
       long spentTime = System.currentTimeMillis() - startTime;
-      if (spentTime > outputTimes * 60000) {
+      if (spentTime > outputTimes * 5000) {
         ++outputTimes;
-        logger.info("Spent {} mills for {} operation. average: {}", spentTime, i, i / spentTime);
+        logger.info("Spent {} mills for {} operation. average: {}, buffer size: {}, buffer capacity: {}", spentTime, i, i / spentTime, buffer.size(), buffer.capacity());
         checkEnvironment();
       }
-
     }
     long spentTime = System.currentTimeMillis() - startTime;
 
@@ -165,9 +189,26 @@ public class SpillableDSBenchmarkTest
    */
   public void putEntry(SpillableByteArrayListMultimapImpl<String, String> multiMap)
   {
-    multiMap.put(String.valueOf(random.nextInt(keySize)), String.valueOf(random.nextInt(valueSize)));
+    multiMap.put(keys[random.nextInt(keys.length)], values[random.nextInt(values.length)]);
+  }
+  
+  public void putEntry(SpillableByteMapImpl<String, String> map)
+  {
+    map.put(keys[random.nextInt(keys.length)], values[random.nextInt(values.length)]);
   }
 
+  public static final String characters = "0123456789ABCDEFGHIJKLMNOPKRSTUVWXYZabcdefghijklmopqrstuvwxyz";
+
+  protected static final char[] text = new char[Math.max(maxKeyLength, maxValueLength)];
+
+  public String randomString(int length)
+  {
+    for (int i = 0; i < length; i++) {
+      text[i] = characters.charAt(random.nextInt(characters.length()));
+    }
+    return new String(text, 0, length);
+  }
+  
   public void checkEnvironment()
   {
     Runtime runtime = Runtime.getRuntime();
@@ -178,21 +219,20 @@ public class SpillableDSBenchmarkTest
     
     logger.info("freeMemory: {}M; allocatedMemory: {}M; maxMemory: {}M", freeMemory / oneMB,
         allocatedMemory / oneMB, maxMemory / oneMB);
-    
-    Assert.assertTrue("Used up all memory.", maxMemory - allocatedMemory > oneMB);
   }
 
   protected SerdeStringSlice createKeySerde()
   {
-    return new SerdeStringSlice();
+    return new SerdeStringWithLVBuffer(buffer);
   }
 
   protected SerdeStringSlice createValueSerde()
   {
-    return new SerdeStringSlice();
+    return new SerdeStringWithLVBuffer(buffer);
   }
 
   protected void resetBuffer()
   {
+    buffer.reset();
   }
 }
