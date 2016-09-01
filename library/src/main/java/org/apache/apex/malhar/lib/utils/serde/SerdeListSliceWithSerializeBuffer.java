@@ -31,17 +31,17 @@ import com.datatorrent.netlet.util.Slice;
  *
  * @param <T> The type of serializer for item
  */
-public class SerdeListSliceWithLVBuffer<T> extends SerdeListSlice<T> implements SerToLVBuffer<List<T>>
+public class SerdeListSliceWithSerializeBuffer<T> extends SerdeListSlice<T> implements SerToSerializeBuffer<List<T>>
 {
-  protected SerToLVBuffer<T> itemSerTo;
+  protected SerToSerializeBuffer<T> itemSerTo;
   protected LengthValueBuffer buffer;
   
-  private SerdeListSliceWithLVBuffer()
+  private SerdeListSliceWithSerializeBuffer()
   {
     // for Kryo
   }
 
-  public SerdeListSliceWithLVBuffer(@NotNull SerToLVBuffer<T> serde, LengthValueBuffer buffer)
+  public SerdeListSliceWithSerializeBuffer(@NotNull SerToSerializeBuffer<T> serde, LengthValueBuffer buffer)
   {
     super(serde);
     this.itemSerTo = Preconditions.checkNotNull(serde);
@@ -56,9 +56,13 @@ public class SerdeListSliceWithLVBuffer<T> extends SerdeListSlice<T> implements 
   }
   
   @Override
-  public void serTo(List<T> objects, LengthValueBuffer buffer)
+  public void serTo(List<T> objects, SerializeBuffer buffer)
   {
-    buffer.setObjectLength(objects.size());
+    //For LengthValueBuffer, need to set the size
+    if (buffer instanceof LengthValueBuffer) {
+      ((LengthValueBuffer)buffer).setObjectLength(objects.size());
+    }
+
     for (T object : objects) {
       itemSerTo.serTo(object, buffer);;
     }

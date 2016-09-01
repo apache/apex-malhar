@@ -22,19 +22,19 @@ import com.google.common.base.Preconditions;
 
 import com.datatorrent.netlet.util.Slice;
 
-public class SerdeStringWithLVBuffer extends SerdeStringSlice implements SerToLVBuffer<String>
+public class SerdeStringWithSerializeBuffer extends SerdeStringSlice implements SerToSerializeBuffer<String>
 {
   //implement with shared buff
-  protected LengthValueBuffer buffer;
+  protected SerializeBuffer buffer;
   
   /**
    * if don't use SerdeStringWithLVBuffer.serialize(String), can ignore LVBuffer
    */
-  public SerdeStringWithLVBuffer()
+  public SerdeStringWithSerializeBuffer()
   {
   }
   
-  public SerdeStringWithLVBuffer(LengthValueBuffer buffer)
+  public SerdeStringWithSerializeBuffer(SerializeBuffer buffer)
   {
     this.buffer = Preconditions.checkNotNull(buffer);
   }
@@ -49,19 +49,10 @@ public class SerdeStringWithLVBuffer extends SerdeStringSlice implements SerToLV
     return buffer.toSlice();
   }
 
-// implement with tmp buffer  
-//  @Override
-//  public Slice serialize(String object)
-//  {
-//    LVBuffer buffer = new LVBuffer();
-//    serTo(object, buffer);
-//    return buffer.toSlice();
-//  }
-  
   @Override
-  public void serTo(String str, LengthValueBuffer buffer)
+  public void serTo(String str, SerializeBuffer buffer)
   {
-    buffer.setObjectWithValue(str.getBytes());
+    buffer.setObjectByValue(str.getBytes());
   }
 
   @Override

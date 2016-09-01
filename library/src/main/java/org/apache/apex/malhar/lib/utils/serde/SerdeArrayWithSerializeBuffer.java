@@ -23,28 +23,28 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.netlet.util.Slice;
 
-public class SerdeArrayWithLVBuffer<T> implements SerToLVBuffer<T[]>
+public class SerdeArrayWithSerializeBuffer<T> implements SerToSerializeBuffer<T[]>
 {
   protected Class<T> clazz;
   protected LengthValueBuffer buffer;
-  protected SerToLVBuffer<T> itemSerde;
+  protected SerToSerializeBuffer<T> itemSerde;
   
-  protected SerdeArrayWithLVBuffer()
+  protected SerdeArrayWithSerializeBuffer()
   {
   }
   
-  public SerdeArrayWithLVBuffer(Class<T> clazz)
+  public SerdeArrayWithSerializeBuffer(Class<T> clazz)
   {
     this.clazz = clazz;
   }
 
-  public SerdeArrayWithLVBuffer(Class<T> clazz, LengthValueBuffer buffer)
+  public SerdeArrayWithSerializeBuffer(Class<T> clazz, LengthValueBuffer buffer)
   {
     this.clazz = clazz;
     this.buffer = buffer;
   }
   
-  public SerdeArrayWithLVBuffer(SerToLVBuffer<T> itemSerde, LengthValueBuffer buffer)
+  public SerdeArrayWithSerializeBuffer(SerToSerializeBuffer<T> itemSerde, LengthValueBuffer buffer)
   {
     this.itemSerde = itemSerde;
     this.buffer = buffer;
@@ -61,27 +61,32 @@ public class SerdeArrayWithLVBuffer<T> implements SerToLVBuffer<T[]>
   }
 
   @Override
-  public void serTo(T[] objects, LengthValueBuffer buffer)
+  public void serTo(T[] objects, SerializeBuffer buffer)
   {
     if (objects.length == 0) {
       return;
     }
-    buffer.setObjectLength(objects.length);
-    SerToLVBuffer<T> serializer = getItemSerToLVBuffer();
+    
+    //For LengthValueBuffer, need to set the size of the array
+    if (buffer instanceof LengthValueBuffer) {
+      ((LengthValueBuffer)buffer).setObjectLength(objects.length);
+    }
+    
+    SerToSerializeBuffer<T> serializer = getItemSerToLVBuffer();
     for (T object : objects) {
       serializer.serTo(object, buffer);
     }
   }
 
   @SuppressWarnings("unchecked")
-  protected SerToLVBuffer<T> getItemSerToLVBuffer()
+  protected SerToSerializeBuffer<T> getItemSerToLVBuffer()
   {
     if (itemSerde != null) {
       return itemSerde;
     }
     
     if (String.class.equals(clazz)) {
-      itemSerde = (SerToLVBuffer<T>)new SerdeStringWithLVBuffer();
+      itemSerde = (SerToSerializeBuffer<T>)new SerdeStringWithSerializeBuffer();
       return itemSerde;
     }
 

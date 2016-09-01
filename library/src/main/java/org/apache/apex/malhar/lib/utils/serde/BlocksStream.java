@@ -86,7 +86,7 @@ public class BlocksStream implements ByteStream
 
       previousBlock = moveToNextBlock();
       if(!currentBlock.isFresh()) {
-        throw new RuntimeException("New block is not flash.");
+        throw new RuntimeException("New block is not fresh.");
       }
       if(!previousBlock.isClear()) {
         previousBlock.moveLastObjectDataTo(currentBlock);
@@ -107,7 +107,7 @@ public class BlocksStream implements ByteStream
     ++currentBlockIndex;
     currentBlock = getOrCreateCurrentBlock();
     if (!currentBlock.isFresh()) {
-      throw new RuntimeException("Assigned non flash block.");
+      throw new RuntimeException("Assigned non fresh block.");
     }
     return previousBlock;
   }
@@ -119,7 +119,7 @@ public class BlocksStream implements ByteStream
       block = new FixedBlock(blockCapacity);
       blocks.put(currentBlockIndex, block);
       if (blocks.size() % 50 == 0) {
-        logger.info("blocks: {}, size of each block: {}", blocks.size(), blockCapacity);
+        logger.info("Assigned blocks: {}, size of each block: {}", blocks.size(), blockCapacity);
       }
     }
     return block;

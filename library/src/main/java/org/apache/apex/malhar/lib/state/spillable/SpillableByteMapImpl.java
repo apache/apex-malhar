@@ -26,6 +26,9 @@ import java.util.Set;
 import javax.validation.constraints.NotNull;
 
 import org.apache.apex.malhar.lib.state.BucketedState;
+import org.apache.apex.malhar.lib.utils.serde.BytesPrefixBuffer;
+import org.apache.apex.malhar.lib.utils.serde.LengthValueBuffer;
+import org.apache.apex.malhar.lib.utils.serde.SerToSerializeBuffer;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
 import org.apache.apex.malhar.lib.utils.serde.SliceUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -57,13 +60,20 @@ public class SpillableByteMapImpl<K, V> implements Spillable.SpillableByteMap<K,
   @NotNull
   private byte[] identifier;
   private long bucket;
-  @NotNull
+
+  //serdeKey is for origin interface 
   private Serde<K, Slice> serdeKey;
+  //serKeyToBuffer can reuse buffer
+  protected SerToSerializeBuffer<K> serKeyToBuffer;
+  
   @NotNull
   private Serde<V, Slice> serdeValue;
 
   private int size = 0;
 
+  @NotNull
+  protected BytesPrefixBuffer buffer;
+  
   private SpillableByteMapImpl()
   {
     //for kryo
@@ -87,6 +97,19 @@ public class SpillableByteMapImpl<K, V> implements Spillable.SpillableByteMap<K,
     this.serdeKey = Preconditions.checkNotNull(serdeKey);
     this.serdeValue = Preconditions.checkNotNull(serdeValue);
   }
+
+  public SpillableByteMapImpl(SpillableStateStore store, byte[] identifier, long bucket, SerToSerializeBuffer<K> serKeyToBuffer,
+      Serde<V, Slice> serdeValue, @NotNull BytesPrefixBuffer buffer)
+  {
+    this.store = Preconditions.checkNotNull(store);
+    this.identifier = Preconditions.checkNotNull(identifier);
+    this.bucket = bucket;
+    this.serKeyToBuffer = Preconditions.checkNotNull(serKeyToBuffer);
+    this.serdeValue = Preconditions.checkNotNull(serdeValue);
+    this.buffer = buffer;
+    this.buffer.setPrefix(identifier);
+  }
+
 
   public SpillableStateStore getStore()
   {
@@ -132,7 +155,7 @@ public class SpillableByteMapImpl<K, V> implements Spillable.SpillableByteMap<K,
       return val;
     }
 
-    Slice valSlice = store.getSync(bucket, SliceUtils.concatenate(identifier, serdeKey.serialize(key)));
+    Slice valSlice = store.getSync(bucket, serializeKey(key));
 
     if (valSlice == null || valSlice == BucketedState.EXPIRED || valSlice.length == 0) {
       return null;
@@ -142,6 +165,16 @@ public class SpillableByteMapImpl<K, V> implements Spillable.SpillableByteMap<K,
     return serdeValue.deserialize(valSlice, tempOffset);
   }
 
+  protected Slice serializeKey(K key)
+  {
+    if( this.serKeyToBuffer != null) {
+      serKeyToBuffer.serTo(key, buffer);
+      return buffer.toSlice();
+    }
+    
+    return SliceUtils.concatenate(identifier, serdeKey.serialize(key));
+  }
+  
   @Override
   public V put(K k, V v)
   {
@@ -215,19 +248,27 @@ public class SpillableByteMapImpl<K, V> implements Spillable.SpillableByteMap<K,
   @Override
   public void endWindow()
   {
-    for (K key: cache.getChangedKeys()) {
-      store.put(this.bucket, SliceUtils.concatenate(identifier, serdeKey.serialize(key)),
-          serdeValue.serialize(cache.get(key)));
+    if (serKeyToBuffer != null) {
+      for (K key : cache.getChangedKeys()) {
+        serKeyToBuffer.serTo(key, buffer);
+        store.put(this.bucket, buffer.toSlice(), serdeValue.serialize(cache.get(key)));
+      }
+    } else {
+      for (K key : cache.getChangedKeys()) {
+        store.put(this.bucket, serdeKey.serialize(key), serdeValue.serialize(cache.get(key)));
+      }
     }
-
-    for (K key: cache.getRemovedKeys()) {
-      store.put(this.bucket, SliceUtils.concatenate(identifier, serdeKey.serialize(key)),
-          new Slice(ArrayUtils.EMPTY_BYTE_ARRAY));
-    }
-
+    
     cache.endWindow();
   }
 
+  public void resetBuffer()
+  {
+    if (buffer != null) {
+      buffer.reset();
+    }
+  }
+  
   @Override
   public void teardown()
   {

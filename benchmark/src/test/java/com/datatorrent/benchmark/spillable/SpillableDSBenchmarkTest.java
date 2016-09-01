@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,7 +34,10 @@ import org.apache.apex.malhar.lib.state.spillable.SpillableByteArrayListMultimap
 import org.apache.apex.malhar.lib.state.spillable.SpillableByteMapImpl;
 import org.apache.apex.malhar.lib.state.spillable.SpillableTestUtils;
 import org.apache.apex.malhar.lib.state.spillable.managed.ManagedStateSpillableStateStore;
+import org.apache.apex.malhar.lib.utils.serde.BytesPrefixBuffer;
+import org.apache.apex.malhar.lib.utils.serde.LengthValueBuffer;
 import org.apache.apex.malhar.lib.utils.serde.SerdeStringSlice;
+import org.apache.apex.malhar.lib.utils.serde.SerdeStringWithSerializeBuffer;
 
 import com.google.common.collect.Maps;
 
@@ -48,7 +52,6 @@ public class SpillableDSBenchmarkTest
   protected static final transient long oneMB = 1024*1024;
   protected static final transient int keySize = 100000;   
   protected static final transient int valueSize = 100000;
-  protected static final transient int valuesPerKey = 100;
   protected static final int maxKeyLength = 100;
   protected static final int maxValueLength = 1000;
   
@@ -57,6 +60,8 @@ public class SpillableDSBenchmarkTest
   
   protected final transient Random random = new Random();
   
+  protected final LengthValueBuffer buffer = new LengthValueBuffer();
+  protected final BytesPrefixBuffer keyBuffer = new BytesPrefixBuffer();
   protected String[] keys;
   protected String[] values;
   
@@ -131,14 +136,10 @@ public class SpillableDSBenchmarkTest
     OptimisedStateStore store = new OptimisedStateStore();
     ((TFileImpl.DTFileImpl)store.getFileAccess()).setBasePath("target/temp");
 
-    SerdeStringSlice keySerde = createKeySerde();
+    SerdeStringWithSerializeBuffer keySerde = createKeySerde();
     SerdeStringSlice valueSerde = createValueSerde();
 
-
-//    SpillableByteArrayListMultimapImpl<String, String> map = new SpillableByteArrayListMultimapImpl<String, String>(
-//        store, ID1, 0L, keySerde, valueSerde, buffer);
-
-    SpillableByteMapImpl<String, String> map = new SpillableByteMapImpl<String, String>(store, ID1, 0L, keySerde, valueSerde);
+    SpillableByteMapImpl<String, String> map = new SpillableByteMapImpl<String, String>(store, ID1, 0L, keySerde, valueSerde, keyBuffer);
     store.setup(testMeta.operatorContext);
     map.setup(testMeta.operatorContext);
 
@@ -158,6 +159,12 @@ public class SpillableDSBenchmarkTest
 
         if(i % (tuplesPerWindow * checkPointWindows) == 0) {
           store.beforeCheckpoint(windowId);
+          
+          //clear the buffer
+          buffer.reset();
+          
+          keyBuffer.reset();
+          //map.resetBuffer();
         }
         
         //next window
@@ -168,7 +175,7 @@ public class SpillableDSBenchmarkTest
       long spentTime = System.currentTimeMillis() - startTime;
       if (spentTime > outputTimes * 5000) {
         ++outputTimes;
-        logger.info("Spent {} mills for {} operation. average: {}", spentTime, i, i / spentTime);
+        logger.info("Spent {} mills for {} operation. average: {}, key buffer capacity: {}, value buffer capacity: {}", spentTime, i, i / spentTime, keyBuffer.capacity(), buffer.capacity());
         checkEnvironment();
       }
     }
@@ -208,22 +215,24 @@ public class SpillableDSBenchmarkTest
   {
     Runtime runtime = Runtime.getRuntime();
 
-    long maxMemory = runtime.maxMemory();
-    long allocatedMemory = runtime.totalMemory();
-    long freeMemory = runtime.freeMemory();
+    long maxMemory = runtime.maxMemory()/oneMB;
+    long allocatedMemory = runtime.totalMemory()/oneMB;
+    long freeMemory = runtime.freeMemory()/oneMB;
     
-    logger.info("freeMemory: {}M; allocatedMemory: {}M; maxMemory: {}M", freeMemory / oneMB,
-        allocatedMemory / oneMB, maxMemory / oneMB);
+    logger.info("freeMemory: {}M; allocatedMemory: {}M; maxMemory: {}M", freeMemory,
+        allocatedMemory, maxMemory);
+    
+    Assert.assertFalse("Run out of memory.", allocatedMemory == maxMemory && freeMemory < 200);
   }
 
-  protected SerdeStringSlice createKeySerde()
+  protected SerdeStringWithSerializeBuffer createKeySerde()
   {
-    return new SerdeStringSlice();
+    return new SerdeStringWithSerializeBuffer();
   }
 
   protected SerdeStringSlice createValueSerde()
   {
-    return new SerdeStringSlice();
+    return new SerdeStringWithSerializeBuffer(buffer);
   }
 
 }

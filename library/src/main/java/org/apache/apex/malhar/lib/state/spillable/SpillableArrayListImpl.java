@@ -26,10 +26,10 @@ import java.util.ListIterator;
 import javax.validation.constraints.NotNull;
 
 import org.apache.apex.malhar.lib.utils.serde.LengthValueBuffer;
-import org.apache.apex.malhar.lib.utils.serde.SerToLVBuffer;
+import org.apache.apex.malhar.lib.utils.serde.SerToSerializeBuffer;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
 import org.apache.apex.malhar.lib.utils.serde.SerdeIntSlice;
-import org.apache.apex.malhar.lib.utils.serde.SerdeListSliceWithLVBuffer;
+import org.apache.apex.malhar.lib.utils.serde.SerdeListSliceWithSerializeBuffer;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.esotericsoftware.kryo.DefaultSerializer;
@@ -65,7 +65,7 @@ public class SpillableArrayListImpl<T> implements Spillable.SpillableArrayList<T
   private int size;
   private int numBatches;
 
-  protected transient SerdeListSliceWithLVBuffer<T> valueSerde;
+  protected transient SerdeListSliceWithSerializeBuffer<T> valueSerde;
   protected transient LengthValueBuffer buffer;
   
   private SpillableArrayListImpl()
@@ -129,11 +129,11 @@ public class SpillableArrayListImpl<T> implements Spillable.SpillableArrayList<T
     this.store = Preconditions.checkNotNull(store);
     this.serde = Preconditions.checkNotNull(serde);
 
-    if (!(serde instanceof SerToLVBuffer)) {
+    if (!(serde instanceof SerToSerializeBuffer)) {
       throw new IllegalArgumentException("Invalid serde, expect instanceof SerToLVBuffer");
     }
 
-    valueSerde = new SerdeListSliceWithLVBuffer((SerToLVBuffer)serde, buffer);
+    valueSerde = new SerdeListSliceWithSerializeBuffer((SerToSerializeBuffer)serde, buffer);
     
     Preconditions.checkArgument(this.batchSize > 0);
     this.batchSize = batchSize;

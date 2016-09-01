@@ -32,9 +32,8 @@ import com.datatorrent.netlet.util.Slice;
  * serialize
  *
  */
-public class LengthValueBuffer implements ResetableWindowListener
+public class LengthValueBuffer extends AbstractSerializeBuffer
 {
-  protected WindowableByteStream windowableByteStream;
   protected Map<Integer, Integer> placeHolderIdentifierToValue = Maps.newHashMap();
 
   public LengthValueBuffer()
@@ -61,18 +60,6 @@ public class LengthValueBuffer implements ResetableWindowListener
   }
 
   /**
-   * only set value.
-   * 
-   * @param value
-   * @param offset
-   * @param length
-   */
-  public void setObjectValue(byte[] value, int offset, int length)
-  {
-    windowableByteStream.write(value, offset, length);
-  }
-
-  /**
    * set value and length. the input value is value only, it doesn't include
    * length information.
    * 
@@ -80,16 +67,13 @@ public class LengthValueBuffer implements ResetableWindowListener
    * @param offset
    * @param length
    */
-  public void setObjectWithValue(byte[] value, int offset, int length)
+  @Override
+  public void setObjectByValue(byte[] value, int offset, int length)
   {
     setObjectLength(length);
-    setObjectValue(value, offset, length);
+    write(value, offset, length);
   }
 
-  public void setObjectWithValue(byte[] value)
-  {
-    setObjectWithValue(value, 0, value.length);
-  }
 
   /**
    * mark place hold for length. In some case, we don't know the length until
@@ -109,16 +93,6 @@ public class LengthValueBuffer implements ResetableWindowListener
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-  }
-
-  public long size()
-  {
-    return windowableByteStream.size();
-  }
-  
-  public long capacity()
-  {
-    return windowableByteStream.capacity();
   }
 
   /**
@@ -155,23 +129,11 @@ public class LengthValueBuffer implements ResetableWindowListener
   /**
    * reset the environment to reuse the resource.
    */
+  @Override
   public void reset()
   {
-    windowableByteStream.reset();
+    super.reset();
     placeHolderIdentifierToValue.clear();
-  }
-  
-
-  @Override
-  public void beginWindow(long windowId)
-  {
-    windowableByteStream.beginWindow(windowId);
-  }
-
-  @Override
-  public void endWindow()
-  {
-    windowableByteStream.endWindow();    
   }
   
   /**
@@ -182,21 +144,5 @@ public class LengthValueBuffer implements ResetableWindowListener
   public void resetUpToWindow(long windowId)
   {
     windowableByteStream.resetUpToWindow(windowId);
-  }
-
-  public void release()
-  {
-    reset();
-    windowableByteStream.release();
-  }
-  
-  public WindowableByteStream createWindowableByteStream()
-  {
-    return new WindowableBlocksStream();
-  }
-
-  public WindowableByteStream createWindowableByteStream(int capacity)
-  {
-    return new WindowableBlocksStream(capacity);
   }
 }

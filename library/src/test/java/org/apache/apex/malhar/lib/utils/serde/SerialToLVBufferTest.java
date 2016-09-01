@@ -47,26 +47,26 @@ public class SerialToLVBufferTest
   @Test
   public void testSerdeString()
   {
-    testSerde(testData, new SerdeStringWithLVBuffer(), new StringSerdeVerifier());
+    testSerde(testData, new SerdeStringWithSerializeBuffer(), new StringSerdeVerifier());
   }
   
   @Test
   public void testSerdeArray()
   {
-    testSerde(testData, new SerdeArrayWithLVBuffer<String>(String.class), new StringArraySerdeVerifier());
+    testSerde(testData, new SerdeArrayWithSerializeBuffer<String>(String.class), new StringArraySerdeVerifier());
   }
   
   
   @Test
   public void testSerdeCollection()
   {
-    SerdeCollectionWithLVBuffer<String, List<String>> listSerde = new SerdeCollectionWithLVBuffer<String, List<String>>(String.class);
+    SerdeCollectionWithSerializeBuffer<String, List<String>> listSerde = new SerdeCollectionWithSerializeBuffer<String, List<String>>(String.class);
     listSerde.setCollectionClass(ArrayList.class);
     testSerde(testData, listSerde, new StringListSerdeVerifier());
   }
   
   
-  public <T> void testSerde(String[] strs, SerToLVBuffer<T> serde, SerdeVerifier<T> verifier)
+  public <T> void testSerde(String[] strs, SerToSerializeBuffer<T> serde, SerdeVerifier<T> verifier)
   {
     LengthValueBuffer lvBuffer = new LengthValueBuffer();
 
@@ -86,13 +86,13 @@ public class SerialToLVBufferTest
   
   public static interface SerdeVerifier<T>
   {
-    public void verifySerde(String[] datas, SerToLVBuffer<T> serde, LengthValueBuffer lvBuffer);
+    public void verifySerde(String[] datas, SerToSerializeBuffer<T> serde, LengthValueBuffer lvBuffer);
   }
   
   public static class StringSerdeVerifier implements SerdeVerifier<String>
   {
     @Override
-    public void verifySerde(String[] datas, SerToLVBuffer<String> serde, LengthValueBuffer lvBuffer)
+    public void verifySerde(String[] datas, SerToSerializeBuffer<String> serde, LengthValueBuffer lvBuffer)
     {
       for (String str : datas) {
         Slice slice = serde.serialize(str);
@@ -108,7 +108,7 @@ public class SerialToLVBufferTest
   public static class StringArraySerdeVerifier implements SerdeVerifier<String[]>
   {
     @Override
-    public void verifySerde(String[] datas, SerToLVBuffer<String[]> serde, LengthValueBuffer lvBuffer)
+    public void verifySerde(String[] datas, SerToSerializeBuffer<String[]> serde, LengthValueBuffer lvBuffer)
     {
       Slice slice = serde.serialize(datas);
       String[] newStrs = serde.deserialize(slice);
@@ -122,7 +122,7 @@ public class SerialToLVBufferTest
   public static class StringListSerdeVerifier implements SerdeVerifier<List<String>>
   {
     @Override
-    public void verifySerde(String[] datas, SerToLVBuffer<List<String>> serdeList, LengthValueBuffer lvBuffer)
+    public void verifySerde(String[] datas, SerToSerializeBuffer<List<String>> serdeList, LengthValueBuffer lvBuffer)
     {
       List<String> list = Arrays.asList(datas);
       
