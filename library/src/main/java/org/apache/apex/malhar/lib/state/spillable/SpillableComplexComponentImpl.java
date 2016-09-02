@@ -25,6 +25,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
 import org.apache.hadoop.classification.InterfaceStability;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -95,6 +96,34 @@ public class SpillableComplexComponentImpl implements SpillableComplexComponent
     SpillableByteMapImpl<K, V> map = new SpillableByteMapImpl<K, V>(store, identifier, bucket, serdeKey, serdeValue);
     componentList.add(map);
     return map;
+  }
+
+  @Override
+  public <K, V> SpillableIterableByteMap<K, V> newSpillableIterableByteMap(long bucket, Serde<K, Slice> serdeKey,
+      Serde<V, Slice> serdeValue, Function<K, Long> timeExtractor, long millisPerBucket)
+  {
+    if (store instanceof SpillableTimeStateStore) {
+      SpillableTimeKeyedMapImpl<K, V> map = new SpillableTimeKeyedMapImpl<K, V>((SpillableTimeStateStore)store, identifierGenerator.next(),
+          bucket, serdeKey, serdeValue, timeExtractor, millisPerBucket);
+      componentList.add(map);
+      return map;
+    } else {
+      throw new IllegalArgumentException("A SpillableTimeStateStore is required.");
+    }
+  }
+
+  @Override
+  public <K, V> SpillableIterableByteMap<K, V> newSpillableIterableByteMap(byte[] identifier, long bucket, Serde<K, Slice> serdeKey,
+      Serde<V, Slice> serdeValue, Function<K, Long> timeExtractor, long millisPerBucket)
+  {
+    if (store instanceof SpillableTimeStateStore) {
+      identifierGenerator.register(identifier);
+      SpillableTimeKeyedMapImpl<K, V> map = new SpillableTimeKeyedMapImpl<K, V>((SpillableTimeStateStore)store, identifier, bucket, serdeKey, serdeValue, timeExtractor, millisPerBucket);
+      componentList.add(map);
+      return map;
+    } else {
+      throw new IllegalArgumentException("A SpillableTimeStateStore is required.");
+    }
   }
 
   public <K, V> SpillableByteArrayListMultimap<K, V> newSpillableByteArrayListMultimap(long bucket, Serde<K,
