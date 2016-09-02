@@ -44,6 +44,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
+import com.google.common.collect.PeekingIterator;
 import com.google.common.util.concurrent.Futures;
 
 import com.datatorrent.api.Component;
@@ -309,7 +310,7 @@ public abstract class AbstractManagedStateImpl
 
 
   @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
-  protected Iterator<Map.Entry<Slice, Slice>> iteratorFromBucket(long bucketId, long timeBucket, @NotNull Slice key)
+  protected PeekingIterator<Map.Entry<Slice, Slice>> iteratorFromBucket(long bucketId, long timeBucket, @NotNull Slice key)
   {
     Preconditions.checkNotNull(key, "key");
     int bucketIdx = prepareBucket(bucketId);

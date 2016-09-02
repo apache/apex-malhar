@@ -19,6 +19,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.PeekingIterator;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.netlet.util.Slice;
@@ -175,12 +176,12 @@ public class SpillableTimeKeyedMapImpl<K, V> implements Spillable.SpillableItera
    * @return
    */
   @Override
-  public Iterator<Map.Entry<K, V>> iterator(final K key)
+  public PeekingIterator<Entry<K, V>> iterator(final K key)
   {
 
-    return new Iterator<Entry<K, V>>()
+    return new PeekingIterator<Entry<K, V>>()
     {
-      private Iterator<Map.Entry<Slice, Slice>> internalIterator = store.iterator(bucket, extractTimeFromKey(key), SliceUtils.concatenate(identifier, serdeKey.serialize(key)));
+      private PeekingIterator<Map.Entry<Slice, Slice>> internalIterator = store.iterator(bucket, extractTimeFromKey(key), SliceUtils.concatenate(identifier, serdeKey.serialize(key)));
 
       @Override
       public boolean hasNext()
@@ -199,6 +200,13 @@ public class SpillableTimeKeyedMapImpl<K, V> implements Spillable.SpillableItera
       public void remove()
       {
         throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public Entry<K, V> peek()
+      {
+        Map.Entry<Slice, Slice> nextEntry = internalIterator.peek();
+        return new AbstractMap.SimpleEntry<>(serdeKey.deserialize(nextEntry.getKey()), serdeValue.deserialize(nextEntry.getValue()));
       }
     };
   }

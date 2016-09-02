@@ -102,7 +102,7 @@ public class TFileReader implements FileAccess.FileReader
   }
 
   @Override
-  public boolean next(Slice key, Slice value) throws IOException
+  public boolean peek(Slice key, Slice value) throws IOException
   {
     if (scanner.atEnd()) {
       return false;
@@ -121,8 +121,18 @@ public class TFileReader implements FileAccess.FileReader
     value.offset = 0;
     value.length = en.getValueLength();
 
-    scanner.advance();
     return true;
+  }
+
+  @Override
+  public boolean next(Slice key, Slice value) throws IOException
+  {
+    if (peek(key, value)) {
+      scanner.advance();
+      return true;
+    } else {
+      return false;
+    }
   }
 
   @Override

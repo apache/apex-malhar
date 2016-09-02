@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import com.google.common.collect.PeekingIterator;
 import com.google.common.collect.Sets;
 
 import com.datatorrent.lib.fileaccess.FileAccess;
@@ -76,7 +77,7 @@ public interface Bucket extends ManagedStateComponent
    * @param key key
    * @return the iterator
    */
-  Iterator<Map.Entry<Slice, Slice>> iterator(Slice key, long timeBucket);
+  PeekingIterator<Map.Entry<Slice, Slice>> iterator(Slice key, long timeBucket);
 
   /**
    * Set value of a key.
@@ -337,9 +338,9 @@ public interface Bucket extends ManagedStateComponent
     }
 
     @Override
-    public Iterator<Map.Entry<Slice, Slice>> iterator(final Slice key, final long timeBucket)
+    public PeekingIterator<Map.Entry<Slice, Slice>> iterator(final Slice key, final long timeBucket)
     {
-      return new Iterator<Map.Entry<Slice, Slice>>()
+      return new PeekingIterator<Map.Entry<Slice, Slice>>()
       {
         FileAccess.FileReader fileReader;
 
@@ -386,6 +387,19 @@ public interface Bucket extends ManagedStateComponent
         {
           throw new UnsupportedOperationException();
         }
+
+        @Override
+        public Map.Entry<Slice, Slice> peek()
+        {
+          if (!hasNext()) {
+            throw new NoSuchElementException();
+          }
+          try {
+            fileReader.peek(currentKey, currentValue);
+          } catch (IOException e) {
+            throw new RuntimeException("peeking " + bucketId + ", " + timeBucket, e);
+          }
+          return new AbstractMap.SimpleEntry<>(currentKey, currentValue);        }
       };
     }
 

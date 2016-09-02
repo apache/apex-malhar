@@ -29,6 +29,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.apex.malhar.lib.state.BucketedState;
 import org.apache.apex.malhar.lib.state.TimeSlicedBucketedState;
 
+import com.google.common.collect.PeekingIterator;
 import com.google.common.util.concurrent.Futures;
 
 import com.datatorrent.api.annotation.OperatorAnnotation;
@@ -90,11 +91,11 @@ public class ManagedTimeStateImpl extends ManagedStateImpl implements TimeSliced
   }
 
   @Override
-  public Iterator<Map.Entry<Slice, Slice>> iterator(long bucketId, long time, Slice key)
+  public PeekingIterator<Map.Entry<Slice, Slice>> iterator(long bucketId, long time, Slice key)
   {
     long timeBucket = timeBucketAssigner.getTimeBucketAndAdjustBoundaries(time);
     if (timeBucket == -1) {
-      return Collections.singletonMap(BucketedState.EXPIRED, BucketedState.EXPIRED).entrySet().iterator();
+      throw new IllegalArgumentException("iterator method needs time to be specified");
     }
     return iteratorFromBucket(bucketId, timeBucket, key);
   }

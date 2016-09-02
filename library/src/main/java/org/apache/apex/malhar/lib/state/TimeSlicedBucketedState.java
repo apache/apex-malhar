@@ -24,6 +24,8 @@ import java.util.concurrent.Future;
 
 import javax.validation.constraints.NotNull;
 
+import com.google.common.collect.PeekingIterator;
+
 import com.datatorrent.netlet.util.Slice;
 
 /**
@@ -116,6 +118,6 @@ public interface TimeSlicedBucketedState extends BucketedState
    *
    * @return the iterator
    */
-  Iterator<Map.Entry<Slice, Slice>> iterator(long bucketId, long time, Slice key);
+  PeekingIterator<Map.Entry<Slice, Slice>> iterator(long bucketId, long time, Slice key);
 
 }

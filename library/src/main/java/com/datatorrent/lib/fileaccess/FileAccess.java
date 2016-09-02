@@ -107,6 +107,18 @@ public interface FileAccess extends Closeable
     boolean seek(Slice key) throws IOException;
 
     /**
+     * Reads the key/value pair starting at the current pointer position
+     * into Slice objects.  If pointer is at the end
+     * of the file, false is returned, and Slice objects remains unmodified.
+     *
+     * @param key Empty slice object
+     * @param value Empty slice object
+     * @return True if key/value were successfully read, false otherwise
+     * @throws IOException
+     */
+    boolean peek(Slice key, Slice value) throws IOException;
+
+    /**
      * Reads next available key/value pair starting from the current pointer position
      * into Slice objects and advances pointer to next key.  If pointer is at the end
      * of the file, false is returned, and Slice objects remains unmodified.
