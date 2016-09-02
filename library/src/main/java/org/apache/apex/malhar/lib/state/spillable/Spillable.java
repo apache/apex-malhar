@@ -18,7 +18,6 @@
  */
 package org.apache.apex.malhar.lib.state.spillable;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -63,7 +62,7 @@ public interface Spillable
 
   interface SpillableIterableByteMap<K, V> extends SpillableByteMap<K, V>
   {
-    PeekingIterator<Entry<K, V>> iterator(K key);
+    PeekingIterator<Map.Entry<K, V>> iterator(K key);
   }
 
   /**

@@ -55,7 +55,7 @@ public class SpillableByteMapImpl<K, V> implements Spillable.SpillableByteMap<K,
   @NotNull
   private SpillableStateStore store;
   @NotNull
-  private byte[] identifier;
+  protected byte[] identifier;
   protected long bucket;
   @NotNull
   protected Serde<K, Slice> serdeKey;
@@ -132,7 +132,7 @@ public class SpillableByteMapImpl<K, V> implements Spillable.SpillableByteMap<K,
       return val;
     }
 
-    Slice valSlice = store.getSync(bucket, SliceUtils.concatenate(identifier, serdeKey.serialize(key)));
+    Slice valSlice = getSliceFromStore(key);
 
     if (valSlice == null || valSlice == BucketedState.EXPIRED || valSlice.length == 0) {
       return null;
@@ -140,6 +140,16 @@ public class SpillableByteMapImpl<K, V> implements Spillable.SpillableByteMap<K,
 
     tempOffset.setValue(0);
     return serdeValue.deserialize(valSlice, tempOffset);
+  }
+
+  protected Slice getSliceFromStore(K key)
+  {
+    return store.getSync(bucket, SliceUtils.concatenate(identifier, serdeKey.serialize(key)));
+  }
+
+  protected void putSliceToStore(K key, Slice valueSlice)
+  {
+    store.put(this.bucket, SliceUtils.concatenate(identifier, serdeKey.serialize(key)), valueSlice);
   }
 
   @Override
@@ -216,13 +226,11 @@ public class SpillableByteMapImpl<K, V> implements Spillable.SpillableByteMap<K,
   public void endWindow()
   {
     for (K key: cache.getChangedKeys()) {
-      store.put(this.bucket, SliceUtils.concatenate(identifier, serdeKey.serialize(key)),
-          serdeValue.serialize(cache.get(key)));
+      putSliceToStore(key, serdeValue.serialize(cache.get(key)));
     }
 
     for (K key: cache.getRemovedKeys()) {
-      store.put(this.bucket, SliceUtils.concatenate(identifier, serdeKey.serialize(key)),
-          new Slice(ArrayUtils.EMPTY_BYTE_ARRAY));
+      putSliceToStore(key, new Slice(ArrayUtils.EMPTY_BYTE_ARRAY));
     }
 
     cache.endWindow();

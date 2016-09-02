@@ -2,21 +2,15 @@ package org.apache.apex.malhar.lib.state.spillable;
 
 import java.io.Serializable;
 import java.util.AbstractMap;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.apex.malhar.lib.state.BucketedState;
 import org.apache.apex.malhar.lib.state.managed.ManagedStateContext;
 import org.apache.apex.malhar.lib.state.managed.TimeBucketAssigner;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
 import org.apache.apex.malhar.lib.utils.serde.SliceUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
@@ -28,26 +22,15 @@ import com.datatorrent.netlet.util.Slice;
 /**
  * Created by david on 8/31/16.
  */
-public class SpillableTimeKeyedMapImpl<K, V> implements Spillable.SpillableIterableByteMap<K, V>, Spillable.SpillableComponent,
-    Serializable
+public class SpillableTimeKeyedMapImpl<K, V>
+    extends SpillableByteMapImpl<K, V>
+    implements Spillable.SpillableIterableByteMap<K, V>, Spillable.SpillableComponent, Serializable
 {
-  private transient WindowBoundedMapCache<K, V> cache = new WindowBoundedMapCache<>();
-  private transient MutableInt tempOffset = new MutableInt();
-
   @NotNull
   private SpillableTimeStateStore store;
-  @NotNull
-  private byte[] identifier;
-  protected long bucket;
-  @NotNull
-  protected Serde<K, Slice> serdeKey;
-  @NotNull
-  protected Serde<V, Slice> serdeValue;
-  private int size = 0;
 
   @NotNull
   private Function<K, Long> timestampExtractor;
-
   private final long millisPerTimeBucket;
 
   /**
@@ -62,11 +45,8 @@ public class SpillableTimeKeyedMapImpl<K, V> implements Spillable.SpillableItera
   public SpillableTimeKeyedMapImpl(SpillableTimeStateStore store, byte[] identifier, long bucket, Serde<K, Slice> serdeKey,
       Serde<V, Slice> serdeValue, Function<K, Long> timestampExtractor, long millisPerTimeBucket)
   {
+    super(store, identifier, bucket, serdeKey, serdeValue);
     this.store = Preconditions.checkNotNull(store);
-    this.identifier = Preconditions.checkNotNull(identifier);
-    this.bucket = bucket;
-    this.serdeKey = Preconditions.checkNotNull(serdeKey);
-    this.serdeValue = Preconditions.checkNotNull(serdeValue);
     this.timestampExtractor = timestampExtractor;
     this.millisPerTimeBucket = millisPerTimeBucket;
   }
@@ -77,95 +57,24 @@ public class SpillableTimeKeyedMapImpl<K, V> implements Spillable.SpillableItera
   }
 
 
+  @Override
   public SpillableTimeStateStore getStore()
   {
     return this.store;
   }
 
   @Override
-  public int size()
+  protected Slice getSliceFromStore(K key)
   {
-    return size;
-  }
-
-  @Override
-  public boolean isEmpty()
-  {
-    return size == 0;
-  }
-
-  @Override
-  public boolean containsKey(Object o)
-  {
-    return get(o) != null;
-  }
-
-  @Override
-  public boolean containsValue(Object o)
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public V get(Object o)
-  {
-    K key = (K)o;
-
-    if (cache.getRemovedKeys().contains(key)) {
-      return null;
-    }
-
-    V val = cache.get(key);
-
-    if (val != null) {
-      return val;
-    }
-
     long time = extractTimeFromKey(key);
-    Slice valSlice = store.getSync(bucket, time, SliceUtils.concatenate(identifier, serdeKey.serialize(key)));
-
-    if (valSlice == null || valSlice == BucketedState.EXPIRED || valSlice.length == 0) {
-      return null;
-    }
-
-    tempOffset.setValue(0);
-    return serdeValue.deserialize(valSlice, tempOffset);
+    return store.getSync(bucket, time, SliceUtils.concatenate(identifier, serdeKey.serialize(key)));
   }
 
   @Override
-  public V put(K k, V v)
+  protected void putSliceToStore(K key, Slice valueSlice)
   {
-    V value = get(k);
-
-    if (value == null) {
-      size++;
-    }
-
-    cache.put(k, v);
-
-    return value;
-  }
-
-  @Override
-  public V remove(Object o)
-  {
-    V value = get(o);
-
-    if (value != null) {
-      size--;
-    }
-
-    cache.remove((K)o);
-
-    return value;
-  }
-
-  @Override
-  public void putAll(Map<? extends K, ? extends V> map)
-  {
-    for (Map.Entry<? extends K, ? extends V> entry : map.entrySet()) {
-      put(entry.getKey(), entry.getValue());
-    }
+    long time = extractTimeFromKey(key);
+    store.put(this.bucket, time, SliceUtils.concatenate(identifier, serdeKey.serialize(key)), valueSlice);
   }
 
   /**
@@ -177,10 +86,9 @@ public class SpillableTimeKeyedMapImpl<K, V> implements Spillable.SpillableItera
    * @return
    */
   @Override
-  public PeekingIterator<Entry<K, V>> iterator(final K key)
+  public PeekingIterator<Map.Entry<K, V>> iterator(final K key)
   {
-
-    return new PeekingIterator<Entry<K, V>>()
+    return new PeekingIterator<Map.Entry<K, V>>()
     {
       private PeekingIterator<Map.Entry<Slice, Slice>> internalIterator = store.iterator(bucket, extractTimeFromKey(key), SliceUtils.concatenate(identifier, serdeKey.serialize(key)));
       private K lastKey;
@@ -243,66 +151,18 @@ public class SpillableTimeKeyedMapImpl<K, V> implements Spillable.SpillableItera
   }
 
   @Override
-  public void clear()
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Set<K> keySet()
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Collection<V> values()
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Set<Entry<K, V>> entrySet()
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void setup(Context.OperatorContext context)
   {
     this.store.setTimeBucketAssigner(new MyTimeBucketAssigner());
+    super.setup(context);
   }
 
-  @Override
-  public void beginWindow(long windowId)
-  {
-  }
 
-  @Override
-  public void endWindow()
-  {
-
-    for (K key: cache.getChangedKeys()) {
-      long time = extractTimeFromKey(key);
-      store.put(this.bucket, time, SliceUtils.concatenate(identifier, serdeKey.serialize(key)),
-          serdeValue.serialize(cache.get(key)));
-    }
-
-    for (K key: cache.getRemovedKeys()) {
-      long time = extractTimeFromKey(key);
-      store.put(this.bucket, time, SliceUtils.concatenate(identifier, serdeKey.serialize(key)),
-          new Slice(ArrayUtils.EMPTY_BYTE_ARRAY));
-    }
-
-    cache.endWindow();
-  }
-
-  @Override
-  public void teardown()
-  {
-  }
 
   private class MyTimeBucketAssigner extends TimeBucketAssigner
   {
+    // TODO: purging based on lateness horizon
+
     @Override
     public long getTimeBucketAndAdjustBoundaries(long value)
     {

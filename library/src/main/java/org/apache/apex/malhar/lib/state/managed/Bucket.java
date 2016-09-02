@@ -399,7 +399,8 @@ public interface Bucket extends ManagedStateComponent
           } catch (IOException e) {
             throw new RuntimeException("peeking " + bucketId + ", " + timeBucket, e);
           }
-          return new AbstractMap.SimpleEntry<>(currentKey, currentValue);        }
+          return new AbstractMap.SimpleEntry<>(currentKey, currentValue);
+        }
       };
     }
 
