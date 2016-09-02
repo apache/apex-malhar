@@ -18,15 +18,13 @@
  */
 package org.apache.apex.malhar.lib.window;
 
-import java.util.Comparator;
-
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * This interface describes the individual window.
  */
 @InterfaceStability.Evolving
-public interface Window
+public interface Window<WINDOW extends Window> extends Comparable<WINDOW>
 {
   long getBeginTimestamp();
 
@@ -35,10 +33,21 @@ public interface Window
   /**
    * Global window means there is only one window, or no window depending on how you look at it.
    */
-  class GlobalWindow implements Window
+  class GlobalWindow implements Window<GlobalWindow>
   {
+
+    /**
+     * The singleton global window
+     */
+    private static GlobalWindow GLOBAL_WINDOW = new GlobalWindow();
+
     private GlobalWindow()
     {
+    }
+
+    public static GlobalWindow getInstance()
+    {
+      return GLOBAL_WINDOW;
     }
 
     @Override
@@ -57,54 +66,27 @@ public interface Window
     {
       return (other instanceof GlobalWindow);
     }
-  }
-
-  class DefaultComparator implements Comparator<Window>
-  {
-    private DefaultComparator()
-    {
-    }
 
     @Override
-    public int compare(Window o1, Window o2)
+    public int compareTo(GlobalWindow o)
     {
-      if (o1.getBeginTimestamp() < o2.getBeginTimestamp()) {
-        return -1;
-      } else if (o1.getBeginTimestamp() > o2.getBeginTimestamp()) {
-        return 1;
-      } else if (o1.getDurationMillis() < o2.getDurationMillis()) {
-        return -1;
-      } else if (o1.getDurationMillis() > o2.getDurationMillis()) {
-        return 1;
-      } else if (o1 instanceof SessionWindow && o2 instanceof SessionWindow) {
-        return Long.compare(((SessionWindow)o1).getKey().hashCode(), ((SessionWindow)o2).getKey().hashCode());
-      } else {
-        return 0;
-      }
+      return 0;
     }
   }
-
-  /**
-   * The singleton global window
-   */
-  GlobalWindow GLOBAL_WINDOW = new GlobalWindow();
-
-  /**
-   * The singleton default comparator of windows
-   */
-  Comparator<Window> DEFAULT_COMPARATOR = new DefaultComparator();
 
   /**
    * TimeWindow is a window that represents a time slice
    */
-  class TimeWindow implements Window
+  class TimeWindow<WINDOW extends TimeWindow> implements Window<WINDOW>
   {
-    protected long beginTimestamp;
-    protected long durationMillis;
+    protected final long beginTimestamp;
+    protected final long durationMillis;
 
     private TimeWindow()
     {
       // for kryo
+      this.beginTimestamp = -1;
+      this.durationMillis = 0;
     }
 
     public TimeWindow(long beginTimestamp, long durationMillis)
@@ -146,6 +128,26 @@ public interface Window
       }
     }
 
+    @Override
+    public int hashCode()
+    {
+      return (int)(beginTimestamp & 0xffffffffL);
+    }
+
+    @Override
+    public int compareTo(TimeWindow o)
+    {
+      if (this.getBeginTimestamp() < o.getBeginTimestamp()) {
+        return -1;
+      } else if (this.getBeginTimestamp() > o.getBeginTimestamp()) {
+        return 1;
+      } else if (this.getDurationMillis() < o.getDurationMillis()) {
+        return -1;
+      } else if (this.getDurationMillis() > o.getDurationMillis()) {
+        return 1;
+      }
+      return 0;
+    }
   }
 
   /**
@@ -153,13 +155,14 @@ public interface Window
    *
    * @param <K>
    */
-  class SessionWindow<K> extends TimeWindow
+  class SessionWindow<K> extends TimeWindow<SessionWindow<K>>
   {
-    private K key;
+    private final K key;
 
     private SessionWindow()
     {
       // for kryo
+      this.key = null;
     }
 
     public SessionWindow(K key, long beginTimestamp, long duration)
@@ -188,6 +191,27 @@ public interface Window
         }
       } else {
         return false;
+      }
+    }
+
+    @Override
+    public int hashCode()
+    {
+      return (int)((key.hashCode() << 16) | (beginTimestamp & 0xffffL));
+    }
+
+    @Override
+    public int compareTo(SessionWindow<K> o)
+    {
+      int val = super.compareTo(o);
+      if (val == 0) {
+        if (this.getKey() instanceof Comparable) {
+          return ((Comparable<K>)this.getKey()).compareTo(o.getKey());
+        } else {
+          return Long.compare(this.getKey().hashCode(), o.getKey().hashCode());
+        }
+      } else {
+        return val;
       }
     }
   }

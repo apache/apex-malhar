@@ -49,7 +49,7 @@ public interface Accumulation<InputT, AccumT, OutputT>
   AccumT accumulate(AccumT accumulatedValue, InputT input);
 
   /**
-   * Merges two accumulated value into one
+   * Merges two accumulated values into one
    *
    * @param accumulatedValue1
    * @param accumulatedValue2

@@ -27,15 +27,17 @@ import org.apache.apex.malhar.lib.window.Window;
 import org.apache.apex.malhar.lib.window.WindowedStorage;
 import org.apache.hadoop.classification.InterfaceStability;
 
+import com.datatorrent.api.Context;
+
 /**
- * This is the in-memory implementation of {@link WindowedStorage}. Do not use this class if you have a large state that
+ * This is the in-memory implementation of {@link WindowedPlainStorage}. Do not use this class if you have a large state that
  * can't be fit in memory. Also, this class may go away soon as there are plans to incorporate {@link Spillable} data
  * structures in the near future.
  */
 @InterfaceStability.Unstable
-public class InMemoryWindowedStorage<T> implements WindowedStorage<T>
+public class InMemoryWindowedStorage<T> implements WindowedStorage.WindowedPlainStorage<T>
 {
-  protected final TreeMap<Window, T> map = new TreeMap<>(Window.DEFAULT_COMPARATOR);
+  protected final TreeMap<Window, T> map = new TreeMap<>();
 
   @Override
   public long size()
@@ -68,14 +70,6 @@ public class InMemoryWindowedStorage<T> implements WindowedStorage<T>
   }
 
   @Override
-  public void migrateWindow(Window fromWindow, Window toWindow)
-  {
-    if (containsWindow(fromWindow)) {
-      map.put(toWindow, map.remove(fromWindow));
-    }
-  }
-
-  @Override
   public Iterable<Map.Entry<Window, T>> entrySet()
   {
     return map.entrySet();
@@ -86,4 +80,15 @@ public class InMemoryWindowedStorage<T> implements WindowedStorage<T>
   {
     return map.entrySet().iterator();
   }
+
+  @Override
+  public void setup(Context.OperatorContext context)
+  {
+  }
+
+  @Override
+  public void teardown()
+  {
+  }
+
 }

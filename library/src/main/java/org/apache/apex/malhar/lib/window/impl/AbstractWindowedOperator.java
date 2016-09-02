@@ -18,10 +18,13 @@
  */
 package org.apache.apex.malhar.lib.window.impl;
 
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.validation.ValidationException;
 
@@ -29,6 +32,7 @@ import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.state.spillable.WindowListener;
 import org.apache.apex.malhar.lib.window.Accumulation;
 import org.apache.apex.malhar.lib.window.ControlTuple;
 import org.apache.apex.malhar.lib.window.TriggerOption;
@@ -42,9 +46,11 @@ import org.apache.hadoop.classification.InterfaceStability;
 
 import com.google.common.base.Function;
 
+import com.datatorrent.api.Component;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
 
@@ -61,13 +67,13 @@ import com.datatorrent.common.util.BaseOperator;
  */
 @InterfaceStability.Evolving
 public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT extends WindowedStorage, RetractionStorageT extends WindowedStorage, AccumulationT extends Accumulation>
-    extends BaseOperator implements WindowedOperator<InputT>
+    extends BaseOperator implements WindowedOperator<InputT>, Operator.CheckpointNotificationListener
 {
 
   protected WindowOption windowOption;
   protected TriggerOption triggerOption;
   protected long allowedLatenessMillis = -1;
-  protected WindowedStorage<WindowState> windowStateMap;
+  protected WindowedStorage.WindowedPlainStorage<WindowState> windowStateMap;
 
   private Function<InputT, Long> timestampExtractor;
 
@@ -79,12 +85,16 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   private long lateTriggerCount;
   private long lateTriggerMillis;
   private long currentDerivedTimestamp = -1;
-  private long windowWidthMillis;
+  private long timeIncrement;
   private long fixedWatermarkMillis = -1;
+
+  private Map<String, Component<Context.OperatorContext>> components = new HashMap<>();
+
   protected DataStorageT dataStorage;
   protected RetractionStorageT retractionStorage;
   protected AccumulationT accumulation;
 
+  private static final transient Collection<? extends Window> GLOBAL_WINDOW_SINGLETON_SET = Collections.singleton(Window.GlobalWindow.getInstance());
   private static final transient Logger LOG = LoggerFactory.getLogger(AbstractWindowedOperator.class);
 
   public final transient DefaultInputPort<Tuple<InputT>> input = new DefaultInputPort<Tuple<InputT>>()
@@ -154,9 +164,6 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   public void setWindowOption(WindowOption windowOption)
   {
     this.windowOption = windowOption;
-    if (this.windowOption instanceof WindowOption.GlobalWindow) {
-      windowStateMap.put(Window.GLOBAL_WINDOW, new WindowState());
-    }
   }
 
   @Override
@@ -214,6 +221,11 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
     this.retractionStorage = storageAgent;
   }
 
+  public void addComponent(String key, Component<Context.OperatorContext> component)
+  {
+    components.put(key, component);
+  }
+
   /**
    * Sets the accumulation, which basically tells the WindowedOperator what to do if a new tuple comes in and what
    * to put in the pane when a trigger is fired
@@ -225,8 +237,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
     this.accumulation = accumulation;
   }
 
-  @Override
-  public void setWindowStateStorage(WindowedStorage<WindowState> storageAgent)
+  public void setWindowStateStorage(WindowedStorage.WindowedPlainStorage<WindowState> storageAgent)
   {
     this.windowStateMap = storageAgent;
   }
@@ -282,12 +293,9 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
     if (windowOption == null && input instanceof Tuple.WindowedTuple) {
       // inherit the windows from upstream
       return (Tuple.WindowedTuple<InputT>)input;
+    } else {
+      return new Tuple.WindowedTuple<>(assignWindows(input), extractTimestamp(input), input.getValue());
     }
-    Tuple.WindowedTuple<InputT> windowedTuple = new Tuple.WindowedTuple<>();
-    windowedTuple.setValue(input.getValue());
-    windowedTuple.setTimestamp(extractTimestamp(input));
-    assignWindows(windowedTuple.getWindows(), input);
-    return windowedTuple;
   }
 
   private long extractTimestamp(Tuple<InputT> tuple)
@@ -303,29 +311,31 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
     }
   }
 
-  private void assignWindows(List<Window> windows, Tuple<InputT> inputTuple)
+  private Collection<? extends Window> assignWindows(Tuple<InputT> inputTuple)
   {
     if (windowOption instanceof WindowOption.GlobalWindow) {
-      windows.add(Window.GLOBAL_WINDOW);
+      return GLOBAL_WINDOW_SINGLETON_SET;
     } else {
       long timestamp = extractTimestamp(inputTuple);
       if (windowOption instanceof WindowOption.TimeWindows) {
-
-        for (Window.TimeWindow window : getTimeWindowsForTimestamp(timestamp)) {
+        Collection<? extends Window> windows = getTimeWindowsForTimestamp(timestamp);
+        for (Window window : windows) {
           if (!windowStateMap.containsWindow(window)) {
             windowStateMap.put(window, new WindowState());
           }
-          windows.add(window);
         }
+        return windows;
       } else if (windowOption instanceof WindowOption.SessionWindows) {
-        assignSessionWindows(windows, timestamp, inputTuple);
+        return assignSessionWindows(timestamp, inputTuple);
+      } else {
+        throw new IllegalStateException("Unsupported Window Option: " + windowOption.getClass());
       }
     }
   }
 
-  protected void assignSessionWindows(List<Window> windows, long timestamp, Tuple<InputT> inputTuple)
+  protected Collection<Window.SessionWindow> assignSessionWindows(long timestamp, Tuple<InputT> inputTuple)
   {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("Session window require keyed tuples");
   }
 
   /**
@@ -336,9 +346,9 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
    * @param timestamp
    * @return
    */
-  private List<Window.TimeWindow> getTimeWindowsForTimestamp(long timestamp)
+  private Collection<Window.TimeWindow> getTimeWindowsForTimestamp(long timestamp)
   {
-    List<Window.TimeWindow> windows = new ArrayList<>();
+    Set<Window.TimeWindow> windows = new TreeSet<>();
     if (windowOption instanceof WindowOption.TimeWindows) {
       long durationMillis = ((WindowOption.TimeWindows)windowOption).getDuration().getMillis();
       long beginTimestamp = timestamp - timestamp % durationMillis;
@@ -346,8 +356,6 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
       if (windowOption instanceof WindowOption.SlidingTimeWindows) {
         long slideBy = ((WindowOption.SlidingTimeWindows)windowOption).getSlideByDuration().getMillis();
         // add the sliding windows front and back
-        // Note: this messes up the order of the window and we might want to revisit this if the order of the windows
-        // matter
         for (long slideBeginTimestamp = beginTimestamp - slideBy;
             slideBeginTimestamp <= timestamp && timestamp < slideBeginTimestamp + durationMillis;
             slideBeginTimestamp -= slideBy) {
@@ -387,8 +395,32 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   @Override
   public void setup(Context.OperatorContext context)
   {
-    this.windowWidthMillis = context.getValue(Context.DAGContext.STREAMING_WINDOW_SIZE_MILLIS);
+    this.timeIncrement = context.getValue(Context.OperatorContext.APPLICATION_WINDOW_COUNT) * context.getValue(Context.DAGContext.STREAMING_WINDOW_SIZE_MILLIS);
     validate();
+    windowStateMap.setup(context);
+    dataStorage.setup(context);
+    if (retractionStorage != null) {
+      retractionStorage.setup(context);
+    }
+    for (Component component : components.values()) {
+      component.setup(context);
+    }
+    if (this.windowOption instanceof WindowOption.GlobalWindow) {
+      windowStateMap.put(Window.GlobalWindow.getInstance(), new WindowState());
+    }
+  }
+
+  @Override
+  public void teardown()
+  {
+    windowStateMap.teardown();
+    dataStorage.teardown();
+    if (retractionStorage != null) {
+      retractionStorage.teardown();
+    }
+    for (Component component : components.values()) {
+      component.teardown();
+    }
   }
 
   /**
@@ -397,10 +429,16 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   @Override
   public void beginWindow(long windowId)
   {
+    for (Component component : components.values()) {
+      if (component instanceof WindowListener) {
+        ((WindowListener)component).beginWindow(windowId);
+      }
+    }
     if (currentDerivedTimestamp == -1) {
-      currentDerivedTimestamp = ((windowId >> 32) * 1000) + (windowId & 0xffffffffL);
+      // TODO: once we are able to get the firstWindowMillis from Apex Core API, we should use that instead
+      currentDerivedTimestamp = (windowId >> 32) * 1000;
     } else {
-      currentDerivedTimestamp += windowWidthMillis;
+      currentDerivedTimestamp += timeIncrement;
     }
     watermarkTimestamp = -1;
   }
@@ -415,6 +453,12 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
     // TODO: May want to revisit this if the application cares more about latency than idempotency
     processWatermarkAtEndWindow();
     fireTimeTriggers();
+
+    for (Component component : components.values()) {
+      if (component instanceof WindowListener) {
+        ((WindowListener)component).endWindow();
+      }
+    }
   }
 
   private void processWatermarkAtEndWindow()
@@ -444,7 +488,9 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
             // discard this window because it's too late now
             it.remove();
             dataStorage.remove(window);
-            retractionStorage.remove(window);
+            if (retractionStorage != null) {
+              retractionStorage.remove(window);
+            }
           }
         }
       }
@@ -509,4 +555,33 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
     dataStorage.remove(window);
   }
 
+  @Override
+  public void beforeCheckpoint(long windowId)
+  {
+    for (Component component : components.values()) {
+      if (component instanceof CheckpointNotificationListener) {
+        ((CheckpointNotificationListener)component).beforeCheckpoint(windowId);
+      }
+    }
+  }
+
+  @Override
+  public void checkpointed(long windowId)
+  {
+    for (Component component : components.values()) {
+      if (component instanceof CheckpointNotificationListener) {
+        ((CheckpointNotificationListener)component).checkpointed(windowId);
+      }
+    }
+  }
+
+  @Override
+  public void committed(long windowId)
+  {
+    for (Component component : components.values()) {
+      if (component instanceof CheckpointNotificationListener) {
+        ((CheckpointNotificationListener)component).committed(windowId);
+      }
+    }
+  }
 }

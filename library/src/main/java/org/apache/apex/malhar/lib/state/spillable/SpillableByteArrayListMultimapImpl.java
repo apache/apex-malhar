@@ -30,6 +30,7 @@ import org.apache.apex.malhar.lib.utils.serde.PassThruByteArraySliceSerde;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
 import org.apache.apex.malhar.lib.utils.serde.SerdeIntSlice;
 import org.apache.apex.malhar.lib.utils.serde.SliceUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.esotericsoftware.kryo.DefaultSerializer;
@@ -152,7 +153,15 @@ public class SpillableByteArrayListMultimapImpl<K, V> implements Spillable.Spill
   @Override
   public List<V> removeAll(@Nullable Object key)
   {
-    throw new UnsupportedOperationException();
+    SpillableArrayListImpl<V> spillableArrayList = getHelper((K)key);
+
+    if (spillableArrayList != null) {
+      Slice keySlice = serdeKey.serialize((K)key);
+      map.remove(SliceUtils.concatenate(keySlice, SIZE_KEY_SUFFIX).toByteArray());
+      cache.remove((K)key);
+    }
+    // TODO: need to mark this list to be deallocated from managed state
+    return spillableArrayList;
   }
 
   @Override
@@ -189,7 +198,23 @@ public class SpillableByteArrayListMultimapImpl<K, V> implements Spillable.Spill
   @Override
   public boolean containsEntry(@Nullable Object key, @Nullable Object value)
   {
-    throw new UnsupportedOperationException();
+    SpillableArrayListImpl<V> spillableArrayList = getHelper((K)key);
+    if (spillableArrayList == null) {
+      return false;
+    }
+    for (int i = 0; i < spillableArrayList.size(); i++) {
+      V v = spillableArrayList.get(i);
+      if (v == null) {
+        if (value == null) {
+          return true;
+        }
+      } else {
+        if (v.equals(value)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   @Override
@@ -219,7 +244,7 @@ public class SpillableByteArrayListMultimapImpl<K, V> implements Spillable.Spill
   {
     boolean changed = false;
 
-    for (V value: values) {
+    for (V value : values) {
       changed |= put(key, value);
     }
 
@@ -268,7 +293,7 @@ public class SpillableByteArrayListMultimapImpl<K, V> implements Spillable.Spill
   public void endWindow()
   {
     isInWindow = false;
-    for (K key: cache.getChangedKeys()) {
+    for (K key : cache.getChangedKeys()) {
 
       SpillableArrayListImpl<V> spillableArrayList = cache.get(key);
       spillableArrayList.endWindow();
@@ -276,8 +301,11 @@ public class SpillableByteArrayListMultimapImpl<K, V> implements Spillable.Spill
       Integer size = map.put(SliceUtils.concatenate(serdeKey.serialize(key), SIZE_KEY_SUFFIX).toByteArray(),
           spillableArrayList.size());
     }
+    for (K key : cache.getRemovedKeys()) {
+      // TODO: Need to find out from Tim on exactly what to do here
+      map.remove(SliceUtils.concatenate(serdeKey.serialize(key), SIZE_KEY_SUFFIX).toByteArray());
+    }
 
-    Preconditions.checkState(cache.getRemovedKeys().isEmpty());
     cache.endWindow();
     map.endWindow();
   }

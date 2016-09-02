@@ -59,13 +59,6 @@ public interface WindowedOperator<InputT>
   void setAllowedLateness(Duration allowedLateness);
 
   /**
-   * This methods sets the storage for the meta data for each window
-   *
-   * @param storageAgent
-   */
-  void setWindowStateStorage(WindowedStorage<WindowState> storageAgent);
-
-  /**
    * This sets the function that extracts the timestamp from the input tuple
    *
    * @param timestampExtractor
