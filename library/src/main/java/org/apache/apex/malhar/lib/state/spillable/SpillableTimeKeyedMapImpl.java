@@ -5,6 +5,7 @@ import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
@@ -182,31 +183,61 @@ public class SpillableTimeKeyedMapImpl<K, V> implements Spillable.SpillableItera
     return new PeekingIterator<Entry<K, V>>()
     {
       private PeekingIterator<Map.Entry<Slice, Slice>> internalIterator = store.iterator(bucket, extractTimeFromKey(key), SliceUtils.concatenate(identifier, serdeKey.serialize(key)));
+      private K lastKey;
 
       @Override
       public boolean hasNext()
       {
-        return internalIterator.hasNext();
+        while (internalIterator.hasNext()) {
+          Map.Entry<Slice, Slice> nextEntry = internalIterator.peek();
+          K key = serdeKey.deserialize(nextEntry.getKey());
+          V value = get(key);
+          if (value == null) {
+            internalIterator.next();
+          } else {
+            return true;
+          }
+        }
+        return false;
       }
 
       @Override
       public Map.Entry<K, V> next()
       {
-        Map.Entry<Slice, Slice> nextEntry = internalIterator.next();
-        return new AbstractMap.SimpleEntry<>(serdeKey.deserialize(nextEntry.getKey()), serdeValue.deserialize(nextEntry.getValue()));
+        while (internalIterator.hasNext()) {
+          Map.Entry<Slice, Slice> nextEntry = internalIterator.next();
+          K key = serdeKey.deserialize(nextEntry.getKey());
+          V value = get(key);
+          if (value != null) {
+            lastKey = key;
+            return new AbstractMap.SimpleEntry<>(serdeKey.deserialize(nextEntry.getKey()), serdeValue
+                .deserialize(nextEntry.getValue()));
+          }
+        }
+        throw new NoSuchElementException();
       }
 
       @Override
       public void remove()
       {
-        throw new UnsupportedOperationException();
+        Preconditions.checkNotNull(lastKey);
+        SpillableTimeKeyedMapImpl.this.remove(lastKey);
       }
 
       @Override
-      public Entry<K, V> peek()
+      public Map.Entry<K, V> peek()
       {
-        Map.Entry<Slice, Slice> nextEntry = internalIterator.peek();
-        return new AbstractMap.SimpleEntry<>(serdeKey.deserialize(nextEntry.getKey()), serdeValue.deserialize(nextEntry.getValue()));
+        while (internalIterator.hasNext()) {
+          Map.Entry<Slice, Slice> nextEntry = internalIterator.peek();
+          K key = serdeKey.deserialize(nextEntry.getKey());
+          V value = get(key);
+          if (value == null) {
+            internalIterator.next();
+          } else {
+            return new AbstractMap.SimpleEntry<>(key, value);
+          }
+        }
+        throw new NoSuchElementException();
       }
     };
   }
