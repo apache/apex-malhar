@@ -34,8 +34,6 @@
     <profile>
       <id>release</id>
       <properties>
-        <maven.deploy.skip>false</maven.deploy.skip>
-        <source.skip>true</source.skip>
         <package.username>flume</package.username>
         <rpm.skip>package</rpm.skip>
         <rpm.phase>${rpm.skip}</rpm.phase>
