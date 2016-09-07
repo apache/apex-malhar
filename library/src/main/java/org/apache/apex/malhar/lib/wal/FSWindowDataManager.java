@@ -237,15 +237,18 @@ public class FSWindowDataManager implements WindowDataManager
 
   protected void createReadOnlyWals() throws IOException
   {
-    RemoteIterator<FileStatus> operatorsIter = fileContext.listStatus(new Path(fullStatePath));
-    while (operatorsIter.hasNext()) {
-      FileStatus status = operatorsIter.next();
-      int operatorId = Integer.parseInt(status.getPath().getName());
+    Path statePath = new Path(fullStatePath);
+    if (fileContext.util().exists(statePath)) {
+      RemoteIterator<FileStatus> operatorsIter = fileContext.listStatus(statePath);
+      while (operatorsIter.hasNext()) {
+        FileStatus status = operatorsIter.next();
+        int operatorId = Integer.parseInt(status.getPath().getName());
 
-      if (operatorId != this.operatorId) {
-        //create read-only wal for other partitions
-        FSWindowReplayWAL wal = new FSWindowReplayWAL(true);
-        readOnlyWals.put(operatorId, wal);
+        if (operatorId != this.operatorId) {
+          //create read-only wal for other partitions
+          FSWindowReplayWAL wal = new FSWindowReplayWAL(true);
+          readOnlyWals.put(operatorId, wal);
+        }
       }
     }
   }

@@ -621,7 +621,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     if (numPartitionsChanged) {
       List<WindowDataManager> managers = windowDataManager.partition(resultPartitions.size(), deletedOperators);
       int i = 0;
-      for (Partition<AbstractKafkaInputOperator<K>> partition : partitions) {
+      for (Partition<AbstractKafkaInputOperator<K>> partition : resultPartitions) {
         partition.getPartitionedInstance().setWindowDataManager(managers.get(i++));
       }
     }
