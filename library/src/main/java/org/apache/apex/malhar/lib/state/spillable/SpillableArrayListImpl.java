@@ -25,6 +25,9 @@ import java.util.ListIterator;
 
 import javax.validation.constraints.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.apex.malhar.lib.utils.serde.Serde;
 import org.apache.apex.malhar.lib.utils.serde.SerdeIntSlice;
 import org.apache.apex.malhar.lib.utils.serde.SerdeListSlice;
@@ -64,6 +67,8 @@ public class SpillableArrayListImpl<T> implements Spillable.SpillableArrayList<T
   private boolean sizeCached = false;
   private int size;
   private int numBatches;
+
+  private static final Logger LOG = LoggerFactory.getLogger(SpillableArrayListImpl.class);
 
   private SpillableArrayListImpl()
   {
@@ -145,7 +150,30 @@ public class SpillableArrayListImpl<T> implements Spillable.SpillableArrayList<T
   @Override
   public Iterator<T> iterator()
   {
-    throw new UnsupportedOperationException();
+    return new Iterator<T>()
+    {
+      private int index = 0;
+
+      @Override
+      public boolean hasNext()
+      {
+        LOG.debug("hasNext {} {}", index, size);
+        return index < size;
+      }
+
+      @Override
+      public T next()
+      {
+        LOG.debug("next {} {}", index, size);
+        return get(index++);
+      }
+
+      @Override
+      public void remove()
+      {
+        throw new UnsupportedOperationException();
+      }
+    };
   }
 
   @Override
