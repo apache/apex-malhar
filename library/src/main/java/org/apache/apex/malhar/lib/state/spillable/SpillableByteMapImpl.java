@@ -72,13 +72,13 @@ public class SpillableByteMapImpl<K, V> implements Spillable.SpillableByteMap<K,
   }
 
   /**
-   * Creats a {@link SpillableByteMapImpl}.
+   * Creates a {@link SpillableByteMapImpl}.
    * @param store The {@link SpillableStateStore} in which to spill to.
    * @param identifier The Id of this {@link SpillableByteMapImpl}.
    * @param bucket The Id of the bucket used to store this
    * {@link SpillableByteMapImpl} in the provided {@link SpillableStateStore}.
    * @param serdeKey The {@link Serde} to use when serializing and deserializing keys.
-   * @param serdeKey The {@link Serde} to use when serializing and deserializing values.
+   * @param serdeValue The {@link Serde} to use when serializing and deserializing values.
    */
   public SpillableByteMapImpl(SpillableStateStore store, byte[] identifier, long bucket, Serde<K, Slice> serdeKey,
       Serde<V, Slice> serdeValue)
