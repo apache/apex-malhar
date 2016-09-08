@@ -18,28 +18,27 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.datatorrent.netlet.util.Slice;
 
-public class SerdeListSliceTest
+public class SerdePairSliceTest
 {
   @Test
   public void simpleSerdeTest()
   {
-    SerdeListSlice<String> serdeList = new SerdeListSlice<String>(new SerdeStringSlice());
+    SerdePairSlice<String, Integer> serdePair = new SerdePairSlice<>(new SerdeStringSlice(), new SerdeIntSlice());
 
-    List<String> stringList = Lists.newArrayList("a", "b", "c");
+    Pair<String, Integer> pair = new ImmutablePair<>("abc", 123);
 
-    Slice slice = serdeList.serialize(stringList);
+    Slice slice = serdePair.serialize(pair);
 
-    List<String> deserializedList = serdeList.deserialize(slice);
+    Pair<String, Integer> deserializedPair = serdePair.deserialize(slice);
 
-    Assert.assertEquals(stringList, deserializedList);
+    Assert.assertEquals(pair, deserializedPair);
   }
 }
