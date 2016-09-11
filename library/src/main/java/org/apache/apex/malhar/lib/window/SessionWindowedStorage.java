@@ -32,8 +32,17 @@ import org.apache.hadoop.classification.InterfaceStability;
  * @since 3.5.0
  */
 @InterfaceStability.Evolving
-public interface SessionWindowedStorage<K, V> extends WindowedKeyedStorage<K, V>
+public interface SessionWindowedStorage<K, V> extends WindowedStorage.WindowedKeyedStorage<K, V>
 {
+  /**
+   * Migrate the data from one window to another. This will invalidate fromWindow in the storage and move the
+   * data to toWindow, and overwrite any existing data in toWindow
+   *
+   * @param fromWindow
+   * @param toWindow
+   */
+  void migrateWindow(Window.SessionWindow<K> fromWindow, Window.SessionWindow<K> toWindow);
+
   /**
    * Given the key, the timestamp and the gap, gets the data that falls into timestamp +/- gap.
    * This is used for getting the entry the data given the timestamp belongs to, and for determining whether to merge

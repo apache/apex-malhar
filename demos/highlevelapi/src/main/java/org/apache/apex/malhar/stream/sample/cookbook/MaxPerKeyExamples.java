@@ -110,7 +110,7 @@ public class MaxPerKeyExamples implements StreamingApplication
               @Override
               public Tuple<KeyValPair<Integer, Double>> f(KeyValPair<Integer, Double> input)
               {
-                return new Tuple.WindowedTuple<KeyValPair<Integer, Double>>(Window.GLOBAL_WINDOW, input);
+                return new Tuple.WindowedTuple<KeyValPair<Integer, Double>>(Window.GlobalWindow.INSTANCE, input);
               }
             }, name("MaxPerMonth"));
 

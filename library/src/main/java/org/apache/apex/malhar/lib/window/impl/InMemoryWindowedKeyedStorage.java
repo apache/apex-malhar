@@ -18,31 +18,23 @@
  */
 package org.apache.apex.malhar.lib.window.impl;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.apache.apex.malhar.lib.state.spillable.Spillable;
-import org.apache.apex.malhar.lib.window.SessionWindowedStorage;
 import org.apache.apex.malhar.lib.window.Window;
-import org.apache.apex.malhar.lib.window.WindowedKeyedStorage;
+import org.apache.apex.malhar.lib.window.WindowedStorage;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * This is the in-memory implementation of {@link WindowedKeyedStorage}. Do not use this class if you have a large state that
- * can't be fit in memory. Also, this class may go away soon as there are plans to incorporate {@link Spillable} data structures
- * in the near future.
+ * can't be fit in memory.
  *
  * @since 3.5.0
  */
 @InterfaceStability.Unstable
 public class InMemoryWindowedKeyedStorage<K, V> extends InMemoryWindowedStorage<Map<K, V>>
-    implements WindowedKeyedStorage<K, V>, SessionWindowedStorage<K, V>
+    implements WindowedStorage.WindowedKeyedStorage<K, V>
 {
   @Override
   public void put(Window window, K key, V value)
@@ -51,14 +43,13 @@ public class InMemoryWindowedKeyedStorage<K, V> extends InMemoryWindowedStorage<
     if (map.containsKey(window)) {
       kvMap = map.get(window);
     } else {
-      kvMap = new HashMap<K, V>();
+      kvMap = new HashMap<>();
       map.put(window, kvMap);
     }
     kvMap.put(key, value);
   }
 
-  @Override
-  public Set<Map.Entry<K, V>> entrySet(Window window)
+  public Iterable<Map.Entry<K, V>> entries(Window window)
   {
     if (map.containsKey(window)) {
       return map.get(window).entrySet();
@@ -77,27 +68,4 @@ public class InMemoryWindowedKeyedStorage<K, V> extends InMemoryWindowedStorage<
     }
   }
 
-  @Override
-  public Collection<Map.Entry<Window.SessionWindow<K>, V>> getSessionEntries(K key, long timestamp, long gap)
-  {
-    List<Map.Entry<Window.SessionWindow<K>, V>> results = new ArrayList<>();
-    // TODO: this is inefficient, but this is usually not used in a real use case since it's in memory
-    for (Map.Entry<Window, Map<K, V>> entry : map.entrySet()) {
-      Window.SessionWindow<K> window = (Window.SessionWindow<K>)entry.getKey();
-      if (key.equals(window.getKey())) {
-        if (timestamp > window.getBeginTimestamp()) {
-          if (window.getBeginTimestamp() + window.getDurationMillis() + gap > timestamp) {
-            results.add(new AbstractMap.SimpleEntry<>(window, entry.getValue().get(key)));
-          }
-        } else if (timestamp < window.getBeginTimestamp()) {
-          if (window.getBeginTimestamp() - gap <= timestamp) {
-            results.add(new AbstractMap.SimpleEntry<>(window, entry.getValue().get(key)));
-          }
-        } else {
-          results.add(new AbstractMap.SimpleEntry<>(window, entry.getValue().get(key)));
-        }
-      }
-    }
-    return results;
-  }
 }

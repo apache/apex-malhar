@@ -18,10 +18,7 @@
  */
 package org.apache.apex.malhar.stream.api.util;
 
-import java.util.List;
-
 import org.apache.apex.malhar.lib.window.Tuple;
-import org.apache.apex.malhar.lib.window.Window;
 
 /**
  * The tuple util will be used to extract fields that are used as key or value<br>
@@ -38,14 +35,8 @@ public class TupleUtil
   {
 
     if (t instanceof Tuple.WindowedTuple) {
-      Tuple.WindowedTuple<O> newT = new Tuple.WindowedTuple<>();
-      List<Window> wins = ((Tuple.WindowedTuple)t).getWindows();
-      for (Window w : wins) {
-        newT.addWindow(w);
-      }
-      newT.setValue(newValue);
-      ((Tuple.WindowedTuple)t).setTimestamp(((Tuple.WindowedTuple)t).getTimestamp());
-      return newT;
+      Tuple.WindowedTuple windowedTuple = (Tuple.WindowedTuple)t;
+      return new Tuple.WindowedTuple<>(windowedTuple.getWindows(), windowedTuple.getTimestamp(), newValue);
     } else if (t instanceof Tuple.TimestampedTuple) {
       return new Tuple.TimestampedTuple<>(((Tuple.TimestampedTuple)t).getTimestamp(), newValue);
     } else {

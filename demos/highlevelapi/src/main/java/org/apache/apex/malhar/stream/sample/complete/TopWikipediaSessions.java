@@ -28,6 +28,7 @@ import org.joda.time.Duration;
 
 import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.Tuple;
+import org.apache.apex.malhar.lib.window.Window;
 import org.apache.apex.malhar.lib.window.WindowOption;
 import org.apache.apex.malhar.lib.window.accumulation.TopN;
 import org.apache.apex.malhar.stream.api.ApexStream;
@@ -269,7 +270,8 @@ public class TopWikipediaSessions implements StreamingApplication
           @Override
           public TempWrapper f(Tuple.WindowedTuple<KeyValPair<String, Long>> input)
           {
-            return new TempWrapper(input.getValue(), input.getWindows().get(0).getBeginTimestamp());
+            Window window = input.getWindows().iterator().next();
+            return new TempWrapper(input.getValue(), window.getBeginTimestamp());
           }
         }, name("TempWrapper"))
 
@@ -290,14 +292,15 @@ public class TopWikipediaSessions implements StreamingApplication
     @Override
     public Tuple.WindowedTuple<KeyValPair<String, Long>> f(Tuple.WindowedTuple<KeyValPair<String, Long>> input)
     {
-      return new Tuple.WindowedTuple<KeyValPair<String, Long>>(input.getWindows().get(0), new KeyValPair<String, Long>(
-        input.getValue().getKey()  + " : " + input.getWindows().get(0).getBeginTimestamp() + " : " + input.getWindows().get(0).getDurationMillis(),
+      Window window = input.getWindows().iterator().next();
+      return new Tuple.WindowedTuple<KeyValPair<String, Long>>(window, new KeyValPair<String, Long>(
+        input.getValue().getKey()  + " : " + window.getBeginTimestamp() + " : " + window.getDurationMillis(),
         input.getValue().getValue()));
     }
   }
 
   /**
-   * A flapmap function that turns the result into readable format.
+   * A flatmap function that turns the result into readable format.
    */
   static class FormatOutputDoFn implements Function.FlatMapFunction<Tuple.WindowedTuple<List<TempWrapper>>, String>
   {
@@ -308,7 +311,8 @@ public class TopWikipediaSessions implements StreamingApplication
       for (TempWrapper item : input.getValue()) {
         String session = item.getValue().getKey();
         long count = item.getValue().getValue();
-        result.add(session + " + " + count + " : " + input.getWindows().get(0).getBeginTimestamp());
+        Window window = input.getWindows().iterator().next();
+        result.add(session + " + " + count + " : " + window.getBeginTimestamp());
       }
       return result;
     }

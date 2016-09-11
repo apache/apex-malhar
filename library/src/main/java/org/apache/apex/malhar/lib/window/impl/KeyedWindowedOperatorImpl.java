@@ -19,8 +19,8 @@
 package org.apache.apex.malhar.lib.window.impl;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.apex.malhar.lib.window.Accumulation;
@@ -30,7 +30,7 @@ import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.apex.malhar.lib.window.Window;
 import org.apache.apex.malhar.lib.window.WindowOption;
 import org.apache.apex.malhar.lib.window.WindowState;
-import org.apache.apex.malhar.lib.window.WindowedKeyedStorage;
+import org.apache.apex.malhar.lib.window.WindowedStorage;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.lib.util.KeyValPair;
@@ -48,11 +48,11 @@ import com.datatorrent.lib.util.KeyValPair;
  */
 @InterfaceStability.Evolving
 public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
-    extends AbstractWindowedOperator<KeyValPair<KeyT, InputValT>, KeyValPair<KeyT, OutputValT>, WindowedKeyedStorage<KeyT, AccumT>, WindowedKeyedStorage<KeyT, OutputValT>, Accumulation<InputValT, AccumT, OutputValT>>
+    extends AbstractWindowedOperator<KeyValPair<KeyT, InputValT>, KeyValPair<KeyT, OutputValT>, WindowedStorage.WindowedKeyedStorage<KeyT, AccumT>, WindowedStorage.WindowedKeyedStorage<KeyT, OutputValT>, Accumulation<InputValT, AccumT, OutputValT>>
 {
 
   @Override
-  protected void assignSessionWindows(List<Window> windows, long timestamp, Tuple<KeyValPair<KeyT, InputValT>> inputTuple)
+  protected Collection<Window.SessionWindow> assignSessionWindows(long timestamp, Tuple<KeyValPair<KeyT, InputValT>> inputTuple)
   {
     KeyT key = inputTuple.getValue().getKey();
     WindowOption.SessionWindows sessionWindowOption = (WindowOption.SessionWindows)windowOption;
@@ -126,7 +126,7 @@ public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
       default:
         throw new IllegalStateException("There are more than two sessions matching one timestamp");
     }
-    windows.add(sessionWindowToAssign);
+    return Collections.<Window.SessionWindow>singleton(sessionWindowToAssign);
   }
 
   @Override
@@ -147,7 +147,7 @@ public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
   @Override
   public void fireNormalTrigger(Window window, boolean fireOnlyUpdatedPanes)
   {
-    for (Map.Entry<KeyT, AccumT> entry : dataStorage.entrySet(window)) {
+    for (Map.Entry<KeyT, AccumT> entry : dataStorage.entries(window)) {
       OutputValT outputVal = accumulation.getOutput(entry.getValue());
       if (fireOnlyUpdatedPanes) {
         OutputValT oldValue = retractionStorage.get(window, entry.getKey());
@@ -168,7 +168,7 @@ public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
     if (triggerOption.getAccumulationMode() != TriggerOption.AccumulationMode.ACCUMULATING_AND_RETRACTING) {
       throw new UnsupportedOperationException();
     }
-    for (Map.Entry<KeyT, OutputValT> entry : retractionStorage.entrySet(window)) {
+    for (Map.Entry<KeyT, OutputValT> entry : retractionStorage.entries(window)) {
       output.emit(new Tuple.WindowedTuple<>(window, new KeyValPair<>(entry.getKey(), accumulation.getRetraction(entry.getValue()))));
     }
   }

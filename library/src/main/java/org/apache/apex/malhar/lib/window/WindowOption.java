@@ -63,7 +63,7 @@ public interface WindowOption
     /**
      * Gets the duration of the time window
      *
-     * @return
+     * @return the duration of the time window
      */
     public Duration getDuration()
     {
@@ -74,7 +74,7 @@ public interface WindowOption
      * The time window should be a sliding window with the given slide duration
      *
      * @param duration
-     * @return
+     * @return the SlidingTimeWindows
      */
     public SlidingTimeWindows slideBy(Duration duration)
     {

@@ -18,8 +18,9 @@
  */
 package org.apache.apex.malhar.lib.window;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.hadoop.classification.InterfaceStability;
 
@@ -72,6 +73,27 @@ public interface Tuple<T>
     {
       return value.toString();
     }
+
+    @Override
+    public int hashCode()
+    {
+      return value.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+      if (obj instanceof PlainTuple) {
+        PlainTuple<T> other = (PlainTuple<T>)obj;
+        if (this.value == null) {
+          return other.value == null;
+        } else {
+          return this.value.equals(other.value);
+        }
+      } else {
+        return false;
+      }
+    }
   }
 
   /**
@@ -103,6 +125,23 @@ public interface Tuple<T>
     {
       this.timestamp = timestamp;
     }
+
+    @Override
+    public int hashCode()
+    {
+      return super.hashCode() ^ (int)(timestamp & 0xffffff);
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+      if (obj instanceof TimestampedTuple && super.equals(obj)) {
+        TimestampedTuple<T> other = (TimestampedTuple<T>)obj;
+        return (this.timestamp == other.timestamp);
+      } else {
+        return false;
+      }
+    }
   }
 
   /**
@@ -112,7 +151,7 @@ public interface Tuple<T>
    */
   class WindowedTuple<T> extends TimestampedTuple<T>
   {
-    private List<Window> windows = new ArrayList<>();
+    private Set<Window> windows = new TreeSet<>();
 
     public WindowedTuple()
     {
@@ -124,7 +163,13 @@ public interface Tuple<T>
       this.windows.add(window);
     }
 
-    public List<Window> getWindows()
+    public WindowedTuple(Collection<? extends Window> windows, long timestamp, T value)
+    {
+      super(timestamp, value);
+      this.windows.addAll(windows);
+    }
+
+    public Collection<Window> getWindows()
     {
       return windows;
     }
@@ -132,6 +177,23 @@ public interface Tuple<T>
     public void addWindow(Window window)
     {
       this.windows.add(window);
+    }
+
+    @Override
+    public int hashCode()
+    {
+      return super.hashCode() ^ windows.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+      if (obj instanceof WindowedTuple && super.equals(obj)) {
+        WindowedTuple<T> other = (WindowedTuple<T>)obj;
+        return this.windows.equals(other.windows);
+      } else {
+        return false;
+      }
     }
   }
 

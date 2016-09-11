@@ -208,7 +208,7 @@ public class AutoComplete implements StreamingApplication
           public Tuple<KeyValPair<String, CompletionCandidate>> f(KeyValPair<String, CompletionCandidate> tuple)
           {
             // TODO: Should be removed after Auto-wrapping is supported.
-            return new Tuple.WindowedTuple<>(Window.GLOBAL_WINDOW, tuple);
+            return new Tuple.WindowedTuple<>(Window.GlobalWindow.INSTANCE, tuple);
           }
         });
     }
