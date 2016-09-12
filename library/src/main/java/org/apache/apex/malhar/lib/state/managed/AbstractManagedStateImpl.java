@@ -20,6 +20,7 @@ package org.apache.apex.malhar.lib.state.managed;
 
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -43,6 +44,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
+import com.google.common.collect.PeekingIterator;
 import com.google.common.util.concurrent.Futures;
 
 import com.datatorrent.api.Component;
@@ -303,6 +305,18 @@ public abstract class AbstractManagedStateImpl
       ValueFetchTask valueFetchTask = new ValueFetchTask(bucket, key, timeBucket, this);
       tasksPerBucketId.put(bucket.getBucketId(), valueFetchTask);
       return readerService.submit(valueFetchTask);
+    }
+  }
+
+
+  @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
+  protected PeekingIterator<Map.Entry<Slice, Slice>> iteratorFromBucket(long bucketId, long timeBucket, @NotNull Slice key)
+  {
+    Preconditions.checkNotNull(key, "key");
+    int bucketIdx = prepareBucket(bucketId);
+    Bucket bucket = buckets[bucketIdx];
+    synchronized (bucket) {
+      return bucket.iterator(key, timeBucket);
     }
   }
 

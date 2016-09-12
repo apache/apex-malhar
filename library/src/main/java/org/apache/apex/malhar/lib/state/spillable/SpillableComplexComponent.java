@@ -21,6 +21,8 @@ package org.apache.apex.malhar.lib.state.spillable;
 import org.apache.apex.malhar.lib.state.spillable.Spillable.SpillableComponent;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
 
+import com.google.common.base.Function;
+
 import com.datatorrent.api.Component;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
@@ -80,6 +82,12 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    */
   <K, V> SpillableByteMap<K, V> newSpillableByteMap(byte[] identifier, long bucket,
       Serde<K, Slice> serdeKey, Serde<V, Slice> serdeValue);
+
+  <K, V> SpillableIterableByteMap<K, V> newSpillableIterableByteMap(long bucket, Serde<K, Slice> serdeKey,
+      Serde<V, Slice> serdeValue, Function<K, Long> timeExtractor, long millisPerBucket);
+
+  <K, V> SpillableIterableByteMap<K, V> newSpillableIterableByteMap(byte[] identifier, long bucket,
+      Serde<K, Slice> serdeKey, Serde<V, Slice> serdeValue, Function<K, Long> timeExtractor, long millisPerBucket);
 
   /**
    * This is a method for creating a {@link SpillableByteArrayListMultimap}. This method

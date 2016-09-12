@@ -18,9 +18,13 @@
  */
 package org.apache.apex.malhar.lib.state;
 
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 import javax.validation.constraints.NotNull;
+
+import com.google.common.collect.PeekingIterator;
 
 import com.datatorrent.netlet.util.Slice;
 
@@ -32,7 +36,7 @@ import com.datatorrent.netlet.util.Slice;
  *
  * @since 3.4.0
  */
-public interface TimeSlicedBucketedState
+public interface TimeSlicedBucketedState extends BucketedState
 {
   /**
    * Sets the value of a key in the bucket identified by bucketId. Time is used to derive which time bucket (within
@@ -103,4 +107,17 @@ public interface TimeSlicedBucketedState
    * @return value of the key if found; null if the key is not found; {@link BucketedState#EXPIRED} if time is very old.
    */
   Future<Slice> getAsync(long bucketId, long time, @NotNull Slice key);
+
+  /**
+   * Returns the iterator that iterates over the key/value entries in the time bucket with keys that are greater than or
+   * equal to the given key.
+   *
+   * @param bucketId the identifier of the bucket
+   * @param time     time associated with the key
+   * @param key      key (not null)
+   *
+   * @return the iterator
+   */
+  PeekingIterator<Map.Entry<Slice, Slice>> iterator(long bucketId, long time, Slice key);
+
 }

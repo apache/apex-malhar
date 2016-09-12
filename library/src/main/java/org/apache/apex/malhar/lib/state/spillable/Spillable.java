@@ -24,6 +24,7 @@ import java.util.Queue;
 
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multiset;
+import com.google.common.collect.PeekingIterator;
 
 import com.datatorrent.api.Component;
 import com.datatorrent.api.Context.OperatorContext;
@@ -57,6 +58,11 @@ public interface Spillable
    */
   interface SpillableByteMap<K, V> extends Map<K, V>
   {
+  }
+
+  interface SpillableIterableByteMap<K, V> extends SpillableByteMap<K, V>
+  {
+    PeekingIterator<Map.Entry<K, V>> iterator(K key);
   }
 
   /**

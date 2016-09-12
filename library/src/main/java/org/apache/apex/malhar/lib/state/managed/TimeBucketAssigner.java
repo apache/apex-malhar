@@ -39,7 +39,7 @@ import com.datatorrent.api.Context;
  * The configuration {@link #expireBefore}, {@link #bucketSpan} and {@link #referenceInstant} (default time: system
  * time during initialization of TimeBucketAssigner) are used to calculate number of time-buckets.<br/>
  * For eg. if <code>expireBefore = 1 hour</code>, <code>bucketSpan = 30 minutes</code> and
- * <code>rererenceInstant = currentTime</code>, then <code>
+ * <code>referenceInstant = currentTime</code>, then <code>
  *   numBuckets = 60 minutes/ 30 minutes = 2 </code>.<br/>
  *
  * These properties once configured shouldn't be changed because that will result in different time-buckets

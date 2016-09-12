@@ -19,8 +19,10 @@
 package org.apache.apex.malhar.lib.state.managed;
 
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
@@ -35,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import com.google.common.collect.PeekingIterator;
 import com.google.common.collect.Sets;
 
 import com.datatorrent.lib.fileaccess.FileAccess;
@@ -67,6 +70,14 @@ public interface Bucket extends ManagedStateComponent
    * @return value of the key.
    */
   Slice get(Slice key, long timeBucket, ReadSource source);
+
+  /**
+   * Returns an iterator over the entries with a key greater than or equal to the given key
+   *
+   * @param key key
+   * @return the iterator
+   */
+  PeekingIterator<Map.Entry<Slice, Slice>> iterator(Slice key, long timeBucket);
 
   /**
    * Set value of a key.
@@ -324,6 +335,73 @@ public interface Bucket extends ManagedStateComponent
           }
           return getFromReaders(key, timeBucket);
       }
+    }
+
+    @Override
+    public PeekingIterator<Map.Entry<Slice, Slice>> iterator(final Slice key, final long timeBucket)
+    {
+      return new PeekingIterator<Map.Entry<Slice, Slice>>()
+      {
+        FileAccess.FileReader fileReader;
+
+        Slice currentKey = new Slice(null, 0, 0);
+        Slice currentValue = new Slice(null, 0, 0);
+
+        {
+          fileReader = readers.get(timeBucket);
+          try {
+            if (fileReader == null) {
+              loadFileReader(timeBucket);
+              fileReader = readers.get(timeBucket);
+            }
+            if (fileReader != null) {
+              fileReader.seek(key);
+            }
+          } catch (IOException e) {
+            throw new RuntimeException("reading " + bucketId + ", " + timeBucket, e);
+          }
+        }
+
+        @Override
+        public boolean hasNext()
+        {
+          return fileReader != null && fileReader.hasNext();
+        }
+
+        @Override
+        public Map.Entry<Slice, Slice> next()
+        {
+          if (!hasNext()) {
+            throw new NoSuchElementException();
+          }
+          try {
+            fileReader.next(currentKey, currentValue);
+          } catch (IOException e) {
+            throw new RuntimeException("reading next " + bucketId + ", " + timeBucket, e);
+          }
+          return new AbstractMap.SimpleEntry<>(currentKey, currentValue);
+        }
+
+        @Override
+        public void remove()
+        {
+          throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Map.Entry<Slice, Slice> peek()
+        {
+          if (!hasNext()) {
+            throw new NoSuchElementException();
+          }
+          try {
+            fileReader.peek(currentKey, currentValue);
+          } catch (IOException e) {
+            throw new RuntimeException("peeking " + bucketId + ", " + timeBucket, e);
+          }
+          return new AbstractMap.SimpleEntry<>(currentKey, currentValue);
+        }
+      };
     }
 
     /**
