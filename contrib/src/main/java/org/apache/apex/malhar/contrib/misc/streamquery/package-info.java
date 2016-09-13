@@ -20,4 +20,4 @@
  * Library of operators for streaming query language.
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-package org.apache.apex.malhar.lib.misc.streamquery;
+package org.apache.apex.malhar.contrib.misc.streamquery;
