@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<configuration>
+  <property>
+    <name>dt.application.InnerJoinExample.operator.Join.attr.MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  <property>
+    <name>dt.application.InnerJoinExample.operator.Join.prop.leftKeyExpression</name>
+    <value>productId</value>
+  </property>
+  <property>
+    <name>dt.application.InnerJoinExample.operator.Join.prop.rightKeyExpression</name>
+    <value>productId</value>
+  </property>
+  <property>
+    <name>dt.application.InnerJoinExample.operator.Join.prop.timeFieldsStr</name>
+    <value>timestamp,timestamp</value>
+  </property>
+  <property>
+    <name>dt.application.InnerJoinExample.operator.Join.prop.expiryTime</name>
+    <value>3600000</value>
+  </property>
+  <property>
+    <name>dt.application.InnerJoinExample.operator.Join.prop.includeFieldStr</name>
+    <value>customerId,productId,amount;productCategory,timestamp</value>
+  </property>
+  <property>
+    <name>dt.application.InnerJoinExample.operator.Join.prop.noOfBuckets</name>
+    <value>2</value>
+  </property>
+  <property>
+    <name>dt.application.InnerJoinExample.operator.Join.attr.PARTITIONER</name>
+    <value>com.datatorrent.common.partitioner.StatelessPartitioner:3</value>
+  </property>
+</configuration>
+
