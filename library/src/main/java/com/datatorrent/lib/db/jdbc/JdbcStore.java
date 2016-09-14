@@ -176,10 +176,12 @@ public class JdbcStore implements Connectable
   @Override
   public void disconnect()
   {
-    try {
-      connection.close();
-    } catch (SQLException ex) {
-      throw new RuntimeException("closing database resource", ex);
+    if (connection != null) {
+      try {
+        connection.close();
+      } catch (SQLException ex) {
+        throw new RuntimeException("closing database resource", ex);
+      }
     }
   }
 
@@ -188,7 +190,7 @@ public class JdbcStore implements Connectable
   public boolean isConnected()
   {
     try {
-      return !connection.isClosed();
+      return connection != null ? !connection.isClosed() : false;
     } catch (SQLException e) {
       throw new RuntimeException("is isConnected", e);
     }
