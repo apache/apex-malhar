@@ -18,10 +18,18 @@
  */
 package com.datatorrent.benchmark.state;
 
+import java.nio.ByteBuffer;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.Future;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.apex.malhar.lib.state.managed.ManagedStateImpl;
+import org.apache.apex.malhar.lib.state.managed.ManagedTimeUnifiedStateImpl;
+
+import com.google.common.collect.Maps;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
@@ -34,9 +42,17 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
 {
   private static final Logger logger = LoggerFactory.getLogger(StoreOperator.class);
 
+  public static enum ExecMode
+  {
+    INSERT,
+    UPDATESYNC,
+    UPDATEASYNC
+  }
+  
   protected static final int numOfWindowPerStatistics = 10;
 
-  protected ManagedStateImpl store;
+  //this is the store we are going to use
+  protected ManagedTimeUnifiedStateImpl store;
   protected long bucketId = 1;
 
   protected long lastCheckPointWindowId = -1;
@@ -44,7 +60,10 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
   protected long tupleCount = 0;
   protected int windowCountPerStatistics = 0;
   protected long statisticsBeginTime = 0;
-
+  
+  protected ExecMode execMode = ExecMode.INSERT;
+  protected int timeRange = 1000 * 60;
+  
   public final transient DefaultInputPort<KeyValPair<byte[], byte[]>> input = new DefaultInputPort<KeyValPair<byte[], byte[]>>()
   {
     @Override
@@ -57,6 +76,7 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
   @Override
   public void setup(OperatorContext context)
   {
+    logger.info("The execute mode is: {}", execMode.name());
     store.setup(context);
   }
 
@@ -80,10 +100,83 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
     }
   }
 
+  protected transient Queue<Future<Slice>> taskQueue = new LinkedList<Future<Slice>>();
+  protected transient Map<Future<Slice>, KeyValPair<byte[], byte[]>> taskToPair = Maps.newHashMap();
+  
+  /**
+   * we verify 3 type of operation 
+   * @param tuple
+   */
   protected void processTuple(KeyValPair<byte[], byte[]> tuple)
+  {
+    switch (execMode) {
+      case UPDATEASYNC:
+        //handle it specially
+        updateAsync(tuple);
+        break;
+
+      case UPDATESYNC:
+        store.getSync(getTimeByKey(tuple.getKey()), new Slice(tuple.getKey()));
+        insertValueToStore(tuple);
+        break;
+        
+      default: //insert
+        insertValueToStore(tuple);
+    }
+  }
+  
+  protected long getTimeByKey(byte[] key)
+  {
+    long lKey = ByteBuffer.wrap(key).getLong();
+    return lKey - (lKey % timeRange);
+  }
+  
+  // give a barrier to avoid used up memory
+  protected final int taskBarrier = 100000;
+  
+  /**
+   * This method first send request of get to the state manager, then handle all the task(get) which already done and update the value.
+   * @param tuple
+   */
+  protected void updateAsync(KeyValPair<byte[], byte[]> tuple)
+  {
+    if (taskQueue.size() > taskBarrier) {
+      //slow down to avoid too much task waiting.
+      try {
+        
+        logger.info("Queue Size: {}, wait time(milli-seconds): {}", taskQueue.size(), taskQueue.size() / taskBarrier);
+        Thread.sleep(taskQueue.size() / taskBarrier);
+      } catch (Exception e) {
+        //ignore
+      }
+    }
+    
+    //send request of get to the state manager and add to the taskQueue and taskToPair.
+    //the reason of an extra taskQueue to make sure the tasks are ordered
+    {
+      Slice key = new Slice(tuple.getKey());
+      Future<Slice> task = store.getAsync(getTimeByKey(tuple.getKey()), key);
+      taskQueue.add(task);
+      taskToPair.put(task, tuple);
+    }
+
+    //handle all the tasks which have finished
+    while (!taskQueue.isEmpty()) {
+      //assume task finished in order.
+      if (!taskQueue.peek().isDone()) {
+        break;
+      }
+
+      Future<Slice> task = taskQueue.poll();
+      insertValueToStore(taskToPair.remove(task));
+    }
+  }
+  
+  protected void insertValueToStore(KeyValPair<byte[], byte[]> tuple)
   {
     Slice key = new Slice(tuple.getKey());
     Slice value = new Slice(tuple.getValue());
+
     store.put(bucketId, key, value);
     ++tupleCount;
   }
@@ -106,12 +199,12 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
     logger.info("beforeCheckpoint {}", windowId);
   }
 
-  public ManagedStateImpl getStore()
+  public ManagedTimeUnifiedStateImpl getStore()
   {
     return store;
   }
 
-  public void setStore(ManagedStateImpl store)
+  public void setStore(ManagedTimeUnifiedStateImpl store)
   {
     this.store = store;
   }
@@ -119,9 +212,45 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
   protected void logStatistics()
   {
     long spentTime = System.currentTimeMillis() - statisticsBeginTime;
-    logger.info("Time Spent: {}, Processed tuples: {}, rate: {}", spentTime, tupleCount, tupleCount / spentTime);
+    logger.info("Time Spent: {}, Processed tuples: {}, rate per second: {}", spentTime, tupleCount, tupleCount * 1000 / spentTime);
 
     statisticsBeginTime = System.currentTimeMillis();
     tupleCount = 0;
   }
+
+  public ExecMode getExecMode()
+  {
+    return execMode;
+  }
+
+  public void setExecMode(ExecMode execMode)
+  {
+    this.execMode = execMode;
+  }
+
+  public String getExecModeString()
+  {
+    return execMode.name();
+  }
+  
+  public void setExeModeStr(String execModeStr)
+  {
+    //this method used for set configuration. so, use case-insensitive
+    for (ExecMode em : ExecMode.values()) {
+      if (em.name().equalsIgnoreCase(execModeStr)) {
+        this.execMode = em;
+      }
+    }
+  }
+
+  public int getTimeRange()
+  {
+    return timeRange;
+  }
+
+  public void setTimeRange(int timeRange)
+  {
+    this.timeRange = timeRange;
+  }
+  
 }

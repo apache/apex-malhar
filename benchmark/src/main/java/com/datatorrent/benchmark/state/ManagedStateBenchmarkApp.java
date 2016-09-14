@@ -26,7 +26,7 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.apex.malhar.lib.state.managed.ManagedStateImpl;
+import org.apache.apex.malhar.lib.state.managed.ManagedTimeUnifiedStateImpl;
 import org.apache.hadoop.conf.Configuration;
 
 import com.google.common.collect.Lists;
@@ -48,32 +48,35 @@ import com.datatorrent.lib.util.KeyValPair;
 @ApplicationAnnotation(name = "ManagedStateBenchmark")
 public class ManagedStateBenchmarkApp implements StreamingApplication
 {
-  private static final Logger logger = LoggerFactory.getLogger(ManagedStateBenchmarkApp.class);
-
   protected static final String PROP_STORE_PATH = "dt.application.ManagedStateBenchmark.storeBasePath";
   protected static final String DEFAULT_BASE_PATH = "ManagedStateBenchmark/Store";
 
+  protected StoreOperator storeOperator;
+  protected int timeRange = 1000 * 60; // one minute range of hot keys
+  
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
     TestStatsListener sl = new TestStatsListener();
     sl.adjustRate = conf.getBoolean("dt.ManagedStateBenchmark.adjustRate", false);
     TestGenerator gen = dag.addOperator("Generator", new TestGenerator());
+    gen.setRange(timeRange);
     dag.setAttribute(gen, OperatorContext.STATS_LISTENERS, Lists.newArrayList((StatsListener)sl));
 
-    StoreOperator storeOperator = new StoreOperator();
+    storeOperator = new StoreOperator();
     storeOperator.setStore(createStore(conf));
-    StoreOperator store = dag.addOperator("Store", storeOperator);
+    storeOperator.setTimeRange(timeRange);
+    storeOperator = dag.addOperator("Store", storeOperator);
 
-    dag.setAttribute(store, OperatorContext.STATS_LISTENERS, Lists.newArrayList((StatsListener)sl));
+    dag.setAttribute(storeOperator, OperatorContext.STATS_LISTENERS, Lists.newArrayList((StatsListener)sl));
 
-    dag.addStream("Events", gen.data, store.input).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("Events", gen.data, storeOperator.input).setLocality(Locality.CONTAINER_LOCAL);
   }
 
-  public ManagedStateImpl createStore(Configuration conf)
+  public ManagedTimeUnifiedStateImpl createStore(Configuration conf)
   {
     String basePath = getStoreBasePath(conf);
-    ManagedStateImpl store = new ManagedStateImpl();
+    ManagedTimeUnifiedStateImpl store = new ManagedTimeUnifiedStateImpl();
     ((TFileImpl.DTFileImpl)store.getFileAccess()).setBasePath(basePath);
     return store;
   }

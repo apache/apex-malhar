@@ -18,13 +18,18 @@
  */
 package com.datatorrent.benchmark.state;
 
+import java.io.File;
+
+import org.junit.Before;
 import org.junit.Test;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileUtil;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.benchmark.state.StoreOperator.ExecMode;
 
 /**
  * This is not a really unit test, but in fact a benchmark runner.
@@ -34,9 +39,32 @@ import com.datatorrent.api.StreamingApplication;
 public class ManagedStateBenchmarkAppTester extends ManagedStateBenchmarkApp
 {
   public static final String basePath = "target/temp";
-
+  
+  @Before
+  public void before()
+  {
+    FileUtil.fullyDelete(new File(basePath));
+  }
+  
   @Test
-  public void test() throws Exception
+  public void testUpdateSync() throws Exception
+  {
+    test(ExecMode.UPDATESYNC);
+  }
+  
+  @Test
+  public void testUpdateAsync() throws Exception
+  {
+    test(ExecMode.UPDATEASYNC);
+  }
+  
+  @Test
+  public void testInsert() throws Exception
+  {
+    test(ExecMode.INSERT);
+  }
+  
+  public void test(ExecMode exeMode) throws Exception
   {
     Configuration conf = new Configuration(false);
 
@@ -44,7 +72,8 @@ public class ManagedStateBenchmarkAppTester extends ManagedStateBenchmarkApp
     DAG dag = lma.getDAG();
 
     super.populateDAG(dag, conf);
-
+    storeOperator.execMode = exeMode;
+    
     StreamingApplication app = new StreamingApplication()
     {
       @Override
@@ -62,6 +91,8 @@ public class ManagedStateBenchmarkAppTester extends ManagedStateBenchmarkApp
     lc.shutdown();
   }
 
+
+  
   @Override
   public String getStoreBasePath(Configuration conf)
   {
