@@ -75,7 +75,7 @@ public abstract class AbstractTupleUniqueExactlyOnceKafkaOutputOperator<T, K, V>
     extends AbstractKafkaOutputOperator<K, V>
 {
   public static final String DEFAULT_CONTROL_TOPIC = "ControlTopic";
-  protected transient int partitionNum = 1;
+  protected static final transient int partitionNum = 1;
 
   /**
    * allow client set the partitioner as partitioner may need some attributes
@@ -87,14 +87,14 @@ public abstract class AbstractTupleUniqueExactlyOnceKafkaOutputOperator<T, K, V>
   protected String controlTopic = DEFAULT_CONTROL_TOPIC;
 
   //The control info includes the time, use this time to track the head of control info we care.
-  protected int controlInfoTrackBackTime = 120000;
+  private int controlInfoTrackBackTime = 120000;
 
   /**
    * max number of offset need to check
    */
   protected int maxNumOffsetsOfControl = 1000;
 
-  protected String controlProducerProperties;
+  private String controlProducerProperties;
   protected Set<String> brokerSet;
   
   protected transient long currentWindowId;
@@ -126,10 +126,10 @@ public abstract class AbstractTupleUniqueExactlyOnceKafkaOutputOperator<T, K, V>
   protected transient Map<Integer, List<Pair<byte[], byte[]>>> partitionToLastMsgs = Maps.newHashMap();
 
   /**
-   * The messages are assume to written to the kafka partition decided by
+   * The messages which written to the Kafka partition decided by
    * tupleToKeyValue(T tuple) and partitioner. But it also depended on the
    * system. for example, it could be only one partition when create topic.
-   * Don't distinguish kafka partitions if partition is not reliable.
+   * Don't distinguish Kafka partitions if partition is not reliable.
    */
   protected transient Set<Pair<byte[], byte[]>> totalLastMsgs = Sets.newHashSet();
 
@@ -609,4 +609,15 @@ public abstract class AbstractTupleUniqueExactlyOnceKafkaOutputOperator<T, K, V>
     }
   }
 
+  public int getControlInfoTrackBackTime()
+  {
+    return controlInfoTrackBackTime;
+  }
+
+  public void setControlInfoTrackBackTime(int controlInfoTrackBackTime)
+  {
+    this.controlInfoTrackBackTime = controlInfoTrackBackTime;
+  }
+
+  
 }

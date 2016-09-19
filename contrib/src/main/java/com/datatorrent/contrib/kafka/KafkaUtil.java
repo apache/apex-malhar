@@ -80,7 +80,7 @@ public class KafkaUtil
         long startOffset = partitionToStartOffset.get(pm.partitionId()) == null ? 0
             : partitionToStartOffset.get(pm.partitionId());
         final String clientName = KafkaMetadataUtil.getClientName(clientNamePrefix, tm.topic(), pm.partitionId());
-        consumer = createSimpleConsumer(clientName, tm.topic(), pm);
+        consumer = getOrCreateSimpleConsumer(clientName, tm.topic(), pm);
 
         //the returned lastOffset is the offset which haven't written data to.
         long lastOffset = KafkaMetadataUtil.getLastOffset(consumer, tm.topic(), pm.partitionId(),
@@ -158,7 +158,7 @@ public class KafkaUtil
     Map<Integer, SimpleConsumer> consumers = Maps.newHashMap();
     for (PartitionMetadata pm : tm.partitionsMetadata()) {
       String clientName = KafkaMetadataUtil.getClientName(clientNamePrefix, tm.topic(), pm.partitionId());
-      consumers.put(pm.partitionId(), createSimpleConsumer(clientName, tm.topic(), pm));
+      consumers.put(pm.partitionId(), getOrCreateSimpleConsumer(clientName, tm.topic(), pm));
     }
     return consumers;
   }
@@ -250,7 +250,7 @@ public class KafkaUtil
       SimpleConsumer consumer = null;
       try {
         String clientName = KafkaMetadataUtil.getClientName(clientNamePrefix, tm.topic(), pm.partitionId());
-        consumer = createSimpleConsumer(clientName, tm.topic(), pm);
+        consumer = getOrCreateSimpleConsumer(clientName, tm.topic(), pm);
 
         long readOffset = KafkaMetadataUtil.getLastOffset(consumer, tm.topic(), pm.partitionId(),
             kafka.api.OffsetRequest.LatestTime(), clientName);
@@ -295,7 +295,7 @@ public class KafkaUtil
         }
 
         String clientName = KafkaMetadataUtil.getClientName(clientNamePrefix, tm.topic(), pm.partitionId());
-        consumer = createSimpleConsumer(clientName, topic, pm);
+        consumer = getOrCreateSimpleConsumer(clientName, topic, pm);
 
         long readOffset = KafkaMetadataUtil.getLastOffset(consumer, topic, partitionId,
             kafka.api.OffsetRequest.LatestTime(), clientName);
@@ -343,9 +343,24 @@ public class KafkaUtil
     return new Pair<byte[], byte[]>(keyBytes, valueBytes);
   }
 
-  public static SimpleConsumer createSimpleConsumer(String clientName, String topic, PartitionMetadata pm)
+  private static Map<String, SimpleConsumer> cachedConsumer = Maps.newHashMap();
+
+  public static SimpleConsumer getOrCreateSimpleConsumer(String clientName, String topic, PartitionMetadata pm)
   {
-    return createSimpleConsumer(clientName, topic, pm, DEFAULT_TIMEOUT, DEFAULT_BUFFER_SIZE);
+    String key = getKey(clientName, topic, pm);
+    SimpleConsumer consumer = cachedConsumer.get(key);
+    if (consumer == null) {
+      consumer = createSimpleConsumer(clientName, topic, pm, DEFAULT_TIMEOUT, DEFAULT_BUFFER_SIZE);
+      cachedConsumer.put(key, consumer);
+    }
+    return consumer;
+  }
+
+  private static final String SEPERATOR = "|";
+
+  private static String getKey(String clientName, String topic, PartitionMetadata pm)
+  {
+    return clientName + SEPERATOR + topic + SEPERATOR + pm.leader().host() + SEPERATOR + pm.leader().port();
   }
 
   public static SimpleConsumer createSimpleConsumer(String clientName, String topic, PartitionMetadata pm, int timeout,
