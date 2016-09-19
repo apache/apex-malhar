@@ -18,12 +18,13 @@
  */
 package com.datatorrent.lib.multiwindow;
 
+import java.util.Map;
+
+import javax.validation.constraints.Min;
+
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.math.SumKeyVal;
 import com.datatorrent.lib.util.KeyValPair;
-
-import java.util.Map;
-import javax.validation.constraints.Min;
 
 /**
  * A sum operator of KeyValPair schema which accumulates sum across multiple
@@ -53,45 +54,45 @@ import javax.validation.constraints.Min;
 @OperatorAnnotation(partitionable = false)
 public class MultiWindowSumKeyVal<K, V extends Number> extends SumKeyVal<K, V>
 {
-	/**
-	 * Number of streaming window after which tuple got emitted.
-	 */
-	@Min(2)
-	private int windowSize = 2;
-	private long windowCount = 0;
+  /**
+   * Number of streaming window after which tuple got emitted.
+   */
+  @Min(2)
+  private int windowSize = 2;
+  private long windowCount = 0;
 
-	public void setWindowSize(int windowSize)
-	{
-		this.windowSize = windowSize;
-	}
+  public void setWindowSize(int windowSize)
+  {
+    this.windowSize = windowSize;
+  }
 
-	/**
-	 * Emit only at the end of windowSize window boundary.
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Override
-	public void endWindow()
-	{
-		boolean emit = (++windowCount) % windowSize == 0;
+  /**
+   * Emit only at the end of windowSize window boundary.
+   */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @Override
+  public void endWindow()
+  {
+    boolean emit = (++windowCount) % windowSize == 0;
 
-		if (!emit) {
-			return;
-		}
+    if (!emit) {
+      return;
+    }
 
-		// Emit only at the end of application window boundary.
-		boolean dosum = sum.isConnected();
+    // Emit only at the end of application window boundary.
+    boolean dosum = sum.isConnected();
 
-		if (dosum) {
-			for (Map.Entry<K, SumEntry> e : sums.entrySet()) {
-				K key = e.getKey();
-				if (dosum) {
-					sum.emit(new KeyValPair(key, getValue(e.getValue().sum.doubleValue())));
-				}
-			}
-		}
+    if (dosum) {
+      for (Map.Entry<K, SumEntry> e : sums.entrySet()) {
+        K key = e.getKey();
+        if (dosum) {
+          sum.emit(new KeyValPair(key, getValue(e.getValue().sum.doubleValue())));
+        }
+      }
+    }
 
-		// Clear cumulative sum at the end of application window boundary.
-		sums.clear();
-	}
+    // Clear cumulative sum at the end of application window boundary.
+    sums.clear();
+  }
 }
 

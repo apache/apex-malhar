@@ -20,10 +20,10 @@ package com.datatorrent.lib.appdata.query;
 
 import java.util.List;
 
-import com.google.common.collect.Lists;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
 
 import com.datatorrent.lib.appdata.schemas.Query;
 import com.datatorrent.lib.appdata.schemas.Result;
@@ -35,14 +35,13 @@ public class QueryManagerSynchronousTest
   {
     final int numQueries = 3;
 
-    QueryManagerSynchronous<Query, Void, Void, Result> queryProcessor = QueryManagerSynchronous.newInstance(new SimpleQueryComputer());
+    QueryManagerSynchronous<Query, Void, Void, Result> queryProcessor = QueryManagerSynchronous.newInstance(
+        new SimpleQueryComputer());
 
     queryProcessor.setup(null);
     queryProcessor.beginWindow(0);
 
-    for(int qc = 0;
-        qc < numQueries;
-        qc++) {
+    for (int qc = 0; qc < numQueries; qc++) {
       Query query = new MockQuery(Integer.toString(qc));
       queryProcessor.enqueue(query, null, null);
     }
@@ -50,7 +49,7 @@ public class QueryManagerSynchronousTest
     Result result;
     List<Result> results = Lists.newArrayList();
 
-    while((result = queryProcessor.process()) != null) {
+    while ((result = queryProcessor.process()) != null) {
       results.add(result);
     }
 
@@ -59,9 +58,7 @@ public class QueryManagerSynchronousTest
 
     Assert.assertEquals("Sizes must match.", numQueries, results.size());
 
-    for(int rc = 0;
-        rc < results.size();
-        rc++) {
+    for (int rc = 0; rc < results.size(); rc++) {
       result = results.get(rc);
       Assert.assertEquals("Ids must match.", Integer.toString(rc), result.getId());
     }

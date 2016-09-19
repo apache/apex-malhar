@@ -36,6 +36,6 @@ public class HdfsKeyValOutputOperator<K, V> extends AbstractSingleFileOutputOper
   @Override
   public byte[] getBytesForTuple(KeyHashValPair<K,V> t)
   {
-    return (t.toString()+"\n").getBytes();
+    return (t.toString() + "\n").getBytes();
   }
 }

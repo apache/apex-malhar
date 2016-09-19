@@ -27,8 +27,8 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.TestUtils;
 
-public class MapToKeyValuePairConverterTest {
-
+public class MapToKeyValuePairConverterTest
+{
   @Test
   public void MapToKeyValuePairConversion() 
   {
@@ -37,10 +37,9 @@ public class MapToKeyValuePairConverterTest {
     String[] keys = {"a", "b", "c"};
     
     HashMap<String, Integer> inputMap = new HashMap<String, Integer>();
-    
-    for(int i =0 ; i < 3; i++)
-    {
-      inputMap.put(keys[i], values[i]);      
+
+    for (int i = 0; i < 3; i++) {
+      inputMap.put(keys[i], values[i]);
     }
     
     CollectorTestSink<KeyValPair<String, Integer>> testsink = new CollectorTestSink<KeyValPair<String, Integer>>();    

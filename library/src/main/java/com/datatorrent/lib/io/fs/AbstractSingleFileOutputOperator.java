@@ -20,6 +20,10 @@ package com.datatorrent.lib.io.fs;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang.StringUtils;
+
+import com.datatorrent.api.Context.OperatorContext;
+
 /**
  * This is a simple class that output all tuples to a single file.
  *
@@ -39,10 +43,41 @@ public abstract class AbstractSingleFileOutputOperator<INPUT> extends AbstractFi
   @NotNull
   protected String outputFileName;
 
+  /**
+   * partitionedFileName string format specifier 
+      e.g. fileName_physicalPartionId -> %s_%d 
+   */
+  private String partitionedFileNameformat = "%s_%d";
+
+  /**
+   * Derived name for file based on physicalPartitionId
+   */
+  private transient String partitionedFileName;
+
+  /**
+   * Physical partition id for the current partition.
+   */
+  private transient int physicalPartitionId;
+
+  /**
+   * Initializing current partition id, partitionedFileName etc. {@inheritDoc}
+   */
+  @Override
+  public void setup(OperatorContext context)
+  {
+    super.setup(context);
+    physicalPartitionId = context.getId();
+    if (StringUtils.isEmpty(partitionedFileNameformat)) {
+      partitionedFileName = outputFileName;
+    } else {
+      partitionedFileName = String.format(partitionedFileNameformat, outputFileName, physicalPartitionId);
+    }
+  }
+
   @Override
   protected String getFileName(INPUT tuple)
   {
-    return outputFileName;
+    return partitionedFileName;
   }
 
   /**
@@ -62,4 +97,32 @@ public abstract class AbstractSingleFileOutputOperator<INPUT> extends AbstractFi
   {
     return outputFileName;
   }
+
+  /**
+   * @return string format specifier for the partitioned file name
+   */
+  public String getPartitionedFileNameformat()
+  {
+    return partitionedFileNameformat;
+  }
+  
+  /**
+   * @param partitionedFileNameformat
+   *          string format specifier for the partitioned file name. It should have one %s and one %d.
+   *          e.g. fileName_physicalPartionId -> %s_%d 
+   */
+  public void setPartitionedFileNameformat(String partitionedFileNameformat)
+  {
+    this.partitionedFileNameformat = partitionedFileNameformat;
+  }
+  
+  /**
+   * @return
+   * Derived name for file based on physicalPartitionId
+   */
+  public String getPartitionedFileName()
+  {
+    return partitionedFileName;
+  }
+  
 }

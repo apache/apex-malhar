@@ -18,17 +18,16 @@
  */
 package com.datatorrent.demos.iteration;
 
-
-import org.apache.hadoop.conf.Configuration;
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.datatorrent.api.LocalMode;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
+import org.junit.Assert;
+import org.junit.Test;
+
+import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.LocalMode;
 
 /**
  *
@@ -61,7 +60,8 @@ public class ApplicationTest
       if (file.length() > 50) {
         break;
       }
-    } while (System.currentTimeMillis() - startTime < timeout);
+    }
+    while (System.currentTimeMillis() - startTime < timeout);
 
     lc.shutdown();
     try (BufferedReader br = new BufferedReader(new FileReader(outputFileName))) {

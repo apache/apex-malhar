@@ -18,10 +18,11 @@
  */
 package com.datatorrent.lib.converter;
 
-import com.datatorrent.common.util.BaseOperator;
+import java.nio.charset.Charset;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import java.nio.charset.Charset;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This operator converts Byte Array to String. User gets the option of providing character Encoding.
@@ -55,7 +56,7 @@ public class ByteArrayToStringConverterOperator extends BaseOperator
     @Override
     public void process(byte[] message)
     {
-      output.emit(characterEncoding == null? new String(message): new String(message, characterEncoding));
+      output.emit(characterEncoding == null ? new String(message) : new String(message, characterEncoding));
     }
 
   };

@@ -18,18 +18,20 @@
  */
 package com.datatorrent.demos.frauddetect;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.util.KeyValPair;
 import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.commons.lang.mutable.MutableDouble;
 import org.apache.commons.lang.mutable.MutableLong;
+
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * A bucket-like operator to accept merchant transaction object and dissipate the
@@ -45,13 +47,13 @@ public class MerchantTransactionBucketOperator extends BaseOperator
           new DefaultOutputPort<KeyValPair<MerchantKey, String>>();
   */
   public final transient DefaultOutputPort<KeyValPair<KeyValPair<MerchantKey, String>, Integer>> binCountOutputPort =
-          new DefaultOutputPort<KeyValPair<KeyValPair<MerchantKey, String>, Integer>>();
+      new DefaultOutputPort<KeyValPair<KeyValPair<MerchantKey, String>, Integer>>();
   public final transient DefaultOutputPort<KeyValPair<MerchantKey, Long>> txOutputPort =
-          new DefaultOutputPort<KeyValPair<MerchantKey, Long>>();
+      new DefaultOutputPort<KeyValPair<MerchantKey, Long>>();
   public final transient DefaultOutputPort<KeyValPair<MerchantKey, CreditCardData>> ccAlertOutputPort =
-          new DefaultOutputPort<KeyValPair<MerchantKey, CreditCardData>>();
+      new DefaultOutputPort<KeyValPair<MerchantKey, CreditCardData>>();
   public final transient DefaultOutputPort<Map<String, Object>> summaryTxnOutputPort =
-          new DefaultOutputPort<Map<String, Object>>();
+      new DefaultOutputPort<Map<String, Object>>();
   private MutableLong totalTxns = new MutableLong(0);
   private MutableLong txnsInLastSecond = new MutableLong(0);
   private MutableDouble amtInLastSecond = new MutableDouble(0);
@@ -75,26 +77,26 @@ public class MerchantTransactionBucketOperator extends BaseOperator
 
   };
 
-  public void endWindow() {
-      Map<String, Object> summary = new HashMap<String, Object>();
-      double avg;
-      if (txnsInLastSecond.longValue() == 0) {
-          avg = 0;
-      } else {
-          avg = amtInLastSecond.doubleValue() / txnsInLastSecond.longValue();
-      }
-      summary.put("totalTxns", totalTxns);
-      summary.put("txnsInLastSecond", txnsInLastSecond);
-      summary.put("amtInLastSecond", amtFormatter.format(amtInLastSecond));
-      summary.put("avgAmtInLastSecond", amtFormatter.format(avg));
-      summaryTxnOutputPort.emit(summary);
-      txnsInLastSecond.setValue(0);
-      amtInLastSecond.setValue(0);
+  public void endWindow()
+  {
+    Map<String, Object> summary = new HashMap<String, Object>();
+    double avg;
+    if (txnsInLastSecond.longValue() == 0) {
+      avg = 0;
+    } else {
+      avg = amtInLastSecond.doubleValue() / txnsInLastSecond.longValue();
+    }
+    summary.put("totalTxns", totalTxns);
+    summary.put("txnsInLastSecond", txnsInLastSecond);
+    summary.put("amtInLastSecond", amtFormatter.format(amtInLastSecond));
+    summary.put("avgAmtInLastSecond", amtFormatter.format(avg));
+    summaryTxnOutputPort.emit(summary);
+    txnsInLastSecond.setValue(0);
+    amtInLastSecond.setValue(0);
   }
 
   private void processTuple(MerchantTransaction tuple)
   {
-    //emitBankIdNumTuple(tuple, binOutputPort);
     emitBankIdNumTuple(tuple, binCountOutputPort);
     emitMerchantKeyTuple(tuple, txOutputPort);
     emitCreditCardKeyTuple(tuple, ccAlertOutputPort);

@@ -23,7 +23,6 @@ import java.io.IOException;
 import javax.validation.constraints.NotNull;
 
 import com.datatorrent.common.util.PubSubMessageCodec;
-import com.datatorrent.common.util.PubSubWebSocketClient;
 
 /**
  * This operator writes maps as JSON objects to the given URL.
@@ -63,7 +62,7 @@ public class PubSubWebSocketOutputOperator<T> extends WebSocketOutputOperator<T>
   @Override
   public String convertMapToMessage(T t) throws IOException
   {
-    return PubSubWebSocketClient.constructPublishMessage(topic, t, codec);
+    return PubSubMessageCodec.constructPublishMessage(topic, t, codec);
   }
 
 }

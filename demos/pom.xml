@@ -25,15 +25,15 @@
   <parent>
     <groupId>org.apache.apex</groupId>
     <artifactId>malhar</artifactId>
-    <version>3.4.0-incubating-SNAPSHOT</version>
+    <version>3.6.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>malhar-demos</artifactId>
   <packaging>pom</packaging>
-  <name>Apache Apex Malhar (incubating) Demos</name>
+  <name>Apache Apex Malhar Demos</name>
 
   <properties>
-    <apex.apppackage.groupid>${groupId}</apex.apppackage.groupid>
+    <apex.apppackage.groupid>${project.groupId}</apex.apppackage.groupid>
     <apex.apppackage.classpath>lib/*.jar</apex.apppackage.classpath>
     <semver.plugin.skip>true</semver.plugin.skip>
     <maven.deploy.skip>true</maven.deploy.skip>
@@ -160,13 +160,6 @@
             </execution>
           </executions>
         </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-checkstyle-plugin</artifactId>
-          <configuration>
-            <skip>true</skip>
-          </configuration>
-        </plugin>
       </plugins>
 	</build>
 	</profile>
@@ -174,6 +167,7 @@
       <id>all-modules</id>
       <modules>
         <module>distributedistinct</module>
+        <module>highlevelapi</module>
       </modules>
     </profile>
   </profiles>

@@ -18,10 +18,10 @@
  */
 package com.datatorrent.lib.util;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.util.BaseKeyValueOperator;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * This is the base implementation of operators which perform comparisons.&nbsp;
@@ -60,7 +60,8 @@ public abstract class AbstractBaseMatchOperator<K,V extends Comparable> extends 
   public enum supported_type
   {
     LTE, LT, EQ, NEQ, GT, GTE
-  };
+  }
+
   supported_type type = supported_type.EQ;
 
   /**
@@ -166,23 +167,17 @@ public abstract class AbstractBaseMatchOperator<K,V extends Comparable> extends 
   {
     if (cmp.equals("lt")) {
       setTypeLT();
-    }
-    else if (cmp.equals("lte")) {
+    } else if (cmp.equals("lte")) {
       setTypeLTE();
-    }
-    else if (cmp.equals("eq")) {
+    } else if (cmp.equals("eq")) {
       setTypeEQ();
-    }
-    else if (cmp.equals("ne")) {
+    } else if (cmp.equals("ne")) {
       setTypeEQ();
-    }
-    else if (cmp.equals("gt")) {
+    } else if (cmp.equals("gt")) {
       setTypeGT();
-    }
-    else if (cmp.equals("gte")) {
+    } else if (cmp.equals("gte")) {
       setTypeGTE();
-    }
-    else {
+    } else {
       setTypeEQ();
     }
   }

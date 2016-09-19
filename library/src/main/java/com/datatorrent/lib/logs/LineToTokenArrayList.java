@@ -56,7 +56,7 @@ import com.datatorrent.lib.util.UnifierArrayList;
  * @since 0.3.2
  */
 @Stateless
-@OperatorAnnotation(partitionable=true)
+@OperatorAnnotation(partitionable = true)
 public class LineToTokenArrayList extends BaseLineTokenizer
 {
   protected transient ArrayList<String> tokentuple = null;
@@ -79,15 +79,16 @@ public class LineToTokenArrayList extends BaseLineTokenizer
   };
 
   /**
-	 * This output port emits a map from tokens to sub tokens.
-	 */
+   * This output port emits a map from tokens to sub tokens.
+   */
   @OutputPortFieldAnnotation(optional = true)
-  public final transient DefaultOutputPort<ArrayList<HashMap<String, ArrayList<String>>>> splittokens = new DefaultOutputPort<ArrayList<HashMap<String, ArrayList<String>>>>()
+  public final transient DefaultOutputPort<ArrayList<HashMap<String, ArrayList<String>>>> splittokens =
+      new DefaultOutputPort<ArrayList<HashMap<String, ArrayList<String>>>>()
   {
     @Override
     public Unifier<ArrayList<HashMap<String, ArrayList<String>>>> getUnifier()
     {
-      return new UnifierArrayList<HashMap<String, ArrayList<String>>>();
+      return new UnifierArrayList<>();
     }
   };
 
@@ -152,8 +153,7 @@ public class LineToTokenArrayList extends BaseLineTokenizer
   {
     if (smap.isEmpty()) {
       smap.put(subtok, vals);
-    }
-    else {
+    } else {
       vals.add(subtok);
     }
   }

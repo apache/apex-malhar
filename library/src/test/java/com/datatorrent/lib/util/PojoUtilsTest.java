@@ -18,6 +18,26 @@
  */
 package com.datatorrent.lib.util;
 
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.datatorrent.lib.expression.Expression;
+import com.datatorrent.lib.util.PojoUtils.Getter;
+import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
+import com.datatorrent.lib.util.PojoUtils.GetterByte;
+import com.datatorrent.lib.util.PojoUtils.GetterChar;
+import com.datatorrent.lib.util.PojoUtils.GetterDouble;
+import com.datatorrent.lib.util.PojoUtils.GetterFloat;
+import com.datatorrent.lib.util.PojoUtils.GetterInt;
+import com.datatorrent.lib.util.PojoUtils.GetterLong;
+import com.datatorrent.lib.util.PojoUtils.GetterShort;
+import com.datatorrent.lib.util.PojoUtils.Setter;
+import com.datatorrent.lib.util.PojoUtils.SetterBoolean;
+import com.datatorrent.lib.util.PojoUtils.SetterByte;
+import com.datatorrent.lib.util.PojoUtils.SetterInt;
+import com.datatorrent.lib.util.PojoUtils.SetterLong;
+import com.datatorrent.lib.util.PojoUtils.SetterShort;
+
 import static com.datatorrent.lib.util.PojoUtils.constructGetter;
 import static com.datatorrent.lib.util.PojoUtils.constructSetter;
 import static com.datatorrent.lib.util.PojoUtils.createExpression;
@@ -44,26 +64,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.datatorrent.lib.expression.Expression;
-import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
-import com.datatorrent.lib.util.PojoUtils.GetterByte;
-import com.datatorrent.lib.util.PojoUtils.GetterChar;
-import com.datatorrent.lib.util.PojoUtils.GetterDouble;
-import com.datatorrent.lib.util.PojoUtils.GetterFloat;
-import com.datatorrent.lib.util.PojoUtils.GetterInt;
-import com.datatorrent.lib.util.PojoUtils.GetterLong;
-import com.datatorrent.lib.util.PojoUtils.Getter;
-import com.datatorrent.lib.util.PojoUtils.GetterShort;
-import com.datatorrent.lib.util.PojoUtils.Setter;
-import com.datatorrent.lib.util.PojoUtils.SetterBoolean;
-import com.datatorrent.lib.util.PojoUtils.SetterByte;
-import com.datatorrent.lib.util.PojoUtils.SetterInt;
-import com.datatorrent.lib.util.PojoUtils.SetterLong;
-import com.datatorrent.lib.util.PojoUtils.SetterShort;
 
 
 
@@ -288,7 +288,8 @@ public class PojoUtilsTest
     }
 
     @SuppressWarnings("unused")
-    public void setIntVal(Integer intVal) {
+    public void setIntVal(Integer intVal)
+    {
       intField = intVal;
     }
 
@@ -409,31 +410,33 @@ public class PojoUtilsTest
     assertEquals(8, testPojo.getIntVal());
 
     SetterByte<Object> setterByte = createSetterByte(testPojoClass, TestPojo.INT_FIELD_NAME);
-    setterByte.set(testPojo, (byte) 9);
+    setterByte.set(testPojo, (byte)9);
     assertEquals(9, testPojo.intField);
 
     setterByte = (SetterByte<Object>)constructSetter(testPojoClass, TestPojo.INT_FIELD_NAME, byte.class);
-    setterByte.set(testPojo, (byte) 10);
+    setterByte.set(testPojo, (byte)10);
     assertEquals(10, testPojo.intField);
 
     setterByte = createSetterByte(testPojoClass, TestPojo.INT_METHOD_NAME);
-    setterByte.set(testPojo, (byte) 11);
+    setterByte.set(testPojo, (byte)11);
     assertEquals(11, testPojo.getIntVal());
 
     setterByte = ((SetterByte<Object>)constructSetter(testPojoClass, TestPojo.INT_METHOD_NAME, byte.class));
-    setterByte.set(testPojo, (byte) 12);
+    setterByte.set(testPojo, (byte)12);
     assertEquals(12, testPojo.getIntVal());
 
-    createSetter(testPojoClass, TestPojo.INT_FIELD_NAME, Byte.class).set(testPojo, Byte.valueOf((byte) 13));
+    createSetter(testPojoClass, TestPojo.INT_FIELD_NAME, Byte.class).set(testPojo, Byte.valueOf((byte)13));
     assertEquals(13, testPojo.intField);
 
-    ((Setter<Object, Byte>)constructSetter(testPojoClass, TestPojo.INT_FIELD_NAME, Byte.class)).set(testPojo, Byte.valueOf((byte) 14));
+    ((Setter<Object, Byte>)constructSetter(testPojoClass, TestPojo.INT_FIELD_NAME, Byte.class)).set(testPojo,
+        Byte.valueOf((byte)14));
     assertEquals(14, testPojo.getIntVal());
 
-    createSetter(testPojoClass, TestPojo.INT_METHOD_NAME, Byte.class).set(testPojo, Byte.valueOf((byte) 15));
+    createSetter(testPojoClass, TestPojo.INT_METHOD_NAME, Byte.class).set(testPojo, Byte.valueOf((byte)15));
     assertEquals(15, testPojo.getIntVal());
 
-    ((Setter<Object, Byte>)constructSetter(testPojoClass, TestPojo.INT_METHOD_NAME, Byte.class)).set(testPojo, Byte.valueOf((byte) 16));
+    ((Setter<Object, Byte>)constructSetter(testPojoClass, TestPojo.INT_METHOD_NAME, Byte.class)).set(testPojo,
+        Byte.valueOf((byte)16));
     assertEquals(16, testPojo.getIntVal());
 
     SetterShort<Object> setterShort = createSetterShort(testPojoClass, TestPojo.INT_FIELD_NAME);
@@ -448,8 +451,8 @@ public class PojoUtilsTest
       @SuppressWarnings("unused")
       SetterLong<Object> setterLong = createSetterLong(testPojoClass, TestPojo.INT_FIELD_NAME);
       fail("long can't be assigned to the int field");
-    }
-    catch (Exception ignored) {
+    } catch (Exception ignored) {
+      //ignored
     }
 
   }

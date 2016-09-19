@@ -42,6 +42,8 @@ import com.datatorrent.netlet.util.Slice;
 
 /**
  * A bucket that groups events.
+ *
+ * @since 3.4.0
  */
 public interface Bucket extends ManagedStateComponent
 {
@@ -285,7 +287,6 @@ public interface Bucket extends ManagedStateComponent
         } else {
           //search all the time buckets
           for (BucketsFileSystem.TimeBucketMeta immutableTimeBucketMeta : cachedBucketMetas) {
-
             if (managedStateContext.getKeyComparator().compare(key, immutableTimeBucketMeta.getFirstKey()) >= 0) {
               //keys in the time bucket files are sorted so if the first key in the file is greater than the key being
               //searched, the key will not be present in that file.
@@ -400,16 +401,8 @@ public interface Bucket extends ManagedStateComponent
     @Override
     public long freeMemory(long windowId) throws IOException
     {
-      LOG.debug("free space {}", bucketId);
       long memoryFreed = 0;
-
-      for (Map.Entry<Long, Map<Slice, BucketedValue>> windowEntry : committedData.entrySet()) {
-        for (Map.Entry<Slice, BucketedValue> entry: windowEntry.getValue().entrySet()) {
-          memoryFreed += entry.getKey().length + entry.getValue().getValue().length;
-        }
-      }
-
-      Long clearWindowId = null;
+      Long clearWindowId;
 
       while ((clearWindowId = committedData.floorKey(windowId)) != null) {
         Map<Slice, BucketedValue> windowData = committedData.remove(clearWindowId);
@@ -432,6 +425,7 @@ public interface Bucket extends ManagedStateComponent
 
       }
       sizeInBytes.getAndAdd(-memoryFreed);
+      LOG.debug("space freed {} {}", bucketId, memoryFreed);
       return memoryFreed;
     }
 

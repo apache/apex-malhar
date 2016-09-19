@@ -65,7 +65,9 @@ import com.datatorrent.lib.util.UnifierHashMap;
  * @tags filter, key value, numeric
  *
  * @since 0.3.2
+ * @deprecated
  */
+@Deprecated
 @Stateless
 @OperatorAnnotation(partitionable = true)
 public class MatchMap<K,V extends Number> extends BaseMatchOperator<K, V>
@@ -88,8 +90,7 @@ public class MatchMap<K,V extends Number> extends BaseMatchOperator<K, V>
       }
       if (compareValue(v.doubleValue())) {
         tupleMatched(tuple);
-      }
-      else {
+      } else {
         tupleNotMatched(tuple);
       }
     }
@@ -98,7 +99,7 @@ public class MatchMap<K,V extends Number> extends BaseMatchOperator<K, V>
   /**
    * The output port which emits filtered key value pairs.
    */
-  @OutputPortFieldAnnotation(optional=true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<HashMap<K, V>> match = new DefaultOutputPort<HashMap<K, V>>()
   {
     @Override

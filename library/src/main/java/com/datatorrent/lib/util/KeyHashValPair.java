@@ -53,7 +53,7 @@ public class KeyHashValPair<K, V> extends KeyValPair<K, V>
     if (!(o instanceof Map.Entry)) {
       return false;
     }
-    Map.Entry e = (Map.Entry) o;
+    Map.Entry e = (Map.Entry)o;
     return (this.getKey() == null ? e.getKey() == null : this.getKey().equals(e.getKey()));
   }
 

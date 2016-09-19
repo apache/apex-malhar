@@ -28,6 +28,8 @@ import com.datatorrent.api.Context;
 
 /**
  * Wrapper class for TimeBased Store.
+ *
+ * @since 3.4.0
  */
 @InterfaceStability.Unstable
 public class InMemoryStore extends TimeBasedStore<TimeEvent> implements JoinStore

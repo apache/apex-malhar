@@ -19,14 +19,13 @@
 package com.datatorrent.lib.appdata.query.serde;
 
 import java.lang.annotation.Annotation;
-
 import java.util.Map;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 import com.datatorrent.lib.appdata.schemas.Result;
 import com.datatorrent.lib.appdata.schemas.ResultFormatter;
@@ -88,53 +87,42 @@ public class MessageSerializerFactory
     CustomMessageSerializer mcrs = clazzToCustomResultBuilder.get(result.getClass());
     Class<? extends Result> schema = result.getClass();
 
-    if(mcrs == null) {
+    if (mcrs == null) {
       Annotation[] ans = schema.getAnnotations();
 
       Class<? extends CustomMessageSerializer> crs = null;
       String type = null;
 
-      for(Annotation an: ans) {
-        if(an instanceof MessageSerializerInfo) {
-          if(crs != null) {
-            throw new UnsupportedOperationException("Cannot specify the "
-                    + MessageSerializerInfo.class
-                    + " annotation twice on the class: "
-                    + schema);
+      for (Annotation an : ans) {
+        if (an instanceof MessageSerializerInfo) {
+          if (crs != null) {
+            throw new UnsupportedOperationException("Cannot specify the " + MessageSerializerInfo.class
+                + " annotation twice on the class: " + schema);
           }
 
           crs = ((MessageSerializerInfo)an).clazz();
-        }
-        else if(an instanceof MessageType) {
-          if(type != null) {
-            throw new UnsupportedOperationException("Cannot specify the " +
-                                                    MessageType.class +
-                                                    " annotation twice on the class: " +
-                                                    schema);
+        } else if (an instanceof MessageType) {
+          if (type != null) {
+            throw new UnsupportedOperationException("Cannot specify the " + MessageType.class +
+                " annotation twice on the class: " + schema);
           }
 
-          type = ((MessageType) an).type();
+          type = ((MessageType)an).type();
         }
       }
 
-      if(crs == null) {
-        throw new UnsupportedOperationException("No " + MessageSerializerInfo.class
-                + " annotation found on class: "
-                + schema);
+      if (crs == null) {
+        throw new UnsupportedOperationException("No " + MessageSerializerInfo.class + " annotation found on class: "
+            + schema);
       }
 
-      if(type == null) {
-        throw new UnsupportedOperationException("No " + MessageType.class +
-                                                " annotation found on class " + schema);
+      if (type == null) {
+        throw new UnsupportedOperationException("No " + MessageType.class + " annotation found on class " + schema);
       }
 
       try {
         mcrs = crs.newInstance();
-      }
-      catch(InstantiationException ex) {
-        throw new RuntimeException(ex);
-      }
-      catch(IllegalAccessException ex) {
+      } catch (InstantiationException | IllegalAccessException ex) {
         throw new RuntimeException(ex);
       }
 

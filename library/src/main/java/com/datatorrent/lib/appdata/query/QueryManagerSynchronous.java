@@ -59,7 +59,7 @@ public class QueryManagerSynchronous<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESU
   }
 
   private QueryManagerSynchronous(QueryExecutor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> queryComputer,
-                                  QueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager)
+      QueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager)
   {
     setQueryExecutor(queryComputer);
     setQueryQueueManager(queryQueueManager);
@@ -107,15 +107,14 @@ public class QueryManagerSynchronous<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESU
     do {
       QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryBundle = queryQueueManager.dequeue();
 
-      if(queryBundle == null) {
+      if (queryBundle == null) {
         return null;
       }
 
-      result = queryExecutor.executeQuery(queryBundle.getQuery(),
-                                          queryBundle.getMetaQuery(),
-                                          queryBundle.getQueueContext());
+      result = queryExecutor.executeQuery(queryBundle.getQuery(), queryBundle.getMetaQuery(),
+          queryBundle.getQueueContext());
     }
-    while(result == null);
+    while (result == null);
 
     return result;
   }
@@ -169,9 +168,8 @@ public class QueryManagerSynchronous<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESU
    * @param queryExecutor The {@link QueryExecutor} the queryExecutor used to execute queries.
    * @return A new instance of QueryManagerSynchronous.
    */
-  public static <QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT>
-  QueryManagerSynchronous<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT>
-  newInstance(QueryExecutor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> queryExecutor)
+  public static <QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> QueryManagerSynchronous<QUERY_TYPE, META_QUERY,
+      QUEUE_CONTEXT, RESULT> newInstance(QueryExecutor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> queryExecutor)
   {
     return new QueryManagerSynchronous<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT>(queryExecutor);
   }
@@ -186,10 +184,9 @@ public class QueryManagerSynchronous<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESU
    * @param queryQueueManager The {@link QueueManager} used to queue queries.
    * @return A new instance of QueryManagerSynchronous.
    */
-  public static <QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT>
-  QueryManagerSynchronous<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT>
-  newInstance(QueryExecutor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> queryExecutor,
-              QueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager)
+  public static <QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> QueryManagerSynchronous<QUERY_TYPE, META_QUERY,
+      QUEUE_CONTEXT, RESULT> newInstance(QueryExecutor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> queryExecutor,
+      QueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager)
   {
     return new QueryManagerSynchronous<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT>(queryExecutor,
       queryQueueManager);

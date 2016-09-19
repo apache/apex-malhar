@@ -21,14 +21,13 @@ package com.datatorrent.lib.math;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.StreamCodec;
 import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 import com.datatorrent.lib.util.HighLow;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.UnifierKeyValRange;
-
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.StreamCodec;
 
 /**
  *  This operator emits the range for each key at the end of window.
@@ -50,83 +49,82 @@ import com.datatorrent.api.StreamCodec;
  * @tags range, number, comparison, key value
  * @since 0.3.3
  */
-public class RangeKeyVal<K, V extends Number> extends
-		BaseNumberKeyValueOperator<K, V>
+public class RangeKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
 
-	/**
-	 * key/high value map.
-	 */
-	protected HashMap<K, V> high = new HashMap<K, V>();
+  /**
+   * key/high value map.
+   */
+  protected HashMap<K, V> high = new HashMap<K, V>();
 
-	/**
-	 * key/low value map.
-	 */
-	protected HashMap<K, V> low = new HashMap<K, V>();
+  /**
+   * key/low value map.
+   */
+  protected HashMap<K, V> low = new HashMap<K, V>();
 
-	/**
-	 *  Input port that takes a key value pair.
-	 */
-	public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
-	{
-		/**
-		 * Process each key and computes new high and low.
-		 */
-		@Override
-		public void process(KeyValPair<K, V> tuple)
-		{
-			K key = tuple.getKey();
-			if (!doprocessKey(key) || (tuple.getValue() == null)) {
-				return;
-			}
-			V val = low.get(key);
-			V eval = tuple.getValue();
-			if ((val == null) || (val.doubleValue() > eval.doubleValue())) {
-				low.put(cloneKey(key), eval);
-			}
+  /**
+   *  Input port that takes a key value pair.
+   */
+  public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
+  {
+    /**
+     * Process each key and computes new high and low.
+     */
+    @Override
+    public void process(KeyValPair<K, V> tuple)
+    {
+      K key = tuple.getKey();
+      if (!doprocessKey(key) || (tuple.getValue() == null)) {
+        return;
+      }
+      V val = low.get(key);
+      V eval = tuple.getValue();
+      if ((val == null) || (val.doubleValue() > eval.doubleValue())) {
+        low.put(cloneKey(key), eval);
+      }
 
-			val = high.get(key);
-			if ((val == null) || (val.doubleValue() < eval.doubleValue())) {
-				high.put(cloneKey(key), eval);
-			}
-		}
+      val = high.get(key);
+      if ((val == null) || (val.doubleValue() < eval.doubleValue())) {
+        high.put(cloneKey(key), eval);
+      }
+    }
 
-		@Override
-		public StreamCodec<KeyValPair<K, V>> getStreamCodec()
-		{
-			return getKeyValPairStreamCodec();
-		}
-	};
+    @Override
+    public StreamCodec<KeyValPair<K, V>> getStreamCodec()
+    {
+      return getKeyValPairStreamCodec();
+    }
+  };
 
-	/**
-	 * Range output port to send out the high low range.
-	 */
-	public final transient DefaultOutputPort<KeyValPair<K, HighLow<V>>> range = new DefaultOutputPort<KeyValPair<K, HighLow<V>>>()
-	{
-		@Override
-		public Unifier<KeyValPair<K, HighLow<V>>> getUnifier()
-		{
-			return new UnifierKeyValRange<K,V>();
-		}
-	};
+  /**
+   * Range output port to send out the high low range.
+   */
+  public final transient DefaultOutputPort<KeyValPair<K, HighLow<V>>> range = new DefaultOutputPort<KeyValPair<K, HighLow<V>>>()
+  {
+    @Override
+    public Unifier<KeyValPair<K, HighLow<V>>> getUnifier()
+    {
+      return new UnifierKeyValRange<K,V>();
+    }
+  };
 
-	/**
-	 * Emits range for each key. If no data is received, no emit is done Clears
-	 * the internal data before return
-	 */
-	@Override
-	public void endWindow()
-	{
-		for (Map.Entry<K, V> e : high.entrySet()) {
-			range.emit(new KeyValPair<K, HighLow<V>>(e.getKey(), new HighLow(e
-					.getValue(), low.get(e.getKey()))));
-		}
-		clearCache();
-	}
+  /**
+   * Emits range for each key. If no data is received, no emit is done Clears
+   * the internal data before return
+   */
+  @Override
+  public void endWindow()
+  {
+    for (Map.Entry<K, V> e : high.entrySet()) {
+      range.emit(new KeyValPair<K, HighLow<V>>(e.getKey(), new HighLow(e
+          .getValue(), low.get(e.getKey()))));
+    }
+    clearCache();
+  }
 
-	public void clearCache()
-	{
-		high.clear();
-		low.clear();
-	}
+  public void clearCache()
+  {
+    high.clear();
+    low.clear();
+  }
 }

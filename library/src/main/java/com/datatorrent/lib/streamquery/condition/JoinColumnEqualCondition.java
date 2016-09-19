@@ -23,7 +23,6 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
-
 /**
  * An implementation of equal join condition class.
  * <p>
@@ -48,7 +47,8 @@ public class JoinColumnEqualCondition  extends Condition
   @NotNull
   private String column2;
 
-  public JoinColumnEqualCondition(@NotNull String column1,@NotNull String column2) {
+  public JoinColumnEqualCondition(@NotNull String column1, @NotNull String column2)
+  {
     this.column1 = column1;
     this.column2 = column2;
   }
@@ -59,7 +59,7 @@ public class JoinColumnEqualCondition  extends Condition
   @Override
   public boolean isValidRow(Map<String, Object> row)
   {
-    assert(false);
+    assert (false);
     return false;
   }
 
@@ -69,7 +69,9 @@ public class JoinColumnEqualCondition  extends Condition
   @Override
   public boolean isValidJoin(Map<String, Object> row1, Map<String, Object> row2)
   {
-    if (!row1.containsKey(column1) || !row2.containsKey(column2)) return false;
+    if (!row1.containsKey(column1) || !row2.containsKey(column2)) {
+      return false;
+    }
     Object value1 = row1.get(column1);
     Object value2 = row2.get(column2);
     return value1.equals(value2);

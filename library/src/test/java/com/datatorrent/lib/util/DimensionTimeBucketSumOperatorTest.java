@@ -18,20 +18,21 @@
  */
 package com.datatorrent.lib.util;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.mutable.MutableDouble;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.commons.lang.mutable.MutableDouble;
+
 import com.google.common.collect.Maps;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class DimensionTimeBucketSumOperatorTest
@@ -69,8 +70,8 @@ public class DimensionTimeBucketSumOperatorTest
     dimensionKey.add("url");
     try {
       oper.addCombination(dimensionKey);
-    }
-    catch (NoSuchFieldException e) {
+    } catch (NoSuchFieldException e) {
+      //ignored
     }
     oper.setTimeBucketFlags(AbstractDimensionTimeBucketOperator.TIMEBUCKET_MINUTE);
     oper.setup(null);

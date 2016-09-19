@@ -41,37 +41,37 @@ import com.datatorrent.netlet.util.Slice;
  */
 public class JavaSerializationStreamCodec<T extends Serializable> implements StreamCodec<T>, Serializable
 {
-	@Override
-	public Object fromByteArray(Slice fragment)
-	{
-		ByteArrayInputStream bis = new ByteArrayInputStream(fragment.buffer,
-				fragment.offset, fragment.length);
-		try {
-			ObjectInputStream ois = new ObjectInputStream(bis);
-			return ois.readObject();
-		} catch (Exception ioe) {
-			throw new RuntimeException(ioe);
-		}
-	}
+  @Override
+  public Object fromByteArray(Slice fragment)
+  {
+    ByteArrayInputStream bis = new ByteArrayInputStream(fragment.buffer,
+        fragment.offset, fragment.length);
+    try {
+      ObjectInputStream ois = new ObjectInputStream(bis);
+      return ois.readObject();
+    } catch (Exception ioe) {
+      throw new RuntimeException(ioe);
+    }
+  }
 
-	@Override
-	public Slice toByteArray(T object)
-	{
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		try {
-			ObjectOutputStream oos = new ObjectOutputStream(bos);
-			oos.writeObject(object);
-			oos.flush();
-			byte[] buffer = bos.toByteArray();
-			return new Slice(buffer, 0, buffer.length);
-		} catch (IOException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
+  @Override
+  public Slice toByteArray(T object)
+  {
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    try {
+      ObjectOutputStream oos = new ObjectOutputStream(bos);
+      oos.writeObject(object);
+      oos.flush();
+      byte[] buffer = bos.toByteArray();
+      return new Slice(buffer, 0, buffer.length);
+    } catch (IOException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
 
-	@Override
-	public int getPartition(T o)
-	{
-		return o.hashCode();
-	}
+  @Override
+  public int getPartition(T o)
+  {
+    return o.hashCode();
+  }
 }

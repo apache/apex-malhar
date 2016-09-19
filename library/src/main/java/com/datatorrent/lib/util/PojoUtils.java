@@ -18,24 +18,27 @@
  */
 package com.datatorrent.lib.util;
 
-import com.datatorrent.lib.expression.Expression;
-import com.datatorrent.lib.expression.JavaExpressionParser;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.codehaus.commons.compiler.CompileException;
-import org.codehaus.commons.compiler.CompilerFactoryFactory;
-import org.codehaus.commons.compiler.IScriptEvaluator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import org.codehaus.commons.compiler.CompileException;
+import org.codehaus.commons.compiler.CompilerFactoryFactory;
+import org.codehaus.commons.compiler.IScriptEvaluator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+
+import com.datatorrent.lib.expression.Expression;
+import com.datatorrent.lib.expression.JavaExpressionParser;
 
 /**
  * @since 2.1.0
@@ -135,7 +138,8 @@ public class PojoUtils
   @SuppressWarnings("unchecked")
   public static <T> GetterBoolean<T> createGetterBoolean(Class<? extends T> pojoClass, String getterExpr, String exprObjectPlaceholder)
   {
-    return (GetterBoolean<T>) createGetter(pojoClass, getterExpr, exprObjectPlaceholder, boolean.class, GetterBoolean.class);
+    return (GetterBoolean<T>)createGetter(pojoClass, getterExpr, exprObjectPlaceholder, boolean.class,
+        GetterBoolean.class);
   }
 
   public static <T> GetterByte<T> createGetterByte(Class<? extends T> pojoClass, String getterExpr)
@@ -146,7 +150,7 @@ public class PojoUtils
   @SuppressWarnings("unchecked")
   public static <T> GetterByte<T> createGetterByte(Class<? extends T> pojoClass, String getterExpr, String exprObjectPlaceholder)
   {
-    return (GetterByte<T>) createGetter(pojoClass, getterExpr, exprObjectPlaceholder, byte.class, GetterByte.class);
+    return (GetterByte<T>)createGetter(pojoClass, getterExpr, exprObjectPlaceholder, byte.class, GetterByte.class);
   }
 
   public static <T> GetterChar<T> createGetterChar(Class<? extends T> pojoClass, String getterExpr)
@@ -157,7 +161,7 @@ public class PojoUtils
   @SuppressWarnings({ "unchecked"})
   public static <T> GetterChar<T> createGetterChar(Class<? extends T> pojoClass, String getterExpr, String exprObjectPlaceholder)
   {
-    return (GetterChar<T>) createGetter(pojoClass, getterExpr, exprObjectPlaceholder, char.class, GetterChar.class);
+    return (GetterChar<T>)createGetter(pojoClass, getterExpr, exprObjectPlaceholder, char.class, GetterChar.class);
   }
 
   public static <T> GetterShort<T> createGetterShort(Class<? extends T> pojoClass, String getterExpr)
@@ -168,7 +172,7 @@ public class PojoUtils
   @SuppressWarnings("unchecked")
   public static <T> GetterShort<T> createGetterShort(Class<? extends T> pojoClass, String getterExpr, String exprObjectPlaceholder)
   {
-    return (GetterShort<T>) createGetter(pojoClass, getterExpr, exprObjectPlaceholder, short.class, GetterShort.class);
+    return (GetterShort<T>)createGetter(pojoClass, getterExpr, exprObjectPlaceholder, short.class, GetterShort.class);
   }
 
   public static <T> GetterInt<T> createGetterInt(Class<? extends T> pojoClass, String getterExpr)
@@ -179,7 +183,7 @@ public class PojoUtils
   @SuppressWarnings("unchecked")
   public static <T> GetterInt<T> createGetterInt(Class<? extends T> pojoClass, String getterExpr, String exprObjectPlaceholder)
   {
-    return (GetterInt<T>) createGetter(pojoClass, getterExpr, exprObjectPlaceholder, int.class, GetterInt.class);
+    return (GetterInt<T>)createGetter(pojoClass, getterExpr, exprObjectPlaceholder, int.class, GetterInt.class);
   }
 
   public static <T> GetterLong<T> createGetterLong(Class<? extends T> pojoClass, String getterExpr)
@@ -190,7 +194,7 @@ public class PojoUtils
   @SuppressWarnings("unchecked")
   public static <T> GetterLong<T> createGetterLong(Class<? extends T> pojoClass, String getterExpr, String exprObjectPlaceholder)
   {
-    return (GetterLong<T>) createGetter(pojoClass, getterExpr, exprObjectPlaceholder, long.class, GetterLong.class);
+    return (GetterLong<T>)createGetter(pojoClass, getterExpr, exprObjectPlaceholder, long.class, GetterLong.class);
   }
 
   public static <T> GetterFloat<T> createGetterFloat(Class<? extends T> pojoClass, String getterExpr)
@@ -201,7 +205,7 @@ public class PojoUtils
   @SuppressWarnings("unchecked")
   public static <T> GetterFloat<T> createGetterFloat(Class<? extends T> pojoClass, String getterExpr, String exprObjectPlaceholder)
   {
-    return (GetterFloat<T>) createGetter(pojoClass, getterExpr, exprObjectPlaceholder, float.class, GetterFloat.class);
+    return (GetterFloat<T>)createGetter(pojoClass, getterExpr, exprObjectPlaceholder, float.class, GetterFloat.class);
   }
 
   public static <T> GetterDouble<T> createGetterDouble(Class<? extends T> pojoClass, String getterExpr)
@@ -212,7 +216,8 @@ public class PojoUtils
   @SuppressWarnings("unchecked")
   public static <T> GetterDouble<T> createGetterDouble(Class<? extends T> pojoClass, String getterExpr, String exprObjectPlaceholder)
   {
-    return (GetterDouble<T>) createGetter(pojoClass, getterExpr, exprObjectPlaceholder, double.class, GetterDouble.class);
+    return (GetterDouble<T>)createGetter(pojoClass, getterExpr, exprObjectPlaceholder, double.class,
+        GetterDouble.class);
   }
 
   public static <T, V> Getter<T, V> createGetter(Class<? extends T> pojoClass, String getterExpr, Class<? extends V> exprClass)
@@ -227,7 +232,7 @@ public class PojoUtils
       throw new IllegalArgumentException("createGetter does not allow primitive class \"" + exprClass.getName() +
               "\" for exprClass argument. Use createGetter" + upperCaseWord(exprClass.getName()) + " or constructGetter().");
     }
-    return (Getter<T, V>) createGetter(pojoClass, getterExpr, exprObjectPlaceholder, exprClass, Getter.class);
+    return (Getter<T, V>)createGetter(pojoClass, getterExpr, exprObjectPlaceholder, exprClass, Getter.class);
   }
 
   public static Object constructGetter(Class<?> pojoClass, String getterExpr, Class<?> exprClass)
@@ -334,7 +339,8 @@ public class PojoUtils
   @SuppressWarnings("unchecked")
   public static <T> SetterBoolean<T> createSetterBoolean(Class<? extends T> pojoClass, String setterExpr, String exprObjectPlaceholder, String exprValuePlaceholder)
   {
-    return (SetterBoolean<T>) createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValuePlaceholder, boolean.class, SetterBoolean.class);
+    return (SetterBoolean<T>)createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValuePlaceholder,
+        boolean.class, SetterBoolean.class);
   }
 
   public static <T> SetterByte<T> createSetterByte(Class<? extends T> pojoClass, String setterExpr)
@@ -345,7 +351,8 @@ public class PojoUtils
   @SuppressWarnings("unchecked")
   public static <T> SetterByte<T> createSetterByte(Class<? extends T> pojoClass, String setterExpr, String exprObjectPlaceholder, String exprValuePlaceholder)
   {
-    return (SetterByte<T>) createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValuePlaceholder, byte.class, SetterByte.class);
+    return (SetterByte<T>)createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValuePlaceholder, byte.class,
+        SetterByte.class);
   }
 
   public static <T> SetterChar<T> createSetterChar(Class<? extends T> pojoClass, String setterExpr)
@@ -356,7 +363,8 @@ public class PojoUtils
   @SuppressWarnings("unchecked")
   public static <T> SetterChar<T> createSetterChar(Class<? extends T> pojoClass, String setterExpr, String exprObjectPlaceholder, String exprValuePlaceholder)
   {
-    return (SetterChar<T>) createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValuePlaceholder, char.class, SetterChar.class);
+    return (SetterChar<T>)createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValuePlaceholder, char.class,
+        SetterChar.class);
   }
 
   public static <T> SetterShort<T> createSetterShort(Class<? extends T> pojoClass, String setterExpr)
@@ -367,7 +375,8 @@ public class PojoUtils
   @SuppressWarnings("unchecked")
   public static <T> SetterShort<T> createSetterShort(Class<? extends T> pojoClass, String setterExpr, String exprObjectPlaceholder, String exprValuePlaceholder)
   {
-    return (SetterShort<T>) createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValuePlaceholder, short.class, SetterShort.class);
+    return (SetterShort<T>)createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValuePlaceholder, short.class,
+        SetterShort.class);
   }
 
   public static <T> SetterInt<T> createSetterInt(Class<? extends T> pojoClass, String setterExpr)
@@ -378,7 +387,8 @@ public class PojoUtils
   @SuppressWarnings("unchecked")
   public static <T> SetterInt<T> createSetterInt(Class<? extends T> pojoClass, String setterExpr, String exprObjectPlaceholder, String exprValuePlaceholder)
   {
-    return (SetterInt<T>) createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValuePlaceholder, int.class, SetterInt.class);
+    return (SetterInt<T>)createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValuePlaceholder, int.class,
+        SetterInt.class);
   }
 
   public static <T> SetterLong<T> createSetterLong(Class<? extends T> pojoClass, String setterExpr)
@@ -389,7 +399,8 @@ public class PojoUtils
   @SuppressWarnings("unchecked")
   public static <T> SetterLong<T> createSetterLong(Class<? extends T> pojoClass, String setterExpr, String exprObjectPlaceholder, String exprValuePlaceholder)
   {
-    return (SetterLong<T>) createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValuePlaceholder, long.class, SetterLong.class);
+    return (SetterLong<T>)createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValuePlaceholder, long.class,
+        SetterLong.class);
   }
 
   public static <T> SetterFloat<T> createSetterFloat(Class<? extends T> pojoClass, String setterExpr)
@@ -400,7 +411,8 @@ public class PojoUtils
   @SuppressWarnings("unchecked")
   public static <T> SetterFloat<T> createSetterFloat(Class<? extends T> pojoClass, String setterExpr, String exprObjectPlaceholder, String exprValuePlaceholder)
   {
-    return (SetterFloat<T>) createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValuePlaceholder, float.class, SetterFloat.class);
+    return (SetterFloat<T>)createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValuePlaceholder, float.class,
+        SetterFloat.class);
   }
 
   public static <T> SetterDouble<T> createSetterDouble(Class<? extends T> pojoClass, String setterExpr)
@@ -411,25 +423,28 @@ public class PojoUtils
   @SuppressWarnings("unchecked")
   public static <T> SetterDouble<T> createSetterDouble(Class<? extends T> pojoClass, String setterExpr, String exprObjectPlaceholder, String exprValuePlaceholder)
   {
-    return (SetterDouble<T>) createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValuePlaceholder, double.class, SetterDouble.class);
+    return (SetterDouble<T>)createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValuePlaceholder,
+        double.class, SetterDouble.class);
   }
 
-  public static <T, V> Setter<T, V> createSetter(Class<? extends T>pojoClass, String setterExpr, Class<? extends V> exprClass)
+  public static <T, V> Setter<T, V> createSetter(Class<? extends T> pojoClass, String setterExpr, Class<? extends V> exprClass)
   {
     return createSetter(pojoClass, setterExpr, DEFAULT_EXP_OBJECT_PLACEHOLDER, DEFAULT_EXP_VAL_PLACEHOLDER, exprClass);
   }
 
   @SuppressWarnings("unchecked")
-  public static <T, V> Setter<T, V> createSetter(Class<? extends T>pojoClass, String setterExpr, String exprObjectPlaceholder, String exprValuePlaceholder, Class<? extends V> exprClass)
+  public static <T, V> Setter<T, V> createSetter(Class<? extends T> pojoClass, String setterExpr, String exprObjectPlaceholder, String exprValuePlaceholder, Class<? extends V> exprClass)
   {
     if (primitiveClassToSetterInterface.get(exprClass) != null) {
       throw new IllegalArgumentException("createSetter does not allow primitive class \"" + exprClass.getName() +
               "\" for exprClass argument. Use createSetter" + upperCaseWord(exprClass.getName()) + " or constructSetter().");
     }
-    return (Setter<T, V>) createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValuePlaceholder, exprClass, Setter.class);
+    return (Setter<T, V>)createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValuePlaceholder, exprClass,
+        Setter.class);
   }
 
-  public static Object constructSetter(Class<?> pojoClass, String setterExpr, Class<?> exprClass) {
+  public static Object constructSetter(Class<?> pojoClass, String setterExpr, Class<?> exprClass)
+  {
     return constructSetter(pojoClass, setterExpr, DEFAULT_EXP_OBJECT_PLACEHOLDER, DEFAULT_EXP_VAL_PLACEHOLDER, exprClass);
   }
 
@@ -449,35 +464,42 @@ public class PojoUtils
     return createSetter(pojoClass, setterExpr, exprObjectPlaceholder, exprValPlaceholder, exprClass, interfaceToImplement);
   }
 
-  private static class JavaStatement {
+  private static class JavaStatement
+  {
     private final StringBuilder javaStatement;
     private final int capacity;
 
-    private JavaStatement() {
+    private JavaStatement()
+    {
       javaStatement = new StringBuilder();
       capacity = javaStatement.capacity();
     }
 
-    private JavaStatement(int length) {
+    private JavaStatement(int length)
+    {
       javaStatement = new StringBuilder(length);
       capacity = javaStatement.capacity();
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
       return javaStatement.toString();
     }
 
-    protected JavaStatement append(String string) {
+    protected JavaStatement append(String string)
+    {
       javaStatement.append(string);
       return this;
     }
 
-    private JavaStatement appendCastToTypeExpr(Class<?> type, String expr) {
+    private JavaStatement appendCastToTypeExpr(Class<?> type, String expr)
+    {
       return append("((").append(type.getName()).append(")(").append(expr).append("))");
     }
 
-    protected String getStatement() {
+    protected String getStatement()
+    {
       if (capacity < javaStatement.length() + 1) {
         logger.debug("Java statement capacity {} was not sufficient for the statement length {}. Actual statement {}", capacity, javaStatement.length(), javaStatement);
       }
@@ -485,19 +507,23 @@ public class PojoUtils
     }
   }
 
-  private static class JavaReturnStatement extends JavaStatement {
-    private JavaReturnStatement(Class<?> returnType) {
+  private static class JavaReturnStatement extends JavaStatement
+  {
+    private JavaReturnStatement(Class<?> returnType)
+    {
       super();
       append("return (").append(returnType.getName()).append(")");
     }
 
-    private JavaReturnStatement(int length, Class<?> returnType) {
+    private JavaReturnStatement(int length, Class<?> returnType)
+    {
       super(length);
       append("return ((").append(returnType.getName()).append(")");
     }
 
     @Override
-    protected String getStatement() {
+    protected String getStatement()
+    {
       append(")");
       return super.getStatement();
     }
@@ -543,13 +569,10 @@ public class PojoUtils
         return code.append(methodName).append("()").getStatement();
       }
       logger.debug("method {} of the {} returns {} that can not be assigned to {}. Proceeding to locate another getter method.",
-              pojoClass, methodName, method.getReturnType(), exprClass);
-    } catch (NoSuchMethodException ex) {
+          pojoClass, methodName, method.getReturnType(), exprClass);
+    } catch (NoSuchMethodException | SecurityException ex) {
       logger.debug("{} does not have method {}. Proceeding to locate another getter method.",
-              pojoClass, methodName);
-    } catch (SecurityException ex) {
-      logger.debug("{} does not have method {}. Proceeding to locate another getter method.",
-              pojoClass, methodName);
+          pojoClass, methodName);
     }
 
     methodName = IS + upperCaseWord(fieldExpression);
@@ -559,13 +582,10 @@ public class PojoUtils
         return code.append(methodName).append("()").getStatement();
       }
       logger.debug("method {} of the {} returns {} that can not be assigned to {}. Proceeding with the original expression {}.",
-              pojoClass, methodName, method.getReturnType(), exprClass, fieldExpression);
-    } catch (NoSuchMethodException ex) {
+          pojoClass, methodName, method.getReturnType(), exprClass, fieldExpression);
+    } catch (NoSuchMethodException | SecurityException ex) {
       logger.debug("{} does not have method {}. Proceeding with the original expression {}.",
-              pojoClass, methodName, fieldExpression);
-    } catch (SecurityException ex) {
-      logger.debug("{} does not have method {}. Proceeding with the original expression {}.",
-              pojoClass, methodName, fieldExpression);
+          pojoClass, methodName, fieldExpression);
     }
 
     return code.append(fieldExpression).getStatement();
@@ -612,8 +632,7 @@ public class PojoUtils
           if (exprClass == parameterTypes[0]) {
             bestMatchMethod = method;
             break;
-          }
-          else if (ClassUtils.isAssignable(exprClass, parameterTypes[0])) {
+          } else if (ClassUtils.isAssignable(exprClass, parameterTypes[0])) {
             candidates.add(method);
           }
         }
@@ -623,7 +642,7 @@ public class PojoUtils
     if (bestMatchMethod == null) { // We did not find the exact match, use candidates to find the match
       if (candidates.size() == 0) {
         logger.debug("{} does not have suitable setter method {}. Returning original expression {}.",
-                pojoClass, setMethodName, fieldExpression);
+            pojoClass, setMethodName, fieldExpression);
         /* We did not find any match at all, use original expression */
         /* append = (<expr type>)val;*/
         return code.append(fieldExpression).append(" = ").appendCastToTypeExpr(exprClass, VAL).getStatement();
@@ -654,12 +673,11 @@ public class PojoUtils
 
 
     String code = StringUtils.replaceEach(setterExpr, new String[]{exprObjectPlaceholder, exprValPlaceholder},
-            new String[]{new JavaStatement().appendCastToTypeExpr(pojoClass, OBJECT).toString(), new JavaStatement().appendCastToTypeExpr(exprClass, VAL).toString()});
+        new String[]{new JavaStatement().appendCastToTypeExpr(pojoClass, OBJECT).toString(), new JavaStatement().appendCastToTypeExpr(exprClass, VAL).toString()});
     if (code != setterExpr) {
       code = new JavaStatement(code.length() + 1).append(code).getStatement();
       logger.debug("Original expression {} is a complex expression. Replacing it with {}.", setterExpr, code);
-    }
-    else {
+    } else {
       code = getSingleFieldSetterExpression(pojoClass, setterExpr, exprClass);
     }
 

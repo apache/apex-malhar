@@ -33,6 +33,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
+
 import com.datatorrent.contrib.helper.CollectorModule;
 import com.datatorrent.contrib.helper.MessageQueueTestHelper;
 import com.datatorrent.api.Context.OperatorContext;
@@ -41,7 +43,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -127,7 +128,7 @@ public class RabbitMQInputOperatorTest
     LocalMode lma = LocalMode.newInstance();
     DAG dag = lma.getDAG();
     RabbitMQInputOperator consumer = dag.addOperator("Consumer", RabbitMQInputOperator.class);
-    consumer.setIdempotentStorageManager(new IdempotentStorageManager.FSIdempotentStorageManager());
+    consumer.setWindowDataManager(new FSWindowDataManager());
 
     final CollectorModule<byte[]> collector = dag.addOperator("Collector", new CollectorModule<byte[]>());
 
@@ -188,7 +189,7 @@ public class RabbitMQInputOperatorTest
   public void testRecoveryAndIdempotency() throws Exception
   {
     RabbitMQInputOperator operator = new RabbitMQInputOperator();
-    operator.setIdempotentStorageManager(new IdempotentStorageManager.FSIdempotentStorageManager());
+    operator.setWindowDataManager(new FSWindowDataManager());
     operator.setHost("localhost");
     operator.setExchange("testEx");
     operator.setExchangeType("fanout");
@@ -220,7 +221,7 @@ public class RabbitMQInputOperatorTest
     operator.setup(context);
     operator.activate(context);
 
-    Assert.assertEquals("largest recovery window", 1, operator.getIdempotentStorageManager().getLargestRecoveryWindow());
+    Assert.assertEquals("largest recovery window", 1, operator.getWindowDataManager().getLargestCompletedWindow());
     operator.beginWindow(1);
     operator.endWindow();
     Assert.assertEquals("num of messages in window 1", 15, sink.collectedTuples.size());
@@ -228,7 +229,7 @@ public class RabbitMQInputOperatorTest
 
     operator.deactivate();
     operator.teardown();
-    operator.getIdempotentStorageManager().deleteUpTo(context.getId(), 1);
+    operator.getWindowDataManager().committed(1);
     publisher.teardown();
   }
 }

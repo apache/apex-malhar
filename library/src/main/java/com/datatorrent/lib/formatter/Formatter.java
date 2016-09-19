@@ -18,6 +18,9 @@
  */
 package com.datatorrent.lib.formatter;
 
+import com.google.common.annotations.VisibleForTesting;
+
+import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DefaultInputPort;
@@ -40,13 +43,20 @@ import com.datatorrent.lib.converter.Converter;
  * 
  * @displayName Parser
  * @tags parser converter
- * @param <INPUT>
+ * @param <OUTPUT>
  * @since 3.2.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class Formatter<OUTPUT> extends BaseOperator implements Converter<Object, OUTPUT>
 {
   protected transient Class<?> clazz;
+
+  @AutoMetric
+  private long errorTupleCount;
+  @AutoMetric
+  private long emittedObjectCount;
+  @AutoMetric
+  private long incomingTuplesCount;
 
   @OutputPortFieldAnnotation
   public transient DefaultOutputPort<OUTPUT> out = new DefaultOutputPort<OUTPUT>();
@@ -65,16 +75,27 @@ public abstract class Formatter<OUTPUT> extends BaseOperator implements Converte
     @Override
     public void process(Object inputTuple)
     {
+      incomingTuplesCount++;
       OUTPUT tuple = convert(inputTuple);
       if (tuple == null && err.isConnected()) {
+        errorTupleCount++;
         err.emit(inputTuple);
         return;
       }
       if (out.isConnected()) {
+        emittedObjectCount++;
         out.emit(tuple);
       }
     }
   };
+
+  @Override
+  public void beginWindow(long windowId)
+  {
+    errorTupleCount = 0;
+    emittedObjectCount = 0;
+    incomingTuplesCount = 0;
+  }
 
   /**
    * Get the class that needs to be formatted
@@ -95,4 +116,23 @@ public abstract class Formatter<OUTPUT> extends BaseOperator implements Converte
   {
     this.clazz = clazz;
   }
+
+  @VisibleForTesting
+  protected long getErrorTupleCount()
+  {
+    return errorTupleCount;
+  }
+
+  @VisibleForTesting
+  protected long getEmittedObjectCount()
+  {
+    return emittedObjectCount;
+  }
+
+  @VisibleForTesting
+  protected long getIncomingTuplesCount()
+  {
+    return incomingTuplesCount;
+  }
+
 }

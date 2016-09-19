@@ -24,7 +24,7 @@
   <parent>
     <artifactId>malhar-demos</artifactId>
     <groupId>org.apache.apex</groupId>
-    <version>3.4.0-incubating-SNAPSHOT</version>
+    <version>3.6.0-SNAPSHOT</version>
   </parent>
   
   <groupId>org.apache.apex</groupId>
@@ -32,7 +32,7 @@
   <packaging>jar</packaging>
 
   <!-- change these to the appropriate values -->
-  <name>Apache Apex Malhar (incubating) EchoServer Demo</name>
+  <name>Apache Apex Malhar EchoServer Demo</name>
   <description>A demo server that echos data sent by a network client back to it</description>
 </project>
 

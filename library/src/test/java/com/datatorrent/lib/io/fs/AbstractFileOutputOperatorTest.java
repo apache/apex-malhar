@@ -18,20 +18,32 @@
  */
 package com.datatorrent.lib.io.fs;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.zip.GZIPInputStream;
 
 import javax.annotation.Nonnull;
-import javax.crypto.*;
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.validation.ConstraintViolationException;
-
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-import com.google.common.io.LimitInputStream;
 
 import org.junit.Assert;
 import org.junit.Rule;
@@ -44,13 +56,20 @@ import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import com.google.common.io.LimitInputStream;
+
+import com.datatorrent.api.Attribute;
+import com.datatorrent.api.Context;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.RandomWordGenerator;
 import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
-
-import com.datatorrent.api.*;
-
 import com.datatorrent.netlet.util.DTThrowable;
 
 public class AbstractFileOutputOperatorTest
@@ -61,7 +80,8 @@ public class AbstractFileOutputOperatorTest
   private static final String EVEN_FILE = "even.txt";
   private static final String ODD_FILE = "odd.txt";
 
-  @Rule public FSTestWatcher testMeta = new FSTestWatcher();
+  @Rule
+  public FSTestWatcher testMeta = new FSTestWatcher();
 
   public static class FSTestWatcher extends TestInfo
   {
@@ -107,12 +127,9 @@ public class AbstractFileOutputOperatorTest
     @Override
     protected String getFileName(Integer tuple)
     {
-      if(tuple % 2 == 0)
-      {
+      if (tuple % 2 == 0) {
         return EVEN_FILE;
-      }
-      else
-      {
+      } else {
         return ODD_FILE;
       }
     }
@@ -185,9 +202,7 @@ public class AbstractFileOutputOperatorTest
     private final Long maxLength;
     private final AbstractFileOutputOperator<byte[]> fsWriter;
 
-    ValidationTestApp(File testDir,
-                      Long maxLength,
-                      AbstractFileOutputOperator<byte[]> fsWriter)
+    ValidationTestApp(File testDir, Long maxLength, AbstractFileOutputOperator<byte[]> fsWriter)
     {
       this.testDir = testDir;
       this.maxLength = maxLength;
@@ -202,17 +217,14 @@ public class AbstractFileOutputOperatorTest
 
       dag.addOperator("random", randomWordGenerator);
 
-      if(maxLength != null) {
+      if (maxLength != null) {
         fsWriter.setMaxLength(maxLength);
       }
 
       fsWriter.setFilePath(testDir.getPath());
-      dag.addOperator("fswriter",
-                      fsWriter);
+      dag.addOperator("fswriter", fsWriter);
 
-      dag.addStream("fswriterstream",
-                    randomWordGenerator.output,
-                    fsWriter.input);
+      dag.addStream("fswriterstream", randomWordGenerator.output, fsWriter.input);
     }
   }
 
@@ -253,8 +265,7 @@ public class AbstractFileOutputOperatorTest
    * @param writer The writer to restore state into.
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public static void restoreCheckPoint(AbstractFileOutputOperator checkPointWriter,
-                                       AbstractFileOutputOperator writer)
+  public static void restoreCheckPoint(AbstractFileOutputOperator checkPointWriter, AbstractFileOutputOperator writer)
   {
     writer.counts = checkPointWriter.counts;
     writer.endOffsets = checkPointWriter.endOffsets;
@@ -271,7 +282,7 @@ public class AbstractFileOutputOperatorTest
 
   public static void checkOutput(int fileCount, String baseFilePath, String expectedOutput)
   {
-    if(fileCount >= 0) {
+    if (fileCount >= 0) {
       baseFilePath += "." + fileCount;
     }
 
@@ -281,15 +292,11 @@ public class AbstractFileOutputOperatorTest
 
     try {
       fileContents = FileUtils.readFileToString(file);
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       DTThrowable.rethrow(ex);
     }
 
-    Assert.assertEquals("Single file " + fileCount +
-                        " output contents",
-                        expectedOutput,
-                        fileContents);
+    Assert.assertEquals("Single file " + fileCount + " output contents", expectedOutput, fileContents);
   }
 
   @Test
@@ -301,14 +308,9 @@ public class AbstractFileOutputOperatorTest
 
     String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
-    String correctContents = "0\n" +
-                             "1\n" +
-                             "2\n" +
-                             "3\n";
+    String correctContents = "0\n" + "1\n" + "2\n" + "3\n";
 
-    checkOutput(-1,
-                singleFileName,
-                correctContents);
+    checkOutput(-1, singleFileName, correctContents);
   }
 
   @Test
@@ -322,10 +324,7 @@ public class AbstractFileOutputOperatorTest
   @Test
   public void testSingleFileCompletedWriteOverwriteInitial() throws IOException
   {
-    populateFile(SINGLE_FILE,
-                 "0\n" +
-                 "1\n" +
-                 "2\n");
+    populateFile(SINGLE_FILE, "0\n" + "1\n" + "2\n");
 
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
 
@@ -333,14 +332,8 @@ public class AbstractFileOutputOperatorTest
 
     String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
-    String correctContents = "0\n" +
-                             "1\n" +
-                             "2\n" +
-                             "3\n";
-
-    checkOutput(-1,
-                singleFileName,
-                correctContents);
+    String correctContents = "0\n" + "1\n" + "2\n" + "3\n";
+    checkOutput(-1, singleFileName, correctContents);
   }
 
   @Test
@@ -380,16 +373,8 @@ public class AbstractFileOutputOperatorTest
 
     String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
-    String correctContents = "0\n" +
-                             "1\n" +
-                             "4\n" +
-                             "5\n" +
-                             "6\n" +
-                             "7\n";
-
-    checkOutput(-1,
-                singleFileName,
-                correctContents);
+    String correctContents = "0\n" + "1\n" + "4\n" + "5\n" + "6\n" + "7\n";
+    checkOutput(-1, singleFileName, correctContents);
   }
 
   @Test
@@ -403,25 +388,14 @@ public class AbstractFileOutputOperatorTest
   public void testSingleFileFailedWriteOverwriteInitial() throws IOException
   {
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
-    populateFile(SINGLE_FILE,
-                 "0\n" +
-                 "1\n" +
-                 "2\n");
+    populateFile(SINGLE_FILE, "0\n" + "1\n" + "2\n");
 
     testSingleFileFailedWriteHelper(writer);
 
     String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
-    String correctContents = "0\n" +
-                             "1\n" +
-                             "4\n" +
-                             "5\n" +
-                             "6\n" +
-                             "7\n";
-
-    checkOutput(-1,
-                singleFileName,
-                correctContents);
+    String correctContents = "0\n" + "1\n" + "4\n" + "5\n" + "6\n" + "7\n";
+    checkOutput(-1, singleFileName, correctContents);
   }
 
   @Test
@@ -478,25 +452,13 @@ public class AbstractFileOutputOperatorTest
 
     String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
-    String correctContents = "0\n" +
-                             "2\n" +
-                             "4\n" +
-                             "6\n";
-
-    checkOutput(-1,
-                evenFileName,
-                correctContents);
+    String correctContents = "0\n" + "2\n" + "4\n" + "6\n";
+    checkOutput(-1, evenFileName, correctContents);
 
     String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
-    correctContents = "1\n" +
-                      "3\n" +
-                      "5\n" +
-                      "7\n";
-
-    checkOutput(-1,
-                oddFileName,
-                correctContents);
+    correctContents = "1\n" + "3\n" + "5\n" + "7\n";
+    checkOutput(-1, oddFileName, correctContents);
   }
 
   @Test
@@ -517,25 +479,13 @@ public class AbstractFileOutputOperatorTest
 
     String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
-    String correctContents = "0\n" +
-                             "2\n" +
-                             "4\n" +
-                             "6\n";
-
-    checkOutput(-1,
-                evenFileName,
-                correctContents);
+    String correctContents = "0\n" + "2\n" + "4\n" + "6\n";
+    checkOutput(-1, evenFileName, correctContents);
 
     String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
-    correctContents = "1\n" +
-                      "3\n" +
-                      "5\n" +
-                      "7\n";
-
-    checkOutput(-1,
-                oddFileName,
-                correctContents);
+    correctContents = "1\n" + "3\n" + "5\n" + "7\n";
+    checkOutput(-1, oddFileName, correctContents);
   }
 
   @Test
@@ -549,13 +499,8 @@ public class AbstractFileOutputOperatorTest
   @Test
   public void testMultiFileCompletedWriteOverwriteInitial() throws IOException
   {
-    populateFile(EVEN_FILE,
-                 "0\n" +
-                 "2\n");
-
-    populateFile(ODD_FILE,
-                 "1\n" +
-                 "3\n");
+    populateFile(EVEN_FILE, "0\n" + "2\n");
+    populateFile(ODD_FILE, "1\n" + "3\n");
 
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
 
@@ -563,25 +508,13 @@ public class AbstractFileOutputOperatorTest
 
     String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
-    String correctContents = "0\n" +
-                             "2\n" +
-                             "4\n" +
-                             "6\n";
-
-    checkOutput(-1,
-                evenFileName,
-                correctContents);
+    String correctContents = "0\n" + "2\n" + "4\n" + "6\n";
+    checkOutput(-1, evenFileName, correctContents);
 
     String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
-    correctContents = "1\n" +
-                      "3\n" +
-                      "5\n" +
-                      "7\n";
-
-    checkOutput(-1,
-                oddFileName,
-                correctContents);
+    correctContents = "1\n" + "3\n" + "5\n" + "7\n";
+    checkOutput(-1, oddFileName, correctContents);
   }
 
   @Test
@@ -594,13 +527,8 @@ public class AbstractFileOutputOperatorTest
   @Test
   public void testMultiFileCompletedWriteOverwriteCache1Initial() throws IOException
   {
-    populateFile(EVEN_FILE,
-                 "0\n" +
-                 "2\n");
-
-    populateFile(ODD_FILE,
-                 "1\n" +
-                 "3\n");
+    populateFile(EVEN_FILE, "0\n" + "2\n");
+    populateFile(ODD_FILE, "1\n" + "3\n");
 
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     writer.setMaxOpenFiles(1);
@@ -609,25 +537,13 @@ public class AbstractFileOutputOperatorTest
 
     String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
-    String correctContents = "0\n" +
-                             "2\n" +
-                             "4\n" +
-                             "6\n";
-
-    checkOutput(-1,
-                evenFileName,
-                correctContents);
+    String correctContents = "0\n" + "2\n" + "4\n" + "6\n";
+    checkOutput(-1, evenFileName, correctContents);
 
     String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
-    correctContents = "1\n" +
-                      "3\n" +
-                      "5\n" +
-                      "7\n";
-
-    checkOutput(-1,
-                oddFileName,
-                correctContents);
+    correctContents = "1\n" + "3\n" + "5\n" + "7\n";
+    checkOutput(-1, oddFileName, correctContents);
   }
 
   @Test
@@ -699,25 +615,13 @@ public class AbstractFileOutputOperatorTest
 
     String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
-    String correctContents = "0\n" +
-                             "2\n" +
-                             "6\n" +
-                             "8\n";
-
-    checkOutput(-1,
-                evenFileName,
-                correctContents);
+    String correctContents = "0\n" + "2\n" + "6\n" + "8\n";
+    checkOutput(-1, evenFileName, correctContents);
 
     String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
-    correctContents = "1\n" +
-                      "3\n" +
-                      "7\n" +
-                      "9\n";
-
-    checkOutput(-1,
-      oddFileName,
-      correctContents);
+    correctContents = "1\n" + "3\n" + "7\n" + "9\n";
+    checkOutput(-1, oddFileName, correctContents);
   }
 
   @Test
@@ -737,25 +641,13 @@ public class AbstractFileOutputOperatorTest
 
     String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
-    String correctContents = "0\n" +
-                             "2\n" +
-                             "6\n" +
-                             "8\n";
-
-    checkOutput(-1,
-                evenFileName,
-                correctContents);
+    String correctContents = "0\n" + "2\n" + "6\n" + "8\n";
+    checkOutput(-1, evenFileName, correctContents);
 
     String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
-    correctContents = "1\n" +
-                      "3\n" +
-                      "7\n" +
-                      "9\n";
-
-    checkOutput(-1,
-                oddFileName,
-                correctContents);
+    correctContents = "1\n" + "3\n" + "7\n" + "9\n";
+    checkOutput(-1, oddFileName, correctContents);
   }
 
   @Test
@@ -789,8 +681,7 @@ public class AbstractFileOutputOperatorTest
     writer.endWindow();
     writer.teardown();
 
-    restoreCheckPoint(checkPointWriter,
-                      writer);
+    restoreCheckPoint(checkPointWriter, writer);
     writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(2);
@@ -813,23 +704,13 @@ public class AbstractFileOutputOperatorTest
 
     String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
-    String correctContents = "0\n" +
-                             "1\n" +
-                             "2\n";
-
-    checkOutput(0,
-                singleFileName,
-                correctContents);
+    String correctContents = "0\n" + "1\n" + "2\n";
+    checkOutput(0, singleFileName, correctContents);
 
     //Rolling file 1
 
-    correctContents = "3\n" +
-                      "4\n" +
-                      "5\n";
-
-    checkOutput(1,
-      singleFileName,
-      correctContents);
+    correctContents = "3\n" + "4\n" + "5\n";
+    checkOutput(1, singleFileName, correctContents);
   }
 
   @Test
@@ -842,47 +723,23 @@ public class AbstractFileOutputOperatorTest
   @Test
   public void testSingleRollingFileCompletedWriteOverwriteInitial() throws IOException
   {
-    populateFile(SINGLE_FILE + ".0",
-                 "0\n" +
-                 "1\n" +
-                 "2\n");
-
-    populateFile(SINGLE_FILE + ".1",
-                 "0\n" +
-                 "1\n" +
-                 "2\n");
-
-
-    populateFile(SINGLE_FILE + ".2",
-                 "0\n" +
-                 "1\n" +
-                 "2\n");
+    populateFile(SINGLE_FILE + ".0", "0\n" + "1\n" + "2\n");
+    populateFile(SINGLE_FILE + ".1", "0\n" + "1\n" + "2\n");
+    populateFile(SINGLE_FILE + ".2", "0\n" + "1\n" + "2\n");
 
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
 
     testSingleRollingFileCompletedWriteHelper(writer);
 
     //Rolling file 0
-
     String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
-    String correctContents = "0\n" +
-                             "1\n" +
-                             "2\n";
-
-    checkOutput(0,
-                singleFileName,
-                correctContents);
+    String correctContents = "0\n" + "1\n" + "2\n";
+    checkOutput(0, singleFileName, correctContents);
 
     //Rolling file 1
-
-    correctContents = "3\n" +
-                      "4\n" +
-                      "5\n";
-
-    checkOutput(1,
-                singleFileName,
-                correctContents);
+    correctContents = "3\n" + "4\n" + "5\n";
+    checkOutput(1, singleFileName, correctContents);
   }
 
   @Test
@@ -924,36 +781,18 @@ public class AbstractFileOutputOperatorTest
     testSingleRollingFileFailedWriteHelper(writer);
 
     //Rolling file 0
-
     String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
-    String correctContents = "0\n" +
-                             "1\n" +
-                             "2\n";
-
-    checkOutput(0,
-                singleFileName,
-                correctContents);
+    String correctContents = "0\n" + "1\n" + "2\n";
+    checkOutput(0, singleFileName, correctContents);
 
     //Rolling file 1
-
-    correctContents = "3\n" +
-                      "4\n" +
-                      "5\n";
-
-    checkOutput(1,
-                singleFileName,
-                correctContents);
+    correctContents = "3\n" + "4\n" + "5\n";
+    checkOutput(1, singleFileName, correctContents);
 
     //Rolling file 2
-
-    correctContents = "6\n" +
-                      "7\n" +
-                      "8\n";
-
-    checkOutput(2,
-                singleFileName,
-                correctContents);
+    correctContents = "6\n" + "7\n" + "8\n";
+    checkOutput(2, singleFileName, correctContents);
   }
 
   @Test
@@ -984,8 +823,7 @@ public class AbstractFileOutputOperatorTest
 
     writer.teardown();
 
-    restoreCheckPoint(checkPointWriter,
-                      writer);
+    restoreCheckPoint(checkPointWriter, writer);
     writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(1);
@@ -1033,8 +871,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(5);
     writer.teardown();
 
-    restoreCheckPoint(checkPointWriter,
-                      writer);
+    restoreCheckPoint(checkPointWriter, writer);
     LOG.debug("Checkpoint endOffsets={}", checkPointWriter.endOffsets);
     writer.setup(testMeta.testOperatorContext);
 
@@ -1057,22 +894,12 @@ public class AbstractFileOutputOperatorTest
     String singleFilePath = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     //Rolling file 0
-
-    String correctContents = "0\n" +
-                             "1\n" +
-                             "2\n";
-    checkOutput(0,
-                singleFilePath,
-                correctContents);
+    String correctContents = "0\n" + "1\n" + "2\n";
+    checkOutput(0, singleFilePath, correctContents);
 
     //Rolling file 1
-
-    correctContents = "3\n" +
-                      "4\n";
-
-    checkOutput(1,
-                singleFilePath,
-                correctContents);
+    correctContents = "3\n" + "4\n";
+    checkOutput(1, singleFilePath, correctContents);
   }
 
   @Test
@@ -1173,44 +1000,21 @@ public class AbstractFileOutputOperatorTest
     writer.committed(1);
 
     //Even file
-
     String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
+    String correctContents = "0\n" + "2\n" + "4\n";
+    checkOutput(0, evenFileName, correctContents);
 
-    String correctContents = "0\n" +
-                             "2\n" +
-                             "4\n";
-
-    checkOutput(0,
-                evenFileName,
-                correctContents);
-
-    correctContents = "6\n" +
-                      "8\n" +
-                      "6\n";
-
-    checkOutput(1,
-                evenFileName,
-                correctContents);
+    correctContents = "6\n" + "8\n" + "6\n";
+    checkOutput(1, evenFileName, correctContents);
 
     //Odd file
-
     String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
+    correctContents = "1\n" + "3\n" + "5\n";
 
-    correctContents = "1\n" +
-                      "3\n" +
-                      "5\n";
+    checkOutput(0, oddFileName, correctContents);
 
-    checkOutput(0,
-                oddFileName,
-                correctContents);
-
-    correctContents = "7\n" +
-                      "9\n" +
-                      "7\n";
-
-    checkOutput(1,
-                oddFileName,
-                correctContents);
+    correctContents = "7\n" + "9\n" + "7\n";
+    checkOutput(1, oddFileName, correctContents);
   }
 
   private void testMultiRollingFileCompletedWriteHelper(EvenOddHDFSExactlyOnceWriter writer)
@@ -1243,42 +1047,19 @@ public class AbstractFileOutputOperatorTest
     //Even file
 
     String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
+    String correctContents = "0\n" + "2\n" + "4\n";
+    checkOutput(0, evenFileName, correctContents);
 
-    String correctContents = "0\n" +
-                             "2\n" +
-                             "4\n";
-
-    checkOutput(0,
-                evenFileName,
-                correctContents);
-
-    correctContents = "6\n" +
-                      "8\n" +
-                      "6\n";
-
-    checkOutput(1,
-                evenFileName,
-                correctContents);
+    correctContents = "6\n" + "8\n" + "6\n";
+    checkOutput(1, evenFileName, correctContents);
 
     //Odd file
-
     String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
+    correctContents = "1\n" + "3\n" + "5\n";
+    checkOutput(0, oddFileName, correctContents);
 
-    correctContents = "1\n" +
-                      "3\n" +
-                      "5\n";
-
-    checkOutput(0,
-                oddFileName,
-                correctContents);
-
-    correctContents = "7\n" +
-                      "9\n" +
-                      "7\n";
-
-    checkOutput(1,
-                oddFileName,
-                correctContents);
+    correctContents = "7\n" + "9\n" + "7\n";
+    checkOutput(1, oddFileName, correctContents);
   }
 
   @Test
@@ -1317,44 +1098,20 @@ public class AbstractFileOutputOperatorTest
     testMultiRollingFileFailedWriteHelper(writer);
 
     //Even file
-
     String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
+    String correctContents = "0\n" + "2\n" + "4\n";
+    checkOutput(0, evenFileName, correctContents);
 
-    String correctContents = "0\n" +
-                             "2\n" +
-                             "4\n";
-
-    checkOutput(0,
-                evenFileName,
-                correctContents);
-
-    correctContents = "6\n" +
-                      "8\n" +
-                      "6\n";
-
-    checkOutput(1,
-                evenFileName,
-                correctContents);
+    correctContents = "6\n" + "8\n" + "6\n";
+    checkOutput(1, evenFileName, correctContents);
 
     //Odd file
-
     String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
+    correctContents = "1\n" + "3\n" + "5\n";
+    checkOutput(0, oddFileName, correctContents);
 
-    correctContents = "1\n" +
-                      "3\n" +
-                      "5\n";
-
-    checkOutput(0,
-                oddFileName,
-                correctContents);
-
-    correctContents = "7\n" +
-                      "9\n" +
-                      "7\n";
-
-    checkOutput(1,
-                oddFileName,
-                correctContents);
+    correctContents = "7\n" + "9\n" + "7\n";
+    checkOutput(1, oddFileName, correctContents);
   }
 
   private void testMultiRollingFileFailedWriteHelper(EvenOddHDFSExactlyOnceWriter writer)
@@ -1378,8 +1135,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(3);
     writer.teardown();
 
-    restoreCheckPoint(checkPointWriter,
-                      writer);
+    restoreCheckPoint(checkPointWriter, writer);
     writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(1);
@@ -1428,47 +1184,25 @@ public class AbstractFileOutputOperatorTest
     String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
     String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
-    populateFile(EVEN_FILE + ".0", "0\n" +
-                                      "2\n" +
-                                      "4\n");
-    populateFile(ODD_FILE + ".0", "1\n" +
-                                     "3\n" +
-                                     "5\n");
+    populateFile(EVEN_FILE + ".0", "0\n" + "2\n" + "4\n");
+    populateFile(ODD_FILE + ".0", "1\n" + "3\n" + "5\n");
 
     testMultiRollingFileFailedWriteOverwriteHelperCache1(writer);
 
 
     //Even file
+    String correctContents = "0\n" + "4\n" + "6\n";
+    checkOutput(0, evenFileName, correctContents);
 
-    String correctContents = "0\n" +
-                             "4\n" +
-                             "6\n";
-    checkOutput(0,
-                evenFileName,
-                correctContents);
-
-    correctContents = "8\n" +
-                      "6\n" +
-                      "10\n" ;
-    checkOutput(1,
-                evenFileName,
-                correctContents);
+    correctContents = "8\n" + "6\n" + "10\n";
+    checkOutput(1, evenFileName, correctContents);
 
     //Odd file
+    correctContents = "1\n" + "5\n" + "7\n";
+    checkOutput(0, oddFileName, correctContents);
 
-    correctContents = "1\n" +
-                      "5\n" +
-                      "7\n";
-    checkOutput(0,
-                oddFileName,
-                correctContents);
-
-    correctContents = "9\n" +
-                      "7\n" +
-                      "11\n";
-    checkOutput(1,
-                oddFileName,
-                correctContents);
+    correctContents = "9\n" + "7\n" + "11\n";
+    checkOutput(1, oddFileName, correctContents);
   }
 
   @Test
@@ -1498,8 +1232,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(3);
     writer.teardown();
 
-    restoreCheckPoint(checkPointWriter,
-                      writer);
+    restoreCheckPoint(checkPointWriter, writer);
     writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(1);
@@ -1525,12 +1258,8 @@ public class AbstractFileOutputOperatorTest
     String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
     String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
-    populateFile(EVEN_FILE + ".0", "0\n" +
-                                      "2\n" +
-                                      "4\n");
-    populateFile(ODD_FILE + ".0", "1\n" +
-                                     "3\n" +
-                                     "5\n");
+    populateFile(EVEN_FILE + ".0", "0\n" + "2\n" + "4\n");
+    populateFile(ODD_FILE + ".0", "1\n" + "3\n" + "5\n");
 
     File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
@@ -1550,8 +1279,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.process(3);
     writer.teardown();
 
-    restoreCheckPoint(checkPointWriter,
-                      writer);
+    restoreCheckPoint(checkPointWriter, writer);
     writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(1);
@@ -1572,40 +1300,16 @@ public class AbstractFileOutputOperatorTest
     writer.committed(2);
 
     //Even file
-
-    String correctContents = "0\n" +
-                             "4\n" +
-                             "6\n";
-
-    checkOutput(0,
-                evenFileName,
-                correctContents);
-
-    correctContents = "8\n" +
-                      "6\n" +
-                      "10\n";
-
-    checkOutput(1,
-                evenFileName,
-                correctContents);
+    String correctContents = "0\n" + "4\n" + "6\n";
+    checkOutput(0, evenFileName, correctContents);
+    correctContents = "8\n" + "6\n" + "10\n";
+    checkOutput(1, evenFileName, correctContents);
 
     //Odd file
-
-    correctContents = "1\n" +
-                      "5\n" +
-                      "7\n";
-
-    checkOutput(0,
-                oddFileName,
-                correctContents);
-
-    correctContents = "9\n" +
-                      "7\n" +
-                      "11\n";
-
-    checkOutput(1,
-                oddFileName,
-                correctContents);
+    correctContents = "1\n" + "5\n" + "7\n";
+    checkOutput(0, oddFileName, correctContents);
+    correctContents = "9\n" + "7\n" + "11\n";
+    checkOutput(1, oddFileName, correctContents);
   }
 
   @Test
@@ -1621,43 +1325,20 @@ public class AbstractFileOutputOperatorTest
     String singleFilePath = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     //Rolling file 0
-
-    String correctContents = "0\n" +
-                             "1\n" +
-                             "2\n";
-    checkOutput(0,
-                singleFilePath,
-                correctContents);
+    String correctContents = "0\n" + "1\n" + "2\n";
+    checkOutput(0, singleFilePath, correctContents);
 
     //Rolling file 1
-
-    correctContents = "3\n" +
-                      "4\n" +
-                      "0\n";
-
-    checkOutput(1,
-                singleFilePath,
-                correctContents);
+    correctContents = "3\n" + "4\n" + "0\n";
+    checkOutput(1, singleFilePath, correctContents);
 
     //Rolling file 2
-
-    correctContents = "1\n" +
-                      "2\n" +
-                      "3\n";
-
-    checkOutput(2,
-                singleFilePath,
-                correctContents);
+    correctContents = "1\n" + "2\n" + "3\n";
+    checkOutput(2, singleFilePath, correctContents);
 
     //Rolling file 3
-
-    correctContents = "4\n" +
-                      "5\n" +
-                      "6\n";
-
-    checkOutput(3,
-                singleFilePath,
-                correctContents);
+    correctContents = "4\n" + "5\n" + "6\n";
+    checkOutput(3, singleFilePath, correctContents);
   }
 
   @Test
@@ -1696,8 +1377,7 @@ public class AbstractFileOutputOperatorTest
     writer.endWindow();
     writer.teardown();
 
-    restoreCheckPoint(checkPointWriter,
-                      writer);
+    restoreCheckPoint(checkPointWriter, writer);
     writer.setup(testMeta.testOperatorContext);
 
     writer.beginWindow(1);
@@ -1718,9 +1398,8 @@ public class AbstractFileOutputOperatorTest
   @Test
   public void validateNothingWrongTest()
   {
-    ValidationTestApp validationTestApp = new ValidationTestApp(new File(testMeta.getDir()),
-                                                                null,
-                                                                new SingleHDFSByteExactlyOnceWriter());
+    ValidationTestApp validationTestApp = new ValidationTestApp(new File(testMeta.getDir()), null,
+        new SingleHDFSByteExactlyOnceWriter());
 
     LocalMode.runApp(validationTestApp, 1);
   }
@@ -1728,17 +1407,15 @@ public class AbstractFileOutputOperatorTest
   @Test
   public void validateNegativeMaxLengthTest()
   {
-    ValidationTestApp validationTestApp = new ValidationTestApp(new File(testMeta.getDir()),
-                                                                -1L,
-                                                                new SingleHDFSByteExactlyOnceWriter());
+    ValidationTestApp validationTestApp = new ValidationTestApp(new File(testMeta.getDir()), -1L,
+        new SingleHDFSByteExactlyOnceWriter());
 
     boolean error = false;
 
     try {
       LocalMode.runApp(validationTestApp, 1);
-    }
-    catch(RuntimeException e) {
-      if(e.getCause() instanceof ConstraintViolationException) {
+    } catch (RuntimeException e) {
+      if (e.getCause() instanceof ConstraintViolationException) {
         error = true;
       }
     }
@@ -1994,19 +1671,11 @@ public class AbstractFileOutputOperatorTest
         while ((line = br.readLine()) != null) {
           Assert.assertEquals("File line", eline, line);
           ++count;
-          //System.out.println("line " + line + " " + count);
           if ((count % totalRecords) == 0) {
             ++numWindows;
-            //System.out.println("numWindows " + numWindows);
             eline = "" + (startVal + numWindows * 2);
           }
         }
-        /*
-        if (count > 0) {
-          Assert.assertEquals("Event count", 1000, count);
-          ++numWindows;
-        }
-        */
         startOffset = offset;
       }
     } catch (Exception e) {
@@ -2035,7 +1704,7 @@ public class AbstractFileOutputOperatorTest
     byte[] iv = "TestParam16bytes".getBytes();
     final IvParameterSpec ivps = new IvParameterSpec(iv);
     FilterStreamProvider.FilterChainStreamProvider<FilterOutputStream, OutputStream> chainStreamProvider
-            = new FilterStreamProvider.FilterChainStreamProvider<FilterOutputStream, OutputStream>();
+        = new FilterStreamProvider.FilterChainStreamProvider<FilterOutputStream, OutputStream>();
     chainStreamProvider.addStreamProvider(new FilterStreamCodec.GZipFilterStreamProvider());
 
     // The filter is to keep track of the offsets to handle multi member gzip issue with openjdk
@@ -2118,8 +1787,9 @@ public class AbstractFileOutputOperatorTest
   {
 
     private CounterFilterOutputStream counterStream;
-    
-    public void init(OutputStream outputStream) {
+
+    public void init(OutputStream outputStream)
+    {
       counterStream = new CounterFilterOutputStream(outputStream);
     }
     
@@ -2140,7 +1810,8 @@ public class AbstractFileOutputOperatorTest
 
     }
     
-    public long getCounter() {
+    public long getCounter()
+    {
       if (isDoInit()) {
         return 0;
       } else {
@@ -2154,7 +1825,7 @@ public class AbstractFileOutputOperatorTest
   {
     long counter;
     int refCount;
-    
+
     public CounterFilterOutputStream(OutputStream out)
     {
       super(out);

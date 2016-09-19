@@ -25,6 +25,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.apex.malhar.contrib.misc.streamquery.SelectOperator;
+import org.apache.apex.malhar.contrib.misc.streamquery.condition.EqualValueCondition;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 
@@ -36,8 +39,6 @@ import com.datatorrent.lib.logs.MultiWindowDimensionAggregation;
 import com.datatorrent.lib.logs.MultiWindowDimensionAggregation.AggregateOperation;
 import com.datatorrent.lib.stream.Counter;
 import com.datatorrent.lib.stream.JsonByteArrayOperator;
-import com.datatorrent.lib.streamquery.SelectOperator;
-import com.datatorrent.lib.streamquery.condition.EqualValueCondition;
 import com.datatorrent.lib.streamquery.index.ColumnIndex;
 import com.datatorrent.lib.util.AbstractDimensionTimeBucketOperator;
 import com.datatorrent.lib.util.DimensionTimeBucketSumOperator;

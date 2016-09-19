@@ -22,9 +22,9 @@ import java.util.ArrayList;
 
 import javax.validation.constraints.Min;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  *
@@ -47,108 +47,108 @@ public abstract class AbstractSlidingWindow<T, S> extends BaseOperator
         /**
          * Input port for getting incoming data.
          */
-	public final transient DefaultInputPort<T> data = new DefaultInputPort<T>()
-	{
-		@Override
-		public void process(T tuple)
-		{
-			processDataTuple(tuple);
-		}
-	};
+  public final transient DefaultInputPort<T> data = new DefaultInputPort<T>()
+  {
+    @Override
+    public void process(T tuple)
+    {
+      processDataTuple(tuple);
+    }
+  };
 
-	protected ArrayList<S> states = null;
+  protected ArrayList<S> states = null;
 
-	protected S lastExpiredWindowState = null;
+  protected S lastExpiredWindowState = null;
 
-	protected int currentCursor = -1;
+  protected int currentCursor = -1;
 
-	@Min(2)
-	int windowSize = 2;
+  @Min(2)
+  int windowSize = 2;
 
-	/**
-	 * getter function for n (number of previous window states
-	 *
-	 * @return n
-	 */
-	@Min(2)
-	public int getWindowSize()
-	{
-		return windowSize;
-	}
+  /**
+   * getter function for n (number of previous window states
+   *
+   * @return n
+   */
+  @Min(2)
+  public int getWindowSize()
+  {
+    return windowSize;
+  }
 
-	/**
-	 * setter for windowSize
-	 *
-	 * @param i
-	 */
-	public void setWindowSize(int windowSize)
-	{
-		this.windowSize = windowSize;
-	}
+  /**
+   * setter for windowSize
+   *
+   * @param windowSize
+   */
+  public void setWindowSize(int windowSize)
+  {
+    this.windowSize = windowSize;
+  }
 
-	abstract protected void processDataTuple(T tuple);
+  protected abstract void processDataTuple(T tuple);
 
-	/**
-	 * Implement this method to create the state object needs to be kept in the sliding window
-	 *
-	 * @return the state of current streaming window
-	 */
-	public abstract S createWindowState();
+  /**
+   * Implement this method to create the state object needs to be kept in the sliding window
+   *
+   * @return the state of current streaming window
+   */
+  public abstract S createWindowState();
 
-	/**
-	 * Get the Streaming window state in it's coming the order start from 0
-	 *
-	 * @param i
-	 *   0 the state of the first coming streaming window
-	 *   -1 the state of the last expired streaming window
-	 * @return State of the streaming window
-	 * @throws ArrayIndexOutOfBoundsException if i >= sliding window size
-	 */
-	public S getStreamingWindowState(int i)
-	{
-	  if(i == -1){
-	    return lastExpiredWindowState;
-	  }
-		if (i >= getWindowSize()) {
-			throw new ArrayIndexOutOfBoundsException();
-		}
-		int index = (currentCursor + 1 + i) % windowSize ;
-		return states.get(index);
-	}
+  /**
+   * Get the Streaming window state in it's coming the order start from 0
+   *
+   * @param i
+   *   0 the state of the first coming streaming window
+   *   -1 the state of the last expired streaming window
+   * @return State of the streaming window
+   * @throws ArrayIndexOutOfBoundsException if i >= sliding window size
+   */
+  public S getStreamingWindowState(int i)
+  {
+    if (i == -1) {
+      return lastExpiredWindowState;
+    }
+    if (i >= getWindowSize()) {
+      throw new ArrayIndexOutOfBoundsException();
+    }
+    int index = (currentCursor + 1 + i) % windowSize;
+    return states.get(index);
+  }
 
-	/**
-	 * Moves states by 1 and sets current state to null. If you override
-	 * beginWindow, you must call super.beginWindow(windowId) to ensure proper
-	 * operator behavior.
-	 *
-	 * @param windowId
-	 */
-	@Override
-	public void beginWindow(long windowId)
-	{
-	  // move currentCursor 1 position
-		currentCursor = (currentCursor + 1) % windowSize;
-		// expire the state at the first position which is the state of the streaming window moving out of the current application window
-		lastExpiredWindowState = states.get(currentCursor);
+  /**
+   * Moves states by 1 and sets current state to null. If you override
+   * beginWindow, you must call super.beginWindow(windowId) to ensure proper
+   * operator behavior.
+   *
+   * @param windowId
+   */
+  @Override
+  public void beginWindow(long windowId)
+  {
+    // move currentCursor 1 position
+    currentCursor = (currentCursor + 1) % windowSize;
+    // expire the state at the first position which is the state of the streaming window moving out of the current application window
+    lastExpiredWindowState = states.get(currentCursor);
 
-		states.set(currentCursor, createWindowState());
+    states.set(currentCursor, createWindowState());
 
-	}
+  }
 
-	/**
-	 * Sets up internal state structure
-	 *
-	 * @param context
-	 */
-	@Override
-	public void setup(OperatorContext context)
-	{
-	  super.setup(context);
-		states = new ArrayList<S>(windowSize);
-		//initialize the sliding window state to null
-		for (int i = 0; i < windowSize; i++) {
-			states.add(null);
-		}
-		currentCursor = -1;
-	}
+  /**
+   * Sets up internal state structure
+   *
+   * @param context
+   */
+  @Override
+  public void setup(OperatorContext context)
+  {
+    super.setup(context);
+    states = new ArrayList<S>(windowSize);
+    //initialize the sliding window state to null
+    for (int i = 0; i < windowSize; i++) {
+      states.add(null);
+    }
+    currentCursor = -1;
+  }
 }

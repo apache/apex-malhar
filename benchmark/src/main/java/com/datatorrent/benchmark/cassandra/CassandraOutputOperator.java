@@ -23,7 +23,7 @@ import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.exceptions.DriverException;
-import com.datatorrent.contrib.cassandra.AbstractCassandraTransactionableOutputOperatorPS;
+import com.datatorrent.contrib.cassandra.AbstractCassandraTransactionableOutputOperator;
 
 
 /**
@@ -31,7 +31,7 @@ import com.datatorrent.contrib.cassandra.AbstractCassandraTransactionableOutputO
  *
  * @since 1.0.3
  */
-public class CassandraOutputOperator extends  AbstractCassandraTransactionableOutputOperatorPS<Integer>{
+public class CassandraOutputOperator extends  AbstractCassandraTransactionableOutputOperator<Integer>{
 
   private int id = 0;
 

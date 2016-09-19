@@ -30,6 +30,9 @@ import org.apache.hadoop.fs.UnsupportedFileSystemException;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * @since 3.4.0
+ */
 public class FileContextUtils
 {
   public static FileContext getFileContext(@NotNull Path path) throws UnsupportedFileSystemException

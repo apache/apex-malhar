@@ -20,9 +20,9 @@ package com.datatorrent.lib.appdata.gpo;
 
 import java.util.List;
 
-import com.google.common.collect.Lists;
-
 import org.apache.commons.lang3.mutable.MutableInt;
+
+import com.google.common.collect.Lists;
 
 import com.datatorrent.lib.appdata.schemas.Type;
 
@@ -44,15 +44,13 @@ public class SerdeListPrimitive implements Serde
   public synchronized byte[] serializeObject(Object object)
   {
     @SuppressWarnings("unchecked")
-    List<Object> primitives = (List<Object>) object;
+    List<Object> primitives = (List<Object>)object;
 
-    for(int index = 0;
-        index < primitives.size();
-        index++) {
+    for (int index = 0; index < primitives.size(); index++) {
       Object primitive = primitives.get(index);
       Type type = Type.CLASS_TO_TYPE.get(primitive.getClass());
 
-      if(type == null || type == Type.OBJECT) {
+      if (type == null || type == Type.OBJECT) {
         throw new IllegalArgumentException("Cannot serialize objects of class " + primitive.getClass());
       }
 
@@ -78,7 +76,7 @@ public class SerdeListPrimitive implements Serde
 
     List<Object> listPrimitives = Lists.newArrayList();
 
-    while(startIndex + length > offset.intValue()) {
+    while (startIndex + length > offset.intValue()) {
       int typeOrdinal = GPOUtils.deserializeInt(object, offset);
       GPOType gpoType = GPOType.GPO_TYPE_ARRAY[typeOrdinal];
       Object primitive = gpoType.deserialize(object, offset);

@@ -20,6 +20,9 @@ package org.apache.apex.malhar.lib.state.managed;
 
 import javax.validation.constraints.NotNull;
 
+/**
+ * @since 3.4.0
+ */
 public interface ManagedStateComponent
 {
   /**

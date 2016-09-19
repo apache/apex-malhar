@@ -1,6 +1,6 @@
 # Apex Malhar Documentation
 
-Repository for Malhar docs available on http://apex.incubator.apache.org/docs.html
+Repository for Malhar docs available on http://apex.apache.org/docs.html
 
 Documentation is written in [Markdown](https://guides.github.com/features/mastering-markdown/) format and statically generated into HTML using [MkDocs](http://www.mkdocs.org/).  All documentation is located in the [docs](docs) directory, and [mkdocs.yml](mkdocs.yml) file describes the navigation structure of the published documentation.
 

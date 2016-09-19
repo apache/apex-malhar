@@ -38,6 +38,8 @@ import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
  * @displayName Line-by-line File Input
  * @category Input
  * @tags fs, file, line, lines, input operator
+ *
+ * @since 3.4.0
  */
 public class LineByLineFileInputOperator extends AbstractFileInputOperator<String>
 {

@@ -18,9 +18,9 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * Abstract base operator defining optional double/float/long/integer output port.
@@ -34,27 +34,27 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  */
 public abstract class AbstractOutput extends BaseOperator
 {
-	/**
-	 * Double type output.
-	 */
-	@OutputPortFieldAnnotation(optional = true)
-	public final transient DefaultOutputPort<Double> doubleResult = new DefaultOutputPort<Double>();
+  /**
+   * Double type output.
+   */
+  @OutputPortFieldAnnotation(optional = true)
+  public final transient DefaultOutputPort<Double> doubleResult = new DefaultOutputPort<Double>();
 
-	/**
-	 * Float type output.
-	 */
-	@OutputPortFieldAnnotation(optional = true)
-	public final transient DefaultOutputPort<Float> floatResult = new DefaultOutputPort<Float>();
+  /**
+   * Float type output.
+   */
+  @OutputPortFieldAnnotation(optional = true)
+  public final transient DefaultOutputPort<Float> floatResult = new DefaultOutputPort<Float>();
 
-	/**
-	 * Long type output.
-	 */
-	@OutputPortFieldAnnotation(optional = true)
-	public final transient DefaultOutputPort<Long> longResult = new DefaultOutputPort<Long>();
+  /**
+   * Long type output.
+   */
+  @OutputPortFieldAnnotation(optional = true)
+  public final transient DefaultOutputPort<Long> longResult = new DefaultOutputPort<Long>();
 
-	/**
-	 * Integer type output.
-	 */
-	@OutputPortFieldAnnotation(optional = true)
-	public final transient DefaultOutputPort<Integer> integerResult = new DefaultOutputPort<Integer>();
+  /**
+   * Integer type output.
+   */
+  @OutputPortFieldAnnotation(optional = true)
+  public final transient DefaultOutputPort<Integer> integerResult = new DefaultOutputPort<Integer>();
 }

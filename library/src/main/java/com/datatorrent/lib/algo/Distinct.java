@@ -76,10 +76,7 @@ public class Distinct<K> extends BaseKeyOperator<K> implements Unifier<K>
     @Override
     public void process(K tuple)
     {
-      if (!map.containsKey(tuple)) {
-        distinct.emit(cloneKey(tuple));
-        map.put(cloneKey(tuple), null);
-      }
+      Distinct.this.process(tuple);
     }
   };
 

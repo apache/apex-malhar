@@ -33,80 +33,80 @@ import com.datatorrent.lib.util.HighLow;
  */
 public class RangeTest<V extends Number>
 {
-	@SuppressWarnings("rawtypes")
-	class TestSink implements Sink
-	{
-		List<Object> collectedTuples = new ArrayList<Object>();
 
-		@Override
-		public void put(Object payload)
-		{
-          collectedTuples.add(payload);
-		}
+  @SuppressWarnings("rawtypes")
+  class TestSink implements Sink
+  {
+    List<Object> collectedTuples = new ArrayList<Object>();
 
-		@Override
-		public int getCount(boolean reset)
-		{
-			throw new UnsupportedOperationException("Not supported yet.");
-		}
-	}
+    @Override
+    public void put(Object payload)
+    {
+      collectedTuples.add(payload);
+    }
 
-	/**
-	 * Test oper logic emits correct results
-	 */
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testNodeSchemaProcessing()
-	{
-		Range<Double> oper = new Range<Double>();
-		TestSink rangeSink = new TestSink();
-		oper.range.setSink(rangeSink);
+    @Override
+    public int getCount(boolean reset)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+  }
 
-		oper.beginWindow(0); //
+  /**
+   * Test oper logic emits correct results
+   */
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testNodeSchemaProcessing()
+  {
+    Range<Double> oper = new Range<Double>();
+    TestSink rangeSink = new TestSink();
+    oper.range.setSink(rangeSink);
 
-		int numTuples = 1000;
-		for (int i = 0; i < numTuples; i++) {
-			Double a = new Double(20.0);
-			Double b = new Double(2.0);
-			Double c = new Double(1000.0);
+    oper.beginWindow(0); //
 
-			oper.data.process(a);
-			oper.data.process(b);
-			oper.data.process(c);
+    int numTuples = 1000;
+    for (int i = 0; i < numTuples; i++) {
+      Double a = new Double(20.0);
+      Double b = new Double(2.0);
+      Double c = new Double(1000.0);
 
-			a = 1.0;
-			oper.data.process(a);
-			a = 10.0;
-			oper.data.process(a);
-			b = 5.0;
-			oper.data.process(b);
+      oper.data.process(a);
+      oper.data.process(b);
+      oper.data.process(c);
 
-			b = 12.0;
-			oper.data.process(b);
-			c = 22.0;
-			oper.data.process(c);
-			c = 14.0;
-			oper.data.process(c);
+      a = 1.0;
+      oper.data.process(a);
+      a = 10.0;
+      oper.data.process(a);
+      b = 5.0;
+      oper.data.process(b);
 
-			a = 46.0;
-			oper.data.process(a);
-			b = 2.0;
-			oper.data.process(b);
-			a = 23.0;
-			oper.data.process(a);
-		}
+      b = 12.0;
+      oper.data.process(b);
+      c = 22.0;
+      oper.data.process(c);
+      c = 14.0;
+      oper.data.process(c);
 
-		oper.endWindow(); //
+      a = 46.0;
+      oper.data.process(a);
+      b = 2.0;
+      oper.data.process(b);
+      a = 23.0;
+      oper.data.process(a);
+    }
 
-		// payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
-		Assert.assertEquals("number emitted tuples", 1,
-				rangeSink.collectedTuples.size());
-		for (Object o : rangeSink.collectedTuples) {
-			HighLow<V> hl = (HighLow<V>) o;
-			Assert.assertEquals("emitted high value was ", new Double(1000.0),
-					hl.getHigh());
-			Assert.assertEquals("emitted low value was ", new Double(1.0),
-					hl.getLow());
-		}
-	}
+    oper.endWindow(); //
+
+    // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
+    Assert.assertEquals("number emitted tuples", 1, rangeSink.collectedTuples.size());
+    for (Object o : rangeSink.collectedTuples) {
+      HighLow<V> hl = (HighLow<V>)o;
+      Assert.assertEquals("emitted high value was ", 1000.0,
+          hl.getHigh());
+      Assert.assertEquals("emitted low value was ", 1.0,
+          hl.getLow());
+    }
+  }
 }

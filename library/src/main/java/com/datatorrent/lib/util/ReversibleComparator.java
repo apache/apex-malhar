@@ -44,6 +44,7 @@ public class ReversibleComparator<E> implements Comparator<E>
   {
     ascending = flag;
   }
+
   public boolean ascending = true;
 
   /**

@@ -18,29 +18,27 @@
  */
 package com.datatorrent.lib.db.jdbc;
 
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-
 import java.util.List;
 import java.util.Map;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.apex.malhar.lib.dimensions.DimensionsDescriptor;
 import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.Aggregate;
 import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.EventKey;
 import org.apache.apex.malhar.lib.dimensions.aggregator.AggregatorRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import com.datatorrent.api.Context;
-
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
@@ -60,6 +58,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
  * <li>Each aggregate is written to a different table based on its dimension
  * combination, time bucket, and corresponding aggregation</li>
  * </ol>
+ *
+ * @since 3.4.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public class JDBCDimensionalOutputOperator

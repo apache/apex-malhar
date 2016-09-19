@@ -43,6 +43,8 @@ import com.datatorrent.lib.appdata.schemas.Type;
  * one for cost and one for revenue.
  * </p>
  *
+ *
+ * @since 3.4.0
  */
 public interface IncrementalAggregator extends Aggregator<InputEvent, Aggregate>
 {

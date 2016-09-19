@@ -25,13 +25,13 @@
   <artifactId>r-demo</artifactId>
   <packaging>jar</packaging>
 
- <name>Apache Apex Malhar (incubating) R Demo</name>
+ <name>Apache Apex Malhar R Demo</name>
   <description>Apex demo applications for using R.</description>
 
   <parent>
     <groupId>org.apache.apex</groupId>
     <artifactId>malhar-demos</artifactId>
-    <version>3.4.0-incubating-SNAPSHOT</version>
+    <version>3.6.0-SNAPSHOT</version>
   </parent>
 
   <properties>

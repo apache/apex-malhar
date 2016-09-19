@@ -53,10 +53,10 @@ public class ResultFormatterTest
 
     final String expectedString = "1.00";
 
-    Assert.assertEquals(expectedString, adf.format((byte) 1));
-    Assert.assertEquals(expectedString, adf.format((short) 1));
+    Assert.assertEquals(expectedString, adf.format((byte)1));
+    Assert.assertEquals(expectedString, adf.format((short)1));
     Assert.assertEquals(expectedString, adf.format(1));
-    Assert.assertEquals(expectedString, adf.format((long) 1));
+    Assert.assertEquals(expectedString, adf.format((long)1));
   }
 
   @Test
@@ -76,14 +76,14 @@ public class ResultFormatterTest
 
     final String discreteString = "1";
 
-    Assert.assertEquals(discreteString, adf.format((byte) 1));
-    Assert.assertEquals(discreteString, adf.format((short) 1));
+    Assert.assertEquals(discreteString, adf.format((byte)1));
+    Assert.assertEquals(discreteString, adf.format((short)1));
     Assert.assertEquals(discreteString, adf.format(1));
-    Assert.assertEquals(discreteString, adf.format((long) 1));
+    Assert.assertEquals(discreteString, adf.format((long)1));
 
     final String continuousString = "1.0";
 
-    Assert.assertEquals(continuousString, adf.format((float) 1));
-    Assert.assertEquals(continuousString, adf.format((double) 1));
+    Assert.assertEquals(continuousString, adf.format((float)1));
+    Assert.assertEquals(continuousString, adf.format((double)1));
   }
 }

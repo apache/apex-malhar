@@ -24,7 +24,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
@@ -75,8 +76,9 @@ public class RandomKeyValGenerator implements InputOperator
         verport.emit(new KeyHashValPair<Integer, Integer>(e.getKey(), e.getValue().size()));
       }
     }
-    if(clearHistory)
+    if (clearHistory) {
       valhistory.clear();
+    }
   }
 
   @Override
@@ -130,7 +132,7 @@ public class RandomKeyValGenerator implements InputOperator
 
   /**
    * Sets the number of possible keys to numKeys
-   * 
+   *
    * @param numKeys
    *          the new number of possible keys
    */
@@ -141,7 +143,7 @@ public class RandomKeyValGenerator implements InputOperator
 
   /**
    * Returns the number of possible values that can be emitted
-   * 
+   *
    * @return the number of possible values that can be emitted
    */
   public int getNumVals()
@@ -151,7 +153,7 @@ public class RandomKeyValGenerator implements InputOperator
 
   /**
    * Sets the number of possible values that can be emitted to numVals
-   * 
+   *
    * @param numVals
    *          the number of possible values that can be emitted
    */
@@ -162,7 +164,7 @@ public class RandomKeyValGenerator implements InputOperator
 
   /**
    * Sets the number of KeyValPairs to be emitted to tupleBlast
-   * 
+   *
    * @param tupleBlast
    *          the new number of KeyValPairs to be emitted
    */

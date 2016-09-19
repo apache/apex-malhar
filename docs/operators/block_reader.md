@@ -5,7 +5,7 @@ This is a scalable operator that reads and parses blocks of data sources into re
 
 ## Why is it needed?
 
-A Block Reader is needed to parallelize reading and parsing of a single data source, for example a file. Simple parallelism of reading data sources can be achieved by multiple partitions reading different source of same type (for files see [AbstractFileInputOperator](https://github.com/apache/incubator-apex-malhar/blob/devel-3/library/src/main/java/com/datatorrent/lib/io/fs/AbstractFileInputOperator.java)) but Block Reader partitions can read blocks of same source in parallel and parse them for records ensuring that no record is duplicated or missed.
+A Block Reader is needed to parallelize reading and parsing of a single data source, for example a file. Simple parallelism of reading data sources can be achieved by multiple partitions reading different source of same type (for files see [AbstractFileInputOperator](https://github.com/apache/incubator-apex-malhar/blob/master/library/src/main/java/com/datatorrent/lib/io/fs/AbstractFileInputOperator.java)) but Block Reader partitions can read blocks of same source in parallel and parse them for records ensuring that no record is duplicated or missed.
 
 ## Class Diagram
 

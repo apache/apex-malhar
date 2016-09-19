@@ -68,7 +68,8 @@ public class KryoCloneUtilsTest
     assertFalse(from.transientProp.equals(to.transientProp));
   }
 
-  private TestEntity getTestEntity(int depth) {
+  private TestEntity getTestEntity(int depth)
+  {
     TestEntity returnVal = null;
     TestEntity curr = null;
     while (depth-- > 0) {
@@ -82,8 +83,8 @@ public class KryoCloneUtilsTest
     return returnVal;
   }
 
-
-  static class TestEntity {
+  static class TestEntity
+  {
 
     String strProp = RandomStringUtils.random(10);
 

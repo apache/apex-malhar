@@ -38,6 +38,7 @@ import org.apache.hadoop.fs.PositionedReadable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
@@ -127,6 +128,9 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
   protected transient long lastBlockOpenTime;
   protected transient boolean consecutiveBlock;
 
+  @AutoMetric
+  private long bytesRead;
+
   public final transient DefaultOutputPort<B> blocksMetadataOutput = new DefaultOutputPort<>();
   public final transient DefaultOutputPort<ReaderRecord<R>> messages = new DefaultOutputPort<>();
 
@@ -171,6 +175,7 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
   {
     this.windowId = windowId;
     blocksPerWindow = 0;
+    bytesRead = 0;
   }
 
   @Override
@@ -247,6 +252,7 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
     while ((entity = readerContext.next()) != null) {
 
       counters.getCounter(ReaderCounterKeys.BYTES).add(entity.getUsedBytes());
+      bytesRead += entity.getUsedBytes();
 
       R record = convertToRecord(entity.getRecord());
 

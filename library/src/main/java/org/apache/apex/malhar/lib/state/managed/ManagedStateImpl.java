@@ -31,6 +31,8 @@ import com.datatorrent.netlet.util.Slice;
 /**
  * Basic implementation of {@link AbstractManagedStateImpl} where system time corresponding to an application window is
  * used to sub-group key of a particular bucket.<br/>
+ *
+ * @since 3.4.0
  */
 public class ManagedStateImpl extends AbstractManagedStateImpl implements BucketedState
 {
@@ -53,7 +55,7 @@ public class ManagedStateImpl extends AbstractManagedStateImpl implements Bucket
   @Override
   public void put(long bucketId, @NotNull Slice key, @NotNull Slice value)
   {
-    long timeBucket = timeBucketAssigner.getTimeBucketFor(time);
+    long timeBucket = timeBucketAssigner.getTimeBucketAndAdjustBoundaries(time);
     putInBucket(bucketId, timeBucket, key, value);
   }
 

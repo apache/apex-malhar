@@ -28,13 +28,13 @@ import com.datatorrent.lib.testbench.CountOccurance;
  */
 public class CountOccuranceTest
 {
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
-	public void testProcess()
-	{
-		CountOccurance oper = new CountOccurance();
-		oper.setup(null);
-		CollectorTestSink sink = new CollectorTestSink();
+  public void testProcess()
+  {
+    CountOccurance oper = new CountOccurance();
+    oper.setup(null);
+    CollectorTestSink sink = new CollectorTestSink();
     oper.outport.setSink(sink);
 
     oper.beginWindow(1);
@@ -43,5 +43,5 @@ public class CountOccuranceTest
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 1, sink.collectedTuples.size());
-	}
+  }
 }

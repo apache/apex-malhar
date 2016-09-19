@@ -97,10 +97,12 @@ public class BucketsFileSystemTest
   public void testUpdateBucketMetaDataFile() throws IOException
   {
     testMeta.bucketsFileSystem.setup(testMeta.managedStateContext);
-    BucketsFileSystem.MutableTimeBucketMeta mutableTbm = testMeta.bucketsFileSystem.getOrCreateTimeBucketMeta(1, 1);
+    BucketsFileSystem.MutableTimeBucketMeta mutableTbm = new BucketsFileSystem.MutableTimeBucketMeta(1, 1);
     mutableTbm.updateTimeBucketMeta(10, 100, new Slice("1".getBytes()));
 
+    testMeta.bucketsFileSystem.updateTimeBuckets(mutableTbm);
     testMeta.bucketsFileSystem.updateBucketMetaFile(1);
+
     BucketsFileSystem.TimeBucketMeta immutableTbm = testMeta.bucketsFileSystem.getTimeBucketMeta(1, 1);
     Assert.assertNotNull(immutableTbm);
     Assert.assertEquals("last transferred window", 10, immutableTbm.getLastTransferredWindowId());
@@ -116,7 +118,8 @@ public class BucketsFileSystemTest
     BucketsFileSystem.TimeBucketMeta bucketMeta = testMeta.bucketsFileSystem.getTimeBucketMeta(1, 1);
     Assert.assertNull("bucket meta", bucketMeta);
 
-    testMeta.bucketsFileSystem.getOrCreateTimeBucketMeta(1, 1);
+    BucketsFileSystem.MutableTimeBucketMeta mutableTimeBucketMeta = new BucketsFileSystem.MutableTimeBucketMeta(1, 1);
+    testMeta.bucketsFileSystem.updateTimeBuckets(mutableTimeBucketMeta);
     bucketMeta = testMeta.bucketsFileSystem.getTimeBucketMeta(1, 1);
     Assert.assertNotNull("bucket meta not null", bucketMeta);
     testMeta.bucketsFileSystem.teardown();
@@ -126,11 +129,13 @@ public class BucketsFileSystemTest
   public void testGetAllTimeBucketMeta() throws IOException
   {
     testMeta.bucketsFileSystem.setup(testMeta.managedStateContext);
-    BucketsFileSystem.MutableTimeBucketMeta tbm1 = testMeta.bucketsFileSystem.getOrCreateTimeBucketMeta(1, 1);
+    BucketsFileSystem.MutableTimeBucketMeta tbm1 = new BucketsFileSystem.MutableTimeBucketMeta(1, 1);
     tbm1.updateTimeBucketMeta(10, 100, new Slice("1".getBytes()));
+    testMeta.bucketsFileSystem.updateTimeBuckets(tbm1);
 
-    BucketsFileSystem.MutableTimeBucketMeta tbm2 = testMeta.bucketsFileSystem.getOrCreateTimeBucketMeta(1, 2);
+    BucketsFileSystem.MutableTimeBucketMeta tbm2 = new BucketsFileSystem.MutableTimeBucketMeta(1, 2);
     tbm2.updateTimeBucketMeta(10, 100, new Slice("2".getBytes()));
+    testMeta.bucketsFileSystem.updateTimeBuckets(tbm2);
 
     testMeta.bucketsFileSystem.updateBucketMetaFile(1);
     TreeSet<BucketsFileSystem.TimeBucketMeta> timeBucketMetas =

@@ -19,9 +19,13 @@
 package com.datatorrent.demos.twitter;
 
 import java.net.URI;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+
+import com.google.common.collect.Maps;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
@@ -35,15 +39,10 @@ import com.datatorrent.contrib.twitter.TwitterSampleInput;
 import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.appdata.snapshot.AppDataSnapshotServerMap;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 
-import com.google.common.collect.Maps;
-
-import java.util.List;
-import java.util.Map;
 /**
  * Twitter Demo Application: <br>
  * This demo application samples random public status from twitter, send to url
@@ -147,7 +146,7 @@ import java.util.Map;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name=TwitterTopCounterApplication.APP_NAME)
+@ApplicationAnnotation(name = TwitterTopCounterApplication.APP_NAME)
 public class TwitterTopCounterApplication implements StreamingApplication
 {
   public static final String SNAPSHOT_SCHEMA = "twitterURLDataSchema.json";
@@ -188,11 +187,7 @@ public class TwitterTopCounterApplication implements StreamingApplication
     consoleOutput(dag, "topURLs", topCounts.output, SNAPSHOT_SCHEMA, "url");
   }
 
-  public static void consoleOutput(DAG dag,
-                                   String operatorName,
-                                   OutputPort<List<Map<String, Object>>> topCount,
-                                   String schemaFile,
-                                   String alias)
+  public static void consoleOutput(DAG dag, String operatorName, OutputPort<List<Map<String, Object>>> topCount, String schemaFile, String alias)
   {
     String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
     if (!StringUtils.isEmpty(gatewayAddress)) {
@@ -217,8 +212,7 @@ public class TwitterTopCounterApplication implements StreamingApplication
 
       dag.addStream("MapProvider", topCount, snapshotServer.input);
       dag.addStream("Result", snapshotServer.queryResult, queryResultPort);
-    }
-    else {
+    } else {
       ConsoleOutputOperator operator = dag.addOperator(operatorName, new ConsoleOutputOperator());
       operator.setStringFormat(operatorName + ": %s");
 

@@ -21,12 +21,12 @@ package com.datatorrent.lib.counters;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 import org.apache.commons.lang.mutable.MutableDouble;
+
+import com.google.common.collect.Lists;
 
 import com.datatorrent.common.util.NumberAggregate;
 
@@ -69,7 +69,8 @@ public class BasicCountersTest
 
     BasicCounters.DoubleAggregator<MutableDouble> aggregator = new BasicCounters.DoubleAggregator<MutableDouble>();
     @SuppressWarnings("unchecked")
-    Map<String, NumberAggregate.DoubleAggregate> aggregateMap = (Map<String, NumberAggregate.DoubleAggregate>) aggregator.aggregate(physicalCounters);
+    Map<String, NumberAggregate.DoubleAggregate> aggregateMap =
+        (Map<String, NumberAggregate.DoubleAggregate>)aggregator.aggregate(physicalCounters);
 
     Assert.assertNotNull("null", aggregateMap.get(CounterKeys.A.name()));
     NumberAggregate.DoubleAggregate aggregate = aggregateMap.get(CounterKeys.A.name());

@@ -50,137 +50,137 @@ import com.datatorrent.lib.util.KeyValPair;
 @OperatorAnnotation(partitionable = false)
 public class ConsolidatorKeyVal<K, V1, V2, V3, V4, V5> implements Operator
 {
-	/**
-	 * key/array values output result.
-	 */
-	protected HashMap<K, ArrayList<Object>> result;
+  /**
+   * key/array values output result.
+   */
+  protected HashMap<K, ArrayList<Object>> result;
 
-	@Override
-	public void setup(OperatorContext context)
-	{
-	}
+  @Override
+  public void setup(OperatorContext context)
+  {
+  }
 
-	@Override
-	public void teardown()
-	{
-	}
+  @Override
+  public void teardown()
+  {
+  }
 
-	/**
-	 * <p>
-	 * Class operates on <K,V> pair, stores value in given number position in
-	 * list. <br>
-	 *
-	 * @param <V>
-	 *          value type.
-	 */
-	public class ConsolidatorInputPort<V> extends
-			DefaultInputPort<KeyValPair<K, V>>
-	{
-		/**
-		 * Value position in list.
-		 */
-		private int number;
+  /**
+   * <p>
+   * Class operates on <K,V> pair, stores value in given number position in
+   * list. <br>
+   *
+   * @param <V>
+   *          value type.
+   */
+  public class ConsolidatorInputPort<V> extends
+      DefaultInputPort<KeyValPair<K, V>>
+  {
+    /**
+     * Value position in list.
+     */
+    private int number;
 
-		/**
-		 * Constructor
-		 *
-		 * @param oper
-		 *          Connected operator.
-		 * @param num
-		 *          Value position in list.
-		 */
-		ConsolidatorInputPort(Operator oper, int num)
-		{
-			super();
-			number = num;
-		}
+    /**
+     * Constructor
+     *
+     * @param oper
+     *          Connected operator.
+     * @param num
+     *          Value position in list.
+     */
+    ConsolidatorInputPort(Operator oper, int num)
+    {
+      super();
+      number = num;
+    }
 
-		/**
-		 * Process key/value pair.
-		 */
-		@Override
-		public void process(KeyValPair<K, V> tuple)
-		{
-			K key = tuple.getKey();
-			ArrayList<Object> list = getObject(key);
-			list.set(number, tuple.getValue());
-		}
+    /**
+     * Process key/value pair.
+     */
+    @Override
+    public void process(KeyValPair<K, V> tuple)
+    {
+      K key = tuple.getKey();
+      ArrayList<Object> list = getObject(key);
+      list.set(number, tuple.getValue());
+    }
 
-	}
+  }
 
-	/**
-	 * V1 type value input port.
-	 */
-	public final transient ConsolidatorInputPort<V1> in1 = new ConsolidatorInputPort<V1>(
-			this, 0);
+  /**
+   * V1 type value input port.
+   */
+  public final transient ConsolidatorInputPort<V1> in1 = new ConsolidatorInputPort<V1>(
+      this, 0);
 
-	/**
-	 * V2 type value input port.
-	 */
-	public final transient ConsolidatorInputPort<V2> in2 = new ConsolidatorInputPort<V2>(
-			this, 1);
+  /**
+   * V2 type value input port.
+   */
+  public final transient ConsolidatorInputPort<V2> in2 = new ConsolidatorInputPort<V2>(
+      this, 1);
 
-	/**
-	 * V3 type value input port.
-	 */
-	@InputPortFieldAnnotation(optional = true)
-	public final transient ConsolidatorInputPort<V3> in3 = new ConsolidatorInputPort<V3>(
-			this, 2);
+  /**
+   * V3 type value input port.
+   */
+  @InputPortFieldAnnotation(optional = true)
+  public final transient ConsolidatorInputPort<V3> in3 = new ConsolidatorInputPort<V3>(
+      this, 2);
 
-	/**
-	 * V4 type value input port.
-	 */
-	@InputPortFieldAnnotation(optional = true)
-	public final transient ConsolidatorInputPort<V4> in4 = new ConsolidatorInputPort<V4>(
-			this, 3);
+  /**
+   * V4 type value input port.
+   */
+  @InputPortFieldAnnotation(optional = true)
+  public final transient ConsolidatorInputPort<V4> in4 = new ConsolidatorInputPort<V4>(
+      this, 3);
 
-	/**
-	 * V5 type value input port.
-	 */
-	@InputPortFieldAnnotation(optional = true)
-	public final transient ConsolidatorInputPort<V5> in5 = new ConsolidatorInputPort<V5>(
-			this, 4);
+  /**
+   * V5 type value input port.
+   */
+  @InputPortFieldAnnotation(optional = true)
+  public final transient ConsolidatorInputPort<V5> in5 = new ConsolidatorInputPort<V5>(
+      this, 4);
 
-	/**
-	 * Output port that emits a hashmap of &lt;key,arraylist&gt;.
-	 */
-	public final transient DefaultOutputPort<HashMap<K, ArrayList<Object>>> out = new DefaultOutputPort<HashMap<K, ArrayList<Object>>>();
+  /**
+   * Output port that emits a hashmap of &lt;key,arraylist&gt;.
+   */
+  public final transient DefaultOutputPort<HashMap<K, ArrayList<Object>>> out = new DefaultOutputPort<HashMap<K, ArrayList<Object>>>();
 
-	/**
-	 * Get array list object for given key
-	 *
-	 * @param k  key
-	 * @return array list for key.
-	 */
-	public ArrayList<Object> getObject(K k)
-	{
-		ArrayList<Object> val = result.get(k);
-		if (val == null) {
-			val = new ArrayList<Object>(5);
-			val.add(0, null);
-			val.add(1, null);
-			val.add(2, null);
-			val.add(3, null);
-			val.add(4, null);
-			result.put(k, val);
-		}
-		return val;
-	}
+  /**
+   * Get array list object for given key
+   *
+   * @param k  key
+   * @return array list for key.
+   */
+  public ArrayList<Object> getObject(K k)
+  {
+    ArrayList<Object> val = result.get(k);
+    if (val == null) {
+      val = new ArrayList<Object>(5);
+      val.add(0, null);
+      val.add(1, null);
+      val.add(2, null);
+      val.add(3, null);
+      val.add(4, null);
+      result.put(k, val);
+    }
+    return val;
+  }
 
-	@Override
-	public void beginWindow(long windowId)
-	{
-		result = new HashMap<K, ArrayList<Object>>();
-	}
+  @Override
+  public void beginWindow(long windowId)
+  {
+    result = new HashMap<K, ArrayList<Object>>();
+  }
 
-	/**
-	 * Emits merged data
-	 */
-	@Override
-	public void endWindow()
-	{
-		if (!result.isEmpty()) {
-			out.emit(result);
-		}
-	}
+  /**
+   * Emits merged data
+   */
+  @Override
+  public void endWindow()
+  {
+    if (!result.isEmpty()) {
+      out.emit(result);
+    }
+  }
 }

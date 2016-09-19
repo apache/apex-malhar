@@ -20,12 +20,12 @@ package com.datatorrent.lib.appdata.gpo;
 
 import java.util.List;
 
-import com.google.common.collect.Lists;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang3.mutable.MutableInt;
+
+import com.google.common.collect.Lists;
 
 /**
  * @since 3.1.0
@@ -47,7 +47,7 @@ public class SerdeListString implements Serde
     int startIndex = offset.intValue();
 
     List<String> strings = Lists.newArrayList();
-    while(startIndex + length > offset.intValue()) {
+    while (startIndex + length > offset.intValue()) {
       String value = GPOUtils.deserializeString(object, offset);
       strings.add(value);
     }
@@ -59,11 +59,9 @@ public class SerdeListString implements Serde
   public synchronized byte[] serializeObject(Object object)
   {
     @SuppressWarnings("unchecked")
-    List<String> strings = (List<String>) object;
+    List<String> strings = (List<String>)object;
 
-    for(int index = 0;
-        index < strings.size();
-        index++) {
+    for (int index = 0; index < strings.size(); index++) {
       String string = strings.get(index);
       byte[] stringBytes = string.getBytes();
       byte[] lengthBytes = GPOUtils.serializeInt(stringBytes.length);

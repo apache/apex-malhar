@@ -18,10 +18,9 @@
  */
 package com.datatorrent.demos.yahoofinance;
 
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.demos.yahoofinance.YahooFinanceApplication;
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
+import org.apache.hadoop.conf.Configuration;
+import com.datatorrent.api.LocalMode;
 
 /**
  * Run Yahoo Finance application demo.

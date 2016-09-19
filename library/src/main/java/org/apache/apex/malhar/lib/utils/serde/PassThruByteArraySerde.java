@@ -19,11 +19,15 @@
 package org.apache.apex.malhar.lib.utils.serde;
 
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * This is a simple pass through {@link Serde}. When serialization is performed the input byte array is returned.
  * Similarly when deserialization is performed the input byte array is returned.
+ *
+ * @since 3.4.0
  */
+@InterfaceStability.Evolving
 public class PassThruByteArraySerde implements Serde<byte[], byte[]>
 {
   @Override

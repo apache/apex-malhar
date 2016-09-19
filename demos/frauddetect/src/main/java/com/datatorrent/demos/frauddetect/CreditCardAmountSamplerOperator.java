@@ -18,19 +18,26 @@
  */
 package com.datatorrent.demos.frauddetect;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.demos.frauddetect.util.JsonUtils;
-import org.apache.commons.lang.mutable.MutableLong;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.*;
+import org.apache.commons.lang.mutable.MutableLong;
+
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.demos.frauddetect.util.JsonUtils;
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * An operator to alert in case a transaction of a small lowAmount is followed by a transaction which is significantly larger for a given credit card number.
@@ -42,8 +49,8 @@ import java.util.*;
  */
 public class CreditCardAmountSamplerOperator extends BaseOperator
 {
-  private transient final JsonFactory jsonFactory = new JsonFactory();
-  private transient final ObjectMapper mapper = new ObjectMapper(jsonFactory);
+  private final transient JsonFactory jsonFactory = new JsonFactory();
+  private final transient ObjectMapper mapper = new ObjectMapper(jsonFactory);
   private static final Logger logger = LoggerFactory.getLogger(Application.class);
   // Factor to be applied to existing lowAmount to flag potential alerts.
   private double threshold = 9500;
@@ -52,7 +59,7 @@ public class CreditCardAmountSamplerOperator extends BaseOperator
   private List<CreditCardAlertData> alerts = new ArrayList<CreditCardAlertData>();
   //private List<CreditCardAlertData> userAlerts = new ArrayList<CreditCardAlertData>();
   private static final String ALERT_MSG =
-          "Potential fraudulent CC transactions (small one USD %d followed by large USD %d) performed using credit card: %s";
+      "Potential fraudulent CC transactions (small one USD %d followed by large USD %d) performed using credit card: %s";
   public final transient DefaultOutputPort<String> ccAlertOutputPort = new DefaultOutputPort<String>();
   /*
    public final transient DefaultOutputPort<Map<String, Object>> ccUserAlertOutputPort = new DefaultOutputPort<Map<String, Object>>();
@@ -82,8 +89,7 @@ public class CreditCardAmountSamplerOperator extends BaseOperator
       if (ccAmount < currentSmallValue) {
         cardInfo.lowAmount.setValue(ccAmount);
         cardInfo.time = key.time;
-      }
-      else if (ccAmount > (currentSmallValue + threshold)) {
+      } else if (ccAmount > (currentSmallValue + threshold)) {
         // If the transaction lowAmount is > 70% of the min. lowAmount, send an alert.
 
         CreditCardAlertData data = new CreditCardAlertData();
@@ -113,8 +119,7 @@ public class CreditCardAmountSamplerOperator extends BaseOperator
         // alert not resetting the low value from a user generated transaction
         //txMap.remove(fullCcNum);
       }
-    }
-    else {
+    } else {
       cardInfo = new CreditCardInfo();
       cardInfo.lowAmount.setValue(ccAmount);
       cardInfo.time = key.time;
@@ -123,7 +128,7 @@ public class CreditCardAmountSamplerOperator extends BaseOperator
   }
 
   public transient DefaultInputPort<KeyValPair<MerchantKey, CreditCardData>> inputPort =
-          new DefaultInputPort<KeyValPair<MerchantKey, CreditCardData>>()
+      new DefaultInputPort<KeyValPair<MerchantKey, CreditCardData>>()
   {
     //
     // This function checks if a CC entry exists.
@@ -147,8 +152,7 @@ public class CreditCardAmountSamplerOperator extends BaseOperator
     for (CreditCardAlertData data : alerts) {
       try {
         ccAlertOutputPort.emit(JsonUtils.toJson(data));
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         logger.warn("Exception while converting object to JSON", e);
       }
     }
@@ -192,8 +196,7 @@ public class CreditCardAmountSamplerOperator extends BaseOperator
     try {
       String str = mapper.writeValueAsString(output);
       logger.debug("Alert generated: " + str + " userGenerated: " + data.userGenerated);
-    }
-    catch (Exception exc) {
+    } catch (Exception exc) {
       //ignore
     }
 

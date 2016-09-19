@@ -25,9 +25,6 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.SerializerProvider;
@@ -35,8 +32,10 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import org.apache.commons.lang.mutable.Mutable;
 
-import com.datatorrent.api.Context;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 
+import com.datatorrent.api.Context;
 import com.datatorrent.common.util.NumberAggregate;
 
 /**
@@ -142,7 +141,7 @@ public class BasicCounters<T extends Number & Mutable> implements Serializable
       for (Object counter : objects) {
         if (counter instanceof BasicCounters) {
           @SuppressWarnings("unchecked")
-          BasicCounters<T> physical = (BasicCounters<T>) counter;
+          BasicCounters<T> physical = (BasicCounters<T>)counter;
           ImmutableMap<Enum<?>, T> copy = physical.getCopy();
 
           for (Map.Entry<Enum<?>, T> entry : copy.entrySet()) {
@@ -178,7 +177,7 @@ public class BasicCounters<T extends Number & Mutable> implements Serializable
       for (Object counter : objects) {
         if (counter instanceof BasicCounters) {
           @SuppressWarnings("unchecked")
-          BasicCounters<T> physical = (BasicCounters<T>) counter;
+          BasicCounters<T> physical = (BasicCounters<T>)counter;
           ImmutableMap<Enum<?>, T> copy = physical.getCopy();
 
           for (Map.Entry<Enum<?>, T> entry : copy.entrySet()) {

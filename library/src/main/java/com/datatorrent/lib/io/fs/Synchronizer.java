@@ -50,6 +50,8 @@ import com.datatorrent.lib.io.fs.FileStitcher.BlockNotFoundException;
 /**
  * Synchronizer waits for all data blocks for a file to be written to disk. It
  * sends trigger to merge the file only after all blocks are written to HDFS
+ *
+ * @since 3.4.0
  */
 public class Synchronizer extends BaseOperator
 {

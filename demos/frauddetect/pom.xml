@@ -25,13 +25,13 @@
   <artifactId>frauddetect-demo</artifactId>
   <packaging>jar</packaging>
 
-  <name>Apache Apex Malhar (incubating) Fraud Detect Demo</name>
+  <name>Apache Apex Malhar Fraud Detect Demo</name>
   <description>Apex demo application that demonstrates real-time pattern detection in the incoming data and alerting. The demo processes streaming credit card transactions and looks for fraudulent transactions.</description>
 
   <parent>
     <groupId>org.apache.apex</groupId>
     <artifactId>malhar-demos</artifactId>
-    <version>3.4.0-incubating-SNAPSHOT</version>
+    <version>3.6.0-SNAPSHOT</version>
   </parent>
 
   <properties>

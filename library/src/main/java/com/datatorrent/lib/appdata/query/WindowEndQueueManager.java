@@ -29,7 +29,8 @@ import com.datatorrent.lib.appdata.query.QueueList.QueueListNode;
  * @param <META_QUERY> The type of metadata to be associated with queued queries.
  * @since 3.0.0
  */
-public class WindowEndQueueManager<QUERY_TYPE, META_QUERY> extends AbstractWindowEndQueueManager<QUERY_TYPE, META_QUERY, MutableLong>
+public class WindowEndQueueManager<QUERY_TYPE, META_QUERY>
+    extends AbstractWindowEndQueueManager<QUERY_TYPE, META_QUERY, MutableLong>
 {
   public WindowEndQueueManager()
   {
@@ -44,10 +45,8 @@ public class WindowEndQueueManager<QUERY_TYPE, META_QUERY> extends AbstractWindo
   @Override
   public void endWindow()
   {
-    for(QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, MutableLong>> tempNode = queryQueue.getHead();
-        tempNode != null;
-        tempNode = tempNode.getNext())
-    {
+    for (QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, MutableLong>> tempNode = queryQueue.getHead();
+        tempNode != null; tempNode = tempNode.getNext()) {
       MutableLong qc = tempNode.getPayload().getQueueContext();
       qc.decrement();
     }

@@ -60,6 +60,8 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @displayName Abstract NiFi Input
  * @category Messaging
  * @tags input operator
+ *
+ * @since 3.4.0
  */
 
 public abstract class AbstractNiFiInputOperator<T> implements InputOperator
@@ -103,9 +105,9 @@ public abstract class AbstractNiFiInputOperator<T> implements InputOperator
     currentWindowId = windowId;
 
     // if the current window is now less than the largest window, then we need to replay data
-    if (currentWindowId <= windowDataManager.getLargestRecoveryWindow()) {
+    if (currentWindowId <= windowDataManager.getLargestCompletedWindow()) {
       try {
-        List<T> recoveredData =  (List<T>)this.windowDataManager.load(operatorContextId, windowId);
+        List<T> recoveredData =  (List<T>)this.windowDataManager.retrieve(windowId);
         if (recoveredData == null) {
           return;
         }
@@ -157,7 +159,7 @@ public abstract class AbstractNiFiInputOperator<T> implements InputOperator
 
       // ensure we have the data saved before proceeding in case anything goes wrong
       currentWindowTuples.addAll(tuples);
-      windowDataManager.save(currentWindowTuples, operatorContextId, currentWindowId);
+      windowDataManager.save(currentWindowTuples, currentWindowId);
 
       // we now have the data saved so we can complete the transaction
       transaction.complete();
@@ -190,7 +192,7 @@ public abstract class AbstractNiFiInputOperator<T> implements InputOperator
   {
     // save the final state of the window and clear the current window list
     try {
-      windowDataManager.save(currentWindowTuples, operatorContextId, currentWindowId);
+      windowDataManager.save(currentWindowTuples, currentWindowId);
     } catch (IOException e) {
       DTThrowable.rethrow(e);
     }

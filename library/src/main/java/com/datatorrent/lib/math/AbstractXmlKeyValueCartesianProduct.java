@@ -39,7 +39,8 @@ public abstract class AbstractXmlKeyValueCartesianProduct<T> extends AbstractXml
   }
 
   @Override
-  public boolean isValueNode(Node n) {
+  public boolean isValueNode(Node n)
+  {
     return isTextContainerNode(n);
   }
 

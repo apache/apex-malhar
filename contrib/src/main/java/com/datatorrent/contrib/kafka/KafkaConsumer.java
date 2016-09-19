@@ -86,8 +86,16 @@ public abstract class KafkaConsumer implements Closeable
   protected String topic = "default_topic";
 
   /**
-   * A zookeeper map keyed by cluster id
-   * It's mandatory field
+   * A zookeeper map keyed by cluster id.
+   * It's mandatory field <br>
+   * Each cluster should have only one connection string contain all nodes in the cluster <br>
+   * zookeeper chroot path is also supported <br>
+   *
+   * Single cluster zookeeper example: <br>
+   * &nbsp;&nbsp;  node1:2181,node2:2181,node3:2181/your/kafka/data <br>
+   * Multi-cluster zookeeper example: <br>
+   * &nbsp;&nbsp;  cluster1::node1:2181,node2:2181,node3:2181/cluster1;cluster2::node1:2181/cluster2
+   *
    */
   @NotNull
   @Bind(JavaSerializer.class)
@@ -535,20 +543,7 @@ public abstract class KafkaConsumer implements Closeable
     for (String zk : zookeeper.split(";")) {
       String[] parts = zk.split("::");
       String clusterId = parts.length == 1 ? KafkaPartition.DEFAULT_CLUSTERID : parts[0];
-      String[] hostNames = parts.length == 1 ? parts[0].split(",") : parts[1].split(",");
-      String portId = "";
-      for (int idx = hostNames.length - 1; idx >= 0; idx--) {
-        String[] zkParts = hostNames[idx].split(":");
-        if (zkParts.length == 2) {
-          portId = zkParts[1];
-        }
-        if (!portId.isEmpty() && portId != "") {
-          theClusters.put(clusterId, zkParts[0] + ":" + portId);
-        } else {
-          throw new IllegalArgumentException("Wrong zookeeper string: " + zookeeper + "\n"
-              + " Expected format should be cluster1::zookeeper1,zookeeper2:port1;cluster2::zookeeper3:port2 or zookeeper1:port1,zookeeper:port2");
-        }
-      }
+      theClusters.put(clusterId, parts.length == 1 ? parts[0] : parts[1]);
     }
     return theClusters;
   }

@@ -30,29 +30,29 @@ import com.datatorrent.lib.testbench.CountTestSink;
  * Benchmarks: Currently does about ?? Million tuples/sec in debugging environment. Need to test on larger nodes<br>
  * <br>
  */
-public class ArrayListToItemTest {
-	
-    /**
-     * Test operator pass through. The Object passed is not relevant
-     */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-		@Test
-    public void testNodeProcessing() throws Exception
-    {
-      ArrayListToItem oper = new ArrayListToItem();
-      CountTestSink itemSink = new CountTestSink();
-      oper.item.setSink(itemSink);
+public class ArrayListToItemTest
+{
+  /**
+   * Test operator pass through. The Object passed is not relevant
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  @Test
+  public void testNodeProcessing() throws Exception
+  {
+    ArrayListToItem oper = new ArrayListToItem();
+    CountTestSink itemSink = new CountTestSink();
+    oper.item.setSink(itemSink);
 
-      oper.beginWindow(0);
-      ArrayList<String> input = new ArrayList<String>();
-      input.add("a");
-      // Same input object can be used as the oper is just pass through
-      int numtuples = 1000;
-      for (int i = 0; i < numtuples; i++) {
-        oper.data.process(input);
-      }
-
-      oper.endWindow();
-      Assert.assertEquals("number emitted tuples", numtuples, itemSink.count);
+    oper.beginWindow(0);
+    ArrayList<String> input = new ArrayList<String>();
+    input.add("a");
+    // Same input object can be used as the oper is just pass through
+    int numtuples = 1000;
+    for (int i = 0; i < numtuples; i++) {
+      oper.data.process(input);
     }
+
+    oper.endWindow();
+    Assert.assertEquals("number emitted tuples", numtuples, itemSink.count);
+  }
 }

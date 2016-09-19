@@ -32,36 +32,36 @@ import com.datatorrent.lib.util.KeyValPair;
  */
 public class MultiWindowSumKeyValTest
 {
-	private static Logger log = LoggerFactory.getLogger(MultiWindowSumKeyValTest.class);
-	/**
-	 * Test functional logic
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+  private static Logger log = LoggerFactory.getLogger(MultiWindowSumKeyValTest.class);
+  /**
+   * Test functional logic
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
-	public void testNodeProcessing() throws InterruptedException
-	{
-		MultiWindowSumKeyVal<String, Integer> oper = new MultiWindowSumKeyVal<String, Integer>();
+  public void testNodeProcessing() throws InterruptedException
+  {
+    MultiWindowSumKeyVal<String, Integer> oper = new MultiWindowSumKeyVal<String, Integer>();
 
-		CollectorTestSink swinSink = new CollectorTestSink();
-		oper.sum.setSink(swinSink);
+    CollectorTestSink swinSink = new CollectorTestSink();
+    oper.sum.setSink(swinSink);
 
-		oper.beginWindow(0);
-		KeyValPair<String, Integer> low = new KeyValPair<String, Integer>("a", 3);
-		oper.data.process(low);
-		KeyValPair<String, Integer> high = new KeyValPair<String, Integer>("a", 11);
-		oper.data.process(high);
-		oper.endWindow();
+    oper.beginWindow(0);
+    KeyValPair<String, Integer> low = new KeyValPair<String, Integer>("a", 3);
+    oper.data.process(low);
+    KeyValPair<String, Integer> high = new KeyValPair<String, Integer>("a", 11);
+    oper.data.process(high);
+    oper.endWindow();
 
-		oper.beginWindow(1);
-		low = new KeyValPair<String, Integer>("a", 1);
-		oper.data.process(low);
-		high = new KeyValPair<String, Integer>("a", 9);
-		oper.data.process(high);
-		oper.endWindow();
+    oper.beginWindow(1);
+    low = new KeyValPair<String, Integer>("a", 1);
+    oper.data.process(low);
+    high = new KeyValPair<String, Integer>("a", 9);
+    oper.data.process(high);
+    oper.endWindow();
 
-		Assert.assertEquals("number emitted tuples", 1, swinSink.collectedTuples.size());
-		for (Object o : swinSink.collectedTuples) {
-			log.debug(o.toString());
-		}
-	}
+    Assert.assertEquals("number emitted tuples", 1, swinSink.collectedTuples.size());
+    for (Object o : swinSink.collectedTuples) {
+      log.debug(o.toString());
+    }
+  }
 }

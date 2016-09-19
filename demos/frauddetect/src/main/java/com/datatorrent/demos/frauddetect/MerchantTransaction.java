@@ -30,12 +30,12 @@ public class MerchantTransaction implements Serializable
   public enum MerchantType
   {
     UNDEFINED, BRICK_AND_MORTAR, INTERNET
-  };
+  }
 
   public enum TransactionType
   {
     UNDEFINED, POS
-  };
+  }
 
   public String ccNum;
   public String bankIdNum;

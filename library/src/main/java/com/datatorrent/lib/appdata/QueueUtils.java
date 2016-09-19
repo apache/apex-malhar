@@ -43,14 +43,14 @@ public class QueueUtils
 
     public void lock()
     {
-      synchronized(lock) {
+      synchronized (lock) {
         locked = true;
       }
     }
 
     public void unlock()
     {
-      synchronized(lock) {
+      synchronized (lock) {
         locked = false;
         lock.notifyAll();
       }
@@ -58,12 +58,11 @@ public class QueueUtils
 
     public void gate()
     {
-      synchronized(lock) {
-        while(locked) {
+      synchronized (lock) {
+        while (locked) {
           try {
             lock.wait();
-          }
-          catch(InterruptedException ex) {
+          } catch (InterruptedException ex) {
             //Do nothing
           }
         }

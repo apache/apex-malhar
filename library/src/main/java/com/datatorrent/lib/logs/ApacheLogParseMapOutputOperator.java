@@ -24,14 +24,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.Stateless;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.api.annotation.Stateless;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This operator parses apache logs one line at a time (each tuple is a log line), using the given regex.&nbsp;
@@ -83,8 +85,7 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
     {
       try {
         processTuple(s);
-      }
-      catch (ParseException ex) {
+      } catch (ParseException ex) {
         throw new RuntimeException("Could not parse the input string", ex);
       }
     }

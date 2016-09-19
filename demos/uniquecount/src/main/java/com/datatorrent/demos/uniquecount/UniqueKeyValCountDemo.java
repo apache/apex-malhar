@@ -18,7 +18,6 @@
  */
 package com.datatorrent.demos.uniquecount;
 
-
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context;
@@ -27,19 +26,19 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
+import com.datatorrent.common.partitioner.StatelessPartitioner;
+
 import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.converter.MapToKeyHashValuePairConverter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.util.KeyValPair;
-
-import com.datatorrent.common.partitioner.StatelessPartitioner;
 
 /**
  * <p>UniqueKeyValCountDemo class.</p>
  *
  * @since 1.0.2
  */
-@ApplicationAnnotation(name="UniqueKeyValueCountDemo")
+@ApplicationAnnotation(name = "UniqueKeyValueCountDemo")
 public class UniqueKeyValCountDemo implements StreamingApplication
 {
 

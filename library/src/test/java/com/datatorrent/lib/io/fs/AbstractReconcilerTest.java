@@ -21,9 +21,10 @@ package com.datatorrent.lib.io.fs;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
 import org.junit.Test;
+
+import org.apache.hadoop.conf.Configuration;
 
 import com.google.common.collect.Lists;
 
@@ -31,7 +32,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
-
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.testbench.RandomWordGenerator;
 

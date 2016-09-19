@@ -18,13 +18,13 @@
  */
 package com.datatorrent.demos.twitter;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
-
 import java.util.Arrays;
 import java.util.HashSet;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * <p>TwitterStatusWordExtractor class.</p>
@@ -41,7 +41,7 @@ public class TwitterStatusWordExtractor extends BaseOperator
     @Override
     public void process(String text)
     {
-      String strs[] = text.split(" ");
+      String[] strs = text.split(" ");
       if (strs != null) {
         for (String str : strs) {
           if (str != null && !filterList.contains(str) ) {
@@ -56,7 +56,7 @@ public class TwitterStatusWordExtractor extends BaseOperator
   public void setup(OperatorContext context)
   {
     this.filterList = new HashSet<String>(Arrays.asList(new String[]{"", " ","I","you","the","a","to","as","he","him","his","her","she","me","can","for","of","and","or","but",
-           "this","that","!",",",".",":","#","/","@","be","in","out","was","were","is","am","are","so","no","...","my","de","RT","on","que","la","i","your","it","have","with","?","when",
-    "up","just","do","at","&","-","+","*","\\","y","n","like","se","en","te","el","I'm"}));
+      "this","that","!",",",".",":","#","/","@","be","in","out","was","were","is","am","are","so","no","...","my","de","RT","on","que","la","i","your","it","have","with","?","when",
+      "up","just","do","at","&","-","+","*","\\","y","n","like","se","en","te","el","I'm"}));
   }
 }

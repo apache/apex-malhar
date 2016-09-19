@@ -60,6 +60,8 @@ import com.datatorrent.common.util.BaseOperator;
  *
  * @displayName Abstract Join Operator
  * @tags join
+ *
+ * @since 3.4.0
  */
 @InterfaceStability.Unstable
 public abstract class AbstractJoinOperator<T> extends BaseOperator implements Operator.CheckpointListener

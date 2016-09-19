@@ -53,10 +53,10 @@ public class TimeBucketKey
   private static DateFormat hourDateFormat = new SimpleDateFormat("'h|'yyyyMMddHH");
   private static DateFormat minuteDateFormat = new SimpleDateFormat("'m|'yyyyMMddHHmm");
 
-  private static final long MILLIS_IN_MIN = 60*1000;
-  private static final long MILLIS_IN_HOUR = 60*60*1000;
-  private static final long MILLIS_IN_DAY = 24*60*60*1000;
-  private static final long MILLIS_IN_WEEK = 7*24*60*60*1000;
+  private static final long MILLIS_IN_MIN = 60 * 1000;
+  private static final long MILLIS_IN_HOUR = 60 * 60 * 1000;
+  private static final long MILLIS_IN_DAY = 24 * 60 * 60 * 1000;
+  private static final long MILLIS_IN_WEEK = 7 * 24 * 60 * 60 * 1000;
 
   static {
     // TODO - Fix this
@@ -72,10 +72,12 @@ public class TimeBucketKey
   private Calendar time;
   private int timeSpec;
 
-  public TimeBucketKey() {
+  public TimeBucketKey()
+  {
   }
 
-  public TimeBucketKey(Calendar time, int timeSpec) {
+  public TimeBucketKey(Calendar time, int timeSpec)
+  {
     this.time = time;
     this.timeSpec = timeSpec;
   }
@@ -136,17 +138,13 @@ public class TimeBucketKey
       TimeBucketKey ckey = (TimeBucketKey)obj;
       if (timeSpec == TIMESPEC_MINUTE_SPEC) {
         equal = ((time.getTimeInMillis() / MILLIS_IN_MIN) == (ckey.getTime().getTimeInMillis() / MILLIS_IN_MIN));
-      }
-      else if (timeSpec == TIMESPEC_HOUR_SPEC) {
+      } else if (timeSpec == TIMESPEC_HOUR_SPEC) {
         equal = ((time.getTimeInMillis() / MILLIS_IN_HOUR) == (ckey.getTime().getTimeInMillis() / MILLIS_IN_HOUR));
-      }
-      else if (timeSpec == TIMESPEC_DAY_SPEC) {
+      } else if (timeSpec == TIMESPEC_DAY_SPEC) {
         equal = ((time.getTimeInMillis() / MILLIS_IN_DAY) == (ckey.getTime().getTimeInMillis() / MILLIS_IN_DAY));
-      }
-      else if (timeSpec == TIMESPEC_WEEK_SPEC) {
+      } else if (timeSpec == TIMESPEC_WEEK_SPEC) {
         equal = ((time.getTimeInMillis() / MILLIS_IN_WEEK) == (ckey.getTime().getTimeInMillis() / MILLIS_IN_WEEK));
-      }
-      else {
+      } else {
         boolean chkEqual = true;
         if ((timeSpec & TIMESPEC_YEAR) != 0) {
           if (time.get(Calendar.YEAR) != ckey.getTime().get(Calendar.YEAR)) {
@@ -170,15 +168,15 @@ public class TimeBucketKey
     Date date = time.getTime();
     if (timeSpec == TIMESPEC_YEAR_SPEC) {
       return yearDateFormat.format(date);
-    }else if (timeSpec == TIMESPEC_MONTH_SPEC) {
+    } else if (timeSpec == TIMESPEC_MONTH_SPEC) {
       return monthDateFormat.format(date);
-    }else if (timeSpec == TIMESPEC_WEEK_SPEC) {
+    } else if (timeSpec == TIMESPEC_WEEK_SPEC) {
       return weekDateFormat.format(date);
-    }else if (timeSpec == TIMESPEC_DAY_SPEC) {
+    } else if (timeSpec == TIMESPEC_DAY_SPEC) {
       return dayDateFormat.format(date);
-    }else if (timeSpec == TIMESPEC_HOUR_SPEC) {
+    } else if (timeSpec == TIMESPEC_HOUR_SPEC) {
       return hourDateFormat.format(date);
-    }else if (timeSpec == TIMESPEC_MINUTE_SPEC) {
+    } else if (timeSpec == TIMESPEC_MINUTE_SPEC) {
       return minuteDateFormat.format(date);
     }
     return null;

@@ -25,13 +25,13 @@
   <artifactId>yahoo-finance-demo</artifactId>
   <packaging>jar</packaging>
 
-  <name>Apache Apex Malhar (incubating) Yahoo! Finance Demo</name>
+  <name>Apache Apex Malhar Yahoo! Finance Demo</name>
   <description>Apex demo applications that get Yahoo finance feed and calculate minute price range, minute volume and simple moving average.</description>
 
   <parent>
     <groupId>org.apache.apex</groupId>
     <artifactId>malhar-demos</artifactId>
-    <version>3.4.0-incubating-SNAPSHOT</version>
+    <version>3.6.0-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -48,6 +48,17 @@
       <groupId>org.apache.derby</groupId>
       <artifactId>derby</artifactId>
       <version>10.9.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>malhar-contrib</artifactId>
+      <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 

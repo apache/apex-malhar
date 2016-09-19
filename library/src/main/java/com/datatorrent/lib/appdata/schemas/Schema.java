@@ -41,26 +41,31 @@ public interface Schema
    * @return The id of the schema.
    */
   public int getSchemaID();
+
   /**
    * Gets the type of the schema (e.x. point, dimensions).
    * @return The type of the schema.
    */
   public String getSchemaType();
+
   /**
    * Gets the version of the schema.
    * @return The version of the schema.
    */
   public String getSchemaVersion();
+
   /**
    * Gets the AppData json to serve in response to a schema query.
    * @return The AppData json to serve in response to a schema query.
    */
   public String getSchemaJSON();
+
   /**
    * Gets the schema keys which are used to send queries targeted to this schema.
    * @return The schema keys which are used to send queries targeted to this schema.
    */
   public Map<String, String> getSchemaKeys();
+
   /**
    * Sets the schema keys for this schema.
    * @param schemaKeys The schema keys for this schema.

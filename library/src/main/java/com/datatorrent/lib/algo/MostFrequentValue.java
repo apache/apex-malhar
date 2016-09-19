@@ -104,7 +104,7 @@ public class MostFrequentValue<K> extends AbstractBaseFrequentKey<K>
     public Unifier<ArrayList<HashMap<K, Integer>>> getUnifier()
     {
       Unifier<ArrayList<HashMap<K, Integer>>> ret = new UnifierArrayHashMapFrequent<K>();
-      ((UnifierHashMapFrequent) ret).setLeast(false);
+      ((UnifierHashMapFrequent)ret).setLeast(false);
       return ret;
     }
   };

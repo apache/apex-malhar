@@ -18,20 +18,33 @@
  */
 package com.datatorrent.lib.db.jdbc;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Random;
+
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.ProcessingMode;
-import com.datatorrent.netlet.util.DTThrowable;
-import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.*;
 import com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.TestEvent;
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.netlet.util.DTThrowable;
+
+import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.APP_ID;
+import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.OPERATOR_ID;
+import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.TABLE_NAME;
 import static com.datatorrent.lib.db.jdbc.JdbcOperatorTest.DB_DRIVER;
 import static com.datatorrent.lib.db.jdbc.JdbcOperatorTest.URL;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import java.sql.*;
-import java.util.Random;
-import org.junit.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Test for {@link AbstractJdbcNonTransactionableBatchOutputOperator}
@@ -54,17 +67,7 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
     try {
       Class.forName(DB_DRIVER).newInstance();
       con = DriverManager.getConnection(URL);
-    }
-    catch (SQLException ex) {
-      DTThrowable.rethrow(ex);
-    }
-    catch (ClassNotFoundException ex) {
-      DTThrowable.rethrow(ex);
-    }
-    catch (InstantiationException ex) {
-      DTThrowable.rethrow(ex);
-    }
-    catch (IllegalAccessException ex) {
+    } catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException ex) {
       DTThrowable.rethrow(ex);
     }
   }
@@ -77,8 +80,7 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
 
     try {
       con.close();
-    }
-    catch (SQLException ex) {
+    } catch (SQLException ex) {
       DTThrowable.rethrow(ex);
     }
   }
@@ -108,8 +110,7 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
         int count = resultSet.getInt(1);
         stmt.close();
         return count;
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
         throw new RuntimeException("fetching count", e);
       }
     }
@@ -145,55 +146,40 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
 
     outputOperator.beginWindow(0);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.input.put(new TestEvent(random.nextInt()));
     }
 
     outputOperator.endWindow();
 
-    Assert.assertEquals("Commit window id ",
-                        0,
-                        outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
+    Assert.assertEquals("Commit window id ", 0, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
+    Assert.assertEquals("Batch should be written", BATCH_SIZE,
+        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
 
     outputOperator.beginWindow(1);
 
-    for(int batchCounter = 0;
-        batchCounter < HALF_BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < HALF_BATCH_SIZE; batchCounter++) {
       outputOperator.input.put(new TestEvent(random.nextInt()));
     }
 
     outputOperator.endWindow();
 
-    Assert.assertEquals("Commit window id ",
-                        1,
-                        outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
-    Assert.assertEquals("Batch should not be written",
-                        BATCH_SIZE,
-                        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
+    Assert.assertEquals("Commit window id ", 1, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
+    Assert.assertEquals("Batch should not be written", BATCH_SIZE,
+        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
 
     outputOperator.beginWindow(2);
 
-    for(int batchCounter = 0;
-        batchCounter < HALF_BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < HALF_BATCH_SIZE; batchCounter++) {
       outputOperator.input.put(new TestEvent(random.nextInt()));
     }
 
     outputOperator.endWindow();
 
 
-    Assert.assertEquals("Commit window id ",
-                        2,
-                        outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
-    Assert.assertEquals("Batch should not be written",
-                        2 * BATCH_SIZE,
-                        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
+    Assert.assertEquals("Commit window id ", 2, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
+    Assert.assertEquals("Batch should not be written", 2 * BATCH_SIZE,
+        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
 
     outputOperator.teardown();
   }
@@ -207,36 +193,26 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
 
     outputOperator.beginWindow(0);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.input.put(new TestEvent(random.nextInt()));
     }
 
     outputOperator.endWindow();
 
 
-    Assert.assertEquals("Commit window id ",
-                        0,
-                        outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
+    Assert.assertEquals("Commit window id ", 0, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
+    Assert.assertEquals("Batch should be written", BATCH_SIZE,
+        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
 
     outputOperator.beginWindow(1);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.input.put(new TestEvent(random.nextInt()));
     }
 
-    Assert.assertEquals("Commit window id ",
-                        0,
-                        outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
-    Assert.assertEquals("Batch should be written",
-                        2 * BATCH_SIZE,
-                        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
+    Assert.assertEquals("Commit window id ", 0, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
+    Assert.assertEquals("Batch should be written", 2 * BATCH_SIZE,
+        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
 
     outputOperator.getStore().disconnect();
 
@@ -249,46 +225,33 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
     outputOperator.setup(context);
 
-    Assert.assertEquals("Commit window id ",
-                        0,
-                        outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
-    Assert.assertEquals("Batch should be written",
-                        2* BATCH_SIZE,
-                        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
+    Assert.assertEquals("Commit window id ", 0, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
+    Assert.assertEquals("Batch should be written", 2 * BATCH_SIZE,
+        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
 
     outputOperator.beginWindow(0);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.input.put(new TestEvent(random.nextInt()));
     }
 
     outputOperator.endWindow();
 
-    Assert.assertEquals("Commit window id ",
-                        0,
-                        outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
-    Assert.assertEquals("Batch should be written",
-                        2 * BATCH_SIZE,
-                        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
+    Assert.assertEquals("Commit window id ", 0, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
+    Assert.assertEquals("Batch should be written", 2 * BATCH_SIZE,
+        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
 
     outputOperator.beginWindow(1);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.input.put(new TestEvent(random.nextInt()));
     }
 
     outputOperator.endWindow();
 
-    Assert.assertEquals("Commit window id ",
-                        1,
-                        outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
-    Assert.assertEquals("Batch should be written",
-                        3 * BATCH_SIZE,
-                        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
+    Assert.assertEquals("Commit window id ", 1, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
+    Assert.assertEquals("Batch should be written", 3 * BATCH_SIZE,
+        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
   }
 
   @Test
@@ -300,36 +263,26 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
 
     outputOperator.beginWindow(0);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.input.put(new TestEvent(random.nextInt()));
     }
 
     outputOperator.endWindow();
 
 
-    Assert.assertEquals("Commit window id ",
-                        0,
-                        outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
+    Assert.assertEquals("Commit window id ", 0, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
+    Assert.assertEquals("Batch should be written", BATCH_SIZE,
+        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
 
     outputOperator.beginWindow(1);
 
-    for(int batchCounter = 0;
-        batchCounter < HALF_BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < HALF_BATCH_SIZE; batchCounter++) {
       outputOperator.input.put(new TestEvent(random.nextInt()));
     }
 
-    Assert.assertEquals("Commit window id ",
-                        0,
-                        outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
+    Assert.assertEquals("Commit window id ", 0, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
+    Assert.assertEquals("Batch should be written", BATCH_SIZE,
+        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
 
     outputOperator.getStore().disconnect();
 
@@ -339,49 +292,38 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, 0L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
+        OPERATOR_ID, attributeMap);
+
     outputOperator.setup(context);
 
-    Assert.assertEquals("Commit window id ",
-                        0,
-                        outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
+    Assert.assertEquals("Commit window id ", 0, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
+    Assert.assertEquals("Batch should be written", BATCH_SIZE,
+        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
 
     outputOperator.beginWindow(0);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.input.put(new TestEvent(random.nextInt()));
     }
 
     outputOperator.endWindow();
 
-    Assert.assertEquals("Commit window id ",
-                        0,
-                        outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
+    Assert.assertEquals("Commit window id ", 0, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
+    Assert.assertEquals("Batch should be written", BATCH_SIZE,
+        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
 
     outputOperator.beginWindow(1);
 
-    for(int batchCounter = 0;
-        batchCounter < HALF_BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < HALF_BATCH_SIZE; batchCounter++) {
       outputOperator.input.put(new TestEvent(random.nextInt()));
     }
 
     outputOperator.endWindow();
 
-    Assert.assertEquals("Commit window id ",
-                        1,
-                        outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
-    Assert.assertEquals("Batch should be written",
-                        2 * BATCH_SIZE,
-                        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
+    Assert.assertEquals("Commit window id ", 1, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
+    Assert.assertEquals("Batch should be written", 2 * BATCH_SIZE,
+        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
   }
 
   @Test
@@ -393,35 +335,25 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
 
     outputOperator.beginWindow(0);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.input.put(new TestEvent(random.nextInt()));
     }
 
     outputOperator.endWindow();
 
-    Assert.assertEquals("Commit window id ",
-                        0,
-                        outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
+    Assert.assertEquals("Commit window id ", 0, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
+    Assert.assertEquals("Batch should be written", BATCH_SIZE,
+        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
 
     outputOperator.beginWindow(1);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.input.put(new TestEvent(random.nextInt()));
     }
 
-    Assert.assertEquals("Commit window id ",
-                        0,
-                        outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
-    Assert.assertEquals("Batch should be written",
-                        2 * BATCH_SIZE,
-                        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
+    Assert.assertEquals("Commit window id ", 0, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
+    Assert.assertEquals("Batch should be written", 2 * BATCH_SIZE,
+        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
 
     outputOperator.getStore().disconnect();
 
@@ -436,20 +368,15 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
 
     outputOperator.beginWindow(2);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.input.put(new TestEvent(random.nextInt()));
     }
 
     outputOperator.endWindow();
 
-    Assert.assertEquals("Commit window id ",
-                        2,
-                        outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
-    Assert.assertEquals("Batch should be written",
-                        3 * BATCH_SIZE,
-                        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
+    Assert.assertEquals("Commit window id ", 2, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
+    Assert.assertEquals("Batch should be written", 3 * BATCH_SIZE,
+        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
   }
 
   @Test
@@ -461,36 +388,26 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
 
     outputOperator.beginWindow(0);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.input.put(new TestEvent(random.nextInt()));
     }
 
     outputOperator.endWindow();
 
 
-    Assert.assertEquals("Commit window id ",
-                        0,
-                        outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
+    Assert.assertEquals("Commit window id ", 0, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
+    Assert.assertEquals("Batch should be written", BATCH_SIZE,
+        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
 
     outputOperator.beginWindow(1);
 
-    for(int batchCounter = 0;
-        batchCounter < HALF_BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < HALF_BATCH_SIZE; batchCounter++) {
       outputOperator.input.put(new TestEvent(random.nextInt()));
     }
 
-    Assert.assertEquals("Commit window id ",
-                        0,
-                        outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
+    Assert.assertEquals("Commit window id ", 0, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
+    Assert.assertEquals("Batch should be written", BATCH_SIZE,
+        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
 
     outputOperator.getStore().disconnect();
 
@@ -503,28 +420,20 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
     outputOperator.setup(context);
 
-    Assert.assertEquals("Commit window id ",
-                        0,
-                        outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
-    Assert.assertEquals("Batch should be written",
-                        BATCH_SIZE,
-                        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
+    Assert.assertEquals("Commit window id ", 0, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
+    Assert.assertEquals("Batch should be written", BATCH_SIZE,
+        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
 
     outputOperator.beginWindow(2);
 
-    for(int batchCounter = 0;
-        batchCounter < BATCH_SIZE;
-        batchCounter++) {
+    for (int batchCounter = 0; batchCounter < BATCH_SIZE; batchCounter++) {
       outputOperator.input.put(new TestEvent(random.nextInt()));
     }
 
     outputOperator.endWindow();
 
-    Assert.assertEquals("Commit window id ",
-                        2,
-                        outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
-    Assert.assertEquals("Batch should be written",
-                        2 * BATCH_SIZE,
-                        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
+    Assert.assertEquals("Commit window id ", 2, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
+    Assert.assertEquals("Batch should be written", 2 * BATCH_SIZE,
+        outputOperator.getNumOfEventsInStore(outputOperator.getStore().connection));
   }
 }

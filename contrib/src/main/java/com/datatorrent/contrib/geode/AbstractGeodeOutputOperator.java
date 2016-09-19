@@ -33,6 +33,8 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  * @param <T>
  *          The tuple type.
  * 
+ *
+ * @since 3.4.0
  */
 public abstract class AbstractGeodeOutputOperator<T> extends AbstractStoreOutputOperator<T, GeodeStore>
 {

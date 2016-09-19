@@ -24,6 +24,11 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.util.Random;
 
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -31,26 +36,23 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.WritableUtils;
 import org.apache.hadoop.io.compress.zlib.ZlibFactory;
 import org.apache.hadoop.io.file.tfile.DTFile.Reader;
-import org.apache.hadoop.io.file.tfile.DTFile.Writer;
 import org.apache.hadoop.io.file.tfile.DTFile.Reader.Location;
 import org.apache.hadoop.io.file.tfile.DTFile.Reader.Scanner;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.hadoop.io.file.tfile.DTFile.Writer;
 
 /**
- * 
+ *
  * Byte arrays test case class using GZ compression codec, base class of none
  * and LZO compression classes.
- * 
+ *
  */
-public class TestDTFileByteArrays {
+public class TestDTFileByteArrays
+{
   private static String ROOT =
       System.getProperty("test.build.data", "target/tfile-test");
-  private final static int BLOCK_SIZE = 512;
-  private final static int BUF_SIZE = 64;
-  private final static int K = 1024;
+  private static final int BLOCK_SIZE = 512;
+  private static final int BUF_SIZE = 64;
+  private static final int K = 1024;
   protected boolean skip = false;
 
   private static final String KEY = "key";
@@ -76,19 +78,22 @@ public class TestDTFileByteArrays {
   private int records2ndBlock = usingNative ? 5574 : 4263;
 
   public void init(String compression, String comparator,
-      int numRecords1stBlock, int numRecords2ndBlock) {
+      int numRecords1stBlock, int numRecords2ndBlock)
+  {
     init(compression, comparator);
     this.records1stBlock = numRecords1stBlock;
     this.records2ndBlock = numRecords2ndBlock;
   }
   
-  public void init(String compression, String comparator) {
+  public void init(String compression, String comparator)
+  {
     this.compression = compression;
     this.comparator = comparator;
   }
 
   @Before
-  public void setUp() throws IOException {
+  public void setUp() throws IOException
+  {
     path = new Path(ROOT, outputFile);
     fs = path.getFileSystem(conf);
     out = fs.create(path);
@@ -96,15 +101,19 @@ public class TestDTFileByteArrays {
   }
 
   @After
-  public void tearDown() throws IOException {
-    if (!skip)
+  public void tearDown() throws IOException
+  {
+    if (!skip) {
       fs.delete(path, true);
+    }
   }
 
   @Test
-  public void testNoDataEntry() throws IOException {
-    if (skip) 
+  public void testNoDataEntry() throws IOException
+  {
+    if (skip) {
       return;
+    }
     closeOutput();
 
     Reader reader = new Reader(fs.open(path), fs.getFileStatus(path).getLen(), conf);
@@ -116,9 +125,11 @@ public class TestDTFileByteArrays {
   }
 
   @Test
-  public void testOneDataEntry() throws IOException {
-    if (skip)
+  public void testOneDataEntry() throws IOException
+  {
+    if (skip) {
       return;
+    }
     writeRecords(1);
     readRecords(1);
 
@@ -130,22 +141,26 @@ public class TestDTFileByteArrays {
   }
 
   @Test
-  public void testTwoDataEntries() throws IOException {
-    if (skip)
+  public void testTwoDataEntries() throws IOException
+  {
+    if (skip) {
       return;
+    }
     writeRecords(2);
     readRecords(2);
   }
 
   /**
    * Fill up exactly one block.
-   * 
+   *
    * @throws IOException
    */
   @Test
-  public void testOneBlock() throws IOException {
-    if (skip)
+  public void testOneBlock() throws IOException
+  {
+    if (skip) {
       return;
+    }
     // just under one block
     writeRecords(records1stBlock);
     readRecords(records1stBlock);
@@ -155,13 +170,15 @@ public class TestDTFileByteArrays {
 
   /**
    * One block plus one record.
-   * 
+   *
    * @throws IOException
    */
   @Test
-  public void testOneBlockPlusOneEntry() throws IOException {
-    if (skip)
+  public void testOneBlockPlusOneEntry() throws IOException
+  {
+    if (skip) {
       return;
+    }
     writeRecords(records1stBlock + 1);
     readRecords(records1stBlock + 1);
     checkBlockIndex(records1stBlock - 1, 0);
@@ -169,18 +186,22 @@ public class TestDTFileByteArrays {
   }
 
   @Test
-  public void testTwoBlocks() throws IOException {
-    if (skip)
+  public void testTwoBlocks() throws IOException
+  {
+    if (skip) {
       return;
+    }
     writeRecords(records1stBlock + 5);
     readRecords(records1stBlock + 5);
     checkBlockIndex(records1stBlock + 4, 1);
   }
 
   @Test
-  public void testThreeBlocks() throws IOException {
-    if (skip) 
+  public void testThreeBlocks() throws IOException
+  {
+    if (skip) {
       return;
+    }
     writeRecords(2 * records1stBlock + 5);
     readRecords(2 * records1stBlock + 5);
 
@@ -224,17 +245,20 @@ public class TestDTFileByteArrays {
     readKeyManyTimes(records1stBlock + 10);
   }
 
-  Location locate(Scanner scanner, byte[] key) throws IOException {
-    if (scanner.seekTo(key) == true) {
+  Location locate(Scanner scanner, byte[] key) throws IOException
+  {
+    if (scanner.seekTo(key)) {
       return scanner.currentLocation;
     }
     return scanner.endLocation;
   }
   
   @Test
-  public void testLocate() throws IOException {
-    if (skip)
+  public void testLocate() throws IOException
+  {
+    if (skip) {
       return;
+    }
     writeRecords(3 * records1stBlock);
     Reader reader = new Reader(fs.open(path), fs.getFileStatus(path).getLen(), conf);
     Scanner scanner = reader.createScanner();
@@ -248,9 +272,11 @@ public class TestDTFileByteArrays {
   }
 
   @Test
-  public void testFailureWriterNotClosed() throws IOException {
-    if (skip)
+  public void testFailureWriterNotClosed() throws IOException
+  {
+    if (skip) {
       return;
+    }
     Reader reader = null;
     try {
       reader = new Reader(fs.open(path), fs.getFileStatus(path).getLen(), conf);
@@ -265,9 +291,11 @@ public class TestDTFileByteArrays {
   }
 
   @Test
-  public void testFailureWriteMetaBlocksWithSameName() throws IOException {
-    if (skip)
+  public void testFailureWriteMetaBlocksWithSameName() throws IOException
+  {
+    if (skip) {
       return;
+    }
     writer.append("keyX".getBytes(), "valueX".getBytes());
 
     // create a new metablock
@@ -287,9 +315,11 @@ public class TestDTFileByteArrays {
   }
 
   @Test
-  public void testFailureGetNonExistentMetaBlock() throws IOException {
-    if (skip)
+  public void testFailureGetNonExistentMetaBlock() throws IOException
+  {
+    if (skip) {
       return;
+    }
     writer.append("keyX".getBytes(), "valueX".getBytes());
 
     // create a new metablock
@@ -314,9 +344,11 @@ public class TestDTFileByteArrays {
   }
 
   @Test
-  public void testFailureWriteRecordAfterMetaBlock() throws IOException {
-    if (skip)
+  public void testFailureWriteRecordAfterMetaBlock() throws IOException
+  {
+    if (skip) {
       return;
+    }
     // write a key/value first
     writer.append("keyX".getBytes(), "valueX".getBytes());
     // create a new metablock
@@ -336,9 +368,11 @@ public class TestDTFileByteArrays {
   }
 
   @Test
-  public void testFailureReadValueManyTimes() throws IOException {
-    if (skip)
+  public void testFailureReadValueManyTimes() throws IOException
+  {
+    if (skip) {
       return;
+    }
     writeRecords(5);
 
     Reader reader = new Reader(fs.open(path), fs.getFileStatus(path).getLen(), conf);
@@ -360,9 +394,11 @@ public class TestDTFileByteArrays {
   }
 
   @Test
-  public void testFailureBadCompressionCodec() throws IOException {
-    if (skip)
+  public void testFailureBadCompressionCodec() throws IOException
+  {
+    if (skip) {
       return;
+    }
     closeOutput();
     out = fs.create(path);
     try {
@@ -375,9 +411,11 @@ public class TestDTFileByteArrays {
   }
 
   @Test
-  public void testFailureOpenEmptyFile() throws IOException {
-    if (skip)
+  public void testFailureOpenEmptyFile() throws IOException
+  {
+    if (skip) {
       return;
+    }
     closeOutput();
     // create an absolutely empty file
     path = new Path(fs.getWorkingDirectory(), outputFile);
@@ -392,9 +430,11 @@ public class TestDTFileByteArrays {
   }
 
   @Test
-  public void testFailureOpenRandomFile() throws IOException {
-    if (skip)
+  public void testFailureOpenRandomFile() throws IOException
+  {
+    if (skip) {
       return;
+    }
     closeOutput();
     // create an random file
     path = new Path(fs.getWorkingDirectory(), outputFile);
@@ -416,9 +456,11 @@ public class TestDTFileByteArrays {
   }
 
   @Test
-  public void testFailureKeyLongerThan64K() throws IOException {
-    if (skip)
+  public void testFailureKeyLongerThan64K() throws IOException
+  {
+    if (skip) {
       return;
+    }
     byte[] buf = new byte[64 * K + 1];
     Random rand = new Random();
     rand.nextBytes(buf);
@@ -431,9 +473,11 @@ public class TestDTFileByteArrays {
   }
 
   @Test
-  public void testFailureOutOfOrderKeys() throws IOException {
-    if (skip)
+  public void testFailureOutOfOrderKeys() throws IOException
+  {
+    if (skip) {
       return;
+    }
     try {
       writer.append("keyM".getBytes(), "valueM".getBytes());
       writer.append("keyA".getBytes(), "valueA".getBytes());
@@ -447,9 +491,11 @@ public class TestDTFileByteArrays {
   }
 
   @Test
-  public void testFailureNegativeOffset() throws IOException {
-    if (skip)
+  public void testFailureNegativeOffset() throws IOException
+  {
+    if (skip) {
       return;
+    }
     try {
       writer.append("keyX".getBytes(), -1, 4, "valueX".getBytes(), 0, 6);
       Assert.fail("Error on handling negative offset.");
@@ -460,9 +506,11 @@ public class TestDTFileByteArrays {
   }
 
   @Test
-  public void testFailureNegativeOffset_2() throws IOException {
-    if (skip)
+  public void testFailureNegativeOffset_2() throws IOException
+  {
+    if (skip) {
       return;
+    }
     closeOutput();
 
     Reader reader = new Reader(fs.open(path), fs.getFileStatus(path).getLen(), conf);
@@ -480,9 +528,11 @@ public class TestDTFileByteArrays {
   }
 
   @Test
-  public void testFailureNegativeLength() throws IOException {
-    if (skip)
+  public void testFailureNegativeLength() throws IOException
+  {
+    if (skip) {
       return;
+    }
     try {
       writer.append("keyX".getBytes(), 0, -1, "valueX".getBytes(), 0, 6);
       Assert.fail("Error on handling negative length.");
@@ -493,9 +543,11 @@ public class TestDTFileByteArrays {
   }
 
   @Test
-  public void testFailureNegativeLength_2() throws IOException {
-    if (skip)
+  public void testFailureNegativeLength_2() throws IOException
+  {
+    if (skip) {
       return;
+    }
     closeOutput();
 
     Reader reader = new Reader(fs.open(path), fs.getFileStatus(path).getLen(), conf);
@@ -513,9 +565,11 @@ public class TestDTFileByteArrays {
   }
 
   @Test
-  public void testFailureNegativeLength_3() throws IOException {
-    if (skip)
+  public void testFailureNegativeLength_3() throws IOException
+  {
+    if (skip) {
       return;
+    }
     writeRecords(3);
 
     Reader reader =
@@ -544,9 +598,11 @@ public class TestDTFileByteArrays {
   }
 
   @Test
-  public void testFailureCompressionNotWorking() throws IOException {
-    if (skip)
+  public void testFailureCompressionNotWorking() throws IOException
+  {
+    if (skip) {
       return;
+    }
     long rawDataSize = writeRecords(10 * records1stBlock, false);
     if (!compression.equalsIgnoreCase(Compression.Algorithm.NONE.getName())) {
       Assert.assertTrue(out.getPos() < rawDataSize);
@@ -555,9 +611,11 @@ public class TestDTFileByteArrays {
   }
 
   @Test
-  public void testFailureFileWriteNotAt0Position() throws IOException {
-    if (skip)
+  public void testFailureFileWriteNotAt0Position() throws IOException
+  {
+    if (skip) {
       return;
+    }
     closeOutput();
     out = fs.create(path);
     out.write(123);
@@ -571,11 +629,13 @@ public class TestDTFileByteArrays {
     closeOutput();
   }
 
-  private long writeRecords(int count) throws IOException {
+  private long writeRecords(int count) throws IOException
+  {
     return writeRecords(count, true);
   }
 
-  private long writeRecords(int count, boolean close) throws IOException {
+  private long writeRecords(int count, boolean close) throws IOException
+  {
     long rawDataSize = writeRecords(writer, count);
     if (close) {
       closeOutput();
@@ -583,7 +643,8 @@ public class TestDTFileByteArrays {
     return rawDataSize;
   }
 
-  static long writeRecords(Writer writer, int count) throws IOException {
+  static long writeRecords(Writer writer, int count) throws IOException
+  {
     long rawDataSize = 0;
     int nx;
     for (nx = 0; nx < count; nx++) {
@@ -599,21 +660,24 @@ public class TestDTFileByteArrays {
 
   /**
    * Insert some leading 0's in front of the value, to make the keys sorted.
-   * 
+   *
    * @param prefix prefix
    * @param value  value
    * @return sorted key
    */
-  static String composeSortedKey(String prefix, int value) {
+  static String composeSortedKey(String prefix, int value)
+  {
     return String.format("%s%010d", prefix, value);
   }
 
-  private void readRecords(int count) throws IOException {
+  private void readRecords(int count) throws IOException
+  {
     readRecords(fs, path, count, conf);
   }
 
   static void readRecords(FileSystem fs, Path path, int count,
-      Configuration conf) throws IOException {
+      Configuration conf) throws IOException
+  {
     Reader reader =
         new Reader(fs.open(path), fs.getFileStatus(path).getLen(), conf);
     Scanner scanner = reader.createScanner();
@@ -643,7 +707,8 @@ public class TestDTFileByteArrays {
     }
   }
 
-  private void checkBlockIndex(int recordIndex, int blockIndexExpected) throws IOException {
+  private void checkBlockIndex(int recordIndex, int blockIndexExpected) throws IOException
+  {
     Reader reader = new Reader(fs.open(path), fs.getFileStatus(path).getLen(), conf);
     Scanner scanner = reader.createScanner();
     scanner.seekTo(composeSortedKey(KEY, recordIndex).getBytes());
@@ -654,12 +719,11 @@ public class TestDTFileByteArrays {
   }
 
   private void readValueBeforeKey(int recordIndex)
-      throws IOException {
+      throws IOException
+  {
     Reader reader =
         new Reader(fs.open(path), fs.getFileStatus(path).getLen(), conf);
-    Scanner scanner =
-        reader.createScannerByKey(composeSortedKey(KEY, recordIndex)
-            .getBytes(), null);
+    Scanner scanner = reader.createScannerByKey(composeSortedKey(KEY, recordIndex).getBytes(), null);
 
     try {
       byte[] vbuf = new byte[BUF_SIZE];
@@ -679,11 +743,10 @@ public class TestDTFileByteArrays {
   }
 
   private void readKeyWithoutValue(int recordIndex)
-      throws IOException {
+      throws IOException
+  {
     Reader reader = new Reader(fs.open(path), fs.getFileStatus(path).getLen(), conf);
-    Scanner scanner =
-        reader.createScannerByKey(composeSortedKey(KEY, recordIndex)
-            .getBytes(), null);
+    Scanner scanner = reader.createScannerByKey(composeSortedKey(KEY, recordIndex).getBytes(), null);
 
     try {
       // read the indexed key
@@ -708,12 +771,11 @@ public class TestDTFileByteArrays {
   }
 
   private void readValueWithoutKey(int recordIndex)
-      throws IOException {
+      throws IOException
+  {
     Reader reader = new Reader(fs.open(path), fs.getFileStatus(path).getLen(), conf);
 
-    Scanner scanner =
-        reader.createScannerByKey(composeSortedKey(KEY, recordIndex)
-            .getBytes(), null);
+    Scanner scanner = reader.createScannerByKey(composeSortedKey(KEY, recordIndex).getBytes(), null);
 
     byte[] vbuf1 = new byte[BUF_SIZE];
     int vlen1 = scanner.entry().getValueLength();
@@ -724,20 +786,18 @@ public class TestDTFileByteArrays {
       byte[] vbuf2 = new byte[BUF_SIZE];
       int vlen2 = scanner.entry().getValueLength();
       scanner.entry().getValue(vbuf2);
-      Assert.assertEquals(new String(vbuf2, 0, vlen2), VALUE
-          + (recordIndex + 1));
+      Assert.assertEquals(new String(vbuf2, 0, vlen2), VALUE + (recordIndex + 1));
     }
 
     scanner.close();
     reader.close();
   }
 
-  private void readKeyManyTimes(int recordIndex) throws IOException {
+  private void readKeyManyTimes(int recordIndex) throws IOException
+  {
     Reader reader = new Reader(fs.open(path), fs.getFileStatus(path).getLen(), conf);
 
-    Scanner scanner =
-        reader.createScannerByKey(composeSortedKey(KEY, recordIndex)
-            .getBytes(), null);
+    Scanner scanner = reader.createScannerByKey(composeSortedKey(KEY, recordIndex).getBytes(), null);
 
     // read the indexed key
     byte[] kbuf1 = new byte[BUF_SIZE];
@@ -760,7 +820,8 @@ public class TestDTFileByteArrays {
     reader.close();
   }
 
-  private void closeOutput() throws IOException {
+  private void closeOutput() throws IOException
+  {
     if (writer != null) {
       writer.close();
       writer = null;

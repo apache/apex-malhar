@@ -18,13 +18,13 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
-import com.google.common.base.Preconditions;
 import java.io.Serializable;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+
+import com.google.common.base.Preconditions;
 
 import com.datatorrent.lib.appdata.datastructs.DimensionalTable;
 
@@ -66,8 +66,7 @@ public class SchemaRegistryMultiple implements SchemaRegistry, Serializable
    * @param schemaComparator The comparator used to order the schemas returned in the {@link SchemaResult} produced
    * by {@link SchemaRegistryMultiple#getSchemaResult(com.datatorrent.lib.appdata.schemas.SchemaQuery)}
    */
-  public SchemaRegistryMultiple(List<String> schemaKeys,
-                                Comparator<Schema> schemaComparator)
+  public SchemaRegistryMultiple(List<String> schemaKeys, Comparator<Schema> schemaComparator)
   {
     this(schemaKeys);
     this.schemaComparator = Preconditions.checkNotNull(schemaComparator);

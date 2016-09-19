@@ -18,13 +18,13 @@
  */
 package com.datatorrent.lib.util;
 
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Operator.Unifier;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator.Unifier;
 
 /**
  * This unifier consumes key value pairs in the form of a list of hash maps,
@@ -62,11 +62,9 @@ public class UnifierArrayHashMapFrequent<K> implements Unifier<ArrayList<HashMap
           lval = e.getValue();
           break;
         }
-      }
-      else {
+      } else {
         for (Map.Entry<K, Integer> e: tuple.entrySet()) {
-          if ((least && (e.getValue() < lval))
-                  || (!least && (e.getValue() > lval))) {
+          if ((least && (e.getValue() < lval)) || (!least && (e.getValue() > lval))) {
             mergedTuple.clear();
             mergedTuple.put(e.getKey(), e.getValue());
             break;

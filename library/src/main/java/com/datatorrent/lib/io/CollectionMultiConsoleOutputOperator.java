@@ -23,8 +23,8 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This output operator receives collections as tuples.&nbsp;
@@ -62,7 +62,8 @@ public class CollectionMultiConsoleOutputOperator<E> extends BaseOperator
   /**
    * This input port which receives collection tuples.
    */
-  public final transient DefaultInputPort<Collection<E>> input = new DefaultInputPort<Collection<E>>() {
+  public final transient DefaultInputPort<Collection<E>> input = new DefaultInputPort<Collection<E>>()
+  {
     @Override
     public void process(Collection<E> t)
     {
@@ -73,8 +74,9 @@ public class CollectionMultiConsoleOutputOperator<E> extends BaseOperator
         if (!silent) {
           System.out.println(obj.toString());
         }
-        if (debug)
+        if (debug) {
           logger.info(obj.toString());
+        }
       }
       System.out.println("}");
     }

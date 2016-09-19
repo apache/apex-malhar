@@ -18,23 +18,26 @@
  */
 package com.datatorrent.lib.io.jms;
 
-import com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap;
-import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.helper.OperatorContextTestHelper.TestIdOperatorContext;
-import com.datatorrent.lib.util.ActiveMQMultiTypeMessageListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import org.apache.commons.io.FileUtils;
+
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.commons.io.FileUtils;
+
+import com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap;
+import com.datatorrent.api.DAG;
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.helper.OperatorContextTestHelper.TestIdOperatorContext;
+import com.datatorrent.lib.util.ActiveMQMultiTypeMessageListener;
 
 /**
  * Test to verify JMS output operator adapter.
@@ -66,8 +69,7 @@ public class JMSMultiPortOutputOperatorTest extends JMSTestBase
 
       try {
         FileUtils.deleteDirectory(new File(FSPsuedoTransactionableStore.DEFAULT_RECOVERY_DIRECTORY));
-      }
-      catch (IOException ex) {
+      } catch (IOException ex) {
         throw new RuntimeException(ex);
       }
     }
@@ -77,8 +79,7 @@ public class JMSMultiPortOutputOperatorTest extends JMSTestBase
     {
       try {
         FileUtils.deleteDirectory(new File(FSPsuedoTransactionableStore.DEFAULT_RECOVERY_DIRECTORY));
-      }
-      catch (IOException ex) {
+      } catch (IOException ex) {
         throw new RuntimeException(ex);
       }
     }

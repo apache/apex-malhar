@@ -18,14 +18,16 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-
 import java.util.HashMap;
 import java.util.Map;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.common.util.BaseOperator;
+
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -93,26 +95,26 @@ public class EventGeneratorTest
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-	public void testSingleSchemaNodeProcessing(boolean stringschema) throws Exception
+  public void testSingleSchemaNodeProcessing(boolean stringschema) throws Exception
   {
-  	EventGenerator node = new EventGenerator();
+    EventGenerator node = new EventGenerator();
     node.setKeysHelper("a,b,c,d");
     node.setValuesHelper("");
     node.setWeightsHelper("10,40,20,30");
-  	CollectorTestSink count = new CollectorTestSink();
-  	node.count.setSink(count);
-  	CollectorTestSink data = new CollectorTestSink();
-  	node.string_data.setSink(data);
-  	CollectorTestSink hashData = new CollectorTestSink();
-  	node.hash_data.setSink(hashData);
+    CollectorTestSink count = new CollectorTestSink();
+    node.count.setSink(count);
+    CollectorTestSink data = new CollectorTestSink();
+    node.string_data.setSink(data);
+    CollectorTestSink hashData = new CollectorTestSink();
+    node.hash_data.setSink(hashData);
 
-  	node.setup(null);
-  	node.beginWindow(1);
-  	node.emitTuples();
-  	node.endWindow();
-  	node.teardown();
+    node.setup(null);
+    node.beginWindow(1);
+    node.emitTuples();
+    node.endWindow();
+    node.teardown();
 
-  	assertTrue("Default number of tuples generated", 10000 == data.collectedTuples.size());
+    assertTrue("Default number of tuples generated", 10000 == data.collectedTuples.size());
 
   }
 }

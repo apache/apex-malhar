@@ -54,8 +54,9 @@ import com.datatorrent.lib.util.AbstractBaseNUniqueOperatorMap;
  * @tags filter, rank
  *
  * @since 0.3.2
+ * @deprecated
  */
-
+@Deprecated
 @OperatorAnnotation(partitionable = false)
 public class TopNUnique<K, V> extends AbstractBaseNUniqueOperatorMap<K, V>
 {

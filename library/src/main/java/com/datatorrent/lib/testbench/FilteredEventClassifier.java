@@ -18,15 +18,15 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This operator takes in a stream of tuples
@@ -110,8 +110,7 @@ public class FilteredEventClassifier<T> extends BaseOperator
           T keyval;
           if (hasvalues) {
             keyval = keys.get(key);
-          }
-          else { // pass on the value from incoming tuple
+          } else { // pass on the value from incoming tuple
             keyval = e.getValue();
           }
           otuple.put(key + "," + inkey, keyval);

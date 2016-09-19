@@ -21,10 +21,10 @@ package com.datatorrent.demos.pi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This operator implements Monte Carlo estimation of pi. For points randomly distributed points on
@@ -46,8 +46,7 @@ public class PiCalculateOperator extends BaseOperator
     {
       if (x == -1) {
         x = tuple;
-      }
-      else {
+      } else {
         y = tuple;
         if (x * x + y * y <= base) {
           inArea++;

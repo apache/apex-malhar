@@ -26,9 +26,10 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Module;
 import com.datatorrent.common.partitioner.StatelessPartitioner;
+import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.lib.io.block.AbstractBlockReader;
 import com.datatorrent.lib.io.block.BlockMetadata;
-import com.datatorrent.lib.io.block.BlockReader;
+import com.datatorrent.lib.io.block.FSSliceReader;
 import com.datatorrent.netlet.util.Slice;
 
 /**
@@ -41,10 +42,13 @@ import com.datatorrent.netlet.util.Slice;
  * 4. recursive: if scan recursively input directories<br/>
  * 5. blockSize: block size used to read input blocks of file<br/>
  * 6. readersCount: count of readers to read input file<br/>
- * 7. sequencialFileRead: If emit file blocks in sequence?
+ * 7. sequencialFileRead: If emit file blocks in sequence?<br/>
+ * 8. blocksThreshold: number of blocks emitted per window
+ *
+ * @since 3.5.0
  */
 
-public abstract class FSInputModule implements Module
+public class FSInputModule implements Module
 {
   @NotNull
   @Size(min = 1)
@@ -56,20 +60,28 @@ public abstract class FSInputModule implements Module
   private long blockSize;
   private boolean sequencialFileRead = false;
   private int readersCount;
+  @Min(1)
+  protected int blocksThreshold;
 
   public final transient ProxyOutputPort<AbstractFileSplitter.FileMetadata> filesMetadataOutput = new ProxyOutputPort<>();
   public final transient ProxyOutputPort<BlockMetadata.FileBlockMetadata> blocksMetadataOutput = new ProxyOutputPort<>();
   public final transient ProxyOutputPort<AbstractBlockReader.ReaderRecord<Slice>> messages = new ProxyOutputPort<>();
 
-  public abstract FSFileSplitter createFileSplitter();
+  public FileSplitterInput createFileSplitter()
+  {
+    return new FileSplitterInput();
+  }
 
-  public abstract BlockReader createBlockReader();
+  public FSSliceReader createBlockReader()
+  {
+    return new FSSliceReader();
+  }
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    FSFileSplitter fileSplitter = dag.addOperator("FileSplitter", createFileSplitter());
-    BlockReader blockReader = dag.addOperator("BlockReader", createBlockReader());
+    FileSplitterInput fileSplitter = dag.addOperator("FileSplitter", createFileSplitter());
+    FSSliceReader blockReader = dag.addOperator("BlockReader", createBlockReader());
 
     dag.addStream("BlockMetadata", fileSplitter.blocksMetadataOutput, blockReader.blocksMetadataInput);
 
@@ -77,12 +89,15 @@ public abstract class FSInputModule implements Module
     blocksMetadataOutput.set(blockReader.blocksMetadataOutput);
     messages.set(blockReader.messages);
 
-    fileSplitter.setSequencialFileRead(sequencialFileRead);
+    if (sequencialFileRead) {
+      dag.setInputPortAttribute(blockReader.blocksMetadataInput, Context.PortContext.STREAM_CODEC,
+          new SequentialFileBlockMetadataCodec());
+    }
     if (blockSize != 0) {
       fileSplitter.setBlockSize(blockSize);
     }
 
-    FSFileSplitter.FSScanner fileScanner = (FSFileSplitter.FSScanner)fileSplitter.getScanner();
+    FileSplitterInput.TimeBasedDirectoryScanner fileScanner = fileSplitter.getScanner();
     fileScanner.setFiles(files);
     if (scanIntervalMillis != 0) {
       fileScanner.setScanIntervalMillis(scanIntervalMillis);
@@ -92,11 +107,11 @@ public abstract class FSInputModule implements Module
       fileSplitter.getScanner().setFilePatternRegularExp(filePatternRegularExp);
     }
 
-    blockReader.setUri(files);
+    blockReader.setBasePath(files);
     if (readersCount != 0) {
-      dag.setAttribute(blockReader, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<BlockReader>(readersCount));
-      fileSplitter.setBlocksThreshold(readersCount);
+      dag.setAttribute(blockReader, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<FSSliceReader>(readersCount));
     }
+    fileSplitter.setBlocksThreshold(blocksThreshold);
   }
 
   /**
@@ -238,5 +253,37 @@ public abstract class FSInputModule implements Module
   public void setSequencialFileRead(boolean sequencialFileRead)
   {
     this.sequencialFileRead = sequencialFileRead;
+  }
+
+  /**
+   * Sets number of blocks to be emitted per window.<br/>
+   * A lot of blocks emitted per window can overwhelm the downstream operators. Set this value considering blockSize and
+   * readersCount.
+   * @param threshold
+   */
+  public void setBlocksThreshold(int threshold)
+  {
+    this.blocksThreshold = threshold;
+  }
+
+  /**
+   * Gets number of blocks to be emitted per window.<br/>
+   * A lot of blocks emitted per window can overwhelm the downstream operators. Set this value considering blockSize and
+   * readersCount.
+   * @return
+   */
+  public int getBlocksThreshold()
+  {
+    return blocksThreshold;
+  }
+
+  public static class SequentialFileBlockMetadataCodec
+      extends KryoSerializableStreamCodec<BlockMetadata.FileBlockMetadata>
+  {
+    @Override
+    public int getPartition(BlockMetadata.FileBlockMetadata fileBlockMetadata)
+    {
+      return fileBlockMetadata.hashCode();
+    }
   }
 }

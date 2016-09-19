@@ -41,7 +41,7 @@ public abstract class AbstractStoreInputOperator<T, S extends Connectable> imple
   /**
    * The output port on which tuples read form a store are emitted.
    */
-  final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
+  public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
   protected S store;
   /**
    * Gets the store.
@@ -79,8 +79,7 @@ public abstract class AbstractStoreInputOperator<T, S extends Connectable> imple
   {
     try {
       store.connect();
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -90,8 +89,7 @@ public abstract class AbstractStoreInputOperator<T, S extends Connectable> imple
   {
     try {
       store.disconnect();
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       // ignore
     }
   }

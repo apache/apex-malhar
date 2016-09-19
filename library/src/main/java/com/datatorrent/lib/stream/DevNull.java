@@ -18,9 +18,9 @@
  */
 package com.datatorrent.lib.stream;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.Stateless;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * An implementation of BaseOperator that terminates a stream and does not affect the tuple.
@@ -39,15 +39,15 @@ import com.datatorrent.api.annotation.Stateless;
 @Stateless
 public class DevNull<K> extends BaseOperator
 {
-	/**
-	 * Input any data type port.
-	 */
-	public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
-	{
-		@Override
-		public void process(K tuple)
-		{
-			// Does nothing; allows a stream to terminate and therefore be debugged
-		}
-	};
+  /**
+   * Input any data type port.
+   */
+  public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
+  {
+    @Override
+    public void process(K tuple)
+    {
+      // Does nothing; allows a stream to terminate and therefore be debugged
+    }
+  };
 }

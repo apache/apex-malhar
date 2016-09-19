@@ -18,11 +18,13 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.api.annotation.OperatorAnnotation;
 import java.util.ArrayList;
 
+import com.datatorrent.api.annotation.OperatorAnnotation;
+
 /**
- * This unifier takes sorted lists of tuples each window and merges them into one large sorted list at the end of each window.
+ * This unifier takes sorted lists of tuples each window and merges them into one large sorted list at the end of
+ * each window.
  * <p>
  * Incoming sorted list is merged into already existing sorted list. The input list is expected to be sorted. <b>
  * At the end of the window, merged sorted list is emitted on sort output port. <br>
@@ -47,55 +49,59 @@ import java.util.ArrayList;
  * @tags rank, numeric
  *
  * @since 0.3.3
+ * @deprecated
  */
+@Deprecated
 @OperatorAnnotation(partitionable = true)
 public class MergeSortNumber<V extends Number> extends MergeSort<V>
 {
-	/**
-	 * Ascending/Desending flag;
-	 */
-	private boolean ascending = true;
+  /**
+   * Ascending/Desending flag;
+   */
+  private boolean ascending = true;
 
-	/**
-	 * sort function.
-	 */
-	@SuppressWarnings("unchecked")
-	public  V[] compare(V val1, V val2) {
-		V[] result =  (V[]) new Number[2];
-		if (ascending) {
-  		if (val1.doubleValue() < val2.doubleValue()) {
-  			result[0] = val1;
-  			result[1] = val2;
-  		} else {
-  			result[0] = val2;
-  			result[1] = val1;
-  		}
-		} else {
-  		if (val1.doubleValue() < val2.doubleValue()) {
-  			result[0] = val2;
-  			result[1] = val1;
-  		} else {
-  			result[0] = val1;
-  			result[1] = val2;
-  		}
-		}
-		return result;
-	}
+  /**
+   * sort function.
+   */
+  @SuppressWarnings("unchecked")
+  public V[] compare(V val1, V val2)
+  {
+    V[] result = (V[])new Number[2];
+    if (ascending) {
+      if (val1.doubleValue() < val2.doubleValue()) {
+        result[0] = val1;
+        result[1] = val2;
+      } else {
+        result[0] = val2;
+        result[1] = val1;
+      }
+    } else {
+      if (val1.doubleValue() < val2.doubleValue()) {
+        result[0] = val2;
+        result[1] = val1;
+      } else {
+        result[0] = val1;
+        result[1] = val2;
+      }
+    }
+    return result;
+  }
 
-	/**
-	 *  Merge class itself is unifier.
-	 */
-	public Unifier<ArrayList<V>> getUnifierInstance() {
-		return new MergeSortNumber<V>();
-	}
+  /**
+   *  Merge class itself is unifier.
+   */
+  public Unifier<ArrayList<V>> getUnifierInstance()
+  {
+    return new MergeSortNumber<V>();
+  }
 
-	public boolean isAscending()
-	{
-		return ascending;
-	}
+  public boolean isAscending()
+  {
+    return ascending;
+  }
 
-	public void setAscending(boolean ascending)
-	{
-		this.ascending = ascending;
-	}
+  public void setAscending(boolean ascending)
+  {
+    this.ascending = ascending;
+  }
 }

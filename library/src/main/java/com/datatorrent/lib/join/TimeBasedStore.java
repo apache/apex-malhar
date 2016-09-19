@@ -42,6 +42,8 @@ import org.apache.hadoop.classification.InterfaceStability;
  * Base implementation of time based store for key-value pair tuples.
  *
  * @param <T>
+ *
+ * @since 3.4.0
  */
 @InterfaceStability.Unstable
 public class TimeBasedStore<T extends TimeEvent>

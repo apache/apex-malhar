@@ -18,13 +18,15 @@
  */
 package com.datatorrent.lib.math;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang.mutable.MutableDouble;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 import com.datatorrent.lib.util.UnifierHashMap;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.commons.lang.mutable.MutableDouble;
 
 
 /**
@@ -144,18 +146,16 @@ public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
   {
     HashMap<K, V> tuples = new HashMap<K, V>();
     Double val;
-    for (Map.Entry<K, MutableDouble> e: denominators.entrySet()) {
+    for (Map.Entry<K, MutableDouble> e : denominators.entrySet()) {
       MutableDouble nval = numerators.get(e.getKey());
       if (nval == null) {
         nval = new MutableDouble(0.0);
-      }
-      else {
+      } else {
         numerators.remove(e.getKey()); // so that all left over keys can be reported
       }
       if (percent) {
         val = (1 - nval.doubleValue() / e.getValue().doubleValue()) * 100;
-      }
-      else {
+      } else {
         val = 1 - nval.doubleValue() / e.getValue().doubleValue();
       }
       tuples.put(e.getKey(), getValue(val.doubleValue()));

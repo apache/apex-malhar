@@ -38,7 +38,8 @@ public class BaseNumberValueOperator<V extends Number> extends BaseKeyOperator<V
   public enum V_TYPE
   {
     DOUBLE, INTEGER, FLOAT, LONG, SHORT, UNKNOWN
-  };
+  }
+
   @NotNull
   protected V_TYPE type = V_TYPE.DOUBLE;
 
@@ -72,20 +73,15 @@ public class BaseNumberValueOperator<V extends Number> extends BaseKeyOperator<V
   {
     if (ctype == Double.class) {
       type = V_TYPE.DOUBLE;
-    }
-    else if (ctype == Integer.class) {
+    } else if (ctype == Integer.class) {
       type = V_TYPE.INTEGER;
-    }
-    else if (ctype == Float.class) {
+    } else if (ctype == Float.class) {
       type = V_TYPE.FLOAT;
-    }
-    else if (ctype == Long.class) {
+    } else if (ctype == Long.class) {
       type = V_TYPE.LONG;
-    }
-    else if (ctype == Short.class) {
+    } else if (ctype == Short.class) {
       type = V_TYPE.SHORT;
-    }
-    else {
+    } else {
       type = V_TYPE.UNKNOWN;
     }
   }

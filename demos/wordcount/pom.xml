@@ -25,13 +25,13 @@
   <artifactId>wordcount-demo</artifactId>
   <packaging>jar</packaging>
 
-  <name>Apache Apex Malhar (incubating) Wordcount Demo</name>
+  <name>Apache Apex Malhar Wordcount Demo</name>
   <description>A very simple application that demonstrates Apex Platform’s streaming window feature.</description>
 
   <parent>
     <groupId>org.apache.apex</groupId>
     <artifactId>malhar-demos</artifactId>
-    <version>3.4.0-incubating-SNAPSHOT</version>
+    <version>3.6.0-SNAPSHOT</version>
   </parent>
 
   <properties>

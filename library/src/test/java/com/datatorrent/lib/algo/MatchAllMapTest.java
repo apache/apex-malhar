@@ -26,10 +26,11 @@ import org.junit.Test;
 import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 /**
- *
+ * @deprecated
  * Functional tests for {@link com.datatorrent.lib.algo.MatchAllMap}<p>
- *
+ * (Deprecating inclass) Comment: MatchAllMap is deprecated.
  */
+@Deprecated
 public class MatchAllMapTest
 {
   /**
@@ -66,7 +67,7 @@ public class MatchAllMapTest
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 1, matchSink.count);
-    Boolean result = (Boolean) matchSink.tuple;
+    Boolean result = (Boolean)matchSink.tuple;
     Assert.assertEquals("result was false", true, result);
     matchSink.clear();
 
@@ -80,7 +81,7 @@ public class MatchAllMapTest
     oper.data.process(input);
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 1, matchSink.count);
-    result = (Boolean) matchSink.tuple;
+    result = (Boolean)matchSink.tuple;
     Assert.assertEquals("result was false", false, result);
     matchSink.clear();
   }

@@ -23,6 +23,8 @@ import java.util.Map;
 
 /**
  * An implementation of NiFiDataPacket.
+ *
+ * @since 3.4.0
  */
 public class StandardNiFiDataPacket implements NiFiDataPacket, Serializable
 {

@@ -52,104 +52,106 @@ import com.datatorrent.lib.util.KeyValPair;
  * @since 0.3.3
  */
 public abstract class AbstractSlidingWindowKeyVal<K, V extends Number, S extends SimpleMovingAverageObject>
-		extends BaseNumberKeyValueOperator<K, V>
+    extends BaseNumberKeyValueOperator<K, V>
 {
-	/**
-	 * buffer to hold state information of different windows.
-	 */
-	protected HashMap<K, ArrayList<S>> buffer = new HashMap<K, ArrayList<S>>();
-	/**
-	 * Index of windows stating at 0.
-	 */
-	protected int currentstate = -1;
+  /**
+   * buffer to hold state information of different windows.
+   */
+  protected HashMap<K, ArrayList<S>> buffer = new HashMap<K, ArrayList<S>>();
+  /**
+   * Index of windows stating at 0.
+   */
+  protected int currentstate = -1;
 
-	/**
-	 * Concrete class has to implement how they want the tuple to be processed.
-	 *
-	 * @param tuple
-	 *          a keyVal pair of tuple.
-	 */
-	public abstract void processDataTuple(KeyValPair<K, V> tuple);
+  /**
+   * Concrete class has to implement how they want the tuple to be processed.
+   *
+   * @param tuple
+   *          a keyVal pair of tuple.
+   */
+  public abstract void processDataTuple(KeyValPair<K, V> tuple);
 
-	/**
-	 * Concrete class has to implement what to emit at the end of window.
-	 *
-	 * @param key
-	 * @param obj
-	 */
-	public abstract void emitTuple(K key, ArrayList<S> obj);
+  /**
+   * Concrete class has to implement what to emit at the end of window.
+   *
+   * @param key
+   * @param obj
+   */
+  public abstract void emitTuple(K key, ArrayList<S> obj);
 
-	/**
-	 * Length of sliding windows. Minimum value is 2.
-	 */
-	@Min(2)
-	protected int windowSize = 2;
-	protected long windowId;
+  /**
+   * Length of sliding windows. Minimum value is 2.
+   */
+  @Min(2)
+  protected int windowSize = 2;
+  protected long windowId;
 
-	/**
-	 * Getter function for windowSize (number of previous window buffer).
-	 *
-	 * @return windowSize
-	 */
-	public int getWindowSize()
-	{
-		return windowSize;
-	}
+  /**
+   * Getter function for windowSize (number of previous window buffer).
+   *
+   * @return windowSize
+   */
+  public int getWindowSize()
+  {
+    return windowSize;
+  }
 
-	/**
-	 * @param windowSize
-	 */
-	public void setWindowSize(int windowSize)
-	{
-		this.windowSize = windowSize;
-	}
+  /**
+   * @param windowSize
+   */
+  public void setWindowSize(int windowSize)
+  {
+    this.windowSize = windowSize;
+  }
 
-	/**
-	 * Input port for getting incoming data.
-	 */
-	public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
-	{
-		@Override
-		public void process(KeyValPair<K, V> tuple)
-		{
-			processDataTuple(tuple);
-		}
-	};
+  /**
+   * Input port for getting incoming data.
+   */
+  public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
+  {
+    @Override
+    public void process(KeyValPair<K, V> tuple)
+    {
+      processDataTuple(tuple);
+    }
+  };
 
-	/**
-	 * Moves buffer by 1 and clear contents of current. If you override
-	 * beginWindow, you must call super.beginWindow(windowId) to ensure proper
-	 * operator behavior.
-	 *
-	 * @param windowId
-	 */
-	@Override
-	public void beginWindow(long windowId)
-	{
-		this.windowId = windowId;
-		currentstate++;
-		if (currentstate >= windowSize) {
-			for (Map.Entry<K, ArrayList<S>> e : buffer.entrySet()) {
-				ArrayList<S> states = e.getValue();
-                		S first = states.get(0);
-				for (int i=1; i < windowSize; i++) states.set(i-1, states.get(i));
-				states.set(windowSize-1, first);
-			}
-			currentstate = windowSize-1;
-		}
-		for (Map.Entry<K, ArrayList<S>> e : buffer.entrySet()) {
-			e.getValue().get(currentstate).clear();
-		}
-	}
+  /**
+   * Moves buffer by 1 and clear contents of current. If you override
+   * beginWindow, you must call super.beginWindow(windowId) to ensure proper
+   * operator behavior.
+   *
+   * @param windowId
+   */
+  @Override
+  public void beginWindow(long windowId)
+  {
+    this.windowId = windowId;
+    currentstate++;
+    if (currentstate >= windowSize) {
+      for (Map.Entry<K, ArrayList<S>> e : buffer.entrySet()) {
+        ArrayList<S> states = e.getValue();
+        S first = states.get(0);
+        for (int i = 1; i < windowSize; i++) {
+          states.set(i - 1, states.get(i));
+        }
+        states.set(windowSize - 1, first);
+      }
+      currentstate = windowSize - 1;
+    }
+    for (Map.Entry<K, ArrayList<S>> e : buffer.entrySet()) {
+      e.getValue().get(currentstate).clear();
+    }
+  }
 
-	/**
-	 * Emit tuple for each key.
-	 */
-	@Override
-	public void endWindow()
-	{
-		for (Map.Entry<K, ArrayList<S>> e : buffer.entrySet()) {
-			emitTuple(e.getKey(), e.getValue());
-		}
-	}
+  /**
+   * Emit tuple for each key.
+   */
+  @Override
+  public void endWindow()
+  {
+    for (Map.Entry<K, ArrayList<S>> e : buffer.entrySet()) {
+      emitTuple(e.getKey(), e.getValue());
+    }
+  }
 }

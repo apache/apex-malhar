@@ -18,11 +18,13 @@
  */
 package com.datatorrent.lib.logs;
 
+import java.util.HashMap;
+
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.*;
+import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.util.BaseLineTokenizer;
 import com.datatorrent.lib.util.UnifierHashMap;
-import java.util.HashMap;
 
 /**
  * This operator splits lines into tokens, and tokens into sub-tokens.&nbsp;
@@ -44,7 +46,8 @@ import java.util.HashMap;
  * <br>
  * <b>Properties</b>:<br>
  * <b>splitby</b>: The characters used to split the line. Default is ";\t "<br>
- * <b>splittokenby</b>: The characters used to split a token into key,val pair. Default is "", i.e. tokens are not split, and key is set to token, and val is null<br>
+ * <b>splittokenby</b>: The characters used to split a token into key,val pair. Default is "", i.e. tokens are not
+ * split, and key is set to token, and val is null<br>
  * <br>
  * </p>
  * @displayName Line Tokenizer Key Value
@@ -54,7 +57,7 @@ import java.util.HashMap;
  * @since 0.3.2
  */
 @Stateless
-@OperatorAnnotation(partitionable=true)
+@OperatorAnnotation(partitionable = true)
 public class LineTokenizerKeyVal extends BaseLineTokenizer
 {
   /**
@@ -129,8 +132,7 @@ public class LineTokenizerKeyVal extends BaseLineTokenizer
   {
     if (skey.isEmpty()) {
       skey = subtok;
-    }
-    else if (sval.isEmpty()) {
+    } else if (sval.isEmpty()) {
       sval = subtok;
     }
   }

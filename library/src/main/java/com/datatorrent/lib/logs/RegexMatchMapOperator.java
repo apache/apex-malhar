@@ -20,16 +20,19 @@ package com.datatorrent.lib.logs;
 
 import java.util.HashMap;
 import java.util.Map;
-import com.google.code.regexp.Pattern;
-import com.google.code.regexp.Matcher;
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.Stateless;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.code.regexp.Matcher;
+import com.google.code.regexp.Pattern;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.api.annotation.Stateless;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This operator parses unstructured log data into named fields.
@@ -77,7 +80,7 @@ import org.slf4j.LoggerFactory;
  * @since 1.0.5
  */
 @Stateless
-@OperatorAnnotation(partitionable=true)
+@OperatorAnnotation(partitionable = true)
 public class RegexMatchMapOperator extends BaseOperator
 {
   /**

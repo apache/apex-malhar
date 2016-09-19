@@ -33,6 +33,8 @@ import com.datatorrent.lib.io.fs.Synchronizer.OutputFileMetadata;
  * uses reconciler), hence the file merging operation is carried out in a
  * separate thread.
  *
+ *
+ * @since 3.4.0
  */
 public class FileMerger extends FileStitcher<OutputFileMetadata>
 {

@@ -18,10 +18,10 @@
  */
 package com.datatorrent.lib.appdata.query;
 
-import com.google.common.base.Preconditions;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.common.base.Preconditions;
 
 import com.datatorrent.lib.appdata.QueueUtils.ConditionBarrier;
 

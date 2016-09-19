@@ -37,7 +37,8 @@ public final class TFileWriter implements FileAccess.FileWriter
   
   private FSDataOutputStream fsdos;
   
-  public TFileWriter(FSDataOutputStream stream, int minBlockSize, String compressName, String comparator, Configuration conf) throws IOException
+  public TFileWriter(FSDataOutputStream stream, int minBlockSize, String compressName,
+      String comparator, Configuration conf) throws IOException
   {
     this.fsdos = stream;
     writer = new Writer(stream, minBlockSize, compressName, comparator, conf);
@@ -58,6 +59,9 @@ public final class TFileWriter implements FileAccess.FileWriter
   }
 
   @Override
-  public long getBytesWritten() throws IOException{ return fsdos.getPos(); }
+  public long getBytesWritten() throws IOException
+  {
+    return fsdos.getPos();
+  }
 
 }

@@ -18,13 +18,16 @@
  */
 package com.datatorrent.demos.uniquecount;
 
+import java.util.HashMap;
+import java.util.Random;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.lib.util.KeyValPair;
-
-import java.util.HashMap;
-import java.util.Random;
 
 /**
  * Generate random Key value pairs.
@@ -36,6 +39,7 @@ public class RandomDataGenerator implements InputOperator
 {
   public final transient DefaultOutputPort<KeyValPair<String, Object>> outPort = new DefaultOutputPort<KeyValPair<String, Object>>();
   private HashMap<String, Integer> dataInfo;
+  private final transient Logger LOG = LoggerFactory.getLogger(RandomDataGenerator.class);
   private int count;
   private int sleepMs = 10;
   private int keyRange = 100;
@@ -51,15 +55,15 @@ public class RandomDataGenerator implements InputOperator
   @Override
   public void emitTuples()
   {
-    for(int i = 0 ; i < tupleBlast; i++) {
+    for (int i = 0; i < tupleBlast; i++) {
       String key = String.valueOf(random.nextInt(keyRange));
       int val = random.nextInt(valueRange);
       outPort.emit(new KeyValPair<String, Object>(key, val));
     }
     try {
       Thread.sleep(sleepMs);
-    } catch(Exception ex) {
-      System.out.println(ex.getMessage());
+    } catch (Exception ex) {
+      LOG.error(ex.getMessage());
     }
     count++;
   }
@@ -93,7 +97,7 @@ public class RandomDataGenerator implements InputOperator
   @Override
   public void endWindow()
   {
-    System.out.println("emitTuples called  " + count + " times in this window");
+    LOG.debug("emitTuples called  " + count + " times in this window");
     count = 0;
   }
 

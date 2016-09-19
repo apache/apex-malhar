@@ -18,23 +18,35 @@
  */
 package com.datatorrent.lib.io.fs;
 
-import com.datatorrent.api.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.HashSet;
 
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.fs.FileContext;
+import org.apache.hadoop.fs.Path;
+
+import com.google.common.collect.Sets;
+
+import com.datatorrent.api.Attribute;
+import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
-import com.google.common.collect.*;
-import java.io.*;
-import java.util.*;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.fs.*;
-import org.junit.*;
 
 public class AbstractFileInputOperatorFailureHandlingTest
 {
-  @Rule public TestInfo testMeta = new TestInfo();
+  @Rule
+  public TestInfo testMeta = new TestInfo();
 
   public static class TestFileInputOperator extends AbstractFileInputOperator<String>
   {
@@ -60,7 +72,8 @@ public class AbstractFileInputOperatorFailureHandlingTest
       br = null;
     }
 
-    @Override protected InputStream retryFailedFile(FailedFile ff) throws IOException
+    @Override
+    protected InputStream retryFailedFile(FailedFile ff) throws IOException
     {
       count = 0;
       return super.retryFailedFile(ff);
@@ -90,13 +103,13 @@ public class AbstractFileInputOperatorFailureHandlingTest
     FileContext.getLocalFSFileContext().delete(new Path(new File(testMeta.getDir()).getAbsolutePath()), true);
     HashSet<String> allLines = Sets.newHashSet();
     // Create files with 100 records.
-    for (int file=0; file<10; file++) {
+    for (int file = 0; file < 10; file++) {
       HashSet<String> lines = Sets.newHashSet();
-      for (int line=0; line<10; line++) {
-        lines.add("f"+file+"l"+line);
+      for (int line = 0; line < 10; line++) {
+        lines.add("f" + file + "l" + line);
       }
       allLines.addAll(lines);
-      FileUtils.write(new File(testMeta.getDir(), "file"+file), StringUtils.join(lines, '\n'));
+      FileUtils.write(new File(testMeta.getDir(), "file" + file), StringUtils.join(lines, '\n'));
     }
 
     Thread.sleep(10);
@@ -104,15 +117,16 @@ public class AbstractFileInputOperatorFailureHandlingTest
     TestFileInputOperator oper = new TestFileInputOperator();
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
 
     oper.setDirectory(testMeta.getDir());
     oper.getScanner().setFilePatternRegexp(".*file[\\d]");
 
-    oper.setup(new OperatorContextTestHelper.TestIdOperatorContext(1, new Attribute.AttributeMap.DefaultAttributeMap()));
-    for (long wid=0; wid<1000; wid++) {
+    oper.setup(
+        new OperatorContextTestHelper.TestIdOperatorContext(1, new Attribute.AttributeMap.DefaultAttributeMap()));
+    for (long wid = 0; wid < 1000; wid++) {
       oper.beginWindow(wid);
       oper.emitTuples();
       oper.endWindow();

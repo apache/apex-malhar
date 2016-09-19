@@ -28,9 +28,7 @@ public class SchemaTestUtils
   {
     String[] result = new String[strings.length];
 
-    for(int sc = 0;
-        sc < strings.length;
-        sc++) {
+    for (int sc = 0; sc < strings.length; sc++) {
       result[sc] = left + strings[sc] + right;
     }
 
@@ -41,9 +39,7 @@ public class SchemaTestUtils
   {
     String[] result = new String[strings.length];
 
-    for(int sc = 0;
-        sc < strings.length;
-        sc++) {
+    for (int sc = 0; sc < strings.length; sc++) {
       result[sc] = ws + strings[sc] + ws;
     }
 

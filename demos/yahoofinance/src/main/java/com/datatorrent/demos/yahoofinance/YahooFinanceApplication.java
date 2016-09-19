@@ -18,7 +18,7 @@
  */
 package com.datatorrent.demos.yahoofinance;
 
-
+import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
@@ -32,7 +32,6 @@ import com.datatorrent.lib.multiwindow.SimpleMovingAverage;
 import com.datatorrent.lib.stream.ConsolidatorKeyVal;
 import com.datatorrent.lib.util.BaseKeyValueOperator.DefaultPartitionCodec;
 import com.datatorrent.lib.util.HighLow;
-import org.apache.hadoop.conf.Configuration;
 
 /**
  * Yahoo! Finance Application Demo :<br>
@@ -191,7 +190,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="YahooFinanceDemo")
+@ApplicationAnnotation(name = "YahooFinanceDemo")
 public class YahooFinanceApplication implements StreamingApplication
 {
   protected int streamingWindowSizeMilliSeconds = 1000; // 1 second
@@ -329,8 +328,8 @@ public class YahooFinanceApplication implements StreamingApplication
   /**
    * Populate Yahoo Finance Demo Application DAG.
    */
-	@SuppressWarnings("unchecked")
-	@Override
+  @SuppressWarnings("unchecked")
+  @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
 

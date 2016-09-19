@@ -23,6 +23,8 @@ package com.datatorrent.lib.expression;
  * The interface can be used to execute given expression.
  *
  * @param <O> This is generic class return type of execute method of expression.
+ *
+ * @since 3.4.0
  */
 public interface Expression<O>
 {

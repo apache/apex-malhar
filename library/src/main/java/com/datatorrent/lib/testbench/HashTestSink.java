@@ -18,10 +18,11 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.datatorrent.api.Sink;
-
 import java.util.HashMap;
+
 import org.apache.commons.lang.mutable.MutableInt;
+
+import com.datatorrent.api.Sink;
 
 /**
  * A sink implementation, which counts the number of times each tuples is collected and stores the results in a hash map.
@@ -54,8 +55,7 @@ public class HashTestSink<T> implements Sink<T>
   {
     int ret = -1;
     MutableInt val = map.get(key);
-    if (val != null)
-    {
+    if (val != null) {
       ret = val.intValue();
     }
     return ret;
@@ -64,13 +64,13 @@ public class HashTestSink<T> implements Sink<T>
   @Override
   public void put(T tuple)
   {
-      this.count++;
-      MutableInt val = map.get(tuple);
-      if (val == null) {
-        val = new MutableInt(0);
-        map.put(tuple, val);
-      }
-      val.increment();
+    this.count++;
+    MutableInt val = map.get(tuple);
+    if (val == null) {
+      val = new MutableInt(0);
+      map.put(tuple, val);
+    }
+    val.increment();
   }
 
   @Override

@@ -18,15 +18,15 @@
  */
 package com.datatorrent.demos.uniquecount;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.lib.util.KeyValPair;
-
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Input port operator for generating random values on keys. <br>
@@ -37,107 +37,117 @@ import java.util.Random;
  */
 public class RandomKeyValues implements InputOperator
 {
-	public final transient DefaultOutputPort<KeyValPair<String, Object>> outport = new DefaultOutputPort<KeyValPair<String, Object>>();
-	private Random random = new Random(11111);
-    private int numKeys;
-    private int numValuesPerKeys;
-    private int tuppleBlast = 1000;
-    private int emitDelay = 20; /* 20 ms */
+  public final transient DefaultOutputPort<KeyValPair<String, Object>> outport = new DefaultOutputPort<KeyValPair<String, Object>>();
+  private Random random = new Random(11111);
+  private int numKeys;
+  private int numValuesPerKeys;
+  private int tuppleBlast = 1000;
+  private int emitDelay = 20; /* 20 ms */
 
-    /* For verification */
-    private Map<Integer, BitSet> history = new HashMap<Integer, BitSet>();
+  /* For verification */
+  private Map<Integer, BitSet> history = new HashMap<Integer, BitSet>();
 
-    public RandomKeyValues() {
-        this.numKeys = 100;
-        this.numValuesPerKeys = 100;
+  public RandomKeyValues()
+  {
+    this.numKeys = 100;
+    this.numValuesPerKeys = 100;
+  }
+
+  public RandomKeyValues(int keys, int values)
+  {
+    this.numKeys = keys;
+    this.numValuesPerKeys = values;
+  }
+
+  @Override
+  public void beginWindow(long windowId)
+  {
+  }
+
+  @Override
+  public void endWindow()
+  {
+  }
+
+  @Override
+  public void setup(OperatorContext context)
+  {
+  }
+
+  @Override
+  public void teardown()
+  {
+  }
+
+  @Override
+  public void emitTuples()
+  {
+    /* generate tuples randomly, */
+    for (int i = 0; i < tuppleBlast; i++) {
+      int intKey = random.nextInt(numKeys);
+      String key = "key" + String.valueOf(intKey);
+      int value = random.nextInt(numValuesPerKeys);
+
+      // update history for verifying later.
+      BitSet bmap = history.get(intKey);
+      if (bmap == null) {
+        bmap = new BitSet();
+        history.put(intKey, bmap);
+      }
+      bmap.set(value);
+
+      // emit the key with value.
+      outport.emit(new KeyValPair<String, Object>(key, value));
     }
-
-    public RandomKeyValues(int keys, int values) {
-        this.numKeys = keys;
-        this.numValuesPerKeys = values;
+    try {
+      Thread.sleep(emitDelay);
+    } catch (Exception e) {
+      // Ignore.
     }
+  }
 
-    @Override
-	public void beginWindow(long windowId)
-	{
-	}
+  public int getNumKeys()
+  {
+    return numKeys;
+  }
 
-	@Override
-	public void endWindow()
-	{
-	}
+  public void setNumKeys(int numKeys)
+  {
+    this.numKeys = numKeys;
+  }
 
-	@Override
-	public void setup(OperatorContext context)
-	{
-	}
+  public int getNumValuesPerKeys()
+  {
+    return numValuesPerKeys;
+  }
 
-	@Override
-	public void teardown()
-	{
-	}
+  public void setNumValuesPerKeys(int numValuesPerKeys)
+  {
+    this.numValuesPerKeys = numValuesPerKeys;
+  }
 
-	@Override
-	public void emitTuples()
-	{
-        /* generate tuples randomly, */
-        for(int i = 0; i < tuppleBlast; i++) {
-            int intKey = random.nextInt(numKeys);
-            String key = "key" + String.valueOf(intKey);
-            int value = random.nextInt(numValuesPerKeys);
+  public int getTuppleBlast()
+  {
+    return tuppleBlast;
+  }
 
-            // update history for verifying later.
-            BitSet bmap = history.get(intKey);
-            if (bmap == null) {
-                bmap = new BitSet();
-                history.put(intKey, bmap);
-            }
-            bmap.set(value);
+  public void setTuppleBlast(int tuppleBlast)
+  {
+    this.tuppleBlast = tuppleBlast;
+  }
 
-            // emit the key with value.
-            outport.emit(new KeyValPair<String, Object>(key, value));
-        }
-		try
-		{
-			Thread.sleep(emitDelay);
-		} catch (Exception e)
-		{
-		}
-	}
+  public int getEmitDelay()
+  {
+    return emitDelay;
+  }
 
-    public int getNumKeys() {
-        return numKeys;
-    }
+  public void setEmitDelay(int emitDelay)
+  {
+    this.emitDelay = emitDelay;
+  }
 
-    public void setNumKeys(int numKeys) {
-        this.numKeys = numKeys;
-    }
+  public void debug()
+  {
 
-    public int getNumValuesPerKeys() {
-        return numValuesPerKeys;
-    }
-
-    public void setNumValuesPerKeys(int numValuesPerKeys) {
-        this.numValuesPerKeys = numValuesPerKeys;
-    }
-
-    public int getTuppleBlast() {
-        return tuppleBlast;
-    }
-
-    public void setTuppleBlast(int tuppleBlast) {
-        this.tuppleBlast = tuppleBlast;
-    }
-
-    public int getEmitDelay() {
-        return emitDelay;
-    }
-
-    public void setEmitDelay(int emitDelay) {
-        this.emitDelay = emitDelay;
-    }
-
-    public void debug() {
-
-    }
+  }
 }

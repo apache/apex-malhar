@@ -43,7 +43,7 @@ public class StreamMergerTest
 
     oper.beginWindow(0);
     int numtuples = 500;
-    Integer input = new Integer(0);
+    Integer input = 0;
     // Same input object can be used as the oper is just pass through
     for (int i = 0; i < numtuples; i++) {
       oper.data1.process(input);
@@ -51,6 +51,6 @@ public class StreamMergerTest
     }
 
     oper.endWindow();
-    Assert.assertEquals("number emitted tuples", numtuples*2, mergeSink.count);
+    Assert.assertEquals("number emitted tuples", numtuples * 2, mergeSink.count);
   }
 }

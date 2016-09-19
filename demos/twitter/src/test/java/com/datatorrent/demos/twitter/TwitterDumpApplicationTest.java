@@ -19,9 +19,10 @@
 package com.datatorrent.demos.twitter;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import org.apache.hadoop.conf.Configuration;
+
+import static org.junit.Assert.assertEquals;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;

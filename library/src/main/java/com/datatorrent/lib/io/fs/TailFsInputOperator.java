@@ -22,9 +22,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.commons.io.FileUtils;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
@@ -261,6 +262,7 @@ public class TailFsInputOperator implements InputOperator, ActivationListener<Op
         try {
           Thread.sleep(delay);
         } catch (InterruptedException e) {
+          //swallowing exception
         }
         --localCounter;
       }
@@ -286,7 +288,7 @@ public class TailFsInputOperator implements InputOperator, ActivationListener<Op
     }
     accessTime = System.currentTimeMillis();
     while ((ch = reader.read()) != -1) {
-      readChar = (char) ch;
+      readChar = (char)ch;
       if (readChar != delimiter) {
         sb.append(readChar);
       } else {

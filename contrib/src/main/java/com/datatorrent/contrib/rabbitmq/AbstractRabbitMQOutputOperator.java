@@ -19,7 +19,6 @@
 package com.datatorrent.contrib.rabbitmq;
 
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.api.Context.OperatorContext;
 import com.rabbitmq.client.Channel;
@@ -31,6 +30,8 @@ import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
 
 /**
  * This is the base implementation of a RabbitMQ output operator.&nbsp;
@@ -74,7 +75,7 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
   transient String exchange = "testEx";
   transient String queueName="testQ";
   
-  private IdempotentStorageManager idempotentStorageManager;  
+  private WindowDataManager windowDataManager;
   private transient long currentWindowId;
   private transient long largestRecoveryWindowId;
   private transient int operatorContextId;
@@ -95,7 +96,7 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
       channel = connection.createChannel();
       channel.exchangeDeclare(exchange, "fanout");
 
-      this.idempotentStorageManager.setup(context);
+      this.windowDataManager.setup(context);
 
     }
     catch (IOException ex) {
@@ -108,7 +109,7 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
   public void beginWindow(long windowId)
   {
     currentWindowId = windowId;    
-    largestRecoveryWindowId = idempotentStorageManager.getLargestRecoveryWindow();
+    largestRecoveryWindowId = windowDataManager.getLargestCompletedWindow();
     if (windowId <= largestRecoveryWindowId) {
       // Do not resend already sent tuples
       skipProcessingTuple = true;
@@ -131,7 +132,7 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
       return;
     }
     try {
-      idempotentStorageManager.save("processedWindow", operatorContextId, currentWindowId);
+      windowDataManager.save("processedWindow", currentWindowId);
     } catch (IOException e) {
       DTThrowable.rethrow(e);
     }
@@ -151,19 +152,19 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
     try {
       channel.close();
       connection.close();
-      this.idempotentStorageManager.teardown();
+      this.windowDataManager.teardown();
     }
     catch (IOException ex) {
       logger.debug(ex.toString());
     }
   }
   
-  public IdempotentStorageManager getIdempotentStorageManager() {
-    return idempotentStorageManager;
+  public WindowDataManager getWindowDataManager() {
+    return windowDataManager;
   }
   
-  public void setIdempotentStorageManager(IdempotentStorageManager idempotentStorageManager) {    
-    this.idempotentStorageManager = idempotentStorageManager;    
+  public void setWindowDataManager(WindowDataManager windowDataManager) {
+    this.windowDataManager = windowDataManager;
   }
 
 }

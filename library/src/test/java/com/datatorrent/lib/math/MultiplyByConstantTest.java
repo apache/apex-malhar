@@ -24,11 +24,13 @@ import org.junit.Test;
 import com.datatorrent.lib.testbench.SumTestSink;
 
 /**
+ *
  * Functional tests for {@link com.datatorrent.lib.math.MultiplyByConstant}
  */
+
 public class MultiplyByConstantTest
 {
-	/**
+  /**
    * Test oper logic emits correct results
    */
   @Test

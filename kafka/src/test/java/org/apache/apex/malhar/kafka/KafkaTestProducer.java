@@ -28,7 +28,10 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
+
+import com.google.common.collect.Lists;
 
 /**
  * A kafka producer for testing
@@ -102,31 +105,27 @@ public class KafkaTestProducer implements Runnable
     this(topic, hasPartition, false);
   }
 
+  private transient List<Future<RecordMetadata>> sendTasks = Lists.newArrayList();
+  
   private void generateMessages()
   {
     // Create dummy message
     int messageNo = 1;
     while (messageNo <= sendCount) {
-      String messageStr = "Message_" + messageNo;
+      String messageStr = "_" + messageNo++;
       int k = rand.nextInt(100);
-      producer.send(new ProducerRecord<>(topic, "" + k, "c1" + messageStr));
-      if(hasMultiCluster){
-        messageNo++;
-        producer1.send(new ProducerRecord<>(topic, "" + k, "c2" + messageStr));
+      sendTasks.add(producer.send(new ProducerRecord<>(topic, "" + k, "c1" + messageStr)));
+      if(hasMultiCluster && messageNo <= sendCount){
+        messageStr = "_" + messageNo++;
+        sendTasks.add(producer1.send(new ProducerRecord<>(topic, "" + k, "c2" + messageStr)));
       }
-      messageNo++;
       // logger.debug(String.format("Producing %s", messageStr));
     }
     // produce the end tuple to let the test input operator know it's done produce messages
-    producer.send(new ProducerRecord<>(topic, "" + 0, KafkaOperatorTestBase.END_TUPLE));
-    if(hasMultiCluster) {
-      producer1.send(new ProducerRecord<>(topic, "" + 0, KafkaOperatorTestBase.END_TUPLE));
-    }
-    if(hasPartition){
-      // Send end_tuple to other partition if it exist
-      producer.send(new ProducerRecord<>(topic, "" + 1, KafkaOperatorTestBase.END_TUPLE));
-      if(hasMultiCluster) {
-        producer1.send(new ProducerRecord<>(topic, "" + 1, KafkaOperatorTestBase.END_TUPLE));
+    for (int i = 0; i < (hasPartition ? 2 : 1); ++i) {
+      sendTasks.add(producer.send(new ProducerRecord<>(topic, "" + i, KafkaOperatorTestBase.END_TUPLE)));
+      if (hasMultiCluster) {
+        sendTasks.add(producer1.send(new ProducerRecord<>(topic, "" + i, KafkaOperatorTestBase.END_TUPLE)));
       }
     }
   }
@@ -138,23 +137,32 @@ public class KafkaTestProducer implements Runnable
       generateMessages();
     } else {
       for (String msg : messages) {
-        Future f = producer.send(new ProducerRecord<>(topic, "", msg));
-        try {
-          f.get(30, TimeUnit.SECONDS);
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
+        sendTasks.add(producer.send(new ProducerRecord<>(topic, "", msg)));
       }
     }
-    producer.close();
+    
+    producer.flush();
     if (producer1!=null) {
-      producer1.close();
+      producer1.flush();
     }
+    
+    try {
+      for (Future<RecordMetadata> task : sendTasks) {
+        task.get(30, TimeUnit.SECONDS);
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+    
+    close();
   }
 
   public void close()
   {
     producer.close();
+    if (producer1!=null) {
+      producer1.close();
+    }
   }
 
   public String getAckType()

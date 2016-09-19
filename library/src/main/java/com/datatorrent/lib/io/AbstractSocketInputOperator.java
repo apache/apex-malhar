@@ -23,7 +23,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -159,8 +160,7 @@ public abstract class AbstractSocketInputOperator<T> implements InputOperator, A
       channel.configureBlocking(false);
       channel.connect(new InetSocketAddress(hostname, port));
       channel.register(selector, SelectionKey.OP_CONNECT | SelectionKey.OP_READ);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
     lock = new ReentrantLock();
@@ -176,8 +176,7 @@ public abstract class AbstractSocketInputOperator<T> implements InputOperator, A
       selector.close();
       scanThread.interrupt();
       scanThread.join();
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -200,11 +199,11 @@ public abstract class AbstractSocketInputOperator<T> implements InputOperator, A
             SelectionKey nextKey = keyIterator.next();
             keyIterator.remove();
             if (nextKey.isConnectable()) {
-              SocketChannel sChannel = (SocketChannel) nextKey.channel();
+              SocketChannel sChannel = (SocketChannel)nextKey.channel();
               sChannel.finishConnect();
             }
             if (nextKey.isReadable()) {
-              SocketChannel sChannel = (SocketChannel) nextKey.channel();
+              SocketChannel sChannel = (SocketChannel)nextKey.channel();
               lock.lock();
               acquiredLock = true;
               sChannel.read(byteBuffer);
@@ -215,8 +214,7 @@ public abstract class AbstractSocketInputOperator<T> implements InputOperator, A
           // Sleep for Scan interval
           Thread.sleep(scanIntervalInMilliSeconds);
         }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         if (acquiredLock) {
           lock.unlock();
         }

@@ -20,11 +20,11 @@ package com.datatorrent.lib.db;
 
 import java.io.IOException;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This is the base implementation of an output operator,
@@ -95,8 +95,7 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
       appId = context.getValue(DAG.APPLICATION_ID);
       operatorId = context.getId();
       committedWindowId = store.getCommittedWindowId(appId, operatorId);
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -115,8 +114,7 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
         store.rollbackTransaction();
       }
       store.disconnect();
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
   }

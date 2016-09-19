@@ -64,8 +64,7 @@ public class Max<V extends Number> extends BaseNumberValueOperator<V> implements
     if (!flag) {
       high = tuple;
       flag = true;
-    }
-    else if (high.doubleValue() < tuple.doubleValue()) {
+    } else if (high.doubleValue() < tuple.doubleValue()) {
       high = tuple;
     }
   }
@@ -74,7 +73,7 @@ public class Max<V extends Number> extends BaseNumberValueOperator<V> implements
    * Max value output port.
    */
   public final transient DefaultOutputPort<V> max = new DefaultOutputPort<V>()
-   {
+  {
     @Override
     public Unifier<V> getUnifier()
     {

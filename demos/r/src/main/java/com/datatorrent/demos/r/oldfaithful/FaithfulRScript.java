@@ -25,11 +25,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.contrib.r.RScript;
-
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.contrib.r.RScript;
 
 /**
  * @since 2.1.0
@@ -52,7 +51,8 @@ public class FaithfulRScript extends RScript
   }
 
   @InputPortFieldAnnotation(optional = true)
-  public final transient DefaultInputPort<FaithfulKey> faithfulInput = new DefaultInputPort<FaithfulKey>() {
+  public final transient DefaultInputPort<FaithfulKey> faithfulInput = new DefaultInputPort<FaithfulKey>()
+  {
     @Override
     public void process(FaithfulKey tuple)
     {
@@ -65,7 +65,8 @@ public class FaithfulRScript extends RScript
   };
 
   @InputPortFieldAnnotation(optional = true)
-  public final transient DefaultInputPort<Integer> inputElapsedTime = new DefaultInputPort<Integer>() {
+  public final transient DefaultInputPort<Integer> inputElapsedTime = new DefaultInputPort<Integer>()
+  {
     @Override
     public void process(Integer eT)
     {
@@ -82,9 +83,9 @@ public class FaithfulRScript extends RScript
   @Override
   public void endWindow()
   {
-
-    if (readingsList.size() == 0)
+    if (readingsList.size() == 0) {
       return;
+    }
     LOG.info("Input data size: readingsList - " + readingsList.size());
 
     double[] eruptionDuration = new double[readingsList.size()];
@@ -106,6 +107,5 @@ public class FaithfulRScript extends RScript
     super.process(map);
     readingsList.clear();
     map.clear();
-
-  };
+  }
 }

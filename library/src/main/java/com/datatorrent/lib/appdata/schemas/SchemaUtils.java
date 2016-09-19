@@ -69,10 +69,8 @@ public class SchemaUtils
       InputStream is = SchemaUtils.class.getClassLoader().getResourceAsStream(resource);
       Preconditions.checkArgument(is != null, resource + " could not be found in the resources.");
 
-      IOUtils.copy(is,
-                   stringWriter);
-    }
-    catch(IOException ex) {
+      IOUtils.copy(is, stringWriter);
+    } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
     return stringWriter.toString();
@@ -89,8 +87,7 @@ public class SchemaUtils
 
     try {
       IOUtils.copy(inputStream, stringWriter);
-    }
-    catch(IOException ex) {
+    } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
 
@@ -103,8 +100,7 @@ public class SchemaUtils
    * @param fields The keys in the {@link JSONObject} to check.
    * @return True if the given {@link JSONObject} contains all the given keys. False otherwise.
    */
-  public static boolean checkValidKeys(JSONObject jo,
-                                       Fields fields)
+  public static boolean checkValidKeys(JSONObject jo, Fields fields)
   {
     @SuppressWarnings("unchecked")
     Set<String> fieldSet = fields.getFields();
@@ -119,8 +115,7 @@ public class SchemaUtils
    * @param jo The {@link JSONObject} to check.
    * @param fields The keys in the {@link JSONObject} to check.
    */
-  public static void checkValidKeysEx(JSONObject jo,
-                                      Fields fields)
+  public static void checkValidKeysEx(JSONObject jo, Fields fields)
   {
     @SuppressWarnings("unchecked")
     Set<String> fieldSet = fields.getFields();
@@ -128,10 +123,8 @@ public class SchemaUtils
 
     if (!jsonKeys.containsAll(fieldSet)) {
 
-      throw new IllegalArgumentException("The given set of keys "
-                                         + fieldSet
-                                         + " doesn't equal the set of keys in the json "
-                                         + jsonKeys);
+      throw new IllegalArgumentException("The given set of keys " + fieldSet
+          + " doesn't equal the set of keys in the json " + jsonKeys);
     }
   }
 
@@ -141,15 +134,12 @@ public class SchemaUtils
    * @param fieldsCollection The keys in the {@link JSONObject} to check.
    * @return True if the given {@link JSONObject} contains all the given keys. False otherwise.
    */
-  public static boolean checkValidKeys(JSONObject jo,
-                                       Collection<Fields> fieldsCollection)
+  public static boolean checkValidKeys(JSONObject jo, Collection<Fields> fieldsCollection)
   {
-    return checkValidKeysHelper(jo,
-                                fieldsCollection);
+    return checkValidKeysHelper(jo, fieldsCollection);
   }
 
-  private static boolean checkValidKeysHelper(JSONObject jo,
-                                              Collection<Fields> fieldsCollection)
+  private static boolean checkValidKeysHelper(JSONObject jo, Collection<Fields> fieldsCollection)
   {
     for (Fields fields: fieldsCollection) {
       LOG.debug("Checking keys: {}", fields);
@@ -158,17 +148,14 @@ public class SchemaUtils
       }
     }
 
-    LOG.error("The first level of keys in the provided JSON {} do not match any of the " +
-              "valid keysets {}",
-              getSetOfJSONKeys(jo),
-              fieldsCollection);
+    LOG.error("The first level of keys in the provided JSON {} do not match any of the " + "valid keysets {}",
+        getSetOfJSONKeys(jo), fieldsCollection);
     return false;
   }
 
   public static boolean checkValidKeys(JSONObject jo, List<Fields> fieldsCollection)
   {
-    return checkValidKeysHelper(jo,
-                                fieldsCollection);
+    return checkValidKeysHelper(jo, fieldsCollection);
   }
 
   /**
@@ -178,15 +165,12 @@ public class SchemaUtils
    * @param fieldsCollection The keys in the {@link JSONObject} to check.
    * @return True if the given {@link JSONObject} contains all the given keys. False otherwise.
    */
-  public static boolean checkValidKeysEx(JSONObject jo,
-                                         Collection<Fields> fieldsCollection)
+  public static boolean checkValidKeysEx(JSONObject jo, Collection<Fields> fieldsCollection)
   {
-    return checkValidKeysExHelper(jo,
-                                  fieldsCollection);
+    return checkValidKeysExHelper(jo, fieldsCollection);
   }
 
-  public static boolean checkValidKeysExHelper(JSONObject jo,
-                                               Collection<Fields> fieldsCollection)
+  public static boolean checkValidKeysExHelper(JSONObject jo, Collection<Fields> fieldsCollection)
   {
     for (Fields fields: fieldsCollection) {
       if (checkValidKeys(jo, fields)) {
@@ -196,10 +180,8 @@ public class SchemaUtils
 
     Set<String> keys = getSetOfJSONKeys(jo);
 
-    throw new IllegalArgumentException("The given json object has an invalid set of keys: " +
-                                       keys +
-                                       "\nOne of the following key combinations was expected:\n" +
-                                       fieldsCollection);
+    throw new IllegalArgumentException("The given json object has an invalid set of keys: " + keys
+        + "\nOne of the following key combinations was expected:\n" + fieldsCollection);
   }
 
   public static boolean checkValidKeysEx(JSONObject jo, List<Fields> fieldsCollection)
@@ -225,7 +207,7 @@ public class SchemaUtils
   {
     Map<String, String> fieldToTypeString = Maps.newHashMap();
 
-    for(Map.Entry<String, Type> entry: fieldToType.entrySet()) {
+    for (Map.Entry<String, Type> entry : fieldToType.entrySet()) {
       String field = entry.getKey();
       String typeString = entry.getValue().name();
 
@@ -237,12 +219,11 @@ public class SchemaUtils
 
   public static JSONArray findFirstKeyJSONArray(JSONObject jo, String key)
   {
-    if(jo.has(key)) {
+    if (jo.has(key)) {
       try {
         JSONArray jsonArray = jo.getJSONArray(key);
         return jsonArray;
-      }
-      catch(JSONException ex) {
+      } catch (JSONException ex) {
         throw new RuntimeException(ex);
       }
     }
@@ -250,22 +231,21 @@ public class SchemaUtils
     @SuppressWarnings("unchecked")
     Iterator<String> keyIterator = jo.keys();
 
-    while(keyIterator.hasNext()) {
+    while (keyIterator.hasNext()) {
       String childKey = keyIterator.next();
 
       JSONArray childJa = null;
 
       try {
         childJa = jo.getJSONArray(childKey);
-      }
-      catch(JSONException ex) {
+      } catch (JSONException ex) {
         //Do nothing
       }
 
-      if(childJa != null) {
+      if (childJa != null) {
         JSONArray result = findFirstKeyJSONArray(childJa, key);
 
-        if(result != null) {
+        if (result != null) {
           return result;
         }
 
@@ -276,15 +256,14 @@ public class SchemaUtils
 
       try {
         childJo = jo.getJSONObject(childKey);
-      }
-      catch(JSONException ex) {
+      } catch (JSONException ex) {
         //Do nothing
       }
 
-      if(childJo != null) {
+      if (childJo != null) {
         JSONArray result = findFirstKeyJSONArray(childJo, key);
 
-        if(result != null) {
+        if (result != null) {
           return result;
         }
       }
@@ -295,22 +274,19 @@ public class SchemaUtils
 
   public static JSONArray findFirstKeyJSONArray(JSONArray ja, String key)
   {
-    for(int index = 0;
-        index < ja.length();
-        index++) {
+    for (int index = 0; index < ja.length(); index++) {
       JSONArray childJa = null;
 
       try {
         childJa = ja.getJSONArray(index);
-      }
-      catch(JSONException ex) {
+      } catch (JSONException ex) {
         //Do nothing
       }
 
-      if(childJa != null) {
+      if (childJa != null) {
         JSONArray result = findFirstKeyJSONArray(childJa, key);
 
-        if(result != null) {
+        if (result != null) {
           return result;
         }
 
@@ -321,15 +297,14 @@ public class SchemaUtils
 
       try {
         childJo = ja.getJSONObject(index);
-      }
-      catch(JSONException ex) {
+      } catch (JSONException ex) {
         //Do nothing
       }
 
-      if(childJo != null) {
+      if (childJo != null) {
         JSONArray result = findFirstKeyJSONArray(childJo, key);
 
-        if(result != null) {
+        if (result != null) {
           return result;
         }
       }
@@ -340,12 +315,11 @@ public class SchemaUtils
 
   public static JSONObject findFirstKeyJSONObject(JSONObject jo, String key)
   {
-    if(jo.has(key)) {
+    if (jo.has(key)) {
       try {
         JSONObject jsonObject = jo.getJSONObject(key);
         return jsonObject;
-      }
-      catch(JSONException ex) {
+      } catch (JSONException ex) {
         throw new RuntimeException(ex);
       }
     }
@@ -353,22 +327,21 @@ public class SchemaUtils
     @SuppressWarnings("unchecked")
     Iterator<String> keyIterator = jo.keys();
 
-    while(keyIterator.hasNext()) {
+    while (keyIterator.hasNext()) {
       String childKey = keyIterator.next();
 
       JSONArray childJa = null;
 
       try {
         childJa = jo.getJSONArray(childKey);
-      }
-      catch(JSONException ex) {
+      } catch (JSONException ex) {
         //Do nothing
       }
 
-      if(childJa != null) {
+      if (childJa != null) {
         JSONObject result = findFirstKeyJSONObject(childJa, key);
 
-        if(result != null) {
+        if (result != null) {
           return result;
         }
 
@@ -379,15 +352,14 @@ public class SchemaUtils
 
       try {
         childJo = jo.getJSONObject(childKey);
-      }
-      catch(JSONException ex) {
+      } catch (JSONException ex) {
         //Do nothing
       }
 
-      if(childJo != null) {
+      if (childJo != null) {
         JSONObject result = findFirstKeyJSONObject(childJo, key);
 
-        if(result != null) {
+        if (result != null) {
           return result;
         }
       }
@@ -398,22 +370,19 @@ public class SchemaUtils
 
   public static JSONObject findFirstKeyJSONObject(JSONArray ja, String key)
   {
-    for(int index = 0;
-        index < ja.length();
-        index++) {
+    for (int index = 0; index < ja.length(); index++) {
       JSONArray childJa = null;
 
       try {
         childJa = ja.getJSONArray(index);
-      }
-      catch(JSONException ex) {
+      } catch (JSONException ex) {
         //Do nothing
       }
 
-      if(childJa != null) {
+      if (childJa != null) {
         JSONObject result = findFirstKeyJSONObject(childJa, key);
 
-        if(result != null) {
+        if (result != null) {
           return result;
         }
 
@@ -424,15 +393,14 @@ public class SchemaUtils
 
       try {
         childJo = ja.getJSONObject(index);
-      }
-      catch(JSONException ex) {
+      } catch (JSONException ex) {
         //Do nothing
       }
 
-      if(childJo != null) {
+      if (childJo != null) {
         JSONObject result = findFirstKeyJSONObject(childJo, key);
 
-        if(result != null) {
+        if (result != null) {
           return result;
         }
       }
@@ -452,14 +420,13 @@ public class SchemaUtils
     @SuppressWarnings("unchecked")
     Iterator<String> keyIterator = jo.keys();
 
-    while(keyIterator.hasNext()) {
+    while (keyIterator.hasNext()) {
       String key = keyIterator.next();
       String value;
 
       try {
         value = jo.getString(key);
-      }
-      catch(JSONException ex) {
+      } catch (JSONException ex) {
         throw new RuntimeException(ex);
       }
 
@@ -478,14 +445,13 @@ public class SchemaUtils
   {
     JSONObject jo = new JSONObject();
 
-    for(Map.Entry<String, String> entry: map.entrySet()) {
+    for (Map.Entry<String, String> entry : map.entrySet()) {
       String key = entry.getKey();
       String value = entry.getValue();
 
       try {
         jo.put(key, value);
-      }
-      catch(JSONException ex) {
+      } catch (JSONException ex) {
         throw new RuntimeException(ex);
       }
     }

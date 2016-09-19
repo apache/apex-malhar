@@ -20,13 +20,12 @@ package com.datatorrent.demos.pi;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.testbench.RandomEventGenerator;
-
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 /**
  * Monte Carlo PI estimation demo : <br>
@@ -75,7 +74,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="PiDemo")
+@ApplicationAnnotation(name = "PiDemo")
 public class Application implements StreamingApplication
 {
   private final Locality locality = null;

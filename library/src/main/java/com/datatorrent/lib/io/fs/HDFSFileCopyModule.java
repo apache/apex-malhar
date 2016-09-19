@@ -40,7 +40,10 @@ import com.datatorrent.netlet.util.Slice;
  * 
  * Essential operators are wrapped into single component using Module API.
  * 
+ *
+ * @since 3.4.0
  */
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class HDFSFileCopyModule implements Module
 {
 

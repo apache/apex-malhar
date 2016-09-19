@@ -24,7 +24,7 @@
   <parent>
     <artifactId>malhar-apps</artifactId>
     <groupId>org.apache.apex</groupId>
-    <version>3.4.0-incubating-SNAPSHOT</version>
+    <version>3.6.0-SNAPSHOT</version>
   </parent>
 
   <groupId>org.apache.apex</groupId>
@@ -38,7 +38,7 @@
     <checkstyle.console>false</checkstyle.console>
   </properties>
 
-  <name>Apache Apex Malhar (incubating) Logstream Application</name>
+  <name>Apache Apex Malhar Logstream Application</name>
 
   <build>
     <plugins>

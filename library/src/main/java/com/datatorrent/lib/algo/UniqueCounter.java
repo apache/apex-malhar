@@ -83,7 +83,7 @@ public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
     @Override
     public Unifier<HashMap<K, Integer>> getUnifier()
     {
-      UnifierHashMapSumKeys unifierHashMapSumKeys =  new UnifierHashMapSumKeys<K, Integer>();
+      UnifierHashMapSumKeys<K, Integer> unifierHashMapSumKeys =  new UnifierHashMapSumKeys<>();
       unifierHashMapSumKeys.setType(Integer.class);
       return unifierHashMapSumKeys;
     }
@@ -105,8 +105,7 @@ public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
     if (tuple != null) {
       count.emit(tuple);
     }
-    if(!cumulative)
-    {
+    if (!cumulative) {
       map.clear();
     }
   }
@@ -115,7 +114,8 @@ public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
    * Gets the cumulative mode.
    * @return The cumulative mode.
    */
-  public boolean isCumulative() {
+  public boolean isCumulative()
+  {
     return cumulative;
   }
 
@@ -126,7 +126,8 @@ public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
    * could eventually run out of memory.
    * @param cumulative
    */
-  public void setCumulative(boolean cumulative) {
+  public void setCumulative(boolean cumulative)
+  {
     this.cumulative = cumulative;
   }
 }

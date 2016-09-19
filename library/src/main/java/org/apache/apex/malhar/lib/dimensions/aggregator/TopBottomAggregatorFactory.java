@@ -23,6 +23,9 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
+/**
+ * @since 3.4.0
+ */
 public class TopBottomAggregatorFactory extends AbstractCompositeAggregatorFactory
 {
   public static final String PROPERTY_NAME_EMBEDED_AGGREGATOR = "embededAggregator";

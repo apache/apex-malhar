@@ -35,12 +35,12 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.api.LocalMode;
+
 import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.lib.testbench.CollectorTestSink;
-
-import com.datatorrent.api.LocalMode;
 
 public class ApplicationTest
 {
@@ -65,7 +65,7 @@ public class ApplicationTest
     contextHandler.addServlet(sh, "/pubsub");
     contextHandler.addServlet(sh, "/*");
     server.start();
-    Connector connector[] = server.getConnectors();
+    Connector[] connector = server.getConnectors();
     conf.set("dt.attr.GATEWAY_CONNECT_ADDRESS", "localhost:" + connector[0].getLocalPort());
     URI uri = URI.create("ws://localhost:" + connector[0].getLocalPort() + "/pubsub");
 
@@ -111,7 +111,7 @@ public class ApplicationTest
     server.stop();
     Assert.assertTrue("size of output is 5 ", sink.collectedTuples.size() == 5);
     for (Object obj : sink.collectedTuples) {
-      Assert.assertEquals("Expected phone number", "5559990", ((Map<String, String>) obj).get("phone"));
+      Assert.assertEquals("Expected phone number", "5559990", ((Map<String, String>)obj).get("phone"));
     }
   }
 }

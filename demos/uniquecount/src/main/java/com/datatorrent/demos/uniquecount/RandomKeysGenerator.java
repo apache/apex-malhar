@@ -18,14 +18,18 @@
  */
 package com.datatorrent.demos.uniquecount;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
+import org.apache.commons.lang3.mutable.MutableInt;
+
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.KeyHashValPair;
-import org.apache.commons.lang3.mutable.MutableInt;
-
-import java.util.*;
 
 /*
     Generate random keys.
@@ -61,8 +65,7 @@ public class RandomKeysGenerator implements InputOperator
       outPort.emit(key);
 
 
-      if (verificationPort.isConnected())
-      {
+      if (verificationPort.isConnected()) {
         // maintain history for later verification.
         MutableInt count = history.get(key);
         if (count == null) {
@@ -74,10 +77,11 @@ public class RandomKeysGenerator implements InputOperator
 
     }
     try {
-      if (sleepTime != 0)
+      if (sleepTime != 0) {
         Thread.sleep(sleepTime);
+      }
     } catch (Exception ex) {
-
+      // Ignore.
     }
   }
 

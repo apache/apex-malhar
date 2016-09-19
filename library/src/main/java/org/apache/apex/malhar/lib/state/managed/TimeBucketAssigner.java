@@ -28,10 +28,9 @@ import com.esotericsoftware.kryo.serializers.JavaSerializer;
 import com.google.common.base.Preconditions;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.appdata.query.WindowBoundedService;
 
 /**
- * Keeps track of time buckets.<br/>
+ * Keeps track of time buckets and triggers purging of obsolete time-buckets.<br/>
  *
  * The data of a bucket is further divided into time-buckets. This component controls the length of time buckets,
  * which time-bucket an event falls into and sliding the time boundaries.
@@ -40,24 +39,19 @@ import com.datatorrent.lib.appdata.query.WindowBoundedService;
  * The configuration {@link #expireBefore}, {@link #bucketSpan} and {@link #referenceInstant} (default time: system
  * time during initialization of TimeBucketAssigner) are used to calculate number of time-buckets.<br/>
  * For eg. if <code>expireBefore = 1 hour</code>, <code>bucketSpan = 30 minutes</code> and
- * <code>rererenceInstant = current-time</code>, then <code>
+ * <code>rererenceInstant = currentTime</code>, then <code>
  *   numBuckets = 60 minutes/ 30 minutes = 2 </code>.<br/>
  *
  * These properties once configured shouldn't be changed because that will result in different time-buckets
  * for the same (key,time) pair after a failure.
  * <p/>
  *
- * The time boundaries- start and end, periodically move by span of a single time-bucket. Any event with time < start
- * is expired. These boundaries slide between application window by the expiry task asynchronously.<br/>
- * The boundaries move only between an application window to ensure consistency of a checkpoint. Checkpoint will happen
- * at application window boundaries so if we do not restrict moving start and end within an app window boundary, it may
- * happen that old value of 'start' is saved with the new value of 'end'.
- *
- * <p/>
- *
- * The boundaries can also be moved by {@link #getTimeBucketFor(long)}. The time which is passed as an argument to this
- * method can be ahead of <code>end</code>. This means that the corresponding event is a future event
+ * The time boundaries- start and end, move by multiples of time-bucket span. Any event with time < start
+ * is considered expired. The boundaries slide by {@link #getTimeBucketAndAdjustBoundaries(long)}. The time which is passed as an
+ * argument to this method can be ahead of <code>end</code>. This means that the corresponding event is a future event
  * (wrt TimeBucketAssigner) and cannot be ignored. Therefore it is accounted by sliding boundaries further.
+ *
+ * @since 3.4.0
  */
 public class TimeBucketAssigner implements ManagedStateComponent
 {
@@ -77,30 +71,12 @@ public class TimeBucketAssigner implements ManagedStateComponent
   private long end;
   private int numBuckets;
   private transient long fixedStart;
-  private transient long lowestTimeBucket;
+  private transient boolean triggerPurge;
+  private transient long lowestPurgeableTimeBucket;
 
   private boolean initialized;
 
-  private transient WindowBoundedService windowBoundedService;
-
-  private transient PurgeListener purgeListener = null;
-
-  private final transient Runnable expiryTask = new Runnable()
-  {
-    @Override
-    public void run()
-    {
-      synchronized (lock) {
-        start += bucketSpanMillis;
-        end += bucketSpanMillis;
-        if (purgeListener != null) {
-          purgeListener.purgeTimeBucketsLessThanEqualTo(lowestTimeBucket++);
-        }
-      }
-    }
-  };
-
-  private final transient Object lock = new Object();
+  private transient PurgeListener purgeListener;
 
   @Override
   public void setup(@NotNull ManagedStateContext managedStateContext)
@@ -120,53 +96,53 @@ public class TimeBucketAssigner implements ManagedStateComponent
 
       initialized = true;
     }
-    lowestTimeBucket = (start - fixedStart) / bucketSpanMillis;
-    windowBoundedService = new WindowBoundedService(bucketSpanMillis, expiryTask);
-    windowBoundedService.setup(context);
-  }
-
-  public void beginWindow(long windowId)
-  {
-    windowBoundedService.beginWindow(windowId);
   }
 
   public void endWindow()
   {
-    windowBoundedService.endWindow();
-  }
-
-  /**
-   * Get the bucket key for the long value.
-   *
-   * @param value value from which bucket key is derived.
-   * @return -1 if value is already expired; bucket key otherwise.
-   */
-  public long getTimeBucketFor(long value)
-  {
-    synchronized (lock) {
-      if (value < start) {
-        return -1;
-      }
-      long diffFromStart = value - fixedStart;
-      long key = diffFromStart / bucketSpanMillis;
-      if (value > end) {
-        long move = ((value - end) / bucketSpanMillis + 1) * bucketSpanMillis;
-        start += move;
-        end += move;
-      }
-      return key;
+    if (triggerPurge && purgeListener != null) {
+      triggerPurge = false;
+      purgeListener.purgeTimeBucketsLessThanEqualTo(lowestPurgeableTimeBucket);
     }
-  }
-
-  public void setPurgeListener(@NotNull PurgeListener purgeListener)
-  {
-    this.purgeListener = Preconditions.checkNotNull(purgeListener, "purge listener");
   }
 
   @Override
   public void teardown()
   {
-    windowBoundedService.teardown();
+  }
+
+  /**
+   * Get the bucket key for the long value and adjust boundaries if necessary.
+   *
+   * @param value value from which bucket key is derived.
+   * @return -1 if value is already expired; bucket key otherwise.
+   */
+  public long getTimeBucketAndAdjustBoundaries(long value)
+  {
+    if (value < start) {
+      return -1;
+    }
+    long diffFromStart = value - fixedStart;
+    long key = diffFromStart / bucketSpanMillis;
+    if (value > end) {
+      long diffInBuckets = (value - end) / bucketSpanMillis;
+      long move = (diffInBuckets + 1) * bucketSpanMillis;
+      start += move;
+      end += move;
+      triggerPurge = true;
+      lowestPurgeableTimeBucket += diffInBuckets;
+    }
+    return key;
+
+  }
+
+  /**
+   * Sets the purge listener.
+   * @param purgeListener purge listener
+   */
+  public void setPurgeListener(@NotNull PurgeListener purgeListener)
+  {
+    this.purgeListener = Preconditions.checkNotNull(purgeListener, "purge listener");
   }
 
   /**

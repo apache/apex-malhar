@@ -28,11 +28,12 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
 
 /**
  * This is a base implementation for an HTTP input operator that reads from a given url using the HTTP GET command like an input stream.&nbsp;
@@ -122,15 +123,13 @@ public abstract class AbstractHttpInputOperator<T> extends SimpleSinglePortInput
 
         ClientResponse response = builder.get(ClientResponse.class);
         processResponse(response);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         LOG.error("Error reading from " + resource.getURI(), e);
       }
 
       try {
         Thread.sleep(500);
-      }
-      catch (InterruptedException e) {
+      } catch (InterruptedException e) {
         LOG.info("Exiting IO loop {}.", e.toString());
         break;
       }

@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import javax.validation.constraints.NotNull;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -175,18 +176,21 @@ public class JdbcStore implements Connectable
   @Override
   public void disconnect()
   {
-    try {
-      connection.close();
-    } catch (SQLException ex) {
-      throw new RuntimeException("closing database resource", ex);
+    if (connection != null) {
+      try {
+        connection.close();
+      } catch (SQLException ex) {
+        throw new RuntimeException("closing database resource", ex);
+      }
     }
   }
 
   @Override
+  @JsonIgnore
   public boolean isConnected()
   {
     try {
-      return !connection.isClosed();
+      return connection != null ? !connection.isClosed() : false;
     } catch (SQLException e) {
       throw new RuntimeException("is isConnected", e);
     }

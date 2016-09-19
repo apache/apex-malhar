@@ -18,13 +18,13 @@
  */
 package com.datatorrent.demos.wordcount;
 
-import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.api.StreamingApplication;
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-
-import org.apache.hadoop.conf.Configuration;
 
 /**
  * Simple Word Count Demo : <br>
@@ -72,8 +72,8 @@ import org.apache.hadoop.conf.Configuration;
  * Streaming Window Size : 500ms
  * Operator Details : <br>
  * <ul>
- * 	<li>
- *     <p><b> The operator wordinput : </b> This operator opens local file, reads each line and sends each word to application.
+ * <li>
+ * <p><b> The operator wordinput : </b> This operator opens local file, reads each line and sends each word to application.
  *         This can replaced by any input stream by user. <br>
  *     Class : {@link com.datatorrent.demos.wordcount.WordCountInputOperator}  <br>
  *     Operator Application Window Count : 1 <br>
@@ -93,10 +93,10 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="WordCountDemo")
+@ApplicationAnnotation(name = "WordCountDemo")
 public class Application implements StreamingApplication
 {
-   @Override
+  @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
     WordCountInputOperator input = dag.addOperator("wordinput", new WordCountInputOperator());
@@ -104,8 +104,5 @@ public class Application implements StreamingApplication
     dag.addStream("wordinput-count", input.outputPort, wordCount.data);
     ConsoleOutputOperator consoleOperator = dag.addOperator("console", new ConsoleOutputOperator());
     dag.addStream("count-console",wordCount.count, consoleOperator.input);
-
   }
-
-
 }

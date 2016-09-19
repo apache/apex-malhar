@@ -27,6 +27,9 @@ import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.EventKey;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 
+/**
+ * @since 3.4.0
+ */
 public interface CompositeAggregator
 {
   public int getSchemaID();

@@ -18,12 +18,13 @@
  */
 package com.datatorrent.lib.stream;
 
+import java.util.HashMap;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.util.BaseKeyValueOperator;
 import com.datatorrent.lib.util.KeyValPair;
-import java.util.HashMap;
 
 /**
  * An implementation of BaseKeyValueOperator that converts Key Value Pair to a HashMap tuple.
@@ -45,25 +46,25 @@ import java.util.HashMap;
 @Stateless
 public class KeyValPairToHashMap<K, V> extends BaseKeyValueOperator<K, V>
 {
-	/**
-	 * Input port that takes a key value pair.
-	 */
-	public final transient DefaultInputPort<KeyValPair<K, V>> keyval = new DefaultInputPort<KeyValPair<K, V>>()
-	{
-		/**
-		 * Emits key, key/val pair, and val based on port connections
-		 */
-		@Override
-		public void process(KeyValPair<K, V> tuple)
-		{
-			HashMap<K, V> otuple = new HashMap<K, V>(1);
-			otuple.put(tuple.getKey(), tuple.getValue());
-			map.emit(otuple);
-		}
-	};
+  /**
+   * Input port that takes a key value pair.
+   */
+  public final transient DefaultInputPort<KeyValPair<K, V>> keyval = new DefaultInputPort<KeyValPair<K, V>>()
+  {
+    /**
+     * Emits key, key/val pair, and val based on port connections
+     */
+    @Override
+    public void process(KeyValPair<K, V> tuple)
+    {
+      HashMap<K, V> otuple = new HashMap<K, V>(1);
+      otuple.put(tuple.getKey(), tuple.getValue());
+      map.emit(otuple);
+    }
+  };
 
-	/**
-	 * key/value map output port.
-	 */
-	public final transient DefaultOutputPort<HashMap<K, V>> map = new DefaultOutputPort<HashMap<K, V>>();
+  /**
+   * key/value map output port.
+   */
+  public final transient DefaultOutputPort<HashMap<K, V>> map = new DefaultOutputPort<HashMap<K, V>>();
 }

@@ -24,6 +24,9 @@ import com.datatorrent.api.Context;
 import com.datatorrent.lib.fileaccess.FileAccess;
 import com.datatorrent.netlet.util.Slice;
 
+/**
+ * @since 3.4.0
+ */
 public interface ManagedStateContext
 {
   FileAccess getFileAccess();

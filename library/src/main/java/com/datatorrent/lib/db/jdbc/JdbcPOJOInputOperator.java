@@ -95,8 +95,6 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
   private transient PreparedStatement preparedStatement;
   protected transient Class<?> pojoClass;
 
-  protected int pageNumber;
-
   @AutoMetric
   protected long tuplesRead;
 
@@ -188,7 +186,6 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
   public void beginWindow(long l)
   {
     windowDone = false;
-    tuplesRead = 0;
   }
 
   @Override
@@ -209,7 +206,6 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
           windowDone = true;
         }
         resultSet.close();
-        pageNumber++;
       } catch (SQLException ex) {
         store.disconnect();
         throw new RuntimeException(ex);
@@ -220,9 +216,9 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
   protected void setRuntimeParams() throws SQLException
   {
     if (mysqlSyntax) {
-      preparedStatement.setLong(1, pageNumber * fetchSize);
+      preparedStatement.setLong(1, tuplesRead);
     } else {
-      preparedStatement.setLong(1, pageNumber * fetchSize);
+      preparedStatement.setLong(1, tuplesRead);
     }
   }
 
@@ -292,17 +288,17 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
 
           case Types.TIMESTAMP:
             Timestamp tsVal = result.getTimestamp(i + 1);
-            ((PojoUtils.SetterLong<Object>)afi.setterOrGetter).set(obj, tsVal.getTime());
+            ((PojoUtils.Setter<Object, Timestamp>)afi.setterOrGetter).set(obj, tsVal);
             break;
 
           case Types.TIME:
             Time timeVal = result.getTime(i + 1);
-            ((PojoUtils.SetterLong<Object>)afi.setterOrGetter).set(obj, timeVal.getTime());
+            ((PojoUtils.Setter<Object, Time>)afi.setterOrGetter).set(obj, timeVal);
             break;
 
           case Types.DATE:
             Date dateVal = result.getDate(i + 1);
-            ((PojoUtils.SetterLong<Object>)afi.setterOrGetter).set(obj, dateVal.getTime());
+            ((PojoUtils.Setter<Object, Date>)afi.setterOrGetter).set(obj, dateVal);
             break;
 
           default:
@@ -404,7 +400,7 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
           break;
 
         case (Types.DOUBLE):
-          activeFieldInfo.setterOrGetter = PojoUtils.createGetterDouble(pojoClass,
+          activeFieldInfo.setterOrGetter = PojoUtils.createSetterDouble(pojoClass,
               activeFieldInfo.fieldInfo.getPojoFieldExpression());
           break;
 
@@ -415,18 +411,18 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
           break;
 
         case Types.TIMESTAMP:
-          activeFieldInfo.setterOrGetter = PojoUtils.createSetterLong(pojoClass,
-              activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          activeFieldInfo.setterOrGetter = PojoUtils.createSetter(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression(),Timestamp.class);
           break;
 
         case Types.TIME:
-          activeFieldInfo.setterOrGetter = PojoUtils.createSetterLong(pojoClass,
-              activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          activeFieldInfo.setterOrGetter = PojoUtils.createSetter(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression(),Time.class);
           break;
 
         case Types.DATE:
-          activeFieldInfo.setterOrGetter = PojoUtils.createSetterLong(pojoClass,
-              activeFieldInfo.fieldInfo.getPojoFieldExpression());
+          activeFieldInfo.setterOrGetter = PojoUtils.createSetter(pojoClass,
+              activeFieldInfo.fieldInfo.getPojoFieldExpression(), Date.class);
           break;
 
         default:

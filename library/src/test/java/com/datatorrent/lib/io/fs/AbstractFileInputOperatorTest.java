@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import org.junit.Assert;
@@ -34,6 +35,7 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
 import org.apache.apex.malhar.lib.fs.LineByLineFileInputOperator;
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -42,7 +44,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import com.esotericsoftware.kryo.Kryo;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -54,7 +55,6 @@ import com.datatorrent.api.Partitioner.Partition;
 import com.datatorrent.api.StatsListener;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.io.fs.AbstractFileInputOperator.DirectoryScanner;
 import com.datatorrent.lib.partitioner.StatelessPartitionerTest.PartitioningContextImpl;
 import com.datatorrent.lib.testbench.CollectorTestSink;
@@ -86,34 +86,35 @@ public class AbstractFileInputOperatorTest
     }
   }
 
-  @Rule public TestMeta testMeta = new TestMeta();
+  @Rule
+  public TestMeta testMeta = new TestMeta();
   
   @Test
   public void testSinglePartiton() throws Exception
   {
     FileContext.getLocalFSFileContext().delete(new Path(new File(testMeta.dir).getAbsolutePath()), true);
     HashSet<String> allLines = Sets.newHashSet();
-    for (int file=0; file<2; file++) {
+    for (int file = 0; file < 2; file++) {
       HashSet<String> lines = Sets.newHashSet();
-      for (int line=0; line<2; line++) {
-        lines.add("f"+file+"l"+line);
+      for (int line = 0; line < 2; line++) {
+        lines.add("f" + file + "l" + line);
       }
       allLines.addAll(lines);
-      FileUtils.write(new File(testMeta.dir, "file"+file), StringUtils.join(lines, '\n'));
+      FileUtils.write(new File(testMeta.dir, "file" + file), StringUtils.join(lines, '\n'));
     }
 
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
 
     oper.setDirectory(testMeta.dir);
     oper.getScanner().setFilePatternRegexp(".*file[\\d]");
 
     oper.setup(testMeta.context);
-    for (long wid=0; wid<3; wid++) {
+    for (long wid = 0; wid < 3; wid++) {
       oper.beginWindow(wid);
       oper.emitTuples();
       oper.endWindow();
@@ -133,8 +134,8 @@ public class AbstractFileInputOperatorTest
 
     Path path = new Path(new File(testMeta.dir).getAbsolutePath());
     FileContext.getLocalFSFileContext().delete(path, true);
-    for (int file=0; file<4; file++) {
-      FileUtils.write(new File(testMeta.dir, "partition00"+file), "");
+    for (int file = 0; file < 4; file++) {
+      FileUtils.write(new File(testMeta.dir, "partition00" + file), "");
     }
 
     FileSystem fs = FileSystem.get(FileContext.getLocalFSFileContext().getDefaultFileSystem().getUri(), new Configuration());
@@ -158,13 +159,14 @@ public class AbstractFileInputOperatorTest
 
     Path path = new Path(new File(testMeta.dir).getAbsolutePath());
     FileContext.getLocalFSFileContext().delete(path, true);
-    for (int file=0; file<4; file++) {
-      FileUtils.write(new File(testMeta.dir, "partition00"+file), "");
+    for (int file = 0; file < 4; file++) {
+      FileUtils.write(new File(testMeta.dir, "partition00" + file), "");
     }
 
     List<Partition<AbstractFileInputOperator<String>>> partitions = Lists.newArrayList();
     partitions.add(new DefaultPartition<AbstractFileInputOperator<String>>(oper));
-    Collection<Partition<AbstractFileInputOperator<String>>> newPartitions = oper.definePartitions(partitions, new PartitioningContextImpl(null, 2));
+    Collection<Partition<AbstractFileInputOperator<String>>> newPartitions = oper.definePartitions(partitions,
+        new PartitioningContextImpl(null, 2));
     Assert.assertEquals(2, newPartitions.size());
     Assert.assertEquals(1, oper.getCurrentPartitions()); // partitioned() wasn't called
 
@@ -202,20 +204,20 @@ public class AbstractFileInputOperatorTest
     Path path = new Path(new File(testMeta.dir).getAbsolutePath());
     FileContext.getLocalFSFileContext().delete(path, true);
     int file;
-    for (file=0; file<4; file++) {
-      FileUtils.write(new File(testMeta.dir, "partition00"+file), "a\nb\nc\n");
+    for (file = 0; file < 4; file++) {
+      FileUtils.write(new File(testMeta.dir, "partition00" + file), "a\nb\nc\n");
     }
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
 
     int wid = 0;
 
     // Read all records to populate processedList in operator.
     oper.setup(testMeta.context);
-    for(int i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++) {
       oper.beginWindow(wid);
       oper.emitTuples();
       oper.endWindow();
@@ -233,7 +235,7 @@ public class AbstractFileInputOperatorTest
     partitions.add(new DefaultPartition<AbstractFileInputOperator<String>>(oper));
     // incremental capacity controlled partitionCount property
     Collection<Partition<AbstractFileInputOperator<String>>> newPartitions = initialState.definePartitions(partitions,
-      new PartitioningContextImpl(null, 0));
+        new PartitioningContextImpl(null, 0));
     Assert.assertEquals(2, newPartitions.size());
     Assert.assertEquals(1, initialState.getCurrentPartitions());
     Map<Integer, Partition<AbstractFileInputOperator<String>>> m = Maps.newHashMap();
@@ -253,8 +255,8 @@ public class AbstractFileInputOperatorTest
     }
 
     sink.clear();
-    for(int i = 0; i < 10; i++) {
-      for(AbstractFileInputOperator<String> o : opers) {
+    for (int i = 0; i < 10; i++) {
+      for (AbstractFileInputOperator<String> o : opers) {
         o.beginWindow(wid);
         o.emitTuples();
         o.endWindow();
@@ -266,12 +268,12 @@ public class AbstractFileInputOperatorTest
     Assert.assertEquals("No new tuples read ", 0, sink.collectedTuples.size());
 
     // Add four new files with 3 records each.
-    for (; file<8; file++) {
-      FileUtils.write(new File(testMeta.dir, "partition00"+file), "a\nb\nc\n");
+    for (; file < 8; file++) {
+      FileUtils.write(new File(testMeta.dir, "partition00" + file), "a\nb\nc\n");
     }
 
-    for(int i = 0; i < 10; i++) {
-      for(AbstractFileInputOperator<String> o : opers) {
+    for (int i = 0; i < 10; i++) {
+      for (AbstractFileInputOperator<String> o : opers) {
         o.beginWindow(wid);
         o.emitTuples();
         o.endWindow();
@@ -306,20 +308,20 @@ public class AbstractFileInputOperatorTest
     Path path = new Path(new File(testMeta.dir).getAbsolutePath());
     FileContext.getLocalFSFileContext().delete(path, true);
     int file;
-    for (file=0; file<4; file++) {
-      FileUtils.write(new File(testMeta.dir, "partition00"+file), "a\nb\nc\n");
+    for (file = 0; file < 4; file++) {
+      FileUtils.write(new File(testMeta.dir, "partition00" + file), "a\nb\nc\n");
     }
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
 
     int wid = 0;
 
     //Read some records
     oper.setup(testMeta.context);
-    for(int i = 0; i < 5; i++) {
+    for (int i = 0; i < 5; i++) {
       oper.beginWindow(wid);
       oper.emitTuples();
       oper.endWindow();
@@ -357,8 +359,8 @@ public class AbstractFileInputOperatorTest
     }
 
     sink.clear();
-    for(int i = 0; i < 10; i++) {
-      for(AbstractFileInputOperator<String> o : opers) {
+    for (int i = 0; i < 10; i++) {
+      for (AbstractFileInputOperator<String> o : opers) {
         o.beginWindow(wid);
         o.emitTuples();
         o.endWindow();
@@ -391,20 +393,20 @@ public class AbstractFileInputOperatorTest
     Path path = new Path(new File(testMeta.dir).getAbsolutePath());
     FileContext.getLocalFSFileContext().delete(path, true);
     int file;
-    for (file=0; file<4; file++) {
-      FileUtils.write(new File(testMeta.dir, "partition00"+file), "a\nb\nc\n");
+    for (file = 0; file < 4; file++) {
+      FileUtils.write(new File(testMeta.dir, "partition00" + file), "a\nb\nc\n");
     }
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
 
     int wid = 0;
 
     //Read some records
     oper.setup(testMeta.context);
-    for(int i = 0; i < 5; i++) {
+    for (int i = 0; i < 5; i++) {
       oper.beginWindow(wid);
       oper.emitTuples();
       oper.endWindow();
@@ -442,8 +444,8 @@ public class AbstractFileInputOperatorTest
     }
 
     sink.clear();
-    for(int i = 0; i < 10; i++) {
-      for(AbstractFileInputOperator<String> o : opers) {
+    for (int i = 0; i < 10; i++) {
+      for (AbstractFileInputOperator<String> o : opers) {
         o.beginWindow(wid);
         o.emitTuples();
         o.endWindow();
@@ -475,7 +477,7 @@ public class AbstractFileInputOperatorTest
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
+    CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
 
     oper.setDirectory(testMeta.dir);
@@ -510,7 +512,7 @@ public class AbstractFileInputOperatorTest
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
     @SuppressWarnings({"unchecked", "rawtypes"})
-    CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
+    CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
 
     oper.setDirectory(testMeta.dir);
@@ -545,7 +547,7 @@ public class AbstractFileInputOperatorTest
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
     @SuppressWarnings({"unchecked", "rawtypes"})
-    CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
+    CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
 
     oper.setDirectory(testMeta.dir);
@@ -581,7 +583,7 @@ public class AbstractFileInputOperatorTest
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
     @SuppressWarnings({"unchecked", "rawtypes"})
-    CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
+    CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
 
     oper.setDirectory(testMeta.dir);
@@ -613,10 +615,10 @@ public class AbstractFileInputOperatorTest
     }
 
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
-    IdempotentStorageManager.FSIdempotentStorageManager manager = new IdempotentStorageManager.FSIdempotentStorageManager();
-    manager.setRecoveryPath(testMeta.dir + "/recovery");
+    FSWindowDataManager manager = new FSWindowDataManager();
+    manager.setStatePath(testMeta.dir + "/recovery");
 
-    oper.setIdempotentStorageManager(manager);
+    oper.setWindowDataManager(manager);
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
     TestUtils.setSink(oper.output, queryResults);
@@ -662,10 +664,10 @@ public class AbstractFileInputOperatorTest
     }
 
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
-    IdempotentStorageManager.FSIdempotentStorageManager manager = new IdempotentStorageManager.FSIdempotentStorageManager();
-    manager.setRecoveryPath(testMeta.dir + "/recovery");
+    FSWindowDataManager manager = new FSWindowDataManager();
+    manager.setStatePath(testMeta.dir + "/recovery");
 
-    oper.setIdempotentStorageManager(manager);
+    oper.setWindowDataManager(manager);
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
     TestUtils.setSink(oper.output, queryResults);
@@ -705,15 +707,15 @@ public class AbstractFileInputOperatorTest
     FileUtils.write(new File(testMeta.dir, "file0"), StringUtils.join(lines, '\n'));
 
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
-    IdempotentStorageManager.FSIdempotentStorageManager manager = new IdempotentStorageManager.FSIdempotentStorageManager();
-    manager.setRecoveryPath(testMeta.dir + "/recovery");
+    FSWindowDataManager manager = new FSWindowDataManager();
+    manager.setStatePath(testMeta.dir + "/recovery");
     oper.setEmitBatchSize(5);
 
-    oper.setIdempotentStorageManager(manager);
+    oper.setWindowDataManager(manager);
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
     @SuppressWarnings({"unchecked", "rawtypes"})
-    CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
+    CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
 
     oper.setDirectory(testMeta.dir);
@@ -768,14 +770,14 @@ public class AbstractFileInputOperatorTest
 
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
 
-    IdempotentStorageManager.FSIdempotentStorageManager manager = new IdempotentStorageManager.FSIdempotentStorageManager();
-    manager.setRecoveryPath(testMeta.dir + "/recovery");
+    FSWindowDataManager manager = new FSWindowDataManager();
+    manager.setStatePath(testMeta.dir + "/recovery");
 
-    oper.setIdempotentStorageManager(manager);
+    oper.setWindowDataManager(manager);
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
     @SuppressWarnings({"unchecked", "rawtypes"})
-    CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
+    CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
 
     oper.setDirectory(testMeta.dir);
@@ -814,12 +816,12 @@ public class AbstractFileInputOperatorTest
   }
 
   @Test
-  public void testIdempotentStorageManagerPartitioning() throws Exception
+  public void testWindowDataManagerPartitioning() throws Exception
   {
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
     oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
-    oper.setIdempotentStorageManager(new TestStorageManager());
+    oper.setWindowDataManager(new FSWindowDataManager());
     oper.operatorId = 7;
 
     Path path = new Path(new File(testMeta.dir).getAbsolutePath());
@@ -835,15 +837,15 @@ public class AbstractFileInputOperatorTest
     Assert.assertEquals(2, newPartitions.size());
     Assert.assertEquals(1, oper.getCurrentPartitions());
 
-    List<TestStorageManager> storageManagers = Lists.newLinkedList();
+    List<FSWindowDataManager> storageManagers = Lists.newLinkedList();
     for (Partition<AbstractFileInputOperator<String>> p : newPartitions) {
-      storageManagers.add((TestStorageManager) p.getPartitionedInstance().idempotentStorageManager);
+      storageManagers.add((FSWindowDataManager)p.getPartitionedInstance().getWindowDataManager());
     }
     Assert.assertEquals("count of storage managers", 2, storageManagers.size());
 
     int countOfDeleteManagers = 0;
-    TestStorageManager deleteManager = null;
-    for (TestStorageManager storageManager : storageManagers) {
+    FSWindowDataManager deleteManager = null;
+    for (FSWindowDataManager storageManager : storageManagers) {
       if (storageManager.getDeletedOperators() != null) {
         countOfDeleteManagers++;
         deleteManager = storageManager;
@@ -855,14 +857,73 @@ public class AbstractFileInputOperatorTest
     Assert.assertEquals("deleted operators", Sets.newHashSet(7), deleteManager.getDeletedOperators());
   }
 
-  private static class TestStorageManager extends IdempotentStorageManager.FSIdempotentStorageManager
+  /** scanner to extract partition id from start of the filename */
+  static class MyScanner extends AbstractFileInputOperator.DirectoryScanner
   {
-    Set<Integer> getDeletedOperators()
+    @Override
+    protected int getPartition(String filePathStr)
     {
-      if (deletedOperators != null) {
-        return ImmutableSet.copyOf(deletedOperators);
+      String[] parts = filePathStr.split("/");
+      parts = parts[parts.length - 1].split("_");
+      try {
+        int code = Integer.parseInt(parts[0]);
+        return code;
+      } catch (NumberFormatException ex) {
+        return super.getPartition(filePathStr);
       }
-      return null;
     }
+  }
+
+  /**
+   * Partition the operator in 2
+   * create ten files with index of the file at the start, i.e 1_file, 2_file .. etc.
+   * The scanner returns this index from getPartition method.
+   * each partition should read 5 files as file index are from 0 to 9 (including 0 and 9).
+   * @throws Exception
+   */
+  @Test
+  public void testWithCustomScanner() throws Exception
+  {
+    LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
+    oper.setScanner(new MyScanner());
+    oper.getScanner().setFilePatternRegexp(".*partition_([\\d]*)");
+    oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
+
+    Random rand = new Random();
+    Path path = new Path(new File(testMeta.dir).getAbsolutePath());
+    FileContext.getLocalFSFileContext().delete(path, true);
+    for (int file = 0; file < 10; file++) {
+      FileUtils.write(new File(testMeta.dir, file + "_partition_00" + rand.nextInt(100)), "");
+    }
+
+    List<Partition<AbstractFileInputOperator<String>>> partitions = Lists.newArrayList();
+    partitions.add(new DefaultPartition<AbstractFileInputOperator<String>>(oper));
+    Collection<Partition<AbstractFileInputOperator<String>>> newPartitions = oper.definePartitions(partitions,
+        new PartitioningContextImpl(null, 2));
+    Assert.assertEquals(2, newPartitions.size());
+    Assert.assertEquals(1, oper.getCurrentPartitions()); // partitioned() wasn't called
+
+    for (Partition<AbstractFileInputOperator<String>> p : newPartitions) {
+      Assert.assertNotSame(oper, p.getPartitionedInstance());
+      Assert.assertNotSame(oper.getScanner(), p.getPartitionedInstance().getScanner());
+      Set<String> consumed = Sets.newHashSet();
+      LinkedHashSet<Path> files = p.getPartitionedInstance().getScanner().scan(FileSystem.getLocal(new Configuration(false)), path, consumed);
+      Assert.assertEquals("partition " + files, 5, files.size());
+    }
+  }
+
+  @Test
+  public void testCustomScanner()
+  {
+    MyScanner scanner = new MyScanner();
+    scanner.setPartitionCount(2);
+
+    scanner.setPartitionIndex(1);
+    boolean accepted = scanner.acceptFile("1_file");
+    Assert.assertTrue("File should be accepted by this partition ", accepted);
+
+    scanner.setPartitionIndex(0);
+    accepted = scanner.acceptFile("1_file");
+    Assert.assertFalse("File should not be accepted by this partition ", accepted);
   }
 }

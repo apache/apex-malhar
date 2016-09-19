@@ -56,8 +56,7 @@ import com.datatorrent.lib.util.AbstractBaseSortOperator;
 //
 // TODO: Override PriorityQueue and rewrite addAll to insert with location
 //
-public class InsertSort<K> extends AbstractBaseSortOperator<K> implements
-  Unifier<ArrayList<K>>
+public class InsertSort<K> extends AbstractBaseSortOperator<K> implements Unifier<ArrayList<K>>
 {
   /**
    * The input port on which individual tuples are received for sorting.

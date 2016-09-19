@@ -26,7 +26,6 @@ import com.datatorrent.api.Context.DAGContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.demos.frauddetect.operator.HdfsStringOutputOperator;
 import com.datatorrent.demos.frauddetect.operator.MongoDBOutputOperator;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
@@ -36,6 +35,7 @@ import com.datatorrent.lib.math.RangeKeyVal;
 import com.datatorrent.lib.multiwindow.SimpleMovingAverage;
 import com.datatorrent.lib.util.BaseKeyValueOperator;
 import com.datatorrent.lib.util.KeyValPair;
+import com.datatorrent.netlet.util.DTThrowable;
 
 
 /**
@@ -43,10 +43,9 @@ import com.datatorrent.lib.util.KeyValPair;
  *
  * @since 0.9.0
  */
-@ApplicationAnnotation(name="FraudDetectDemo")
+@ApplicationAnnotation(name = "FraudDetectDemo")
 public class Application implements StreamingApplication
 {
-
 
   public PubSubWebSocketInputOperator getPubSubWebSocketInputOperator(String name, DAG dag, URI duri, String topic) throws Exception
   {
@@ -78,7 +77,8 @@ public class Application implements StreamingApplication
     return oper;
   }
 
-  public static class KeyPartitionCodec<K, V> extends BaseKeyValueOperator.DefaultPartitionCodec<K,V> implements Serializable {
+  public static class KeyPartitionCodec<K, V> extends BaseKeyValueOperator.DefaultPartitionCodec<K,V> implements Serializable
+  {
     private static final long serialVersionUID = 201410031623L;
   }
 

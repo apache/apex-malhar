@@ -77,7 +77,7 @@ public class AppDataSnapshotServerPOJO extends AbstractAppDataSnapshotServer<Obj
    */
   private void firstTuple(Object inputEvent)
   {
-    if(firstTupleProcessed) {
+    if (firstTupleProcessed) {
       return;
     }
 

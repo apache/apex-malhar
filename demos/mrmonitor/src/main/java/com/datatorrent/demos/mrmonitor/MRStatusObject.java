@@ -149,7 +149,8 @@ public class MRStatusObject
     virtualMemoryStatusHistory = new LinkedList<String>();
     cpuStatusHistory = new LinkedList<String>();
     statusScheduler = Executors.newScheduledThreadPool(1);
-    statusScheduler.scheduleAtFixedRate(new Runnable() {
+    statusScheduler.scheduleAtFixedRate(new Runnable()
+    {
       @Override
       public void run()
       {
@@ -333,12 +334,15 @@ public class MRStatusObject
   @Override
   public boolean equals(Object that)
   {
-    if (this == that)
+    if (this == that) {
       return true;
-    if (!(that instanceof MRStatusObject))
+    }
+    if (!(that instanceof MRStatusObject)) {
       return false;
-    if (this.hashCode() == that.hashCode())
+    }
+    if (this.hashCode() == that.hashCode()) {
       return true;
+    }
     return false;
   }
 
@@ -443,7 +447,7 @@ public class MRStatusObject
 
     /**
      * This returns the task information as json
-     * 
+     *
      * @return
      */
     public JSONObject getJson()
@@ -453,7 +457,7 @@ public class MRStatusObject
 
     /**
      * This stores the task information as json
-     * 
+     *
      * @param json
      */
     public void setJson(JSONObject json)
@@ -463,7 +467,7 @@ public class MRStatusObject
 
     /**
      * This returns if the json object has been modified
-     * 
+     *
      * @return
      */
     public boolean isModified()
@@ -473,7 +477,7 @@ public class MRStatusObject
 
     /**
      * This sets if the json object is modified
-     * 
+     *
      * @param modified
      */
     public void setModified(boolean modified)
@@ -483,7 +487,7 @@ public class MRStatusObject
 
     /**
      * This returns the string format of the json object
-     * 
+     *
      * @return
      */
     public String getJsonString()

@@ -43,7 +43,7 @@ public class CountAndLastTupleTestSink<T> extends CountTestSink<T>
   @Override
   public void put(T tuple)
   {
-      this.tuple = tuple;
-      count++;
+    this.tuple = tuple;
+    count++;
   }
 }

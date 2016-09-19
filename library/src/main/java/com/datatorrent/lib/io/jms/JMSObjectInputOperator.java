@@ -18,14 +18,23 @@
  */
 package com.datatorrent.lib.io.jms;
 
-import com.datatorrent.api.DefaultOutputPort;
 import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import javax.jms.*;
+
+import javax.jms.BytesMessage;
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.Message;
+import javax.jms.ObjectMessage;
+import javax.jms.StreamMessage;
+import javax.jms.TextMessage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.DefaultOutputPort;
 
 /**
  * An implementation of AbstractJMSInputOperator which emits TextMessage,StreamMessage,BytesMessage,MapMessage
@@ -54,20 +63,15 @@ public class JMSObjectInputOperator extends AbstractJMSInputOperator<Object>
   {
     if (message instanceof TextMessage) {
       return ((TextMessage)message).getText();
-    }
-    else if (message instanceof StreamMessage) {
+    } else if (message instanceof StreamMessage) {
       return ((StreamMessage)message).readString();
-    }
-    else if (message instanceof BytesMessage) {
+    } else if (message instanceof BytesMessage) {
       return extractByteArrayFromMessage((BytesMessage)message);
-    }
-    else if (message instanceof MapMessage) {
+    } else if (message instanceof MapMessage) {
       return extractMapFromMessage((MapMessage)message);
-    }
-    else if (message instanceof ObjectMessage) {
+    } else if (message instanceof ObjectMessage) {
       return extractSerializableFromMessage((ObjectMessage)message);
-    }
-    else {
+    } else {
       return message;
     }
   }
@@ -122,19 +126,16 @@ public class JMSObjectInputOperator extends AbstractJMSInputOperator<Object>
   {
     if (outputString.isConnected()) {
       outputString.emit((String)payload);
-    }
-    else if (outputMap.isConnected()) {
+    } else if (outputMap.isConnected()) {
       outputMap.emit((Map<String, Object>)payload);
-    }
-    else if (outputBytes.isConnected()) {
+    } else if (outputBytes.isConnected()) {
       outputBytes.emit((byte[])payload);
-    }
-    else {
+    } else {
       output.emit(payload);
     }
   }
 
   @SuppressWarnings("unused")
-  private static transient final Logger logger = LoggerFactory.getLogger(JMSObjectInputOperator.class);
+  private static final transient Logger logger = LoggerFactory.getLogger(JMSObjectInputOperator.class);
 
 }

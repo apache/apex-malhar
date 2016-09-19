@@ -26,17 +26,13 @@
   <parent>
     <groupId>org.apache.apex</groupId>
     <artifactId>malhar</artifactId>
-    <version>3.4.0-incubating-SNAPSHOT</version>
+    <version>3.6.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>malhar-library</artifactId>
   <packaging>jar</packaging>
 
-  <name>Apache Apex Malhar (incubating) Library</name>
-
-  <properties>
-    <checkstyle.console>false</checkstyle.console>
-  </properties>
+  <name>Apache Apex Malhar Library</name>
 
   <build>
     <plugins>
@@ -187,8 +183,17 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
-          <maxAllowedViolations>15995</maxAllowedViolations>
-          <logViolationsToConsole>${checkstyle.console}</logViolationsToConsole>
+          <suppressionsLocation>library-checkstyle-suppressions.xml</suppressionsLocation>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.19.1</version>
+        <configuration>
+          <excludes>
+            <exclude>**/S3InputModuleAppTest.java</exclude>
+          </excludes>
         </configuration>
       </plugin>
     </plugins>
@@ -291,11 +296,6 @@
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>it.unimi.dsi</groupId>
-      <artifactId>fastutil</artifactId>
-      <version>6.6.4</version>
-    </dependency>
-    <dependency>
       <groupId>org.codehaus.janino</groupId>
       <artifactId>commons-compiler</artifactId>
       <version>2.7.8</version>
@@ -306,12 +306,18 @@
       <artifactId>janino</artifactId>
       <version>2.7.8</version>
       <scope>test</scope>
-    </dependency>    
-     <dependency>
+    </dependency>
+    <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
       <version>1.8.5</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+           <groupId>org.hamcrest</groupId>
+           <artifactId>hamcrest-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
@@ -334,7 +340,44 @@
       <artifactId>fastutil</artifactId>
       <version>7.0.6</version>
     </dependency>
-
+    <dependency>
+      <groupId>org.jooq</groupId>
+      <artifactId>jooq</artifactId>
+      <version>3.6.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>apex-shaded-ning19</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-s3</artifactId>
+      <version>1.10.73</version>
+    </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-sqs</artifactId>
+      <version>1.10.73</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.5.4</version>
+    </dependency>
+    <dependency>	  
+      <groupId>com.amazonaws</groupId>
+      <artifactId>amazon-sqs-java-messaging-lib</artifactId>
+      <version>1.0.0</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.amazonaws</groupId>
+          <artifactId>aws-java-sdk-sqs</artifactId>
+        </exclusion>
+      </exclusions> 
+    </dependency>
   </dependencies>
 
   <profiles>

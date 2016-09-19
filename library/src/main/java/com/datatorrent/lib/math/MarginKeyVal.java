@@ -23,12 +23,11 @@ import java.util.Map;
 
 import org.apache.commons.lang.mutable.MutableDouble;
 
-import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
-import com.datatorrent.lib.util.KeyValPair;
-
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.StreamCodec;
+import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  *
@@ -52,135 +51,134 @@ import com.datatorrent.api.StreamCodec;
  * @tags sum, division, numeric, key value
  * @since 0.3.3
  */
-public class MarginKeyVal<K, V extends Number> extends
-		BaseNumberKeyValueOperator<K, V>
+public class MarginKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
         /**
-	 * Numerator input port that takes a key value pair.
-	 */
-	public final transient DefaultInputPort<KeyValPair<K, V>> numerator = new DefaultInputPort<KeyValPair<K, V>>()
-	{
-		/**
-		 * Adds tuple to the numerator hash.
-		 */
-		@Override
-		public void process(KeyValPair<K, V> tuple)
-		{
-			addTuple(tuple, numerators);
-		}
+   * Numerator input port that takes a key value pair.
+   */
+  public final transient DefaultInputPort<KeyValPair<K, V>> numerator = new DefaultInputPort<KeyValPair<K, V>>()
+  {
+    /**
+     * Adds tuple to the numerator hash.
+     */
+    @Override
+    public void process(KeyValPair<K, V> tuple)
+    {
+      addTuple(tuple, numerators);
+    }
 
-		/**
-		 * Set StreamCodec used for partitioning.
-		 */
-		@Override
-		public StreamCodec<KeyValPair<K, V>> getStreamCodec()
-		{
-			return getKeyValPairStreamCodec();
-		}
-	};
-
-        /**
-	 * Denominator input port that takes a key value pair.
-	 */
-	public final transient DefaultInputPort<KeyValPair<K, V>> denominator = new DefaultInputPort<KeyValPair<K, V>>()
-	{
-		/**
-		 * Adds tuple to the denominator hash.
-		 */
-		@Override
-		public void process(KeyValPair<K, V> tuple)
-		{
-			addTuple(tuple, denominators);
-		}
-
-		/**
-		 * Set StreamCodec used for partitioning.
-		 */
-		@Override
-		public StreamCodec<KeyValPair<K, V>> getStreamCodec()
-		{
-			return getKeyValPairStreamCodec();
-		}
-	};
-
-	/**
-	 * Adds the value for each key.
-	 *
-	 * @param tuple
-	 * @param map
-	 */
-	public void addTuple(KeyValPair<K, V> tuple, Map<K, MutableDouble> map)
-	{
-		K key = tuple.getKey();
-		if (!doprocessKey(key) || (tuple.getValue() == null)) {
-			return;
-		}
-		MutableDouble val = map.get(key);
-		if (val == null) {
-			val = new MutableDouble(0.0);
-			map.put(cloneKey(key), val);
-		}
-		val.add(tuple.getValue().doubleValue());
-	}
+    /**
+     * Set StreamCodec used for partitioning.
+     */
+    @Override
+    public StreamCodec<KeyValPair<K, V>> getStreamCodec()
+    {
+      return getKeyValPairStreamCodec();
+    }
+  };
 
         /**
-	 * Output margin port that emits Key Value pairs.
-	 */
-	public final transient DefaultOutputPort<KeyValPair<K, V>> margin = new DefaultOutputPort<KeyValPair<K, V>>();
+   * Denominator input port that takes a key value pair.
+   */
+  public final transient DefaultInputPort<KeyValPair<K, V>> denominator = new DefaultInputPort<KeyValPair<K, V>>()
+  {
+    /**
+     * Adds tuple to the denominator hash.
+     */
+    @Override
+    public void process(KeyValPair<K, V> tuple)
+    {
+      addTuple(tuple, denominators);
+    }
 
-	protected HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
-	protected HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
-	protected boolean percent = false;
+    /**
+     * Set StreamCodec used for partitioning.
+     */
+    @Override
+    public StreamCodec<KeyValPair<K, V>> getStreamCodec()
+    {
+      return getKeyValPairStreamCodec();
+    }
+  };
 
-	/**
-	 * getter function for percent
-	 *
-	 * @return percent
-	 */
-	public boolean getPercent()
-	{
-		return percent;
-	}
+  /**
+   * Adds the value for each key.
+   *
+   * @param tuple
+   * @param map
+   */
+  public void addTuple(KeyValPair<K, V> tuple, Map<K, MutableDouble> map)
+  {
+    K key = tuple.getKey();
+    if (!doprocessKey(key) || (tuple.getValue() == null)) {
+      return;
+    }
+    MutableDouble val = map.get(key);
+    if (val == null) {
+      val = new MutableDouble(0.0);
+      map.put(cloneKey(key), val);
+    }
+    val.add(tuple.getValue().doubleValue());
+  }
 
-	/**
-	 * setter function for percent
-	 *
-	 * @param val
-	 *          sets percent
-	 */
-	public void setPercent(boolean val)
-	{
-		percent = val;
-	}
+        /**
+   * Output margin port that emits Key Value pairs.
+   */
+  public final transient DefaultOutputPort<KeyValPair<K, V>> margin = new DefaultOutputPort<KeyValPair<K, V>>();
 
-	/**
-	 * Generates tuples for each key and emits them. Only keys that are in the
-	 * denominator are iterated on If the key is only in the numerator, it gets
-	 * ignored (cannot do divide by 0) Clears internal data
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
-	public void endWindow()
-	{
-		Double val;
-		for (Map.Entry<K, MutableDouble> e : denominators.entrySet()) {
-			K key = e.getKey();
-			MutableDouble nval = numerators.get(key);
-			if (nval == null) {
-				nval = new MutableDouble(0.0);
-			} else {
-				numerators.remove(key); // so that all left over keys can be reported
-			}
-			if (percent) {
-				val = (1 - nval.doubleValue() / e.getValue().doubleValue()) * 100;
-			} else {
-				val = 1 - nval.doubleValue() / e.getValue().doubleValue();
-			}
+  protected HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();
+  protected HashMap<K, MutableDouble> denominators = new HashMap<K, MutableDouble>();
+  protected boolean percent = false;
 
-			margin.emit(new KeyValPair(key, getValue(val.doubleValue())));
-		}
+  /**
+   * getter function for percent
+   *
+   * @return percent
+   */
+  public boolean getPercent()
+  {
+    return percent;
+  }
 
-		numerators.clear();
-		denominators.clear();
-	}
+  /**
+   * setter function for percent
+   *
+   * @param val
+   *          sets percent
+   */
+  public void setPercent(boolean val)
+  {
+    percent = val;
+  }
+
+  /**
+   * Generates tuples for each key and emits them. Only keys that are in the
+   * denominator are iterated on If the key is only in the numerator, it gets
+   * ignored (cannot do divide by 0) Clears internal data
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @Override
+  public void endWindow()
+  {
+    Double val;
+    for (Map.Entry<K, MutableDouble> e : denominators.entrySet()) {
+      K key = e.getKey();
+      MutableDouble nval = numerators.get(key);
+      if (nval == null) {
+        nval = new MutableDouble(0.0);
+      } else {
+        numerators.remove(key); // so that all left over keys can be reported
+      }
+      if (percent) {
+        val = (1 - nval.doubleValue() / e.getValue().doubleValue()) * 100;
+      } else {
+        val = 1 - nval.doubleValue() / e.getValue().doubleValue();
+      }
+
+      margin.emit(new KeyValPair(key, getValue(val.doubleValue())));
+    }
+
+    numerators.clear();
+    denominators.clear();
+  }
 }

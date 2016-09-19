@@ -18,18 +18,20 @@
  */
 package com.datatorrent.demos.mobile;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Range;
+import java.util.Map;
+import java.util.Random;
+import javax.validation.constraints.Min;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.constraints.Min;
-import java.util.Map;
-import java.util.Random;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Range;
+
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * Generates mobile numbers that will be displayed in mobile demo just after launch.<br></br>
@@ -99,7 +101,8 @@ public class PhoneEntryOperator extends BaseOperator
   public final transient DefaultOutputPort<Map<String, String>> seedPhones = new DefaultOutputPort<Map<String, String>>();
 
   @Override
-  public void beginWindow(long windowId){
+  public void beginWindow(long windowId)
+  {
     if (!seedGenerationDone) {
       Random random = new Random();
       int maxPhone = (maxSeedPhoneNumber <= rangeUpperEndpoint && maxSeedPhoneNumber >= rangeLowerEndpoint) ? maxSeedPhoneNumber : rangeUpperEndpoint;

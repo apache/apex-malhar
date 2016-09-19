@@ -18,16 +18,18 @@
  */
 package com.datatorrent.demos.wordcount;
 
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.demos.wordcount.Application;
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.hadoop.conf.Configuration;
+import com.datatorrent.api.LocalMode;
 
 /**
  *
  */
 public class ApplicationTest
 {
+  private final transient Logger LOG = LoggerFactory.getLogger(ApplicationTest.class);
   public ApplicationTest()
   {
   }
@@ -36,14 +38,14 @@ public class ApplicationTest
   public void testSomeMethod() throws Exception
   {
     LocalMode lma = LocalMode.newInstance();
-    Configuration conf =new Configuration(false);
+    Configuration conf = new Configuration(false);
     conf.addResource("dt-site-wordcount.xml");
     lma.prepareDAG(new Application(), conf);
     LocalMode.Controller lc = lma.getController();
     long start = System.currentTimeMillis();
     lc.run(300000);
     long end = System.currentTimeMillis();
-    long time = end -start;
-    System.out.println("Test used "+time+" ms");
+    long time = end - start;
+    LOG.debug("Test used " + time + " ms");
   }
 }

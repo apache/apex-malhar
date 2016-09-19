@@ -21,6 +21,9 @@ package com.datatorrent.lib.join;
 import org.apache.hadoop.classification.InterfaceStability;
 
 @InterfaceStability.Unstable
+/**
+ * @since 3.4.0
+ */
 public interface TimeEvent
 {
   /**

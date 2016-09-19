@@ -21,16 +21,16 @@ package com.datatorrent.lib.algo;
 import java.util.HashMap;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 /**
- *
+ * @deprecated
  * Functional tests for {@link com.datatorrent.lib.algo.MatchAnyMap}<p>
- *
+ * (Deprecating inclass) Comment: MatchAnyMap is deprecated.
  */
+@Deprecated
 public class MatchAnyMapTest
 {
   /**
@@ -67,7 +67,7 @@ public class MatchAnyMapTest
     oper.endWindow();
 
     Assert.assertEquals("number emitted tuples", 1, matchSink.count);
-    Boolean result = (Boolean) matchSink.tuple;
+    Boolean result = (Boolean)matchSink.tuple;
     Assert.assertEquals("result was false", true, result);
     matchSink.clear();
 

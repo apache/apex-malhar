@@ -18,15 +18,15 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * Filters the tuples as per the filter (pass through percent) and emits them.
@@ -83,8 +83,7 @@ public class FilterClassifier<T> extends BaseOperator
         ArrayList<Integer> alist;
         if (inkeys != null) {
           alist = inkeys.get(inkey);
-        }
-        else {
+        } else {
           alist = noweight;
         }
 

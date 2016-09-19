@@ -42,38 +42,39 @@ public class IntegerUniqueValueCountAppender extends UniqueValueCountAppender<In
   {
     Set<Integer> valSet = new HashSet<Integer>();
     try {
-      while (resultSet.next())
+      while (resultSet.next()) {
         valSet.add(resultSet.getInt(1));
+      }
       return valSet;
     } catch (SQLException e) {
       throw new RuntimeException("while processing the result set", e);
     }
   }
-  
+
   @Override
   protected void prepareGetStatement(PreparedStatement getStatement, Object key) throws SQLException
   {
-    getStatement.setInt(1, (Integer) key);
+    getStatement.setInt(1, (Integer)key);
   }
 
   @Override
   protected void preparePutStatement(PreparedStatement putStatement, Object key, Object value) throws SQLException
   {
     @SuppressWarnings("unchecked")
-    Set<Integer> valueSet = (Set<Integer>) value;
+    Set<Integer> valueSet = (Set<Integer>)value;
     for (Integer val : valueSet) {
       @SuppressWarnings("unchecked")
-      Set<Integer> currentVals = (Set<Integer>) get(key);
+      Set<Integer> currentVals = (Set<Integer>)get(key);
       if (!currentVals.contains(val)) {
         batch = true;
-        putStatement.setInt(1, (Integer) key);
+        putStatement.setInt(1, (Integer)key);
         putStatement.setInt(2, val);
         putStatement.setLong(3, windowID);
         putStatement.addBatch();
       }
     }
   }
-  
+
   @Override
   public void endWindow()
   {
@@ -84,7 +85,7 @@ public class IntegerUniqueValueCountAppender extends UniqueValueCountAppender<In
       while (resultSet.next()) {
         int val = resultSet.getInt(1);
         @SuppressWarnings("unchecked")
-        Set<Integer> valSet = (Set<Integer>) cacheManager.get(val);
+        Set<Integer> valSet = (Set<Integer>)cacheManager.get(val);
         output.emit(new KeyValPair<Object, Object>(val, valSet.size()));
       }
     } catch (SQLException e) {

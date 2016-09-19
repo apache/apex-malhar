@@ -30,10 +30,11 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- *
+ * @deprecated
  * Functional tests for {@link com.datatorrent.lib.algo.TopNUnique}<p>
- *
+ * (Deprecating inclass) Comment: TopNUnique is deprecated.
  */
+@Deprecated
 public class TopNUniqueTest
 {
   private static Logger log = LoggerFactory.getLogger(TopNUniqueTest.class);
@@ -94,7 +95,7 @@ public class TopNUniqueTest
     input.clear();
     input.put("b", 6);
     input.put("a", 1001);
-     oper.data.process(input);
+    oper.data.process(input);
 
     input.clear();
     input.put("c", 9);
@@ -108,11 +109,9 @@ public class TopNUniqueTest
       for (Map.Entry<String, ArrayList<HashMap<Number, Integer>>> e: ((HashMap<String, ArrayList<HashMap<Number, Integer>>>)o).entrySet()) {
         if (e.getKey().equals("a")) {
           Assert.assertEquals("emitted value for 'a' was ", 3, e.getValue().size());
-        }
-        else if (e.getKey().equals("b")) {
+        } else if (e.getKey().equals("b")) {
           Assert.assertEquals("emitted tuple for 'b' was ", 3, e.getValue().size());
-        }
-        else if (e.getKey().equals("c")) {
+        } else if (e.getKey().equals("c")) {
           Assert.assertEquals("emitted tuple for 'c' was ", 1, e.getValue().size());
         }
       }

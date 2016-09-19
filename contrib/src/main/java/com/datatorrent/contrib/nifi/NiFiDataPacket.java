@@ -25,6 +25,8 @@ import java.util.Map;
  * The NiFiDataPacket provides a packaging around a NiFi FlowFile. It wraps both
  * a FlowFile's content and its attributes so that they can be processed by Apex.
  * </p>
+ *
+ * @since 3.4.0
  */
 public interface NiFiDataPacket
 {

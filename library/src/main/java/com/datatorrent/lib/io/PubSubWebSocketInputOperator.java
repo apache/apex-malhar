@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.common.util.PubSubMessageCodec;
-import com.datatorrent.common.util.PubSubWebSocketClient;
 
 /**
  * This operator reads JSON objects from the given URL and converts them into maps.
@@ -82,9 +81,8 @@ public class PubSubWebSocketInputOperator<T> extends WebSocketInputOperator<T>
   {
     super.run();
     try {
-      connection.sendTextMessage(PubSubWebSocketClient.constructSubscribeMessage(topic, codec));
-    }
-    catch (IOException ex) {
+      connection.sendMessage(PubSubMessageCodec.constructSubscribeMessage(topic, codec));
+    } catch (IOException ex) {
       LOG.error("Exception caught", ex);
     }
   }

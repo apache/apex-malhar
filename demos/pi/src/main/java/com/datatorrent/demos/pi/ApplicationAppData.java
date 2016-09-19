@@ -84,7 +84,7 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="PiDemoAppData")
+@ApplicationAnnotation(name = "PiDemoAppData")
 public class ApplicationAppData implements StreamingApplication
 {
   public static final String SNAPSHOT_SCHEMA = "PiDemoDataSchema.json";

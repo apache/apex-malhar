@@ -44,7 +44,7 @@ public interface FilterStreamContext<F extends FilterOutputStream>
    * Base filter context that can be extended to build custom filters.
    * @param <F> The Filter output stream
    */
-  public static abstract class BaseFilterStreamContext<F extends FilterOutputStream> implements FilterStreamContext<F>
+  abstract class BaseFilterStreamContext<F extends FilterOutputStream> implements FilterStreamContext<F>
   {
     protected transient F filterStream;
 

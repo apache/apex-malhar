@@ -80,7 +80,9 @@ public class WindowWordCount extends BaseOperator
     LOG.info("WindowWordCount: endWindow");
 
     // got EOF; if no words found, do nothing
-    if (wordMap.isEmpty()) return;
+    if (wordMap.isEmpty()) {
+      return;
+    }
 
     // have some words; emit single map and reset for next file
     final ArrayList<WCPair> list = new ArrayList<>(wordMap.values());

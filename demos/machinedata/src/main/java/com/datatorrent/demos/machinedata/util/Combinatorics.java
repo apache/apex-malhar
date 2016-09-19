@@ -18,7 +18,11 @@
  */
 package com.datatorrent.demos.machinedata.util;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Generate combinations of elements for the given array of elements.
@@ -27,66 +31,71 @@ import java.util.*;
  *
  * @since 0.3.5
  */
-public class Combinatorics<T> {
+public class Combinatorics<T>
+{
 
-    private T[] values;
-    private int size = -1;
-    private List<T> result;
-    private Map<Integer, List<T>> resultMap = new HashMap<Integer, List<T>>();
-    private int resultMapSize = 0;
+  private T[] values;
+  private int size = -1;
+  private List<T> result;
+  private Map<Integer, List<T>> resultMap = new HashMap<Integer, List<T>>();
+  private int resultMapSize = 0;
 
-    /**
-     * Generates all possible combinations with all the sizes.
-     *
-     * @param values
-     */
-    public Combinatorics(T[] values) {
-        this.values = values;
-        this.size = -1;
-        this.result = new ArrayList<>();
+  /**
+   * Generates all possible combinations with all the sizes.
+   *
+   * @param values
+   */
+  public Combinatorics(T[] values)
+  {
+    this.values = values;
+    this.size = -1;
+    this.result = new ArrayList<>();
+  }
+
+  /**
+   * Generates all possible combinations with the given size.
+   *
+   * @param values
+   * @param size
+   */
+  public Combinatorics(T[] values, int size)
+  {
+    this.values = values;
+    this.size = size;
+    this.result = new ArrayList<>();
+  }
+
+  public Map<Integer, List<T>> generate()
+  {
+
+    if (size == -1) {
+      size = values.length;
+      for (int i = 1; i <= size; i++) {
+        int[] tmp = new int[i];
+        Arrays.fill(tmp, -1);
+        generateCombinations(0, 0, tmp);
+      }
+    } else {
+      int[] tmp = new int[size];
+      Arrays.fill(tmp, -1);
+      generateCombinations(0, 0, tmp);
     }
+    return resultMap;
+  }
 
-    /**
-     * Generates all possible combinations with the given size.
-     *
-     * @param values
-     * @param size
-     */
-    public Combinatorics(T[] values, int size) {
-        this.values = values;
-        this.size = size;
-        this.result = new ArrayList<>();
+  public void generateCombinations(int start, int depth, int[] tmp)
+  {
+    if (depth == tmp.length) {
+      for (int j = 0; j < depth; j++) {
+        result.add(values[tmp[j]]);
+      }
+      resultMap.put(++resultMapSize, result);
+      result = new ArrayList<>();
+      return;
     }
-
-    public Map<Integer, List<T>> generate() {
-
-        if (size == -1) {
-            size = values.length;
-            for (int i = 1; i <= size; i++) {
-                int[] tmp = new int[i];
-                Arrays.fill(tmp, -1);
-                generateCombinations(0, 0, tmp);
-            }
-        } else {
-            int[] tmp = new int[size];
-            Arrays.fill(tmp, -1);
-            generateCombinations(0, 0, tmp);
-        }
-        return resultMap;
+    for (int i = start; i < values.length; i++) {
+      tmp[depth] = i;
+      generateCombinations(i + 1, depth + 1, tmp);
     }
-
-    public void generateCombinations(int start, int depth, int[] tmp) {
-        if (depth == tmp.length) {
-            for (int j = 0; j < depth; j++) {
-                result.add(values[tmp[j]]);
-            }
-            resultMap.put(++resultMapSize, result);
-            result = new ArrayList<>();
-            return;
-        }
-        for (int i = start; i < values.length; i++) {
-            tmp[depth] = i;
-            generateCombinations(i + 1, depth + 1, tmp);
-        }
-    }
+  }
 }

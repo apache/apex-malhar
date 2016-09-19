@@ -18,14 +18,13 @@
  */
 package com.datatorrent.lib.testbench;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
-import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This operator consumes tuples which are key value pairs of strings.&nbsp;
@@ -39,62 +38,64 @@ import com.datatorrent.api.Context.OperatorContext;
  */
 public class HttpStatusFilter extends BaseOperator
 {
-	private String filterStatus;
-	private Map<String, Integer> collect;
-	public final transient DefaultInputPort<Map<String, String>> inport = new DefaultInputPort<Map<String, String>>() {
+  private String filterStatus;
+  private Map<String, Integer> collect;
+  public final transient DefaultInputPort<Map<String, String>> inport = new DefaultInputPort<Map<String, String>>()
+  {
     @Override
-    public void process(Map<String, String> s) {
-    	for(Map.Entry<String, String> entry : s.entrySet())
-    	{
-    		if (!entry.getValue().equals(filterStatus)) continue;
-	    	if (collect.containsKey(entry.getKey()))
-	    	{
-	    		Integer value = (Integer)collect.remove(entry.getKey());
-	    		collect.put(entry.getKey(), new Integer(value+1));
-	    	} else {
-	    		collect.put(entry.getKey(), new Integer(1));
-	    	}
-    	}
+    public void process(Map<String, String> s)
+    {
+      for (Map.Entry<String, String> entry : s.entrySet()) {
+        if (!entry.getValue().equals(filterStatus)) {
+          continue;
+        }
+        if (collect.containsKey(entry.getKey())) {
+          Integer value = (Integer)collect.remove(entry.getKey());
+          collect.put(entry.getKey(), new Integer(value + 1));
+        } else {
+          collect.put(entry.getKey(), new Integer(1));
+        }
+      }
     }
-	};
+  };
 
-	@Override
-	public void setup(OperatorContext context)
-	{
-		collect  = new HashMap<String, Integer>();
-	}
+  @Override
+  public void setup(OperatorContext context)
+  {
+    collect  = new HashMap<String, Integer>();
+  }
 
-	@Override
-	public void teardown()
-	{
-	}
+  @Override
+  public void teardown()
+  {
+  }
 
-	@Override
-	public void beginWindow(long windowId)
-	{
-		collect  = new HashMap<String, Integer>();
-	}
+  @Override
+  public void beginWindow(long windowId)
+  {
+    collect  = new HashMap<String, Integer>();
+  }
 
-	// out port
-	public final transient DefaultOutputPort<Map<String, Integer>> outport = new DefaultOutputPort<Map<String, Integer>>();
+  // out port
+  public final transient DefaultOutputPort<Map<String, Integer>> outport = new DefaultOutputPort<Map<String, Integer>>();
 
-	@Override
-	public void endWindow()
-	{
-		outport.emit(collect);
-	}
+  @Override
+  public void endWindow()
+  {
+    outport.emit(collect);
+  }
 
-	public String getFilterStatus()
-	{
-		return filterStatus;
-	}
+  public String getFilterStatus()
+  {
+    return filterStatus;
+  }
 
-	/**
-	 * Only key with the following value is counted.
-	 * @param filterStatus
-	 */
-	public void setFilterStatus(String filterStatus)
-	{
-		this.filterStatus = filterStatus;
-	}
+  /**
+   * Only key with the following value is counted.
+   * @param filterStatus
+   */
+  public void setFilterStatus(String filterStatus)
+  {
+    this.filterStatus = filterStatus;
+  }
 }

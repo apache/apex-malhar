@@ -91,13 +91,11 @@ public enum TimeBucket
    */
   public static final Map<TimeUnit, TimeBucket> TIME_UNIT_TO_TIME_BUCKET;
 
-  static
-  {
+  static {
     Map<String, TimeBucket> bucketToType = Maps.newHashMap();
     Map<TimeUnit, TimeBucket> timeUnitToTimeBucket = Maps.newHashMap();
 
-    for(TimeBucket timeBucket: TimeBucket.values())
-    {
+    for (TimeBucket timeBucket : TimeBucket.values()) {
       timeUnitToTimeBucket.put(timeBucket.getTimeUnit(), timeBucket);
       bucketToType.put(timeBucket.getText(), timeBucket);
     }
@@ -188,7 +186,7 @@ public enum TimeBucket
    */
   public long roundDown(long timestamp)
   {
-    if(timeUnit == null) {
+    if (timeUnit == null) {
       return 0;
     }
 
@@ -218,8 +216,7 @@ public enum TimeBucket
   public static TimeBucket getBucketEx(String name)
   {
     TimeBucket bucket = getBucket(name);
-    Preconditions.checkArgument(bucket != null,
-                                name + " is not a valid bucket type.");
+    Preconditions.checkArgument(bucket != null, name + " is not a valid bucket type.");
     return bucket;
   }
 

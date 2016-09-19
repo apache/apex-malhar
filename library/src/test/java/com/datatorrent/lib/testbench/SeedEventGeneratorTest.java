@@ -18,10 +18,9 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.datatorrent.api.Operator.ShutdownException;
-import com.datatorrent.lib.testbench.SeedEventGenerator;
-
 import org.junit.Test;
+
+import com.datatorrent.api.Operator.ShutdownException;
 
 import static org.junit.Assert.assertTrue;
 
@@ -50,7 +49,7 @@ public class SeedEventGeneratorTest
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-	public void testSchemaNodeProcessing(boolean doseedkey) throws Exception
+  public void testSchemaNodeProcessing(boolean doseedkey) throws Exception
   {
     SeedEventGenerator node = new SeedEventGenerator();
     if (doseedkey) {

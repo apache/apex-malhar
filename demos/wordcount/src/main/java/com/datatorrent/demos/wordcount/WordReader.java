@@ -46,8 +46,8 @@ public class WordReader extends BaseOperator
   /**
    * Input port on which lines from the current file are received
    */
-  public final transient DefaultInputPort<String>
-    input = new DefaultInputPort<String>() {
+  public final transient DefaultInputPort<String> input = new DefaultInputPort<String>()
+  {
 
     @Override
     public void process(String line)
@@ -55,7 +55,9 @@ public class WordReader extends BaseOperator
       // line; split it into words and emit them
       final String[] words = nonWord.split(line);
       for (String word : words) {
-        if (word.isEmpty()) continue;
+        if (word.isEmpty()) {
+          continue;
+        }
         output.emit(word);
       }
     }
@@ -65,7 +67,8 @@ public class WordReader extends BaseOperator
    * Returns the regular expression that matches strings between words
    * @return Regular expression for strings that separate words
    */
-  public String getNonWordStr() {
+  public String getNonWordStr()
+  {
     return nonWordStr;
   }
 
@@ -73,7 +76,8 @@ public class WordReader extends BaseOperator
    * Sets the regular expression that matches strings between words
    * @param regex New regular expression for strings that separate words
    */
-  public void setNonWordStr(String regex) {
+  public void setNonWordStr(String regex)
+  {
     nonWordStr = regex;
   }
 

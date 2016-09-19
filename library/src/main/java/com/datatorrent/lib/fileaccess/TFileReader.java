@@ -93,17 +93,20 @@ public class TFileReader implements FileAccess.FileReader
     try {
       return scanner.seekTo(key.buffer, key.offset, key.length);
     } catch (NullPointerException ex) {
-      if (closed)
+      if (closed) {
         throw new IOException("Stream was closed");
-      else
+      } else {
         throw ex;
+      }
     }
   }
 
   @Override
   public boolean next(Slice key, Slice value) throws IOException
   {
-    if (scanner.atEnd()) return false;
+    if (scanner.atEnd()) {
+      return false;
+    }
     Entry en = scanner.entry();
     byte[] rkey = new byte[en.getKeyLength()];
     byte[] rval = new byte[en.getValueLength()];

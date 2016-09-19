@@ -30,7 +30,7 @@ public class WEQueryQueueManagerTest
   @Test
   public void testSimpleRemoveEmpty()
   {
-    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<Query, Void>();
+    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);
@@ -50,7 +50,7 @@ public class WEQueryQueueManagerTest
   @Test
   public void testSimpleAddOneRemove()
   {
-    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<Query, Void>();
+    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);
@@ -72,7 +72,7 @@ public class WEQueryQueueManagerTest
   @Test
   public void testSimpleAddRemove2()
   {
-    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<Query, Void>();
+    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);
@@ -104,7 +104,7 @@ public class WEQueryQueueManagerTest
   @Test
   public void testSimpleAddAfterStarted()
   {
-    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<Query, Void>();
+    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);
@@ -139,14 +139,12 @@ public class WEQueryQueueManagerTest
   {
     final int numQueries = 3;
 
-    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<Query, Void>();
+    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);
 
-    for(int qc = 0;
-        qc < numQueries;
-        qc++) {
+    for (int qc = 0; qc < numQueries; qc++) {
       Query query = new MockQuery(Integer.toString(qc));
       wqqm.enqueue(query, null, new MutableLong(3L));
     }
@@ -163,17 +161,11 @@ public class WEQueryQueueManagerTest
     {
       int qc = 0;
 
-      for(QueryBundle<Query, Void, MutableLong> tquery;
-          (tquery = wqqm.dequeue()) != null;
-          qc++) {
-        Assert.assertEquals("Query ids must equal.",
-                            Integer.toString(qc),
-                            tquery.getQuery().getId());
+      for (QueryBundle<Query, Void, MutableLong> tquery; (tquery = wqqm.dequeue()) != null; qc++) {
+        Assert.assertEquals("Query ids must equal.", Integer.toString(qc), tquery.getQuery().getId());
       }
 
-      Assert.assertEquals("The number of queries must match.",
-                          numQueries,
-                          qc);
+      Assert.assertEquals("The number of queries must match.", numQueries, qc);
     }
 
     wqqm.endWindow();
@@ -185,14 +177,12 @@ public class WEQueryQueueManagerTest
   {
     final int numQueries = 3;
 
-    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<Query, Void>();
+    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);
 
-    for(int qc = 0;
-        qc < numQueries;
-        qc++) {
+    for (int qc = 0; qc < numQueries; qc++) {
       Query query = new MockQuery(Integer.toString(qc));
       wqqm.enqueue(query, null, new MutableLong(2L));
     }
@@ -203,9 +193,7 @@ public class WEQueryQueueManagerTest
     {
       int qc = 0;
 
-      for(QueryBundle<Query, Void, MutableLong> qb;
-          (qb = wqqm.dequeue()) != null;
-          qc++) {
+      for (QueryBundle<Query, Void, MutableLong> qb; (qb = wqqm.dequeue()) != null; qc++) {
         Query query = qb.getQuery();
         Assert.assertEquals("Query ids must equal.", Integer.toString(qc), query.getId());
       }
@@ -226,22 +214,18 @@ public class WEQueryQueueManagerTest
   public void testMixedExpiration()
   {
     final int numQueries = 3;
-    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<Query, Void>();
+    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);
 
     {
-      for(int qc = 0;
-          qc < numQueries;
-          qc++) {
+      for (int qc = 0; qc < numQueries; qc++) {
         Query query = new MockQuery(Integer.toString(qc));
         wqqm.enqueue(query, null, new MutableLong(2L));
       }
 
-      for(int qc = 0;
-          qc < numQueries;
-          qc++) {
+      for (int qc = 0; qc < numQueries; qc++) {
         Query query = new MockQuery(Integer.toString(qc + numQueries));
         wqqm.enqueue(query, null, new MutableLong(3L));
       }
@@ -253,9 +237,7 @@ public class WEQueryQueueManagerTest
     {
       int qc = 0;
 
-      for(QueryBundle<Query, Void, MutableLong> qb;
-          (qb = wqqm.dequeue()) != null;
-          qc++) {
+      for (QueryBundle<Query, Void, MutableLong> qb; (qb = wqqm.dequeue()) != null; qc++) {
         Query query = qb.getQuery();
         Assert.assertEquals("Query ids must equal.", Integer.toString(qc), query.getId());
       }
@@ -269,9 +251,7 @@ public class WEQueryQueueManagerTest
     {
       int qc = 0;
 
-      for(QueryBundle<Query, Void, MutableLong> qb;
-          (qb = wqqm.dequeue()) != null;
-          qc++) {
+      for (QueryBundle<Query, Void, MutableLong> qb; (qb = wqqm.dequeue()) != null; qc++) {
         Query query = qb.getQuery();
         Assert.assertEquals("Query ids must equal.", Integer.toString(qc + numQueries), query.getId());
       }

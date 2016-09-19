@@ -19,6 +19,7 @@
 package com.datatorrent.lib.io.block;
 
 import java.io.IOException;
+import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -41,6 +42,12 @@ public abstract class AbstractFSBlockReader<R>
 {
   protected transient FileSystem fs;
   protected transient Configuration configuration;
+
+  /**
+   * If all the blocks belong to files which are under a folder than this base can be set to that folder.
+   * The File System instance is derived using this base path.
+   */
+  protected String basePath;
 
   @Override
   public void setup(Context.OperatorContext context)
@@ -79,7 +86,11 @@ public abstract class AbstractFSBlockReader<R>
    */
   protected FileSystem getFSInstance() throws IOException
   {
-    return FileSystem.newInstance(configuration);
+    if (basePath != null) {
+      return FileSystem.newInstance(URI.create(basePath), configuration);
+    } else  {
+      return FileSystem.newInstance(configuration);
+    }
   }
 
   /**
@@ -110,5 +121,18 @@ public abstract class AbstractFSBlockReader<R>
       super();
       this.readerContext = new ReaderContext.ReadAheadLineReaderContext<>();
     }
+  }
+
+  /**
+   * Sets the base path.
+   */
+  public void setBasePath(String basePath)
+  {
+    this.basePath = basePath;
+  }
+
+  public String getBasePath()
+  {
+    return basePath;
   }
 }

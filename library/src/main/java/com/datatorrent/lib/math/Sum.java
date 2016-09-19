@@ -56,204 +56,204 @@ import com.datatorrent.lib.util.UnifierSumNumber;
  * @since 0.3.3
  */
 public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
-		Unifier<V>
+    Unifier<V>
 {
-	/**
-	 * Sum value.
-	 */
-	protected double sums = 0;
+  /**
+   * Sum value.
+   */
+  protected double sums = 0;
 
-	/**
-	 * Input tuple processed flag.
-	 */
-	protected boolean tupleAvailable = false;
+  /**
+   * Input tuple processed flag.
+   */
+  protected boolean tupleAvailable = false;
 
-	/**
-	 * Accumulate sum flag.
-	 */
-	protected boolean cumulative = false;
+  /**
+   * Accumulate sum flag.
+   */
+  protected boolean cumulative = false;
 
-	/**
-	 * Input port to receive data.&nbsp; It computes sum and count for each tuple.
-	 */
-	public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
-	{
-		/**
-		 * Computes sum and count with each tuple
-		 */
-		@Override
-		public void process(V tuple)
-		{
-			Sum.this.process(tuple);
-			tupleAvailable = true;
-		}
-	};
+  /**
+   * Input port to receive data.&nbsp; It computes sum and count for each tuple.
+   */
+  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
+  {
+    /**
+     * Computes sum and count with each tuple
+     */
+    @Override
+    public void process(V tuple)
+    {
+      Sum.this.process(tuple);
+      tupleAvailable = true;
+    }
+  };
 
-	/**
-	 * Unifier process override.
-	 */
-	@Override
-	public void process(V tuple)
-	{
-		sums += tuple.doubleValue();
-		tupleAvailable = true; // also need to set here for Unifier
-	}
+  /**
+   * Unifier process override.
+   */
+  @Override
+  public void process(V tuple)
+  {
+    sums += tuple.doubleValue();
+    tupleAvailable = true; // also need to set here for Unifier
+  }
 
-	/**
-	 * Output sum port.
-	 */
-	@OutputPortFieldAnnotation(optional = true)
-	public final transient DefaultOutputPort<V> sum = new DefaultOutputPort<V>()
-	{
-		@Override
-		public Unifier<V> getUnifier()
-		{
-			UnifierSumNumber<V> ret = new UnifierSumNumber<V>();
-			ret.setVType(getType());
-			return ret;
-		}
-	};
+  /**
+   * Output sum port.
+   */
+  @OutputPortFieldAnnotation(optional = true)
+  public final transient DefaultOutputPort<V> sum = new DefaultOutputPort<V>()
+  {
+    @Override
+    public Unifier<V> getUnifier()
+    {
+      UnifierSumNumber<V> ret = new UnifierSumNumber<V>();
+      ret.setVType(getType());
+      return ret;
+    }
+  };
 
-	/**
-	 * Output double sum port.
-	 */
-	@OutputPortFieldAnnotation(optional = true)
-	public final transient DefaultOutputPort<Double> sumDouble = new DefaultOutputPort<Double>()
-	{
-		@Override
-		public Unifier<Double> getUnifier()
-		{
-			UnifierSumNumber<Double> ret = new UnifierSumNumber<Double>();
-			ret.setType(Double.class);
-			return ret;
-		}
-	};
+  /**
+   * Output double sum port.
+   */
+  @OutputPortFieldAnnotation(optional = true)
+  public final transient DefaultOutputPort<Double> sumDouble = new DefaultOutputPort<Double>()
+  {
+    @Override
+    public Unifier<Double> getUnifier()
+    {
+      UnifierSumNumber<Double> ret = new UnifierSumNumber<Double>();
+      ret.setType(Double.class);
+      return ret;
+    }
+  };
 
-	/**
-	 * Output integer sum port.
-	 */
-	@OutputPortFieldAnnotation(optional = true)
-	public final transient DefaultOutputPort<Integer> sumInteger = new DefaultOutputPort<Integer>()
-	{
-		@Override
-		public Unifier<Integer> getUnifier()
-		{
-			UnifierSumNumber<Integer> ret = new UnifierSumNumber<Integer>();
-			ret.setType(Integer.class);
-			return ret;
-		}
-	};
+  /**
+   * Output integer sum port.
+   */
+  @OutputPortFieldAnnotation(optional = true)
+  public final transient DefaultOutputPort<Integer> sumInteger = new DefaultOutputPort<Integer>()
+  {
+    @Override
+    public Unifier<Integer> getUnifier()
+    {
+      UnifierSumNumber<Integer> ret = new UnifierSumNumber<Integer>();
+      ret.setType(Integer.class);
+      return ret;
+    }
+  };
 
-	/**
-	 * Output Long sum port.
-	 */
-	@OutputPortFieldAnnotation(optional = true)
-	public final transient DefaultOutputPort<Long> sumLong = new DefaultOutputPort<Long>()
-	{
-		@Override
-		public Unifier<Long> getUnifier()
-		{
-			UnifierSumNumber<Long> ret = new UnifierSumNumber<Long>();
-			ret.setType(Long.class);
-			return ret;
-		}
-	};
+  /**
+   * Output Long sum port.
+   */
+  @OutputPortFieldAnnotation(optional = true)
+  public final transient DefaultOutputPort<Long> sumLong = new DefaultOutputPort<Long>()
+  {
+    @Override
+    public Unifier<Long> getUnifier()
+    {
+      UnifierSumNumber<Long> ret = new UnifierSumNumber<Long>();
+      ret.setType(Long.class);
+      return ret;
+    }
+  };
 
-	/**
-	 * Output short sum port.
-	 */
-	@OutputPortFieldAnnotation(optional = true)
-	public final transient DefaultOutputPort<Short> sumShort = new DefaultOutputPort<Short>()
-	{
-		@Override
-		public Unifier<Short> getUnifier()
-		{
-			UnifierSumNumber<Short> ret = new UnifierSumNumber<Short>();
-			ret.setType(Short.class);
-			return ret;
-		}
-	};
+  /**
+   * Output short sum port.
+   */
+  @OutputPortFieldAnnotation(optional = true)
+  public final transient DefaultOutputPort<Short> sumShort = new DefaultOutputPort<Short>()
+  {
+    @Override
+    public Unifier<Short> getUnifier()
+    {
+      UnifierSumNumber<Short> ret = new UnifierSumNumber<Short>();
+      ret.setType(Short.class);
+      return ret;
+    }
+  };
 
-	/**
-	 * Output float sum port.
-	 */
-	@OutputPortFieldAnnotation(optional = true)
-	public final transient DefaultOutputPort<Float> sumFloat = new DefaultOutputPort<Float>()
-	{
-		@Override
-		public Unifier<Float> getUnifier()
-		{
-			UnifierSumNumber<Float> ret = new UnifierSumNumber<Float>();
-			ret.setType(Float.class);
-			return ret;
-		}
-	};
+  /**
+   * Output float sum port.
+   */
+  @OutputPortFieldAnnotation(optional = true)
+  public final transient DefaultOutputPort<Float> sumFloat = new DefaultOutputPort<Float>()
+  {
+    @Override
+    public Unifier<Float> getUnifier()
+    {
+      UnifierSumNumber<Float> ret = new UnifierSumNumber<Float>();
+      ret.setType(Float.class);
+      return ret;
+    }
+  };
 
-	/**
-	 * Redis server output port.
-	 */
-	@OutputPortFieldAnnotation(optional = true)
-	public final transient DefaultOutputPort<Map<Integer, Integer>> redisport = new DefaultOutputPort<Map<Integer, Integer>>();
+  /**
+   * Redis server output port.
+   */
+  @OutputPortFieldAnnotation(optional = true)
+  public final transient DefaultOutputPort<Map<Integer, Integer>> redisport = new DefaultOutputPort<Map<Integer, Integer>>();
 
-	/**
-	 * Check if sum has to be cumulative.
-	 * 
-	 * @return cumulative flag
-	 */
-	public boolean isCumulative()
-	{
-		return cumulative;
-	}
+  /**
+   * Check if sum has to be cumulative.
+   *
+   * @return cumulative flag
+   */
+  public boolean isCumulative()
+  {
+    return cumulative;
+  }
 
-	/**
-	 * Set cumulative flag.
-	 * 
-	 * @param cumulative
-	 *          flag
-	 */
-	public void setCumulative(boolean cumulative)
-	{
-		this.cumulative = cumulative;
-	}
+  /**
+   * Set cumulative flag.
+   *
+   * @param cumulative
+   *          flag
+   */
+  public void setCumulative(boolean cumulative)
+  {
+    this.cumulative = cumulative;
+  }
 
-	/**
-	 * Emits sum and count if ports are connected
-	 */
-	@Override
-	public void endWindow()
-	{
-		if (doEmit()) {
-			sum.emit(getValue(sums));
-			sumDouble.emit(sums);
-			sumInteger.emit((int) sums);
-			sumLong.emit((long) sums);
-			sumShort.emit((short) sums);
-			sumFloat.emit((float) sums);
-			tupleAvailable = false;
-			Map<Integer, Integer> redis = new HashMap<Integer, Integer>();
-			redis.put(1, (int) sums);
-			redisport.emit(redis);
-		}
-		clearCache();
-	}
+  /**
+   * Emits sum and count if ports are connected
+   */
+  @Override
+  public void endWindow()
+  {
+    if (doEmit()) {
+      sum.emit(getValue(sums));
+      sumDouble.emit(sums);
+      sumInteger.emit((int)sums);
+      sumLong.emit((long)sums);
+      sumShort.emit((short)sums);
+      sumFloat.emit((float)sums);
+      tupleAvailable = false;
+      Map<Integer, Integer> redis = new HashMap<Integer, Integer>();
+      redis.put(1, (int)sums);
+      redisport.emit(redis);
+    }
+    clearCache();
+  }
 
-	/**
-	 * Clears the cache making this operator stateless on window boundary
-	 */
-	private void clearCache()
-	{
-		if (!cumulative) {
-			sums = 0;
-		}
-	}
+  /**
+   * Clears the cache making this operator stateless on window boundary
+   */
+  private void clearCache()
+  {
+    if (!cumulative) {
+      sums = 0;
+    }
+  }
 
-	/**
-	 * Decides whether emit has to be done in this window on port "sum"
-	 * 
-	 * @return true is sum port is connected
-	 */
-	private boolean doEmit()
-	{
-		return tupleAvailable;
-	}
+  /**
+   * Decides whether emit has to be done in this window on port "sum"
+   *
+   * @return true is sum port is connected
+   */
+  private boolean doEmit()
+  {
+    return tupleAvailable;
+  }
 }

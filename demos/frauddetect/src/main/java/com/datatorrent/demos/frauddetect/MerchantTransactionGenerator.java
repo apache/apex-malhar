@@ -19,12 +19,16 @@
 package com.datatorrent.demos.frauddetect;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.*;
+import com.datatorrent.api.Context;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
 
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.demos.frauddetect.util.JsonUtils;
@@ -37,8 +41,8 @@ import com.datatorrent.demos.frauddetect.util.JsonUtils;
 public class MerchantTransactionGenerator extends BaseOperator implements InputOperator
 {
   private final Random randomNum = new Random();
-  public static final int zipCodes[] = {94086, 94087, 94088, 94089, 94090, 94091, 94092, 94093};
-  public static final String merchantIds[] = {"Wal-Mart", "Target", "Amazon", "Apple", "Sears", "Macys", "JCPenny", "Levis"};
+  public static final int[] zipCodes = {94086, 94087, 94088, 94089, 94090, 94091, 94092, 94093};
+  public static final String[] merchantIds = {"Wal-Mart", "Target", "Amazon", "Apple", "Sears", "Macys", "JCPenny", "Levis"};
 //    public static final String bankIdNums[] = { "1111 1111 1111", "2222 2222 2222", "3333 3333 3333", "4444 4444 4444", "5555 5555 5555", "6666 6666 6666", "7777 7777 7777", "8888 8888 8888"};
 //    public static final String ccNums[] = { "0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008"};
 //    public static final String bankIdNums[] = { "1111 1111 1111", "2222 2222 2222", "3333 3333 3333", "4444 4444 4444"};
@@ -67,9 +71,9 @@ public class MerchantTransactionGenerator extends BaseOperator implements InputO
   }
 
   public transient DefaultOutputPort<MerchantTransaction> txOutputPort =
-          new DefaultOutputPort<MerchantTransaction>();
+      new DefaultOutputPort<MerchantTransaction>();
   public transient DefaultOutputPort<String> txDataOutputPort =
-          new DefaultOutputPort<String>();
+      new DefaultOutputPort<String>();
 
   @Override
   public void emitTuples()
@@ -127,8 +131,7 @@ public class MerchantTransactionGenerator extends BaseOperator implements InputO
     for (MerchantTransaction txData : txList) {
       try {
         txDataOutputPort.emit(JsonUtils.toJson(txData));
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         logger.warn("Exception while converting object to JSON", e);
       }
     }
@@ -136,8 +139,7 @@ public class MerchantTransactionGenerator extends BaseOperator implements InputO
 
     try {
       Thread.sleep(100);
-    }
-    catch (InterruptedException e) {
+    } catch (InterruptedException e) {
       e.printStackTrace();
     }
 

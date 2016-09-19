@@ -38,10 +38,13 @@ import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.classification.InterfaceStability;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.consumer.OffsetCommitCallback;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -74,10 +77,16 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @since 3.3.0
  */
 @InterfaceStability.Evolving
-public abstract class AbstractKafkaInputOperator implements InputOperator, Operator.ActivationListener<Context.OperatorContext>, Operator.CheckpointListener, Partitioner<AbstractKafkaInputOperator>, StatsListener, OffsetCommitCallback
+public abstract class AbstractKafkaInputOperator implements InputOperator, Operator.ActivationListener<Context.OperatorContext>, Operator.CheckpointNotificationListener, Partitioner<AbstractKafkaInputOperator>, StatsListener, OffsetCommitCallback
 {
 
   private static final Logger logger = LoggerFactory.getLogger(AbstractKafkaInputOperator.class);
+
+  static {
+    // We create new consumers periodically to pull metadata (Kafka consumer keeps metadata in cache)
+    // Skip log4j log for ConsumerConfig class to avoid too much noise in application
+    LogManager.getLogger(ConsumerConfig.class).setLevel(Level.WARN);
+  }
 
   public enum InitialOffset
   {
@@ -191,6 +200,12 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   }
 
   @Override
+  public void beforeCheckpoint(long windowId)
+  {
+
+  }
+
+  @Override
   public void committed(long windowId)
   {
     if (initialOffset == InitialOffset.LATEST || initialOffset == InitialOffset.EARLIEST) {
@@ -208,7 +223,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
     }
     if (isIdempotent()) {
       try {
-        windowDataManager.deleteUpTo(operatorId, windowId);
+        windowDataManager.committed(windowId);
       } catch (IOException e) {
         DTThrowable.rethrow(e);
       }
@@ -244,7 +259,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
     emitCount = 0;
     currentWindowId = wid;
     windowStartOffset.clear();
-    if (isIdempotent() && wid <= windowDataManager.getLargestRecoveryWindow()) {
+    if (isIdempotent() && wid <= windowDataManager.getLargestCompletedWindow()) {
       replay(wid);
     } else {
       consumerWrapper.afterReplay();
@@ -254,8 +269,9 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   private void replay(long windowId)
   {
     try {
+      @SuppressWarnings("unchecked")
       Map<AbstractKafkaPartitioner.PartitionMeta, Pair<Long, Long>> windowData =
-          (Map<AbstractKafkaPartitioner.PartitionMeta, Pair<Long, Long>>)windowDataManager.load(operatorId, windowId);
+          (Map<AbstractKafkaPartitioner.PartitionMeta, Pair<Long, Long>>)windowDataManager.retrieve(windowId);
       consumerWrapper.emitImmediately(windowData);
     } catch (IOException e) {
       DTThrowable.rethrow(e);
@@ -279,7 +295,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
         for (Map.Entry<AbstractKafkaPartitioner.PartitionMeta, Long> e : windowStartOffset.entrySet()) {
           windowData.put(e.getKey(), new MutablePair<>(e.getValue(), offsetTrack.get(e.getKey()) - e.getValue()));
         }
-        windowDataManager.save(windowData, operatorId, currentWindowId);
+        windowDataManager.save(windowData, currentWindowId);
       } catch (IOException e) {
         DTThrowable.rethrow(e);
       }

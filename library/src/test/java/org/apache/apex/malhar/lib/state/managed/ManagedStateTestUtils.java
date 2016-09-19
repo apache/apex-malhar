@@ -18,7 +18,6 @@
  */
 package org.apache.apex.malhar.lib.state.managed;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
@@ -26,11 +25,9 @@ import java.util.TreeMap;
 import javax.annotation.Nullable;
 
 import org.junit.Assert;
-import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.RemoteIterator;
 
@@ -47,7 +44,8 @@ import com.datatorrent.netlet.util.Slice;
 
 public class ManagedStateTestUtils
 {
-  static void transferBucketHelper(FileAccess fileAccess, long bucketId, Map<Slice, Bucket.BucketedValue> unsavedBucket,
+  public static void transferBucketHelper(FileAccess fileAccess, long bucketId, Map<Slice, Bucket.BucketedValue>
+      unsavedBucket,
       int keysPerTimeBucket) throws IOException
   {
     RemoteIterator<LocatedFileStatus> iterator = fileAccess.listFiles(bucketId);
@@ -85,7 +83,7 @@ public class ManagedStateTestUtils
     Assert.assertEquals("data of bucket" + bucketId, testBucket, fromDisk);
   }
 
-  static Map<Long, Map<Slice, Bucket.BucketedValue>> getTestData(int startBucket, int endBucket, int keyStart)
+  public static Map<Long, Map<Slice, Bucket.BucketedValue>> getTestData(int startBucket, int endBucket, int keyStart)
   {
     Map<Long, Map<Slice, Bucket.BucketedValue>> data = Maps.newHashMap();
     for (int i = startBucket; i < endBucket; i++) {
@@ -95,7 +93,7 @@ public class ManagedStateTestUtils
     return data;
   }
 
-  static Map<Slice, Bucket.BucketedValue> getTestBucketData(int keyStart, long timeBucketStart)
+  public static Map<Slice, Bucket.BucketedValue> getTestBucketData(int keyStart, long timeBucketStart)
   {
     Map<Slice, Bucket.BucketedValue> bucketData = Maps.newHashMap();
     for (int j = 0; j < 5; j++) {
@@ -106,14 +104,14 @@ public class ManagedStateTestUtils
     return bucketData;
   }
 
-  static Context.OperatorContext getOperatorContext(int operatorId, String applicationPath)
+  public static Context.OperatorContext getOperatorContext(int operatorId, String applicationPath)
   {
     Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
     return new OperatorContextTestHelper.TestIdOperatorContext(operatorId, attributes);
   }
 
-  static Context.OperatorContext getOperatorContext(int operatorId)
+  public static Context.OperatorContext getOperatorContext(int operatorId)
   {
     Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
     return new OperatorContextTestHelper.TestIdOperatorContext(operatorId, attributes);
@@ -121,7 +119,7 @@ public class ManagedStateTestUtils
 
   private static final transient Logger LOG = LoggerFactory.getLogger(ManagedStateTestUtils.class);
 
-  static Slice getSliceFor(String x)
+  public static Slice getSliceFor(String x)
   {
     return new Slice(x.getBytes());
   }

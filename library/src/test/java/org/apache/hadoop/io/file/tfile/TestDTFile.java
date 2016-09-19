@@ -23,22 +23,23 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-import junit.framework.TestCase;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.file.tfile.DTFile.Reader;
-import org.apache.hadoop.io.file.tfile.DTFile.Writer;
 import org.apache.hadoop.io.file.tfile.DTFile.Reader.Scanner;
+import org.apache.hadoop.io.file.tfile.DTFile.Writer;
+
+import junit.framework.TestCase;
 
 /**
  * test tfile features.
  * 
  */
-public class TestDTFile extends TestCase {
+public class TestDTFile extends TestCase
+{
   private static String ROOT =
       System.getProperty("test.build.data", "target/tfile-test");
   private FileSystem fs;
@@ -48,18 +49,21 @@ public class TestDTFile extends TestCase {
   private static final String localFormatter = "%010d";
 
   @Override
-  public void setUp() throws IOException {
+  public void setUp() throws IOException
+  {
     conf = new Configuration();
     fs = FileSystem.get(conf);
   }
 
   @Override
-  public void tearDown() throws IOException {
+  public void tearDown() throws IOException
+  {
     // do nothing
   }
 
   // read a key from the scanner
-  public byte[] readKey(Scanner scanner) throws IOException {
+  public byte[] readKey(Scanner scanner) throws IOException
+  {
     int keylen = scanner.entry().getKeyLength();
     byte[] read = new byte[keylen];
     scanner.entry().getKey(read);
@@ -67,7 +71,8 @@ public class TestDTFile extends TestCase {
   }
 
   // read a value from the scanner
-  public byte[] readValue(Scanner scanner) throws IOException {
+  public byte[] readValue(Scanner scanner) throws IOException
+  {
     int valueLen = scanner.entry().getValueLength();
     byte[] read = new byte[valueLen];
     scanner.entry().getValue(read);
@@ -75,7 +80,8 @@ public class TestDTFile extends TestCase {
   }
 
   // read a long value from the scanner
-  public byte[] readLongValue(Scanner scanner, int len) throws IOException {
+  public byte[] readLongValue(Scanner scanner, int len) throws IOException
+  {
     DataInputStream din = scanner.entry().getValueStream();
     byte[] b = new byte[len];
     din.readFully(b);
@@ -86,7 +92,8 @@ public class TestDTFile extends TestCase {
   // write some records into the tfile
   // write them twice
   private int writeSomeRecords(Writer writer, int start, int n)
-      throws IOException {
+      throws IOException
+  {
     String value = "value";
     for (int i = start; i < (start + n); i++) {
       String key = String.format(localFormatter, i);
@@ -98,7 +105,8 @@ public class TestDTFile extends TestCase {
 
   // read the records and check
   private int readAndCheckbytes(Scanner scanner, int start, int n)
-      throws IOException {
+      throws IOException
+  {
     String value = "value";
     for (int i = start; i < (start + n); i++) {
       byte[] key = readKey(scanner);
@@ -125,7 +133,8 @@ public class TestDTFile extends TestCase {
   // write some large records
   // write them twice
   private int writeLargeRecords(Writer writer, int start, int n)
-      throws IOException {
+      throws IOException
+  {
     byte[] value = new byte[largeVal];
     for (int i = start; i < (start + n); i++) {
       String key = String.format(localFormatter, i);
@@ -138,7 +147,8 @@ public class TestDTFile extends TestCase {
   // read large records
   // read them twice since its duplicated
   private int readLargeRecords(Scanner scanner, int start, int n)
-      throws IOException {
+      throws IOException
+  {
     for (int i = start; i < (start + n); i++) {
       byte[] key = readKey(scanner);
       String keyStr = String.format(localFormatter, i);
@@ -154,7 +164,8 @@ public class TestDTFile extends TestCase {
   }
 
   // write empty keys and values
-  private void writeEmptyRecords(Writer writer, int n) throws IOException {
+  private void writeEmptyRecords(Writer writer, int n) throws IOException
+  {
     byte[] key = new byte[0];
     byte[] value = new byte[0];
     for (int i = 0; i < n; i++) {
@@ -163,7 +174,8 @@ public class TestDTFile extends TestCase {
   }
 
   // read empty keys and values
-  private void readEmptyRecords(Scanner scanner, int n) throws IOException {
+  private void readEmptyRecords(Scanner scanner, int n) throws IOException
+  {
     byte[] key = new byte[0];
     byte[] value = new byte[0];
     byte[] readKey = null;
@@ -178,7 +190,8 @@ public class TestDTFile extends TestCase {
   }
 
   private int writePrepWithKnownLength(Writer writer, int start, int n)
-      throws IOException {
+      throws IOException
+  {
     // get the length of the key
     String key = String.format(localFormatter, start);
     int keyLen = key.getBytes().length;
@@ -198,7 +211,8 @@ public class TestDTFile extends TestCase {
   }
 
   private int readPrepWithKnownLength(Scanner scanner, int start, int n)
-      throws IOException {
+      throws IOException
+  {
     for (int i = start; i < (start + n); i++) {
       String key = String.format(localFormatter, i);
       byte[] read = readKey(scanner);
@@ -212,7 +226,8 @@ public class TestDTFile extends TestCase {
   }
 
   private int writePrepWithUnkownLength(Writer writer, int start, int n)
-      throws IOException {
+      throws IOException
+  {
     for (int i = start; i < (start + n); i++) {
       DataOutputStream out = writer.prepareAppendKey(-1);
       String localKey = String.format(localFormatter, i);
@@ -227,7 +242,8 @@ public class TestDTFile extends TestCase {
   }
 
   private int readPrepWithUnknownLength(Scanner scanner, int start, int n)
-      throws IOException {
+      throws IOException
+  {
     for (int i = start; i < start; i++) {
       String key = String.format(localFormatter, i);
       byte[] read = readKey(scanner);
@@ -235,8 +251,7 @@ public class TestDTFile extends TestCase {
       try {
         read = readValue(scanner);
         assertTrue(false);
-      }
-      catch (IOException ie) {
+      } catch (IOException ie) {
         // should have thrown exception
       }
       String value = "value" + key;
@@ -247,11 +262,13 @@ public class TestDTFile extends TestCase {
     return (start + n);
   }
 
-  private byte[] getSomeKey(int rowId) {
+  private byte[] getSomeKey(int rowId)
+  {
     return String.format(localFormatter, rowId).getBytes();
   }
 
-  private void writeRecords(Writer writer) throws IOException {
+  private void writeRecords(Writer writer) throws IOException
+  {
     writeEmptyRecords(writer, 10);
     int ret = writeSomeRecords(writer, 0, 100);
     ret = writeLargeRecords(writer, ret, 1);
@@ -260,7 +277,8 @@ public class TestDTFile extends TestCase {
     writer.close();
   }
 
-  private void readAllRecords(Scanner scanner) throws IOException {
+  private void readAllRecords(Scanner scanner) throws IOException
+  {
     readEmptyRecords(scanner, 10);
     int ret = readAndCheckbytes(scanner, 0, 100);
     ret = readLargeRecords(scanner, ret, 1);
@@ -268,8 +286,11 @@ public class TestDTFile extends TestCase {
     ret = readPrepWithUnknownLength(scanner, ret, 50);
   }
 
-  private FSDataOutputStream createFSOutput(Path name) throws IOException {
-    if (fs.exists(name)) fs.delete(name, true);
+  private FSDataOutputStream createFSOutput(Path name) throws IOException
+  {
+    if (fs.exists(name)) {
+      fs.delete(name, true);
+    }
     FSDataOutputStream fout = fs.create(name);
     return fout;
   }
@@ -277,7 +298,8 @@ public class TestDTFile extends TestCase {
   /**
    * test none codecs
    */
-  void basicWithSomeCodec(String codec) throws IOException {
+  void basicWithSomeCodec(String codec) throws IOException
+  {
     Path ncTFile = new Path(ROOT, "basic.tfile");
     FSDataOutputStream fout = createFSOutput(ncTFile);
     Writer writer = new Writer(fout, minBlockSize, codec, "memcmp", conf);
@@ -330,7 +352,8 @@ public class TestDTFile extends TestCase {
   }
 
   // unsorted with some codec
-  void unsortedWithSomeCodec(String codec) throws IOException {
+  void unsortedWithSomeCodec(String codec) throws IOException
+  {
     Path uTfile = new Path(ROOT, "unsorted.tfile");
     FSDataOutputStream fout = createFSOutput(uTfile);
     Writer writer = new Writer(fout, minBlockSize, codec, null, conf);
@@ -349,19 +372,22 @@ public class TestDTFile extends TestCase {
     fs.delete(uTfile, true);
   }
 
-  public void testTFileFeatures() throws IOException {
+  public void testTFileFeatures() throws IOException
+  {
     basicWithSomeCodec("none");
     basicWithSomeCodec("gz");
   }
 
   // test unsorted t files.
-  public void testUnsortedTFileFeatures() throws IOException {
+  public void testUnsortedTFileFeatures() throws IOException
+  {
     unsortedWithSomeCodec("none");
     unsortedWithSomeCodec("gz");
   }
 
   private void writeNumMetablocks(Writer writer, String compression, int n)
-      throws IOException {
+      throws IOException
+  {
     for (int i = 0; i < n; i++) {
       DataOutputStream dout =
           writer.prepareMetaBlock("TfileMeta" + i, compression);
@@ -372,25 +398,26 @@ public class TestDTFile extends TestCase {
   }
 
   private void someTestingWithMetaBlock(Writer writer, String compression)
-      throws IOException {
+      throws IOException
+  {
     DataOutputStream dout = null;
     writeNumMetablocks(writer, compression, 10);
     try {
       dout = writer.prepareMetaBlock("TfileMeta1", compression);
       assertTrue(false);
-    }
-    catch (MetaBlockAlreadyExists me) {
+    } catch (MetaBlockAlreadyExists me) {
       // avoid this exception
     }
     dout = writer.prepareMetaBlock("TFileMeta100", compression);
     dout.close();
   }
 
-  private void readNumMetablocks(Reader reader, int n) throws IOException {
+  private void readNumMetablocks(Reader reader, int n) throws IOException
+  {
     int len = ("something to test" + 0).getBytes().length;
     for (int i = 0; i < n; i++) {
       DataInputStream din = reader.getMetaBlock("TfileMeta" + i);
-      byte b[] = new byte[len];
+      byte[] b = new byte[len];
       din.readFully(b);
       assertTrue("faield to match metadata", Arrays.equals(
           ("something to test" + i).getBytes(), b));
@@ -398,14 +425,14 @@ public class TestDTFile extends TestCase {
     }
   }
 
-  private void someReadingWithMetaBlock(Reader reader) throws IOException {
+  private void someReadingWithMetaBlock(Reader reader) throws IOException
+  {
     DataInputStream din = null;
     readNumMetablocks(reader, 10);
     try {
       din = reader.getMetaBlock("NO ONE");
       assertTrue(false);
-    }
-    catch (MetaBlockDoesNotExist me) {
+    } catch (MetaBlockDoesNotExist me) {
       // should catch
     }
     din = reader.getMetaBlock("TFileMeta100");
@@ -415,7 +442,8 @@ public class TestDTFile extends TestCase {
   }
 
   // test meta blocks for tfiles
-  public void _testMetaBlocks() throws IOException {
+  public void _testMetaBlocks() throws IOException
+  {
     Path mFile = new Path(ROOT, "meta.tfile");
     FSDataOutputStream fout = createFSOutput(mFile);
     Writer writer = new Writer(fout, minBlockSize, "none", null, conf);

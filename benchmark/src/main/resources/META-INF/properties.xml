@@ -193,6 +193,11 @@
     <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.passwordMeta</name>
     <value></value>
   </property>
+  <property>
+    <name>dt.application.ManagedStateBenchmark.operator.Store.execModeStr</name>
+    <!-- valid value are: INSERT, UPDATESYNC, UPDATEASYNC -->
+    <value>INSERT</value>
+  </property>
 
 </configuration>
 

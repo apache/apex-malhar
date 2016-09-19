@@ -25,20 +25,20 @@ import java.util.Set;
 
 import javax.validation.constraints.Min;
 
-import org.apache.commons.lang.mutable.MutableLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang.mutable.MutableLong;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.util.HighLow;
 
@@ -73,8 +73,7 @@ public class PhoneMovementGenerator extends BaseOperator
       if (delta >= threshold) {
         if (state < 2) {
           xloc++;
-        }
-        else {
+        } else {
           xloc--;
         }
         if (xloc < 0) {
@@ -85,8 +84,7 @@ public class PhoneMovementGenerator extends BaseOperator
       if (delta >= threshold) {
         if ((state == 1) || (state == 3)) {
           yloc++;
-        }
-        else {
+        } else {
           yloc--;
         }
         if (yloc < 0) {
@@ -100,8 +98,7 @@ public class PhoneMovementGenerator extends BaseOperator
       HighLow<Integer> nloc = newgps.get(tuple);
       if (nloc == null) {
         newgps.put(tuple, new HighLow<Integer>(xloc, yloc));
-      }
-      else {
+      } else {
         nloc.setHigh(xloc);
         nloc.setLow(yloc);
       }
@@ -109,7 +106,7 @@ public class PhoneMovementGenerator extends BaseOperator
     }
   };
 
-  @InputPortFieldAnnotation(optional=true)
+  @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<Map<String,String>> phoneQuery = new DefaultInputPort<Map<String,String>>()
   {
     @Override
@@ -120,19 +117,16 @@ public class PhoneMovementGenerator extends BaseOperator
       if (command != null) {
         if (command.equals(COMMAND_ADD)) {
           commandCounters.getCounter(CommandCounters.ADD).increment();
-          String phoneStr= tuple.get(KEY_PHONE);
+          String phoneStr = tuple.get(KEY_PHONE);
           registerPhone(phoneStr);
-        }
-        else if (command.equals(COMMAND_ADD_RANGE)) {
+        } else if (command.equals(COMMAND_ADD_RANGE)) {
           commandCounters.getCounter(CommandCounters.ADD_RANGE).increment();
           registerPhoneRange(tuple.get(KEY_START_PHONE), tuple.get(KEY_END_PHONE));
-        }
-        else if (command.equals(COMMAND_DELETE)) {
+        } else if (command.equals(COMMAND_DELETE)) {
           commandCounters.getCounter(CommandCounters.DELETE).increment();
-          String phoneStr= tuple.get(KEY_PHONE);
+          String phoneStr = tuple.get(KEY_PHONE);
           deregisterPhone(phoneStr);
-        }
-        else if (command.equals(COMMAND_CLEAR)) {
+        } else if (command.equals(COMMAND_CLEAR)) {
           commandCounters.getCounter(CommandCounters.CLEAR).increment();
           clearPhones();
         }
@@ -181,7 +175,7 @@ public class PhoneMovementGenerator extends BaseOperator
 
   /**
    * Sets the range of phone numbers for which the GPS locations need to be generated.
-   * 
+   *
    * @param i the range of phone numbers to set
    */
   public void setRange(int i)
@@ -190,7 +184,7 @@ public class PhoneMovementGenerator extends BaseOperator
   }
 
   /**
-   * @return the threshold 
+   * @return the threshold
    */
   @Min(0)
   public int getThreshold()
@@ -200,7 +194,7 @@ public class PhoneMovementGenerator extends BaseOperator
 
   /**
    * Sets the threshold that decides how frequently the GPS locations are updated.
-   * 
+   *
    * @param i the value that decides how frequently the GPS locations change.
    */
   public void setThreshold(int i)
@@ -217,8 +211,7 @@ public class PhoneMovementGenerator extends BaseOperator
     try {
       Integer phone = new Integer(phoneStr);
       registerSinglePhone(phone);
-    }
-    catch (NumberFormatException nfe) {
+    } catch (NumberFormatException nfe) {
       LOG.warn("Invalid no {}", phoneStr);
     }
   }
@@ -239,8 +232,7 @@ public class PhoneMovementGenerator extends BaseOperator
       for (int i = startPhone; i <= endPhone; i++) {
         registerSinglePhone(i);
       }
-    }
-    catch (NumberFormatException nfe) {
+    } catch (NumberFormatException nfe) {
       LOG.warn("Invalid phone range <{},{}>", startPhoneStr, endPhoneStr);
     }
   }
@@ -265,13 +257,13 @@ public class PhoneMovementGenerator extends BaseOperator
         LOG.debug("Removing query id {}", phone);
         emitPhoneRemoved(phone);
       }
-    }
-    catch (NumberFormatException nfe) {
+    } catch (NumberFormatException nfe) {
       LOG.warn("Invalid phone {}", phoneStr);
     }
   }
 
-  private void clearPhones() {
+  private void clearPhones()
+  {
     phoneRegister.clear();
     LOG.info("Clearing phones");
   }
@@ -298,8 +290,7 @@ public class PhoneMovementGenerator extends BaseOperator
       HighLow<Integer> loc = gps.get(e.getKey());
       if (loc == null) {
         gps.put(e.getKey(), e.getValue());
-      }
-      else {
+      } else {
         loc.setHigh(e.getValue().getHigh());
         loc.setLow(e.getValue().getLow());
       }
@@ -316,7 +307,8 @@ public class PhoneMovementGenerator extends BaseOperator
     context.setCounters(commandCounters);
   }
 
-  private void emitQueryResult(Integer phone) {
+  private void emitQueryResult(Integer phone)
+  {
     HighLow<Integer> loc = gps.get(phone);
     if (loc != null) {
       Map<String, String> queryResult = new HashMap<String, String>();
@@ -328,7 +320,7 @@ public class PhoneMovementGenerator extends BaseOperator
 
   private void emitPhoneRemoved(Integer phone)
   {
-    Map<String,String> removedResult= Maps.newHashMap();
+    Map<String,String> removedResult = Maps.newHashMap();
     removedResult.put(KEY_PHONE, String.valueOf(phone));
     removedResult.put(KEY_REMOVED,"true");
     locationQueryResult.emit(removedResult);

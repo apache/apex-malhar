@@ -23,11 +23,10 @@ import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
-
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 
@@ -36,105 +35,104 @@ import com.datatorrent.lib.util.KeyValPair;
  */
 public class MinKeyValTest
 {
-	/**
-	 * Test functional logic
-	 */
-	@Test
-	public void testNodeProcessing()
-	{
-		testSchemaNodeProcessing(new MinKeyVal<String, Integer>(), "integer");
-		testSchemaNodeProcessing(new MinKeyVal<String, Double>(), "double");
-		testSchemaNodeProcessing(new MinKeyVal<String, Long>(), "long");
-		testSchemaNodeProcessing(new MinKeyVal<String, Short>(), "short");
-		testSchemaNodeProcessing(new MinKeyVal<String, Float>(), "float");
-	}
+  /**
+   * Test functional logic
+   */
+  @Test
+  public void testNodeProcessing()
+  {
+    testSchemaNodeProcessing(new MinKeyVal<String, Integer>(), "integer");
+    testSchemaNodeProcessing(new MinKeyVal<String, Double>(), "double");
+    testSchemaNodeProcessing(new MinKeyVal<String, Long>(), "long");
+    testSchemaNodeProcessing(new MinKeyVal<String, Short>(), "short");
+    testSchemaNodeProcessing(new MinKeyVal<String, Float>(), "float");
+  }
 
-	/**
-	 * Test operator logic emits correct results for each schema.
-	 *
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void testSchemaNodeProcessing(MinKeyVal oper, String type)
-	{
-		CountAndLastTupleTestSink minSink = new CountAndLastTupleTestSink();
-		oper.min.setSink(minSink);
+  /**
+   * Test operator logic emits correct results for each schema.
+   *
+   */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public void testSchemaNodeProcessing(MinKeyVal oper, String type)
+  {
+    CountAndLastTupleTestSink minSink = new CountAndLastTupleTestSink();
+    oper.min.setSink(minSink);
 
-		oper.beginWindow(0);
+    oper.beginWindow(0);
 
-		int numtuples = 10000;
-		if (type.equals("integer")) {
-			for (int i = numtuples; i > 0; i--) {
-				oper.data.process(new KeyValPair("a", new Integer(i)));
-			}
-		} else if (type.equals("double")) {
-			for (int i = numtuples; i > 0; i--) {
-				oper.data.process(new KeyValPair("a", new Double(i)));
-			}
-		} else if (type.equals("long")) {
-			for (int i = numtuples; i > 0; i--) {
-				oper.data.process(new KeyValPair("a", new Long(i)));
-			}
-		} else if (type.equals("short")) {
-			for (short j = 1000; j > 0; j--) { // cannot cross 64K
-				oper.data.process(new KeyValPair("a", new Short(j)));
-			}
-		} else if (type.equals("float")) {
-			for (int i = numtuples; i > 0; i--) {
-				oper.data.process(new KeyValPair("a", new Float(i)));
-			}
-		}
+    int numtuples = 10000;
+    if (type.equals("integer")) {
+      for (int i = numtuples; i > 0; i--) {
+        oper.data.process(new KeyValPair("a", new Integer(i)));
+      }
+    } else if (type.equals("double")) {
+      for (int i = numtuples; i > 0; i--) {
+        oper.data.process(new KeyValPair("a", (double)i));
+      }
+    } else if (type.equals("long")) {
+      for (int i = numtuples; i > 0; i--) {
+        oper.data.process(new KeyValPair("a", (long)i));
+      }
+    } else if (type.equals("short")) {
+      for (short j = 1000; j > 0; j--) { // cannot cross 64K
+        oper.data.process(new KeyValPair("a", j));
+      }
+    } else if (type.equals("float")) {
+      for (int i = numtuples; i > 0; i--) {
+        oper.data.process(new KeyValPair("a", (float)i));
+      }
+    }
 
-		oper.endWindow();
+    oper.endWindow();
 
-		Assert.assertEquals("number emitted tuples", 1, minSink.count);
-		Number val = ((KeyValPair<String, Number>) minSink.tuple).getValue()
-				.intValue();
-		if (type.equals("short")) {
-			Assert.assertEquals("emitted min value was ", 1, val);
-		} else {
-			Assert.assertEquals("emitted min value was ", 1, val);
-		}
-	}
+    Assert.assertEquals("number emitted tuples", 1, minSink.count);
+    Number val = ((KeyValPair<String, Number>)minSink.tuple).getValue().intValue();
+    if (type.equals("short")) {
+      Assert.assertEquals("emitted min value was ", 1, val);
+    } else {
+      Assert.assertEquals("emitted min value was ", 1, val);
+    }
+  }
 
-	/**
-	 * Used to test partitioning.
-	 */
-	public static class TestInputOperator extends BaseOperator implements
-			InputOperator
-	{
-		public final transient DefaultOutputPort<KeyValPair<String, Integer>> output = new DefaultOutputPort<KeyValPair<String, Integer>>();
-		private transient boolean first = true;
+  /**
+   * Used to test partitioning.
+   */
+  public static class TestInputOperator extends BaseOperator implements
+      InputOperator
+  {
+    public final transient DefaultOutputPort<KeyValPair<String, Integer>> output = new DefaultOutputPort<KeyValPair<String, Integer>>();
+    private transient boolean first = true;
 
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		@Override
-		public void emitTuples()
-		{
-			if (first) {
-				for (int i = 40; i < 100; i++) {
-					output.emit(new KeyValPair("a", new Integer(i)));
-				}
-				for (int i = 50; i < 100; i++) {
-					output.emit(new KeyValPair("b", new Integer(i)));
-				}
-				for (int i = 60; i < 100; i++) {
-					output.emit(new KeyValPair("c", new Integer(i)));
-				}
-				first = false;
-			}
-		}
-	}
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Override
+    public void emitTuples()
+    {
+      if (first) {
+        for (int i = 40; i < 100; i++) {
+          output.emit(new KeyValPair("a", i));
+        }
+        for (int i = 50; i < 100; i++) {
+          output.emit(new KeyValPair("b", i));
+        }
+        for (int i = 60; i < 100; i++) {
+          output.emit(new KeyValPair("c", i));
+        }
+        first = false;
+      }
+    }
+  }
 
-	public static class CollectorOperator extends BaseOperator
-	{
-		public static final ArrayList<KeyValPair<String, Integer>> buffer = new ArrayList<KeyValPair<String, Integer>>();
-		public final transient DefaultInputPort<KeyValPair<String, Integer>> input = new DefaultInputPort<KeyValPair<String, Integer>>()
-		{
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			@Override
-			public void process(KeyValPair<String, Integer> tuple)
-			{
-				buffer.add(new KeyValPair(tuple.getKey(), tuple.getValue()));
-			}
-		};
-	}
+  public static class CollectorOperator extends BaseOperator
+  {
+    public static final ArrayList<KeyValPair<String, Integer>> buffer = new ArrayList<KeyValPair<String, Integer>>();
+    public final transient DefaultInputPort<KeyValPair<String, Integer>> input = new DefaultInputPort<KeyValPair<String, Integer>>()
+    {
+      @SuppressWarnings({ "unchecked", "rawtypes" })
+      @Override
+      public void process(KeyValPair<String, Integer> tuple)
+      {
+        buffer.add(new KeyValPair(tuple.getKey(), tuple.getValue()));
+      }
+    };
+  }
 }

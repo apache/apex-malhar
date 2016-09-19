@@ -19,6 +19,7 @@
 package com.datatorrent.lib.io;
 
 import java.io.IOException;
+import java.net.URI;
 
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -26,10 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Context.OperatorContext;
-
 import com.datatorrent.common.experimental.AppData;
 import com.datatorrent.common.util.PubSubMessage.PubSubMessageType;
-import java.net.URI;
 
 /**
  * This is an app data pub sub result operator. This operator is used to send results to
@@ -40,8 +39,9 @@ import java.net.URI;
  * @tags output, app data, result
  * @since 3.0.0
  */
-@AppData.AppendQueryIdToTopic(value=true)
-public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<String> implements AppData.ConnectionInfoProvider
+@AppData.AppendQueryIdToTopic(value = true)
+public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<String>
+    implements AppData.ConnectionInfoProvider
 {
   private static final Logger logger = LoggerFactory.getLogger(PubSubWebSocketAppDataResult.class);
 
@@ -93,8 +93,7 @@ public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<
 
     try {
       jo = new JSONObject(t);
-    }
-    catch(JSONException ex) {
+    } catch (JSONException ex) {
       throw new RuntimeException(ex);
     }
 
@@ -102,8 +101,7 @@ public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<
 
     try {
       id = jo.getString("id");
-    }
-    catch(JSONException ex) {
+    } catch (JSONException ex) {
       throw new RuntimeException(ex);
     }
 
@@ -115,8 +113,7 @@ public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<
       output.put("topic", topic);
       output.put("data", jo);
       output.put("type", PubSubMessageType.PUBLISH.getIdentifier());
-    }
-    catch(JSONException ex) {
+    } catch (JSONException ex) {
       throw new RuntimeException(ex);
     }
 

@@ -82,7 +82,9 @@ public class WeightedMeanOperator<V extends Number>  extends BaseNumberValueOper
     @Override
     public void process(V tuple)
     {
-      if (tuple.doubleValue() != 0.0) currentWeight = tuple.doubleValue();
+      if (tuple.doubleValue() != 0.0) {
+        currentWeight = tuple.doubleValue();
+      }
     }
   };
 
@@ -101,7 +103,7 @@ public class WeightedMeanOperator<V extends Number>  extends BaseNumberValueOper
   public void endWindow()
   {
     if (weightedCount != 0.0) {
-       mean.emit(getAverage());
+      mean.emit(getAverage());
     }
     weightedSum = 0.0;
     weightedCount = 0.0;
@@ -123,21 +125,21 @@ public class WeightedMeanOperator<V extends Number>  extends BaseNumberValueOper
         val = num.doubleValue() / weightedCount;
         break;
       case INTEGER:
-        val = (int) (num.intValue() / weightedCount);
+        val = (int)(num.intValue() / weightedCount);
         break;
       case FLOAT:
         val = new Float(num.floatValue() / weightedCount);
         break;
       case LONG:
-        val = (long) (num.longValue() / weightedCount);
+        val = (long)(num.longValue() / weightedCount);
         break;
       case SHORT:
-        val = (short) (num.shortValue() / weightedCount);
+        val = (short)(num.shortValue() / weightedCount);
         break;
       default:
         val = num.doubleValue() / weightedCount;
         break;
     }
-    return (V) val;
+    return (V)val;
   }
 }

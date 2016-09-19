@@ -40,7 +40,7 @@ public class WordCountWriter extends AbstractFileOutputOperator<Map<String, Obje
   private static final String nl = System.lineSeparator();
 
   private String fileName;    // current file name
-  private transient final StringBuilder sb = new StringBuilder();
+  private final transient StringBuilder sb = new StringBuilder();
 
   /**
    * {@inheritDoc}
@@ -83,15 +83,17 @@ public class WordCountWriter extends AbstractFileOutputOperator<Map<String, Obje
 
     // get first and only pair; key is the fileName and is ignored here
     final Map.Entry<String, Object> entry = tuple.entrySet().iterator().next();
-    final List<WCPair> list = (List<WCPair>) entry.getValue();
+    final List<WCPair> list = (List<WCPair>)entry.getValue();
 
     if (sb.length() > 0) {        // clear buffer
       sb.delete(0, sb.length());
     }
 
     for ( WCPair pair : list ) {
-      sb.append(pair.word); sb.append(" : ");
-      sb.append(pair.freq); sb.append(nl);
+      sb.append(pair.word);
+      sb.append(" : ");
+      sb.append(pair.freq);
+      sb.append(nl);
     }
 
     final String data = sb.toString();

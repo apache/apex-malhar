@@ -20,6 +20,8 @@
 package com.datatorrent.lib.projection;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -99,7 +101,7 @@ public class ProjectionTest
 
   public Long getFieldValue(Object p, String field)
   {
-    Long value = new Long(0);
+    Long value = 0L;
 
     for (Field f: p.getClass().getDeclaredFields()) {
       f.setAccessible(true);
@@ -262,8 +264,10 @@ public class ProjectionTest
     projection.projectedClazz = ProjectedPOJO.class;
     projection.remainderClazz = RemainderPOJO.class;
 
+    List<String> sFields = new ArrayList<>();
+    sFields.add("projected");
 
-    projection.selectFields = "projected";
+    projection.setSelectFields(sFields);
     projection.activate(null);
   }
 

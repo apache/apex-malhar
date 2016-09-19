@@ -20,8 +20,6 @@ package com.datatorrent.demos.machinedata.operator;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -33,14 +31,16 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.StreamCodec;
+import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.demos.machinedata.data.MachineInfo;
+import com.datatorrent.demos.machinedata.data.MachineKey;
+import com.datatorrent.demos.machinedata.data.ResourceType;
+import com.datatorrent.demos.machinedata.util.DataTable;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.lib.util.KeyValPair;
-
-import com.datatorrent.api.*;
-import com.datatorrent.common.util.BaseOperator;
-
-import com.datatorrent.demos.machinedata.data.*;
-import com.datatorrent.demos.machinedata.util.DataTable;
 
 /**
  * <p>
@@ -179,13 +179,12 @@ public class CalculatorOperator extends BaseOperator
   {
 
     double val = (kthPercentile * sorted.size()) / 100.0;
-    if (val == (int) val) {
+    if (val == (int)val) {
       // Whole number
-      int idx = (int) val - 1;
+      int idx = (int)val - 1;
       return (sorted.get(idx) + sorted.get(idx + 1)) / 2.0;
-    }
-    else {
-      int idx = (int) Math.round(val) - 1;
+    } else {
+      int idx = (int)Math.round(val) - 1;
       return sorted.get(idx);
     }
   }

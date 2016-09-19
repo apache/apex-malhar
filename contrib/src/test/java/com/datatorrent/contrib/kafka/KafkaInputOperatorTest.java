@@ -23,11 +23,13 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
@@ -49,7 +51,6 @@ import com.datatorrent.api.Partitioner;
 import com.datatorrent.common.util.FSStorageAgent;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.partitioner.StatelessPartitionerTest;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.stram.StramLocalCluster;
@@ -141,7 +142,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     }
 
     if(idempotent) {
-      node.setIdempotentStorageManager(new IdempotentStorageManager.FSIdempotentStorageManager());
+      node.setWindowDataManager(new FSWindowDataManager());
     }
     consumer.setTopic(TEST_TOPIC);
 
@@ -289,7 +290,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     new Thread(p).start();
 
 
-    KafkaSinglePortStringInputOperator operator = createAndDeployOperator();
+    KafkaSinglePortStringInputOperator operator = createAndDeployOperator(true);
     latch.await(4000, TimeUnit.MILLISECONDS);
     operator.beginWindow(1);
     operator.emitTuples();
@@ -303,8 +304,8 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     operator.teardown();
     operator.deactivate();
 
-    operator = createAndDeployOperator();
-    Assert.assertEquals("largest recovery window", 2, operator.getIdempotentStorageManager().getLargestRecoveryWindow());
+    operator = createAndDeployOperator(true);
+    Assert.assertEquals("largest recovery window", 2, operator.getWindowDataManager().getLargestCompletedWindow());
 
     operator.beginWindow(1);
     operator.emitTuples();
@@ -324,9 +325,57 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     operator.deactivate();
   }
 
-  private KafkaSinglePortStringInputOperator createAndDeployOperator()
+  @Test
+  public void testRecoveryAndExactlyOnce() throws Exception
   {
+    int totalCount = 1500;
 
+    // initial the latch for this test
+    latch = new CountDownLatch(50);
+
+    // Start producer
+    KafkaTestProducer p = new KafkaTestProducer(TEST_TOPIC);
+    p.setSendCount(totalCount);
+    new Thread(p).start();
+
+    KafkaSinglePortStringInputOperator operator = createAndDeployOperator(false);
+    latch.await(4000, TimeUnit.MILLISECONDS);
+    operator.beginWindow(1);
+    operator.emitTuples();
+    operator.endWindow();
+    operator.beginWindow(2);
+    operator.emitTuples();
+    operator.endWindow();
+    operator.checkpointed(2);
+    operator.committed(2);
+    Map<KafkaPartition, Long> offsetStats = operator.offsetStats;
+    int collectedTuplesAfterCheckpoint = testMeta.sink.collectedTuples.size();
+    //failure and then re-deployment of operator
+    testMeta.sink.collectedTuples.clear();
+    operator.teardown();
+    operator.deactivate();
+    operator = createOperator(false);
+    operator.offsetStats = offsetStats;
+    operator.setup(testMeta.context);
+    operator.activate(testMeta.context);
+    latch.await(4000, TimeUnit.MILLISECONDS);
+    // Emiting data after all recovery windows are replayed
+    operator.beginWindow(3);
+    operator.emitTuples();
+    operator.endWindow();
+    operator.beginWindow(4);
+    operator.emitTuples();
+    operator.endWindow();
+    latch.await(3000, TimeUnit.MILLISECONDS);
+
+    Assert.assertEquals("Total messages collected ", totalCount - collectedTuplesAfterCheckpoint + 1, testMeta.sink.collectedTuples.size());
+    testMeta.sink.collectedTuples.clear();
+    operator.teardown();
+    operator.deactivate();
+  }
+
+  private KafkaSinglePortStringInputOperator createOperator(boolean isIdempotency)
+  {
     Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
     attributeMap.put(Context.DAGContext.APPLICATION_PATH, testMeta.baseDir);
@@ -339,9 +388,12 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     consumer.setTopic(TEST_TOPIC);
     consumer.setInitialOffset("earliest");
 
-    IdempotentStorageManager.FSIdempotentStorageManager storageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
-    storageManager.setRecoveryPath(testMeta.recoveryDir);
-    testMeta.operator.setIdempotentStorageManager(storageManager);
+    if (isIdempotency) {
+      FSWindowDataManager storageManager = new FSWindowDataManager();
+      storageManager.setStatePath(testMeta.recoveryDir);
+      testMeta.operator.setWindowDataManager(storageManager);
+    }
+
     testMeta.operator.setConsumer(consumer);
     testMeta.operator.setZookeeper("localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT[0]);
     testMeta.operator.setMaxTuplesPerWindow(500);
@@ -356,7 +408,12 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     testMeta.sink = new CollectorTestSink<Object>();
     testMeta.operator.outputPort.setSink(testMeta.sink);
     operator.outputPort.setSink(testMeta.sink);
+    return operator;
+  }
 
+  private KafkaSinglePortStringInputOperator createAndDeployOperator(boolean isIdempotency)
+  {
+    KafkaSinglePortStringInputOperator operator = createOperator(isIdempotency);
     operator.setup(testMeta.context);
     operator.activate(testMeta.context);
 
@@ -431,14 +488,12 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     consumer.setTopic(TEST_TOPIC);
 
     testMeta.operator.setConsumer(consumer);
-    testMeta.operator.setZookeeper("cluster1::node0,node1,node2:2181,node3:2182;cluster2::node4:2181");
+    testMeta.operator.setZookeeper("cluster1::node0,node1,node2:2181,node3:2182/chroot/dir;cluster2::node4:2181");
     latch.await(500, TimeUnit.MILLISECONDS);
 
-    Assert.assertEquals("Total size of clusters ", 5, testMeta.operator.getConsumer().zookeeperMap.size());
-    Assert.assertEquals("Number of nodes in cluster1 ", 4, testMeta.operator.getConsumer().zookeeperMap.get("cluster1").size());
-    Assert.assertEquals("Nodes in cluster1 ", "[node0:2181, node2:2181, node3:2182, node1:2181]", testMeta.operator.getConsumer().zookeeperMap.get("cluster1").toString());
-    Assert.assertEquals("Number of nodes in cluster2 ", 1, testMeta.operator.getConsumer().zookeeperMap.get("cluster2").size());
-    Assert.assertEquals("Nodes in cluster2 ", "[node4:2181]", testMeta.operator.getConsumer().zookeeperMap.get("cluster2").toString());
+    Assert.assertEquals("Total size of clusters ", 2, testMeta.operator.getConsumer().zookeeperMap.size());
+    Assert.assertEquals("Connection url for cluster1 ", "node0,node1,node2:2181,node3:2182/chroot/dir", testMeta.operator.getConsumer().zookeeperMap.get("cluster1").iterator().next());
+    Assert.assertEquals("Connection url for cluster 2 ", "node4:2181", testMeta.operator.getConsumer().zookeeperMap.get("cluster2").iterator().next());
   }
 
 }

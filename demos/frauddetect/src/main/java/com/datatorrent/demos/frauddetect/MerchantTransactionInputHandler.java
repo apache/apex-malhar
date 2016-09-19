@@ -18,13 +18,14 @@
  */
 package com.datatorrent.demos.frauddetect;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * Common utility class that can be used by all other operators to handle user input
@@ -41,7 +42,7 @@ public class MerchantTransactionInputHandler extends BaseOperator
   public static final String KEY_ZIP_CODE = "zipCode";
   public static final String KEY_AMOUNT = "amount";
   public transient DefaultOutputPort<MerchantTransaction> txOutputPort =
-          new DefaultOutputPort<MerchantTransaction>();
+      new DefaultOutputPort<MerchantTransaction>();
   public transient DefaultInputPort<Map<String, String>> userTxInputPort = new DefaultInputPort<Map<String, String>>()
   {
     @Override
@@ -49,8 +50,7 @@ public class MerchantTransactionInputHandler extends BaseOperator
     {
       try {
         txOutputPort.emit(processInput(tuple));
-      }
-      catch (Exception exc) {
+      } catch (Exception exc) {
         logger.error("Exception while handling the input", exc);
       }
     }
@@ -86,8 +86,7 @@ public class MerchantTransactionInputHandler extends BaseOperator
       }
     }
 
-    if (bankIdNum == null || ccNum == null || merchantId == null
-            || terminalId == null || zipCode == null || amount == null) {
+    if (bankIdNum == null || ccNum == null || merchantId == null || terminalId == null || zipCode == null || amount == null) {
       throw new IllegalArgumentException("Missing required input!");
     }
 

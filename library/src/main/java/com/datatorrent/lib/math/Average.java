@@ -20,14 +20,14 @@ package com.datatorrent.lib.math;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.Pair;
 import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
  *
  * Emits the average of values at the end of window.
  * <p>
- * This is an end window operator. This can not be partitioned. Partitioning
- * this will yield incorrect result.<br>
+ * This is an end window operator. <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects V extends Number<br>
  * <b>average</b>: emits V extends Number<br>
@@ -44,77 +44,98 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  */
 public class Average<V extends Number> extends BaseNumberValueOperator<V>
 {
-	/**
-	 * Input port that takes a number.
-	 */
-	public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
-	{
-		/**
-		 * Computes sum and count with each tuple
-		 */
-		@Override
-		public void process(V tuple)
-		{
-			sums += tuple.doubleValue();
-			counts++;
-		}
-	};
+  /**
+   * Input port that takes a number.
+   */
+  public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
+  {
+    /**
+     * Computes sum and count with each tuple
+     */
+    @Override
+    public void process(V tuple)
+    {
+      sums += tuple.doubleValue();
+      counts++;
+    }
+  };
 
-	/**
-	 * Output port that emits average as a number.
-	 */
-	public final transient DefaultOutputPort<V> average = new DefaultOutputPort<V>();
+  /**
+   * Output port that emits average as a number.
+   */
+  public final transient DefaultOutputPort<Pair<V,Long>> average = new DefaultOutputPort<Pair<V, Long>>()
+  {
+    @Override
+    public Unifier<Pair<V, Long>> getUnifier()
+    {
+      return new AvgUnifier<V>();
+    }
+  };
 
-	protected double sums = 0;
-	protected long counts = 0;
+  protected double sums = 0;
+  protected long counts = 0;
 
-	/**
-	 * Emit average.
-	 */
-	@Override
-	public void endWindow()
-	{
-		// May want to send out only if count != 0
-		if (counts != 0) {
-			average.emit(getAverage());
-		}
-		sums = 0;
-		counts = 0;
-	}
+  /**
+   * Emit average.
+   */
+  @Override
+  public void endWindow()
+  {
+    // May want to send out only if count != 0
 
-	/**
-	 * Calculate average based on number type.
-	 */
-	@SuppressWarnings("unchecked")
-	public V getAverage()
-	{
-		if (counts == 0) {
-			return null;
-		}
-		V num = getValue(sums);
-		Number val;
-		switch (getType()) {
-			case DOUBLE:
-				val = new Double(num.doubleValue() / counts);
-				break;
-			case INTEGER:
-				int icount = (int) (num.intValue() / counts);
-				val = new Integer(icount);
-				break;
-			case FLOAT:
-				val = new Float(num.floatValue() / counts);
-				break;
-			case LONG:
-				val = new Long(num.longValue() / counts);
-				break;
-			case SHORT:
-				short scount = (short) (num.shortValue() / counts);
-				val = new Short(scount);
-				break;
-			default:
-				val = new Double(num.doubleValue() / counts);
-				break;
-		}
-		return (V) val;
-	}
+    if (counts != 0) {
+      Pair<V,Long> pair = new Pair<>(getAverage(),counts);
+      average.emit(pair);
+    }
+
+    sums = 0;
+    counts = 0;
+  }
+
+  public static class AvgUnifier<V extends Number> extends Average<V> implements Unifier<Pair<V, Long>>
+  {
+
+    @Override
+    public void process(Pair<V, Long> pair)
+    {
+      sums += pair.getFirst().doubleValue() * pair.getSecond();
+      counts += pair.getSecond();
+    }
+  }
+
+  /**
+   * Calculate average based on number type.
+   */
+  @SuppressWarnings("unchecked")
+  public V getAverage()
+  {
+    if (counts == 0) {
+      return null;
+    }
+    V num = getValue(sums);
+    Number val;
+    switch (getType()) {
+      case DOUBLE:
+        val = new Double(num.doubleValue() / counts);
+        break;
+      case INTEGER:
+        int icount = (int)(num.intValue() / counts);
+        val = new Integer(icount);
+        break;
+      case FLOAT:
+        val = new Float(num.floatValue() / counts);
+        break;
+      case LONG:
+        val = new Long(num.longValue() / counts);
+        break;
+      case SHORT:
+        short scount = (short)(num.shortValue() / counts);
+        val = new Short(scount);
+        break;
+      default:
+        val = new Double(num.doubleValue() / counts);
+        break;
+    }
+    return (V)val;
+  }
 }

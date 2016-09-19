@@ -29,57 +29,53 @@ import com.datatorrent.lib.util.KeyValPair;
  */
 public class MarginKeyValTest
 {
-	/**
-	 * Test node logic emits correct results.
-	 */
-	@Test
-	public void testNodeProcessing() throws Exception
-	{
-		testNodeProcessingSchema(new MarginKeyVal<String, Integer>());
-		testNodeProcessingSchema(new MarginKeyVal<String, Double>());
-		testNodeProcessingSchema(new MarginKeyVal<String, Float>());
-		testNodeProcessingSchema(new MarginKeyVal<String, Short>());
-		testNodeProcessingSchema(new MarginKeyVal<String, Long>());
-	}
+  /**
+   * Test node logic emits correct results.
+   */
+  @Test
+  public void testNodeProcessing() throws Exception
+  {
+    testNodeProcessingSchema(new MarginKeyVal<String, Integer>());
+    testNodeProcessingSchema(new MarginKeyVal<String, Double>());
+    testNodeProcessingSchema(new MarginKeyVal<String, Float>());
+    testNodeProcessingSchema(new MarginKeyVal<String, Short>());
+    testNodeProcessingSchema(new MarginKeyVal<String, Long>());
+  }
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void testNodeProcessingSchema(MarginKeyVal oper)
-	{
-		CollectorTestSink marginSink = new CollectorTestSink();
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public void testNodeProcessingSchema(MarginKeyVal oper)
+  {
+    CollectorTestSink marginSink = new CollectorTestSink();
 
-		oper.margin.setSink(marginSink);
+    oper.margin.setSink(marginSink);
 
-		oper.beginWindow(0);
-		oper.numerator.process(new KeyValPair("a", 2));
-		oper.numerator.process(new KeyValPair("b", 20));
-		oper.numerator.process(new KeyValPair("c", 1000));
+    oper.beginWindow(0);
+    oper.numerator.process(new KeyValPair("a", 2));
+    oper.numerator.process(new KeyValPair("b", 20));
+    oper.numerator.process(new KeyValPair("c", 1000));
 
-		oper.denominator.process(new KeyValPair("a", 2));
-		oper.denominator.process(new KeyValPair("b", 40));
-		oper.denominator.process(new KeyValPair("c", 500));
-		oper.endWindow();
+    oper.denominator.process(new KeyValPair("a", 2));
+    oper.denominator.process(new KeyValPair("b", 40));
+    oper.denominator.process(new KeyValPair("c", 500));
+    oper.endWindow();
 
-		Assert.assertEquals("number emitted tuples", 3,
-				marginSink.collectedTuples.size());
-		for (int i = 0; i < marginSink.collectedTuples.size(); i++) {
-			if ("a".equals(((KeyValPair<String, Number>) marginSink.collectedTuples
-					.get(i)).getKey())) {
-				Assert.assertEquals("emitted value for 'a' was ", new Double(0),
-						((KeyValPair<String, Number>) marginSink.collectedTuples.get(i))
-								.getValue().doubleValue(), 0);
-			}
-			if ("b".equals(((KeyValPair<String, Number>) marginSink.collectedTuples
-					.get(i)).getKey())) {
-				Assert.assertEquals("emitted value for 'b' was ", new Double(0.5),
-						((KeyValPair<String, Number>) marginSink.collectedTuples.get(i))
-								.getValue().doubleValue(), 0);
-			}
-			if ("c".equals(((KeyValPair<String, Number>) marginSink.collectedTuples
-					.get(i)).getKey())) {
-				Assert.assertEquals("emitted value for 'c' was ", new Double(-1),
-						((KeyValPair<String, Number>) marginSink.collectedTuples.get(i))
-								.getValue().doubleValue(), 0);
-			}
-		}
-	}
+    Assert.assertEquals("number emitted tuples", 3,
+        marginSink.collectedTuples.size());
+    for (int i = 0; i < marginSink.collectedTuples.size(); i++) {
+      if ("a".equals(((KeyValPair<String, Number>)marginSink.collectedTuples.get(i)).getKey())) {
+        Assert.assertEquals("emitted value for 'a' was ", 0d,
+            ((KeyValPair<String, Number>)marginSink.collectedTuples.get(i)).getValue().doubleValue(), 0);
+      }
+      if ("b".equals(((KeyValPair<String, Number>)marginSink.collectedTuples
+          .get(i)).getKey())) {
+        Assert.assertEquals("emitted value for 'b' was ", 0.5,
+            ((KeyValPair<String, Number>)marginSink.collectedTuples.get(i)).getValue().doubleValue(), 0);
+      }
+      if ("c".equals(((KeyValPair<String, Number>)marginSink.collectedTuples
+          .get(i)).getKey())) {
+        Assert.assertEquals("emitted value for 'c' was ", (double)-1,
+            ((KeyValPair<String, Number>)marginSink.collectedTuples.get(i)).getValue().doubleValue(), 0);
+      }
+    }
+  }
 }

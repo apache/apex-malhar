@@ -21,32 +21,36 @@ package com.datatorrent.lib.appdata.snapshot;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KryoCloneUtils;
 
 public class AppDataSnapshotServerMapTest
 {
-  public static final String SIMPLE_RESULT = "{\"id\":\"1\",\"type\":\"dataQuery\",\"data\":[{\"count\":\"2\",\"word\":\"a\"},{\"count\":\"3\",\"word\":\"b\"}],\"countdown\":10}";
+  public static final String SIMPLE_RESULT = "{\"id\":\"1\"," +
+      "\"type\":\"dataQuery\",\"data\":[{\"count\":\"2\",\"word\":\"a\"},{\"count\":\"3\"," +
+      "\"word\":\"b\"}],\"countdown\":10}";
+
   public static final String SIMPLE_QUERY = "{\"id\": \"1\",\n"
-                                            + "\"type\": \"dataQuery\",\n"
-                                            + "\"data\": {\n"
-                                            + "\"fields\": [ \"word\", \"count\" ]\n"
-                                            + "},\n"
-                                            + "\"countdown\":10\n"
-                                            + "}";
+      + "\"type\": \"dataQuery\",\n"
+      + "\"data\": {\n"
+      + "\"fields\": [ \"word\", \"count\" ]\n"
+      + "},\n"
+      + "\"countdown\":10\n"
+      + "}";
+
   public static final String SIMPLE_SCHEMA = "{\n"
-                                             + "  \"values\": [{\"name\": \"word\", \"type\": \"string\"},\n"
-                                             + "             {\"name\": \"count\", \"type\": \"integer\"}]\n"
-                                             + "}";
+      + "  \"values\": [{\"name\": \"word\", \"type\": \"string\"},\n"
+      + "             {\"name\": \"count\", \"type\": \"integer\"}]\n"
+      + "}";
 
   @Test
   public void simpleTest() throws Exception
@@ -73,7 +77,7 @@ public class AppDataSnapshotServerMapTest
 
     CollectorTestSink<String> resultSink = new CollectorTestSink<String>();
     @SuppressWarnings({"unchecked", "rawtypes"})
-    CollectorTestSink<Object> tempResultSink = (CollectorTestSink) resultSink;
+    CollectorTestSink<Object> tempResultSink = (CollectorTestSink)resultSink;
     snapshotServer.queryResult.setSink(tempResultSink);
 
     snapshotServer.setup(null);
@@ -86,7 +90,7 @@ public class AppDataSnapshotServerMapTest
     snapshotServer.query.put(SIMPLE_QUERY);
     snapshotServer.endWindow();
 
-    String result = (String) tempResultSink.collectedTuples.get(0);
+    String result = (String)tempResultSink.collectedTuples.get(0);
 
     Assert.assertEquals("Should get only 1 result back", 1, tempResultSink.collectedTuples.size());
     Assert.assertEquals("Countdown incorrect", 10, new JSONObject(result).getInt("countdown"));

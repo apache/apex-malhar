@@ -19,18 +19,17 @@
 package com.datatorrent.lib.io;
 
 import java.net.URI;
-
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
-import com.google.common.collect.Lists;
 
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
 import org.eclipse.jetty.websocket.WebSocketClientFactory;
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
 
 public class WebSocketServerInputOperatorTest
 {
@@ -57,11 +56,10 @@ public class WebSocketServerInputOperatorTest
 
     long startTime = System.currentTimeMillis();
 
-    while(startTime + 10000 > System.currentTimeMillis()) {
-      if(TestWSSIO.messages.size() >= 1) {
+    while (startTime + 10000 > System.currentTimeMillis()) {
+      if (TestWSSIO.messages.size() >= 1) {
         break;
       }
-
       Thread.sleep(100);
     }
 

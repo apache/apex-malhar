@@ -23,13 +23,14 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This operator accepts a list of Map&lt;String,Object&gt; objects, and serves the data under the {@link SnapshotSchema}.
@@ -59,9 +60,7 @@ public class AppDataSnapshotServerMap extends AbstractAppDataSnapshotServer<Map<
 
     List<String> fields = fd.getFieldList();
 
-    for(int index = 0;
-        index < fields.size();
-        index++) {
+    for (int index = 0; index < fields.size(); index++) {
       String field = fields.get(index);
       values.setFieldGeneric(field, inputEvent.get(getMapField(field)));
     }
@@ -77,13 +76,13 @@ public class AppDataSnapshotServerMap extends AbstractAppDataSnapshotServer<Map<
    */
   private String getMapField(String field)
   {
-    if(tableFieldToMapField == null) {
+    if (tableFieldToMapField == null) {
       return field;
     }
 
     String mapField = tableFieldToMapField.get(field);
 
-    if(mapField == null) {
+    if (mapField == null) {
       return field;
     }
 
@@ -111,7 +110,7 @@ public class AppDataSnapshotServerMap extends AbstractAppDataSnapshotServer<Map<
   {
     Preconditions.checkNotNull(tableFieldToMapField);
 
-    for(Map.Entry<String, String> entry: tableFieldToMapField.entrySet()) {
+    for (Map.Entry<String, String> entry : tableFieldToMapField.entrySet()) {
       Preconditions.checkNotNull(entry.getKey());
       Preconditions.checkNotNull(entry.getValue());
     }

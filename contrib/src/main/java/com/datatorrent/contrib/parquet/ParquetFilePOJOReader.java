@@ -54,6 +54,8 @@ import parquet.schema.PrimitiveType.PrimitiveTypeName;
  *
  * @displayName ParquetFilePOJOReader
  * @tags parquet,input adapter
+ *
+ * @since 3.4.0
  */
 public class ParquetFilePOJOReader extends AbstractParquetFileReader<Object>
 {

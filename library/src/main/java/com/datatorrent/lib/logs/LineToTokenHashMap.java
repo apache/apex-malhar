@@ -54,7 +54,7 @@ import com.datatorrent.lib.util.UnifierHashMap;
  * @since 0.3.2
  */
 @Stateless
-@OperatorAnnotation(partitionable=true)
+@OperatorAnnotation(partitionable = true)
 public class LineToTokenHashMap extends BaseLineTokenizer
 {
   /**
@@ -103,8 +103,7 @@ public class LineToTokenHashMap extends BaseLineTokenizer
     if (vals == null) {
       tok = subtok;
       vals = new ArrayList<String>();
-    }
-    else {
+    } else {
       vals.add(subtok);
     }
   }

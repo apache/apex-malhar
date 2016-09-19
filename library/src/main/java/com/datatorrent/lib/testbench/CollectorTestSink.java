@@ -18,10 +18,10 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.datatorrent.api.Sink;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.datatorrent.api.Sink;
 
 /**
  * A sink implementation to collect expected test results.
@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class CollectorTestSink<T> implements Sink<T>
 {
-  final public List<T> collectedTuples = new ArrayList<T>();
+  public final List<T> collectedTuples = new ArrayList<T>();
 
   /**
    * clears data
@@ -46,10 +46,10 @@ public class CollectorTestSink<T> implements Sink<T>
   @Override
   public void put(T payload)
   {
-      synchronized (collectedTuples) {
-        collectedTuples.add(payload);
-        collectedTuples.notifyAll();
-      }
+    synchronized (collectedTuples) {
+      collectedTuples.add(payload);
+      collectedTuples.notifyAll();
+    }
   }
 
   public void waitForResultCount(int count, long timeoutMillis) throws InterruptedException
@@ -67,6 +67,14 @@ public class CollectorTestSink<T> implements Sink<T>
   @Override
   public int getCount(boolean reset)
   {
-    throw new UnsupportedOperationException("Not supported yet.");
+    synchronized (collectedTuples) {
+      try {
+        return collectedTuples.size();
+      } finally {
+        if (reset) {
+          collectedTuples.clear();
+        }
+      }
+    }
   }
 }

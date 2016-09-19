@@ -20,7 +20,6 @@ package com.datatorrent.contrib.rabbitmq;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.netlet.util.DTThrowable;
 import com.rabbitmq.client.*;
@@ -37,6 +36,8 @@ import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
 
 /**
  * This is the base implementation of a RabbitMQ input operator.&nbsp;
@@ -102,7 +103,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
   protected transient String cTag;
   
   protected transient ArrayBlockingQueue<KeyValPair<Long,byte[]>> holdingBuffer;
-  private IdempotentStorageManager idempotentStorageManager;
+  private WindowDataManager windowDataManager;
   protected final transient Map<Long, byte[]> currentWindowRecoveryState;
   private transient final Set<Long> pendingAck;
   private transient final Set<Long> recoveredTags;
@@ -114,7 +115,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
     currentWindowRecoveryState = new HashMap<Long, byte[]>();
     pendingAck = new HashSet<Long>();
     recoveredTags = new HashSet<Long>();
-    idempotentStorageManager = new IdempotentStorageManager.NoopIdempotentStorageManager();
+    windowDataManager = new WindowDataManager.NoopWindowDataManager();
   }
 
   
@@ -189,7 +190,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
   public void beginWindow(long windowId)
   {
     currentWindowId = windowId;
-    if (windowId <= this.idempotentStorageManager.getLargestRecoveryWindow()) {
+    if (windowId <= this.windowDataManager.getLargestCompletedWindow()) {
       replay(windowId);
     }
   }
@@ -198,7 +199,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
   private void replay(long windowId) {      
     Map<Long, byte[]> recoveredData;
     try {
-      recoveredData = (Map<Long, byte[]>) this.idempotentStorageManager.load(operatorContextId, windowId);
+      recoveredData = (Map<Long, byte[]>)this.windowDataManager.retrieve(windowId);
       if (recoveredData == null) {
         return;
       }
@@ -224,7 +225,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
     }
     
     try {
-      this.idempotentStorageManager.save(currentWindowRecoveryState, operatorContextId, currentWindowId);
+      this.windowDataManager.save(currentWindowRecoveryState, currentWindowId);
     } catch (IOException e) {
       DTThrowable.rethrow(e);
     }
@@ -247,13 +248,13 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
   {
     this.operatorContextId = context.getId();
     holdingBuffer = new ArrayBlockingQueue<KeyValPair<Long, byte[]>>(bufferSize);
-    this.idempotentStorageManager.setup(context);
+    this.windowDataManager.setup(context);
   }
 
   @Override
   public void teardown()
   {
-    this.idempotentStorageManager.teardown();
+    this.windowDataManager.teardown();
   }
 
   @Override
@@ -319,7 +320,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
   public void committed(long windowId)
   {
     try {
-      idempotentStorageManager.deleteUpTo(operatorContextId, windowId);
+      windowDataManager.committed(windowId);
     }
     catch (IOException e) {
       throw new RuntimeException("committing", e);
@@ -391,12 +392,12 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
     this.routingKey = routingKey;
   }
   
-  public IdempotentStorageManager getIdempotentStorageManager() {
-    return idempotentStorageManager;
+  public WindowDataManager getWindowDataManager() {
+    return windowDataManager;
   }
   
-  public void setIdempotentStorageManager(IdempotentStorageManager idempotentStorageManager) {
-    this.idempotentStorageManager = idempotentStorageManager;
+  public void setWindowDataManager(WindowDataManager windowDataManager) {
+    this.windowDataManager = windowDataManager;
   }
   
 

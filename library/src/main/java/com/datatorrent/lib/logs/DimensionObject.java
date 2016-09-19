@@ -35,7 +35,8 @@ public class DimensionObject<T> implements Comparable<DimensionObject<T>>
   private T val;
 
   @SuppressWarnings("unused")
-  private DimensionObject(){
+  private DimensionObject()
+  {
 
   }
 
@@ -86,12 +87,14 @@ public class DimensionObject<T> implements Comparable<DimensionObject<T>>
   @Override
   public boolean equals(Object obj)
   {
-    if (obj == null)
+    if (obj == null) {
       return false;
-    if (!this.getClass().equals(obj.getClass()))
+    }
+    if (!this.getClass().equals(obj.getClass())) {
       return false;
+    }
     @SuppressWarnings("unchecked")
-    DimensionObject<T> obj2 = (DimensionObject<T>) obj;
+    DimensionObject<T> obj2 = (DimensionObject<T>)obj;
     return this.val.equals(obj2.val);
 
   }

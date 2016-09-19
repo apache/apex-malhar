@@ -18,26 +18,33 @@
  */
 package com.datatorrent.demos.yahoofinance;
 
-import au.com.bytecode.opencsv.CSVReader;
-
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.KeyValPair;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.hadoop.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.lib.util.KeyValPair;
+
+import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * This operator sends price, volume and time into separate ports and calculates incremental volume.
@@ -86,14 +93,14 @@ public class StockTickInput implements InputOperator
   private String prepareURL()
   {
     String str = "http://download.finance.yahoo.com/d/quotes.csv?s=";
-      for (int i = 0; i < symbols.length; i++) {
-        if (i != 0) {
-          str += ",";
-        }
-        str += symbols[i];
+    for (int i = 0; i < symbols.length; i++) {
+      if (i != 0) {
+        str += ",";
       }
-      str += "&f=sl1vt1&e=.csv";
-      return str;
+      str += symbols[i];
+    }
+    str += "&f=sl1vt1&e=.csv";
+    return str;
   }
 
   @Override
@@ -118,8 +125,7 @@ public class StockTickInput implements InputOperator
       int statusCode = client.executeMethod(method);
       if (statusCode != HttpStatus.SC_OK) {
         logger.error("Method failed: " + method.getStatusLine());
-      }
-      else {
+      } else {
         InputStream istream = method.getResponseBodyAsStream();
         // Process response
         InputStreamReader isr = new InputStreamReader(istream);
@@ -150,11 +156,9 @@ public class StockTickInput implements InputOperator
         }
       }
       Thread.sleep(readIntervalMillis);
-    }
-    catch (InterruptedException ex) {
+    } catch (InterruptedException ex) {
       logger.debug(ex.toString());
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       logger.debug(ex.toString());
     }
   }

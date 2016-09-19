@@ -50,6 +50,8 @@ import com.datatorrent.lib.io.fs.Synchronizer.StitchedFileMetaData;
  * constituents of the stitched file.
  * 
  * This class uses Reconciler to
+ *
+ * @since 3.4.0
  */
 public class FileStitcher<T extends StitchedFileMetaData> extends AbstractReconciler<T, T>
 {

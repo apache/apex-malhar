@@ -41,17 +41,17 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  */
 public class Min<V extends Number> extends BaseNumberValueOperator<V> implements Unifier<V>
 {
-	/**
-	 * Computed low value.
-	 */
+  /**
+   * Computed low value.
+   */
   protected V low;
   
   // transient field
   protected boolean flag = false;
   
-	 /**
-          * Input port that takes a number and compares to min and stores the new min.
-          */
+  /**
+   * Input port that takes a number and compares to min and stores the new min.
+   */
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
   {
     /**
@@ -73,8 +73,7 @@ public class Min<V extends Number> extends BaseNumberValueOperator<V> implements
     if (!flag) {
       low = tuple;
       flag = true;
-    }
-    else if (low.doubleValue() > tuple.doubleValue()) {
+    } else if (low.doubleValue() > tuple.doubleValue()) {
       low = tuple;
     }
   }

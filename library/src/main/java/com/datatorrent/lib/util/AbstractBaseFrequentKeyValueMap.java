@@ -18,11 +18,12 @@
  */
 package com.datatorrent.lib.util;
 
-import com.datatorrent.api.DefaultInputPort;
-
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.commons.lang.mutable.MutableInt;
+
+import com.datatorrent.api.DefaultInputPort;
 
 /**
  * This is the base implementation of an operator, which takes key value pairs as inputs.&nbsp;
@@ -104,14 +105,12 @@ public abstract class AbstractBaseFrequentKeyValueMap<K, V> extends BaseKeyValue
           val = v.getKey();
           kval = v.getValue().intValue();
           vmap.put(val, null);
-        }
-        else if (compareValue(v.getValue().intValue(), kval)) {
+        } else if (compareValue(v.getValue().intValue(), kval)) {
           val = v.getKey();
           kval = v.getValue().intValue();
           vmap.clear();
           vmap.put(val, null);
-        }
-        else if (v.getValue().intValue() == kval) {
+        } else if (v.getValue().intValue() == kval) {
           vmap.put(v.getKey(), null);
         }
       }

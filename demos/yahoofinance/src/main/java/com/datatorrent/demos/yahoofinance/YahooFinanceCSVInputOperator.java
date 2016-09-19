@@ -18,23 +18,26 @@
  */
 package com.datatorrent.demos.yahoofinance;
 
-import au.com.bytecode.opencsv.CSVReader;
-
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
+
+import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * Grabs Yahoo Finance quotes data and emits HashMap, with key equals the format name (e.g. "s0") <p>
@@ -103,7 +106,7 @@ public class YahooFinanceCSVInputOperator extends SimpleSinglePortInputOperator<
       if (i != 0) {
         str += ",";
       }
-       str += symbolList.get(i);
+      str += symbolList.get(i);
     }
     str += "&f=";
     for (String format: parameterList) {
@@ -129,9 +132,8 @@ public class YahooFinanceCSVInputOperator extends SimpleSinglePortInputOperator<
       try {
         int statusCode = client.executeMethod(method);
         if (statusCode != HttpStatus.SC_OK) {
-          System.err.println("Method failed: " + method.getStatusLine());
-        }
-        else {
+          logger.error("Method failed: " + method.getStatusLine());
+        } else {
           InputStream istream;
           istream = method.getResponseBodyAsStream();
           // Process response
@@ -148,11 +150,9 @@ public class YahooFinanceCSVInputOperator extends SimpleSinglePortInputOperator<
           }
         }
         Thread.sleep(readIntervalMillis);
-      }
-      catch (InterruptedException ex) {
+      } catch (InterruptedException ex) {
         logger.debug(ex.toString());
-      }
-      catch (IOException ex) {
+      } catch (IOException ex) {
         logger.debug(ex.toString());
       }
     }

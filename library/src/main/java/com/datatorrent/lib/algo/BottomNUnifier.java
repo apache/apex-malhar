@@ -24,8 +24,8 @@ import java.util.Map;
 
 import javax.validation.constraints.Min;
 
-import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.lib.util.TopNSort;
 
@@ -100,11 +100,11 @@ public class BottomNUnifier<K, V> implements Unifier<HashMap<K, ArrayList<V>>>
       if (pqueue == null) {
         pqueue = new TopNSort<V>(5, values.size(), false);
         kmap.put(e.getKey(), pqueue);
-        for (int i = (values.size()-1); i >= 0; i--) {
+        for (int i = (values.size() - 1); i >= 0; i--) {
           pqueue.offer(values.get(i));
         }
       } else {
-        for (int i = (values.size()-1); i >= 0; i--) {
+        for (int i = (values.size() - 1); i >= 0; i--) {
           pqueue.offer(values.get(i));
         }
       }

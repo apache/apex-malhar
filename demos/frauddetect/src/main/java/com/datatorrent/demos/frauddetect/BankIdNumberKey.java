@@ -18,9 +18,9 @@
  */
 package com.datatorrent.demos.frauddetect;
 
-import com.datatorrent.lib.util.TimeBucketKey;
-
 import java.io.Serializable;
+
+import com.datatorrent.lib.util.TimeBucketKey;
 
 /**
  * Bank Id Number Key

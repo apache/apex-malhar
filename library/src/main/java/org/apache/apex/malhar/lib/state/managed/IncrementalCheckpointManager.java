@@ -19,6 +19,7 @@
 package org.apache.apex.malhar.lib.state.managed;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutorService;
@@ -32,11 +33,13 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.apex.malhar.lib.wal.WindowDataManager;
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
+import org.apache.apex.malhar.lib.wal.FileSystemWAL;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Queues;
+import com.google.common.primitives.Longs;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.annotation.Stateless;
@@ -48,8 +51,10 @@ import com.datatorrent.netlet.util.Slice;
  * data files. This class listens to time expiry events issued by {@link TimeBucketAssigner}.
  *
  * This component is also responsible for purging old time buckets.
+ *
+ * @since 3.4.0
  */
-public class IncrementalCheckpointManager extends WindowDataManager.FSWindowDataManager
+public class IncrementalCheckpointManager extends FSWindowDataManager
     implements ManagedStateComponent
 {
   private static final String WAL_RELATIVE_PATH = "managed_state";
@@ -71,10 +76,13 @@ public class IncrementalCheckpointManager extends WindowDataManager.FSWindowData
   private transient int waitMillis;
   private volatile long lastTransferredWindow = Stateless.WINDOW_ID;
 
+  private transient long largestWindowAddedToTransferQueue = Stateless.WINDOW_ID;
+
   public IncrementalCheckpointManager()
   {
     super();
-    setRecoveryPath(WAL_RELATIVE_PATH);
+    setStatePath(WAL_RELATIVE_PATH);
+    setRelyOnCheckpoints(true);
   }
 
   @Override
@@ -128,7 +136,7 @@ public class IncrementalCheckpointManager extends WindowDataManager.FSWindowData
             managedStateContext.getBucketsFileSystem().writeBucketData(windowId, singleBucket.getKey(),
                 singleBucket.getValue());
           }
-          storageAgent.delete(managedStateContext.getOperatorContext().getId(), windowId);
+          committed(windowId);
         } catch (Throwable t) {
           throwable.set(t);
           LOG.debug("transfer window {}", windowId, t);
@@ -146,7 +154,7 @@ public class IncrementalCheckpointManager extends WindowDataManager.FSWindowData
   }
 
   @Override
-  public void save(Object object, int operatorId, long windowId) throws IOException
+  public void save(Object object, long windowId) throws IOException
   {
     throw new UnsupportedOperationException("doesn't support saving any object");
   }
@@ -155,15 +163,13 @@ public class IncrementalCheckpointManager extends WindowDataManager.FSWindowData
    * The unsaved state combines data received in multiple windows. This window data manager persists this data
    * on disk by the window id in which it was requested.
    * @param unsavedData   un-saved data of all buckets.
-   * @param operatorId    operator id.
    * @param windowId      window id.
    * @param skipWriteToWindowFile flag that enables/disables saving the window file.
    *
    * @throws IOException
    */
-  public void save(Map<Long, Map<Slice, Bucket.BucketedValue>> unsavedData, int operatorId, long windowId,
-      boolean skipWriteToWindowFile)
-      throws IOException
+  public void save(Map<Long, Map<Slice, Bucket.BucketedValue>> unsavedData, long windowId,
+      boolean skipWriteToWindowFile) throws IOException
   {
     Throwable lthrowable;
     if ((lthrowable = throwable.get()) != null) {
@@ -173,23 +179,48 @@ public class IncrementalCheckpointManager extends WindowDataManager.FSWindowData
     savedWindows.put(windowId, unsavedData);
 
     if (!skipWriteToWindowFile) {
-      super.save(unsavedData, operatorId, windowId);
+      super.save(unsavedData, windowId);
     }
+  }
+
+  /**
+   * Retrieves artifacts available for all the windows saved by the enclosing partitions.
+   * @return  artifact saved per window.
+   * @throws IOException
+   */
+  public Map<Long, Object> retrieveAllWindows() throws IOException
+  {
+    Map<Long, Object> artifactPerWindow = new HashMap<>();
+    FileSystemWAL.FileSystemWALReader reader = getWal().getReader();
+    reader.seek(getWal().getWalStartPointer());
+    
+    Slice windowSlice = readNext(reader);
+    while (reader.getCurrentPointer().compareTo(getWal().getWalEndPointerAfterRecovery()) < 0 && windowSlice != null) {
+      long window = Longs.fromByteArray(windowSlice.toByteArray());
+      Object data = fromSlice(readNext(reader));
+      artifactPerWindow.put(window, data);
+      windowSlice = readNext(reader); //null or next window
+    }
+    reader.seek(getWal().getWalStartPointer());
+    return artifactPerWindow;
   }
 
   /**
    * Transfers the data which has been committed till windowId to data files.
    *
-   * @param operatorId operator id
-   * @param windowId   window id
+   * @param committedWindowId   window id
    */
-  @SuppressWarnings("UnusedParameters")
-  protected void committed(int operatorId, long windowId) throws IOException, InterruptedException
+  @Override
+  public void committed(long committedWindowId) throws IOException
   {
-    LOG.debug("data manager committed {}", windowId);
+    LOG.debug("data manager committed {}", committedWindowId);
     for (Long currentWindow : savedWindows.keySet()) {
-      if (currentWindow <= windowId) {
-        LOG.debug("to transfer {}", windowId);
+      if (currentWindow <= largestWindowAddedToTransferQueue) {
+        continue;
+      }
+      if (currentWindow <= committedWindowId) {
+        LOG.debug("to transfer {}", currentWindow);
+        largestWindowAddedToTransferQueue = currentWindow;
         windowsToTransfer.add(currentWindow);
       } else {
         break;

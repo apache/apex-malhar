@@ -43,9 +43,9 @@ import com.datatorrent.lib.util.BaseKeyOperator;
 @Stateless
 public class StreamDuplicater<K> extends BaseKeyOperator<K>
 {
-	/**
-	 * Input data port.
-	 */
+  /**
+   * Input data port.
+   */
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     /**
