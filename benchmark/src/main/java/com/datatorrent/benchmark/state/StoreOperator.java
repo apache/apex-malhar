@@ -233,7 +233,7 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
     return execMode.name();
   }
   
-  public void setExeModeStr(String execModeStr)
+  public void setExecModeStr(String execModeStr)
   {
     //this method used for set configuration. so, use case-insensitive
     for (ExecMode em : ExecMode.values()) {
