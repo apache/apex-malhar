@@ -18,6 +18,7 @@
  */
 package org.apache.apex.malhar.lib.state.spillable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
@@ -27,7 +28,7 @@ import org.junit.runner.Description;
 import org.apache.apex.malhar.lib.state.managed.ManagedStateTestUtils;
 import org.apache.apex.malhar.lib.state.spillable.managed.ManagedStateSpillableStateStore;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
-import org.apache.apex.malhar.lib.utils.serde.SerdeListSlice;
+import org.apache.apex.malhar.lib.utils.serde.SerdeCollectionSlice;
 import org.apache.apex.malhar.lib.utils.serde.SerdeStringSlice;
 import org.apache.apex.malhar.lib.utils.serde.SliceUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -44,18 +45,19 @@ import com.datatorrent.netlet.util.Slice;
 public class SpillableTestUtils
 {
   public static SerdeStringSlice SERDE_STRING_SLICE = new SerdeStringSlice();
-  public static SerdeListSlice<String> SERDE_STRING_LIST_SLICE = new SerdeListSlice(new SerdeStringSlice());
+  public static SerdeCollectionSlice<String, List<String>> SERDE_STRING_LIST_SLICE = new SerdeCollectionSlice<>(new SerdeStringSlice(),
+      (Class<List<String>>)(Class)ArrayList.class);
 
   private SpillableTestUtils()
   {
     //Shouldn't instantiate this
   }
 
-  static class TestMeta extends TestWatcher
+  public static class TestMeta extends TestWatcher
   {
-    ManagedStateSpillableStateStore store;
-    Context.OperatorContext operatorContext;
-    String applicationPath;
+    public ManagedStateSpillableStateStore store;
+    public Context.OperatorContext operatorContext;
+    public String applicationPath;
 
     @Override
     protected void starting(Description description)
