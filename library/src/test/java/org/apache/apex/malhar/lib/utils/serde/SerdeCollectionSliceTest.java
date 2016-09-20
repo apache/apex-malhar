@@ -18,21 +18,26 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import com.datatorrent.netlet.util.Slice;
 
-public class SerdeListSliceTest
+public class SerdeCollectionSliceTest
 {
   @Test
-  public void simpleSerdeTest()
+  public void testSerdeList()
   {
-    SerdeListSlice<String> serdeList = new SerdeListSlice<String>(new SerdeStringSlice());
+    SerdeCollectionSlice<String, List<String>> serdeList =
+        new SerdeCollectionSlice<>(new SerdeStringSlice(), (Class<List<String>>)(Class)ArrayList.class);
 
     List<String> stringList = Lists.newArrayList("a", "b", "c");
 
@@ -41,5 +46,20 @@ public class SerdeListSliceTest
     List<String> deserializedList = serdeList.deserialize(slice);
 
     Assert.assertEquals(stringList, deserializedList);
+  }
+
+  @Test
+  public void testSerdeSet()
+  {
+    SerdeCollectionSlice<String, Set<String>> serdeSet =
+        new SerdeCollectionSlice<>(new SerdeStringSlice(), (Class<Set<String>>)(Class)HashSet.class);
+
+    Set<String> stringList = Sets.newHashSet("a", "b", "c");
+
+    Slice slice = serdeSet.serialize(stringList);
+
+    Set<String> deserializedSet = serdeSet.deserialize(slice);
+
+    Assert.assertEquals(stringList, deserializedSet);
   }
 }

@@ -18,6 +18,7 @@
  */
 package org.apache.apex.malhar.lib.state.spillable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -26,8 +27,8 @@ import java.util.ListIterator;
 import javax.validation.constraints.NotNull;
 
 import org.apache.apex.malhar.lib.utils.serde.Serde;
+import org.apache.apex.malhar.lib.utils.serde.SerdeCollectionSlice;
 import org.apache.apex.malhar.lib.utils.serde.SerdeIntSlice;
-import org.apache.apex.malhar.lib.utils.serde.SerdeListSlice;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.esotericsoftware.kryo.DefaultSerializer;
@@ -92,7 +93,8 @@ public class SpillableArrayListImpl<T> implements Spillable.SpillableArrayList<T
     this.store = Preconditions.checkNotNull(store);
     this.serde = Preconditions.checkNotNull(serde);
 
-    map = new SpillableByteMapImpl<>(store, prefix, bucketId, new SerdeIntSlice(), new SerdeListSlice(serde));
+    map = new SpillableByteMapImpl<>(store, prefix, bucketId, new SerdeIntSlice(),
+        new SerdeCollectionSlice<>(serde, (Class<List<T>>)(Class)ArrayList.class));
   }
 
   /**
@@ -145,7 +147,28 @@ public class SpillableArrayListImpl<T> implements Spillable.SpillableArrayList<T
   @Override
   public Iterator<T> iterator()
   {
-    throw new UnsupportedOperationException();
+    return new Iterator<T>()
+    {
+      private int index = 0;
+
+      @Override
+      public boolean hasNext()
+      {
+        return index < size;
+      }
+
+      @Override
+      public T next()
+      {
+        return get(index++);
+      }
+
+      @Override
+      public void remove()
+      {
+        throw new UnsupportedOperationException();
+      }
+    };
   }
 
   @Override

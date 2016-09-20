@@ -18,7 +18,7 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
-import java.util.List;
+import java.util.Collection;
 
 import javax.validation.constraints.NotNull;
 
@@ -26,7 +26,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+import com.google.common.base.Throwables;
 
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.netlet.util.Slice;
@@ -37,35 +37,40 @@ import com.datatorrent.netlet.util.Slice;
  * @since 3.5.0
  */
 @InterfaceStability.Evolving
-public class SerdeListSlice<T> implements Serde<List<T>, Slice>
+public class SerdeCollectionSlice<T, CollectionT extends Collection<T>> implements Serde<CollectionT, Slice>
 {
   @NotNull
   private Serde<T, Slice> serde;
 
-  private SerdeListSlice()
+  @NotNull
+  private Class<? extends CollectionT> collectionClass;
+
+  private SerdeCollectionSlice()
   {
     // for Kryo
   }
 
   /**
-   * Creates a {@link SerdeListSlice}.
+   * Creates a {@link SerdeCollectionSlice}.
    * @param serde The {@link Serde} that is used to serialize and deserialize each element of a list.
    */
-  public SerdeListSlice(@NotNull Serde<T, Slice> serde)
+  public SerdeCollectionSlice(@NotNull Serde<T, Slice> serde, @NotNull Class<? extends CollectionT> collectionClass)
   {
     this.serde = Preconditions.checkNotNull(serde);
+    this.collectionClass = Preconditions.checkNotNull(collectionClass);
   }
 
   @Override
-  public Slice serialize(List<T> objects)
+  public Slice serialize(CollectionT objects)
   {
     Slice[] slices = new Slice[objects.size()];
 
     int size = 4;
 
-    for (int index = 0; index < objects.size(); index++) {
-      Slice slice = serde.serialize(objects.get(index));
-      slices[index] = slice;
+    int index = 0;
+    for (T object : objects) {
+      Slice slice = serde.serialize(object);
+      slices[index++] = slice;
       size += slice.length;
     }
 
@@ -76,7 +81,7 @@ public class SerdeListSlice<T> implements Serde<List<T>, Slice>
     System.arraycopy(sizeBytes, 0, bytes, offset, 4);
     offset += 4;
 
-    for (int index = 0; index < slices.length; index++) {
+    for (index = 0; index < slices.length; index++) {
       Slice slice = slices[index];
       System.arraycopy(slice.buffer, slice.offset, bytes, offset, slice.length);
       offset += slice.length;
@@ -86,25 +91,29 @@ public class SerdeListSlice<T> implements Serde<List<T>, Slice>
   }
 
   @Override
-  public List<T> deserialize(Slice slice, MutableInt offset)
+  public CollectionT deserialize(Slice slice, MutableInt offset)
   {
     MutableInt sliceOffset = new MutableInt(slice.offset + offset.intValue());
 
     int numElements = GPOUtils.deserializeInt(slice.buffer, sliceOffset);
-    List<T> list = Lists.newArrayListWithCapacity(numElements);
     sliceOffset.subtract(slice.offset);
+    try {
+      CollectionT collection = collectionClass.newInstance();
 
-    for (int index = 0; index < numElements; index++) {
-      T object = serde.deserialize(slice, sliceOffset);
-      list.add(object);
+      for (int index = 0; index < numElements; index++) {
+        T object = serde.deserialize(slice, sliceOffset);
+        collection.add(object);
+      }
+
+      offset.setValue(sliceOffset.intValue());
+      return collection;
+    } catch (Exception ex) {
+      throw Throwables.propagate(ex);
     }
-
-    offset.setValue(sliceOffset.intValue());
-    return list;
   }
 
   @Override
-  public List<T> deserialize(Slice slice)
+  public CollectionT deserialize(Slice slice)
   {
     return deserialize(slice, new MutableInt(0));
   }
