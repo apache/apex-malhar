@@ -26,7 +26,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
-import org.apache.apex.malhar.lib.utils.serde.PassThruByteArraySliceSerde;
+import org.apache.apex.malhar.lib.utils.serde.PassThruSliceSerde;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
 import org.apache.apex.malhar.lib.utils.serde.SerdeIntSlice;
 import org.apache.apex.malhar.lib.utils.serde.SliceUtils;
@@ -60,7 +60,7 @@ public class SpillableByteArrayListMultimapImpl<K, V> implements Spillable.Spill
 
   private int batchSize = DEFAULT_BATCH_SIZE;
   @NotNull
-  private SpillableByteMapImpl<byte[], Integer> map;
+  private SpillableByteMapImpl<Slice, Integer> map;
   private SpillableStateStore store;
   private byte[] identifier;
   private long bucket;
@@ -91,7 +91,7 @@ public class SpillableByteArrayListMultimapImpl<K, V> implements Spillable.Spill
     this.serdeKey = Preconditions.checkNotNull(serdeKey);
     this.serdeValue = Preconditions.checkNotNull(serdeValue);
 
-    map = new SpillableByteMapImpl(store, identifier, bucket, new PassThruByteArraySliceSerde(), new SerdeIntSlice());
+    map = new SpillableByteMapImpl(store, identifier, bucket, new PassThruSliceSerde(), new SerdeIntSlice());
   }
 
   public SpillableStateStore getStore()
@@ -111,7 +111,7 @@ public class SpillableByteArrayListMultimapImpl<K, V> implements Spillable.Spill
 
     if (spillableArrayList == null) {
       Slice keySlice = serdeKey.serialize(key);
-      Integer size = map.get(SliceUtils.concatenate(keySlice, SIZE_KEY_SUFFIX).toByteArray());
+      Integer size = map.get(SliceUtils.concatenate(keySlice, SIZE_KEY_SUFFIX));
 
       if (size == null) {
         return null;
@@ -166,6 +166,7 @@ public class SpillableByteArrayListMultimapImpl<K, V> implements Spillable.Spill
   @Override
   public int size()
   {
+    // TODO: This is actually wrong since in a Multimap, size() should return the number of entries, not the number of distinct keys
     return map.size();
   }
 
@@ -179,7 +180,7 @@ public class SpillableByteArrayListMultimapImpl<K, V> implements Spillable.Spill
   public boolean containsKey(@Nullable Object key)
   {
     return cache.contains((K)key) || map.containsKey(SliceUtils.concatenate(serdeKey.serialize((K)key),
-        SIZE_KEY_SUFFIX).toByteArray());
+        SIZE_KEY_SUFFIX));
   }
 
   @Override
@@ -191,7 +192,23 @@ public class SpillableByteArrayListMultimapImpl<K, V> implements Spillable.Spill
   @Override
   public boolean containsEntry(@Nullable Object key, @Nullable Object value)
   {
-    throw new UnsupportedOperationException();
+    SpillableArrayListImpl<V> spillableArrayList = getHelper((K)key);
+    if (spillableArrayList == null) {
+      return false;
+    }
+    for (int i = 0; i < spillableArrayList.size(); i++) {
+      V v = spillableArrayList.get(i);
+      if (v == null) {
+        if (value == null) {
+          return true;
+        }
+      } else {
+        if (v.equals(value)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   @Override
@@ -275,7 +292,7 @@ public class SpillableByteArrayListMultimapImpl<K, V> implements Spillable.Spill
       SpillableArrayListImpl<V> spillableArrayList = cache.get(key);
       spillableArrayList.endWindow();
 
-      Integer size = map.put(SliceUtils.concatenate(serdeKey.serialize(key), SIZE_KEY_SUFFIX).toByteArray(),
+      Integer size = map.put(SliceUtils.concatenate(serdeKey.serialize(key), SIZE_KEY_SUFFIX),
           spillableArrayList.size());
     }
 

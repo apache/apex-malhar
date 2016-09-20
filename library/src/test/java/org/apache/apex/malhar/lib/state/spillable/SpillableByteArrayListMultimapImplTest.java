@@ -239,7 +239,6 @@ public class SpillableByteArrayListMultimapImplTest
 
     map.endWindow();
     store.endWindow();
-    store.beforeCheckpoint(nextWindowId);
 
     return nextWindowId;
   }
@@ -258,11 +257,12 @@ public class SpillableByteArrayListMultimapImplTest
     long nextWindowId = 0L;
     nextWindowId = simpleMultiKeyTestHelper(store, map, "a", nextWindowId);
     long activationWindow = nextWindowId;
-    nextWindowId++;
-
+    store.beforeCheckpoint(nextWindowId);
     SpillableByteArrayListMultimapImpl<String, String> clonedMap = KryoCloneUtils.cloneObject(map);
     store.checkpointed(nextWindowId);
     store.committed(nextWindowId);
+
+    nextWindowId++;
 
     store.beginWindow(nextWindowId);
     map.beginWindow(nextWindowId);
@@ -319,7 +319,7 @@ public class SpillableByteArrayListMultimapImplTest
 
     store.setup(context);
     map.setup(context);
-
+    nextWindowId = activationWindow + 1;
     store.beginWindow(nextWindowId);
     map.beginWindow(nextWindowId);
 
