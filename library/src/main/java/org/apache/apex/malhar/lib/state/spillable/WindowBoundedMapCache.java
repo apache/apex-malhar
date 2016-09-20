@@ -87,15 +87,12 @@ public class WindowBoundedMapCache<K, V>
   public void remove(K key)
   {
     Preconditions.checkNotNull(key);
-
-    if (!cache.containsKey(key)) {
-      return;
-    }
-
-    cache.remove(key);
-    changedKeys.remove(key);
     removedKeys.add(key);
-    priorityQueue.remove(key);
+    if (cache.containsKey(key)) {
+      cache.remove(key);
+      changedKeys.remove(key);
+      priorityQueue.remove(key);
+    }
   }
 
   public Set<K> getChangedKeys()
