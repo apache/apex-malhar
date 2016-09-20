@@ -895,6 +895,8 @@ public class AbstractFileInputOperatorTest
     for (int file = 0; file < 10; file++) {
       FileUtils.write(new File(testMeta.dir, file + "_partition_00" + rand.nextInt(100)), "");
     }
+    final String directoryName = "0_partition_100001";
+    FileUtils.forceMkdir(new File(testMeta.dir, directoryName));
 
     List<Partition<AbstractFileInputOperator<String>>> partitions = Lists.newArrayList();
     partitions.add(new DefaultPartition<AbstractFileInputOperator<String>>(oper));
@@ -909,6 +911,11 @@ public class AbstractFileInputOperatorTest
       Set<String> consumed = Sets.newHashSet();
       LinkedHashSet<Path> files = p.getPartitionedInstance().getScanner().scan(FileSystem.getLocal(new Configuration(false)), path, consumed);
       Assert.assertEquals("partition " + files, 5, files.size());
+      HashSet<String> fileNameSet = Sets.newHashSet();
+      for (Path file : files) {
+        fileNameSet.add(file.getName());
+      }
+      Assert.assertFalse("The directory is skipped from file list ", fileNameSet.contains(directoryName));
     }
   }
 
