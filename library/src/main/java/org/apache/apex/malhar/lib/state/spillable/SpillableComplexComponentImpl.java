@@ -119,6 +119,15 @@ public class SpillableComplexComponentImpl implements SpillableComplexComponent
     return map;
   }
 
+  public <K, V> SpillableSetMultimap<K, V> newSpillableSetMultimap(long bucket, Serde<K,
+      Slice> serdeKey, Serde<V, Slice> serdeValue)
+  {
+    SpillableSetMultimapImpl<K, V> map = new SpillableSetMultimapImpl<K, V>(store,
+        identifierGenerator.next(), bucket, serdeKey, serdeValue);
+    componentList.add(map);
+    return map;
+  }
+
   public <T> SpillableByteMultiset<T> newSpillableByteMultiset(long bucket, Serde<T, Slice> serde)
   {
     throw new UnsupportedOperationException("Unsupported Operation");

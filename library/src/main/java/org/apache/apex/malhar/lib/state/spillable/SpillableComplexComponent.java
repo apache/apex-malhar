@@ -39,7 +39,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * This is a method for creating a {@link SpillableArrayList}. This method
    * auto-generates an identifier for the data structure.
    * @param <T> The type of data stored in the {@link SpillableArrayList}.
-   * @param bucket The bucket that this {@link SpillableArrayList} will be spilled too.
+   * @param bucket The bucket that this {@link SpillableArrayList} will be spilled to.
    * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableArrayList}.
    * @return A {@link SpillableArrayList}.
    */
@@ -49,7 +49,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * This is a method for creating a {@link SpillableArrayList}.
    * @param <T> The type of data stored in the {@link SpillableArrayList}.
    * @param identifier The identifier for this {@link SpillableArrayList}.
-   * @param bucket The bucket that this {@link SpillableArrayList} will be spilled too.
+   * @param bucket The bucket that this {@link SpillableArrayList} will be spilled to.
    * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableArrayList}.
    * @return A {@link SpillableArrayList}.
    */
@@ -60,7 +60,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * auto-generates an identifier for the data structure.
    * @param <K> The type of the keys.
    * @param <V> The type of the values.
-   * @param bucket The bucket that this {@link SpillableByteMap} will be spilled too.
+   * @param bucket The bucket that this {@link SpillableByteMap} will be spilled to.
    * @param serdeKey The Serializer/Deserializer to use for the map's keys.
    * @param serdeValue The Serializer/Deserializer to use for the map's values.
    * @return A {@link SpillableByteMap}.
@@ -73,7 +73,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @param <K> The type of the keys.
    * @param <V> The type of the values.
    * @param identifier The identifier for this {@link SpillableByteMap}.
-   * @param bucket The bucket that this {@link SpillableByteMap} will be spilled too.
+   * @param bucket The bucket that this {@link SpillableByteMap} will be spilled to.
    * @param serdeKey The Serializer/Deserializer to use for the map's keys.
    * @param serdeValue The Serializer/Deserializer to use for the map's values.
    * @return A {@link SpillableByteMap}.
@@ -86,7 +86,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * auto-generates an identifier for the data structure.
    * @param <K> The type of the keys.
    * @param <V> The type of the values in the map's lists.
-   * @param bucket The bucket that this {@link SpillableByteArrayListMultimap} will be spilled too.
+   * @param bucket The bucket that this {@link SpillableByteArrayListMultimap} will be spilled to.
    * @param serdeKey The Serializer/Deserializer to use for the map's keys.
    * @param serdeValue The Serializer/Deserializer to use for the values in the map's lists.
    * @return A {@link SpillableByteArrayListMultimap}.
@@ -99,7 +99,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @param <K> The type of the keys.
    * @param <V> The type of the values in the map's lists.
    * @param identifier The identifier for this {@link SpillableByteArrayListMultimap}.
-   * @param bucket The bucket that this {@link SpillableByteArrayListMultimap} will be spilled too.
+   * @param bucket The bucket that this {@link SpillableByteArrayListMultimap} will be spilled to.
    * @param serdeKey The Serializer/Deserializer to use for the map's keys.
    * @param serdeValue The Serializer/Deserializer to use for the values in the map's lists.
    * @return A {@link SpillableByteArrayListMultimap}.
@@ -109,10 +109,22 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
       Serde<V, Slice> serdeValue);
 
   /**
+   * This is a method for creating a {@link SpillableSetMultimap}.
+   * @param <K> The type of the keys.
+   * @param <V> The type of the values in the map's lists.
+   * @param bucket The bucket that this {@link SpillableSetMultimap} will be spilled to.
+   * @param serdeKey The Serializer/Deserializer to use for the map's keys.
+   * @param serdeValue The Serializer/Deserializer to use for the values in the map's lists.
+   * @return A {@link SpillableSetMultimap}.
+   */
+  <K, V> SpillableSetMultimap<K, V> newSpillableSetMultimap(long bucket, Serde<K,
+      Slice> serdeKey, Serde<V, Slice> serdeValue);
+
+  /**
    * This is a method for creating a {@link SpillableByteMultiset}. This method
    * auto-generates an identifier for the data structure.
    * @param <T> The type of the elements.
-   * @param bucket The bucket that this {@link SpillableByteMultiset} will be spilled too.
+   * @param bucket The bucket that this {@link SpillableByteMultiset} will be spilled to.
    * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableByteMultiset}.
    * @return A {@link SpillableByteMultiset}.
    */
@@ -122,7 +134,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * This is a method for creating a {@link SpillableByteMultiset}.
    * @param <T> The type of the elements.
    * @param identifier The identifier for this {@link SpillableByteMultiset}.
-   * @param bucket The bucket that this {@link SpillableByteMultiset} will be spilled too.
+   * @param bucket The bucket that this {@link SpillableByteMultiset} will be spilled to.
    * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableByteMultiset}.
    * @return A {@link SpillableByteMultiset}.
    */
@@ -132,7 +144,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * This is a method for creating a {@link SpillableQueue}. This method
    * auto-generates an identifier for the data structure.
    * @param <T> The type of the data stored in the {@link SpillableQueue}.
-   * @param bucket The bucket that this {@link SpillableQueue} will be spilled too.
+   * @param bucket The bucket that this {@link SpillableQueue} will be spilled to.
    * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableQueue}.
    * @return A {@link SpillableQueue}.
    */
@@ -142,7 +154,7 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * This is a method for creating a {@link SpillableQueue}.
    * @param <T> The type of the data stored in the {@link SpillableQueue}.
    * @param identifier The identifier for this {@link SpillableByteArrayListMultimap}.
-   * @param bucket The bucket that this {@link SpillableQueue} will be spilled too.
+   * @param bucket The bucket that this {@link SpillableQueue} will be spilled to.
    * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableQueue}.
    * @return A {@link SpillableQueue}.
    */
