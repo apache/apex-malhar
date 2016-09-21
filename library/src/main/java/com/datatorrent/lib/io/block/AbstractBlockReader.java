@@ -115,7 +115,7 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
    */
   protected int minReaders;
   /**
-   * Interval at which stats are processed. Default : 1 minute
+   * Interval at which stats are processed. Default : 2 minutes
    */
   protected long intervalMillis;
 
@@ -147,7 +147,7 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
   {
     maxReaders = 16;
     minReaders = 1;
-    intervalMillis = 60 * 1000L;
+    intervalMillis = 2 * 60 * 1000L;
     response = new StatsListener.Response();
     backlogPerOperator = Maps.newHashMap();
     partitionCount = 1;

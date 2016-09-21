@@ -25,7 +25,6 @@ import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Module;
-import com.datatorrent.common.partitioner.StatelessPartitioner;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.lib.io.block.AbstractBlockReader;
 import com.datatorrent.lib.io.block.BlockMetadata;
@@ -41,9 +40,11 @@ import com.datatorrent.netlet.util.Slice;
  * 3. scanIntervalMillis: interval between two scans to discover new files in input directory<br/>
  * 4. recursive: if scan recursively input directories<br/>
  * 5. blockSize: block size used to read input blocks of file<br/>
- * 6. readersCount: count of readers to read input file<br/>
- * 7. sequentialFileRead: If emit file blocks in sequence?<br/>
- * 8. blocksThreshold: number of blocks emitted per window
+ * 6. sequentialFileRead: If emit file blocks in sequence?<br/>
+ * 7. blocksThreshold: number of blocks emitted per window
+ * 8. minReaders: Minimum number of block readers for dynamic partitioning
+ * 9. maxReaders: Maximum number of block readers for dynamic partitioning
+ * 10. repartitionCheckInterval: Interval for re-evaluating dynamic partitioning
  *
  * @since 3.5.0
  */
@@ -59,9 +60,11 @@ public class FSInputModule implements Module
   private boolean recursive = true;
   private long blockSize;
   private boolean sequentialFileRead = false;
-  private int readersCount;
   @Min(1)
   protected int blocksThreshold;
+  protected int minReaders;
+  protected int maxReaders;
+  protected long repartitionCheckInterval;
 
   public final transient ProxyOutputPort<AbstractFileSplitter.FileMetadata> filesMetadataOutput = new ProxyOutputPort<>();
   public final transient ProxyOutputPort<BlockMetadata.FileBlockMetadata> blocksMetadataOutput = new ProxyOutputPort<>();
@@ -108,8 +111,17 @@ public class FSInputModule implements Module
     }
 
     blockReader.setBasePath(files);
-    if (readersCount != 0) {
-      dag.setAttribute(blockReader, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<FSSliceReader>(readersCount));
+
+    if (minReaders != 0) {
+      blockReader.setMinReaders(minReaders);
+    }
+
+    if (maxReaders != 0) {
+      blockReader.setMaxReaders(maxReaders);
+    }
+
+    if (repartitionCheckInterval != 0) {
+      blockReader.setIntervalMillis(repartitionCheckInterval);
     }
     fileSplitter.setBlocksThreshold(blocksThreshold);
   }
@@ -218,24 +230,6 @@ public class FSInputModule implements Module
   }
 
   /**
-   * Gets readers count
-   * @return readersCount
-   */
-  public int getReadersCount()
-  {
-    return readersCount;
-  }
-
-  /**
-   * Static count of readers to read input file
-   * @param readersCount
-   */
-  public void setReadersCount(int readersCount)
-  {
-    this.readersCount = readersCount;
-  }
-
-  /**
    * Gets is sequential file read
    *
    * @return sequentialFileRead
@@ -275,6 +269,60 @@ public class FSInputModule implements Module
   public int getBlocksThreshold()
   {
     return blocksThreshold;
+  }
+
+  /**
+   * Gets minimum number of block readers for dynamic partitioning.
+   * @return minimum instances of block reader.
+   */
+  public int getMinReaders()
+  {
+    return minReaders;
+  }
+
+  /**
+   * Sets minimum number of block readers for dynamic partitioning.
+   * @param minReaders minimum number of readers.
+   */
+  public void setMinReaders(int minReaders)
+  {
+    this.minReaders = minReaders;
+  }
+
+  /**
+   * Gets maximum number of block readers for dynamic partitioning.
+   * @return maximum instances of block reader.
+   */
+  public int getMaxReaders()
+  {
+    return maxReaders;
+  }
+
+  /**
+   * Sets maximum number of block readers for dynamic partitioning.
+   * @param maxReaders maximum number of readers.
+   */
+  public void setMaxReaders(int maxReaders)
+  {
+    this.maxReaders = maxReaders;
+  }
+
+  /**
+   * Gets Interval for re-evaluating dynamic partitioning
+   * @return interval for re-evaluating dynamic partitioning
+   */
+  public long getRepartitionCheckInterval()
+  {
+    return repartitionCheckInterval;
+  }
+
+  /**
+   * Sets Interval for re-evaluating dynamic partitioning
+   * @param repartitionCheckInterval interval for re-evaluating dynamic partitioning
+   */
+  public void setRepartitionCheckInterval(long repartitionCheckInterval)
+  {
+    this.repartitionCheckInterval = repartitionCheckInterval;
   }
 
   public static class SequentialFileBlockMetadataCodec
