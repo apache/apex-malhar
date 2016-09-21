@@ -137,12 +137,12 @@ public class POJOInnerJoinOperator extends AbstractManagedStateInnerJoinOperator
       try {
         inputFieldObjects[i].keyGet = PojoUtils.createGetter(inputClass, keyFieldExpressions.get(i), Object.class);
         if (timeFields != null && timeFields.size() == 2) {
-          Class timeField = ClassUtils.primitiveToWrapper(inputClass.getField(timeFields.get(i)).getType());
+          Class timeField = ClassUtils.primitiveToWrapper(inputClass.getDeclaredField(timeFields.get(i)).getType());
           inputFieldObjects[i].timeFieldGet = PojoUtils.createGetter(inputClass, timeFields.get(i), timeField);
         }
         for (int j = 0; j < includeFields[i].length; j++) {
-          Class inputField = ClassUtils.primitiveToWrapper(inputClass.getField(includeFields[i][j]).getType());
-          Class outputField = ClassUtils.primitiveToWrapper(outputClass.getField(includeFields[i][j]).getType());
+          Class inputField = ClassUtils.primitiveToWrapper(inputClass.getDeclaredField(includeFields[i][j]).getType());
+          Class outputField = ClassUtils.primitiveToWrapper(outputClass.getDeclaredField(includeFields[i][j]).getType());
           if (inputField != outputField) {
             continue;
           }
