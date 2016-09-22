@@ -131,7 +131,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
 
   private int holdingBufferSize = 1024;
 
-  private Properties consumerProps;
+  private Properties consumerProps = new Properties();
 
   /**
    * Assignment for each operator instance

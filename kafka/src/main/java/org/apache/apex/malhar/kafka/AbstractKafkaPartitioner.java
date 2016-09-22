@@ -18,6 +18,8 @@
  */
 package org.apache.apex.malhar.kafka;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -222,14 +224,33 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
     metadataRefreshClients = new ArrayList<>(clusters.length);
     int index = 0;
     for (String c : clusters) {
-      Properties prop = new Properties();
+      Properties prop = prototypeOperator.getConsumerProps();
       prop.put("group.id", META_CONSUMER_GROUP_NAME);
       prop.put("bootstrap.servers", c);
       prop.put("key.deserializer", ByteArrayDeserializer.class.getName());
       prop.put("value.deserializer", ByteArrayDeserializer.class.getName());
       prop.put("enable.auto.commit", "false");
+      if (logger.isInfoEnabled()) {
+        logger.info("Consumer Properties :  {} ", getPropertyAsString(prop));
+      }
       metadataRefreshClients.add(index++, new KafkaConsumer<byte[], byte[]>(prop));
     }
+  }
+
+  /**
+   * Converts the property list (key and element pairs) to String format
+   * This format is used to print to a Stream for debugging.
+   * @param prop
+   * @return String
+   */
+  private String getPropertyAsString(Properties prop) {
+    StringWriter writer = new StringWriter();
+    try {
+      prop.store(writer, "");
+    } catch (IOException e) {
+      logger.error("Cannot retrieve consumer properties for Logging : {}", e.getMessage() );
+    }
+    return writer.getBuffer().toString();
   }
 
   /**
