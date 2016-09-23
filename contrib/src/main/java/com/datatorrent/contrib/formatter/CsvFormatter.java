@@ -40,7 +40,7 @@ import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
 import com.datatorrent.contrib.parser.DelimitedSchema;
 import com.datatorrent.contrib.parser.DelimitedSchema.Field;
-import com.datatorrent.contrib.parser.DelimitedSchema.FieldType;
+import com.datatorrent.contrib.parser.Schema.FieldType;
 import com.datatorrent.lib.formatter.Formatter;
 import com.datatorrent.netlet.util.DTThrowable;
 

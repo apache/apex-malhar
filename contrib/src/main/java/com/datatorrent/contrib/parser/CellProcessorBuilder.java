@@ -40,7 +40,7 @@ import org.supercsv.util.CsvContext;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.datatorrent.contrib.parser.DelimitedSchema.FieldType;
+import com.datatorrent.contrib.parser.Schema.FieldType;
 
 /**
  * Helper class with methods to generate CellProcessor objects. Cell processors
