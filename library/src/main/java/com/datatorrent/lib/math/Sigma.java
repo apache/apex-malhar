@@ -20,16 +20,21 @@ package com.datatorrent.lib.math;
 
 import java.util.Collection;
 
+import com.datatorrent.api.Context;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.lib.util.UnifierSumNumber;
 
 /**
  * Adds incoming tuple to the state and emits the result of each addition on the respective ports.
  * <p>
- * The addition would go on forever.Result is emitted on four different data type ports:floatResult,integerResult,longResult,doubleResult.
- * Input tuple object has to be an implementation of the interface Collection.Tuples are emitted on the output ports only if they are connected. 
+ * The addition would go on forever.Result is emitted on four different data type ports: floatResult, integerResult,
+ * longResult, doubleResult.
+ * Input tuple object has to be an implementation of the interface Collection. Tuples are emitted on the output ports
+ * only if they are connected.
  * This is done to avoid the cost of calling the functions when some ports are not connected.
- * This is a stateful pass through operator<br>
- * <b>Partitions : </b>, no will yield wrong results, no unifier on output port.
+ * <b>Partitions : </b> Yes, will emit results from unifying ports on window boundaries.
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects Collection&lt;T extends Number&lt;<br>
@@ -44,7 +49,7 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
  * @param <T>
  * @since 0.3.3
  */
-@OperatorAnnotation(partitionable = false)
+@OperatorAnnotation(partitionable = true)
 public class Sigma<T extends Number> extends AbstractAggregateCalc<T>
 {
   @Override
@@ -69,5 +74,25 @@ public class Sigma<T extends Number> extends AbstractAggregateCalc<T>
     }
 
     return d;
+  }
+
+  @Override
+  public Operator.Unifier<Double> getUnifierDouble() {
+    return new UnifierSumNumber<>();
+  }
+
+  @Override
+  public Operator.Unifier<Float> getUnifierFloat() {
+    return new UnifierSumNumber<>();
+  }
+
+  @Override
+  public Operator.Unifier<Long> getUnifierLong() {
+    return new UnifierSumNumber<>();
+  }
+
+  @Override
+  public Operator.Unifier<Integer> getUnifierInt() {
+    return new UnifierSumNumber<>();
   }
 }
