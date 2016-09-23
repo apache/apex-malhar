@@ -5,8 +5,10 @@ pages:
 - Apache Apex Malhar: index.md
 - Operators:
     - Kafka Input: operators/kafkaInputOperator.md
+    - JMS Input: operators/jmsInputOperator.md
     - File Splitter: operators/file_splitter.md
     - Block Reader: operators/block_reader.md
+    - File Input: operators/fsInputOperator.md
     - File Output: operators/file_output.md
     - Enricher: operators/enricher.md
     - Deduper: operators/deduper.md
