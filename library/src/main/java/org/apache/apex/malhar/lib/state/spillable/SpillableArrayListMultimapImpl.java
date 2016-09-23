@@ -48,7 +48,7 @@ import com.datatorrent.netlet.util.Slice;
  */
 @DefaultSerializer(FieldSerializer.class)
 @InterfaceStability.Evolving
-public class SpillableByteArrayListMultimapImpl<K, V> implements Spillable.SpillableByteArrayListMultimap<K, V>,
+public class SpillableArrayListMultimapImpl<K, V> implements Spillable.SpillableListMultimap<K, V>,
     Spillable.SpillableComponent
 {
   public static final int DEFAULT_BATCH_SIZE = 1000;
@@ -60,28 +60,28 @@ public class SpillableByteArrayListMultimapImpl<K, V> implements Spillable.Spill
 
   private int batchSize = DEFAULT_BATCH_SIZE;
   @NotNull
-  private SpillableByteMapImpl<Slice, Integer> map;
+  private SpillableMapImpl<Slice, Integer> map;
   private SpillableStateStore store;
   private byte[] identifier;
   private long bucket;
   private Serde<K, Slice> serdeKey;
   private Serde<V, Slice> serdeValue;
 
-  private SpillableByteArrayListMultimapImpl()
+  private SpillableArrayListMultimapImpl()
   {
     // for kryo
   }
 
   /**
-   * Creates a {@link SpillableByteArrayListMultimapImpl}.
+   * Creates a {@link SpillableArrayListMultimapImpl}.
    * @param store The {@link SpillableStateStore} in which to spill to.
-   * @param identifier The Id of this {@link SpillableByteArrayListMultimapImpl}.
+   * @param identifier The Id of this {@link SpillableArrayListMultimapImpl}.
    * @param bucket The Id of the bucket used to store this
-   * {@link SpillableByteArrayListMultimapImpl} in the provided {@link SpillableStateStore}.
+   * {@link SpillableArrayListMultimapImpl} in the provided {@link SpillableStateStore}.
    * @param serdeKey The {@link Serde} to use when serializing and deserializing keys.
    * @param serdeKey The {@link Serde} to use when serializing and deserializing values.
    */
-  public SpillableByteArrayListMultimapImpl(SpillableStateStore store, byte[] identifier, long bucket,
+  public SpillableArrayListMultimapImpl(SpillableStateStore store, byte[] identifier, long bucket,
       Serde<K, Slice> serdeKey,
       Serde<V, Slice> serdeValue)
   {
@@ -91,7 +91,7 @@ public class SpillableByteArrayListMultimapImpl<K, V> implements Spillable.Spill
     this.serdeKey = Preconditions.checkNotNull(serdeKey);
     this.serdeValue = Preconditions.checkNotNull(serdeValue);
 
-    map = new SpillableByteMapImpl(store, identifier, bucket, new PassThruSliceSerde(), new SerdeIntSlice());
+    map = new SpillableMapImpl(store, identifier, bucket, new PassThruSliceSerde(), new SerdeIntSlice());
   }
 
   public SpillableStateStore getStore()

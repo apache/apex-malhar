@@ -110,7 +110,7 @@ public class SpillableSetImpl<T> implements Spillable.SpillableSet<T>, Spillable
   @NotNull
   private SpillableStateStore store;
   @NotNull
-  private SpillableByteMapImpl<T, ListNode<T>> map;
+  private SpillableMapImpl<T, ListNode<T>> map;
 
   private T head;
   private int size;
@@ -139,7 +139,7 @@ public class SpillableSetImpl<T> implements Spillable.SpillableSet<T>, Spillable
   {
     this.store = Preconditions.checkNotNull(store);
 
-    map = new SpillableByteMapImpl<>(store, prefix, bucketId, serde, new SerdeListNodeSlice(serde));
+    map = new SpillableMapImpl<>(store, prefix, bucketId, serde, new SerdeListNodeSlice(serde));
   }
 
   public void setSize(int size)

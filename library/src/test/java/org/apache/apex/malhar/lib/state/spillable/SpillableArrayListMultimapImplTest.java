@@ -39,7 +39,7 @@ import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.util.KryoCloneUtils;
 import com.datatorrent.netlet.util.Slice;
 
-public class SpillableByteArrayListMultimapImplTest
+public class SpillableArrayListMultimapImplTest
 {
   public static final byte[] ID1 = new byte[]{(byte)0};
 
@@ -62,8 +62,8 @@ public class SpillableByteArrayListMultimapImplTest
 
   public void simpleMultiKeyTestHelper(SpillableStateStore store)
   {
-    SpillableByteArrayListMultimapImpl<String, String> map =
-        new SpillableByteArrayListMultimapImpl<String, String>(store, ID1, 0L, new SerdeStringSlice(),
+    SpillableArrayListMultimapImpl<String, String> map =
+        new SpillableArrayListMultimapImpl<String, String>(store, ID1, 0L, new SerdeStringSlice(),
         new SerdeStringSlice());
 
     store.setup(testMeta.operatorContext);
@@ -110,7 +110,7 @@ public class SpillableByteArrayListMultimapImplTest
   }
 
   public long simpleMultiKeyTestHelper(SpillableStateStore store,
-      SpillableByteArrayListMultimapImpl<String, String> map, String key, long nextWindowId)
+      SpillableArrayListMultimapImpl<String, String> map, String key, long nextWindowId)
   {
     SerdeStringSlice serdeString = new SerdeStringSlice();
     SerdeIntSlice serdeInt = new SerdeIntSlice();
@@ -157,7 +157,7 @@ public class SpillableByteArrayListMultimapImplTest
     map.beginWindow(nextWindowId);
 
     SpillableTestUtils.checkValue(store, 0L,
-        SliceUtils.concatenate(keyBytes, SpillableByteArrayListMultimapImpl.SIZE_KEY_SUFFIX), 8, 0, serdeInt);
+        SliceUtils.concatenate(keyBytes, SpillableArrayListMultimapImpl.SIZE_KEY_SUFFIX), 8, 0, serdeInt);
 
     SpillableTestUtils.checkValue(store, 0L, keyBytes, 0, Lists.<String>newArrayList("a", "a", "b", "c", "d", "e",
         "f", "g"));
@@ -197,7 +197,7 @@ public class SpillableByteArrayListMultimapImplTest
     Assert.assertEquals(12, list2.size());
 
     SpillableTestUtils.checkValue(store, 0L,
-        SliceUtils.concatenate(keyBytes, SpillableByteArrayListMultimapImpl.SIZE_KEY_SUFFIX), 12, 0, serdeInt);
+        SliceUtils.concatenate(keyBytes, SpillableArrayListMultimapImpl.SIZE_KEY_SUFFIX), 12, 0, serdeInt);
 
     SpillableTestUtils.checkValue(store, 0L, keyBytes, 0, Lists.<String>newArrayList("a", "a", "b", "c", "d", "e",
         "f", "g", "tt", "ab", "99", "oo"));
@@ -232,7 +232,7 @@ public class SpillableByteArrayListMultimapImplTest
     map.beginWindow(nextWindowId);
 
     SpillableTestUtils.checkValue(store, 0L,
-        SliceUtils.concatenate(keyBytes, SpillableByteArrayListMultimapImpl.SIZE_KEY_SUFFIX), 12, 0, serdeInt);
+        SliceUtils.concatenate(keyBytes, SpillableArrayListMultimapImpl.SIZE_KEY_SUFFIX), 12, 0, serdeInt);
 
     SpillableTestUtils.checkValue(store, 0L, keyBytes, 0, Lists.<String>newArrayList("a", "111", "b", "222", "d", "333",
         "f", "g", "tt", "ab", "99", "444"));
@@ -248,8 +248,8 @@ public class SpillableByteArrayListMultimapImplTest
   {
     SpillableStateStore store = testMeta.store;
 
-    SpillableByteArrayListMultimapImpl<String, String> map =
-        new SpillableByteArrayListMultimapImpl<>(store, ID1, 0L, new SerdeStringSlice(), new SerdeStringSlice());
+    SpillableArrayListMultimapImpl<String, String> map =
+        new SpillableArrayListMultimapImpl<>(store, ID1, 0L, new SerdeStringSlice(), new SerdeStringSlice());
 
     store.setup(testMeta.operatorContext);
     map.setup(testMeta.operatorContext);
@@ -258,7 +258,7 @@ public class SpillableByteArrayListMultimapImplTest
     nextWindowId = simpleMultiKeyTestHelper(store, map, "a", nextWindowId);
     long activationWindow = nextWindowId;
     store.beforeCheckpoint(nextWindowId);
-    SpillableByteArrayListMultimapImpl<String, String> clonedMap = KryoCloneUtils.cloneObject(map);
+    SpillableArrayListMultimapImpl<String, String> clonedMap = KryoCloneUtils.cloneObject(map);
     store.checkpointed(nextWindowId);
     store.committed(nextWindowId);
 
@@ -349,8 +349,7 @@ public class SpillableByteArrayListMultimapImplTest
     final int numOfEntry = 100000;
 
     SpillableStateStore store = testMeta.store;
-
-    SpillableByteArrayListMultimapImpl<String, String> multimap = new SpillableByteArrayListMultimapImpl<>(
+    SpillableArrayListMultimapImpl<String, String> multimap = new SpillableArrayListMultimapImpl<>(
         this.testMeta.store, ID1, 0L, new SerdeStringSlice(), new SerdeStringSlice());
 
     Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();

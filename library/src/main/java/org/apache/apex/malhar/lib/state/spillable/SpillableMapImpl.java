@@ -48,7 +48,7 @@ import com.datatorrent.netlet.util.Slice;
  */
 @DefaultSerializer(FieldSerializer.class)
 @InterfaceStability.Evolving
-public class SpillableByteMapImpl<K, V> implements Spillable.SpillableByteMap<K, V>, Spillable.SpillableComponent,
+public class SpillableMapImpl<K, V> implements Spillable.SpillableMap<K, V>, Spillable.SpillableComponent,
     Serializable
 {
   private transient WindowBoundedMapCache<K, V> cache = new WindowBoundedMapCache<>();
@@ -66,21 +66,21 @@ public class SpillableByteMapImpl<K, V> implements Spillable.SpillableByteMap<K,
 
   private int size = 0;
 
-  private SpillableByteMapImpl()
+  private SpillableMapImpl()
   {
     //for kryo
   }
 
   /**
-   * Creats a {@link SpillableByteMapImpl}.
+   * Creats a {@link SpillableMapImpl}.
    * @param store The {@link SpillableStateStore} in which to spill to.
-   * @param identifier The Id of this {@link SpillableByteMapImpl}.
+   * @param identifier The Id of this {@link SpillableMapImpl}.
    * @param bucket The Id of the bucket used to store this
-   * {@link SpillableByteMapImpl} in the provided {@link SpillableStateStore}.
+   * {@link SpillableMapImpl} in the provided {@link SpillableStateStore}.
    * @param serdeKey The {@link Serde} to use when serializing and deserializing keys.
    * @param serdeKey The {@link Serde} to use when serializing and deserializing values.
    */
-  public SpillableByteMapImpl(SpillableStateStore store, byte[] identifier, long bucket, Serde<K, Slice> serdeKey,
+  public SpillableMapImpl(SpillableStateStore store, byte[] identifier, long bucket, Serde<K, Slice> serdeKey,
       Serde<V, Slice> serdeValue)
   {
     this.store = Preconditions.checkNotNull(store);

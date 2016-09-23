@@ -53,7 +53,7 @@ public class SpillableWindowedKeyedStorage<K, V> implements WindowedStorage.Wind
   protected Serde<K, Slice> keySerde;
   protected Serde<V, Slice> valueSerde;
 
-  protected Spillable.SpillableByteMap<Pair<Window, K>, V> windowKeyToValueMap;
+  protected Spillable.SpillableMap<Pair<Window, K>, V> windowKeyToValueMap;
   protected Spillable.SpillableSetMultimap<Window, K> windowToKeysMap;
 
   private class KVIterator implements Iterator<Map.Entry<K, V>>
@@ -181,7 +181,7 @@ public class SpillableWindowedKeyedStorage<K, V> implements WindowedStorage.Wind
     }
 
     if (windowKeyToValueMap == null) {
-      windowKeyToValueMap = scc.newSpillableByteMap(bucket, windowKeyPairSerde, valueSerde);
+      windowKeyToValueMap = scc.newSpillableMap(bucket, windowKeyPairSerde, valueSerde);
     }
     if (windowToKeysMap == null) {
       windowToKeysMap = scc.newSpillableSetMultimap(bucket, windowSerde, keySerde);

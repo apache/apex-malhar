@@ -61,7 +61,7 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
   private transient WindowBoundedMapCache<K, SpillableSetImpl<V>> cache = new WindowBoundedMapCache<>();
 
   @NotNull
-  private SpillableByteMapImpl<Slice, Pair<Integer, V>> map;
+  private SpillableMapImpl<Slice, Pair<Integer, V>> map;
   private SpillableStateStore store;
   private byte[] identifier;
   private long bucket;
@@ -93,7 +93,7 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
     this.serdeKey = Preconditions.checkNotNull(serdeKey);
     this.serdeValue = Preconditions.checkNotNull(serdeValue);
 
-    map = new SpillableByteMapImpl(store, identifier, bucket, new PassThruSliceSerde(), new SerdePairSlice<>(new SerdeIntSlice(), serdeValue));
+    map = new SpillableMapImpl(store, identifier, bucket, new PassThruSliceSerde(), new SerdePairSlice<>(new SerdeIntSlice(), serdeValue));
   }
 
   public SpillableStateStore getStore()

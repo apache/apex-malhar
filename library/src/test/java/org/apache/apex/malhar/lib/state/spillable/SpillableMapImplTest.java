@@ -31,7 +31,7 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.util.KryoCloneUtils;
 
-public class SpillableByteMapImplTest
+public class SpillableMapImplTest
 {
   public static final byte[] ID1 = new byte[]{(byte)0};
   public static final byte[] ID2 = new byte[]{(byte)1};
@@ -57,7 +57,7 @@ public class SpillableByteMapImplTest
   {
     SerdeStringSlice sss = new SerdeStringSlice();
 
-    SpillableByteMapImpl<String, String> map = new SpillableByteMapImpl<>(store, ID1, 0L,
+    SpillableMapImpl<String, String> map = new SpillableMapImpl<>(store, ID1, 0L,
         new SerdeStringSlice(),
         new SerdeStringSlice());
 
@@ -171,7 +171,7 @@ public class SpillableByteMapImplTest
   {
     SerdeStringSlice sss = new SerdeStringSlice();
 
-    SpillableByteMapImpl<String, String> map = new SpillableByteMapImpl<>(store, ID1, 0L,
+    SpillableMapImpl<String, String> map = new SpillableMapImpl<>(store, ID1, 0L,
         new SerdeStringSlice(),
         new SerdeStringSlice());
 
@@ -326,10 +326,10 @@ public class SpillableByteMapImplTest
   {
     SerdeStringSlice sss = new SerdeStringSlice();
 
-    SpillableByteMapImpl<String, String> map1 = new SpillableByteMapImpl<>(store, ID1, 0L,
+    SpillableMapImpl<String, String> map1 = new SpillableMapImpl<>(store, ID1, 0L,
         new SerdeStringSlice(),
         new SerdeStringSlice());
-    SpillableByteMapImpl<String, String> map2 = new SpillableByteMapImpl<>(store, ID2, 0L,
+    SpillableMapImpl<String, String> map2 = new SpillableMapImpl<>(store, ID2, 0L,
         new SerdeStringSlice(),
         new SerdeStringSlice());
 
@@ -415,7 +415,7 @@ public class SpillableByteMapImplTest
   {
     SerdeStringSlice sss = new SerdeStringSlice();
 
-    SpillableByteMapImpl<String, String> map1 = new SpillableByteMapImpl<>(testMeta.store, ID1, 0L,
+    SpillableMapImpl<String, String> map1 = new SpillableMapImpl<>(testMeta.store, ID1, 0L,
         new SerdeStringSlice(),
         new SerdeStringSlice());
 
@@ -444,7 +444,7 @@ public class SpillableByteMapImplTest
     testMeta.store.beforeCheckpoint(1);
     testMeta.store.checkpointed(1);
 
-    SpillableByteMapImpl<String, String> clonedMap1 = KryoCloneUtils.cloneObject(map1);
+    SpillableMapImpl<String, String> clonedMap1 = KryoCloneUtils.cloneObject(map1);
 
     testMeta.store.beginWindow(2);
     map1.beginWindow(2);

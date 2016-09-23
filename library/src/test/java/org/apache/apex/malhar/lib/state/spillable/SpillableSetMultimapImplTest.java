@@ -276,8 +276,7 @@ public class SpillableSetMultimapImplTest
     final int numOfEntry = 100000;
 
     SpillableStateStore store = testMeta.store;
-
-    SpillableByteArrayListMultimapImpl<String, String> multimap = new SpillableByteArrayListMultimapImpl<>(
+    SpillableSetMultimapImpl<String, String> multimap = new SpillableSetMultimapImpl<>(
         this.testMeta.store, ID1, 0L, new SerdeStringSlice(), new SerdeStringSlice());
 
     Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();

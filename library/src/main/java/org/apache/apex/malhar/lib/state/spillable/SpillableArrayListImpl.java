@@ -47,7 +47,7 @@ import com.datatorrent.netlet.util.Slice;
  */
 @DefaultSerializer(FieldSerializer.class)
 @InterfaceStability.Evolving
-public class SpillableArrayListImpl<T> implements Spillable.SpillableArrayList<T>, Spillable.SpillableComponent
+public class SpillableArrayListImpl<T> implements Spillable.SpillableList<T>, Spillable.SpillableComponent
 {
   public static final int DEFAULT_BATCH_SIZE = 1000;
 
@@ -60,7 +60,7 @@ public class SpillableArrayListImpl<T> implements Spillable.SpillableArrayList<T
   @NotNull
   private Serde<T, Slice> serde;
   @NotNull
-  private SpillableByteMapImpl<Integer, List<T>> map;
+  private SpillableMapImpl<Integer, List<T>> map;
 
   private boolean sizeCached = false;
   private int size;
@@ -93,7 +93,7 @@ public class SpillableArrayListImpl<T> implements Spillable.SpillableArrayList<T
     this.store = Preconditions.checkNotNull(store);
     this.serde = Preconditions.checkNotNull(serde);
 
-    map = new SpillableByteMapImpl<>(store, prefix, bucketId, new SerdeIntSlice(),
+    map = new SpillableMapImpl<>(store, prefix, bucketId, new SerdeIntSlice(),
         new SerdeCollectionSlice<>(serde, (Class<List<T>>)(Class)ArrayList.class));
   }
 

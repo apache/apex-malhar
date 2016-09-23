@@ -42,7 +42,7 @@ import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.netlet.util.Slice;
 
 /**
- * Concrete implementation of SpillableByteArrayListMultimap which is needed for join operator.
+ * Concrete implementation of SpillableListMultimap which is needed for join operator.
  *
  * <b>Properties:</b><br>
  * <b>isKeyContainsMultiValue</b>: Specifies whether the key has multiple value or not. <br>
@@ -52,7 +52,7 @@ import com.datatorrent.netlet.util.Slice;
  * @since 3.5.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-public class ManagedTimeStateMultiValue<K,V> implements Spillable.SpillableByteArrayListMultimap<K,V>
+public class ManagedTimeStateMultiValue<K,V> implements Spillable.SpillableListMultimap<K,V>
 {
   private transient StreamCodec streamCodec = null;
   private boolean isKeyContainsMultiValue = false;

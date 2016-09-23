@@ -93,13 +93,13 @@ public abstract class AbstractManagedStateInnerJoinOperator<K,T> extends Abstrac
   @Override
   protected void processTuple(T tuple, boolean isStream1Data)
   {
-    Spillable.SpillableByteArrayListMultimap<K,T> store = isStream1Data ? stream1Data : stream2Data;
+    Spillable.SpillableListMultimap<K,T> store = isStream1Data ? stream1Data : stream2Data;
     K key = extractKey(tuple,isStream1Data);
     long timeBucket = extractTime(tuple,isStream1Data);
     if (!((ManagedTimeStateMultiValue)store).put(key, tuple,timeBucket)) {
       return;
     }
-    Spillable.SpillableByteArrayListMultimap<K, T> valuestore = isStream1Data ? stream2Data : stream1Data;
+    Spillable.SpillableListMultimap<K, T> valuestore = isStream1Data ? stream2Data : stream1Data;
     Future<List> future = ((ManagedTimeStateMultiValue)valuestore).getAsync(key);
     if (future.isDone()) {
       try {

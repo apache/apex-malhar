@@ -50,7 +50,7 @@ public class SpillableComplexComponentImplTest
     Spillable.SpillableComponent scList =
         (Spillable.SpillableComponent)sccImpl.newSpillableArrayList(0L, new SerdeStringSlice());
     Spillable.SpillableComponent scMap =
-        (Spillable.SpillableComponent)sccImpl.newSpillableByteMap(0L, new SerdeStringSlice(), new SerdeStringSlice());
+        (Spillable.SpillableComponent)sccImpl.newSpillableMap(0L, new SerdeStringSlice(), new SerdeStringSlice());
 
     sccImpl.setup(testMeta.operatorContext);
 

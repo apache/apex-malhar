@@ -45,7 +45,7 @@ public class SpillableWindowedPlainStorage<T> implements WindowedStorage.Windowe
   private Serde<Window, Slice> windowSerde;
   private Serde<T, Slice> valueSerde;
 
-  protected Spillable.SpillableByteMap<Window, T> windowToDataMap;
+  protected Spillable.SpillableMap<Window, T> windowToDataMap;
 
   public SpillableWindowedPlainStorage()
   {
@@ -134,7 +134,7 @@ public class SpillableWindowedPlainStorage<T> implements WindowedStorage.Windowe
       valueSerde = new SerdeKryoSlice<>();
     }
     if (windowToDataMap == null) {
-      windowToDataMap = scc.newSpillableByteMap(bucket, windowSerde, valueSerde);
+      windowToDataMap = scc.newSpillableMap(bucket, windowSerde, valueSerde);
     }
   }
 

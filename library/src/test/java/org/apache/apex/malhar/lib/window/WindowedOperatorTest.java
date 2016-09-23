@@ -91,7 +91,7 @@ public class WindowedOperatorTest
     WindowedOperatorImpl<Long, MutableLong, Long> windowedOperator = new WindowedOperatorImpl<>();
     if (useSpillable) {
       sccImpl = new SpillableComplexComponentImpl(testMeta.store);
-      // TODO: We don't yet support Spillable data structures for window state storage because SpillableByteMapImpl does not yet support iterating over all keys.
+      // TODO: We don't yet support Spillable data structures for window state storage because SpillableMapImpl does not yet support iterating over all keys.
       windowStateStorage = new InMemoryWindowedStorage<>();
       SpillableWindowedPlainStorage<MutableLong> pds = new SpillableWindowedPlainStorage<>();
       pds.setSpillableComplexComponent(sccImpl);
@@ -117,7 +117,7 @@ public class WindowedOperatorTest
     KeyedWindowedOperatorImpl<String, Long, MutableLong, Long> windowedOperator = new KeyedWindowedOperatorImpl<>();
     if (useSpillable) {
       sccImpl = new SpillableComplexComponentImpl(testMeta.store);
-      // TODO: We don't yet support Spillable data structures for window state storage because SpillableByteMapImpl does not yet support iterating over all keys.
+      // TODO: We don't yet support Spillable data structures for window state storage because SpillableMapImpl does not yet support iterating over all keys.
       windowStateStorage = new InMemoryWindowedStorage<>();
       if (forSession) {
         SpillableSessionWindowedStorage<String, MutableLong> sws = new SpillableSessionWindowedStorage<>();

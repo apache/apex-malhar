@@ -88,8 +88,8 @@ public abstract class AbstractInnerJoinOperator<K,T> extends BaseOperator
   private boolean isLeftKeyPrimary = false;
   private boolean isRightKeyPrimary = false;
   protected SpillableComplexComponent component;
-  protected Spillable.SpillableByteArrayListMultimap<K,T> stream1Data;
-  protected Spillable.SpillableByteArrayListMultimap<K,T> stream2Data;
+  protected Spillable.SpillableListMultimap<K,T> stream1Data;
+  protected Spillable.SpillableListMultimap<K,T> stream2Data;
 
   /**
    * Process the tuple which are received from input ports with the following steps:
@@ -103,12 +103,12 @@ public abstract class AbstractInnerJoinOperator<K,T> extends BaseOperator
    */
   protected void processTuple(T tuple, boolean isStream1Data)
   {
-    Spillable.SpillableByteArrayListMultimap<K,T> store = isStream1Data ? stream1Data : stream2Data;
+    Spillable.SpillableListMultimap<K,T> store = isStream1Data ? stream1Data : stream2Data;
     K key = extractKey(tuple,isStream1Data);
     if (!store.put(key, tuple)) {
       return;
     }
-    Spillable.SpillableByteArrayListMultimap<K, T> valuestore = isStream1Data ? stream2Data : stream1Data;
+    Spillable.SpillableListMultimap<K, T> valuestore = isStream1Data ? stream2Data : stream1Data;
     joinStream(tuple,isStream1Data, valuestore.get(key));
   }
 
@@ -210,8 +210,8 @@ public abstract class AbstractInnerJoinOperator<K,T> extends BaseOperator
    */
   public void createStores()
   {
-    stream1Data = component.newSpillableByteArrayListMultimap(0,null,null);
-    stream2Data = component.newSpillableByteArrayListMultimap(0,null,null);
+    stream1Data = component.newSpillableArrayListMultimap(0,null,null);
+    stream2Data = component.newSpillableArrayListMultimap(0,null,null);
   }
 
   /**

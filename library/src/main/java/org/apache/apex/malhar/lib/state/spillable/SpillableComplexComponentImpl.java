@@ -66,14 +66,14 @@ public class SpillableComplexComponentImpl implements SpillableComplexComponent
     this.identifierGenerator = Preconditions.checkNotNull(identifierGenerator);
   }
 
-  public <T> SpillableArrayList<T> newSpillableArrayList(long bucket, Serde<T, Slice> serde)
+  public <T> SpillableList<T> newSpillableArrayList(long bucket, Serde<T, Slice> serde)
   {
     SpillableArrayListImpl<T> list = new SpillableArrayListImpl<T>(bucket, identifierGenerator.next(), store, serde);
     componentList.add(list);
     return list;
   }
 
-  public <T> SpillableArrayList<T> newSpillableArrayList(byte[] identifier, long bucket, Serde<T, Slice> serde)
+  public <T> SpillableList<T> newSpillableArrayList(byte[] identifier, long bucket, Serde<T, Slice> serde)
   {
     identifierGenerator.register(identifier);
     SpillableArrayListImpl<T> list = new SpillableArrayListImpl<T>(bucket, identifier, store, serde);
@@ -81,39 +81,39 @@ public class SpillableComplexComponentImpl implements SpillableComplexComponent
     return list;
   }
 
-  public <K, V> SpillableByteMap<K, V> newSpillableByteMap(long bucket, Serde<K, Slice> serdeKey,
+  public <K, V> SpillableMap<K, V> newSpillableMap(long bucket, Serde<K, Slice> serdeKey,
       Serde<V, Slice> serdeValue)
   {
-    SpillableByteMapImpl<K, V> map = new SpillableByteMapImpl<K, V>(store, identifierGenerator.next(),
+    SpillableMapImpl<K, V> map = new SpillableMapImpl<K, V>(store, identifierGenerator.next(),
         bucket, serdeKey, serdeValue);
     componentList.add(map);
     return map;
   }
 
-  public <K, V> SpillableByteMap<K, V> newSpillableByteMap(byte[] identifier, long bucket, Serde<K, Slice> serdeKey,
+  public <K, V> SpillableMap<K, V> newSpillableMap(byte[] identifier, long bucket, Serde<K, Slice> serdeKey,
       Serde<V, Slice> serdeValue)
   {
     identifierGenerator.register(identifier);
-    SpillableByteMapImpl<K, V> map = new SpillableByteMapImpl<K, V>(store, identifier, bucket, serdeKey, serdeValue);
+    SpillableMapImpl<K, V> map = new SpillableMapImpl<K, V>(store, identifier, bucket, serdeKey, serdeValue);
     componentList.add(map);
     return map;
   }
 
-  public <K, V> SpillableByteArrayListMultimap<K, V> newSpillableByteArrayListMultimap(long bucket, Serde<K,
+  public <K, V> SpillableListMultimap<K, V> newSpillableArrayListMultimap(long bucket, Serde<K,
       Slice> serdeKey, Serde<V, Slice> serdeValue)
   {
-    SpillableByteArrayListMultimapImpl<K, V> map = new SpillableByteArrayListMultimapImpl<K, V>(store,
+    SpillableArrayListMultimapImpl<K, V> map = new SpillableArrayListMultimapImpl<K, V>(store,
         identifierGenerator.next(), bucket, serdeKey, serdeValue);
     componentList.add(map);
     return map;
   }
 
-  public <K, V> SpillableByteArrayListMultimap<K, V> newSpillableByteArrayListMultimap(byte[] identifier, long bucket,
+  public <K, V> SpillableListMultimap<K, V> newSpillableArrayListMultimap(byte[] identifier, long bucket,
       Serde<K, Slice> serdeKey,
       Serde<V, Slice> serdeValue)
   {
     identifierGenerator.register(identifier);
-    SpillableByteArrayListMultimapImpl<K, V> map = new SpillableByteArrayListMultimapImpl<K, V>(store,
+    SpillableArrayListMultimapImpl<K, V> map = new SpillableArrayListMultimapImpl<K, V>(store,
         identifier, bucket, serdeKey, serdeValue);
     componentList.add(map);
     return map;
@@ -128,12 +128,12 @@ public class SpillableComplexComponentImpl implements SpillableComplexComponent
     return map;
   }
 
-  public <T> SpillableByteMultiset<T> newSpillableByteMultiset(long bucket, Serde<T, Slice> serde)
+  public <T> SpillableMultiset<T> newSpillableMultiset(long bucket, Serde<T, Slice> serde)
   {
     throw new UnsupportedOperationException("Unsupported Operation");
   }
 
-  public <T> SpillableByteMultiset<T> newSpillableByteMultiset(byte[] identifier, long bucket, Serde<T, Slice> serde)
+  public <T> SpillableMultiset<T> newSpillableMultiset(byte[] identifier, long bucket, Serde<T, Slice> serde)
   {
     throw new UnsupportedOperationException("Unsupported Operation");
   }
