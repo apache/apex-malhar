@@ -19,12 +19,22 @@
 package org.apache.apex.malhar.lib.window;
 
 /**
- * Interface for Join Windowed Operator.
+ * Interface for Merge Windowed Operator.
  */
 public interface MergeWindowedOperator<InputT1, InputT2>
     extends WindowedOperator<InputT1>
 {
+  /**
+   * The method to accumulate the data tuple from the 2nd input stream
+   *
+   * @param tuple the data tuple
+   */
   void accumulateTuple2(Tuple.WindowedTuple<InputT2> tuple);
 
+  /**
+   * The method to process the watermark tuple from the 2nd input stream
+   *
+   * @param watermark the watermark tuple
+   */
   void processWatermark2(ControlTuple.Watermark watermark);
 }

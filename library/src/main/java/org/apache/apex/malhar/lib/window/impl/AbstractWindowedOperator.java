@@ -79,8 +79,8 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
 
   private Function<InputT, Long> timestampExtractor;
 
+  protected long nextWatermark = -1;
   protected long currentWatermark = -1;
-  protected long watermarkTimestamp = -1;
   private boolean triggerAtWatermark;
   protected long earlyTriggerCount;
   private long earlyTriggerMillis;
@@ -141,7 +141,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
     if (isTooLate(timestamp)) {
       dropTuple(tuple);
     } else {
-      Tuple.WindowedTuple<InputT> windowedTuple = getWindowedValue(tuple);
+      Tuple.WindowedTuple<InputT> windowedTuple = getWindowedValueWithTimestamp(tuple, timestamp);
       // do the accumulation
       accumulateTuple(windowedTuple);
       processWindowState(windowedTuple);
@@ -254,6 +254,11 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   public void setTimestampExtractor(Function<InputT, Long> timestampExtractor)
   {
     this.timestampExtractor = timestampExtractor;
+  }
+
+  public void setNextWatermark(long timestamp)
+  {
+    this.nextWatermark = timestamp;
   }
 
   /**
@@ -408,7 +413,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   @Override
   public void processWatermark(ControlTuple.Watermark watermark)
   {
-    this.watermarkTimestamp = watermark.getTimestamp();
+    this.nextWatermark = watermark.getTimestamp();
   }
 
   @Override
@@ -460,7 +465,6 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
     } else {
       currentDerivedTimestamp += timeIncrement;
     }
-    watermarkTimestamp = -1;
   }
 
   /**
@@ -484,18 +488,17 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   protected void processWatermarkAtEndWindow()
   {
     if (fixedWatermarkMillis > 0) {
-      watermarkTimestamp = currentDerivedTimestamp - fixedWatermarkMillis;
+      nextWatermark = currentDerivedTimestamp - fixedWatermarkMillis;
     }
-    if (watermarkTimestamp > 0) {
-      this.currentWatermark = watermarkTimestamp;
+    if (nextWatermark > 0 && currentWatermark < nextWatermark) {
 
-      long horizon = watermarkTimestamp - allowedLatenessMillis;
+      long horizon = nextWatermark - allowedLatenessMillis;
 
       for (Iterator<Map.Entry<Window, WindowState>> it = windowStateMap.entries().iterator(); it.hasNext(); ) {
         Map.Entry<Window, WindowState> entry = it.next();
         Window window = entry.getKey();
         WindowState windowState = entry.getValue();
-        if (window.getBeginTimestamp() + window.getDurationMillis() < watermarkTimestamp) {
+        if (window.getBeginTimestamp() + window.getDurationMillis() < nextWatermark) {
           // watermark has not arrived for this window before, marking this window late
           if (windowState.watermarkArrivalTime == -1) {
             windowState.watermarkArrivalTime = currentDerivedTimestamp;
@@ -514,7 +517,8 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
           }
         }
       }
-      controlOutput.emit(new WatermarkImpl(watermarkTimestamp));
+      controlOutput.emit(new WatermarkImpl(nextWatermark));
+      this.currentWatermark = nextWatermark;
     }
   }
 
@@ -550,6 +554,16 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
     if (triggerOption.getAccumulationMode() == TriggerOption.AccumulationMode.DISCARDING) {
       clearWindowData(window);
     }
+  }
+
+  DataStorageT getDataStorage()
+  {
+    return dataStorage;
+  }
+
+  AccumulationT getAccumulation()
+  {
+    return accumulation;
   }
 
   /**

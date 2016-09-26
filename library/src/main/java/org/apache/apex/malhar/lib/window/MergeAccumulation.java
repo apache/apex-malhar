@@ -21,7 +21,7 @@ package org.apache.apex.malhar.lib.window;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * This is the interface for accumulation when joining multiple streams.
+ * This is the interface for accumulation when joining two streams.
  *
  * @since 3.5.0
  */

@@ -18,11 +18,14 @@
  */
 package org.apache.apex.malhar.lib.window.impl;
 
-import org.apache.apex.malhar.lib.window.MergeAccumulation;
-import org.apache.apex.malhar.lib.window.TriggerOption;
+import org.apache.apex.malhar.lib.window.ControlTuple;
+import org.apache.apex.malhar.lib.window.MergeWindowedOperator;
 import org.apache.apex.malhar.lib.window.Tuple;
-import org.apache.apex.malhar.lib.window.Window;
-import org.apache.apex.malhar.lib.window.WindowedStorage;
+
+import com.google.common.base.Function;
+
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 /**
  * Windowed Merge Operator to merge two streams together. It aggregates tuple from two
@@ -35,78 +38,73 @@ import org.apache.apex.malhar.lib.window.WindowedStorage;
  * @param <OutputT> The type of output tuple.
  */
 public class WindowedMergeOperatorImpl<InputT1, InputT2, AccumT, OutputT>
-    extends AbstractWindowedMergeOperator<InputT1, InputT2, OutputT, WindowedStorage.WindowedPlainStorage<AccumT>, WindowedStorage.WindowedPlainStorage<OutputT>, MergeAccumulation<InputT1, InputT2, AccumT, OutputT>>
+    extends WindowedOperatorImpl<InputT1, AccumT, OutputT> implements MergeWindowedOperator<InputT1, InputT2>
 {
-  private abstract class AccumFunction<T>
-  {
-    abstract AccumT accumulate(AccumT accum, T value);
-  }
+  private Function<InputT2, Long> timestampExtractor2;
 
-  private <T> void accumulateTupleHelper(Tuple.WindowedTuple<T> tuple, AccumFunction<T> accumFn)
-  {
-    for (Window window : tuple.getWindows()) {
-      // process each window
-      AccumT accum = dataStorage.get(window);
-      if (accum == null) {
-        accum = accumulation.defaultAccumulatedValue();
-      }
-      dataStorage.put(window, accumFn.accumulate(accum, tuple.getValue()));
-    }
-  }
+  private WindowedMergeOperatorFeatures.Plain joinFeatures = new WindowedMergeOperatorFeatures.Plain(this);
 
-  @Override
-  public void accumulateTuple2(Tuple.WindowedTuple<InputT2> tuple)
+  public final transient DefaultInputPort<Tuple<InputT2>> input2 = new DefaultInputPort<Tuple<InputT2>>()
   {
-    accumulateTupleHelper(tuple, new AccumFunction<InputT2>()
+    @Override
+    public void process(Tuple<InputT2> tuple)
     {
-      @Override
-      AccumT accumulate(AccumT accum, InputT2 value)
-      {
-        return accumulation.accumulate2(accum, value);
+      processTuple2(tuple);
+    }
+  };
+
+  // TODO: This port should be removed when Apex Core has native support for custom control tuples
+  @InputPortFieldAnnotation(optional = true)
+  public final transient DefaultInputPort<ControlTuple> controlInput2 = new DefaultInputPort<ControlTuple>()
+  {
+    @Override
+    public void process(ControlTuple tuple)
+    {
+      if (tuple instanceof ControlTuple.Watermark) {
+        processWatermark2((ControlTuple.Watermark)tuple);
       }
-    });
+    }
+  };
+
+  public void setTimestampExtractor2(Function<InputT2, Long> timestampExtractor)
+  {
+    this.timestampExtractor2 = timestampExtractor;
+  }
+
+  public void processTuple2(Tuple<InputT2> tuple)
+  {
+    long timestamp = extractTimestamp(tuple, this.timestampExtractor2);
+    if (isTooLate(timestamp)) {
+      dropTuple(tuple);
+    } else {
+      Tuple.WindowedTuple<InputT2> windowedTuple = getWindowedValueWithTimestamp(tuple, timestamp);
+      // do the accumulation
+      accumulateTuple2(windowedTuple);
+      processWindowState(windowedTuple);
+    }
   }
 
   @Override
   public void accumulateTuple(Tuple.WindowedTuple<InputT1> tuple)
   {
-    accumulateTupleHelper(tuple, new AccumFunction<InputT1>()
-    {
-      @Override
-      AccumT accumulate(AccumT accum, InputT1 value)
-      {
-        return accumulation.accumulate(accum, value);
-      }
-    });
+    joinFeatures.accumulateTuple1(tuple);
   }
 
   @Override
-  public void fireNormalTrigger(Window window, boolean fireOnlyUpdatedPanes)
+  public void accumulateTuple2(Tuple.WindowedTuple<InputT2> tuple)
   {
-    AccumT accumulatedValue = dataStorage.get(window);
-    OutputT outputValue = accumulation.getOutput(accumulatedValue);
-
-    if (fireOnlyUpdatedPanes) {
-      OutputT oldValue = retractionStorage.get(window);
-      if (oldValue != null && oldValue.equals(outputValue)) {
-        return;
-      }
-    }
-    output.emit(new Tuple.WindowedTuple<>(window, outputValue));
-    if (retractionStorage != null) {
-      retractionStorage.put(window, outputValue);
-    }
+    joinFeatures.accumulateTuple2(tuple);
   }
 
   @Override
-  public void fireRetractionTrigger(Window window, boolean firingOnlyUpdatedPanes)
+  public void processWatermark(ControlTuple.Watermark watermark)
   {
-    if (triggerOption.getAccumulationMode() != TriggerOption.AccumulationMode.ACCUMULATING_AND_RETRACTING) {
-      throw new UnsupportedOperationException();
-    }
-    OutputT oldValue = retractionStorage.get(window);
-    if (oldValue != null) {
-      output.emit(new Tuple.WindowedTuple<>(window, accumulation.getRetraction(oldValue)));
-    }
+    joinFeatures.processWatermark1(watermark);
+  }
+
+  @Override
+  public void processWatermark2(ControlTuple.Watermark watermark)
+  {
+    joinFeatures.processWatermark2(watermark);
   }
 }
