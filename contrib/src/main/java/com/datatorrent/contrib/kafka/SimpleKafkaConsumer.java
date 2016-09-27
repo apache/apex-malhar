@@ -69,7 +69,7 @@ import kafka.message.MessageAndOffset;
  * <br>
  *
  * Load balance: <br>
- * <li>The consumer create several data-consuming threads to consume the data from broker(s)</li> 
+ * <li>The consumer create several data-consuming threads to consume the data from broker(s)</li>
  * <li>Each thread has only ONE kafka client connecting to ONE broker to consume data from for multiple partitions </li>
  * <li>
  * There is ONE separate thread to monitor the leadership for all the partitions of the topic at every
@@ -89,7 +89,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
 {
 
   /**
-   * The data-consuming thread that use one simple kafka client to connect to one broker which is the leader of the partition(s) that this consumer is interested 
+   * The data-consuming thread that use one simple kafka client to connect to one broker which is the leader of the partition(s) that this consumer is interested
    */
   static final class ConsumerThread implements Runnable
   {
@@ -161,7 +161,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
               KafkaPartition kafkaPartition = iterator.next();
               short errorCode = fetchResponse.errorCode(consumer.topic, kafkaPartition.getPartitionId());
               if (fetchResponse.hasError() && errorCode != ErrorMapping.NoError()) {
-                // Kick off partition(s) which has error when fetch from this broker temporarily 
+                // Kick off partition(s) which has error when fetch from this broker temporarily
                 // Monitor will find out which broker it goes in monitor thread
                 logger.warn("Error when consuming topic {} from broker {} with error {} ", kafkaPartition, broker,
                   ErrorMapping.exceptionFor(errorCode));
@@ -177,7 +177,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
                 consumer.partitionToBroker.remove(kafkaPartition);
                 consumer.stats.updatePartitionStats(kafkaPartition, -1, "");
                 continue;
-              } 
+              }
               // If the fetchResponse either has no error or the no error for $kafkaPartition get the data
               long offset = -1l;
               for (MessageAndOffset msg : fetchResponse.messageSet(consumer.topic, kafkaPartition.getPartitionId())) {
@@ -200,7 +200,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
           // Update consumer that these partitions are currently stop being consumed because of some unrecoverable exception
           consumer.partitionToBroker.remove(kpForConsumer);
         }
-        
+
         logger.info("Exit the consumer thread for broker {} ", broker);
       }
     }

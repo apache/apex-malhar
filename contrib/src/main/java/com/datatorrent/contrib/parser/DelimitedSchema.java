@@ -175,7 +175,7 @@ public class DelimitedSchema
 
   /**
    * For a given json string, this method sets the field members
-   * 
+   *
    * @param json
    * @throws JSONException
    * @throws IOException
@@ -208,7 +208,7 @@ public class DelimitedSchema
 
   /**
    * Get the list of field names mentioned in schema
-   * 
+   *
    * @return fieldNames
    */
   public List<String> getFieldNames()
@@ -218,7 +218,7 @@ public class DelimitedSchema
 
   /**
    * Get the delimiter character
-   * 
+   *
    * @return delimiterChar
    */
   public int getDelimiterChar()
@@ -228,7 +228,7 @@ public class DelimitedSchema
 
   /**
    * Get the quoteChar
-   * 
+   *
    * @return quoteChar
    */
   public char getQuoteChar()
@@ -238,7 +238,7 @@ public class DelimitedSchema
 
   /**
    * Get the line delimiter
-   * 
+   *
    * @return lineDelimiter
    */
   public String getLineDelimiter()
@@ -255,7 +255,7 @@ public class DelimitedSchema
 
   /**
    * Get the list of Fields.
-   * 
+   *
    * @return fields
    */
   public List<Field> getFields()
@@ -266,7 +266,7 @@ public class DelimitedSchema
   /**
    * Objects of this class represents a particular field in the schema. Each
    * field has a name, type and a set of associated constraints.
-   * 
+   *
    */
   public class Field
   {
@@ -291,7 +291,7 @@ public class DelimitedSchema
 
     /**
      * Get the name of the field
-     * 
+     *
      * @return name
      */
     public String getName()
@@ -301,7 +301,7 @@ public class DelimitedSchema
 
     /**
      * Set the name of the field
-     * 
+     *
      * @param name
      */
     public void setName(String name)
@@ -311,7 +311,7 @@ public class DelimitedSchema
 
     /**
      * Get {@link FieldType}
-     * 
+     *
      * @return type
      */
     public FieldType getType()
@@ -321,7 +321,7 @@ public class DelimitedSchema
 
     /**
      * Set {@link FieldType}
-     * 
+     *
      * @param type
      */
     public void setType(FieldType type)
@@ -331,7 +331,7 @@ public class DelimitedSchema
 
     /**
      * Get the map of constraints associated with the field
-     * 
+     *
      * @return constraints
      */
     public Map<String, Object> getConstraints()
@@ -341,7 +341,7 @@ public class DelimitedSchema
 
     /**
      * Sets the map of constraints associated with the field
-     * 
+     *
      * @param constraints
      */
     public void setConstraints(Map<String, Object> constraints)

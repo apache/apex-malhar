@@ -25,7 +25,7 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.google.common.collect.Lists;
 
 /**
- * 
+ *
  * Unit test for splunk tcp output operator. The test sends 10 values to the splunk server and then
  * queries it for last 10 rows to check if the values are same or not.
  *

@@ -92,7 +92,7 @@ public abstract class AbstractParquetFileReader<T> extends AbstractFileInputOper
    * Derived classes need to provide an implementation to convert a Parquet
    * Group to any other type. Each Parquet record is read as a <b>Group</b>
    * (parquet.example.data.Group) and is passed onto this method.
-   * 
+   *
    * @param group
    *          Parquet record represented as a Group
    * @return object of type T
@@ -101,7 +101,7 @@ public abstract class AbstractParquetFileReader<T> extends AbstractFileInputOper
 
   /**
    * Get Parquet Schema as a String
-   * 
+   *
    * @return parquetSchema Parquet Schema as a string.
    */
   public String getParquetSchema()
@@ -111,7 +111,7 @@ public abstract class AbstractParquetFileReader<T> extends AbstractFileInputOper
 
   /**
    * Set Parquet Schema as a String
-   * 
+   *
    * @param parquetSchema
    *          Parquet Schema as a string
    */

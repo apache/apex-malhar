@@ -25,10 +25,10 @@ import org.apache.hadoop.io.RawComparator;
 import org.apache.hadoop.io.WritableComparator;
 
 /**
- * 
+ *
  * Byte arrays test case class using GZ compression codec, base class of none
  * and LZO compression classes.
- * 
+ *
  */
 
 public class TestTFileJClassComparatorByteArrays extends TestDTFileByteArrays {
@@ -54,6 +54,6 @@ class MyComparator implements RawComparator<byte[]>, Serializable {
   public int compare(byte[] o1, byte[] o2) {
     return WritableComparator.compareBytes(o1, 0, o1.length, o2, 0, o2.length);
   }
-  
+
 }
 

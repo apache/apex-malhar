@@ -69,14 +69,14 @@ public abstract class AbstractKinesisOutputOperator<V, T> implements Operator
    * @return
    */
   protected abstract byte[] getRecord(V value);
-  
+
   /**
    * convert tuple to pair of key and value. the key will be used as PartitionKey, and the value used as Data
    * @param tuple
    * @return
    */
   protected abstract Pair<String, V> tupleToKeyValue(T tuple);
-  
+
   List<PutRecordsRequestEntry> putRecordsRequestEntryList = new ArrayList<PutRecordsRequestEntry>();
   // Max size of each record: 50KB, Max size of putRecords: 4.5MB
   // So, default capacity would be 4.5MB/50KB = 92
@@ -145,7 +145,7 @@ public abstract class AbstractKinesisOutputOperator<V, T> implements Operator
     {
       processTuple( tuple );
     }
-    
+
   };
 
   public void processTuple(T tuple)
@@ -169,15 +169,15 @@ public abstract class AbstractKinesisOutputOperator<V, T> implements Operator
         requestRecord.setData(ByteBuffer.wrap(getRecord(keyValue.second)));
 
         client.putRecord(requestRecord);
-        
+
       }
       sendCount++;
     } catch (AmazonClientException e) {
       throw new RuntimeException(e);
     }
   }
-  
-  
+
+
   private void addRecord(T tuple)
   {
     try {

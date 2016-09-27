@@ -31,11 +31,11 @@ public class MaxTest
   public void MaxTest()
   {
     Max<Integer> max = new Max<>();
-    
+
     Assert.assertEquals((Integer)5, max.accumulate(5, 3));
     Assert.assertEquals((Integer)6, max.accumulate(4, 6));
     Assert.assertEquals((Integer)5, max.merge(5, 2));
-  
+
     Comparator<Integer> com = new Comparator<Integer>()
     {
       @Override
@@ -44,7 +44,7 @@ public class MaxTest
         return -(o1.compareTo(o2));
       }
     };
-    
+
     max.setComparator(com);
     Assert.assertEquals((Integer)3, max.accumulate(5, 3));
     Assert.assertEquals((Integer)4, max.accumulate(4, 6));

@@ -59,7 +59,7 @@ import com.datatorrent.lib.util.PojoUtils;
  * - projected port emits POJOs with projected fields from input POJOs
  * - remainder port, if connected, emits POJOs with remainder fields from input POJOs
  * - error port emits input POJOs as is upon error situations
- * 
+ *
  * <b>Examples</b>
  * For {a, b, c} type of input tuples
  *  - when selectFields = "" and dropFields = "", projected port shall emit {a, b, c}

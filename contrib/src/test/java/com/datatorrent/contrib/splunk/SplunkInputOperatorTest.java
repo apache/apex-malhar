@@ -26,7 +26,7 @@ import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- * 
+ *
  * Unit test for splunk input operator. The test, queries splunk server for 100 rows and checks
  * how many rows are returned.
  *

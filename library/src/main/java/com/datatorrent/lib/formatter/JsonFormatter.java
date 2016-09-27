@@ -29,7 +29,7 @@ import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * Operator that converts POJO to JSON string <br>
- * 
+ *
  * @displayName JsonFormatter
  * @category Formatter
  * @tags pojo json formatter

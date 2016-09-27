@@ -88,7 +88,7 @@ public class AbstractFileInputOperatorTest
 
   @Rule
   public TestMeta testMeta = new TestMeta();
-  
+
   @Test
   public void testSinglePartiton() throws Exception
   {

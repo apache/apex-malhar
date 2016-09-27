@@ -45,7 +45,7 @@ public class ModeOperatorTest
     oper.data.process(7.0);
     oper.data.process(7.0);
     oper.endWindow();
-    
+
     Assert.assertEquals("Must be one tuple in sink", sink.collectedTuples.size(), 1);
     Assert.assertTrue("Median value", sink.collectedTuples.get(0) == 7.0);
   }

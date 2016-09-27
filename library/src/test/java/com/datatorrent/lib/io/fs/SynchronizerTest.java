@@ -39,7 +39,7 @@ public class SynchronizerTest
   public static final String[] FILE_NAMES = {"a.txt", "b.txt", "c.txt", "d.txt", "e.txt" };
 
   public static final long[][] BLOCK_IDS = {
-      //Block ids for file1 (a.txt) 
+      //Block ids for file1 (a.txt)
       {1001, 1002, 1003 },
       //Block ids for file2 (b.txt)
       {1004, 1005, 1006, 1007 },

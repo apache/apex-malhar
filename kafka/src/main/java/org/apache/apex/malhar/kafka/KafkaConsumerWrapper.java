@@ -228,7 +228,7 @@ public class KafkaConsumerWrapper implements Closeable
       }
     }
   }
-  
+
   protected void handleNoOffsetForPartitionException(NoOffsetForPartitionException e, KafkaConsumer<byte[], byte[]> consumer)
   {
     // if initialOffset is set to EARLIST or LATEST
@@ -244,7 +244,7 @@ public class KafkaConsumerWrapper implements Closeable
     } else {
       consumer.seekToEnd(e.partitions().toArray(new TopicPartition[0]));
     }
-  
+
   }
 
   /**

@@ -31,7 +31,7 @@ import com.datatorrent.lib.util.UnifierHashMap;
  * Operator compares based on the property "key", "value", and "compare".
  * <p>
  * The comparison is done by getting double value from the Number.
- * Passed tuples are emitted on the output port "compare".&nbsp; 
+ * Passed tuples are emitted on the output port "compare".&nbsp;
  * Failed tuples are emitted on port "except".
  * Both output ports are optional, but at least one has to be connected.
  * This module is a pass through<br>
@@ -91,7 +91,7 @@ public class CompareExceptMap<K, V extends Number> extends MatchMap<K, V>
    */
   @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<HashMap<K, V>> compare = match;
-  
+
   /**
    * Output port that emits a hashmap of non matching tuples after comparison.
    */

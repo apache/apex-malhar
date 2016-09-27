@@ -54,7 +54,7 @@ public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
 {
   /**
    * Numerator input port that takes a map.
-   */  
+   */
   public final transient DefaultInputPort<Map<K, V>> numerator = new DefaultInputPort<Map<K, V>>()
   {
     /**
@@ -66,7 +66,7 @@ public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
       addTuple(tuple, numerators);
     }
   };
-  
+
   /**
    * Denominator input port that takes a map.
    */
@@ -101,7 +101,7 @@ public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
       val.add(e.getValue().doubleValue());
     }
   }
-  
+
   /*
    * Output margin port that emits hashmap.
    */

@@ -61,7 +61,7 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
 
   /**
    * Hive store.
-   * 
+   *
    * @deprecated use {@link AbstractStoreOutputOperator#store} instead
    */
   @Deprecated
@@ -226,7 +226,7 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
 
   /**
    * Get the partition columns in hive to which data needs to be loaded.
-   * 
+   *
    * @return List of Hive Partition Columns
    */
   public ArrayList<String> getHivePartitionColumns()
@@ -236,7 +236,7 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
 
   /**
    * Set the hive partition columns to which data needs to be loaded.
-   * 
+   *
    * @param hivePartitionColumns
    */
   public void setHivePartitionColumns(ArrayList<String> hivePartitionColumns)
@@ -246,7 +246,7 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
 
   /**
    * Get the table name in hive.
-   * 
+   *
    * @return table name
    */
   public String getTablename()
@@ -256,7 +256,7 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
 
   /**
    * Set the table name in hive.
-   * 
+   *
    * @param tablename
    */
   public void setTablename(String tablename)
@@ -266,7 +266,7 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
 
   /**
    * Gets the store set for hive;
-   * 
+   *
    * @deprecated use {@link #getStore()} instead.
    * @return hive store
    */
@@ -278,7 +278,7 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
 
   /**
    * Set the store in hive.
-   * 
+   *
    * @deprecated use {@link #setStore()} instead.
    * @param hivestore
    */

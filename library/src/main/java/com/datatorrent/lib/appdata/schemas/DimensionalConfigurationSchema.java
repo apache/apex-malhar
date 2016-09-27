@@ -2201,7 +2201,7 @@ public class DimensionalConfigurationSchema
   {
     return getDimensionsDescriptorIDToIncrementalAggregatorIDs();
   }
-  
+
   public List<IntArrayList> getDimensionsDescriptorIDToCompositeAggregatorIDs()
   {
     return dimensionsDescriptorIDToCompositeAggregatorIDs;

@@ -73,12 +73,12 @@ public class FSWindowReplayWAL extends FileSystemWAL
       throw new RuntimeException("while setup");
     }
   }
-  
+
   public FileSystemWALPointer getWalEndPointerAfterRecovery()
   {
     return walEndPointerAfterRecovery;
   }
-  
+
   /**
    * Finalizes files just after rotation. Doesn't wait for the window to be committed.
    */

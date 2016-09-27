@@ -45,10 +45,10 @@ public class Min<V extends Number> extends BaseNumberValueOperator<V> implements
    * Computed low value.
    */
   protected V low;
-  
+
   // transient field
   protected boolean flag = false;
-  
+
   /**
    * Input port that takes a number and compares to min and stores the new min.
    */

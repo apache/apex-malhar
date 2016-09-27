@@ -209,7 +209,7 @@ public class XmlParserTest
   @Test
   public void testXmlToPojoIncorrectXML()
   {
-    String tuple = "<EmployeeBean>" + "<firstname>john</firstname>" //incorrect field name is ignored by JAXB 
+    String tuple = "<EmployeeBean>" + "<firstname>john</firstname>" //incorrect field name is ignored by JAXB
         + "<dept>cs</dept>" + "<eid>1</eid>" + "<dateOfJoining>2015-01-01 00:00:00.00 IST</dateOfJoining>";
     // + "</EmployeeBean>"; // Incorrect XML format
 

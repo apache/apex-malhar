@@ -48,7 +48,7 @@ import com.datatorrent.lib.io.fs.Synchronizer.StitchedFileMetaData;
  * This is generic File Stitcher which can be used to merge data from one or
  * more files into single stitched file. StitchedFileMetaData defines
  * constituents of the stitched file.
- * 
+ *
  * This class uses Reconciler to
  *
  * @since 3.4.0
@@ -75,7 +75,7 @@ public class FileStitcher<T extends StitchedFileMetaData> extends AbstractReconc
    * Path for blocks directory
    */
   protected transient String blocksDirectoryPath;
-  
+
   /**
    * Directory under application directory where blocks gets stored
    */
@@ -133,8 +133,8 @@ public class FileStitcher<T extends StitchedFileMetaData> extends AbstractReconc
     super.setup(context); // Calling it at the end as the reconciler thread uses resources allocated above.
   }
 
-  /* 
-   * Calls super.endWindow() and sets counters 
+  /*
+   * Calls super.endWindow() and sets counters
    * @see com.datatorrent.api.BaseOperator#endWindow()
    */
   @Override
@@ -146,7 +146,7 @@ public class FileStitcher<T extends StitchedFileMetaData> extends AbstractReconc
       stitchedFileMetaData = doneTuples.peek();
       // If a tuple is present in doneTuples, it has to be also present in successful/failed/skipped
       // as processCommittedData adds tuple in successful/failed/skipped
-      // and then reconciler thread add that in doneTuples 
+      // and then reconciler thread add that in doneTuples
       if (successfulFiles.contains(stitchedFileMetaData)) {
         successfulFiles.remove(stitchedFileMetaData);
         LOG.debug("File copy successful: {}", stitchedFileMetaData.getStitchedFileRelativePath());
@@ -167,7 +167,7 @@ public class FileStitcher<T extends StitchedFileMetaData> extends AbstractReconc
   }
 
   /**
-   * 
+   *
    * @return Application FileSystem instance
    * @throws IOException
    */
@@ -177,7 +177,7 @@ public class FileStitcher<T extends StitchedFileMetaData> extends AbstractReconc
   }
 
   /**
-   * 
+   *
    * @return Destination FileSystem instance
    * @throws IOException
    */
@@ -240,7 +240,7 @@ public class FileStitcher<T extends StitchedFileMetaData> extends AbstractReconc
   /**
    * Read data from block files and write to output file. Information about
    * which block files should be read is specified in outFileMetadata
-   * 
+   *
    * @param stitchedFileMetaData
    * @throws IOException
    */
@@ -287,7 +287,7 @@ public class FileStitcher<T extends StitchedFileMetaData> extends AbstractReconc
 
   /**
    * Writing all Stitch blocks to temporary file
-   * 
+   *
    * @param stitchedFileMetaData
    * @throws IOException
    * @throws BlockNotFoundException
@@ -312,7 +312,7 @@ public class FileStitcher<T extends StitchedFileMetaData> extends AbstractReconc
 
   /**
    * Moving temp output file to final file
-   * 
+   *
    * @param stitchedFileMetaData
    * @throws IOException
    */
@@ -324,7 +324,7 @@ public class FileStitcher<T extends StitchedFileMetaData> extends AbstractReconc
 
   /**
    * Moving temp output file to final file
-   * 
+   *
    * @param tempOutFilePath
    *          Temporary output file
    * @param destination
@@ -351,7 +351,7 @@ public class FileStitcher<T extends StitchedFileMetaData> extends AbstractReconc
       throw new RuntimeException("Unable to move file from " + src + " to " + dst);
     }
   }
-  
+
   /**
    * Directory under application directory where blocks gets stored
    * @return blocks directory
@@ -360,7 +360,7 @@ public class FileStitcher<T extends StitchedFileMetaData> extends AbstractReconc
   {
     return blocksDirectory;
   }
-  
+
   /**
    * Directory under application directory where blocks gets stored
    * @param blocksDirectory blocks directory

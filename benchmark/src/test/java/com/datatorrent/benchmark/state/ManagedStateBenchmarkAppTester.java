@@ -39,31 +39,31 @@ import com.datatorrent.benchmark.state.StoreOperator.ExecMode;
 public class ManagedStateBenchmarkAppTester extends ManagedStateBenchmarkApp
 {
   public static final String basePath = "target/temp";
-  
+
   @Before
   public void before()
   {
     FileUtil.fullyDelete(new File(basePath));
   }
-  
+
   @Test
   public void testUpdateSync() throws Exception
   {
     test(ExecMode.UPDATESYNC);
   }
-  
+
   @Test
   public void testUpdateAsync() throws Exception
   {
     test(ExecMode.UPDATEASYNC);
   }
-  
+
   @Test
   public void testInsert() throws Exception
   {
     test(ExecMode.INSERT);
   }
-  
+
   public void test(ExecMode exeMode) throws Exception
   {
     Configuration conf = new Configuration(false);
@@ -73,7 +73,7 @@ public class ManagedStateBenchmarkAppTester extends ManagedStateBenchmarkApp
 
     super.populateDAG(dag, conf);
     storeOperator.execMode = exeMode;
-    
+
     StreamingApplication app = new StreamingApplication()
     {
       @Override
@@ -92,7 +92,7 @@ public class ManagedStateBenchmarkAppTester extends ManagedStateBenchmarkApp
   }
 
 
-  
+
   @Override
   public String getStoreBasePath(Configuration conf)
   {

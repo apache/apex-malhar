@@ -164,7 +164,7 @@ public class HiveOutputModule implements Module
 
   /**
    * The path of the directory to where files are written.
-   * 
+   *
    * @return file path
    */
   public String getFilePath()
@@ -174,7 +174,7 @@ public class HiveOutputModule implements Module
 
   /**
    * The path of the directory to where files are written.
-   * 
+   *
    * @param filePath
    *          file path
    */
@@ -185,7 +185,7 @@ public class HiveOutputModule implements Module
 
   /**
    * Names of the columns in hive table (excluding partitioning columns).
-   * 
+   *
    * @return Hive column names
    */
   public String[] getHiveColumns()
@@ -195,7 +195,7 @@ public class HiveOutputModule implements Module
 
   /**
    * Names of the columns in hive table (excluding partitioning columns).
-   * 
+   *
    * @param hiveColumns
    *          Hive column names
    */
@@ -207,7 +207,7 @@ public class HiveOutputModule implements Module
   /**
    * Data types of the columns in hive table (excluding partitioning columns).
    * This sequence should match to the fields in hiveColumnDataTypes
-   * 
+   *
    * @return Hive column data types
    */
   public FIELD_TYPE[] getHiveColumnDataTypes()
@@ -218,7 +218,7 @@ public class HiveOutputModule implements Module
   /**
    * Data types of the columns in hive table (excluding partitioning columns).
    * This sequence should match to the fields in hiveColumnDataTypes *
-   * 
+   *
    * @param hiveColumnDataTypes
    *          Hive column data types
    */
@@ -230,7 +230,7 @@ public class HiveOutputModule implements Module
   /**
    * Expressions for the hive columns (excluding partitioning columns). This
    * sequence should match to the fields in hiveColumnDataTypes
-   * 
+   *
    * @return
    */
   public String[] getExpressionsForHiveColumns()
@@ -241,7 +241,7 @@ public class HiveOutputModule implements Module
   /**
    * Expressions for the hive columns (excluding partitioning columns). This
    * sequence should match to the fields in hiveColumnDataTypes
-   * 
+   *
    * @param expressionsForHiveColumns
    */
   public void setExpressionsForHiveColumns(String[] expressionsForHiveColumns)
@@ -251,7 +251,7 @@ public class HiveOutputModule implements Module
 
   /**
    * Names of the columns on which hive data should be partitioned
-   * 
+   *
    * @return hive partition columns
    */
   public String[] getHivePartitionColumns()
@@ -261,7 +261,7 @@ public class HiveOutputModule implements Module
 
   /**
    * Names of the columns on which hive data should be partitioned
-   * 
+   *
    * @param hivePartitionColumns
    *          Hive partition columns
    */
@@ -273,7 +273,7 @@ public class HiveOutputModule implements Module
   /**
    * Data types of the columns on which hive data should be partitioned. This
    * sequence should match to the fields in hivePartitionColumns
-   * 
+   *
    * @return Hive partition column data types
    */
   public FIELD_TYPE[] getHivePartitionColumnDataTypes()
@@ -284,7 +284,7 @@ public class HiveOutputModule implements Module
   /**
    * Data types of the columns on which hive data should be partitioned. This
    * sequence should match to the fields in hivePartitionColumns
-   * 
+   *
    * @param hivePartitionColumnDataTypes
    *          Hive partition column data types
    */
@@ -296,7 +296,7 @@ public class HiveOutputModule implements Module
   /**
    * Expressions for the hive partition columns. This sequence should match to
    * the fields in hivePartitionColumns
-   * 
+   *
    * @return Expressions for hive partition columns
    */
   public String[] getExpressionsForHivePartitionColumns()
@@ -307,7 +307,7 @@ public class HiveOutputModule implements Module
   /**
    * Expressions for the hive partition columns. This sequence should match to
    * the fields in hivePartitionColumns
-   * 
+   *
    * @param expressionsForHivePartitionColumns
    *          Expressions for hive partition columns
    */
@@ -318,7 +318,7 @@ public class HiveOutputModule implements Module
 
   /**
    * The maximum length in bytes of a rolling file.
-   * 
+   *
    * @return maximum size of file
    */
   public Long getMaxLength()
@@ -328,7 +328,7 @@ public class HiveOutputModule implements Module
 
   /**
    * The maximum length in bytes of a rolling file.
-   * 
+   *
    * @param maxLength
    *          maximum size of file
    */
@@ -339,7 +339,7 @@ public class HiveOutputModule implements Module
 
   /**
    * Connection URL for connecting to hive.
-   * 
+   *
    * @return database url
    */
   public String getDatabaseUrl()
@@ -349,7 +349,7 @@ public class HiveOutputModule implements Module
 
   /**
    * Connection URL for connecting to hive.
-   * 
+   *
    * @param databaseUrl
    *          database url
    */
@@ -360,7 +360,7 @@ public class HiveOutputModule implements Module
 
   /**
    * Driver for connecting to hive.
-   * 
+   *
    * @return database driver
    */
   public String getDatabaseDriver()
@@ -370,7 +370,7 @@ public class HiveOutputModule implements Module
 
   /**
    * Driver for connecting to hive.
-   * 
+   *
    * @param databaseDriver
    *          database driver
    */
@@ -381,7 +381,7 @@ public class HiveOutputModule implements Module
 
   /**
    * Username for connecting to hive
-   * 
+   *
    * @return user name
    */
   public String getUserName()
@@ -391,7 +391,7 @@ public class HiveOutputModule implements Module
 
   /**
    * Username for connecting to hive
-   * 
+   *
    * @param username
    *          user name
    */
@@ -402,7 +402,7 @@ public class HiveOutputModule implements Module
 
   /**
    * Password for connecting to hive
-   * 
+   *
    * @return password
    */
   public String getPassword()
@@ -412,7 +412,7 @@ public class HiveOutputModule implements Module
 
   /**
    * Password for connecting to hive
-   * 
+   *
    * @param password
    *          password
    */
@@ -423,7 +423,7 @@ public class HiveOutputModule implements Module
 
   /**
    * Table name for writing data into hive
-   * 
+   *
    * @return table name
    */
   public String getTablename()
@@ -433,7 +433,7 @@ public class HiveOutputModule implements Module
 
   /**
    * Table name for writing data into hive
-   * 
+   *
    * @param tablename
    *          table name
    */

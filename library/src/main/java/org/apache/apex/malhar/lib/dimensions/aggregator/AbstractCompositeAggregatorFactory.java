@@ -28,7 +28,7 @@ public abstract class AbstractCompositeAggregatorFactory implements CompositeAgg
   protected static final String NAME_TEMPLATE = "%s-%s-%s";
   protected static final String PROPERTY_SEPERATOR = "_";
   protected static final String PROPERTY_VALUE_SEPERATOR = "|";
-  
+
   @Override
   public String getCompositeAggregatorName(String aggregatorType, String embededAggregatorName,
       Map<String, Object> properties)

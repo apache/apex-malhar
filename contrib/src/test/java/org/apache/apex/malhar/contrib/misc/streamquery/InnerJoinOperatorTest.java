@@ -30,7 +30,7 @@ import com.datatorrent.lib.streamquery.index.ColumnIndex;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- * 
+ *
  * Functional test for {@link com.datatorrent.lib.streamquery.InnerJoinOperator }.
  * @deprecated
  */

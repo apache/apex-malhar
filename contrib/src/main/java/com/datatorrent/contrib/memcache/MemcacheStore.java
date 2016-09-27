@@ -52,7 +52,7 @@ public class MemcacheStore implements KeyValueStore
   {
     serverAddresses.add(addr);
   }
-  
+
 
   public List<InetSocketAddress> getServerAddresses()
   {

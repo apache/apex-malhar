@@ -32,7 +32,7 @@ public class AverageTest
   {
     Average ave = new Average();
     MutablePair<Double, Long> accu = ave.defaultAccumulatedValue();
-    
+
     for (int i = 1; i <= 10; i++) {
       accu = ave.accumulate(accu, (double)i);
     }

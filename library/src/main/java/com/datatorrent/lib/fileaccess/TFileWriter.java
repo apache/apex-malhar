@@ -34,15 +34,15 @@ import org.apache.hadoop.io.file.tfile.TFile.Writer;
 public final class TFileWriter implements FileAccess.FileWriter
 {
   private Writer writer;
-  
+
   private FSDataOutputStream fsdos;
-  
+
   public TFileWriter(FSDataOutputStream stream, int minBlockSize, String compressName,
       String comparator, Configuration conf) throws IOException
   {
     this.fsdos = stream;
     writer = new Writer(stream, minBlockSize, compressName, comparator, conf);
-    
+
   }
 
   @Override

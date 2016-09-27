@@ -90,7 +90,7 @@ public class ElasticSearchConnectable implements Connectable
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.datatorrent.lib.db.Connectable#connect()
    */
   @Override
@@ -102,7 +102,7 @@ public class ElasticSearchConnectable implements Connectable
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.datatorrent.lib.db.Connectable#disconnect()
    */
   @Override
@@ -115,7 +115,7 @@ public class ElasticSearchConnectable implements Connectable
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.datatorrent.lib.db.Connectable#isConnected()
    */
   @Override

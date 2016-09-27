@@ -24,7 +24,7 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
- * This operator adds all the values on "numerator" and "denominator" and emits quotient at end of window. 
+ * This operator adds all the values on "numerator" and "denominator" and emits quotient at end of window.
  * <p>
  * <br>
  * <b>StateFull : Yes </b>, Sum of values is taken over application window. <br>

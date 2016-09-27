@@ -178,7 +178,7 @@ public class SumCountMap<K, V extends Number> extends
       return ret;
     }
   };
-        
+
         /**
    * Key,short sum output port.
    */
@@ -194,7 +194,7 @@ public class SumCountMap<K, V extends Number> extends
       return ret;
     }
   };
-        
+
         /**
    * Key,float sum output port.
    */
@@ -210,7 +210,7 @@ public class SumCountMap<K, V extends Number> extends
       return ret;
     }
   };
-        
+
         /**
    * Key,integer sum output port.
    */

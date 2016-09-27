@@ -206,33 +206,33 @@ public class FSWindowDataManagerTest
     Assert.assertEquals("largest recovery window", 1, manager.getLargestCompletedWindow());
     manager.teardown();
   }
-  
+
   @Test
   public void testDelete() throws IOException
   {
     Pair<Context.OperatorContext, FSWindowDataManager> pair1 = createManagerAndContextFor(1);
     pair1.second.getWal().setMaxLength(2);
     pair1.second.setup(pair1.first);
-    
+
     Map<Integer, String> dataOf1 = Maps.newHashMap();
     dataOf1.put(1, "one");
     dataOf1.put(2, "two");
     dataOf1.put(3, "three");
-    
+
     for (int i = 1; i <= 9; ++i) {
       pair1.second.save(dataOf1, i);
     }
-    
+
     pair1.second.committed(3);
     pair1.second.teardown();
-    
+
     Pair<Context.OperatorContext, FSWindowDataManager> pair1AfterRecovery = createManagerAndContextFor(1);
     testMeta.attributes.put(Context.OperatorContext.ACTIVATION_WINDOW_ID, 1L);
     pair1AfterRecovery.second.setup(pair1AfterRecovery.first);
-    
+
     Assert.assertEquals("window 1 deleted", null, pair1AfterRecovery.second.retrieve(1));
     Assert.assertEquals("window 3 deleted", null, pair1AfterRecovery.second.retrieve(3));
-    
+
     Assert.assertEquals("window 4 exists", dataOf1, pair1AfterRecovery.second.retrieve(4));
     pair1.second.teardown();
   }

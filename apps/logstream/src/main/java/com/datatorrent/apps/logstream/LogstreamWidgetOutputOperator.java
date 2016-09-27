@@ -128,7 +128,7 @@ public class LogstreamWidgetOutputOperator extends WidgetOutputOperator
     {
       @SuppressWarnings("unchecked")
       HashMap<String, Object>[] result = (HashMap<String, Object>[])Array.newInstance(HashMap.class, topNMap.size());
-      
+
       int j = 0;
       for (Entry<String, Number> e : topNMap.entrySet()) {
         result[j] = new HashMap<String, Object>();

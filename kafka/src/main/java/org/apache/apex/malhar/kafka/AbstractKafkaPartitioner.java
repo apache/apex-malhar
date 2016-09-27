@@ -110,20 +110,20 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
                 metadata.get(clusters[i]).put(topic, ptis);
                 break;
               }
-              
+
               logger.warn("Partition metadata for topic {} is null. retrying...", topic);
-              
+
             } catch (Exception e) {
               logger.warn("Got Exception when trying get partition info for topic {}.", topic, e);
             }
-  
+
             try {
               Thread.sleep(100);
             } catch (Exception e1) {
               //ignore
             }
           } //end while
-          
+
           if (tryTime == 0) {
             throw new RuntimeException("Get partition info for topic completely failed. Please check the log file. topic name: " + topic);
           }
@@ -183,8 +183,8 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
     }
     metadataRefreshClients = null;
   }
-  
-  
+
+
   @Override
   public void partitioned(Map<Integer, Partition<AbstractKafkaInputOperator>> map)
   {

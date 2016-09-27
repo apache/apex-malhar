@@ -163,7 +163,7 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
   {
     return filePath + "_" + partNumber;
   }
-  
+
   /**
    * @return the wal start pointer
    */

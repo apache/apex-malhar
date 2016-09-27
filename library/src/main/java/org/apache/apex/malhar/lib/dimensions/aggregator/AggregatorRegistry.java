@@ -108,9 +108,9 @@ public class AggregatorRegistry implements Serializable
    * {@link IncrementalAggregator} to the corresponding {@link IncrementalAggregator}.
    */
   private transient Map<Integer, IncrementalAggregator> incrementalAggregatorIDToAggregator;
-  
+
   protected transient Map<Integer, AbstractTopBottomAggregator> topBottomAggregatorIDToAggregator;
-  
+
   /**
    * This is a map from the name assigned to an {@link IncrementalAggregator} to the {@link IncrementalAggregator}.
    */
@@ -119,19 +119,19 @@ public class AggregatorRegistry implements Serializable
    * This is a map from the name assigned to an {@link OTFAggregator} to the {@link OTFAggregator}.
    */
   private Map<String, OTFAggregator> nameToOTFAggregator;
-  
+
   /**
    * the map from TOPN and BOTTOM aggregator to name
    */
   private Map<String, AbstractTopBottomAggregator> nameToTopBottomAggregator = Maps.newHashMap();
-  
+
   /**
    * This is a map from the name of an {@link IncrementalAggregator} to the ID of that {@link IncrementalAggregator}.
    */
   private Map<String, Integer> incrementalAggregatorNameToID;
-  
+
   protected Map<String, Integer> topBottomAggregatorNameToID = Maps.newHashMap();
-  
+
   protected static Set<String> topBottomAggregatorNames;
 
 
@@ -269,12 +269,12 @@ public class AggregatorRegistry implements Serializable
       Preconditions.checkNotNull(entry.getKey());
       Preconditions.checkNotNull(entry.getValue());
     }
-    
+
     for (Map.Entry<String, Integer> entry : topBottomAggregatorNameToID.entrySet()) {
       Preconditions.checkNotNull(entry.getKey());
       Preconditions.checkNotNull(entry.getValue());
     }
-    
+
     for (Map.Entry<String, AbstractTopBottomAggregator> entry : nameToTopBottomAggregator.entrySet()) {
       Preconditions.checkNotNull(entry.getKey());
       Preconditions.checkNotNull(entry.getValue());
@@ -337,7 +337,7 @@ public class AggregatorRegistry implements Serializable
           nameToTopBottomAggregator.get(aggregatorName));
     }
   }
-  
+
   /**
    * This is a helper method which sets and validated the given mapping from an {@link IncrementalAggregator}'s name
    * to an {@link IncrementalAggregator}.
@@ -375,7 +375,7 @@ public class AggregatorRegistry implements Serializable
         nameToOTFAggregator.containsKey(aggregatorName)) {
       return true;
     }
-    
+
     //the composite probably send whole aggregator name
     String aggregatorType = aggregatorName.split("-")[0];
     return (AggregatorTopBottomType.valueOf(aggregatorType) != null);
@@ -399,12 +399,12 @@ public class AggregatorRegistry implements Serializable
   {
     return nameToOTFAggregator.containsKey(aggregatorName);
   }
-  
+
   public boolean isTopBottomAggregatorType(String aggregatorType)
   {
     return (AggregatorTopBottomType.valueOf(aggregatorType) != null);
   }
-  
+
   /**
    * Gets the mapping from an {@link IncrementalAggregator}'s class to the {@link IncrementalAggregator}.
    *

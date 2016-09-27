@@ -33,7 +33,7 @@ public class Average implements Accumulation<Double, MutablePair<Double, Long>, 
   {
     return new MutablePair<>(0.0, 0L);
   }
-  
+
   @Override
   public MutablePair<Double, Long> accumulate(MutablePair<Double, Long> accu, Double input)
   {
@@ -41,7 +41,7 @@ public class Average implements Accumulation<Double, MutablePair<Double, Long>, 
     accu.setRight(accu.getRight() + 1);
     return accu;
   }
-  
+
   @Override
   public MutablePair<Double, Long> merge(MutablePair<Double, Long> accu1, MutablePair<Double, Long> accu2)
   {
@@ -50,13 +50,13 @@ public class Average implements Accumulation<Double, MutablePair<Double, Long>, 
     accu1.setRight(accu1.getRight() + accu2.getRight());
     return accu1;
   }
-  
+
   @Override
   public Double getOutput(MutablePair<Double, Long> accumulatedValue)
   {
     return accumulatedValue.getLeft();
   }
-  
+
   @Override
   public Double getRetraction(Double value)
   {

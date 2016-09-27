@@ -58,7 +58,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  * <b>in</b>:input tuple as a POJO. Each tuple represents a record<br>
  * <b>out</b>:tuples are are converted to string are emitted on this port<br>
  * <b>err</b>:tuples that could not be converted are emitted on this port<br>
- * 
+ *
  * @displayName CsvFormatter
  * @category Formatter
  * @tags pojo csv formatter
@@ -180,7 +180,7 @@ public class CsvFormatter extends Formatter<String>
 
   /**
    * Get the schema
-   * 
+   *
    * @return schema
    */
   public String getSchema()
@@ -190,7 +190,7 @@ public class CsvFormatter extends Formatter<String>
 
   /**
    * Set the schema
-   * 
+   *
    * @param schema
    */
   public void setSchema(String schema)

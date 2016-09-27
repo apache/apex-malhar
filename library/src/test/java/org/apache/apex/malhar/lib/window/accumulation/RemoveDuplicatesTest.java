@@ -31,7 +31,7 @@ public class RemoveDuplicatesTest
   public void RemoveDuplicatesTest()
   {
     RemoveDuplicates<Integer> rd = new RemoveDuplicates<>();
-    
+
     Set<Integer> accu = rd.defaultAccumulatedValue();
     Assert.assertEquals(0, accu.size());
     Assert.assertEquals(1, rd.accumulate(accu, 10).size());

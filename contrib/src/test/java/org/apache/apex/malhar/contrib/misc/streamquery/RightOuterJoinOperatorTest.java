@@ -42,11 +42,11 @@ public class RightOuterJoinOperatorTest
     CollectorTestSink sink = new CollectorTestSink();
     oper.outport.setSink(sink);
 
-    // set column join condition  
+    // set column join condition
     Condition cond = new JoinColumnEqualCondition("a", "a");
     oper.setJoinCondition(cond);
-    
-    // add columns  
+
+    // add columns
     oper.selectTable1Column(new ColumnIndex("b", null));
     oper.selectTable2Column(new ColumnIndex("c", null));
 
@@ -83,7 +83,7 @@ public class RightOuterJoinOperatorTest
     tuple.put("b", 11);
     tuple.put("c", 12);
     oper.inport2.process(tuple);
-    
+
     oper.endWindow();
     oper.teardown();
 

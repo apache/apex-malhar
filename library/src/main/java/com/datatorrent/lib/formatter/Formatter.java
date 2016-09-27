@@ -40,7 +40,7 @@ import com.datatorrent.lib.converter.Converter;
  * <b>err</b>: emits &lt;Object&gt; error port that emits input tuple that could
  * not be converted<br>
  * <br>
- * 
+ *
  * @displayName Parser
  * @tags parser converter
  * @param <OUTPUT>
@@ -99,7 +99,7 @@ public abstract class Formatter<OUTPUT> extends BaseOperator implements Converte
 
   /**
    * Get the class that needs to be formatted
-   * 
+   *
    * @return Class<?>
    */
   public Class<?> getClazz()
@@ -109,7 +109,7 @@ public abstract class Formatter<OUTPUT> extends BaseOperator implements Converte
 
   /**
    * Set the class of tuple that needs to be formatted
-   * 
+   *
    * @param clazz
    */
   public void setClazz(Class<?> clazz)

@@ -32,10 +32,10 @@ import com.datatorrent.api.StorageAgent;
 /**
  * Abstract implementation of {@link ApplicationAwareStorageAgent} which can be
  * configured be KeyValue store witch implementation of {@link StorageAgentKeyValueStore}
- * 
+ *
  * NOTE - this should be picked from APEX-CORE once below feature is release
  * https://issues.apache.org/jira/browse/APEXCORE-283
- * 
+ *
  * @param <S>
  *          Store implementation
  *
@@ -71,7 +71,7 @@ public abstract class AbstractKeyValueStorageAgent<S extends StorageAgentKeyValu
 
   /**
    * Return yarn application id of running application
-   * 
+   *
    * @return
    */
   public String getApplicationId()
@@ -81,7 +81,7 @@ public abstract class AbstractKeyValueStorageAgent<S extends StorageAgentKeyValu
 
   /**
    * Set yarn application id
-   * 
+   *
    * @param applicationId
    */
   public void setApplicationId(String applicationId)
@@ -92,7 +92,7 @@ public abstract class AbstractKeyValueStorageAgent<S extends StorageAgentKeyValu
   /**
    * Generates key from operator id and window id to store unique operator
    * checkpoints
-   * 
+   *
    * @param operatorId
    * @param windowId
    * @return unique key for store
@@ -104,14 +104,14 @@ public abstract class AbstractKeyValueStorageAgent<S extends StorageAgentKeyValu
 
   /**
    * Stores the given operator object in configured store
-   * 
+   *
    * @param object
    *          Operator object to store
    * @param operatorId
    *          of operator
    * @param windowId
    *          window id of operator to checkpoint
-   * 
+   *
    */
   @Override
   public void save(Object object, int operatorId, long windowId) throws IOException
@@ -136,7 +136,7 @@ public abstract class AbstractKeyValueStorageAgent<S extends StorageAgentKeyValu
   /**
    * Retrieves the operator object for given operator & window from configured
    * store
-   * 
+   *
    * @param operatorId
    *          of operator
    * @param windowId
@@ -167,7 +167,7 @@ public abstract class AbstractKeyValueStorageAgent<S extends StorageAgentKeyValu
 
   /**
    * Removes stored operator object for given operatorId & windowId from store
-   * 
+   *
    */
   @Override
   public void delete(int operatorId, long windowId) throws IOException
@@ -189,7 +189,7 @@ public abstract class AbstractKeyValueStorageAgent<S extends StorageAgentKeyValu
   /**
    * Returns list window id for given operator id for which operator objects are
    * stored but not removed
-   * 
+   *
    */
   @Override
   public long[] getWindowIds(int operatorId) throws IOException

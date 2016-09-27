@@ -42,17 +42,17 @@ import com.datatorrent.netlet.util.Slice;
  * An implementation for {@link AbstractDeduper} which handles the case of bounded data set.
  * This implementation assumes that the incoming tuple does not have a time field, and the de-duplication
  * is to be strictly based on the key of the tuple.
- * 
+ *
  * This implementation uses {@link ManagedTimeStateImpl} for storing the tuple keys on the persistent storage.
- * 
+ *
  * Following properties need to be configured for the functioning of the operator:
  * 1. {@link #keyExpression}: The java expression to extract the key fields in the incoming tuple (POJO)
- * 2. {@link #numBuckets} (optional): The number of buckets that need to be used for storing the keys of the 
+ * 2. {@link #numBuckets} (optional): The number of buckets that need to be used for storing the keys of the
  * incoming tuples.
- * NOTE: Users can decide upon the proper value for this parameter by guessing the number of distinct keys 
+ * NOTE: Users can decide upon the proper value for this parameter by guessing the number of distinct keys
  * in the application. A appropriate value would be sqrt(num distinct keys). In case, the number of distinct keys is a
  * huge number, leave it blank so that the default value of 46340 will be used. The rationale for using this number is
- * that sqrt(max integer) = 46340. This implies that the number of buckets used will roughly be equal to the size of 
+ * that sqrt(max integer) = 46340. This implies that the number of buckets used will roughly be equal to the size of
  * each bucket, thus spreading the load equally among each bucket.
  *
  *
@@ -194,10 +194,10 @@ public class BoundedDedupOperator extends AbstractDeduper<Object>
 
   /**
    * Sets the number of buckets
-   * NOTE: Users can decide upon the proper value for this parameter by guessing the number of distinct keys 
+   * NOTE: Users can decide upon the proper value for this parameter by guessing the number of distinct keys
    * in the application. A appropriate value would be sqrt(num distinct keys). In case, the number of distinct keys is a
    * huge number, leave it blank so that the default value of 46340 will be used. The rationale for using this number is
-   * that sqrt(max integer) = 46340. This implies that the number of buckets used will roughly be equal to the size of 
+   * that sqrt(max integer) = 46340. This implies that the number of buckets used will roughly be equal to the size of
    * each bucket, thus spreading the load equally among each bucket.
    * @param numBuckets the number of buckets
    */

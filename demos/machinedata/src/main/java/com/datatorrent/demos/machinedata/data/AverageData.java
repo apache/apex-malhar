@@ -45,7 +45,7 @@ public class AverageData
 
   /**
    * This constructor takes the value of sum and count and initialize the local attributes to corresponding values
-   * 
+   *
    * @param count
    *          the value of count
    */

@@ -79,7 +79,7 @@ public class BetweenConditionTest
     tuple.put("b", 7);
     tuple.put("c", 8);
     oper.inport.process(tuple);
-    
+
     oper.endWindow();
     oper.teardown();
 

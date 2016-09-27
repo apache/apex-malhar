@@ -43,7 +43,7 @@ public abstract class AbstractTopBottomAggregator extends AbstractCompositeAggre
   public static final String PROP_COUNT = "count";
   protected int count;
   protected SortedSet<String> subCombinations = Sets.newTreeSet();
-  
+
   public AbstractTopBottomAggregator withEmbedAggregatorName(String embedAggregatorName)
   {
     this.setEmbedAggregatorName(embedAggregatorName);
@@ -55,7 +55,7 @@ public abstract class AbstractTopBottomAggregator extends AbstractCompositeAggre
     this.setSubCombinations(subCombinations);
     return this;
   }
-  
+
   public AbstractTopBottomAggregator withCount(int count)
   {
     this.setCount(count);
@@ -71,7 +71,7 @@ public abstract class AbstractTopBottomAggregator extends AbstractCompositeAggre
   {
     this.count = count;
   }
-  
+
   public void setSubCombinations(Set<String> subCombinations)
   {
     this.subCombinations.clear();
@@ -91,11 +91,12 @@ public abstract class AbstractTopBottomAggregator extends AbstractCompositeAggre
   /**
    * TOP/BOTTOM return a list of value
    */
+  @Override
   public Type getOutputType()
   {
     return Type.OBJECT;
   }
-  
+
   @Override
   public int hashCode()
   {
@@ -115,7 +116,7 @@ public abstract class AbstractTopBottomAggregator extends AbstractCompositeAggre
     if (getClass() != obj.getClass()) {
       return false;
     }
-    
+
     AbstractTopBottomAggregator other = (AbstractTopBottomAggregator)obj;
     if (embedAggregatorName != other.embedAggregatorName
         && (embedAggregatorName == null || !embedAggregatorName.equals(other.embedAggregatorName))) {
@@ -131,8 +132,8 @@ public abstract class AbstractTopBottomAggregator extends AbstractCompositeAggre
 
     return true;
   }
-  
-  
+
+
   /**
    * The result keep a list of object for each aggregate value
    * The value of resultAggregate should keep a list of inputEventKey(the value can be get from cache or load) or a map
@@ -149,7 +150,7 @@ public abstract class AbstractTopBottomAggregator extends AbstractCompositeAggre
     //there are problem for composite's value field descriptor, just ignore now.
     GPOMutable resultGpo = resultAggregate.getAggregates();
     final List<String> compositeFieldList = resultAggregate.getEventKey().getKey().getFieldDescriptor().getFieldList();
-    
+
     //Map<EventKey, Aggregate> existedSubEventKeyToAggregate = Maps.newHashMap();
     for (String valueField : resultGpo.getFieldDescriptor().getFieldList()) {
       //the resultGpo keep a list of sub aggregates
@@ -168,7 +169,7 @@ public abstract class AbstractTopBottomAggregator extends AbstractCompositeAggre
 
   /**
    * get store map key from the eventKey
-   * 
+   *
    * @param eventKey
    * @return
    */
@@ -183,16 +184,16 @@ public abstract class AbstractTopBottomAggregator extends AbstractCompositeAggre
       key.append(subEventKey.getKey().getField(field)).append(KEY_VALUE_SEPERATOR);
     }
     key.deleteCharAt(key.length() - 1);
-    
+
     return key.toString();
   }
-  
+
 
   /**
-   * update existed sub aggregate. 
+   * update existed sub aggregate.
    * The sub aggregates which kept in composite aggregate as candidate could be changed. synchronize the value with
    * input aggregates.
-   * 
+   *
    * @param resultAggregate
    * @param valueField
    * @param inputSubEventKeys
@@ -218,7 +219,7 @@ public abstract class AbstractTopBottomAggregator extends AbstractCompositeAggre
       }
     }
   }
-  
+
   /**
    * need a map of value field from the inputGpo to resultGpo, use the index of Fields as the index
    * @param resultGpo
@@ -241,7 +242,7 @@ public abstract class AbstractTopBottomAggregator extends AbstractCompositeAggre
           fieldToType.get(aggregateField));
     }
   }
-  
+
   /**
    * seperate it in case sub class override it.
    * @param fieldName
@@ -252,7 +253,7 @@ public abstract class AbstractTopBottomAggregator extends AbstractCompositeAggre
   {
     return Maps.newHashMap();
   }
-  
+
   /**
    * compare the result(resultMap) with input(inputFieldName, inputFieldValue)
    * @param resultMap
@@ -275,7 +276,7 @@ public abstract class AbstractTopBottomAggregator extends AbstractCompositeAggre
     }
 
   }
-  
+
   /**
    * shoud the result element replaced by input element.
    * the inputElement and resultElement should be same type
@@ -299,11 +300,11 @@ public abstract class AbstractTopBottomAggregator extends AbstractCompositeAggre
       int compareResult = ((Comparable<Object>)resultElement).compareTo(inputElement);
       return shouldReplaceResultElement(compareResult);
     }
-    
+
     //handle other cases
     throw new RuntimeException("Should NOT come here.");
-    
+
   }
-  
+
   protected abstract boolean shouldReplaceResultElement(int resultCompareToInput);
 }

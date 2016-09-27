@@ -46,11 +46,11 @@ public class TestTFileComparator2 {
   private static long cube(long n) {
     return n*n*n;
   }
-  
+
   private static String buildValue(long i) {
     return String.format("%s-%d", VALUE, i);
   }
-  
+
   @Test
   public void testSortedLongWritable() throws IOException {
     Configuration conf = new Configuration();
@@ -79,11 +79,11 @@ public class TestTFileComparator2 {
         }
       } finally {
         writer.close();
-      } 
+      }
     } finally {
       out.close();
     }
-    
+
     FSDataInputStream in = fs.open(path);
     try {
       DTFile.Reader reader = new DTFile.Reader(in, fs.getFileStatus(path)

@@ -50,7 +50,7 @@ import com.datatorrent.contrib.parser.DelimitedSchema.FieldType;
  * purpose and can be chained together with other processors to fully automate
  * all of the required conversions and constraint validation for a single
  * delimited record.
- * 
+ *
  *
  * @since 3.4.0
  */
@@ -59,7 +59,7 @@ public class CellProcessorBuilder
 
   /**
    * Method to get cell processors for given field type and constraints
-   * 
+   *
    * @param fieldType
    *          data type of the field
    * @param constraints
@@ -93,7 +93,7 @@ public class CellProcessorBuilder
    * Method to get cellprocessor for String with constraints. These constraints
    * are evaluated against the String field for which this cellprocessor is
    * defined.
-   * 
+   *
    * @param constraints
    *          map of constraints applicable to String
    * @return CellProcessor
@@ -135,7 +135,7 @@ public class CellProcessorBuilder
    * Method to get cellprocessor for Integer with constraints. These constraints
    * are evaluated against the Integer field for which this cellprocessor is
    * defined.
-   * 
+   *
    * @param constraints
    *          map of constraints applicable to Integer
    * @return CellProcessor
@@ -170,7 +170,7 @@ public class CellProcessorBuilder
    * Method to get cellprocessor for Long with constraints. These constraints
    * are evaluated against the Long field for which this cellprocessor is
    * defined.
-   * 
+   *
    * @param constraints
    *          map of constraints applicable to Long
    * @return CellProcessor
@@ -204,7 +204,7 @@ public class CellProcessorBuilder
    * Method to get cellprocessor for Float/Double with constraints. These
    * constraints are evaluated against the Float/Double field for which this
    * cellprocessor is defined.
-   * 
+   *
    * @param constraints
    *          map of constraints applicable to Float/Double
    * @return CellProcessor
@@ -238,7 +238,7 @@ public class CellProcessorBuilder
    * Method to get cellprocessor for Boolean with constraints. These constraints
    * are evaluated against the Boolean field for which this cellprocessor is
    * defined.
-   * 
+   *
    * @param constraints
    *          map of constraints applicable to Boolean
    * @return CellProcessor
@@ -267,7 +267,7 @@ public class CellProcessorBuilder
    * Method to get cellprocessor for Date with constraints. These constraints
    * are evaluated against the Date field for which this cellprocessor is
    * defined.
-   * 
+   *
    * @param constraints
    *          map of constraints applicable to Date
    * @return CellProcessor
@@ -291,7 +291,7 @@ public class CellProcessorBuilder
    * Method to get cellprocessor for Char with constraints. These constraints
    * are evaluated against the Char field for which this cellprocessor is
    * defined.
-   * 
+   *
    * @param constraints
    *          map of constraints applicable to Char
    * @return CellProcessor
@@ -316,7 +316,7 @@ public class CellProcessorBuilder
 
   /**
    * Get a Double Min Max cellprocessor.
-   * 
+   *
    * @param minValue
    *          minimum value.
    * @param maxValue
@@ -332,7 +332,7 @@ public class CellProcessorBuilder
 
   /**
    * Get a Long Min Max cellprocessor.
-   * 
+   *
    * @param minValue
    *          minimum value.
    * @param maxValue
@@ -348,7 +348,7 @@ public class CellProcessorBuilder
 
   /**
    * Get a Int Min Max cellprocessor.
-   * 
+   *
    * @param minValue
    *          minimum value.
    * @param maxValue
@@ -364,7 +364,7 @@ public class CellProcessorBuilder
 
   /**
    * Get Optional cellprocessor which means field is not mandatory.
-   * 
+   *
    * @param cellProcessor
    *          next processor in the chain.
    * @return CellProcessor
@@ -379,7 +379,7 @@ public class CellProcessorBuilder
 
   /**
    * Get cellprocessor to parse String as Integer.
-   * 
+   *
    * @param cellProcessor
    *          next processor in the chain.
    * @return CellProcessor
@@ -394,7 +394,7 @@ public class CellProcessorBuilder
 
   /**
    * Get cellprocessor to parse String as Long.
-   * 
+   *
    * @param cellProcessor
    *          next processor in the chain.
    * @return CellProcessor
@@ -409,7 +409,7 @@ public class CellProcessorBuilder
 
   /**
    * Get cellprocessor to parse String as Double.
-   * 
+   *
    * @param cellProcessor
    *          next processor in the chain.
    * @return CellProcessor
@@ -424,7 +424,7 @@ public class CellProcessorBuilder
 
   /**
    * Get cellprocessor to parse String as Character.
-   * 
+   *
    * @param cellProcessor
    *          next processor in the chain.
    * @return CellProcessor

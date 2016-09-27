@@ -26,7 +26,7 @@ import com.datatorrent.netlet.util.Slice;
  *
  * @category Input
  * @tags fs
- * 
+ *
  * @since 2.1.0
  */
 @StatsListener.DataQueueSize

@@ -28,20 +28,20 @@ import org.apache.apex.malhar.lib.window.Accumulation;
  */
 public class Max<T> implements Accumulation<T, T, T>
 {
-  
+
   Comparator<T> comparator;
-  
+
   public void setComparator(Comparator<T> comparator)
   {
     this.comparator = comparator;
   }
-  
+
   @Override
   public T defaultAccumulatedValue()
   {
     return null;
   }
-  
+
   @Override
   public T accumulate(T accumulatedValue, T input)
   {
@@ -55,19 +55,19 @@ public class Max<T> implements Accumulation<T, T, T>
       throw new RuntimeException("Tuple cannot be compared");
     }
   }
-  
+
   @Override
   public T merge(T accumulatedValue1, T accumulatedValue2)
   {
     return accumulate(accumulatedValue1, accumulatedValue2);
   }
-  
+
   @Override
   public T getOutput(T accumulatedValue)
   {
     return accumulatedValue;
   }
-  
+
   @Override
   public T getRetraction(T value)
   {

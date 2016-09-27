@@ -42,7 +42,7 @@ public class BandwidthPartitioner<T extends BandwidthLimitingOperator> extends S
 
   /**
    * This constructor is used to create the partitioner from a property.
-   * 
+   *
    * @param value A string which is an integer of the number of partitions to create
    */
   public BandwidthPartitioner(String value)
@@ -52,7 +52,7 @@ public class BandwidthPartitioner<T extends BandwidthLimitingOperator> extends S
 
   /**
    * This creates a partitioner which creates partitonCount partitions.
-   * 
+   *
    * @param partitionCount The number of partitions to create.
    */
   public BandwidthPartitioner(int partitionCount)

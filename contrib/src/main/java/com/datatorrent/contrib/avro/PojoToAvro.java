@@ -97,7 +97,7 @@ public class PojoToAvro extends BaseOperator
 
   /**
    * Returns the schema string for Avro Generic Record
-   * 
+   *
    * @return schemaString
    */
   public String getSchemaString()
@@ -115,7 +115,7 @@ public class PojoToAvro extends BaseOperator
 
   /**
    * Returns the schema object
-   * 
+   *
    * @return schema
    */
   private Schema getSchema()
@@ -133,7 +133,7 @@ public class PojoToAvro extends BaseOperator
 
   /**
    * Returns the list for field names from provided Avro schema
-   * 
+   *
    * @return List of Fields
    */
   private List<Field> getColumnNames()
@@ -151,7 +151,7 @@ public class PojoToAvro extends BaseOperator
 
   /**
    * This method generates the getters for provided field of a given class
-   * 
+   *
    * @return Getter
    */
   private Getter<?, ?> generateGettersForField(Class<?> cls, String inputFieldName)
@@ -232,7 +232,7 @@ public class PojoToAvro extends BaseOperator
 
   /**
    * Returns a generic record mapping the POJO fields to provided schema
-   * 
+   *
    * @return Generic Record
    */
   private GenericRecord getGenericRecord(Object tuple) throws Exception

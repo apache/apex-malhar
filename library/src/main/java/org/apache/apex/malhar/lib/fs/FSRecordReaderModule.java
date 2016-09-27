@@ -42,7 +42,7 @@ import com.datatorrent.lib.io.fs.FileSplitterInput;
  * (Ordering is not guaranteed when records are read in parallel)
  *
  * Input directory is scanned at specified interval to poll for new data.
- * 
+ *
  * The module reads data in parallel, following parameters can be configured
  * <br/>
  * 1. files: list of file(s)/directories to read<br/>
@@ -91,7 +91,7 @@ public class FSRecordReaderModule implements Module
 
   /**
    * Creates an instance of FileSplitter
-   * 
+   *
    * @return
    */
   public FileSplitterInput createFileSplitter()
@@ -101,7 +101,7 @@ public class FSRecordReaderModule implements Module
 
   /**
    * Creates an instance of Record Reader
-   * 
+   *
    * @return FSRecordReader instance
    */
   public FSRecordReader createRecordReader()
@@ -233,7 +233,7 @@ public class FSRecordReaderModule implements Module
 
   /**
    * Gets readers count
-   * 
+   *
    * @return readersCount
    */
   public int getReadersCount()
@@ -243,7 +243,7 @@ public class FSRecordReaderModule implements Module
 
   /**
    * Static count of readers to read input file
-   * 
+   *
    * @param readersCount
    */
   public void setReadersCount(int readersCount)
@@ -276,7 +276,7 @@ public class FSRecordReaderModule implements Module
    * Sets number of blocks to be emitted per window.<br/>
    * A lot of blocks emitted per window can overwhelm the downstream operators.
    * Set this value considering blockSize and readersCount.
-   * 
+   *
    * @param threshold
    */
   public void setBlocksThreshold(int threshold)
@@ -288,7 +288,7 @@ public class FSRecordReaderModule implements Module
    * Gets number of blocks to be emitted per window.<br/>
    * A lot of blocks emitted per window can overwhelm the downstream operators.
    * Set this value considering blockSize and readersCount.
-   * 
+   *
    * @return
    */
   public int getBlocksThreshold()
@@ -298,7 +298,7 @@ public class FSRecordReaderModule implements Module
 
   /**
    * Criteria for record split
-   * 
+   *
    * @return mode
    */
   public RECORD_READER_MODE getMode()
@@ -308,7 +308,7 @@ public class FSRecordReaderModule implements Module
 
   /**
    * Criteria for record split
-   * 
+   *
    * @param mode
    *          Mode
    */
@@ -319,7 +319,7 @@ public class FSRecordReaderModule implements Module
 
   /**
    * Length for fixed width record
-   * 
+   *
    * @return record length
    */
   public int getRecordLength()
@@ -329,7 +329,7 @@ public class FSRecordReaderModule implements Module
 
   /**
    * Length for fixed width record
-   * 
+   *
    * @param recordLength
    */
   public void setRecordLength(int recordLength)

@@ -136,7 +136,7 @@ public class RedisInputOperatorTest
 
     RedisKeyValueInputOperator operator = new RedisKeyValueInputOperator();
     operator.setWindowDataManager(new FSWindowDataManager());
-    
+
     operator.setStore(operatorStore);
     operator.setScanCount(1);
     Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();

@@ -33,27 +33,27 @@ public class SumDouble implements Accumulation<Double, MutableDouble, Double>
   {
     return new MutableDouble(0.0);
   }
-  
+
   @Override
   public MutableDouble accumulate(MutableDouble accumulatedValue, Double input)
   {
     accumulatedValue.add(input);
     return accumulatedValue;
   }
-  
+
   @Override
   public MutableDouble merge(MutableDouble accumulatedValue1, MutableDouble accumulatedValue2)
   {
     accumulatedValue1.add(accumulatedValue2);
     return accumulatedValue1;
   }
-  
+
   @Override
   public Double getOutput(MutableDouble accumulatedValue)
   {
     return accumulatedValue.doubleValue();
   }
-  
+
   @Override
   public Double getRetraction(Double value)
   {

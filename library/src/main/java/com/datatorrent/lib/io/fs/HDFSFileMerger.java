@@ -102,7 +102,7 @@ public class HDFSFileMerger extends FileMerger
 
   /**
    * Fast merge using HDFS block concat
-   * 
+   *
    * @param outputFileMetadata
    * @throws IOException
    */
@@ -130,7 +130,7 @@ public class HDFSFileMerger extends FileMerger
   /**
    * Attempt for recovery if block concat is successful but temp file is not
    * moved to final file
-   * 
+   *
    * @param outputFileMetadata
    * @throws IOException
    */
@@ -179,7 +179,7 @@ public class HDFSFileMerger extends FileMerger
     /**
      * Checks if fast merge is possible for given settings for blocks directory,
      * application file system, block size
-     * 
+     *
      * @param outputFileMetadata
      * @throws IOException
      * @throws BlockNotFoundException

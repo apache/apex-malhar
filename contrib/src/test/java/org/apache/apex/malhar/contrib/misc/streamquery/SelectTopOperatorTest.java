@@ -37,20 +37,20 @@ public class SelectTopOperatorTest
     oper.setTopValue(2);
     CollectorTestSink sink = new CollectorTestSink();
     oper.outport.setSink(sink);
-    
+
     oper.beginWindow(1);
     HashMap<String, Object> tuple = new HashMap<String, Object>();
     tuple.put("a", 0);
     tuple.put("b", 1);
     tuple.put("c", 2);
     oper.inport.process(tuple);
-    
+
     tuple = new HashMap<String, Object>();
     tuple.put("a", 1);
     tuple.put("b", 3);
     tuple.put("c", 4);
     oper.inport.process(tuple);
-    
+
     tuple = new HashMap<String, Object>();
     tuple.put("a", 1);
     tuple.put("b", 5);

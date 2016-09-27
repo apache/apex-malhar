@@ -121,12 +121,12 @@ public class JdbcOperatorTest
     {
       this.startTimestamp = startTimestamp;
     }
-  
+
     public double getScore()
     {
       return score;
     }
-  
+
     public void setScore(double score)
     {
       this.score = score;
@@ -225,7 +225,7 @@ public class JdbcOperatorTest
         pStmt.setDouble(6, new Double(55.4));
         pStmt.executeUpdate();
       }
-     
+
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }

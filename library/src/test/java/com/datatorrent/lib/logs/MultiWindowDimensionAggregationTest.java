@@ -37,7 +37,7 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
  * <p>
  * MultiWindowDimensionAggregationTest class.
  * </p>
- * 
+ *
  */
 public class MultiWindowDimensionAggregationTest
 {

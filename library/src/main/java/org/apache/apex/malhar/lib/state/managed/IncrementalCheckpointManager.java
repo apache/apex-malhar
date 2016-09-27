@@ -193,7 +193,7 @@ public class IncrementalCheckpointManager extends FSWindowDataManager
     Map<Long, Object> artifactPerWindow = new HashMap<>();
     FileSystemWAL.FileSystemWALReader reader = getWal().getReader();
     reader.seek(getWal().getWalStartPointer());
-    
+
     Slice windowSlice = readNext(reader);
     while (reader.getCurrentPointer().compareTo(getWal().getWalEndPointerAfterRecovery()) < 0 && windowSlice != null) {
       long window = Longs.fromByteArray(windowSlice.toByteArray());

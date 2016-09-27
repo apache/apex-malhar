@@ -29,10 +29,10 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 /**
- * 
+ *
  * Functional tests for {@link com.datatorrent.lib.math.MarginMap}
  * <p>
- * 
+ *
  */
 public class MarginMapTest
 {

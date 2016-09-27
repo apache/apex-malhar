@@ -89,7 +89,7 @@ public class ElasticSearchOperatorTest
     ElasticSearchMapOutputOperator<Map<String, Object>> operator = new ElasticSearchMapOutputOperator<Map<String, Object>>() {
       /*
        * (non-Javadoc)
-       * 
+       *
        * @see com.datatorrent.contrib.elasticsearch. AbstractElasticSearchOutputOperator #processTuple(java.lang.Object)
        */
       @Override
@@ -128,7 +128,7 @@ public class ElasticSearchOperatorTest
 
   /**
    * Read data written to elastic search
-   * 
+   *
    * @param tupleIDs
    * @param testStartTime
    */
@@ -137,7 +137,7 @@ public class ElasticSearchOperatorTest
     ElasticSearchMapInputOperator<Map<String, Object>> operator = new ElasticSearchMapInputOperator<Map<String, Object>>() {
       /**
        * Set SearchRequestBuilder parameters specific to current window.
-       * 
+       *
        * @see com.datatorrent.contrib.elasticsearch.ElasticSearchMapInputOperator#getSearchRequestBuilder()
        */
       @Override

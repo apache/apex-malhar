@@ -173,7 +173,7 @@ public class AbstractSingleFileOutputOperatorTest
   {
     writer.setOutputFileName(SINGLE_FILE);
     writer.setPartitionedFileNameformat("");
-    
+
     File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
 

@@ -90,10 +90,10 @@ public class FSRecordReaderTest
     LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(true);
     lc.runAsync();
-    
+
     Set<String> expectedRecords = new HashSet<String>(Arrays.asList(FILE_1_DATA.split("\n")));
     expectedRecords.addAll(Arrays.asList(FILE_2_DATA.split("\n")));
-    
+
     while (DelimitedValidator.records.size() != expectedRecords.size()) {
       LOG.debug("Waiting for app to finish");
       Thread.sleep(1000);

@@ -53,7 +53,7 @@ public class ManagedStateBenchmarkApp implements StreamingApplication
 
   protected StoreOperator storeOperator;
   protected int timeRange = 1000 * 60; // one minute range of hot keys
-  
+
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {

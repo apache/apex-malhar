@@ -39,9 +39,9 @@ import com.google.common.collect.Maps;
 public interface FilterStreamProvider<F extends FilterOutputStream, S extends OutputStream>
 {
   public FilterStreamContext<F> getFilterStreamContext(S outputStream) throws IOException;
-  
+
   public void reclaimFilterStreamContext(FilterStreamContext<F> filterStreamContext);
-  
+
   abstract class SimpleFilterReusableStreamProvider<F extends FilterOutputStream, S extends OutputStream> implements FilterStreamProvider<F, S>
   {
 
@@ -67,7 +67,7 @@ public interface FilterStreamProvider<F extends FilterOutputStream, S extends Ou
         reusableContexts.put(outputStream, filterStreamContext);
       }
     }
-    
+
     protected abstract FilterStreamContext<F> createFilterStreamContext(OutputStream outputStream) throws IOException;
   }
 
@@ -78,7 +78,7 @@ public interface FilterStreamProvider<F extends FilterOutputStream, S extends Ou
   public static class FilterChainStreamProvider<F extends FilterOutputStream, S extends OutputStream> implements FilterStreamProvider<F, S>
   {
     private List<FilterStreamProvider<?,?>> streamProviders = new ArrayList<FilterStreamProvider<?, ?>>();
-    
+
     public Collection<FilterStreamProvider<?,?>> getStreamProviders()
     {
       return Collections.unmodifiableList(streamProviders);
@@ -88,7 +88,7 @@ public interface FilterStreamProvider<F extends FilterOutputStream, S extends Ou
     {
       streamProviders.add(streamProvider);
     }
-    
+
     @Override
     public FilterStreamContext<F> getFilterStreamContext(S outputStream) throws IOException
     {
@@ -120,7 +120,7 @@ public interface FilterStreamProvider<F extends FilterOutputStream, S extends Ou
     private class FilterChainStreamContext extends FilterStreamContext.BaseFilterStreamContext
         implements FilterStreamContext
     {
-      
+
       private List<FilterStreamContext<?>> streamContexts = new ArrayList<FilterStreamContext<?>>();
 
       public void pushStreamContext(FilterStreamContext<?> streamContext)
@@ -128,7 +128,7 @@ public interface FilterStreamProvider<F extends FilterOutputStream, S extends Ou
         streamContexts.add(0, streamContext);
         filterStream = streamContext.getFilterStream();
       }
-      
+
       public Collection<FilterStreamContext<?>> getStreamContexts()
       {
         return Collections.unmodifiableCollection(streamContexts);

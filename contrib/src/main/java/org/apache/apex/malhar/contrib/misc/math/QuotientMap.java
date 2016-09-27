@@ -31,7 +31,7 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 
 /**
- * Add all the values for each key on "numerator" and "denominator" and emits quotient at end of window for all keys in the denominator. 
+ * Add all the values for each key on "numerator" and "denominator" and emits quotient at end of window for all keys in the denominator.
  * <p>
  * <br>
  * Application can set multiplication value for quotient(default = 1). <br>

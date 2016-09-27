@@ -96,7 +96,7 @@ public class ZeroMQInputOperatorTest
               Thread.sleep(10);
             } else {
               break;
-            }			            
+            }
           }
         }
         catch (InterruptedException ex) {

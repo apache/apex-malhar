@@ -95,14 +95,14 @@ public class TestTFileSplit extends TestCase {
     reader.close();
   }
 
-  /* Similar to readFile(), tests the scanner created 
+  /* Similar to readFile(), tests the scanner created
    * by record numbers rather than the offsets.
    */
   void readRowSplits(int numSplits) throws IOException {
 
     Reader reader =
       new Reader(fs.open(path), fs.getFileStatus(path).getLen(), conf);
-    
+
     long totalRecords = reader.getEntryCount();
     for (int i=0; i<numSplits; i++) {
       long startRec = i*totalRecords/numSplits;
@@ -130,11 +130,11 @@ public class TestTFileSplit extends TestCase {
     Scanner scanner = reader.createScannerByRecordNum(totalRecords, -1);
     Assert.assertTrue(scanner.atEnd());
   }
-  
+
   static String composeSortedKey(String prefix, int total, int value) {
     return String.format("%s%010d", prefix, value);
   }
-  
+
   void checkRecNums() throws IOException {
     long fileLen = fs.getFileStatus(path).getLen();
     Reader reader = new Reader(fs.open(path), fileLen, conf);
@@ -177,11 +177,11 @@ public class TestTFileSplit extends TestCase {
           .getRecordNumByLocation(reader.getLocationByRecordNum(x)));
     }
   }
-  
+
   public void testSplit() throws IOException {
     System.out.println("testSplit");
     createFile(100000, Compression.Algorithm.NONE.getName());
-    checkRecNums();   
+    checkRecNums();
     readFile();
     readRowSplits(10);
     fs.delete(path, true);

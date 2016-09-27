@@ -210,7 +210,7 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
    * written to. Example: If hive partitions are date='2014-12-12',country='USA'
    * then this method returns {"2014-12-12","USA"} The implementation is left to
    * the user.
-   * 
+   *
    * @param tuple
    *          A received tuple to be written to a hive partition.
    * @return ArrayList containing hive partition values.

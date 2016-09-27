@@ -37,19 +37,19 @@ public class SumTest
     SumLong sl = new SumLong();
     SumFloat sf = new SumFloat();
     SumDouble sd = new SumDouble();
-    
+
     Assert.assertEquals(new MutableInt(10), si.accumulate(si.defaultAccumulatedValue(), 10));
     Assert.assertEquals(new MutableInt(11), si.accumulate(new MutableInt(1), 10));
     Assert.assertEquals(new MutableInt(22), si.merge(new MutableInt(1), new MutableInt(21)));
-    
+
     Assert.assertEquals(new MutableLong(10L), sl.accumulate(sl.defaultAccumulatedValue(), 10L));
     Assert.assertEquals(new MutableLong(22L), sl.accumulate(new MutableLong(2L), 20L));
     Assert.assertEquals(new MutableLong(41L), sl.merge(new MutableLong(32L), new MutableLong(9L)));
-    
+
     Assert.assertEquals(new MutableFloat(9.0F), sf.accumulate(sf.defaultAccumulatedValue(), 9.0F));
     Assert.assertEquals(new MutableFloat(22.5F), sf.accumulate(new MutableFloat(2.5F), 20F));
     Assert.assertEquals(new MutableFloat(41.0F), sf.merge(new MutableFloat(33.1F), new MutableFloat(7.9F)));
-    
+
     Assert.assertEquals(new MutableDouble(9.0), sd.accumulate(sd.defaultAccumulatedValue(), 9.0));
     Assert.assertEquals(new MutableDouble(22.5), sd.accumulate(new MutableDouble(2.5), 20.0));
     Assert.assertEquals(new MutableDouble(41.0), sd.merge(new MutableDouble(33.1), new MutableDouble(7.9)));

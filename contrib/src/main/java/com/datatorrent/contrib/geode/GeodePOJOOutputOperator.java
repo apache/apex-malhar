@@ -30,7 +30,7 @@ import com.datatorrent.lib.util.TableInfo;
  * @displayName Geode Output Operator
  * @category Output
  * @tags pojo, geode
- * 
+ *
  *
  * @since 3.4.0
  */

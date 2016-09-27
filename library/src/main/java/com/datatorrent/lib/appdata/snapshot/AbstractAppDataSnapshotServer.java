@@ -107,9 +107,9 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
    * The queryExecutor execute the query and return the result.
    */
   protected QueryExecutor<Query, Void, MutableLong, Result> queryExecutor;
-   
+
   private Set<String> tags;
-  
+
   @AppData.QueryPort
   @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<String> query = new DefaultInputPort<String>()
@@ -120,7 +120,7 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
       processQuery(queryJSON);
     }
   };
-  
+
   /**
    * process the query send.
    * provide this method to give sub class a chance to override.
@@ -169,7 +169,7 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
       currentData.add(gpoRow);
     }
   }
-  
+
   /**
    * Create operator.
    */
@@ -199,11 +199,11 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
   public void setup(OperatorContext context)
   {
     setupSchema();
-    
+
     schemaRegistry = new SchemaRegistrySingle(schema);
     //Setup for query processing
     setupQueryProcessor();
-    
+
     queryDeserializerFactory = new MessageDeserializerFactory(SchemaQuery.class,
                                                            DataQuerySnapshot.class);
     queryDeserializerFactory.setContext(DataQuerySnapshot.class, schemaRegistry);
@@ -228,7 +228,7 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
 
   protected void setupQueryProcessor()
   {
-    queryProcessor = QueryManagerSynchronous.newInstance(queryExecutor == null ? new SnapshotComputer() : queryExecutor, 
+    queryProcessor = QueryManagerSynchronous.newInstance(queryExecutor == null ? new SnapshotComputer() : queryExecutor,
         new AppDataWindowEndQueueManager<Query, Void>());
   }
 
@@ -378,6 +378,6 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
   {
     this.tags = tags;
   }
-  
-  
+
+
 }

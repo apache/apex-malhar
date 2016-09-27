@@ -118,7 +118,7 @@ public class FileMerger extends FileStitcher<OutputFileMetadata>
     OutputStream outputStream = outputFS.create(partFilePath);
     return outputStream;
   }
-  
+
   /**
    * Flag to control if existing file with same name should be overwritten
    * @return Flag to control if existing file with same name should be overwritten

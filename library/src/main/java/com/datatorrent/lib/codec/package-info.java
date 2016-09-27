@@ -17,7 +17,7 @@
  * under the License.
  */
 /**
- *  Shared codec implementations. 
+ *  Shared codec implementations.
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 package com.datatorrent.lib.codec;

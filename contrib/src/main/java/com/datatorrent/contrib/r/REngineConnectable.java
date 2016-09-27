@@ -30,7 +30,7 @@ import com.datatorrent.lib.db.Connectable;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
- * @since 2.1.0 
+ * @since 2.1.0
  */
 public class REngineConnectable implements Connectable
 {
@@ -57,7 +57,7 @@ public class REngineConnectable implements Connectable
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.datatorrent.lib.db.Connectable#connect()
    */
   @Override
@@ -82,7 +82,7 @@ public class REngineConnectable implements Connectable
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.datatorrent.lib.db.Connectable#disconnect()
    */
   @Override
@@ -95,7 +95,7 @@ public class REngineConnectable implements Connectable
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.datatorrent.lib.db.Connectable#isConnected()
    */
   @Override

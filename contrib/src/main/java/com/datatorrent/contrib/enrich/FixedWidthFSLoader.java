@@ -94,7 +94,7 @@ public class FixedWidthFSLoader extends FSLoader
 
   /**
    * Set to true if file has header
-   * 
+   *
    * @param hasHeader
    *          Indicates whether first line of the file is a header. Default is
    *          false
@@ -106,7 +106,7 @@ public class FixedWidthFSLoader extends FSLoader
 
   /**
    * Gets the field description
-   * 
+   *
    * @return fieldDescription. String specifying information related to fields
    *         in fixed-width file.
    */
@@ -117,7 +117,7 @@ public class FixedWidthFSLoader extends FSLoader
 
   /**
    * Sets fieldDescription
-   * 
+   *
    * @param fieldDescription
    *          a String specifying information related to fields in fixed-width
    *          file. Format is [NAME]:[FIELD_TYPE]:[WIDTH]:[date format if
@@ -135,7 +135,7 @@ public class FixedWidthFSLoader extends FSLoader
   /**
    * Gets the character used for padding in the fixed-width file.Default is
    * white space (' ')
-   * 
+   *
    * @return Padding character. Default is white space.
    */
   public char getPadding()
@@ -146,7 +146,7 @@ public class FixedWidthFSLoader extends FSLoader
   /**
    * Sets the character used for padding in fixed-width file.Default is white
    * space (' ')
-   * 
+   *
    * @param padding
    *          Padding character. Default is white space.
    */

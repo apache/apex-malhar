@@ -62,7 +62,7 @@ public interface KeyValueStore extends Connectable
 
   /**
    * Removes the key and the value given the key
-   * 
+   *
    * @param key
    */
   public void remove(Object key);

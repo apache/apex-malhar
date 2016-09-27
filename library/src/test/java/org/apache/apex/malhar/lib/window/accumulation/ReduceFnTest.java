@@ -26,7 +26,7 @@ import org.junit.Test;
  */
 public class ReduceFnTest
 {
-  
+
   @Test
   public void ReduceFnTest()
   {
@@ -38,10 +38,10 @@ public class ReduceFnTest
         return input1 + ", " + input2;
       }
     };
-    
+
     String[] ss = new String[]{"b", "c", "d", "e"};
     String base = "a";
-    
+
     for (String s : ss) {
       base = concat.accumulate(base, s);
     }

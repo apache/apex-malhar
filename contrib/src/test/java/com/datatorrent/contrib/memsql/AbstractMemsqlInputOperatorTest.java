@@ -51,7 +51,7 @@ public class AbstractMemsqlInputOperatorTest
   public static final int NUM_WINDOWS = 10;
   public static final int DATABASE_SIZE = NUM_WINDOWS * BLAST_SIZE;
   public static final int OPERATOR_ID = 0;
-  
+
   public static void populateDatabase(MemsqlStore memsqlStore)
   {
     memsqlStore.connect();

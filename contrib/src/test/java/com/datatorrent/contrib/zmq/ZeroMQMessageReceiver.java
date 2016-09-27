@@ -56,9 +56,9 @@ final class ZeroMQMessageReceiver implements Runnable
   @Override
   public void run()
   {
-    logger.debug("receiver running");      
+    logger.debug("receiver running");
     while (!Thread.currentThread().isInterrupted() && !shutDown) {
-    	//logger.debug("receiver running in loop"); 
+    	//logger.debug("receiver running in loop");
       byte[] msg = subscriber.recv(ZMQ.NOBLOCK);
       // convert to HashMap and save the values for each key
       // then expect c to be 1000, b=20, a=2
@@ -68,7 +68,7 @@ final class ZeroMQMessageReceiver implements Runnable
     	  continue;
       }
       String str = new String(msg);
-      
+
       if (str.indexOf("{") == -1) {
         continue;
       }
@@ -85,7 +85,7 @@ final class ZeroMQMessageReceiver implements Runnable
   public void teardown()
   {
 	shutDown=true;
-	
+
 	syncclient.close();
     subscriber.close();
     context.term();

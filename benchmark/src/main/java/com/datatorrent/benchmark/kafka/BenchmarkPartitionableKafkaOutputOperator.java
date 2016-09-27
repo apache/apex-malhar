@@ -55,7 +55,7 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
 {
 
   private static final Logger logger = LoggerFactory.getLogger(BenchmarkPartitionableKafkaOutputOperator.class);
-  
+
   private String topic = "benchmark";
 
   @Min(1)

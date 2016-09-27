@@ -141,7 +141,7 @@ public class FileSplitterInputTest
 
   @Rule
   public TestMeta testMeta = new TestMeta();
-  
+
   private void window1TestHelper() throws InterruptedException
   {
     testMeta.fileSplitterInput.beginWindow(1);
@@ -157,7 +157,7 @@ public class FileSplitterInputTest
       Assert.assertTrue("path: " + metadata.getFilePath(), testMeta.filePaths.contains(metadata.getFilePath()));
       Assert.assertNotNull("name: ", metadata.getFileName());
     }
-    
+
     testMeta.fileMetadataSink.collectedTuples.clear();
   }
 
@@ -256,7 +256,7 @@ public class FileSplitterInputTest
 
     testMeta.fileSplitterInput = KryoCloneUtils.cloneObject(testMeta.fileSplitterInput);
     testMeta.resetSinks();
-    
+
     testMeta.fileSplitterInput.setup(testMeta.context);
     testMeta.fileSplitterInput.beginWindow(1);
     Assert.assertEquals("Blocks", 12, testMeta.blockMetadataSink.collectedTuples.size());
@@ -325,22 +325,22 @@ public class FileSplitterInputTest
     Assert.assertEquals("window 2: blocks", 1, testMeta.blockMetadataSink.collectedTuples.size());
     testMeta.fileSplitterInput.teardown();
   }
-  
+
   private void blocksTestHelper() throws InterruptedException
   {
     testMeta.fileSplitterInput.beginWindow(1);
     testMeta.scanner.semaphore.acquire();
     testMeta.fileSplitterInput.emitTuples();
     testMeta.fileSplitterInput.endWindow();
-    
+
     Assert.assertEquals("Blocks", 10, testMeta.blockMetadataSink.collectedTuples.size());
-    
+
     for (int window = 2; window < 8; window++) {
       testMeta.fileSplitterInput.beginWindow(window);
       testMeta.fileSplitterInput.emitTuples();
       testMeta.fileSplitterInput.endWindow();
     }
-    
+
     int noOfBlocks = 0;
     for (int i = 0; i < 12; i++) {
       File testFile = new File(testMeta.dataDirectory, "file" + i + ".txt");
@@ -384,7 +384,7 @@ public class FileSplitterInputTest
   {
     FSWindowDataManager fsWindowDataManager = new FSWindowDataManager();
     testMeta.updateConfig(fsWindowDataManager, 500, 2L, 10);
-    
+
     testMeta.fileSplitterInput.setup(testMeta.context);
     recoveryTestHelper();
     testMeta.fileSplitterInput.teardown();
@@ -398,7 +398,7 @@ public class FileSplitterInputTest
     testMeta.fileSplitterInput.setup(testMeta.context);
 
     recoveryTestHelper();
-    
+
     Thread.sleep(1000);
     HashSet<String> lines = Sets.newHashSet();
     for (int line = 2; line < 4; line++) {
@@ -535,7 +535,7 @@ public class FileSplitterInputTest
   {
     FSWindowDataManager fsWindowDataManager = new FSWindowDataManager();
     testMeta.updateConfig(fsWindowDataManager, 500L, 2L, 2);
-    
+
     testMeta.fileSplitterInput.setup(testMeta.context);
     testMeta.fileSplitterInput.beginWindow(1);
 
@@ -613,7 +613,7 @@ public class FileSplitterInputTest
 
     Assert.assertEquals("window 2: files", 0, testMeta.fileMetadataSink.collectedTuples.size());
     Assert.assertEquals("window 2: blocks", 0, testMeta.blockMetadataSink.collectedTuples.size());
-    
+
     testMeta.fileSplitterInput.teardown();
   }
 
@@ -694,6 +694,6 @@ public class FileSplitterInputTest
       super.scanIterationComplete();
     }
   }
-  
+
   private static final Logger LOG = LoggerFactory.getLogger(FileSplitterInputTest.class);
 }

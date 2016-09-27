@@ -66,7 +66,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
   private String partition = null;
 
   private String testName = "";
-  
+
   public static String APPLICATION_PATH = baseDir + File.separator + StramLocalCluster.class.getName() + File.separator;
 
   public class KafkaTestInfo extends TestWatcher
@@ -86,11 +86,11 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
       this.desc = description;
     }
   }
-  
+
   @Rule
   public final KafkaTestInfo testInfo = new KafkaTestInfo();
-  
-  
+
+
   @Parameterized.Parameters(name = "multi-cluster: {0}, multi-partition: {1}, partition: {2}")
   public static Collection<Object[]> testScenario()
   {
@@ -116,7 +116,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     tupleCollection.clear();
     //reset count for next new test case
     k = 0;
-    
+
     createTopic(0, testName);
     if (hasMultiCluster) {
       createTopic(1, testName);
@@ -146,14 +146,14 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
   private static final int failureTrigger = 3 * scale;
   private static final int tuplesPerWindow = 5 * scale;
   private static final int waitTime = 60000 + 300 * scale;
-  
-  //This latch was used to count the END_TUPLE, but the order of tuple can't be guaranteed, 
+
+  //This latch was used to count the END_TUPLE, but the order of tuple can't be guaranteed,
   //so, count valid tuple instead.
   private static CountDownLatch latch;
   private static boolean hasFailure = false;
   private static int k = 0;
   private static Thread monitorThread;
-  
+
   /**
    * Test Operator to collect tuples from KafkaSingleInputStringOperator.
    *
@@ -179,7 +179,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     transient List<String> windowTupleCollector = Lists.newArrayList();
     private transient Map<String, List<String>> tupleCollectedInWindow = new HashMap<>();
     private int endTuples = 0;
-    
+
     @Override
     public void setup(Context.OperatorContext context)
     {
@@ -196,7 +196,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
       endTuples = 0;
     }
 
-    
+
     public void processTuple(byte[] bt)
     {
       String tuple = new String(bt);
@@ -208,10 +208,10 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
       if (tuple.startsWith(KafkaOperatorTestBase.END_TUPLE)) {
         endTuples++;
       }
-      
+
       windowTupleCollector.add(tuple);
     }
-    
+
     @Override
     public void endWindow()
     {
@@ -231,7 +231,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
       //discard the tuples of this window if except happened
       int tupleSize = windowTupleCollector.size();
       tupleCollection.addAll(windowTupleCollector);
-      
+
       int countDownTupleSize = countDownAll ? tupleSize : endTuples;
 
       if (latch != null) {
@@ -303,8 +303,8 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     // each broker should get a END_TUPLE message
     latch = new CountDownLatch(countDownAll ? totalCount + totalBrokers : totalBrokers);
 
-    logger.info("Test Case: name: {}; totalBrokers: {}; hasFailure: {}; hasMultiCluster: {}; hasMultiPartition: {}, partition: {}", 
-        testName, totalBrokers, hasFailure, hasMultiCluster, hasMultiPartition, partition); 
+    logger.info("Test Case: name: {}; totalBrokers: {}; hasFailure: {}; hasMultiCluster: {}; hasMultiPartition: {}, partition: {}",
+        testName, totalBrokers, hasFailure, hasMultiCluster, hasMultiPartition, partition);
 
     // Start producer
     KafkaTestProducer p = new KafkaTestProducer(testName, hasMultiPartition, hasMultiCluster);
@@ -313,7 +313,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     t.start();
 
     int expectedReceiveCount = totalCount + totalBrokers;
-    
+
     // Create DAG for testing.
     LocalMode lma = LocalMode.newInstance();
     DAG dag = lma.getDAG();
@@ -346,7 +346,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
 
-    //let the Controller to run the inside another thread. It is almost same as call Controller.runAsync(), 
+    //let the Controller to run the inside another thread. It is almost same as call Controller.runAsync(),
     //but Controller.runAsync() don't expose the thread which run it, so we don't know when the thread will be terminated.
     //create this thread and then call join() to make sure the Controller shutdown completely.
     monitorThread = new Thread((StramLocalCluster)lc, "master");
@@ -363,9 +363,9 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     } catch (Exception e) {
       logger.warn(e.getMessage());
     }
-    
+
     t.join();
-    
+
     if (!notTimeout || expectedReceiveCount != tupleCollection.size()) {
       logger.info("Number of received/expected tuples: {}/{}, testName: {}, tuples: \n{}", tupleCollection.size(),
           expectedReceiveCount, testName, tupleCollection);
@@ -373,13 +373,13 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     Assert.assertTrue("TIMEOUT. testName: " + this.testName + "; Collected data: " + tupleCollection, notTimeout);
 
     // Check results
-    Assert.assertTrue( "testName: " + testName + "; Collected tuple size: " + tupleCollection.size() + "; Expected tuple size: " + expectedReceiveCount + "; data: \n" + tupleCollection, 
+    Assert.assertTrue( "testName: " + testName + "; Collected tuple size: " + tupleCollection.size() + "; Expected tuple size: " + expectedReceiveCount + "; data: \n" + tupleCollection,
         expectedReceiveCount == tupleCollection.size());
-    
+
     logger.info("End of test case: {}", testName);
   }
 
-  
+
   private void setupHasFailureTest(KafkaSinglePortInputOperator operator, DAG dag)
   {
     operator.setHoldingBufferSize(5000);

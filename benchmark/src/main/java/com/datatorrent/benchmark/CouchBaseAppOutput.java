@@ -29,7 +29,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
  *
  * Application to benchmark the performance of couchbase output operator.
  * The number of tuples processed per second were around 20,000.
- * 
+ *
  * @since 2.0.0
  */
 @ApplicationAnnotation(name = "CouchBaseAppOutput")

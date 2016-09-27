@@ -61,7 +61,7 @@ public interface FilterStreamContext<F extends FilterOutputStream>
     }
 
   }
-  
+
   public static class SimpleFilterStreamContext<F extends FilterOutputStream> extends BaseFilterStreamContext<F>
   {
     public SimpleFilterStreamContext(F filterStream)

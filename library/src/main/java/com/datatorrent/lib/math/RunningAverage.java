@@ -24,7 +24,7 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.common.util.BaseOperator;
 
 /**
- * Calculate the running average of the input numbers and emit it at the end of the window. 
+ * Calculate the running average of the input numbers and emit it at the end of the window.
  * <p>
  * This is an end of window operator.<br>
  * <br>

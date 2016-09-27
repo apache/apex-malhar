@@ -101,7 +101,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
   protected transient Channel channel;
   protected transient TracingConsumer tracingConsumer;
   protected transient String cTag;
-  
+
   protected transient ArrayBlockingQueue<KeyValPair<Long,byte[]>> holdingBuffer;
   private WindowDataManager windowDataManager;
   protected final transient Map<Long, byte[]> currentWindowRecoveryState;
@@ -109,7 +109,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
   private transient final Set<Long> recoveredTags;
   private transient long currentWindowId;
   private transient int operatorContextId;
-  
+
   public AbstractRabbitMQInputOperator()
   {
     currentWindowRecoveryState = new HashMap<Long, byte[]>();
@@ -118,7 +118,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
     windowDataManager = new WindowDataManager.NoopWindowDataManager();
   }
 
-  
+
 /**
  * define a consumer which can asynchronously receive data,
  * and added to holdingBuffer
@@ -162,7 +162,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
         }
         return;
       }
-      
+
       // Acknowledgements are sent at the end of the window after adding to idempotency manager
       pendingAck.add(tag);
       holdingBuffer.add(new KeyValPair<Long, byte[]>(tag, body));
@@ -196,7 +196,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
   }
 
   @SuppressWarnings("unchecked")
-  private void replay(long windowId) {      
+  private void replay(long windowId) {
     Map<Long, byte[]> recoveredData;
     try {
       recoveredData = (Map<Long, byte[]>)this.windowDataManager.retrieve(windowId);
@@ -212,7 +212,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
     }
   }
 
-  
+
   @Override
   public void endWindow()
   {
@@ -221,25 +221,25 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
     KeyValPair<Long, byte[]> message;
     while ((message = holdingBuffer.poll()) != null) {
       currentWindowRecoveryState.put(message.getKey(), message.getValue());
-      emitTuple(message.getValue());      
+      emitTuple(message.getValue());
     }
-    
+
     try {
       this.windowDataManager.save(currentWindowRecoveryState, currentWindowId);
     } catch (IOException e) {
       DTThrowable.rethrow(e);
     }
-    
+
     currentWindowRecoveryState.clear();
-    
+
     for (Long deliveryTag : pendingAck) {
       try {
         channel.basicAck(deliveryTag, false);
-      } catch (IOException e) {        
+      } catch (IOException e) {
         DTThrowable.rethrow(e);
       }
     }
-    
+
     pendingAck.clear();
   }
 
@@ -391,15 +391,15 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
   {
     this.routingKey = routingKey;
   }
-  
+
   public WindowDataManager getWindowDataManager() {
     return windowDataManager;
   }
-  
+
   public void setWindowDataManager(WindowDataManager windowDataManager) {
     this.windowDataManager = windowDataManager;
   }
-  
+
 
 
 }

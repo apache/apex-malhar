@@ -25,8 +25,8 @@ import com.datatorrent.lib.util.KeyValPair;
 /**
  * This is the an implementation of a Redis input operator It takes in keys to
  * fetch and emits Values stored as Maps in Redis i.e. when value datatype in
- * Redis is HashMap 
- * 
+ * Redis is HashMap
+ *
  * @displayName Redis Input Operator for Map
  * @category Store
  * @tags input operator, key value

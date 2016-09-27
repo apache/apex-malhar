@@ -71,13 +71,13 @@ public class DeduperPartitioningTest
       dedup.setTimeExpression("eventTime.getTime()");
       dedup.setBucketSpan(60);
       dedup.setExpireBefore(600);
-      
+
       ConsoleOutputOperator console = dag.addOperator("Console", new ConsoleOutputOperator());
       dag.addStream("Generator to Dedup", gen.output, dedup.input);
       dag.addStream("Dedup to Console", dedup.unique, console.input);
       dag.setInputPortAttribute(dedup.input, Context.PortContext.TUPLE_CLASS, TestEvent.class);
       dag.setOutputPortAttribute(dedup.unique, Context.PortContext.TUPLE_CLASS, TestEvent.class);
-      dag.setAttribute(dedup, Context.OperatorContext.PARTITIONER, 
+      dag.setAttribute(dedup, Context.OperatorContext.PARTITIONER,
           new StatelessPartitioner<TimeBasedDedupOperator>(NUM_DEDUP_PARTITIONS));
     }
   }

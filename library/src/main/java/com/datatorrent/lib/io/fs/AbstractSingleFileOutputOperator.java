@@ -44,8 +44,8 @@ public abstract class AbstractSingleFileOutputOperator<INPUT> extends AbstractFi
   protected String outputFileName;
 
   /**
-   * partitionedFileName string format specifier 
-      e.g. fileName_physicalPartionId -> %s_%d 
+   * partitionedFileName string format specifier
+      e.g. fileName_physicalPartionId -> %s_%d
    */
   private String partitionedFileNameformat = "%s_%d";
 
@@ -105,17 +105,17 @@ public abstract class AbstractSingleFileOutputOperator<INPUT> extends AbstractFi
   {
     return partitionedFileNameformat;
   }
-  
+
   /**
    * @param partitionedFileNameformat
    *          string format specifier for the partitioned file name. It should have one %s and one %d.
-   *          e.g. fileName_physicalPartionId -> %s_%d 
+   *          e.g. fileName_physicalPartionId -> %s_%d
    */
   public void setPartitionedFileNameformat(String partitionedFileNameformat)
   {
     this.partitionedFileNameformat = partitionedFileNameformat;
   }
-  
+
   /**
    * @return
    * Derived name for file based on physicalPartitionId
@@ -124,5 +124,5 @@ public abstract class AbstractSingleFileOutputOperator<INPUT> extends AbstractFi
   {
     return partitionedFileName;
   }
-  
+
 }

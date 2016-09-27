@@ -38,7 +38,7 @@ public class GenericFileOutputOperatorTest extends AbstractFileOutputOperatorTes
 
   /**
    * Test file rollover in case of idle windows
-   * 
+   *
    * @throws IOException
    */
   @Test
@@ -84,7 +84,7 @@ public class GenericFileOutputOperatorTest extends AbstractFileOutputOperatorTes
 
   /**
    * Test file rollover for tuple count
-   * 
+   *
    * @throws IOException
    */
   @Test
@@ -120,7 +120,7 @@ public class GenericFileOutputOperatorTest extends AbstractFileOutputOperatorTes
       checkOutput(i, testMeta.getDir() + "/output.txt_0", expected[i], true);
     }
   }
-  
+
   public static void checkOutput(int fileCount, String baseFilePath, String expectedOutput, boolean checkTmp)
   {
     if (fileCount >= 0) {

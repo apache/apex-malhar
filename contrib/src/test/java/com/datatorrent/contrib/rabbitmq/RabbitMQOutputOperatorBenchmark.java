@@ -32,6 +32,6 @@ public class RabbitMQOutputOperatorBenchmark extends RabbitMQOutputOperatorTest
   public void testDag() throws Exception
   {
     runTest(100000);
-    logger.debug("end of test");  
+    logger.debug("end of test");
   }
 }

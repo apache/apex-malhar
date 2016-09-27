@@ -48,7 +48,7 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
     UPDATESYNC,
     UPDATEASYNC
   }
-  
+
   protected static final int numOfWindowPerStatistics = 10;
 
   //this is the store we are going to use
@@ -60,10 +60,10 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
   protected long tupleCount = 0;
   protected int windowCountPerStatistics = 0;
   protected long statisticsBeginTime = 0;
-  
+
   protected ExecMode execMode = ExecMode.INSERT;
   protected int timeRange = 1000 * 60;
-  
+
   public final transient DefaultInputPort<KeyValPair<byte[], byte[]>> input = new DefaultInputPort<KeyValPair<byte[], byte[]>>()
   {
     @Override
@@ -102,9 +102,9 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
 
   protected transient Queue<Future<Slice>> taskQueue = new LinkedList<Future<Slice>>();
   protected transient Map<Future<Slice>, KeyValPair<byte[], byte[]>> taskToPair = Maps.newHashMap();
-  
+
   /**
-   * we verify 3 type of operation 
+   * we verify 3 type of operation
    * @param tuple
    */
   protected void processTuple(KeyValPair<byte[], byte[]> tuple)
@@ -119,21 +119,21 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
         store.getSync(getTimeByKey(tuple.getKey()), new Slice(tuple.getKey()));
         insertValueToStore(tuple);
         break;
-        
+
       default: //insert
         insertValueToStore(tuple);
     }
   }
-  
+
   protected long getTimeByKey(byte[] key)
   {
     long lKey = ByteBuffer.wrap(key).getLong();
     return lKey - (lKey % timeRange);
   }
-  
+
   // give a barrier to avoid used up memory
   protected final int taskBarrier = 100000;
-  
+
   /**
    * This method first send request of get to the state manager, then handle all the task(get) which already done and update the value.
    * @param tuple
@@ -143,14 +143,14 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
     if (taskQueue.size() > taskBarrier) {
       //slow down to avoid too much task waiting.
       try {
-        
+
         logger.info("Queue Size: {}, wait time(milli-seconds): {}", taskQueue.size(), taskQueue.size() / taskBarrier);
         Thread.sleep(taskQueue.size() / taskBarrier);
       } catch (Exception e) {
         //ignore
       }
     }
-    
+
     //send request of get to the state manager and add to the taskQueue and taskToPair.
     //the reason of an extra taskQueue to make sure the tasks are ordered
     {
@@ -171,7 +171,7 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
       insertValueToStore(taskToPair.remove(task));
     }
   }
-  
+
   protected void insertValueToStore(KeyValPair<byte[], byte[]> tuple)
   {
     Slice key = new Slice(tuple.getKey());
@@ -232,7 +232,7 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
   {
     return execMode.name();
   }
-  
+
   public void setExecModeStr(String execModeStr)
   {
     //this method used for set configuration. so, use case-insensitive
@@ -252,5 +252,5 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
   {
     this.timeRange = timeRange;
   }
-  
+
 }

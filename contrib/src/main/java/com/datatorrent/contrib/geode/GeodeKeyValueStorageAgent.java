@@ -27,7 +27,7 @@ import com.datatorrent.lib.util.AbstractKeyValueStorageAgent;
 /**
  * Storage Agent implementation which uses {@link GeodeCheckpointStore} for operator
  * checkpointing
- * 
+ *
  *
  *
  * @since 3.4.0

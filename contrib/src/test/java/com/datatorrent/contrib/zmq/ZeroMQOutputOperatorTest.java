@@ -47,7 +47,7 @@ public class ZeroMQOutputOperatorTest
     final int testNum = 3;
 
     runTest(testNum);
-    
+
     logger.debug("end of test");
   }
 
@@ -60,7 +60,7 @@ public class ZeroMQOutputOperatorTest
     collector.setUrl("tcp://*:5556");
     collector.setSyncUrl("tcp://*:5557");
     collector.setSUBSCRIBERS_EXPECTED(1);
-    
+
     dag.addStream("Stream", source.outPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
 
     final LocalMode.Controller lc = lma.getController();

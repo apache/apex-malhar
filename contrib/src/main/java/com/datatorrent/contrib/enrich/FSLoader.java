@@ -117,7 +117,7 @@ public abstract class FSLoader extends ReadOnlyBackup
    * a record. Concrete implementations override this method to parse a record
    * and convert it to Map of field names and values OR simply returns null to
    * skip the records.
-   * 
+   *
    * @param line
    *          A single record from file
    * @return a map with field name and value. Null value if returned is ignored

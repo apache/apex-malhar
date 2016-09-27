@@ -66,7 +66,7 @@ import com.datatorrent.lib.util.UnifierHashMap;
 @Deprecated
 @Stateless
 public class ExceptMap<K, V extends Number> extends MatchMap<K, V>
-{       
+{
         /**
          * Output port that emits non matching number tuples.
          */

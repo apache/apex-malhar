@@ -41,11 +41,11 @@ public class LeftOuterJoinOperatorTest
     CollectorTestSink sink = new CollectorTestSink();
     oper.outport.setSink(sink);
 
-    // set column join condition  
+    // set column join condition
     Condition cond = new JoinColumnEqualCondition("a", "a");
     oper.setJoinCondition(cond);
-    
-    // add columns  
+
+    // add columns
     oper.selectTable1Column(new ColumnIndex("b", null));
     oper.selectTable2Column(new ColumnIndex("c", null));
 

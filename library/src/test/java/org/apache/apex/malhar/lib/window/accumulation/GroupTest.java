@@ -31,7 +31,7 @@ public class GroupTest
   public void GroupTest()
   {
     Group<Integer> group = new Group<>();
-    
+
     List<Integer> accu = group.defaultAccumulatedValue();
     Assert.assertEquals(0, accu.size());
     Assert.assertEquals(1, group.accumulate(accu, 10).size());

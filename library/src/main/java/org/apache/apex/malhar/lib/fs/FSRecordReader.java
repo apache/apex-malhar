@@ -32,7 +32,7 @@ import com.datatorrent.lib.io.block.ReaderContext;
  * This operator can be used for reading records/tuples from Filesystem in
  * parallel (without ordering guarantees between tuples). Records can be
  * delimited (e.g. newline) or fixed width records. Output tuples are byte[].
- * 
+ *
  * Typically, this operator will be connected to output of FileSplitterInput to
  * read records in parallel.
  *
@@ -106,7 +106,7 @@ public class FSRecordReader extends FSSliceReader
 
   /**
    * Criteria for record split
-   * 
+   *
    * @param mode
    *          Mode
    */
@@ -117,7 +117,7 @@ public class FSRecordReader extends FSSliceReader
 
   /**
    * Criteria for record split
-   * 
+   *
    * @return mode
    */
   public RECORD_READER_MODE getMode()
@@ -127,7 +127,7 @@ public class FSRecordReader extends FSSliceReader
 
   /**
    * Length for fixed width record
-   * 
+   *
    * @param recordLength
    */
   public void setRecordLength(int recordLength)
@@ -140,7 +140,7 @@ public class FSRecordReader extends FSSliceReader
 
   /**
    * Length for fixed width record
-   * 
+   *
    * @return record length
    */
   public int getRecordLength()

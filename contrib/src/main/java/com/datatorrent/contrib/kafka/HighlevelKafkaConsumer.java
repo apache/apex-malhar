@@ -123,11 +123,11 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
       Properties config = new Properties();
       config.putAll(consumerConfig);
       config.setProperty("zookeeper.connect", zookeeperMap.get(cluster).iterator().next());
-      // create consumer connector will start a daemon thread to monitor the metadata change 
-      // we want to start this thread until the operator is activated 
+      // create consumer connector will start a daemon thread to monitor the metadata change
+      // we want to start this thread until the operator is activated
       standardConsumer.put(cluster, kafka.consumer.Consumer.createJavaConsumerConnector(new ConsumerConfig(config)));
     }
-    
+
     Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
 
     if (numStream == null || numStream.size() == 0) {
@@ -232,5 +232,5 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
     // offset is not useful for high-level kafka consumer
     throw new UnsupportedOperationException("Offset request is currently not supported for high-level consumer");
   }
-  
+
 }

@@ -37,38 +37,38 @@ public class TopNByKeyTest
     TopNByKey<String, Integer> topNByKey = new TopNByKey<>();
     topNByKey.setN(3);
     Map<String, Integer> accu = topNByKey.defaultAccumulatedValue();
-  
+
     Assert.assertEquals(0, accu.size());
-    
+
     accu = topNByKey.accumulate(accu, new KeyValPair<String, Integer>("1", 1));
     accu = topNByKey.accumulate(accu, new KeyValPair<String, Integer>("3", 3));
-    
+
     List<KeyValPair<String, Integer>> result1 = new ArrayList<>();
-  
+
     result1.add(new KeyValPair<String, Integer>("3", 3));
     result1.add(new KeyValPair<String, Integer>("1", 1));
-    
+
     Assert.assertEquals(result1, topNByKey.getOutput(accu));
-    
+
     accu = topNByKey.accumulate(accu, new KeyValPair<String, Integer>("2", 2));
-  
+
     List<KeyValPair<String, Integer>> result2 = new ArrayList<>();
-  
+
     result2.add(new KeyValPair<String, Integer>("3", 3));
     result2.add(new KeyValPair<String, Integer>("2", 2));
     result2.add(new KeyValPair<String, Integer>("1", 1));
-    
+
     Assert.assertEquals(result2, topNByKey.getOutput(accu));
-    
+
     accu = topNByKey.accumulate(accu, new KeyValPair<String, Integer>("5", 5));
     accu = topNByKey.accumulate(accu, new KeyValPair<String, Integer>("4", 4));
-  
+
     List<KeyValPair<String, Integer>> result3 = new ArrayList<>();
-    
+
     result3.add(new KeyValPair<String, Integer>("5", 5));
     result3.add(new KeyValPair<String, Integer>("4", 4));
     result3.add(new KeyValPair<String, Integer>("3", 3));
-    
+
     Assert.assertEquals(result3, topNByKey.getOutput(accu));
   }
 }

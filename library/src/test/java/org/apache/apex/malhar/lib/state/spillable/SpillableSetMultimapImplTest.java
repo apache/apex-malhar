@@ -266,7 +266,7 @@ public class SpillableSetMultimapImplTest
     map.teardown();
     store.teardown();
   }
-  
+
   @Test
   public void testLoad()
   {
@@ -276,10 +276,10 @@ public class SpillableSetMultimapImplTest
     final int numOfEntry = 100000;
 
     SpillableStateStore store = testMeta.store;
-    
+
     SpillableByteArrayListMultimapImpl<String, String> multimap = new SpillableByteArrayListMultimapImpl<>(
         this.testMeta.store, ID1, 0L, new SerdeStringSlice(), new SerdeStringSlice());
-    
+
     Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_PATH, testMeta.applicationPath);
     Context.OperatorContext context =

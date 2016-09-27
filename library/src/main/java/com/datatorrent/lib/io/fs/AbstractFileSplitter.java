@@ -389,7 +389,7 @@ public abstract class AbstractFileSplitter extends BaseOperator
       this.filePath = filePath;
       discoverTime = System.currentTimeMillis();
     }
-    
+
     protected FileMetadata(FileMetadata fileMetadata)
     {
       this();

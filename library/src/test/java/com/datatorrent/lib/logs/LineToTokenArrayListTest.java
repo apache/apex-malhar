@@ -29,10 +29,10 @@ import org.junit.Test;
 import com.datatorrent.lib.testbench.ArrayListTestSink;
 
 /**
- * 
+ *
  * Functional tests for {@link com.datatorrent.lib.logs.LineToTokenArrayList}
  * <p>
- * 
+ *
  */
 public class LineToTokenArrayListTest
 {

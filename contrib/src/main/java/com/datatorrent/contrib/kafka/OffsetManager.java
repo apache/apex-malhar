@@ -33,11 +33,11 @@ public interface OffsetManager
 //
 
   /**
-   * 
+   *
    * Load initial offsets for all kafka partition
    * <br>
    * The method is called at the first attempt of creating partitions and the return value is used as initial offset for simple consumer
-   * 
+   *
    * @return Map of Kafka KafkaPartition as key and long offset as value
    */
   public Map<KafkaPartition, Long> loadInitialOffsets();

@@ -56,7 +56,7 @@ import com.datatorrent.lib.util.PojoUtils;
  * - truePort emits POJOs meeting the given condition
  * - falsePort emits POJOs not meeting the given condition
  * - error port emits any error situation while evaluating expression
- * 
+ *
  *
  * @since 3.5.0
  */
@@ -234,6 +234,6 @@ public class FilterOperator extends BaseOperator implements Operator.ActivationL
   {
     return expressionFunctions;
   }
-  
+
   private static final Logger logger = LoggerFactory.getLogger(FilterOperator.class);
 }

@@ -54,7 +54,7 @@ public class HBasePOJOInputOperatorTest
     HBASEINPUT,
     OUTPUT
   };
-  
+
   public static class MyGenerator extends TupleGenerateCacheOperator<TestPOJO>
   {
     public MyGenerator()
@@ -84,7 +84,7 @@ public class HBasePOJOInputOperatorTest
   private HBaseStore store;
   private HBasePOJOPutOperator hbaseOutputOperator;
   private TestHBasePOJOInputOperator hbaseInputOperator;
-  
+
   @Before
   public void prepare() throws Exception
   {
@@ -93,13 +93,13 @@ public class HBasePOJOInputOperatorTest
     setupOperators();
     HBaseUtil.createTable( store.getConfiguration(), store.getTableName());
   }
-  
+
   @After
   public void cleanup() throws Exception
   {
     HBaseUtil.deleteTable( store.getConfiguration(), store.getTableName());
   }
-  
+
 
   @Test
   public void test() throws Exception
@@ -119,20 +119,20 @@ public class HBasePOJOInputOperatorTest
     // Create ActiveMQStringSinglePortOutputOperator
     MyGenerator generator = dag.addOperator( OPERATOR.GENERATOR.name(), MyGenerator.class);
     generator.setTupleNum( TUPLE_NUM );
-    
+
     hbaseOutputOperator = dag.addOperator( OPERATOR.HBASEOUTPUT.name(), hbaseOutputOperator );
 
     hbaseInputOperator = dag.addOperator(OPERATOR.HBASEINPUT.name(), hbaseInputOperator);
     dag.setOutputPortAttribute(hbaseInputOperator.outputPort, Context.PortContext.TUPLE_CLASS, TestPOJO.class);
-    
-    
+
+
     TupleCacheOutputOperator output = dag.addOperator(OPERATOR.OUTPUT.name(), TupleCacheOutputOperator.class);
-    
+
     // Connect ports
     dag.addStream("queue1", generator.outputPort, hbaseOutputOperator.input ).setLocality(DAG.Locality.NODE_LOCAL);
     dag.addStream("queue2", hbaseInputOperator.outputPort, output.inputPort ).setLocality(DAG.Locality.NODE_LOCAL);
-    
-    
+
+
     Configuration conf = new Configuration(false);
     lma.prepareDAG(app, conf);
 
@@ -158,10 +158,10 @@ public class HBasePOJOInputOperatorTest
         throw new RuntimeException("Testcase taking too long");
       }
     }
-    
+
     lc.shutdown();
 
-    
+
     validate( generator.getTuples(), output.getReceivedTuples() );
   }
 
@@ -173,11 +173,11 @@ public class HBasePOJOInputOperatorTest
     actual.removeAll(expected);
     Assert.assertTrue( "content not same.", actual.isEmpty() );
   }
-  
+
   protected void setupOperators()
   {
     TableInfo<HBaseFieldInfo> tableInfo = new TableInfo<HBaseFieldInfo>();
-    
+
     tableInfo.setRowOrIdExpression("row");
 
     List<HBaseFieldInfo> fieldsInfo = new ArrayList<HBaseFieldInfo>();
@@ -186,10 +186,10 @@ public class HBasePOJOInputOperatorTest
     fieldsInfo.add( new HBaseFieldInfo( "address", "address", SupportType.STRING, "f1") );
 
     tableInfo.setFieldsInfo(fieldsInfo);
-    
+
     hbaseInputOperator.setTableInfo(tableInfo);
     hbaseOutputOperator.setTableInfo(tableInfo);
-    
+
     store = new HBaseStore();
     store.setTableName("test");
     store.setZookeeperQuorum("localhost");
@@ -197,7 +197,7 @@ public class HBasePOJOInputOperatorTest
 
     hbaseInputOperator.setStore(store);
     hbaseOutputOperator.setStore(store);
-    
+
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
         OPERATOR_ID, new AttributeMap.DefaultAttributeMap());
     hbaseInputOperator.setup(context);

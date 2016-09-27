@@ -51,14 +51,14 @@ import com.datatorrent.lib.db.KeyValueStore;
  *  that provides reliable asynchronous event notifications and guaranteed message delivery.
  * Geode is a data management platform that provides real-time
  * , consistent access to data-intensive applications.
- * 
+ *
  *
  * @since 3.4.0
  */
 public class GeodeStore implements KeyValueStore, Serializable
 {
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = -5076452548893319967L;
   private static final Logger logger = LoggerFactory.getLogger(GeodeStore.class);
@@ -198,7 +198,7 @@ public class GeodeStore implements KeyValueStore, Serializable
     try {
       return (getRegion().get(key));
     } catch (IOException ex) {
-      throw new RuntimeException("Exception while getting the object", ex);      
+      throw new RuntimeException("Exception while getting the object", ex);
 
     }
 

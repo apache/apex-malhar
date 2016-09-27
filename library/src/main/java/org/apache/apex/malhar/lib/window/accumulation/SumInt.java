@@ -33,27 +33,27 @@ public class SumInt implements Accumulation<Integer, MutableInt, Integer>
   {
     return new MutableInt(0);
   }
-  
+
   @Override
   public MutableInt accumulate(MutableInt accumulatedValue, Integer input)
   {
     accumulatedValue.add(input);
     return accumulatedValue;
   }
-  
+
   @Override
   public MutableInt merge(MutableInt accumulatedValue1, MutableInt accumulatedValue2)
   {
     accumulatedValue1.add(accumulatedValue2);
     return accumulatedValue1;
   }
-  
+
   @Override
   public Integer getOutput(MutableInt accumulatedValue)
   {
     return accumulatedValue.intValue();
   }
-  
+
   @Override
   public Integer getRetraction(Integer value)
   {

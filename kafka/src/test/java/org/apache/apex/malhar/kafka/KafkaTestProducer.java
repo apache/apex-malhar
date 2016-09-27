@@ -106,7 +106,7 @@ public class KafkaTestProducer implements Runnable
   }
 
   private transient List<Future<RecordMetadata>> sendTasks = Lists.newArrayList();
-  
+
   private void generateMessages()
   {
     // Create dummy message
@@ -140,12 +140,12 @@ public class KafkaTestProducer implements Runnable
         sendTasks.add(producer.send(new ProducerRecord<>(topic, "", msg)));
       }
     }
-    
+
     producer.flush();
     if (producer1!=null) {
       producer1.flush();
     }
-    
+
     try {
       for (Future<RecordMetadata> task : sendTasks) {
         task.get(30, TimeUnit.SECONDS);
@@ -153,7 +153,7 @@ public class KafkaTestProducer implements Runnable
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    
+
     close();
   }
 

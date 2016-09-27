@@ -30,7 +30,7 @@ public class CalculatorTest
 {
   @Test
   public void testSomeMethod() throws Exception
-  { 
+  {
     LocalMode lma = LocalMode.newInstance();
     Configuration conf = new Configuration(false);
     conf.addResource("dt-site-pilibrary.xml");

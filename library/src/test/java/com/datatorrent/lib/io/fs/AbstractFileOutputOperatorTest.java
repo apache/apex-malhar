@@ -1422,7 +1422,7 @@ public class AbstractFileOutputOperatorTest
 
     Assert.assertEquals("Max length validation not thrown with -1 max length", true, error);
   }
-  
+
   @Test
   public void testPeriodicRotation()
   {
@@ -1439,7 +1439,7 @@ public class AbstractFileOutputOperatorTest
       for (int j = 0; j < i; ++j) {
         writer.input.put(2 * j + 1);
       }
-      writer.endWindow();      
+      writer.endWindow();
     }
     writer.committed(29);
     Set<String> fileNames = new TreeSet<String>();
@@ -1543,7 +1543,7 @@ public class AbstractFileOutputOperatorTest
     // http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4691425
     List<Long> evenOffsets = new ArrayList<Long>();
     List<Long> oddOffsets = new ArrayList<Long>();
-    
+
     writer.setFilePath(testMeta.getDir());
     writer.setAlwaysWriteToTmp(false);
     writer.setup(testMeta.testOperatorContext);
@@ -1633,7 +1633,7 @@ public class AbstractFileOutputOperatorTest
         throw new RuntimeException(e);
       }
     }
-    
+
     int numWindows = 0;
     try {
       fis = new FileInputStream(file);
@@ -1651,7 +1651,7 @@ public class AbstractFileOutputOperatorTest
           throw new RuntimeException(e);
         }
       }
-      
+
       long startOffset = 0;
       for (long offset : offsets) {
         // Skip initial case in case file is not yet created
@@ -1792,8 +1792,8 @@ public class AbstractFileOutputOperatorTest
     {
       counterStream = new CounterFilterOutputStream(outputStream);
     }
-    
-    public boolean isDoInit() 
+
+    public boolean isDoInit()
     {
       return (counterStream == null);
     }
@@ -1809,7 +1809,7 @@ public class AbstractFileOutputOperatorTest
     {
 
     }
-    
+
     public long getCounter()
     {
       if (isDoInit()) {
@@ -1817,10 +1817,10 @@ public class AbstractFileOutputOperatorTest
       } else {
         return counterStream.getCounter();
       }
-      
+
     }
   }
-  
+
   private static class CounterFilterOutputStream extends FilterOutputStream
   {
     long counter;
@@ -1830,7 +1830,7 @@ public class AbstractFileOutputOperatorTest
     {
       super(out);
     }
-    
+
     @Override
     public void write(int b) throws IOException
     {
@@ -1869,5 +1869,5 @@ public class AbstractFileOutputOperatorTest
       return counter;
     }
   }
-  
+
 }

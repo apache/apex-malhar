@@ -94,7 +94,7 @@ public abstract class AbstractJdbcPOJOOutputOperator extends AbstractJdbcTransac
     super();
     columnFieldGetters = Lists.newArrayList();
   }
-  
+
   protected static class ActiveFieldInfo
   {
     final FieldInfo fieldInfo;

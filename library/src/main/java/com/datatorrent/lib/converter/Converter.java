@@ -24,7 +24,7 @@ import org.apache.hadoop.classification.InterfaceStability;
  * Operators that are converting tuples from one format to another must
  * implement this interface. Eg. Parsers or formatters , that parse data of
  * certain format and convert them to another format.
- * 
+ *
  * @param <INPUT>
  * @param <OUTPUT>
  * @since 3.2.0
@@ -35,7 +35,7 @@ public interface Converter<INPUT, OUTPUT>
   /**
    * Provide the implementation for converting tuples from one format to the
    * other
-   * 
+   *
    * @param tuple tuple of certain format
    * @return OUTPUT tuple of converted format
    */

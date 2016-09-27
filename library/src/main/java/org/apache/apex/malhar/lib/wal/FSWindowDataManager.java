@@ -134,7 +134,7 @@ public class FSWindowDataManager implements WindowDataManager
    * Used by {@link IncrementalCheckpointManager}
    */
   private boolean relyOnCheckpoints;
-  
+
   private transient long largestCompletedWindow = Stateless.WINDOW_ID;
 
   private final FSWindowReplayWAL wal = new FSWindowReplayWAL();
@@ -303,7 +303,7 @@ public class FSWindowDataManager implements WindowDataManager
 
         long lastWindow = Stateless.WINDOW_ID;
         Slice slice = readNext(reader);
-  
+
         while (slice != null) {
           boolean skipComplete = skipNext(reader); //skip the artifact because we need just the largest window id.
           if (!skipComplete) {
@@ -311,7 +311,7 @@ public class FSWindowDataManager implements WindowDataManager
             break;
           }
           long offset = reader.getCurrentPointer().getOffset();
-    
+
           long window = Longs.fromByteArray(slice.toByteArray());
           if (ceilingWindow != null && window > ceilingWindow) {
             break;
@@ -393,7 +393,7 @@ public class FSWindowDataManager implements WindowDataManager
       }
     }
   }
-  
+
   /**
    * Save writes 2 entries to the wal: <br/>
    * <ol>
@@ -481,7 +481,7 @@ public class FSWindowDataManager implements WindowDataManager
 
         wal.windowWalParts.put(currentWindow, reader.getCurrentPointer().getPartNum());
         wal.retrievedWindow = readNext(reader); //null or next window
-        
+
         return fromSlice(data);
       } else if (windowId < currentWindow) {
         //no artifact saved corresponding to that window and artifact is not read.
@@ -500,7 +500,7 @@ public class FSWindowDataManager implements WindowDataManager
     }
     return null;
   }
-  
+
   /**
    * Deletes artifacts for all windows less than equal to committed window id.<p/>
    *

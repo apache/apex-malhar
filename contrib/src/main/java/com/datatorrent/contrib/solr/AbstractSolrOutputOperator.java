@@ -84,7 +84,7 @@ public abstract class AbstractSolrOutputOperator<T, S extends Connectable> exten
 
   /**
    * Converts the object into Solr document format
-   * 
+   *
    * @param object to be stored to Solr Server
    * @return
    */

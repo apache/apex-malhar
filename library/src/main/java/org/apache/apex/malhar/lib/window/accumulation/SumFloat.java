@@ -33,27 +33,27 @@ public class SumFloat implements Accumulation<Float, MutableFloat, Float>
   {
     return new MutableFloat(0.);
   }
-  
+
   @Override
   public MutableFloat accumulate(MutableFloat accumulatedValue, Float input)
   {
     accumulatedValue.add(input);
     return accumulatedValue;
   }
-  
+
   @Override
   public MutableFloat merge(MutableFloat accumulatedValue1, MutableFloat accumulatedValue2)
   {
     accumulatedValue1.add(accumulatedValue2);
     return accumulatedValue1;
   }
-  
+
   @Override
   public Float getOutput(MutableFloat accumulatedValue)
   {
     return accumulatedValue.floatValue();
   }
-  
+
   @Override
   public Float getRetraction(Float value)
   {

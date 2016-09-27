@@ -28,7 +28,7 @@ import org.junit.Test;
 import com.datatorrent.lib.testbench.HashTestSink;
 
 /**
- * 
+ *
  * Functional tests for
  * {@link com.datatorrent.lib.logs.FilteredLineToTokenHashMap}
  */

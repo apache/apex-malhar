@@ -61,7 +61,7 @@ import com.datatorrent.lib.util.PojoUtils;
  * <b>err</b>:tuples that could not be parsed are emitted on this port as
  * KeyValPair<String,String><br>
  * Key being the tuple and Val being the reason
- * 
+ *
  * @displayName SimpleStreamingJsonParser
  * @category Parsers
  * @tags json pojo parser streaming
@@ -187,7 +187,7 @@ public class StreamingJsonParser extends Parser<byte[], KeyValPair<String, Strin
 
   /**
    * Creates a map representing fieldName in POJO:field in JSON:Data type
-   * 
+   *
    * @return List of FieldInfo
    */
   private List<FieldInfo> createFieldInfoMap(String str)
@@ -255,7 +255,7 @@ public class StreamingJsonParser extends Parser<byte[], KeyValPair<String, Strin
   /**
    * Use reflection to generate field info values if the user has not provided
    * the inputs mapping
-   * 
+   *
    * @return String representing the POJO field to JSON field mapping
    */
   private String generateFieldInfoInputs(Class<?> cls)
@@ -331,7 +331,7 @@ public class StreamingJsonParser extends Parser<byte[], KeyValPair<String, Strin
   /**
    * Returns a POJO from a Generic Record Null is set as the default value if a
    * key is not found in the parsed JSON
-   * 
+   *
    * @return Object
    */
   @SuppressWarnings("unchecked")

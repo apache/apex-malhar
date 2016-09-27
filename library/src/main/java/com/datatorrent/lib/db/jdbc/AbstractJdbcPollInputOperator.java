@@ -79,11 +79,11 @@ import static org.jooq.impl.DSL.field;
  * partitions for fetching the existing data in the table. And an additional
  * single partition for polling additive data. Assumption is that there is an
  * ordered unique column using which range queries can be formed<br>
- * 
+ *
  * Only newly added data will be fetched by the polling jdbc partition, also
  * assumption is rows won't be added or deleted in middle during scan.
- * 
- * 
+ *
+ *
  * @displayName Jdbc Polling Input Operator
  * @category Input
  * @tags database, sql, jdbc, partitionable, idepotent, pollable

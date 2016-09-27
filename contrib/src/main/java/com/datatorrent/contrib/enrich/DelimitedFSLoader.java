@@ -146,7 +146,7 @@ public class DelimitedFSLoader extends FSLoader
 
   /**
    * Get the schema
-   * 
+   *
    * @return
    */
   public String getSchema()
@@ -156,7 +156,7 @@ public class DelimitedFSLoader extends FSLoader
 
   /**
    * Set the schema
-   * 
+   *
    * @param schema
    */
   public void setSchema(String schema)

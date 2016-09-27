@@ -34,13 +34,13 @@ public class KinesisStringOutputOperatorTest extends KinesisOutputOperatorTest< 
     return dag.addOperator("TestStringGenerator", StringGeneratorInputOperator.class);
     //StringGeneratorInputOperator generator =
   }
-  
+
   @Override
   protected DefaultOutputPort getOutputPortOfGenerator( StringGeneratorInputOperator generator )
   {
     return generator.outputPort;
   }
-  
+
   @Override
   protected KinesisStringOutputOperator addTestingOperator(DAG dag)
   {

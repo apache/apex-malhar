@@ -202,7 +202,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   protected abstract void emitTuple(Message message);
 
   /**
-   * Concrete class derived from KafkaInputOpertor should implement this method if it wants to access kafka offset and partitionId along with kafka message. 
+   * Concrete class derived from KafkaInputOpertor should implement this method if it wants to access kafka offset and partitionId along with kafka message.
    */
   protected void emitTuple(KafkaConsumer.KafkaMessage message)
   {
@@ -524,7 +524,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     Set<Integer> deletedOperators = Sets.newHashSet();
     Collection<Partition<AbstractKafkaInputOperator<K>>> resultPartitions = partitions;
     boolean numPartitionsChanged = false;
-    
+
     switch (strategy) {
 
     // For the 1 to 1 mapping The framework will create number of operator partitions based on kafka topic partitions
@@ -617,7 +617,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     default:
       break;
     }
-  
+
     if (numPartitionsChanged) {
       List<WindowDataManager> managers = windowDataManager.partition(resultPartitions.size(), deletedOperators);
       int i = 0;

@@ -74,7 +74,7 @@ public class FastMergerDecisionMakerTest
 
   /**
    * If some block is missing then expect BlockNotFoundException.
-   * 
+   *
    * @throws IOException
    * @throws BlockNotFoundException
    */
@@ -111,7 +111,7 @@ public class FastMergerDecisionMakerTest
   /**
    * All blocks are of same size which is same as default blockSize. Then fast
    * merge is possible
-   * 
+   *
    * @throws IOException
    * @throws BlockNotFoundException
    */
@@ -126,7 +126,7 @@ public class FastMergerDecisionMakerTest
    * All blocks (except last block)are of same size which is same as default
    * blockSize. Last block is smaller than default blockSize Then fast merge is
    * possible
-   * 
+   *
    * @throws IOException
    * @throws BlockNotFoundException
    */
@@ -141,7 +141,7 @@ public class FastMergerDecisionMakerTest
   /**
    * Some block other than last block is of different size. Then fast merge is
    * not possible
-   * 
+   *
    * @throws IOException
    * @throws BlockNotFoundException
    */
@@ -156,7 +156,7 @@ public class FastMergerDecisionMakerTest
   /**
    * Some block other than last block is of different size. Then fast merge is
    * not possible
-   * 
+   *
    * @throws IOException
    * @throws BlockNotFoundException
    */
@@ -171,7 +171,7 @@ public class FastMergerDecisionMakerTest
   /**
    * Some block other than last block is of different size. Then fast merge is
    * not possible
-   * 
+   *
    * @throws IOException
    * @throws BlockNotFoundException
    */

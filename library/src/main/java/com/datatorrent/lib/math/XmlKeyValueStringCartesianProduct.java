@@ -28,7 +28,7 @@ import com.datatorrent.api.DefaultOutputPort;
 /**
  * An implementation of the AbstractXmlKeyValueCartesianProduct operator that takes in the xml document
  * as a String input and outputs the cartesian product as Strings.
- * 
+ *
  * @displayName Xml Key Value String Cartesian Product
  * @category Math
  * @tags cartesian product, string, xml
@@ -38,7 +38,7 @@ public class XmlKeyValueStringCartesianProduct extends AbstractXmlKeyValueCartes
 {
 
   InputSource source = new InputSource();
-  
+
   /**
    * Output port that emits cartesian product as Strings.
    */

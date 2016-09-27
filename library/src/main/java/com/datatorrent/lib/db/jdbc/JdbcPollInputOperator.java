@@ -33,7 +33,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 /**
  * A concrete implementation for {@link AbstractJdbcPollInputOperator} to
  * consume data from jdbc store and emit comma separated values <br>
- * 
+ *
  * @displayName Jdbc Polling Input Operator
  * @category Input
  * @tags database, sql, jdbc

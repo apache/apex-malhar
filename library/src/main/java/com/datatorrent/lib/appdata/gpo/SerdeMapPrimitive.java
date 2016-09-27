@@ -74,7 +74,7 @@ public class SerdeMapPrimitive  implements Serde
     GPOType gpoType = GPOType.GPO_TYPE_ARRAY[type.ordinal()];
     bytes.add(gpoType.serialize(object));
   }
-  
+
   @Override
   public synchronized Object deserializeObject(byte[] objectBytes, MutableInt offset)
   {
@@ -87,7 +87,7 @@ public class SerdeMapPrimitive  implements Serde
       int typeOrdinal = GPOUtils.deserializeInt(objectBytes, offset);
       GPOType gpoType = GPOType.GPO_TYPE_ARRAY[typeOrdinal];
       Object key = gpoType.deserialize(objectBytes, offset);
-      
+
       typeOrdinal = GPOUtils.deserializeInt(objectBytes, offset);
       gpoType = GPOType.GPO_TYPE_ARRAY[typeOrdinal];
       Object value = gpoType.deserialize(objectBytes, offset);

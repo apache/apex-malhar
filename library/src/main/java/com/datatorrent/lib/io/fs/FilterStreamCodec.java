@@ -41,7 +41,7 @@ public class FilterStreamCodec
     {
       filterStream = new GZIPOutputStream(outputStream);
     }
-    
+
     @Override
     public void finalizeContext() throws IOException
     {
@@ -80,7 +80,7 @@ public class FilterStreamCodec
   }
 
   /**
-   * This provider is useful when writing to a single output stream so that the same cipher can be reused 
+   * This provider is useful when writing to a single output stream so that the same cipher can be reused
    */
   public static class CipherSimpleStreamProvider implements FilterStreamProvider<CipherOutputStream, OutputStream>
   {

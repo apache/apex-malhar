@@ -77,9 +77,9 @@ public class ElasticSearchPercolateTest
 
   /**
    * Register percolate queries on ElasticSearch
-   * 
+   *
    * @throws IOException
-   * 
+   *
    */
   private void registerPercolateQueries() throws IOException
   {
@@ -89,7 +89,7 @@ public class ElasticSearchPercolateTest
   }
 
   /**
-   * 
+   *
    */
   private void checkPercolateResponse()
   {
@@ -136,7 +136,7 @@ public class ElasticSearchPercolateTest
         matchIds.add(match.getId().toString());
       }
       Collections.sort(matchIds);
-      
+
       Assert.assertArrayEquals(matchIds.toArray(), matches[i]);
       i++;
     }
@@ -157,6 +157,6 @@ public class ElasticSearchPercolateTest
       //This indicates that elasticsearch is not running on a particular machine.
       //Silently ignore in this case.
     }
-    
+
   }
 }

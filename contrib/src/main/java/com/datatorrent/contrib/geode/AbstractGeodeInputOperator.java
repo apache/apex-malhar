@@ -25,14 +25,14 @@ import com.datatorrent.lib.db.AbstractKeyValueStoreInputOperator;
  * concrete operator should be created from this skeleton implementation.
  * <p>
  * </p>
- * 
+ *
  * @displayName Abstract Geode Input
  * @category Input
  * @tags geode, key value
  *
  * @param <T>
  *          The tuple type.
- * 
+ *
  *
  * @since 3.4.0
  */

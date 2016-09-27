@@ -139,7 +139,7 @@ public class JMSBase
     {
       this.connectionFactoryProperties = connectionFactoryProperties;
     }
-    
+
     /**
      * Get the fully qualified class-name of the connection factory that is used by this
      * builder to instantiate the connection factory
@@ -150,7 +150,7 @@ public class JMSBase
     {
       return connectionFactoryClass;
     }
-    
+
     /**
      * Set the fully qualified class-name of the connection factory that is used by this
      * builder to instantiate the connection factory
@@ -213,7 +213,7 @@ public class JMSBase
   {
     return destination;
   }
-  
+
   /**
    * gets the connection factory class-name used by the default connection factory builder
    *
@@ -244,7 +244,7 @@ public class JMSBase
     }
     return (DefaultConnectionFactoryBuilder)connectionFactoryBuilder;
   }
-  
+
   /**
    * Sets the connection factory class-name used by the default connection factory builder
    *

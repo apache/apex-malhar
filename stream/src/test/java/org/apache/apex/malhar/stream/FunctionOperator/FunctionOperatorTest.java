@@ -169,7 +169,7 @@ public class FunctionOperatorTest
     // Create local cluster
     LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
-  
+
     ((StramLocalCluster)lc).setExitCondition(new Callable<Boolean>()
     {
       @Override
@@ -178,9 +178,9 @@ public class FunctionOperatorTest
         return TupleCount == NumTuples;
       }
     });
-    
+
     lc.run(5000);
-    
+
     Assert.assertEquals(sum, 285);
   }
 
@@ -224,7 +224,7 @@ public class FunctionOperatorTest
     // Create local cluster
     LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
-  
+
     ((StramLocalCluster)lc).setExitCondition(new Callable<Boolean>()
     {
       @Override
@@ -235,7 +235,7 @@ public class FunctionOperatorTest
     });
 
     lc.run(5000);
-    
+
     Assert.assertEquals(sum, 39555);
   }
 
@@ -285,7 +285,7 @@ public class FunctionOperatorTest
     // Create local cluster
     LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
-  
+
     ((StramLocalCluster)lc).setExitCondition(new Callable<Boolean>()
     {
       @Override

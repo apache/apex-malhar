@@ -65,7 +65,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  * <b>err</b>:tuples that do not confine to schema are emitted on this port as
  * KeyValPair<String,String><br>
  * Key being the tuple and Val being the reason.
- * 
+ *
  * @displayName CsvParser
  * @category Parsers
  * @tags csv pojo parser
@@ -229,7 +229,7 @@ public class CsvParser extends Parser<byte[], KeyValPair<String, String>>
 
   /**
    * Get the schema
-   * 
+   *
    * @return
    */
   public String getSchema()
@@ -239,7 +239,7 @@ public class CsvParser extends Parser<byte[], KeyValPair<String, String>>
 
   /**
    * Set the schema
-   * 
+   *
    * @param schema
    */
   public void setSchema(String schema)
@@ -249,7 +249,7 @@ public class CsvParser extends Parser<byte[], KeyValPair<String, String>>
 
   /**
    * Get errorTupleCount
-   * 
+   *
    * @return errorTupleCount
    */
   @VisibleForTesting
@@ -260,7 +260,7 @@ public class CsvParser extends Parser<byte[], KeyValPair<String, String>>
 
   /**
    * Get emittedObjectCount
-   * 
+   *
    * @return emittedObjectCount
    */
   @VisibleForTesting
@@ -271,7 +271,7 @@ public class CsvParser extends Parser<byte[], KeyValPair<String, String>>
 
   /**
    * Get incomingTuplesCount
-   * 
+   *
    * @return incomingTuplesCount
    */
   @VisibleForTesting

@@ -175,7 +175,7 @@ public class FilterTest
 
     clearFilterOperator();
   }
-  
+
   @Test
   public void testOptionalExpressionFunctions()
   {
@@ -183,7 +183,7 @@ public class FilterTest
     prepareFilterOperator(DummyPublicPOJO.class, "({$}.val == 1)");
     Assert.assertEquals(6, filter.getExpressionFunctions().size());
   }
-  
+
   @Test
   public void testSetOptionalExpressionFunctionsItem()
   {
@@ -191,8 +191,8 @@ public class FilterTest
     prepareFilterOperator(DummyPublicPOJO.class, "({$}.val == 1)");
     Assert.assertEquals(6, filter.getExpressionFunctions().size());
   }
-  
-  
+
+
   @Before
   public void setup()
   {

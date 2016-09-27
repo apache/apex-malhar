@@ -34,16 +34,16 @@ public class FoldFnTest
   public static class NumGen extends BaseOperator implements InputOperator
   {
     public transient DefaultOutputPort<Integer> output = new DefaultOutputPort<>();
-  
+
     public static int count = 0;
     private int i = 0;
-  
+
     public NumGen()
     {
       count = 0;
       i = 0;
     }
-  
+
     @Override
     public void emitTuples()
     {
@@ -61,11 +61,11 @@ public class FoldFnTest
       i = -1;
     }
   }
-  
+
   public static class Collector extends BaseOperator
   {
     private static int result;
-    
+
     public transient DefaultInputPort<Tuple.WindowedTuple<Integer>> input = new DefaultInputPort<Tuple.WindowedTuple<Integer>>()
     {
       @Override
@@ -74,13 +74,13 @@ public class FoldFnTest
         result = tuple.getValue();
       }
     };
-    
+
     public int getResult()
     {
       return result;
     }
   }
-  
+
   public static class Plus extends FoldFn<Integer, Integer>
   {
     @Override
@@ -88,7 +88,7 @@ public class FoldFnTest
     {
       return fold(accumulatedValue1, accumulatedValue2);
     }
-    
+
     @Override
     public Integer fold(Integer input1, Integer input2)
     {
@@ -98,11 +98,11 @@ public class FoldFnTest
       return input1 + input2;
     }
   }
-  
+
   @Test
   public void FoldFnTest()
   {
-    
+
     FoldFn<String, String> concat = new FoldFn<String, String>()
     {
       @Override
@@ -110,17 +110,17 @@ public class FoldFnTest
       {
         return fold(accumulatedValue1, accumulatedValue2);
       }
-  
+
       @Override
       public String fold(String input1, String input2)
       {
         return input1 + ", " + input2;
       }
     };
-    
+
     String[] ss = new String[]{"b", "c", "d", "e"};
     String base = "a";
-    
+
     for (String s : ss) {
       base = concat.accumulate(base, s);
     }

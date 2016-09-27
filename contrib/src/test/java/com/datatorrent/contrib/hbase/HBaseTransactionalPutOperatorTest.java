@@ -66,7 +66,7 @@ public class HBaseTransactionalPutOperatorTest {
         }
 
         @Override
-        public AttributeMap getAttributes() {  
+        public AttributeMap getAttributes() {
           return null;
         }
 
@@ -136,7 +136,7 @@ public class HBaseTransactionalPutOperatorTest {
         }
 
         @Override
-        public AttributeMap getAttributes() {  
+        public AttributeMap getAttributes() {
           return null;
         }
 
@@ -210,7 +210,7 @@ public class HBaseTransactionalPutOperatorTest {
         }
 
         @Override
-        public AttributeMap getAttributes() {  
+        public AttributeMap getAttributes() {
           return null;
         }
 
@@ -238,8 +238,8 @@ public class HBaseTransactionalPutOperatorTest {
         }
       });
 
-      
-      
+
+
       thop.input.process(t2);
       thop.endWindow();
       HBaseTuple tuple,tuple2;
@@ -257,7 +257,7 @@ public class HBaseTransactionalPutOperatorTest {
       logger.error(e.getMessage());
     }
   }
-  
+
   public static class TestHBasePutOperator extends
   AbstractHBaseWindowPutOutputOperator<HBaseTuple> {
 

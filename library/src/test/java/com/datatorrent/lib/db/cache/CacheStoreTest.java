@@ -33,7 +33,7 @@ public class CacheStoreTest
   public void CacheStoreTest()
   {
     final Map<Object, Object> backupMap = Maps.newHashMap();
-    
+
     backupMap.put(1, "one");
     backupMap.put(2, "two");
     backupMap.put(3, "three");
@@ -44,7 +44,7 @@ public class CacheStoreTest
     backupMap.put(8, "eight");
     backupMap.put(9, "nine");
     backupMap.put(10, "ten");
-  
+
     CacheStore cs = new CacheStore();
     cs.setMaxCacheSize(5);
     try {

@@ -38,14 +38,14 @@ public class RemoveDuplicates<T> implements Accumulation<T, Set<T>, List<T>>
   {
     return new HashSet<>();
   }
-  
+
   @Override
   public Set<T> accumulate(Set<T> accumulatedValue, T input)
   {
     accumulatedValue.add(input);
     return accumulatedValue;
   }
-  
+
   @Override
   public Set<T> merge(Set<T> accumulatedValue1, Set<T> accumulatedValue2)
   {
@@ -54,7 +54,7 @@ public class RemoveDuplicates<T> implements Accumulation<T, Set<T>, List<T>>
     }
     return accumulatedValue1;
   }
-  
+
   @Override
   public List<T> getOutput(Set<T> accumulatedValue)
   {
@@ -64,7 +64,7 @@ public class RemoveDuplicates<T> implements Accumulation<T, Set<T>, List<T>>
       return new ArrayList<>(accumulatedValue);
     }
   }
-  
+
   @Override
   public List<T> getRetraction(List<T> value)
   {

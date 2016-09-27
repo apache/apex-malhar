@@ -55,7 +55,7 @@ public abstract class AbstractJMSSinglePortOutputOperator<T> extends AbstractJMS
 {
   @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(AbstractJMSSinglePortOutputOperator.class);
-  
+
   /**
    * Convert to and send message.
    * @param tuple

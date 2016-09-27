@@ -54,7 +54,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  * the Pojo Class. <br>
  * <b>dateFormats</b>: Comma separated string of date formats e.g
  * dd/mm/yyyy,dd-mmm-yyyy where first one would be considered default
- * 
+ *
  * @displayName XmlParser
  * @category Parsers
  * @tags xml pojo parser

@@ -52,11 +52,11 @@ public class HBasePOJOPutOperatorTest
   private static final Logger logger = LoggerFactory.getLogger(HBasePOJOPutOperatorTest.class);
   public static final int TEST_SIZE = 15000;
   public static final int WINDOW_SIZE = 1500;
-  
+
   private HBasePOJOPutOperator operator;
-  
+
   private final long startWindowId = Calendar.getInstance().getTimeInMillis();
-  
+
   public HBasePOJOPutOperatorTest()
   {
   }
@@ -69,13 +69,13 @@ public class HBasePOJOPutOperatorTest
 
     createOrDeleteTable(operator.getStore(), false );
   }
-  
+
   @After
   public void cleanup() throws Exception
   {
     createOrDeleteTable(operator.getStore(), true );
   }
-  
+
   /**
    * this test case only test if HBasePojoPutOperator can save data to the
    * HBase. it doesn't test connection to the other operators
@@ -107,7 +107,7 @@ public class HBasePOJOPutOperatorTest
 
       Thread.sleep(30000);
 
-      
+
     }
     catch (Exception e)
     {
@@ -115,7 +115,7 @@ public class HBasePOJOPutOperatorTest
       Assert.fail(e.getMessage());
     }
   }
-  
+
   protected void createOrDeleteTable(HBaseStore store, boolean isDelete ) throws Exception
   {
     HBaseAdmin admin = null;
@@ -123,7 +123,7 @@ public class HBasePOJOPutOperatorTest
     {
       admin = new HBaseAdmin(store.getConfiguration());
       final String tableName = store.getTableName();
-      
+
       if (!admin.isTableAvailable(tableName) && !isDelete )
       {
         HTableDescriptor tableDescriptor = new HTableDescriptor(tableName);
@@ -170,14 +170,14 @@ public class HBasePOJOPutOperatorTest
 
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
         OPERATOR_ID, attributeMap);
-    
+
     operator.setup(context);
   }
 
   protected void configure(HBasePOJOPutOperator operator)
   {
     TableInfo<HBaseFieldInfo> tableInfo = new TableInfo<HBaseFieldInfo>();
-    
+
     tableInfo.setRowOrIdExpression("row");
 
     List<HBaseFieldInfo> fieldsInfo = new ArrayList<HBaseFieldInfo>();
@@ -203,7 +203,7 @@ public class HBasePOJOPutOperatorTest
   {
     if( tupleGenerator == null )
       tupleGenerator = new TupleGenerator<TestPOJO>( TestPOJO.class );
-    
+
     return tupleGenerator.getNextTuple();
   }
 
@@ -225,21 +225,21 @@ public class HBasePOJOPutOperatorTest
       HTable table = operator.getStore().getTable();
       Scan scan = new Scan();
       ResultScanner resultScanner = table.getScanner(scan);
-      
+
       int recordCount = 0;
       while( true )
       {
         Result result = resultScanner.next();
         if( result == null )
           break;
-        
+
         int rowId = Integer.valueOf( Bytes.toString( result.getRow() ) );
         Assert.assertTrue( "rowId="+rowId+" aut of range" , ( rowId > 0 && rowId <= TEST_SIZE ) );
         Assert.assertTrue( "the rowId="+rowId+" already processed.", rowIds[rowId-1] == 1 );
         rowIds[rowId-1]=0;
-        
+
         List<Cell> cells = result.listCells();
-        
+
         Map<String, byte[]> map = new HashMap<String,byte[]>();
         for( Cell cell : cells )
         {
@@ -250,17 +250,17 @@ public class HBasePOJOPutOperatorTest
         TestPOJO read = TestPOJO.from(map);
         read.setRowId((long)rowId);
         TestPOJO expected = new TestPOJO( rowId );
-        
+
         Assert.assertTrue( String.format( "expected %s, get %s ", expected.toString(), read.toString() ), expected.completeEquals(read) );
         recordCount++;
       }
-      
+
       int missedCount = 0;
       if( recordCount != TEST_SIZE )
       {
         logger.error( "unsaved records: " );
         StringBuilder sb = new StringBuilder();
-        
+
         for( int i=0; i<TEST_SIZE; ++i )
         {
           if( rowIds[i] != 0 )

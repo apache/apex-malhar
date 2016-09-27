@@ -31,11 +31,11 @@ public class MinTest
   public void MinTest()
   {
     Min<Integer> min = new Min<>();
-    
+
     Assert.assertEquals((Integer)3, min.accumulate(5, 3));
     Assert.assertEquals((Integer)4, min.accumulate(4, 6));
     Assert.assertEquals((Integer)2, min.merge(5, 2));
-    
+
     Comparator<Integer> com = new Comparator<Integer>()
     {
       @Override
@@ -44,7 +44,7 @@ public class MinTest
         return -(o1.compareTo(o2));
       }
     };
-    
+
     min.setComparator(com);
     Assert.assertEquals((Integer)5, min.accumulate(5, 3));
     Assert.assertEquals((Integer)6, min.accumulate(4, 6));

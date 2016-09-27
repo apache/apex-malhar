@@ -38,7 +38,7 @@ import com.datatorrent.lib.db.AbstractKeyValueStoreInputOperator;
 
 /**
  * This is the base implementation of a Redis input operator.
- * 
+ *
  * @displayName Abstract Redis Input
  * @category Input
  * @tags redis, key value
@@ -161,7 +161,7 @@ public abstract class AbstractRedisInputOperator<T> extends AbstractKeyValueStor
     scanComplete = false;
     scanParameters = new ScanParams();
     scanParameters.count(scanCount);
-    
+
     // For the 1st window after checkpoint, windowID - 1 would not have recovery
     // offset stored in windowDataManager
     // But recoveryOffset is non-transient, so will be recovered with

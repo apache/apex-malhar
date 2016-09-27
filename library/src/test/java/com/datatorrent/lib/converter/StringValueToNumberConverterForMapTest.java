@@ -31,25 +31,25 @@ public class StringValueToNumberConverterForMapTest
 {
 
   @Test
-  public void testStringValueToNumericConversion() 
+  public void testStringValueToNumericConversion()
   {
     StringValueToNumberConverterForMap<String> testop = new StringValueToNumberConverterForMap<String>();
     String[] values = {"1.0", "2.0", "3.0"};
     String[] keys = {"a", "b", "c"};
-    
+
     HashMap<String, String> inputMap = new HashMap<String, String>();
 
     for (int i = 0; i < 3; i++) {
       inputMap.put(keys[i], values[i]);
     }
-    
-    CollectorTestSink<Map<String, Number>> testsink = new CollectorTestSink<Map<String, Number>>();    
+
+    CollectorTestSink<Map<String, Number>> testsink = new CollectorTestSink<Map<String, Number>>();
     TestUtils.setSink(testop.output, testsink);
-    
+
     testop.beginWindow(0);
-    
+
     testop.input.put(inputMap);
-    
+
     testop.endWindow();
 
     Assert.assertEquals(1,testsink.collectedTuples.size());

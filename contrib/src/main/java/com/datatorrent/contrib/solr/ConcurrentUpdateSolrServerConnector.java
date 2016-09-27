@@ -110,7 +110,7 @@ public class ConcurrentUpdateSolrServerConnector extends SolrServerConnector
   }
 
   /*
-   * HttpClient instance 
+   * HttpClient instance
    * Gets the HTTP Client instance
    */
   public HttpClient getHttpClient()

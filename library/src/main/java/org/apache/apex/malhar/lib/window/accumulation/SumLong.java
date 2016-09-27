@@ -33,27 +33,27 @@ public class SumLong implements Accumulation<Long, MutableLong, Long>
   {
     return new MutableLong(0L);
   }
-  
+
   @Override
   public MutableLong accumulate(MutableLong accumulatedValue, Long input)
   {
     accumulatedValue.add(input);
     return accumulatedValue;
   }
-  
+
   @Override
   public MutableLong merge(MutableLong accumulatedValue1, MutableLong accumulatedValue2)
   {
     accumulatedValue1.add(accumulatedValue2);
     return accumulatedValue1;
   }
-  
+
   @Override
   public Long getOutput(MutableLong accumulatedValue)
   {
     return accumulatedValue.longValue();
   }
-  
+
   @Override
   public Long getRetraction(Long value)
   {

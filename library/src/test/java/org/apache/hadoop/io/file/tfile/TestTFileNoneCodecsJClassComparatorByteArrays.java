@@ -21,10 +21,10 @@ package org.apache.hadoop.io.file.tfile;
 import java.io.IOException;
 
 /**
- * 
+ *
  * Byte arrays test case class using GZ compression codec, base class of none
  * and LZO compression classes.
- * 
+ *
  */
 
 public class TestTFileNoneCodecsJClassComparatorByteArrays extends TestDTFileByteArrays {

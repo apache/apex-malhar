@@ -34,7 +34,7 @@ import kafka.utils.VerifiableProperties;
 public class KafkaTestPartitioner implements Partitioner
 {
   public KafkaTestPartitioner(VerifiableProperties props) {
-    
+
   }
 
   public KafkaTestPartitioner() {

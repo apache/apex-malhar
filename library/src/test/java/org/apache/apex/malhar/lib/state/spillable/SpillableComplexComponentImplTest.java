@@ -42,7 +42,7 @@ public class SpillableComplexComponentImplTest
   {
     simpleIntegrationTestHelper(testMeta.store);
   }
-  
+
   public void simpleIntegrationTestHelper(SpillableStateStore store)
   {
     SpillableComplexComponentImpl sccImpl = new SpillableComplexComponentImpl(store);

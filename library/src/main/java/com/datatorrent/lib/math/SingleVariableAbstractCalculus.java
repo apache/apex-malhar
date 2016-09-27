@@ -23,7 +23,7 @@ import com.datatorrent.api.DefaultInputPort;
 /**
  * Transforms the input into the output after applying appropriate mathematical function to it and emits result on respective ports.
  * <p>
- * Emits the result as Long on port "longResult", as Integer on port "integerResult",as Double on port "doubleResult", and as Float on port "floatResult". 
+ * Emits the result as Long on port "longResult", as Integer on port "integerResult",as Double on port "doubleResult", and as Float on port "floatResult".
  * This is a pass through operator<br>
  * <br>
  * <b>Ports</b>:<br>

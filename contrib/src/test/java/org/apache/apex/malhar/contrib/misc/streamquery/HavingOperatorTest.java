@@ -87,7 +87,7 @@ public class HavingOperatorTest
     tuple.put("b", 2);
     tuple.put("c", 7);
     oper.inport.process(tuple);
-    
+
     oper.endWindow();
     oper.teardown();
 
