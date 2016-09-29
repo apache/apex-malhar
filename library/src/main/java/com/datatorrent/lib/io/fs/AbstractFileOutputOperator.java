@@ -116,6 +116,8 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
 
   private static final String TMP_EXTENSION = ".tmp";
 
+  private static final String APPEND_TMP_FILE = "_APPENDING";
+
   private static final int MAX_NUMBER_FILES_IN_TEARDOWN_EXCEPTION = 25;
 
   /**
@@ -636,12 +638,53 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   {
     FSDataOutputStream fsOutput;
     if (append) {
-      fsOutput = fs.append(filepath);
+      fsOutput = openStreamInAppendMode(filepath);
     } else {
       fsOutput = fs.create(filepath, (short)replication);
       fs.setPermission(filepath, FsPermission.createImmutable(filePermission));
     }
     return fsOutput;
+  }
+
+  /**
+   * Opens the stream for the given file path in append mode. Catch the exception if the FS doesnt support
+   * append operation and calls the openStreamForNonAppendFS().
+   * @param filepath given file path
+   * @return output stream
+   */
+  protected FSDataOutputStream openStreamInAppendMode(Path filepath)
+  {
+    FSDataOutputStream fsOutput = null;
+    try {
+      fsOutput = fs.append(filepath);
+    } catch (IOException e) {
+      if (e.getMessage().equals("Not supported")) {
+        fsOutput = openStreamForNonAppendFS(filepath);
+      }
+    }
+    return fsOutput;
+  }
+
+  /**
+   * Opens the stream for the given file path for the file systems which are not supported append operation.
+   * @param filepath given file path
+   * @return output stream
+   */
+  protected FSDataOutputStream openStreamForNonAppendFS(Path filepath)
+  {
+    try {
+      Path appendTmpFile = new Path(filepath + APPEND_TMP_FILE);
+      fs.rename(filepath, appendTmpFile);
+      FSDataInputStream fsIn = fs.open(appendTmpFile);
+      FSDataOutputStream fsOut = fs.create(filepath);
+      IOUtils.copy(fsIn, fsOut);
+      flush(fsOut);
+      fsIn.close();
+      fs.delete(appendTmpFile);
+      return fsOut;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
