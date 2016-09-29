@@ -79,7 +79,7 @@ public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
           if (triggerOption != null &&
               triggerOption.getAccumulationMode() == TriggerOption.AccumulationMode.ACCUMULATING_AND_RETRACTING) {
             // fire a retraction trigger because the session window will be enlarged
-            fireRetractionTrigger(sessionWindow);
+            fireRetractionTrigger(sessionWindow, false);
           }
           // create a new session window that covers the timestamp
           long newBeginTimestamp = Math.min(sessionWindow.getBeginTimestamp(), timestamp);
@@ -105,8 +105,8 @@ public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
         if (triggerOption != null &&
             triggerOption.getAccumulationMode() == TriggerOption.AccumulationMode.ACCUMULATING_AND_RETRACTING) {
           // fire a retraction trigger because the two session windows will be merged to a new window
-          fireRetractionTrigger(sessionWindow1);
-          fireRetractionTrigger(sessionWindow2);
+          fireRetractionTrigger(sessionWindow1, false);
+          fireRetractionTrigger(sessionWindow2, false);
         }
         long newBeginTimestamp = Math.min(sessionWindow1.getBeginTimestamp(), sessionWindow2.getBeginTimestamp());
         long newEndTimestamp = Math.max(sessionWindow1.getBeginTimestamp() + sessionWindow1.getDurationMillis(),
@@ -149,7 +149,7 @@ public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
   {
     for (Map.Entry<KeyT, AccumT> entry : dataStorage.entries(window)) {
       OutputValT outputVal = accumulation.getOutput(entry.getValue());
-      if (fireOnlyUpdatedPanes) {
+      if (fireOnlyUpdatedPanes && retractionStorage != null) {
         OutputValT oldValue = retractionStorage.get(window, entry.getKey());
         if (oldValue != null && oldValue.equals(outputVal)) {
           continue;
@@ -163,12 +163,21 @@ public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
   }
 
   @Override
-  public void fireRetractionTrigger(Window window)
+  public void fireRetractionTrigger(Window window, boolean fireOnlyUpdatedPanes)
   {
     if (triggerOption.getAccumulationMode() != TriggerOption.AccumulationMode.ACCUMULATING_AND_RETRACTING) {
       throw new UnsupportedOperationException();
     }
     for (Map.Entry<KeyT, OutputValT> entry : retractionStorage.entries(window)) {
+      if (fireOnlyUpdatedPanes) {
+        AccumT currentAccum = dataStorage.get(window, entry.getKey());
+        if (currentAccum != null) {
+          OutputValT currentValue = accumulation.getOutput(currentAccum);
+          if (currentValue != null && currentValue.equals(entry.getValue())) {
+            continue;
+          }
+        }
+      }
       output.emit(new Tuple.WindowedTuple<>(window, new KeyValPair<>(entry.getKey(), accumulation.getRetraction(entry.getValue()))));
     }
   }

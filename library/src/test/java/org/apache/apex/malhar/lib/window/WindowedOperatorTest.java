@@ -298,20 +298,36 @@ public class WindowedOperatorTest
   @Test
   public void testTriggerWithAccumulatingModeFiringAllPanes()
   {
-    testTriggerWithAccumulatingModeHelper(false);
+    testTrigger2(false, false);
+  }
+
+  @Test
+  public void testTriggerWithAccumulatingAndRetractingModeFiringAllPanes()
+  {
+    testTrigger2(false, true);
   }
 
   @Test
   public void testTriggerWithAccumulatingModeFiringOnlyUpdatedPanes()
   {
-    testTriggerWithAccumulatingModeHelper(true);
+    testTrigger2(true, false);
   }
 
-  public void testTriggerWithAccumulatingModeHelper(boolean firingOnlyUpdatedPanes)
+  @Test
+  public void testTriggerWithAccumulatingAndRetractingModeFiringOnlyUpdatedPanes()
+  {
+    testTrigger2(true, true);
+  }
+
+  private void testTrigger2(boolean firingOnlyUpdatedPanes, boolean testRetraction)
   {
     WindowedOperatorImpl<Long, MutableLong, Long> windowedOperator = createDefaultWindowedOperator();
-    TriggerOption triggerOption = new TriggerOption().withEarlyFiringsAtEvery(Duration.millis(1000))
-        .accumulatingFiredPanes();
+    TriggerOption triggerOption = new TriggerOption().withEarlyFiringsAtEvery(Duration.millis(1000));
+    if (testRetraction) {
+      triggerOption.accumulatingAndRetractingFiredPanes();
+    } else {
+      triggerOption.accumulatingFiredPanes();
+    }
     if (firingOnlyUpdatedPanes) {
       triggerOption.firingOnlyUpdatedPanes();
     }
@@ -342,8 +358,14 @@ public class WindowedOperatorTest
       Assert.assertTrue("There should not be any trigger since no panes have been updated", sink.collectedTuples
           .isEmpty());
     } else {
-      Assert.assertEquals("There should be exactly one tuple for the time trigger", 1, sink.collectedTuples.size());
-      Assert.assertEquals(5L, ((Tuple<Long>)sink.collectedTuples.get(0)).getValue().longValue());
+      if (testRetraction) {
+        Assert.assertEquals("There should be exactly two tuples for the time trigger", 2, sink.collectedTuples.size());
+        Assert.assertEquals(-5L, ((Tuple<Long>)sink.collectedTuples.get(0)).getValue().longValue());
+        Assert.assertEquals(5L, ((Tuple<Long>)sink.collectedTuples.get(1)).getValue().longValue());
+      } else {
+        Assert.assertEquals("There should be exactly one tuple for the time trigger", 1, sink.collectedTuples.size());
+        Assert.assertEquals(5L, ((Tuple<Long>)sink.collectedTuples.get(0)).getValue().longValue());
+      }
     }
     windowedOperator.teardown();
   }

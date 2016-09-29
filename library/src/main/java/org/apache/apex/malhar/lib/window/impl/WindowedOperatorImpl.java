@@ -56,7 +56,7 @@ public class WindowedOperatorImpl<InputT, AccumT, OutputT>
   {
     AccumT accumulatedValue = dataStorage.get(window);
     OutputT outputValue = accumulation.getOutput(accumulatedValue);
-    if (fireOnlyUpdatedPanes) {
+    if (fireOnlyUpdatedPanes && retractionStorage != null) {
       OutputT oldValue = retractionStorage.get(window);
       if (oldValue != null && oldValue.equals(outputValue)) {
         return;
@@ -69,13 +69,19 @@ public class WindowedOperatorImpl<InputT, AccumT, OutputT>
   }
 
   @Override
-  public void fireRetractionTrigger(Window window)
+  public void fireRetractionTrigger(Window window, boolean fireOnlyUpdatedPanes)
   {
     if (triggerOption.getAccumulationMode() != TriggerOption.AccumulationMode.ACCUMULATING_AND_RETRACTING) {
       throw new UnsupportedOperationException();
     }
     OutputT oldValue = retractionStorage.get(window);
     if (oldValue != null) {
+      if (fireOnlyUpdatedPanes) {
+        AccumT accumulatedValue = dataStorage.get(window);
+        if (accumulatedValue != null && oldValue.equals(accumulation.getOutput(accumulatedValue))) {
+          return;
+        }
+      }
       output.emit(new Tuple.WindowedTuple<>(window, accumulation.getRetraction(oldValue)));
     }
   }

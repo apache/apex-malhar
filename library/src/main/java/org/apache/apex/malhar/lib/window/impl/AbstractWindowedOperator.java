@@ -526,7 +526,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   public void fireTrigger(Window window, WindowState windowState)
   {
     if (triggerOption.getAccumulationMode() == TriggerOption.AccumulationMode.ACCUMULATING_AND_RETRACTING) {
-      fireRetractionTrigger(window);
+      fireRetractionTrigger(window, triggerOption.isFiringOnlyUpdatedPanes());
     }
     fireNormalTrigger(window, triggerOption.isFiringOnlyUpdatedPanes());
     windowState.lastTriggerFiredTime = currentDerivedTimestamp;
@@ -548,8 +548,9 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
    * mode is ACCUMULATING_AND_RETRACTING
    *
    * @param window the window to fire the retraction trigger on
+   * @param fireOnlyUpdatedPanes Do not fire trigger if the retraction value is the same as the new value.
    */
-  public abstract void fireRetractionTrigger(Window window);
+  public abstract void fireRetractionTrigger(Window window, boolean fireOnlyUpdatedPanes);
 
 
   @Override
