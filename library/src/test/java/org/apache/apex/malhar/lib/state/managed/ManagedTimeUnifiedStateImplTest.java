@@ -88,6 +88,25 @@ public class ManagedTimeUnifiedStateImplTest
   }
 
   @Test
+  public void testPutWithMultipleValuesForAKey()
+  {
+    Slice one = ManagedStateTestUtils.getSliceFor("1");
+
+    testMeta.managedState.setup(testMeta.operatorContext);
+    long time = System.currentTimeMillis();
+    testMeta.managedState.beginWindow(0);
+    testMeta.managedState.put(time, one, one);
+
+    Slice two = ManagedStateTestUtils.getSliceFor("2");
+    testMeta.managedState.put(time, one, two);
+    Slice value = testMeta.managedState.getSync(time, one);
+    testMeta.managedState.endWindow();
+
+    Assert.assertEquals("value overwritten", two, value);
+    testMeta.managedState.teardown();
+  }
+
+  @Test
   public void testAsyncGet() throws ExecutionException, InterruptedException
   {
     Slice one = ManagedStateTestUtils.getSliceFor("1");

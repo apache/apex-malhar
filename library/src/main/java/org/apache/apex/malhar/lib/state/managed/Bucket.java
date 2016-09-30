@@ -389,12 +389,15 @@ public interface Bucket extends ManagedStateComponent
         sizeInBytes.getAndAdd(key.length);
         sizeInBytes.getAndAdd(Long.SIZE);
       }
-      if (timeBucket > bucketedValue.getTimeBucket()) {
+      if (timeBucket >= bucketedValue.getTimeBucket()) {
 
         int inc = null == bucketedValue.getValue() ? value.length : value.length - bucketedValue.getValue().length;
         sizeInBytes.getAndAdd(inc);
         bucketedValue.setTimeBucket(timeBucket);
         bucketedValue.setValue(value);
+      } else {
+        LOG.warn("ignoring {} {} {}; existing {} {}", key, value, timeBucket,
+            bucketedValue.getValue(), bucketedValue.getTimeBucket());
       }
     }
 
