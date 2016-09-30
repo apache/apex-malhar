@@ -435,13 +435,17 @@ public interface Bucket extends ManagedStateComponent
     @Override
     public Map<Slice, BucketedValue> checkpoint(long windowId)
     {
-      try {
-        //transferring the data from flash to check-pointed state in finally block and re-initializing the flash.
-        return flash;
-      } finally {
-        checkpointedData.put(windowId, flash);
-        flash = Maps.newHashMap();
+      //transferring the data from flash to check-pointed state and re-initializing the flash.
+      Map<Slice, BucketedValue> notCheckpointed = flash;
+      Map<Slice, BucketedValue> alreadyCheckpointed = checkpointedData.get(windowId);
+      if (alreadyCheckpointed == null) {
+        checkpointedData.put(windowId, notCheckpointed);
+      } else {
+        alreadyCheckpointed.putAll(notCheckpointed);
       }
+
+      flash = Maps.newHashMap();
+      return notCheckpointed;
     }
 
     @Override

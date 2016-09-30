@@ -144,7 +144,7 @@ public abstract class AbstractManagedStateImpl
   protected transient ExecutorService readerService;
 
   @NotNull
-  private IncrementalCheckpointManager checkpointManager = new IncrementalCheckpointManager();
+  private IncrementalCheckpointManager checkpointManager = new IncrementalCheckpointManagerImpl();
 
   @NotNull
   protected BucketsFileSystem bucketsFileSystem = new BucketsFileSystem();
@@ -173,6 +173,14 @@ public abstract class AbstractManagedStateImpl
       Multimaps.synchronizedListMultimap(ArrayListMultimap.<Long, ValueFetchTask>create());
 
   protected Bucket.ReadSource asyncReadSource = Bucket.ReadSource.ALL;
+
+  /**
+   * Threshold against which a bucket size is compared every {@link #endWindow()}. If the bucket size crosses the
+   * threshold, then bucket data is written to the WAL via {@link IncrementalCheckpointManagerImpl}.
+   */
+  private long writeBufferThreshold = Long.MAX_VALUE;
+
+  private transient long currentWindow;
 
   @Override
   public void setup(OperatorContext context)
@@ -205,20 +213,18 @@ public abstract class AbstractManagedStateImpl
       //All the wal files with windows <= activationWindow are loaded and kept separately as recovered data.
       try {
 
-        Map<Long, Object> statePerWindow = checkpointManager.retrieveAllWindows();
-        for (Map.Entry<Long, Object> stateEntry : statePerWindow.entrySet()) {
+        Map<Long, Map<Long, Map<Slice, Bucket.BucketedValue>>> statePerWindow = checkpointManager.retrieveAllWindows();
+        for (Map.Entry<Long, Map<Long, Map<Slice, Bucket.BucketedValue>>> stateEntry : statePerWindow.entrySet()) {
           Preconditions.checkArgument(stateEntry.getKey() <= activationWindow,
               stateEntry.getKey() + " greater than " + activationWindow);
-          @SuppressWarnings("unchecked")
-          Map<Long, Map<Slice, Bucket.BucketedValue>> state = (Map<Long, Map<Slice, Bucket.BucketedValue>>)
-              stateEntry.getValue();
+
+          Map<Long, Map<Slice, Bucket.BucketedValue>> state = stateEntry.getValue();
           if (state != null && !state.isEmpty()) {
             for (Map.Entry<Long, Map<Slice, Bucket.BucketedValue>> bucketEntry : state.entrySet()) {
               int bucketIdx = prepareBucket(bucketEntry.getKey());
               buckets[bucketIdx].recoveredData(stateEntry.getKey(), bucketEntry.getValue());
             }
           }
-          checkpointManager.save(state, stateEntry.getKey(), true /*skipWritingToWindowFile*/);
         }
       } catch (IOException e) {
         throw new RuntimeException("recovering", e);
@@ -239,6 +245,7 @@ public abstract class AbstractManagedStateImpl
 
   public void beginWindow(long windowId)
   {
+    currentWindow = windowId;
     if (throwable.get() != null) {
       Throwables.propagate(throwable.get());
     }
@@ -326,19 +333,14 @@ public abstract class AbstractManagedStateImpl
     return new Bucket.DefaultBucket(bucketId);
   }
 
-  public void endWindow()
-  {
-    timeBucketAssigner.endWindow();
-  }
-
   @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
-  @Override
-  public void beforeCheckpoint(long windowId)
+  private Map<Long, Map<Slice, Bucket.BucketedValue>> checkpointBucketsIfNecessary(long windowId,
+      boolean ignoreThreshold)
   {
     Map<Long, Map<Slice, Bucket.BucketedValue>> flashData = Maps.newHashMap();
-
     for (Bucket bucket : buckets) {
-      if (bucket != null) {
+
+      if (bucket != null && (ignoreThreshold || bucket.getSizeInBytes() > writeBufferThreshold)) {
         synchronized (bucket) {
           Map<Slice, Bucket.BucketedValue> flashDataForBucket = bucket.checkpoint(windowId);
           if (!flashDataForBucket.isEmpty()) {
@@ -347,12 +349,37 @@ public abstract class AbstractManagedStateImpl
         }
       }
     }
-    if (!flashData.isEmpty()) {
+    return flashData;
+  }
+
+  public void endWindow()
+  {
+    timeBucketAssigner.endWindow();
+    Map<Long, Map<Slice, Bucket.BucketedValue>> dataBucketsToCheckpoint = checkpointBucketsIfNecessary(currentWindow,
+        false);
+    if (!dataBucketsToCheckpoint.isEmpty()) {
       try {
-        checkpointManager.save(flashData, windowId, false);
+        checkpointManager.writeBuckets(currentWindow, dataBucketsToCheckpoint);
       } catch (IOException e) {
-        throw new RuntimeException(e);
+        throw new RuntimeException("writing buckets", e);
       }
+    }
+  }
+
+  @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
+  @Override
+  public void beforeCheckpoint(long windowId)
+  {
+    //checkpoint all the flash data of buckets irrespective of threshold.
+    Map<Long, Map<Slice, Bucket.BucketedValue>> dataBucketsToCheckpoint = checkpointBucketsIfNecessary(currentWindow,
+        true);
+    try {
+      if (!dataBucketsToCheckpoint.isEmpty()) {
+        checkpointManager.writeBuckets(windowId, dataBucketsToCheckpoint);
+      }
+      checkpointManager.beforeCheckpoint(windowId);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -366,18 +393,14 @@ public abstract class AbstractManagedStateImpl
   public void committed(long windowId)
   {
     synchronized (commitLock) {
-      try {
-        for (Bucket bucket : buckets) {
-          if (bucket != null) {
-            synchronized (bucket) {
-              bucket.committed(windowId);
-            }
+      for (Bucket bucket : buckets) {
+        if (bucket != null) {
+          synchronized (bucket) {
+            bucket.committed(windowId);
           }
         }
-        checkpointManager.committed(windowId);
-      } catch (IOException e) {
-        throw new RuntimeException("committing " + windowId, e);
       }
+      checkpointManager.committed(windowId);
     }
   }
 
@@ -402,7 +425,7 @@ public abstract class AbstractManagedStateImpl
   @Override
   public void purgeTimeBucketsLessThanEqualTo(long timeBucket)
   {
-    checkpointManager.setLatestExpiredTimeBucket(timeBucket);
+    checkpointManager.purgeTimeBucketsLessThanEqualTo(timeBucket);
   }
 
   @Override
@@ -587,6 +610,26 @@ public abstract class AbstractManagedStateImpl
   void setBucketsFileSystem(@NotNull BucketsFileSystem bucketsFileSystem)
   {
     this.bucketsFileSystem = Preconditions.checkNotNull(bucketsFileSystem, "buckets file system");
+  }
+
+  /**
+   * @return  write buffer threshold.
+   */
+  public long getWriteBufferThreshold()
+  {
+    return writeBufferThreshold;
+  }
+
+  /**
+   * Sets the write buffer threshold. The size of each bucket is compared against this threshold every
+   * {@link #endWindow()} and if the size is greater than this threshold, the bucket data is written to WAL via
+   * {@link IncrementalCheckpointManager}.
+   *
+   * @param writeBufferThreshold write buffer threshold.
+   */
+  public void setWriteBufferThreshold(long writeBufferThreshold)
+  {
+    this.writeBufferThreshold = writeBufferThreshold;
   }
 
   private static final transient Logger LOG = LoggerFactory.getLogger(AbstractManagedStateImpl.class);

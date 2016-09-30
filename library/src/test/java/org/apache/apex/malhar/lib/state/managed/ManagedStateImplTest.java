@@ -204,6 +204,33 @@ public class ManagedStateImplTest
     testMeta.managedState.teardown();
   }
 
+  @Test
+  public void tesWriteBufferThreshold()
+  {
+    Slice one = ManagedStateTestUtils.getSliceFor("1");
+    testMeta.managedState.setup(testMeta.operatorContext);
+    long time = System.currentTimeMillis();
+    testMeta.managedState.beginWindow(time);
+    testMeta.managedState.put(0, one, one);
+    testMeta.managedState.endWindow();
+
+    Bucket.DefaultBucket defaultBucket = (Bucket.DefaultBucket)testMeta.managedState.getBucket(0);
+    Assert.assertNull("nothing is check-pointed", defaultBucket.getCheckpointedData().get(time));
+
+    testMeta.managedState.setWriteBufferThreshold(one.length * 2); //reduce the write buffer size
+    testMeta.managedState.endWindow();
+    Assert.assertEquals("value of one", one, defaultBucket.getCheckpointedData().get(time).get(one).getValue());
+
+    Slice two = ManagedStateTestUtils.getSliceFor("2");
+    testMeta.managedState.beginWindow(time + 1);
+    testMeta.managedState.put(0, two, two);
+    testMeta.managedState.endWindow();
+    testMeta.managedState.beforeCheckpoint(time + 1);
+
+    Assert.assertEquals("value of two", two, defaultBucket.getCheckpointedData().get(time + 1).get(two).getValue());
+    testMeta.managedState.teardown();
+  }
+
   private void commitHelper(Slice one, Slice two)
   {
     testMeta.managedState.setup(testMeta.operatorContext);

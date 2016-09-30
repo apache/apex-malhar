@@ -712,7 +712,7 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
      * When the wal is used in batch-mode, this method will trigger rotation if the current part file is completed.
      * @throws IOException
      */
-    protected void rotateIfNecessary() throws IOException
+    public void rotateIfNecessary() throws IOException
     {
       if (fileSystemWAL.inBatchMode && currentPointer.offset >= fileSystemWAL.maxLength) {
         //if the file is completed then we can rotate it

@@ -25,6 +25,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.joda.time.Duration;
+
+import org.apache.apex.malhar.lib.state.managed.IncrementalCheckpointManagerImpl;
 import org.apache.apex.malhar.lib.state.managed.ManagedTimeStateImpl;
 import org.apache.apex.malhar.lib.state.managed.ManagedTimeStateMultiValue;
 import org.apache.apex.malhar.lib.state.spillable.Spillable;
@@ -147,8 +149,8 @@ public abstract class AbstractManagedStateInnerJoinOperator<K,T> extends Abstrac
     super.setup(context);
     ((FileAccessFSImpl)stream1Store.getFileAccess()).setBasePath(context.getValue(DAG.APPLICATION_PATH) + Path.SEPARATOR + stateDir + Path.SEPARATOR + String.valueOf(context.getId()) + Path.SEPARATOR + stream1State);
     ((FileAccessFSImpl)stream2Store.getFileAccess()).setBasePath(context.getValue(DAG.APPLICATION_PATH) + Path.SEPARATOR + stateDir + Path.SEPARATOR + String.valueOf(context.getId()) + Path.SEPARATOR + stream2State);
-    stream1Store.getCheckpointManager().setStatePath("managed_state_" + stream1State);
-    stream1Store.getCheckpointManager().setStatePath("managed_state_" + stream2State);
+    ((IncrementalCheckpointManagerImpl)stream1Store.getCheckpointManager()).setStatePath("managed_state_" + stream1State);
+    ((IncrementalCheckpointManagerImpl)stream1Store.getCheckpointManager()).setStatePath("managed_state_" + stream2State);
     stream1Store.setup(context);
     stream2Store.setup(context);
   }

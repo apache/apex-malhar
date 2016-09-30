@@ -36,14 +36,16 @@ import com.datatorrent.netlet.util.Slice;
  */
 public class FSWindowReplayWAL extends FileSystemWAL
 {
-  transient boolean readOnly;
+  private transient boolean readOnly;
 
+  //part number -> file descriptor
   transient TreeMultimap<Integer, FileDescriptor> fileDescriptors = TreeMultimap.create();
 
   //all the readers will read to this point while replaying.
   transient FileSystemWALPointer walEndPointerAfterRecovery;
   transient Slice retrievedWindow;
 
+  //window id -> wal part number which contains data for that window.
   transient TreeMap<Long, Integer>  windowWalParts = new TreeMap<>();
 
   FSWindowReplayWAL()
@@ -77,6 +79,11 @@ public class FSWindowReplayWAL extends FileSystemWAL
   public FileSystemWALPointer getWalEndPointerAfterRecovery()
   {
     return walEndPointerAfterRecovery;
+  }
+
+  public void setWalEndPointerAfterRecovery(FileSystemWALPointer walEndPointerAfterRecovery)
+  {
+    this.walEndPointerAfterRecovery = walEndPointerAfterRecovery;
   }
 
   /**
@@ -113,12 +120,12 @@ public class FSWindowReplayWAL extends FileSystemWAL
     }
   }
 
-  static class FileDescriptor implements Comparable<FileDescriptor>
+  public static class FileDescriptor implements Comparable<FileDescriptor>
   {
-    int part;
-    boolean isTmp;
-    long time;
-    Path filePath;
+    private int part;
+    private boolean isTmp;
+    private long time;
+    private Path filePath;
 
     static FileDescriptor create(Path filePath)
     {
@@ -185,6 +192,26 @@ public class FSWindowReplayWAL extends FileSystemWAL
         }
         return Long.compare(time, o.time);
       }
+    }
+
+    public int getPart()
+    {
+      return part;
+    }
+
+    public boolean isTmp()
+    {
+      return isTmp;
+    }
+
+    public long getTime()
+    {
+      return time;
+    }
+
+    public Path getFilePath()
+    {
+      return filePath;
     }
   }
 }
