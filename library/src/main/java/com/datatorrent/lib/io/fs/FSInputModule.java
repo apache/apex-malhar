@@ -42,12 +42,12 @@ import com.datatorrent.netlet.util.Slice;
  * 4. recursive: if scan recursively input directories<br/>
  * 5. blockSize: block size used to read input blocks of file<br/>
  * 6. readersCount: count of readers to read input file<br/>
- * 7. sequencialFileRead: If emit file blocks in sequence?<br/>
+ * 7. sequentialFileRead: If emit file blocks in sequence?<br/>
  * 8. blocksThreshold: number of blocks emitted per window
  *
  * @since 3.5.0
  */
-
+@org.apache.hadoop.classification.InterfaceStability.Evolving
 public class FSInputModule implements Module
 {
   @NotNull
@@ -58,7 +58,7 @@ public class FSInputModule implements Module
   private long scanIntervalMillis;
   private boolean recursive = true;
   private long blockSize;
-  private boolean sequencialFileRead = false;
+  private boolean sequentialFileRead = false;
   private int readersCount;
   @Min(1)
   protected int blocksThreshold;
@@ -89,7 +89,7 @@ public class FSInputModule implements Module
     blocksMetadataOutput.set(blockReader.blocksMetadataOutput);
     messages.set(blockReader.messages);
 
-    if (sequencialFileRead) {
+    if (sequentialFileRead) {
       dag.setInputPortAttribute(blockReader.blocksMetadataInput, Context.PortContext.STREAM_CODEC,
           new SequentialFileBlockMetadataCodec());
     }
@@ -236,23 +236,23 @@ public class FSInputModule implements Module
   }
 
   /**
-   * Gets is sequencial file read
+   * Gets is sequential file read
    *
-   * @return sequencialFileRead
+   * @return sequentialFileRead
    */
-  public boolean isSequencialFileRead()
+  public boolean isSequentialFileRead()
   {
-    return sequencialFileRead;
+    return sequentialFileRead;
   }
 
   /**
-   * Sets is sequencial file read
+   * Sets is sequential file read
    *
-   * @param sequencialFileRead
+   * @param sequentialFileRead
    */
-  public void setSequencialFileRead(boolean sequencialFileRead)
+  public void setSequentialFileRead(boolean sequentialFileRead)
   {
-    this.sequencialFileRead = sequencialFileRead;
+    this.sequentialFileRead = sequentialFileRead;
   }
 
   /**
@@ -283,7 +283,7 @@ public class FSInputModule implements Module
     @Override
     public int getPartition(BlockMetadata.FileBlockMetadata fileBlockMetadata)
     {
-      return fileBlockMetadata.hashCode();
+      return fileBlockMetadata.getFilePath().hashCode();
     }
   }
 }
