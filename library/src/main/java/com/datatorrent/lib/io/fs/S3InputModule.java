@@ -38,7 +38,7 @@ import com.datatorrent.lib.io.block.FSSliceReader;
  * 4. recursive: if scan recursively input directories<br/>
  * 5. blockSize: block size used to read input blocks of file<br/>
  * 6. readersCount: count of readers to read input file<br/>
- * 7. sequencialFileRead: Is emit file blocks in sequence?
+ * 7. sequentialFileRead: Is emit file blocks in sequence?
  *
  * @since 3.5.0
  */
