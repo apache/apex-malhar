@@ -49,7 +49,7 @@ import java.util.List;
  * @param <T>
  * @since 2.0.0
  */
-public abstract class AbstractKinesisOutputOperator<V, T> implements Operator
+public abstract class AbstractKinesisOutputOperator<V, T> implements Operator, Operator.CheckpointNotificationListener
 {
   private static final Logger logger = LoggerFactory.getLogger( AbstractKinesisOutputOperator.class );
   protected String streamName;
@@ -91,6 +91,10 @@ public abstract class AbstractKinesisOutputOperator<V, T> implements Operator
   {
   }
 
+  @Override
+  public void endWindow() {
+  }
+
   /**
    * Implement Component Interface.
    */
@@ -103,7 +107,7 @@ public abstract class AbstractKinesisOutputOperator<V, T> implements Operator
    * Implement Operator Interface.
    */
   @Override
-  public void endWindow()
+  public void beforeCheckpoint(long windowId)
   {
     if (isBatchProcessing && putRecordsRequestEntryList.size() != 0) {
       try {
@@ -112,6 +116,16 @@ public abstract class AbstractKinesisOutputOperator<V, T> implements Operator
         throw new RuntimeException(e);
       }
     }
+  }
+
+  @Override
+  public void checkpointed(long windowId)
+  {
+  }
+
+  @Override
+  public void committed(long windowId)
+  {
   }
 
   /**

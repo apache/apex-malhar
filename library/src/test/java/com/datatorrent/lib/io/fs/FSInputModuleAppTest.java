@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.hadoop.conf.Configuration;
@@ -120,6 +121,13 @@ public class FSInputModuleAppTest
     Assert.assertTrue("output dir does not exist", fs.exists(outDir));
 
     File dir = new File(outputDir);
+    LOG.info("Directory Path",dir.getPath());
+    String name = null;
+    for(File file : dir.listFiles()){
+      name = " " + file.getName() + " ,";
+    }
+    LOG.info("Files Names ", name);
+
     FileFilter fileFilter = new WildcardFileFilter(OUT_METADATA_FILE + "*");
     verifyFileContents(dir.listFiles(fileFilter), "[fileName=file1.txt, numberOfBlocks=2, isDirectory=false, relativePath=input/file1.txt]");
     verifyFileContents(dir.listFiles(fileFilter), "[fileName=file2.txt, numberOfBlocks=6, isDirectory=false, relativePath=input/file2.txt]");

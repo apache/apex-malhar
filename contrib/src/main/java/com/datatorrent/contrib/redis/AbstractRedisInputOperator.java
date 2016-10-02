@@ -31,7 +31,7 @@ import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import redis.clients.jedis.ScanParams;
 import redis.clients.jedis.ScanResult;
 
-import com.datatorrent.api.Operator.CheckpointListener;
+import com.datatorrent.api.Operator.CheckpointNotificationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.lib.db.AbstractKeyValueStoreInputOperator;
@@ -47,7 +47,7 @@ import com.datatorrent.lib.db.AbstractKeyValueStoreInputOperator;
  *          The tuple type.
  * @since 0.9.3
  */
-public abstract class AbstractRedisInputOperator<T> extends AbstractKeyValueStoreInputOperator<T, RedisStore> implements CheckpointListener
+public abstract class AbstractRedisInputOperator<T> extends AbstractKeyValueStoreInputOperator<T, RedisStore> implements CheckpointNotificationListener
 {
   protected transient List<String> keys = new ArrayList<String>();
   protected transient Integer scanOffset;
@@ -223,6 +223,11 @@ public abstract class AbstractRedisInputOperator<T> extends AbstractKeyValueStor
   }
 
   abstract public void processTuples();
+
+  @Override
+  public void beforeCheckpoint(long windowId)
+  {
+  }
 
   @Override
   public void checkpointed(long windowId)

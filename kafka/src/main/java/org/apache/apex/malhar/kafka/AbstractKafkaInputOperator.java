@@ -194,6 +194,11 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   }
 
   @Override
+  public void beforeCheckpoint(long windowId)
+  {
+  }
+
+  @Override
   public void checkpointed(long l)
   {
 
