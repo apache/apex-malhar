@@ -62,6 +62,7 @@ public class GenericFileOutputOperatorTest extends AbstractFileOutputOperatorTes
       }
       writer.endWindow();
     }
+    checkpoint(writer, 10);
     writer.committed(10);
 
     for (int i = 13; i <= 26; i++) {
@@ -71,7 +72,10 @@ public class GenericFileOutputOperatorTest extends AbstractFileOutputOperatorTes
       }
       writer.endWindow();
     }
+    checkpoint(writer, 20);
     writer.committed(20);
+
+    checkpoint(writer, 26);
     writer.committed(26);
 
     String[] expected = {"0a\n0b\n1a\n1b\n6a\n6b\n7a\n7b\n", "13a\n13b\n14a\n14b\n18a\n18b\n19a\n19b\n",
@@ -108,8 +112,10 @@ public class GenericFileOutputOperatorTest extends AbstractFileOutputOperatorTes
       }
       writer.endWindow();
       if (i % 10 == 0) {
+        checkpoint(writer, 10);
         writer.committed(10);
       }
+      checkpoint(writer, 24);
     }
     writer.committed(tuples.length);
 

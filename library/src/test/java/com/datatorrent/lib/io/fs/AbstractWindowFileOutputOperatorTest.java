@@ -22,6 +22,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.Description;
 
+import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest.FSTestWatcher;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
@@ -70,7 +71,7 @@ public class AbstractWindowFileOutputOperatorTest
     oper.input.process("window 0");
     oper.endWindow();
 
-    AbstractFileOutputOperator checkPoint = AbstractFileOutputOperatorTest.checkpoint(oper, 0);
+    AbstractFileOutputOperator checkPoint = AbstractFileOutputOperatorTest.checkpoint(oper, Stateless.WINDOW_ID);
 
     oper.beginWindow(1);
     oper.input.process("window 1");
@@ -110,7 +111,7 @@ public class AbstractWindowFileOutputOperatorTest
     oper.beginWindow(1);
     oper.input.process("1");
 
-    AbstractFileOutputOperator checkPoint = AbstractFileOutputOperatorTest.checkpoint(oper, -1);
+    AbstractFileOutputOperator checkPoint = AbstractFileOutputOperatorTest.checkpoint(oper, Stateless.WINDOW_ID);
 
     oper.input.process("1");
     oper.teardown();

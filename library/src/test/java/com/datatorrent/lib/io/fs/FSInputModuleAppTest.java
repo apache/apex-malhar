@@ -99,6 +99,7 @@ public class FSInputModuleAppTest
     conf.set("dt.operator.hdfsInputModule.prop.blockSize", "10");
     conf.set("dt.operator.hdfsInputModule.prop.blocksThreshold", "4");
     conf.set("dt.operator.hdfsInputModule.prop.scanIntervalMillis", "10000");
+    conf.set("dt.attr.CHECKPOINT_WINDOW_COUNT","10");
 
     LocalMode lma = LocalMode.newInstance();
     lma.prepareDAG(app, conf);

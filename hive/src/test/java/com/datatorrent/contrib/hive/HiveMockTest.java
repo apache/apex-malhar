@@ -50,7 +50,6 @@ import com.datatorrent.contrib.hive.AbstractFSRollingOutputOperator.FilePartitio
 import com.datatorrent.contrib.hive.FSPojoToHiveOperator.FIELD_TYPE;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
-
 public class HiveMockTest extends HiveTestService
 {
   public static final String APP_ID = "HiveOperatorTest";
@@ -250,6 +249,11 @@ public class HiveMockTest extends HiveTestService
       }
 
       fsRolling.endWindow();
+
+      if (wid == 6) {
+        fsRolling.beforeCheckpoint(wid);
+        fsRolling.checkpointed(wid);
+      }
     }
 
     fsRolling.teardown();
@@ -353,6 +357,11 @@ public class HiveMockTest extends HiveTestService
       }
 
       fsRolling.endWindow();
+
+      if (wid == 6) {
+        fsRolling.beforeCheckpoint(wid);
+        fsRolling.checkpointed(wid);
+      }
     }
 
     fsRolling.teardown();
@@ -520,6 +529,11 @@ public class HiveMockTest extends HiveTestService
       }
 
       fsRolling.endWindow();
+
+      if ((wid == 6) || (wid == 9)) {
+        fsRolling.beforeCheckpoint(wid);
+        fsRolling.checkpointed(wid);
+      }
 
       if (wid == 9) {
         Kryo kryo = new Kryo();
