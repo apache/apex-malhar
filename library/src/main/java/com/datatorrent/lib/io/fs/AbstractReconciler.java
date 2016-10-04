@@ -25,17 +25,14 @@ import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
-
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.Operator.CheckpointListener;
 import com.datatorrent.api.Operator.IdleTimeHandler;
+import com.datatorrent.api.Operator.CheckpointNotificationListener;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.common.util.NameableThreadFactory;
 import com.datatorrent.netlet.util.DTThrowable;
@@ -55,7 +52,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @since 2.0.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator implements CheckpointListener, IdleTimeHandler
+public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator implements CheckpointNotificationListener, IdleTimeHandler
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractReconciler.class);
   public transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>()
@@ -122,6 +119,11 @@ public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator
       DTThrowable.rethrow(cause.get());
     }
 
+  }
+
+  @Override
+  public void beforeCheckpoint(long l)
+  {
   }
 
   @Override

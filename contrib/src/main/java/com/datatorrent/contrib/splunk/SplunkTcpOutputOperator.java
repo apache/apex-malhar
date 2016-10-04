@@ -19,6 +19,7 @@
 package com.datatorrent.contrib.splunk;
 
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Operator;
 import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 import com.splunk.TcpInput;
 
@@ -34,7 +35,7 @@ import java.net.Socket;
  * @tags splunk
  * @since 1.0.4
  */
-public class SplunkTcpOutputOperator<T> extends AbstractStoreOutputOperator<T, SplunkStore> {
+public class SplunkTcpOutputOperator<T> extends AbstractStoreOutputOperator<T, SplunkStore> implements Operator.CheckpointNotificationListener {
 
   private String tcpPort;
   private transient Socket socket;
@@ -75,13 +76,23 @@ public class SplunkTcpOutputOperator<T> extends AbstractStoreOutputOperator<T, S
   }
 
   @Override
-  public void endWindow() {
-
+  public void beforeCheckpoint(long windowId)
+  {
     try {
       stream.flush();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public void checkpointed(long windowId)
+  {
+  }
+
+  @Override
+  public void committed(long windowId)
+  {
   }
 
   @Override

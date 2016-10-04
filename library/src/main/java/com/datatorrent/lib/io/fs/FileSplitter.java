@@ -79,7 +79,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
 @Deprecated
-public class FileSplitter implements InputOperator, Operator.CheckpointListener
+public class FileSplitter implements InputOperator, Operator.CheckpointListener, Operator.CheckpointNotificationListener
 {
   protected Long blockSize;
   private int sequenceNo;
@@ -377,6 +377,11 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener
   public WindowDataManager getWindowDataManager()
   {
     return this.windowDataManager;
+  }
+
+  @Override
+  public void beforeCheckpoint(long l)
+  {
   }
 
   @Override

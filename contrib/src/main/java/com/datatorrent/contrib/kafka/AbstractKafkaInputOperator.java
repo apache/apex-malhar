@@ -18,21 +18,6 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultPartition;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.Operator;
-import com.datatorrent.api.Operator.ActivationListener;
-import com.datatorrent.api.Partitioner;
-import com.datatorrent.api.Stats;
-import com.datatorrent.api.StatsListener;
-import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.Stateless;
-import com.datatorrent.lib.util.KryoCloneUtils;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 import kafka.api.FetchRequest;
 import kafka.api.FetchRequestBuilder;
 import kafka.cluster.Broker;
@@ -41,29 +26,32 @@ import kafka.javaapi.PartitionMetadata;
 import kafka.javaapi.consumer.SimpleConsumer;
 import kafka.message.Message;
 import kafka.message.MessageAndOffset;
-
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.*;
+import com.datatorrent.api.Operator.ActivationListener;
+import com.datatorrent.api.Operator.CheckpointListener;
+import com.datatorrent.api.Operator.CheckpointNotificationListener;
+import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.api.annotation.Stateless;
+import com.datatorrent.lib.io.IdempotentStorageManager;
+import com.datatorrent.lib.util.KryoCloneUtils;
 
 import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.getOffsetsForPartitions;
 
@@ -124,7 +112,7 @@ import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.ge
  */
 
 @OperatorAnnotation(partitionable = true)
-public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implements InputOperator, ActivationListener<OperatorContext>, Operator.CheckpointNotificationListener, Partitioner<AbstractKafkaInputOperator<K>>, StatsListener
+public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implements InputOperator, ActivationListener<OperatorContext>, CheckpointListener, CheckpointNotificationListener, Partitioner<AbstractKafkaInputOperator<K>>, StatsListener
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractKafkaInputOperator.class);
 
@@ -363,16 +351,15 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   }
 
   @Override
+  public void beforeCheckpoint(long windowId)
+  {
+  }
+
+  @Override
   public void checkpointed(long windowId)
   {
     // commit the consumer offset
     getConsumer().commitOffset();
-  }
-
-  @Override
-  public void beforeCheckpoint(long windowId)
-  {
-
   }
 
   @Override
