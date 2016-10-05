@@ -44,9 +44,16 @@ import com.datatorrent.netlet.util.Slice;
 
 public class ManagedStateTestUtils
 {
-  public static void transferBucketHelper(FileAccess fileAccess, long bucketId, Map<Slice, Bucket.BucketedValue>
-      unsavedBucket,
-      int keysPerTimeBucket) throws IOException
+  /**
+   * Validates the bucket data on the File System.
+   * @param fileAccess        file access
+   * @param bucketId          bucket id
+   * @param unsavedBucket     bucket data to compare with.
+   * @param keysPerTimeBucket num keys per time bucket
+   * @throws IOException
+   */
+  public static void validateBucketOnFileSystem(FileAccess fileAccess, long bucketId,
+      Map<Slice, Bucket.BucketedValue> unsavedBucket, int keysPerTimeBucket) throws IOException
   {
     RemoteIterator<LocatedFileStatus> iterator = fileAccess.listFiles(bucketId);
     TreeMap<Slice, Slice> fromDisk = Maps.newTreeMap(new SliceComparator());
@@ -77,7 +84,7 @@ public class ManagedStateTestUtils
       public Slice apply(@Nullable Bucket.BucketedValue input)
       {
         assert input != null;
-        return input.getValue();
+        return Bucket.BucketedValue.serialize(input);
       }
     });
     Assert.assertEquals("data of bucket" + bucketId, testBucket, fromDisk);
@@ -98,7 +105,7 @@ public class ManagedStateTestUtils
     Map<Slice, Bucket.BucketedValue> bucketData = Maps.newHashMap();
     for (int j = 0; j < 5; j++) {
       Slice keyVal = new Slice(Integer.toString(keyStart).getBytes());
-      bucketData.put(keyVal, new Bucket.BucketedValue(timeBucketStart + j, keyVal));
+      bucketData.put(keyVal, new Bucket.BucketedValue(timeBucketStart + j, keyVal, timeBucketStart + j));
       keyStart++;
     }
     return bucketData;

@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -36,6 +36,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.primitives.Longs;
 
 import com.datatorrent.lib.fileaccess.FileAccess;
 import com.datatorrent.netlet.util.Slice;
@@ -64,9 +65,9 @@ public interface Bucket extends ManagedStateComponent
    * @param key        key.
    * @param timeBucket time bucket of the key if known; -1 otherwise.
    * @param source     source to read from
-   * @return value of the key.
+   * @return bucketed value of the key.
    */
-  Slice get(Slice key, long timeBucket, ReadSource source);
+  BucketedValue get(Slice key, long timeBucket, ReadSource source);
 
   /**
    * Set value of a key.
@@ -74,8 +75,9 @@ public interface Bucket extends ManagedStateComponent
    * @param key        key.
    * @param timeBucket timeBucket of the key.
    * @param value      value of the key.
+   * @param time       time associated with event.
    */
-  void put(Slice key, long timeBucket, Slice value);
+  void put(Slice key, long timeBucket, Slice value, long time);
 
   /**
    * Triggers the bucket to checkpoint. Returns the non checkpointed data so far.
@@ -120,15 +122,17 @@ public interface Bucket extends ManagedStateComponent
   {
     private long timeBucket;
     private Slice value;
+    private long latestTime;
 
     protected BucketedValue()
     {
     }
 
-    protected BucketedValue(long timeBucket, Slice value)
+    protected BucketedValue(long timeBucket, Slice value, long latestTime)
     {
       this.timeBucket = timeBucket;
       this.value = value;
+      this.latestTime = latestTime;
     }
 
     protected long getTimeBucket()
@@ -141,6 +145,16 @@ public interface Bucket extends ManagedStateComponent
       this.timeBucket = timeBucket;
     }
 
+    protected long getLatestTime()
+    {
+      return latestTime;
+    }
+
+    protected void setLatestTime(long time)
+    {
+      this.latestTime = time;
+    }
+
     public Slice getValue()
     {
       return value;
@@ -149,6 +163,16 @@ public interface Bucket extends ManagedStateComponent
     public void setValue(Slice value)
     {
       this.value = value;
+    }
+
+    public long getSize()
+    {
+      long size = 0;
+      if (value != null) {
+        size += value.length;
+      }
+      size += Longs.BYTES * 2; //latest time & time-bucket
+      return size;
     }
 
     @Override
@@ -172,6 +196,36 @@ public interface Bucket extends ManagedStateComponent
     {
       return Objects.hash(timeBucket, value);
     }
+
+    public static Slice serialize(BucketedValue bucketedValue)
+    {
+      byte[] serializedVal = new byte[Longs.BYTES + bucketedValue.value.length];
+      byte[] latestTimeBytes = Longs.toByteArray(bucketedValue.latestTime);
+
+      System.arraycopy(latestTimeBytes, 0, serializedVal, 0, latestTimeBytes.length);
+      System.arraycopy(bucketedValue.value.buffer, bucketedValue.value.offset, serializedVal, latestTimeBytes.length,
+          bucketedValue.value.length);
+
+      return new Slice(serializedVal);
+    }
+
+    public static BucketedValue deserialize(Slice serializedSlice, long timeBucket)
+    {
+      BucketedValue bucketedValue = new BucketedValue();
+
+      byte[] latestTimeBytes = new byte[Longs.BYTES];
+      System.arraycopy(serializedSlice.buffer, serializedSlice.offset, latestTimeBytes, 0, Longs.BYTES);
+      bucketedValue.latestTime = Longs.fromByteArray(latestTimeBytes);
+
+      //not creating a new slice instance but just modifying the offset and length
+      serializedSlice.offset += Longs.BYTES;
+      serializedSlice.length -= Longs.BYTES;
+      bucketedValue.value = serializedSlice;
+
+      bucketedValue.timeBucket = timeBucket;
+      return bucketedValue;
+    }
+
   }
 
   /**
@@ -205,7 +259,7 @@ public interface Bucket extends ManagedStateComponent
 
     private final transient Slice dummyGetKey = new Slice(null, 0, 0);
 
-    private transient TreeSet<BucketsFileSystem.TimeBucketMeta> cachedBucketMetas;
+    private transient TreeMap<Long, BucketsFileSystem.TimeBucketMeta> cachedBucketMetas;
 
     private DefaultBucket()
     {
@@ -236,19 +290,19 @@ public interface Bucket extends ManagedStateComponent
       return sizeInBytes.longValue();
     }
 
-    private Slice getFromMemory(Slice key)
+    private BucketedValue getFromMemory(Slice key)
     {
       //search the cache for key
       BucketedValue bucketedValue = flash.get(key);
       if (bucketedValue != null) {
-        return bucketedValue.getValue();
+        return bucketedValue;
       }
 
       for (Long window : checkpointedData.descendingKeySet()) {
         //traverse the checkpointed data in reverse order
         bucketedValue = checkpointedData.get(window).get(key);
         if (bucketedValue != null) {
-          return bucketedValue.getValue();
+          return bucketedValue;
         }
       }
 
@@ -256,47 +310,47 @@ public interface Bucket extends ManagedStateComponent
         //traverse the committed data in reverse order
         bucketedValue = committedData.get(window).get(key);
         if (bucketedValue != null) {
-          return bucketedValue.getValue();
+          return bucketedValue;
         }
       }
 
       bucketedValue = fileCache.get(key);
       if (bucketedValue != null) {
-        return bucketedValue.getValue();
+        return bucketedValue;
       }
 
       return null;
     }
 
-    private Slice getFromReaders(Slice key, long timeBucket)
+    private BucketedValue getFromReaders(Slice key, long timeBucket)
     {
       try {
         if (cachedBucketMetas == null) {
           cachedBucketMetas = managedStateContext.getBucketsFileSystem().getAllTimeBuckets(bucketId);
         }
         if (timeBucket != -1) {
-          Slice valSlice = getValueFromTimeBucketReader(key, timeBucket);
-          if (valSlice != null) {
-            if (timeBucket == cachedBucketMetas.first().getTimeBucketId()) {
+          BucketedValue bucketedValue = getValueFromTimeBucketReader(key, timeBucket);
+          if (bucketedValue != null) {
+            if (timeBucket == cachedBucketMetas.firstKey()) {
               //if the requested time bucket is the latest time bucket on file, the key/value is put in the file cache.
-              BucketedValue bucketedValue = new BucketedValue(timeBucket, valSlice);
+              sizeInBytes.getAndAdd(key.length + bucketedValue.getSize());
               fileCache.put(key, bucketedValue);
             }
           }
-          return valSlice;
+          return bucketedValue;
         } else {
           //search all the time buckets
-          for (BucketsFileSystem.TimeBucketMeta immutableTimeBucketMeta : cachedBucketMetas) {
+          for (BucketsFileSystem.TimeBucketMeta immutableTimeBucketMeta : cachedBucketMetas.values()) {
             if (managedStateContext.getKeyComparator().compare(key, immutableTimeBucketMeta.getFirstKey()) >= 0) {
               //keys in the time bucket files are sorted so if the first key in the file is greater than the key being
               //searched, the key will not be present in that file.
-              Slice valSlice = getValueFromTimeBucketReader(key, immutableTimeBucketMeta.getTimeBucketId());
-              if (valSlice != null) {
-                BucketedValue bucketedValue = new BucketedValue(immutableTimeBucketMeta.getTimeBucketId(), valSlice);
+              BucketedValue bucketedValue = getValueFromTimeBucketReader(key, immutableTimeBucketMeta.getTimeBucketId());
+              if (bucketedValue != null) {
                 //Only when the key is read from the latest time bucket on the file, the key/value is put in the file
                 // cache.
+                sizeInBytes.getAndAdd(key.length + bucketedValue.getSize());
                 fileCache.put(key, bucketedValue);
-                return valSlice;
+                return bucketedValue;
               }
             }
           }
@@ -309,7 +363,7 @@ public interface Bucket extends ManagedStateComponent
     }
 
     @Override
-    public Slice get(Slice key, long timeBucket, ReadSource readSource)
+    public BucketedValue get(Slice key, long timeBucket, ReadSource readSource)
     {
       switch (readSource) {
         case MEMORY:
@@ -318,9 +372,9 @@ public interface Bucket extends ManagedStateComponent
           return getFromReaders(key, timeBucket);
         case ALL:
         default:
-          Slice value = getFromMemory(key);
-          if (value != null) {
-            return value;
+          BucketedValue bucketedValue = getFromMemory(key);
+          if (bucketedValue != null) {
+            return bucketedValue;
           }
           return getFromReaders(key, timeBucket);
       }
@@ -332,7 +386,7 @@ public interface Bucket extends ManagedStateComponent
      * @param timeBucket time bucket
      * @return value if key is found in the time bucket; false otherwise
      */
-    private Slice getValueFromTimeBucketReader(Slice key, long timeBucket)
+    private BucketedValue getValueFromTimeBucketReader(Slice key, long timeBucket)
     {
       FileAccess.FileReader fileReader = readers.get(timeBucket);
       if (fileReader != null) {
@@ -349,13 +403,13 @@ public interface Bucket extends ManagedStateComponent
       }
     }
 
-    private Slice readValue(FileAccess.FileReader fileReader, Slice key, long timeBucket)
+    private BucketedValue readValue(FileAccess.FileReader fileReader, Slice key, long timeBucket)
     {
       Slice valSlice = new Slice(null, 0, 0);
       try {
         if (fileReader.seek(key)) {
           fileReader.next(dummyGetKey, valSlice);
-          return valSlice;
+          return BucketedValue.deserialize(valSlice, timeBucket);
         } else {
           return null;
         }
@@ -380,24 +434,26 @@ public interface Bucket extends ManagedStateComponent
     }
 
     @Override
-    public void put(Slice key, long timeBucket, Slice value)
+    public void put(Slice key, long timeBucket, Slice value, long time)
     {
       BucketedValue bucketedValue = flash.get(key);
       if (bucketedValue == null) {
-        bucketedValue = new BucketedValue();
+        bucketedValue = new BucketedValue(timeBucket, value, time);
         flash.put(key, bucketedValue);
-        sizeInBytes.getAndAdd(key.length);
-        sizeInBytes.getAndAdd(Long.SIZE);
-      }
-      if (timeBucket >= bucketedValue.getTimeBucket()) {
-
-        int inc = null == bucketedValue.getValue() ? value.length : value.length - bucketedValue.getValue().length;
-        sizeInBytes.getAndAdd(inc);
-        bucketedValue.setTimeBucket(timeBucket);
-        bucketedValue.setValue(value);
+        sizeInBytes.getAndAdd(key.length + value.length + Longs.BYTES * 2);
       } else {
-        LOG.warn("ignoring {} {} {}; existing {} {}", key, value, timeBucket,
-            bucketedValue.getValue(), bucketedValue.getTimeBucket());
+        if (timeBucket > bucketedValue.getTimeBucket() ||
+            (timeBucket == bucketedValue.getTimeBucket() && time >= bucketedValue.getLatestTime())) {
+
+          int inc = null == bucketedValue.getValue() ? value.length : value.length - bucketedValue.getValue().length;
+          sizeInBytes.getAndAdd(inc);
+          bucketedValue.setTimeBucket(timeBucket);
+          bucketedValue.setValue(value);
+          bucketedValue.setLatestTime(time);
+        } else {
+          LOG.warn("ignoring {} {} {} {}; existing {} {} {}", key, value, timeBucket, time,
+              bucketedValue.getValue(), bucketedValue.getTimeBucket(), bucketedValue.getLatestTime());
+        }
       }
     }
 
@@ -411,14 +467,17 @@ public interface Bucket extends ManagedStateComponent
         Map<Slice, BucketedValue> windowData = committedData.remove(clearWindowId);
 
         for (Map.Entry<Slice, BucketedValue> entry: windowData.entrySet()) {
-          memoryFreed += entry.getKey().length + entry.getValue().getValue().length;
+          memoryFreed += entry.getKey().length + entry.getValue().getSize();
         }
       }
 
+      for (Map.Entry<Slice, BucketedValue> fileCacheEntry : fileCache.entrySet()) {
+        memoryFreed += fileCacheEntry.getKey().length + fileCacheEntry.getValue().getSize();
+      }
       fileCache.clear();
       if (cachedBucketMetas != null) {
 
-        for (BucketsFileSystem.TimeBucketMeta tbm : cachedBucketMetas) {
+        for (BucketsFileSystem.TimeBucketMeta tbm : cachedBucketMetas.values()) {
           FileAccess.FileReader reader = readers.remove(tbm.getTimeBucketId());
           if (reader != null) {
             memoryFreed += tbm.getSizeInBytes();
@@ -456,9 +515,14 @@ public interface Bucket extends ManagedStateComponent
         if (savedWindow <= committedWindowId) {
           Map<Slice, BucketedValue> bucketData = entry.getValue();
 
+          long memoryFreed = 0;
+
           //removing any stale values from the file cache
           for (Slice key : bucketData.keySet()) {
-            fileCache.remove(key);
+            BucketedValue bucketedValueInFileCache = fileCache.remove(key);
+            if (bucketedValueInFileCache != null) {
+              memoryFreed += bucketedValueInFileCache.getSize() + key.length;
+            }
           }
 
           for (BucketedValue bucketedValue : bucketData.values()) {
@@ -467,6 +531,8 @@ public interface Bucket extends ManagedStateComponent
               //closing the file reader for the time bucket if it is in memory because the time-bucket is modified
               //so it will be re-written by BucketsDataManager
               try {
+                BucketsFileSystem.TimeBucketMeta tbm = cachedBucketMetas.get(bucketedValue.getTimeBucket());
+                memoryFreed += tbm.getSizeInBytes();
                 LOG.debug("closing reader {} {}", bucketId, bucketedValue.getTimeBucket());
                 reader.close();
               } catch (IOException e) {
@@ -478,7 +544,7 @@ public interface Bucket extends ManagedStateComponent
               break;
             }
           }
-
+          sizeInBytes.getAndAdd(-memoryFreed);
           committedData.put(savedWindow, bucketData);
           stateIterator.remove();
         } else {

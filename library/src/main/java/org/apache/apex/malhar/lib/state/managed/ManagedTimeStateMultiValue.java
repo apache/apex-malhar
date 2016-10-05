@@ -71,7 +71,6 @@ public class ManagedTimeStateMultiValue<K,V> implements Spillable.SpillableListM
   {
     this();
     this.store = Preconditions.checkNotNull(store);
-    this.store.asyncReadSource = Bucket.ReadSource.READERS;
     this.isKeyContainsMultiValue = isKeyContainsMultiValue;
   }
 
@@ -235,7 +234,7 @@ public class ManagedTimeStateMultiValue<K,V> implements Spillable.SpillableListM
   {
     long timeBucketId = store.getTimeBucketAssigner().getTimeBucketAndAdjustBoundaries(timeBucket);
     if (timeBucketId != -1) {
-      store.putInBucket(bucketId, timeBucketId, keySlice, valueSlice);
+      store.putInBucket(bucketId, timeBucketId, keySlice, valueSlice, timeBucket);
       return true;
     }
     return false;

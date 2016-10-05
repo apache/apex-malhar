@@ -28,6 +28,8 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import com.google.common.primitives.Longs;
+
 import com.datatorrent.lib.fileaccess.FileAccess;
 import com.datatorrent.lib.fileaccess.FileAccessFSImpl;
 import com.datatorrent.lib.util.TestUtils;
@@ -71,15 +73,16 @@ public class DefaultBucketTest
   {
     testMeta.defaultBucket.setup(testMeta.managedStateContext);
     Slice one = ManagedStateTestUtils.getSliceFor("1");
-    testMeta.defaultBucket.put(one, 1, one);
+    testMeta.defaultBucket.put(one, 1, one, 1);
 
-    Slice value = testMeta.defaultBucket.get(one, 1, Bucket.ReadSource.MEMORY);
-    Assert.assertEquals("value one", one, value);
+    Bucket.BucketedValue bucketedValue = testMeta.defaultBucket.get(one, 1, Bucket.ReadSource.MEMORY);
+    Assert.assertEquals("value one", one, bucketedValue.getValue());
+    Assert.assertEquals("latest time", 1, bucketedValue.getLatestTime());
 
-    value = testMeta.defaultBucket.get(one, 1, Bucket.ReadSource.READERS);
-    Assert.assertNull("value not present", value);
+    bucketedValue = testMeta.defaultBucket.get(one, 1, Bucket.ReadSource.READERS);
+    Assert.assertNull("value not present", bucketedValue);
 
-    Assert.assertEquals("size of bucket", one.length * 2 + 64, testMeta.defaultBucket.getSizeInBytes());
+    Assert.assertEquals("size of bucket", one.length * 2 + Longs.BYTES * 2, testMeta.defaultBucket.getSizeInBytes());
     testMeta.defaultBucket.teardown();
   }
 
@@ -92,10 +95,11 @@ public class DefaultBucketTest
     Map<Slice, Bucket.BucketedValue> unsavedBucket0 = ManagedStateTestUtils.getTestBucketData(0, 100);
     testMeta.managedStateContext.getBucketsFileSystem().writeBucketData(1, 1, unsavedBucket0);
 
-    ManagedStateTestUtils.transferBucketHelper(testMeta.managedStateContext.getFileAccess(), 1, unsavedBucket0, 1);
+    ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedStateContext.getFileAccess(), 1, unsavedBucket0, 1);
 
-    Slice value = testMeta.defaultBucket.get(one, -1, Bucket.ReadSource.READERS);
-    Assert.assertEquals("value one", one, value);
+    Bucket.BucketedValue bucketedValue = testMeta.defaultBucket.get(one, -1, Bucket.ReadSource.READERS);
+    Assert.assertEquals("value one", one, bucketedValue.getValue());
+    Assert.assertEquals("latest time", 101, bucketedValue.getLatestTime());
 
     testMeta.defaultBucket.teardown();
   }
@@ -109,10 +113,10 @@ public class DefaultBucketTest
     Map<Slice, Bucket.BucketedValue> unsavedBucket0 = ManagedStateTestUtils.getTestBucketData(0, 100);
     testMeta.managedStateContext.getBucketsFileSystem().writeBucketData(1, 1, unsavedBucket0);
 
-    ManagedStateTestUtils.transferBucketHelper(testMeta.managedStateContext.getFileAccess(), 1, unsavedBucket0, 1);
+    ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedStateContext.getFileAccess(), 1, unsavedBucket0, 1);
 
-    Slice value = testMeta.defaultBucket.get(one, 101, Bucket.ReadSource.READERS);
-    Assert.assertEquals("value one", one, value);
+    Bucket.BucketedValue bucketedValue = testMeta.defaultBucket.get(one, 101, Bucket.ReadSource.READERS);
+    Assert.assertEquals("value one", one, bucketedValue.getValue());
 
     testMeta.defaultBucket.teardown();
   }
@@ -140,8 +144,8 @@ public class DefaultBucketTest
     Slice one = ManagedStateTestUtils.getSliceFor("1");
     testCheckpointed();
     testMeta.defaultBucket.committed(10);
-    Slice value = testMeta.defaultBucket.get(one, -1, Bucket.ReadSource.MEMORY);
-    Assert.assertEquals("value one", one, value);
+    Bucket.BucketedValue bucketedValue = testMeta.defaultBucket.get(one, -1, Bucket.ReadSource.MEMORY);
+    Assert.assertEquals("value one", one, bucketedValue.getValue());
     testMeta.defaultBucket.teardown();
   }
 
@@ -156,16 +160,16 @@ public class DefaultBucketTest
     Slice two = ManagedStateTestUtils.getSliceFor("2");
     Slice one = ManagedStateTestUtils.getSliceFor("1");
 
-    testMeta.defaultBucket.put(two, 101, two);
+    testMeta.defaultBucket.put(two, 101, two, 101);
     Map<Slice, Bucket.BucketedValue> unsaved = testMeta.defaultBucket.checkpoint(10);
     Assert.assertEquals("size", 1, unsaved.size());
     testMeta.defaultBucket.committed(10);
 
-    Slice value = testMeta.defaultBucket.get(two, -1, Bucket.ReadSource.MEMORY);
-    Assert.assertEquals("value two", two, value);
+    Bucket.BucketedValue bucketedValue = testMeta.defaultBucket.get(two, -1, Bucket.ReadSource.MEMORY);
+    Assert.assertEquals("value two", two, bucketedValue.getValue());
 
-    value = testMeta.defaultBucket.get(one, -1, Bucket.ReadSource.MEMORY);
-    Assert.assertEquals("value one", one, value);
+    bucketedValue = testMeta.defaultBucket.get(one, -1, Bucket.ReadSource.MEMORY);
+    Assert.assertEquals("value one", one, bucketedValue.getValue());
 
     Assert.assertTrue("reader closed", !readers.containsKey(101L));
     testMeta.defaultBucket.teardown();
@@ -191,13 +195,37 @@ public class DefaultBucketTest
     long initSize = testMeta.defaultBucket.getSizeInBytes();
 
     Slice two = ManagedStateTestUtils.getSliceFor("2");
-    testMeta.defaultBucket.put(two, 101, two);
+    testMeta.defaultBucket.put(two, 101, two, 101);
 
-    Assert.assertEquals("size", initSize + (two.length * 2 + 64), testMeta.defaultBucket.getSizeInBytes());
+    Assert.assertEquals("size", initSize + (two.length * 2 + Longs.BYTES * 2), testMeta.defaultBucket.getSizeInBytes());
 
     long sizeFreed = testMeta.defaultBucket.freeMemory(Long.MAX_VALUE);
     Assert.assertEquals("size freed", initSize, sizeFreed);
-    Assert.assertEquals("existing size", (two.length * 2 + 64), testMeta.defaultBucket.getSizeInBytes());
+    Assert.assertEquals("existing size", (two.length * 2 + Longs.BYTES * 2), testMeta.defaultBucket.getSizeInBytes());
+    testMeta.defaultBucket.teardown();
+  }
+
+  @Test
+  public void testOutOfOrderPut()
+  {
+    testMeta.defaultBucket.setup(testMeta.managedStateContext);
+    Slice one = ManagedStateTestUtils.getSliceFor("1");
+    testMeta.defaultBucket.put(one, 1, one, 1);
+
+    Slice two = ManagedStateTestUtils.getSliceFor("2");
+    testMeta.defaultBucket.put(one, 1, two, 2);
+
+    Bucket.BucketedValue bucketedValue = testMeta.defaultBucket.get(one, 1, Bucket.ReadSource.MEMORY);
+    Assert.assertEquals("value one", two, bucketedValue.getValue());
+    Assert.assertEquals("latest time", 2, bucketedValue.getLatestTime());
+
+    Slice three = ManagedStateTestUtils.getSliceFor("3");
+    testMeta.defaultBucket.put(one, 1, three, 1);
+
+    bucketedValue = testMeta.defaultBucket.get(one, 1, Bucket.ReadSource.MEMORY);
+    Assert.assertEquals("value one", two, bucketedValue.getValue());
+    Assert.assertEquals("latest time", 2, bucketedValue.getLatestTime());
+
     testMeta.defaultBucket.teardown();
   }
 

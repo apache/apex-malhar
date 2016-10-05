@@ -49,7 +49,7 @@ public class ManagedTimeStateImpl extends AbstractManagedStateImpl implements Ti
   public void put(long bucketId, long time, @NotNull Slice key, @NotNull Slice value)
   {
     long timeBucket = timeBucketAssigner.getTimeBucketAndAdjustBoundaries(time);
-    putInBucket(bucketId, timeBucket, key, value);
+    putInBucket(bucketId, timeBucket, key, value, time);
   }
 
   @Override
