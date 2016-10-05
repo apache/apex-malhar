@@ -134,8 +134,8 @@ public class ManagedTimeUnifiedStateImplTest
 
     //write data to disk explicitly
     testMeta.managedState.bucketsFileSystem.writeBucketData(time, 0, unsavedBucket0);
-    ManagedStateTestUtils.transferBucketHelper(testMeta.managedState.getFileAccess(), testMeta.operatorContext.getId(),
-        unsavedBucket0, 1);
+    ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedState.getFileAccess(),
+        testMeta.operatorContext.getId(), unsavedBucket0, 1);
 
     Slice value = testMeta.managedState.getSync(time, zero);
 
@@ -156,8 +156,8 @@ public class ManagedTimeUnifiedStateImplTest
 
     //write data to disk explicitly
     testMeta.managedState.bucketsFileSystem.writeBucketData(time, 0, unsavedBucket0);
-    ManagedStateTestUtils.transferBucketHelper(testMeta.managedState.getFileAccess(), testMeta.operatorContext.getId(),
-        unsavedBucket0, 1);
+    ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedState.getFileAccess(),
+        testMeta.operatorContext.getId(), unsavedBucket0, 1);
 
     Future<Slice> valFuture = testMeta.managedState.getAsync(time, zero);
 

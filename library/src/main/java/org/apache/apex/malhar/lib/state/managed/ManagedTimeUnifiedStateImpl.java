@@ -68,7 +68,7 @@ public class ManagedTimeUnifiedStateImpl extends AbstractManagedStateImpl implem
   public void put(long time, @NotNull Slice key, @NotNull Slice value)
   {
     long timeBucket = timeBucketAssigner.getTimeBucketAndAdjustBoundaries(time);
-    putInBucket(timeBucket, timeBucket, key, value);
+    putInBucket(timeBucket, timeBucket, key, value, time );
   }
 
   @Override

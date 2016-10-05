@@ -172,8 +172,6 @@ public abstract class AbstractManagedStateImpl
   protected final transient ListMultimap<Long, ValueFetchTask> tasksPerBucketId =
       Multimaps.synchronizedListMultimap(ArrayListMultimap.<Long, ValueFetchTask>create());
 
-  protected Bucket.ReadSource asyncReadSource = Bucket.ReadSource.ALL;
-
   @Override
   public void setup(OperatorContext context)
   {
@@ -267,14 +265,21 @@ public abstract class AbstractManagedStateImpl
     return bucketIdx;
   }
 
-  protected void putInBucket(long bucketId, long timeBucket, @NotNull Slice key, @NotNull Slice value)
+  @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
+  protected void putInBucket(long bucketId, long timeBucket, @NotNull Slice key, @NotNull Slice value,
+      long time)
   {
     Preconditions.checkNotNull(key, "key");
     Preconditions.checkNotNull(value, "value");
     if (timeBucket != -1) {
       //time bucket is invalid data is not stored
       int bucketIdx = prepareBucket(bucketId);
-      buckets[bucketIdx].put(key, timeBucket, value);
+      //synchronization on a bucket isn't required for put because the event is added to flash which is
+      //a concurrent map. The assumption here is that the calls to put & get(sync/async) are being made synchronously by
+      //a single thread (operator thread). The get(sync/async) always checks memory first synchronously.
+      //If the key is not in the memory, then the async get will uses other reader threads which will fetch it from
+      //the files.
+      buckets[bucketIdx].put(key, timeBucket, value, time);
     }
   }
 
@@ -285,7 +290,11 @@ public abstract class AbstractManagedStateImpl
     int bucketIdx = prepareBucket(bucketId);
     Bucket bucket = buckets[bucketIdx];
     synchronized (bucket) {
-      return bucket.get(key, timeBucket, Bucket.ReadSource.ALL);
+      Bucket.BucketedValue bucketedValue = bucket.get(key, timeBucket, Bucket.ReadSource.ALL);
+      if (bucketedValue != null) {
+        return bucketedValue.getValue();
+      }
+      return null;
     }
   }
 
@@ -296,9 +305,10 @@ public abstract class AbstractManagedStateImpl
     int bucketIdx = prepareBucket(bucketId);
     Bucket bucket = buckets[bucketIdx];
     synchronized (bucket) {
-      Slice cachedVal = bucket.get(key, timeBucket, Bucket.ReadSource.MEMORY);
-      if (cachedVal != null) {
-        return Futures.immediateFuture(cachedVal);
+      Bucket.BucketedValue bucketedValue = bucket.get(key, timeBucket, Bucket.ReadSource.MEMORY);
+
+      if (bucketedValue != null) {
+        return Futures.immediateFuture(bucketedValue.getValue());
       }
       ValueFetchTask valueFetchTask = new ValueFetchTask(bucket, key, timeBucket, this);
       tasksPerBucketId.put(bucket.getBucketId(), valueFetchTask);
@@ -566,9 +576,12 @@ public abstract class AbstractManagedStateImpl
         synchronized (bucket) {
           //a particular bucket should only be handled by one thread at any point of time. Handling of bucket here
           //involves creating readers for the time buckets and de-serializing key/value from a reader.
-          Slice value = bucket.get(key, timeBucketId, this.managedState.asyncReadSource);
+          Bucket.BucketedValue bucketedValue = bucket.get(key, timeBucketId, Bucket.ReadSource.ALL);
           managedState.tasksPerBucketId.remove(bucket.getBucketId(), this);
-          return value;
+          if (bucketedValue != null) {
+            return bucketedValue.getValue();
+          }
+          return null;
         }
       } catch (Throwable t) {
         managedState.throwable.set(t);
