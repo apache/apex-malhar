@@ -202,6 +202,7 @@
         <module>benchmark</module>
         <module>apps</module>
         <module>samples</module>
+        <module>sketches</module>
       </modules>
     </profile>
   </profiles>
