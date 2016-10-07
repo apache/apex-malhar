@@ -44,9 +44,16 @@ import com.datatorrent.netlet.util.Slice;
 
 public class ManagedStateTestUtils
 {
-  public static void transferBucketHelper(FileAccess fileAccess, long bucketId, Map<Slice, Bucket.BucketedValue>
-      unsavedBucket,
-      int keysPerTimeBucket) throws IOException
+  /**
+   * Validates the bucket data on the File System.
+   * @param fileAccess        file access
+   * @param bucketId          bucket id
+   * @param unsavedBucket     bucket data to compare with.
+   * @param keysPerTimeBucket num keys per time bucket
+   * @throws IOException
+   */
+  public static void validateBucketOnFileSystem(FileAccess fileAccess, long bucketId,
+      Map<Slice, Bucket.BucketedValue> unsavedBucket, int keysPerTimeBucket) throws IOException
   {
     RemoteIterator<LocatedFileStatus> iterator = fileAccess.listFiles(bucketId);
     TreeMap<Slice, Slice> fromDisk = Maps.newTreeMap(new SliceComparator());

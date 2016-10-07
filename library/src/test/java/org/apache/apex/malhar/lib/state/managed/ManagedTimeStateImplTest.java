@@ -85,7 +85,7 @@ public class ManagedTimeStateImplTest
 
     Map<Slice, Bucket.BucketedValue> unsavedBucket0 = ManagedStateTestUtils.getTestBucketData(0, time);
     testMeta.managedState.bucketsFileSystem.writeBucketData(time, 0, unsavedBucket0);
-    ManagedStateTestUtils.transferBucketHelper(testMeta.managedState.getFileAccess(), 0, unsavedBucket0, 1);
+    ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedState.getFileAccess(), 0, unsavedBucket0, 1);
 
     Future<Slice> valFuture = testMeta.managedState.getAsync(0, zero);
 

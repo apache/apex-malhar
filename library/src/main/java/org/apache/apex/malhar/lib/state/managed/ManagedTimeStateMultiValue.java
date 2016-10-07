@@ -71,7 +71,6 @@ public class ManagedTimeStateMultiValue<K,V> implements Spillable.SpillableListM
   {
     this();
     this.store = Preconditions.checkNotNull(store);
-    this.store.asyncReadSource = Bucket.ReadSource.READERS;
     this.isKeyContainsMultiValue = isKeyContainsMultiValue;
   }
 

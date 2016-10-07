@@ -127,7 +127,7 @@ public class IncrementalCheckpointManagerTest
     testMeta.checkpointManager.transferWindowFiles();
 
     for (int i = 0; i < 5; i++) {
-      ManagedStateTestUtils.transferBucketHelper(testMeta.managedStateContext.getFileAccess(), i,
+      ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedStateContext.getFileAccess(), i,
           buckets5.get((long)i), 1);
     }
   }
@@ -151,7 +151,8 @@ public class IncrementalCheckpointManagerTest
     Thread.sleep(500);
 
     for (int i = 0; i < 5; i++) {
-      ManagedStateTestUtils.transferBucketHelper(testMeta.managedStateContext.getFileAccess(), i, data.get((long)i), 1);
+      ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedStateContext.getFileAccess(), i,
+          data.get((long)i), 1);
     }
   }
 

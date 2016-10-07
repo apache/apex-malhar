@@ -172,8 +172,6 @@ public abstract class AbstractManagedStateImpl
   protected final transient ListMultimap<Long, ValueFetchTask> tasksPerBucketId =
       Multimaps.synchronizedListMultimap(ArrayListMultimap.<Long, ValueFetchTask>create());
 
-  protected Bucket.ReadSource asyncReadSource = Bucket.ReadSource.ALL;
-
   @Override
   public void setup(OperatorContext context)
   {
@@ -274,6 +272,11 @@ public abstract class AbstractManagedStateImpl
     if (timeBucket != -1) {
       //time bucket is invalid data is not stored
       int bucketIdx = prepareBucket(bucketId);
+      //synchronization on a bucket isn't required for put because the event is added to flash which is
+      //a concurrent map. The assumption here is that the calls to put & get(sync/async) are being made synchronously by
+      //a single thread (operator thread). The get(sync/async) always checks memory first synchronously.
+      //If the key is not in the memory, then the async get will uses other reader threads which will fetch it from
+      //the files.
       buckets[bucketIdx].put(key, timeBucket, value);
     }
   }
@@ -566,7 +569,7 @@ public abstract class AbstractManagedStateImpl
         synchronized (bucket) {
           //a particular bucket should only be handled by one thread at any point of time. Handling of bucket here
           //involves creating readers for the time buckets and de-serializing key/value from a reader.
-          Slice value = bucket.get(key, timeBucketId, this.managedState.asyncReadSource);
+          Slice value = bucket.get(key, timeBucketId, Bucket.ReadSource.ALL);
           managedState.tasksPerBucketId.remove(bucket.getBucketId(), this);
           return value;
         }

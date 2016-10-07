@@ -28,6 +28,8 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import com.google.common.primitives.Longs;
+
 import com.datatorrent.lib.fileaccess.FileAccess;
 import com.datatorrent.lib.fileaccess.FileAccessFSImpl;
 import com.datatorrent.lib.util.TestUtils;
@@ -79,7 +81,7 @@ public class DefaultBucketTest
     value = testMeta.defaultBucket.get(one, 1, Bucket.ReadSource.READERS);
     Assert.assertNull("value not present", value);
 
-    Assert.assertEquals("size of bucket", one.length * 2 + 64, testMeta.defaultBucket.getSizeInBytes());
+    Assert.assertEquals("size of bucket", one.length * 2 + Longs.BYTES, testMeta.defaultBucket.getSizeInBytes());
     testMeta.defaultBucket.teardown();
   }
 
@@ -92,7 +94,7 @@ public class DefaultBucketTest
     Map<Slice, Bucket.BucketedValue> unsavedBucket0 = ManagedStateTestUtils.getTestBucketData(0, 100);
     testMeta.managedStateContext.getBucketsFileSystem().writeBucketData(1, 1, unsavedBucket0);
 
-    ManagedStateTestUtils.transferBucketHelper(testMeta.managedStateContext.getFileAccess(), 1, unsavedBucket0, 1);
+    ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedStateContext.getFileAccess(), 1, unsavedBucket0, 1);
 
     Slice value = testMeta.defaultBucket.get(one, -1, Bucket.ReadSource.READERS);
     Assert.assertEquals("value one", one, value);
@@ -109,7 +111,7 @@ public class DefaultBucketTest
     Map<Slice, Bucket.BucketedValue> unsavedBucket0 = ManagedStateTestUtils.getTestBucketData(0, 100);
     testMeta.managedStateContext.getBucketsFileSystem().writeBucketData(1, 1, unsavedBucket0);
 
-    ManagedStateTestUtils.transferBucketHelper(testMeta.managedStateContext.getFileAccess(), 1, unsavedBucket0, 1);
+    ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedStateContext.getFileAccess(), 1, unsavedBucket0, 1);
 
     Slice value = testMeta.defaultBucket.get(one, 101, Bucket.ReadSource.READERS);
     Assert.assertEquals("value one", one, value);
@@ -193,11 +195,11 @@ public class DefaultBucketTest
     Slice two = ManagedStateTestUtils.getSliceFor("2");
     testMeta.defaultBucket.put(two, 101, two);
 
-    Assert.assertEquals("size", initSize + (two.length * 2 + 64), testMeta.defaultBucket.getSizeInBytes());
+    Assert.assertEquals("size", initSize + (two.length * 2 + Longs.BYTES ), testMeta.defaultBucket.getSizeInBytes());
 
     long sizeFreed = testMeta.defaultBucket.freeMemory(Long.MAX_VALUE);
     Assert.assertEquals("size freed", initSize, sizeFreed);
-    Assert.assertEquals("existing size", (two.length * 2 + 64), testMeta.defaultBucket.getSizeInBytes());
+    Assert.assertEquals("existing size", (two.length * 2 + Longs.BYTES), testMeta.defaultBucket.getSizeInBytes());
     testMeta.defaultBucket.teardown();
   }
 

@@ -21,12 +21,10 @@ package org.apache.apex.malhar.lib.state.managed;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.annotation.Nullable;
@@ -39,8 +37,8 @@ import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.RemoteIterator;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
-import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 
@@ -296,15 +294,14 @@ public class BucketsFileSystem implements ManagedStateComponent
    * @param bucketId bucket id
    * @return all the time buckets in order - latest to oldest
    */
-  public TreeSet<TimeBucketMeta> getAllTimeBuckets(long bucketId) throws IOException
+  public TreeMap<Long, TimeBucketMeta> getAllTimeBuckets(long bucketId) throws IOException
   {
     synchronized (timeBucketsMeta) {
-      TreeSet<TimeBucketMeta> immutableTimeBucketMetas = Sets.newTreeSet(
-          Collections.<TimeBucketMeta>reverseOrder());
+      TreeMap<Long, TimeBucketMeta> immutableTimeBucketMetas = Maps.newTreeMap(Ordering.natural().<Long>reverse());
 
       if (timeBucketsMeta.containsRow(bucketId)) {
         for (Map.Entry<Long, MutableTimeBucketMeta> entry : timeBucketsMeta.row(bucketId).entrySet()) {
-          immutableTimeBucketMetas.add(entry.getValue().getImmutableTimeBucketMeta());
+          immutableTimeBucketMetas.put(entry.getKey(), entry.getValue().getImmutableTimeBucketMeta());
         }
         return immutableTimeBucketMetas;
       }
@@ -313,7 +310,7 @@ public class BucketsFileSystem implements ManagedStateComponent
           //Load meta info of all the time buckets of the bucket identified by bucket id
           loadBucketMetaFile(bucketId, dis);
           for (Map.Entry<Long, MutableTimeBucketMeta> entry : timeBucketsMeta.row(bucketId).entrySet()) {
-            immutableTimeBucketMetas.add(entry.getValue().getImmutableTimeBucketMeta());
+            immutableTimeBucketMetas.put(entry.getKey(), entry.getValue().getImmutableTimeBucketMeta());
           }
           return immutableTimeBucketMetas;
         }
