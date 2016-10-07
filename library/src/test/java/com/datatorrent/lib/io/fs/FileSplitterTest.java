@@ -401,33 +401,6 @@ public class FileSplitterTest
   }
 
   @Test
-  public void testRecursive() throws InterruptedException, IOException
-  {
-    testMeta.fileSplitter.scanner.regex = null;
-    testFileMetadata();
-    testMeta.fileMetadataSink.clear();
-    testMeta.blockMetadataSink.clear();
-
-    Thread.sleep(1000);
-    //added a new relativeFilePath
-    File f13 = new File(testMeta.dataDirectory + "/child", "file13" + ".txt");
-    HashSet<String> lines = Sets.newHashSet();
-    for (int line = 0; line < 2; line++) {
-      lines.add("f13" + "l" + line);
-    }
-    FileUtils.write(f13, StringUtils.join(lines, '\n'));
-
-    //window 2
-    testMeta.fileSplitter.beginWindow(2);
-    testMeta.exchanger.exchange(null);
-    testMeta.fileSplitter.emitTuples();
-    testMeta.fileSplitter.endWindow();
-
-    Assert.assertEquals("window 2: files", 2, testMeta.fileMetadataSink.collectedTuples.size());
-    Assert.assertEquals("window 2: blocks", 1, testMeta.blockMetadataSink.collectedTuples.size());
-  }
-
-  @Test
   public void testSingleFile() throws InterruptedException, IOException
   {
     testMeta.fileSplitter.teardown();
