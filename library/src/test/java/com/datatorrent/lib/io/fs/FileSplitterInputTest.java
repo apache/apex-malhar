@@ -437,9 +437,10 @@ public class FileSplitterInputTest
     testMeta.fileSplitterInput.emitTuples();
     testMeta.fileSplitterInput.endWindow();
 
-    //file0.txt has just 5 blocks. Since blocks threshold is 2, only 2 are emitted.
+    //fileX.txt has just 5 blocks. Since blocks threshold is 2, only 2 are emitted.
     Assert.assertEquals("Files", 1, testMeta.fileMetadataSink.collectedTuples.size());
     Assert.assertEquals("Blocks", 2, testMeta.blockMetadataSink.collectedTuples.size());
+    AbstractFileSplitter.FileMetadata fileX = testMeta.fileMetadataSink.collectedTuples.get(0);
 
     testMeta.fileMetadataSink.clear();
     testMeta.blockMetadataSink.clear();
@@ -453,16 +454,24 @@ public class FileSplitterInputTest
     testMeta.fileSplitterInput.setup(testMeta.context);
     testMeta.fileSplitterInput.beginWindow(1);
 
+    //fileX is recovered and first two blocks are repeated.
     Assert.assertEquals("Recovered Files", 1, testMeta.fileMetadataSink.collectedTuples.size());
+    AbstractFileSplitter.FileMetadata fileXRecovered = testMeta.fileMetadataSink.collectedTuples.get(0);
+    Assert.assertEquals("recovered file-metadata", fileX.getFileName(), fileXRecovered.getFileName());
+
     Assert.assertEquals("Recovered Blocks", 2, testMeta.blockMetadataSink.collectedTuples.size());
+    testMeta.fileSplitterInput.endWindow();
+
+    testMeta.fileMetadataSink.clear();
+    testMeta.blockMetadataSink.clear();
 
     testMeta.fileSplitterInput.beginWindow(2);
     testMeta.fileSplitterInput.emitTuples();
     testMeta.fileSplitterInput.endWindow();
 
-    Assert.assertEquals("Blocks", 4, testMeta.blockMetadataSink.collectedTuples.size());
-
-    String file1 = testMeta.fileMetadataSink.collectedTuples.get(0).getFileName();
+    //Next 2 blocks of fileX
+    Assert.assertEquals("File", 0, testMeta.fileMetadataSink.collectedTuples.size());
+    Assert.assertEquals("Blocks", 2, testMeta.blockMetadataSink.collectedTuples.size());
 
     testMeta.fileMetadataSink.clear();
     testMeta.blockMetadataSink.clear();
@@ -472,15 +481,16 @@ public class FileSplitterInputTest
     testMeta.fileSplitterInput.emitTuples();
     testMeta.fileSplitterInput.endWindow();
 
+    //1 block of fileX and 1 block of fileY
     Assert.assertEquals("New file", 1, testMeta.fileMetadataSink.collectedTuples.size());
     Assert.assertEquals("Blocks", 2, testMeta.blockMetadataSink.collectedTuples.size());
 
-    String file2 = testMeta.fileMetadataSink.collectedTuples.get(0).getFileName();
+    AbstractFileSplitter.FileMetadata fileY = testMeta.fileMetadataSink.collectedTuples.get(0);
 
     Assert.assertTrue("Block file name 0",
-        testMeta.blockMetadataSink.collectedTuples.get(0).getFilePath().endsWith(file1));
+        testMeta.blockMetadataSink.collectedTuples.get(0).getFilePath().endsWith(fileX.getFileName()));
     Assert.assertTrue("Block file name 1",
-        testMeta.blockMetadataSink.collectedTuples.get(1).getFilePath().endsWith(file2));
+        testMeta.blockMetadataSink.collectedTuples.get(1).getFilePath().endsWith(fileY.getFileName()));
     testMeta.fileSplitterInput.teardown();
   }
 

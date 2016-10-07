@@ -118,6 +118,7 @@ public abstract class AbstractFileSplitter extends BaseOperator
   protected boolean processFileInfo(FileInfo fileInfo)
   {
     try {
+      LOG.debug("file info {}", fileInfo.getFilePath());
       FileMetadata fileMetadata = buildFileMetadata(fileInfo);
       filesMetadataOutput.emit(fileMetadata);
       filesProcessed++;
@@ -192,7 +193,6 @@ public abstract class AbstractFileSplitter extends BaseOperator
   {
     LOG.debug("file {}", fileInfo.getFilePath());
     FileMetadata fileMetadata = createFileMetadata(fileInfo);
-    LOG.debug("fileMetadata {}", fileMetadata);
     Path path = new Path(fileInfo.getFilePath());
 
     fileMetadata.setFileName(path.getName());

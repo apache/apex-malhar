@@ -402,8 +402,8 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
         isOpenPathTmp = false;
       }
 
-      LOG.debug("filePath to read {} and pointer {}", pathToReadFrom, walPointer);
       if (fileSystemWAL.fileContext.util().exists(pathToReadFrom)) {
+        LOG.debug("filePath to read {} and pointer {}", pathToReadFrom, walPointer);
         DataInputStream stream = fileSystemWAL.fileContext.open(pathToReadFrom);
         if (walPointer.offset > 0) {
           stream.skip(walPointer.offset);

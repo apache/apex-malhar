@@ -400,6 +400,11 @@ public class FileSplitterTest
         testMeta.blockMetadataSink.collectedTuples.get(1).getFilePath().endsWith(file2));
   }
 
+  /**
+   * Ignoring this test because {@link FileSplitter} is deprecated. In order to fix some of the race conditions in the
+   * operator, the signature of the operator changed which is why it was deprecated.
+   */
+  @Ignore
   @Test
   public void testRecursive() throws InterruptedException, IOException
   {
