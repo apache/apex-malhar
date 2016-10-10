@@ -184,7 +184,7 @@ public class FileSplitterBaseTest
 
     Assert.assertEquals("Blocks", 10, baseTestMeta.blockMetadataSink.collectedTuples.size());
 
-    for (int window = 2; window < 8; window++) {
+    for (int window = 2; window <= 8; window++) {
       baseTestMeta.fileSplitter.beginWindow(window);
       baseTestMeta.fileSplitter.handleIdleTime();
       baseTestMeta.fileSplitter.endWindow();

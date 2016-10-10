@@ -64,7 +64,8 @@ public class FileSplitterInputTest
     for (int file = 0; file < 12; file++) {
       HashSet<String> lines = Sets.newHashSet();
       for (int line = 0; line < 2; line++) {
-        lines.add("f" + file + "l" + line);
+        //padding 0 to file number so every file has 6 blocks.
+        lines.add("f" + String.format("%02d", file) + "l" + line);
       }
       allLines.addAll(lines);
       File created = new File(dataDirectory, "file" + file + ".txt");
@@ -101,7 +102,7 @@ public class FileSplitterInputTest
       fileSplitterInput = new FileSplitterInput();
       fileSplitterInput.setBlocksThreshold(100);
       scanner = new MockScanner();
-      scanner.setScanIntervalMillis(500);
+      scanner.setScanIntervalMillis(100);
       scanner.setFilePatternRegularExp(".*[.]txt");
       scanner.setFiles(dataDirectory);
       fileSplitterInput.setScanner(scanner);
@@ -142,10 +143,10 @@ public class FileSplitterInputTest
   @Rule
   public TestMeta testMeta = new TestMeta();
 
-  private void window1TestHelper() throws InterruptedException
+  private void validateFileMetadataInWindow1() throws InterruptedException
   {
     testMeta.fileSplitterInput.beginWindow(1);
-    testMeta.scanner.semaphore.acquire();
+    ((MockScanner)testMeta.fileSplitterInput.getScanner()).semaphore.acquire(12);
 
     testMeta.fileSplitterInput.emitTuples();
     testMeta.fileSplitterInput.endWindow();
@@ -165,7 +166,7 @@ public class FileSplitterInputTest
   public void testFileMetadata() throws InterruptedException
   {
     testMeta.fileSplitterInput.setup(testMeta.context);
-    window1TestHelper();
+    validateFileMetadataInWindow1();
     testMeta.fileSplitterInput.teardown();
   }
 
@@ -187,8 +188,6 @@ public class FileSplitterInputTest
     testMeta.fileSplitterInput.endWindow();
 
     testMeta.fileSplitterInput.beginWindow(2);
-    testMeta.scanner.semaphore.release();
-    testMeta.scanner.semaphore.acquire();
     testMeta.fileSplitterInput.emitTuples();
     testMeta.fileSplitterInput.endWindow();
 
@@ -208,7 +207,7 @@ public class FileSplitterInputTest
   {
     testMeta.fileSplitterInput.setup(testMeta.context);
     testMeta.fileSplitterInput.beginWindow(1);
-    testMeta.scanner.semaphore.acquire();
+    testMeta.scanner.semaphore.acquire(12);
 
     testMeta.fileSplitterInput.emitTuples();
     Assert.assertEquals("Blocks", 12, testMeta.blockMetadataSink.collectedTuples.size());
@@ -226,7 +225,7 @@ public class FileSplitterInputTest
 
     testMeta.fileSplitterInput.setup(testMeta.context);
     testMeta.fileSplitterInput.beginWindow(1);
-    testMeta.scanner.semaphore.acquire();
+    testMeta.scanner.semaphore.acquire(12);
 
     testMeta.fileSplitterInput.emitTuples();
     Assert.assertEquals("Files", 12, testMeta.fileMetadataSink.collectedTuples.size());
@@ -249,7 +248,7 @@ public class FileSplitterInputTest
 
     testMeta.fileSplitterInput.setup(testMeta.context);
     //will emit window 1 from data directory
-    window1TestHelper();
+    validateFileMetadataInWindow1();
     testMeta.fileMetadataSink.clear();
     testMeta.blockMetadataSink.clear();
     testMeta.fileSplitterInput.teardown();
@@ -271,7 +270,7 @@ public class FileSplitterInputTest
   public void testTimeScan() throws InterruptedException, IOException, TimeoutException
   {
     testMeta.fileSplitterInput.setup(testMeta.context);
-    window1TestHelper();
+    validateFileMetadataInWindow1();
     testMeta.fileMetadataSink.clear();
     testMeta.blockMetadataSink.clear();
 
@@ -290,7 +289,8 @@ public class FileSplitterInputTest
     testMeta.fileSplitterInput.emitTuples();
     testMeta.fileSplitterInput.endWindow();
 
-    Assert.assertEquals("window 2: files", 1, testMeta.fileMetadataSink.collectedTuples.size());
+    Assert.assertEquals("window 2: files " + testMeta.fileMetadataSink.collectedTuples, 1,
+        testMeta.fileMetadataSink.collectedTuples.size());
     Assert.assertEquals("window 2: blocks", 1, testMeta.blockMetadataSink.collectedTuples.size());
     testMeta.fileSplitterInput.teardown();
   }
@@ -301,7 +301,7 @@ public class FileSplitterInputTest
     testMeta.fileSplitterInput.getScanner().setScanIntervalMillis(60 * 1000);
 
     testMeta.fileSplitterInput.setup(testMeta.context);
-    window1TestHelper();
+    validateFileMetadataInWindow1();
     testMeta.fileMetadataSink.clear();
     testMeta.blockMetadataSink.clear();
 
@@ -326,29 +326,34 @@ public class FileSplitterInputTest
     testMeta.fileSplitterInput.teardown();
   }
 
-  private void blocksTestHelper() throws InterruptedException
+
+  private int getTotalNumOfBlocks(int numFiles, long blockLength)
+  {
+    int noOfBlocks = 0;
+    for (int i = 0; i < numFiles; i++) {
+      File testFile = new File(testMeta.dataDirectory, "file" + i + ".txt");
+      noOfBlocks += (int)Math.ceil(testFile.length() / (blockLength * 1.0));
+    }
+    return noOfBlocks;
+  }
+
+  private void validateBlocks(long targetWindow, long blockLength) throws InterruptedException
   {
     testMeta.fileSplitterInput.beginWindow(1);
-    testMeta.scanner.semaphore.acquire();
+    ((MockScanner)testMeta.fileSplitterInput.getScanner()).semaphore.acquire(12);
     testMeta.fileSplitterInput.emitTuples();
     testMeta.fileSplitterInput.endWindow();
 
     Assert.assertEquals("Blocks", 10, testMeta.blockMetadataSink.collectedTuples.size());
 
-    for (int window = 2; window < 8; window++) {
+    for (int window = 2; window <= targetWindow; window++) {
       testMeta.fileSplitterInput.beginWindow(window);
       testMeta.fileSplitterInput.emitTuples();
       testMeta.fileSplitterInput.endWindow();
     }
 
-    int noOfBlocks = 0;
-    for (int i = 0; i < 12; i++) {
-      File testFile = new File(testMeta.dataDirectory, "file" + i + ".txt");
-      noOfBlocks += (int)Math.ceil(testFile.length() / (2 * 1.0));
-    }
-
     Assert.assertEquals("Files", 12, testMeta.fileMetadataSink.collectedTuples.size());
-    Assert.assertEquals("Blocks", noOfBlocks, testMeta.blockMetadataSink.collectedTuples.size());
+    Assert.assertEquals("Blocks", getTotalNumOfBlocks(12, blockLength), testMeta.blockMetadataSink.collectedTuples.size());
   }
 
   @Test
@@ -357,13 +362,13 @@ public class FileSplitterInputTest
     testMeta.fileSplitterInput.setBlockSize(2L);
     testMeta.fileSplitterInput.setBlocksThreshold(10);
     testMeta.fileSplitterInput.setup(testMeta.context);
-    blocksTestHelper();
+    validateBlocks(8, 2);
     testMeta.fileSplitterInput.teardown();
   }
 
-  private void recoveryTestHelper() throws InterruptedException
+  private void validateRecovery(long targetWindow, long blockLength) throws InterruptedException
   {
-    blocksTestHelper();
+    validateBlocks(targetWindow, blockLength);
     testMeta.fileMetadataSink.clear();
     testMeta.blockMetadataSink.clear();
     testMeta.fileSplitterInput.teardown();
@@ -372,11 +377,12 @@ public class FileSplitterInputTest
     testMeta.resetSinks();
 
     testMeta.fileSplitterInput.setup(testMeta.context);
-    for (int i = 1; i < 8; i++) {
+    for (int i = 1; i <= targetWindow; i++) {
       testMeta.fileSplitterInput.beginWindow(i);
     }
     Assert.assertEquals("Files", 12, testMeta.fileMetadataSink.collectedTuples.size());
-    Assert.assertEquals("Blocks", 62, testMeta.blockMetadataSink.collectedTuples.size());
+    Assert.assertEquals("Blocks", getTotalNumOfBlocks(12, blockLength),
+        testMeta.blockMetadataSink.collectedTuples.size());
   }
 
   @Test
@@ -386,7 +392,7 @@ public class FileSplitterInputTest
     testMeta.updateConfig(fsWindowDataManager, 500, 2L, 10);
 
     testMeta.fileSplitterInput.setup(testMeta.context);
-    recoveryTestHelper();
+    validateRecovery(8, 2);
     testMeta.fileSplitterInput.teardown();
   }
 
@@ -397,7 +403,7 @@ public class FileSplitterInputTest
     testMeta.updateConfig(fsWindowDataManager, 500, 2L, 10);
     testMeta.fileSplitterInput.setup(testMeta.context);
 
-    recoveryTestHelper();
+    validateRecovery(8, 2);
 
     Thread.sleep(1000);
     HashSet<String> lines = Sets.newHashSet();
@@ -411,12 +417,12 @@ public class FileSplitterInputTest
     testMeta.fileMetadataSink.clear();
     testMeta.blockMetadataSink.clear();
 
-    testMeta.fileSplitterInput.beginWindow(8);
+    testMeta.fileSplitterInput.beginWindow(9);
     ((MockScanner)testMeta.fileSplitterInput.getScanner()).semaphore.acquire();
     testMeta.fileSplitterInput.emitTuples();
     testMeta.fileSplitterInput.endWindow();
-
-    Assert.assertEquals("Files", 1, testMeta.fileMetadataSink.collectedTuples.size());
+    Assert.assertEquals("Files " + testMeta.fileMetadataSink.collectedTuples, 1,
+        testMeta.fileMetadataSink.collectedTuples.size());
     Assert.assertEquals("Blocks", 6, testMeta.blockMetadataSink.collectedTuples.size());
     testMeta.fileSplitterInput.teardown();
   }
@@ -433,13 +439,14 @@ public class FileSplitterInputTest
 
     testMeta.fileSplitterInput.beginWindow(1);
 
-    testMeta.scanner.semaphore.acquire();
+    testMeta.scanner.semaphore.acquire(12);
     testMeta.fileSplitterInput.emitTuples();
     testMeta.fileSplitterInput.endWindow();
 
-    //file0.txt has just 5 blocks. Since blocks threshold is 2, only 2 are emitted.
+    //fileX.txt has just 6 blocks. Since blocks threshold is 2, only 2 are emitted.
     Assert.assertEquals("Files", 1, testMeta.fileMetadataSink.collectedTuples.size());
     Assert.assertEquals("Blocks", 2, testMeta.blockMetadataSink.collectedTuples.size());
+    AbstractFileSplitter.FileMetadata fileX = testMeta.fileMetadataSink.collectedTuples.get(0);
 
     testMeta.fileMetadataSink.clear();
     testMeta.blockMetadataSink.clear();
@@ -453,46 +460,57 @@ public class FileSplitterInputTest
     testMeta.fileSplitterInput.setup(testMeta.context);
     testMeta.fileSplitterInput.beginWindow(1);
 
+    //fileX is recovered and first two blocks are repeated.
     Assert.assertEquals("Recovered Files", 1, testMeta.fileMetadataSink.collectedTuples.size());
+    AbstractFileSplitter.FileMetadata fileXRecovered = testMeta.fileMetadataSink.collectedTuples.get(0);
+    Assert.assertEquals("recovered file-metadata", fileX.getFileName(), fileXRecovered.getFileName());
+
     Assert.assertEquals("Recovered Blocks", 2, testMeta.blockMetadataSink.collectedTuples.size());
-
-    testMeta.fileSplitterInput.beginWindow(2);
-    testMeta.fileSplitterInput.emitTuples();
     testMeta.fileSplitterInput.endWindow();
-
-    Assert.assertEquals("Blocks", 4, testMeta.blockMetadataSink.collectedTuples.size());
-
-    String file1 = testMeta.fileMetadataSink.collectedTuples.get(0).getFileName();
 
     testMeta.fileMetadataSink.clear();
     testMeta.blockMetadataSink.clear();
 
+    testMeta.fileSplitterInput.beginWindow(2);
+    testMeta.fileSplitterInput.emitTuples(); //next 2 blocks of fileX
+    testMeta.fileSplitterInput.endWindow();
+
     testMeta.fileSplitterInput.beginWindow(3);
-    ((MockScanner)testMeta.fileSplitterInput.getScanner()).semaphore.acquire();
+    testMeta.fileSplitterInput.emitTuples(); //next 2 blocks of fileX
+    testMeta.fileSplitterInput.endWindow();
+
+    //Next 2 blocks of fileX
+    Assert.assertEquals("File", 0, testMeta.fileMetadataSink.collectedTuples.size());
+    Assert.assertEquals("Blocks", 4, testMeta.blockMetadataSink.collectedTuples.size());
+
+    testMeta.fileMetadataSink.clear();
+    testMeta.blockMetadataSink.clear();
+
+    testMeta.fileSplitterInput.beginWindow(4);
+    ((MockScanner)testMeta.fileSplitterInput.getScanner()).semaphore.acquire(11);
     testMeta.fileSplitterInput.emitTuples();
     testMeta.fileSplitterInput.endWindow();
 
+    //2 blocks of a different file
     Assert.assertEquals("New file", 1, testMeta.fileMetadataSink.collectedTuples.size());
     Assert.assertEquals("Blocks", 2, testMeta.blockMetadataSink.collectedTuples.size());
 
-    String file2 = testMeta.fileMetadataSink.collectedTuples.get(0).getFileName();
+    AbstractFileSplitter.FileMetadata fileY = testMeta.fileMetadataSink.collectedTuples.get(0);
 
-    Assert.assertTrue("Block file name 0",
-        testMeta.blockMetadataSink.collectedTuples.get(0).getFilePath().endsWith(file1));
-    Assert.assertTrue("Block file name 1",
-        testMeta.blockMetadataSink.collectedTuples.get(1).getFilePath().endsWith(file2));
-    testMeta.fileSplitterInput.teardown();
+    for (BlockMetadata.FileBlockMetadata blockMetadata : testMeta.blockMetadataSink.collectedTuples) {
+      Assert.assertTrue("Block file name", blockMetadata.getFilePath().endsWith(fileY.getFileName()));
+      testMeta.fileSplitterInput.teardown();
+    }
   }
 
   @Test
   public void testRecursive() throws InterruptedException, IOException
   {
     testMeta.fileSplitterInput.setup(testMeta.context);
-    window1TestHelper();
+    validateFileMetadataInWindow1();
     testMeta.fileMetadataSink.clear();
     testMeta.blockMetadataSink.clear();
 
-    Thread.sleep(1000);
     //added a new relativeFilePath
     File f13 = new File(testMeta.dataDirectory + "/child", "file13" + ".txt");
     HashSet<String> lines = Sets.newHashSet();
@@ -500,14 +518,15 @@ public class FileSplitterInputTest
       lines.add("f13" + "l" + line);
     }
     FileUtils.write(f13, StringUtils.join(lines, '\n'));
-
     //window 2
     testMeta.fileSplitterInput.beginWindow(2);
-    testMeta.scanner.semaphore.acquire();
+    testMeta.scanner.semaphore.acquire(2);
     testMeta.fileSplitterInput.emitTuples();
     testMeta.fileSplitterInput.endWindow();
 
-    Assert.assertEquals("window 2: files", 2, testMeta.fileMetadataSink.collectedTuples.size());
+    //one for the folder "child" and one for "file13"
+    Assert.assertEquals("window 2: files " + testMeta.fileMetadataSink.collectedTuples, 2,
+        testMeta.fileMetadataSink.collectedTuples.size());
     Assert.assertEquals("window 2: blocks", 1, testMeta.blockMetadataSink.collectedTuples.size());
     testMeta.fileSplitterInput.teardown();
   }
@@ -539,7 +558,7 @@ public class FileSplitterInputTest
     testMeta.fileSplitterInput.setup(testMeta.context);
     testMeta.fileSplitterInput.beginWindow(1);
 
-    ((MockScanner)testMeta.fileSplitterInput.getScanner()).semaphore.acquire();
+    testMeta.scanner.semaphore.acquire(12);
     testMeta.fileSplitterInput.emitTuples();
     testMeta.fileSplitterInput.endWindow();
 
@@ -570,25 +589,29 @@ public class FileSplitterInputTest
   @Test
   public void testFileModificationTest() throws InterruptedException, IOException, TimeoutException
   {
+    File file11 = new File(testMeta.dataDirectory, "file11.txt");
+    long lastModifiedTime = file11.lastModified();
+    LOG.debug("file 11 modified time {} ", lastModifiedTime);
     testMeta.fileSplitterInput.getScanner().setScanIntervalMillis(60 * 1000);
     testMeta.fileSplitterInput.setup(testMeta.context);
-    window1TestHelper();
+    validateFileMetadataInWindow1();
 
     testMeta.fileMetadataSink.clear();
     testMeta.blockMetadataSink.clear();
 
     Thread.sleep(1000);
-    //change a file , this will not change mtime of the file.
-    File f12 = new File(testMeta.dataDirectory, "file11" + ".txt");
+    //create more lines to append to the file
     HashSet<String> lines = Sets.newHashSet();
     for (int line = 0; line < 2; line++) {
-      lines.add("f13" + "l" + line);
+      lines.add("f11" + "l" + line);
     }
     /* Need to use FileWriter, FileUtils changes the directory timestamp when
        file is changed. */
-    FileWriter fout = new FileWriter(f12, true);
+    FileWriter fout = new FileWriter(file11, true);
     fout.write(StringUtils.join(lines, '\n').toCharArray());
     fout.close();
+
+    LOG.debug("file 11 modified time after append {} ", file11.lastModified());
     testMeta.fileSplitterInput.getScanner().setTrigger(true);
 
     //window 2
@@ -604,10 +627,7 @@ public class FileSplitterInputTest
     testMeta.fileMetadataSink.clear();
     testMeta.blockMetadataSink.clear();
     testMeta.scanner.setTrigger(true);
-    testMeta.scanner.semaphore.release();
     testMeta.fileSplitterInput.beginWindow(3);
-    Thread.sleep(1000);
-    testMeta.scanner.semaphore.acquire();
     testMeta.fileSplitterInput.emitTuples();
     testMeta.fileSplitterInput.endWindow();
 
@@ -640,7 +660,7 @@ public class FileSplitterInputTest
     testMeta.fileSplitterInput.setup(testMeta.context);
 
     testMeta.fileSplitterInput.beginWindow(1);
-    ((MockScanner)testMeta.fileSplitterInput.getScanner()).semaphore.acquire();
+    ((MockScanner)testMeta.fileSplitterInput.getScanner()).semaphore.acquire(15);
 
     testMeta.fileSplitterInput.emitTuples();
     testMeta.fileSplitterInput.endWindow();
@@ -677,22 +697,16 @@ public class FileSplitterInputTest
 
   private static class MockScanner extends FileSplitterInput.TimeBasedDirectoryScanner
   {
-    transient Semaphore semaphore;
 
-    private MockScanner()
-    {
-      super();
-      this.semaphore = new Semaphore(0);
-    }
+    private final transient Semaphore semaphore = new Semaphore(0);
 
     @Override
-    protected void scanIterationComplete()
+    protected void processDiscoveredFile(FileSplitterInput.ScannedFileInfo info)
     {
-      if (getNumDiscoveredPerIteration() > 0) {
-        semaphore.release();
-      }
-      super.scanIterationComplete();
+      super.processDiscoveredFile(info);
+      semaphore.release();
     }
+
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(FileSplitterInputTest.class);

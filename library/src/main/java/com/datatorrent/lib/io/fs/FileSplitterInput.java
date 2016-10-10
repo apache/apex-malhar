@@ -18,7 +18,6 @@
  */
 package com.datatorrent.lib.io.fs;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
@@ -27,6 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -52,9 +52,9 @@ import org.apache.hadoop.fs.Path;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.datatorrent.api.Component;
 import com.datatorrent.api.Context;
@@ -62,7 +62,6 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
-import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * Input operator that scans a directory for files and splits a file into blocks.<br/>
@@ -90,8 +89,6 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
 
   private Map<String, Map<String, Long>> referenceTimes;
 
-  private transient long sleepMillis;
-
   public FileSplitterInput()
   {
     super();
@@ -104,9 +101,8 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
   {
     currentWindowRecoveryState = Lists.newLinkedList();
     if (referenceTimes == null) {
-      referenceTimes = Maps.newHashMap();
+      referenceTimes = new ConcurrentHashMap<>();
     }
-    sleepMillis = context.getValue(Context.OperatorContext.SPIN_MILLIS);
     scanner.setup(context);
     windowDataManager.setup(context);
     super.setup(context);
@@ -166,14 +162,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
 
     Throwable throwable;
     if ((throwable = scanner.atomicThrowable.get()) != null) {
-      DTThrowable.rethrow(throwable);
-    }
-    if (blockMetadataIterator == null && scanner.discoveredFiles.isEmpty()) {
-      try {
-        Thread.sleep(sleepMillis);
-      } catch (InterruptedException e) {
-        throw new RuntimeException("waiting for work", e);
-      }
+      Throwables.propagate(throwable);
     }
     process();
   }
@@ -198,7 +187,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
     Map<String, Long> referenceTimePerInputDir;
     String referenceKey = fileInfo.getDirectoryPath() == null ? fileInfo.getFilePath() : fileInfo.getDirectoryPath();
     if ((referenceTimePerInputDir = referenceTimes.get(referenceKey)) == null) {
-      referenceTimePerInputDir = Maps.newHashMap();
+      referenceTimePerInputDir = new ConcurrentHashMap<>();
     }
     referenceTimePerInputDir.put(fileInfo.getFilePath(), fileInfo.modifiedTime);
     referenceTimes.put(referenceKey, referenceTimePerInputDir);
@@ -389,7 +378,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
         LOG.error("service", throwable);
         running = false;
         atomicThrowable.set(throwable);
-        DTThrowable.rethrow(throwable);
+        Throwables.propagate(throwable);
       }
     }
 
@@ -415,46 +404,45 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
       lastScanMillis = System.currentTimeMillis();
     }
 
-    protected void scan(@NotNull Path filePath, Path rootPath)
+    /**
+     * This is not used anywhere and should be removed. however, currently it breaks backward compatibility, so
+     * just deprecating it.
+     */
+    @Deprecated
+    protected void scan(@NotNull Path filePath, Path rootPath) throws IOException
     {
       Map<String, Long> lastModifiedTimesForInputDir;
       lastModifiedTimesForInputDir = referenceTimes.get(filePath.toUri().getPath());
       scan(filePath, rootPath, lastModifiedTimesForInputDir);
     }
 
-    private void scan(Path filePath, Path rootPath, Map<String, Long> lastModifiedTimesForInputDir)
+    private void scan(Path filePath, Path rootPath, Map<String, Long> lastModifiedTimesForInputDir) throws IOException
     {
-      try {
-        FileStatus parentStatus = fs.getFileStatus(filePath);
-        String parentPathStr = filePath.toUri().getPath();
+      FileStatus parentStatus = fs.getFileStatus(filePath);
+      String parentPathStr = filePath.toUri().getPath();
 
-        LOG.debug("scan {}", parentPathStr);
+      LOG.debug("scan {}", parentPathStr);
 
-        FileStatus[] childStatuses = fs.listStatus(filePath);
+      FileStatus[] childStatuses = fs.listStatus(filePath);
 
-        if (childStatuses.length == 0 && rootPath == null && (lastModifiedTimesForInputDir == null || lastModifiedTimesForInputDir.get(parentPathStr) == null)) { // empty input directory copy as is
-          ScannedFileInfo info = new ScannedFileInfo(null, filePath.toString(), parentStatus.getModificationTime());
-          processDiscoveredFile(info);
+      if (childStatuses.length == 0 && rootPath == null && (lastModifiedTimesForInputDir == null || lastModifiedTimesForInputDir.get(parentPathStr) == null)) { // empty input directory copy as is
+        ScannedFileInfo info = new ScannedFileInfo(null, filePath.toString(), parentStatus.getModificationTime());
+        processDiscoveredFile(info);
+      }
+
+      for (FileStatus childStatus : childStatuses) {
+        Path childPath = childStatus.getPath();
+        String childPathStr = childPath.toUri().getPath();
+
+        if (childStatus.isDirectory() && isRecursive()) {
+          addToDiscoveredFiles(rootPath, parentStatus, childStatus, lastModifiedTimesForInputDir);
+          scan(childPath, rootPath == null ? parentStatus.getPath() : rootPath, lastModifiedTimesForInputDir);
+        } else if (acceptFile(childPathStr)) {
+          addToDiscoveredFiles(rootPath, parentStatus, childStatus, lastModifiedTimesForInputDir);
+        } else {
+          // don't look at it again
+          ignoredFiles.add(childPathStr);
         }
-
-        for (FileStatus childStatus : childStatuses) {
-          Path childPath = childStatus.getPath();
-          String childPathStr = childPath.toUri().getPath();
-
-          if (childStatus.isDirectory() && isRecursive()) {
-            addToDiscoveredFiles(rootPath, parentStatus, childStatus, lastModifiedTimesForInputDir);
-            scan(childPath, rootPath == null ? parentStatus.getPath() : rootPath, lastModifiedTimesForInputDir);
-          } else if (acceptFile(childPathStr)) {
-            addToDiscoveredFiles(rootPath, parentStatus, childStatus, lastModifiedTimesForInputDir);
-          } else {
-            // don't look at it again
-            ignoredFiles.add(childPathStr);
-          }
-        }
-      } catch (FileNotFoundException fnf) {
-        LOG.warn("Failed to list directory {}", filePath, fnf);
-      } catch (IOException e) {
-        throw new RuntimeException("listing files", e);
       }
     }
 
@@ -480,8 +468,6 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
 
       ScannedFileInfo info = createScannedFileInfo(parentStatus.getPath(), parentStatus, childPath, childStatus,
           rootPath);
-
-      LOG.debug("Processing file: " + info.getFilePath());
       processDiscoveredFile(info);
     }
 
@@ -490,6 +476,7 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
       numDiscoveredPerIteration++;
       lastScannedInfo = info;
       discoveredFiles.add(info);
+      LOG.debug("discovered {} {}", info.getFilePath(), info.modifiedTime);
     }
 
     protected ScannedFileInfo createScannedFileInfo(Path parentPath, FileStatus parentStatus, Path childPath,
