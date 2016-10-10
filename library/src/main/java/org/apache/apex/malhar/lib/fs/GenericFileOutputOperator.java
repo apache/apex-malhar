@@ -214,7 +214,9 @@ public class GenericFileOutputOperator<INPUT> extends AbstractSingleFileOutputOp
   protected void rotateCall(String lastFile)
   {
     try {
-      this.rotate(lastFile);
+      if (currentPartTupleCount != 0) {
+        this.rotate(lastFile);
+      }
       currentPartIdleWindows = 0;
       currentPartTupleCount = 0;
     } catch (IOException ex) {

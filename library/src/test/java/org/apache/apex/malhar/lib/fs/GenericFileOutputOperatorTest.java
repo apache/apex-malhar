@@ -127,6 +127,26 @@ public class GenericFileOutputOperatorTest extends AbstractFileOutputOperatorTes
     }
   }
 
+  @Test
+  public void testRotationWithNoData() throws InterruptedException
+  {
+    GenericFileOutputOperator writer = new GenericFileOutputOperator();
+    File dir = new File(testMeta.getDir());
+    writer.setFilePath(testMeta.getDir());
+    writer.setOutputFileName("output.txt");
+    writer.setMaxIdleWindows(5);
+    writer.setAlwaysWriteToTmp(true);
+    writer.setup(testMeta.testOperatorContext);
+
+    for (int i = 0; i < 30; ++i) {
+      writer.beginWindow(i);
+      writer.endWindow();
+    }
+    writer.committed(29);
+    Collection<File> files = FileUtils.listFiles(dir, null, false);
+    Assert.assertEquals("Number of part files", 0, files.size());
+  }
+
   public static void checkOutput(int fileCount, String baseFilePath, String expectedOutput, boolean checkTmp)
   {
     if (fileCount >= 0) {
