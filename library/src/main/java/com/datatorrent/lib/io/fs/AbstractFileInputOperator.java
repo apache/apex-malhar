@@ -592,16 +592,26 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
                 pendingFiles.remove(recoveryEntry.file);
               }
               inputStream = retryFailedFile(new FailedFile(recoveryEntry.file, recoveryEntry.startOffset));
+
+              while (--skipCount >= 0) {
+                readEntity();
+              }
               while (offset < recoveryEntry.endOffset) {
                 T line = readEntity();
                 offset++;
                 emit(line);
+              }
+              if (recoveryEntry.fileClosed) {
+                closeFile(inputStream);
               }
             } else {
               while (offset < recoveryEntry.endOffset) {
                 T line = readEntity();
                 offset++;
                 emit(line);
+              }
+              if (recoveryEntry.fileClosed) {
+                closeFile(inputStream);
               }
             }
           }
@@ -654,6 +664,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     if (inputStream != null) {
       long startOffset = offset;
       String file  = currentFile; //current file is reset to null when closed.
+      boolean fileClosed = false;
 
       try {
         int counterForTuple = 0;
@@ -662,6 +673,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
           if (line == null) {
             LOG.info("done reading file ({} entries).", offset);
             closeFile(inputStream);
+            fileClosed = true;
             break;
           }
 
@@ -679,9 +691,9 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
       } catch (IOException e) {
         failureHandling(e);
       }
-      //Only when something was emitted from the file then we record it for entry.
-      if (offset > startOffset) {
-        currentWindowRecoveryState.add(new RecoveryEntry(file, startOffset, offset));
+      //Only when something was emitted from the file, or we have a closeFile(), then we record it for entry.
+      if (offset >= startOffset) {
+        currentWindowRecoveryState.add(new RecoveryEntry(file, startOffset, offset, fileClosed));
       }
     }
   }
@@ -1138,6 +1150,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     final String file;
     final long startOffset;
     final long endOffset;
+    final boolean fileClosed;
 
     @SuppressWarnings("unused")
     private RecoveryEntry()
@@ -1145,13 +1158,15 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
       file = null;
       startOffset = -1;
       endOffset = -1;
+      fileClosed = false;
     }
 
-    RecoveryEntry(String file, long startOffset, long endOffset)
+    RecoveryEntry(String file, long startOffset, long endOffset, boolean fileClosed)
     {
       this.file = Preconditions.checkNotNull(file, "file");
       this.startOffset = startOffset;
       this.endOffset = endOffset;
+      this.fileClosed = fileClosed;
     }
 
     @Override
@@ -1170,6 +1185,9 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
         return false;
       }
       if (startOffset != that.startOffset) {
+        return false;
+      }
+      if (fileClosed != that.fileClosed) {
         return false;
       }
       return file.equals(that.file);
