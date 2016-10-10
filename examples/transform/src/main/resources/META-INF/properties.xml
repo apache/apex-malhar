@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<configuration>
+  <property>
+    <name>dt.application.*.operator.transform.attr.MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  <property>
+  <name>dt.maxThroughput</name>
+  <value>150</value>
+  </property>
+  <property>
+    <name>dt.minThroughput</name>
+    <value>50</value>
+  </property>
+  <property>
+    <name>dt.cooldown</name>
+    <value>1800000</value>
+  </property>
+</configuration>
