@@ -79,16 +79,16 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
 
   private Function<InputT, Long> timestampExtractor;
 
-  private long currentWatermark = -1;
-  private long watermarkTimestamp = -1;
+  protected long currentWatermark = -1;
+  protected long watermarkTimestamp = -1;
   private boolean triggerAtWatermark;
-  private long earlyTriggerCount;
+  protected long earlyTriggerCount;
   private long earlyTriggerMillis;
-  private long lateTriggerCount;
+  protected long lateTriggerCount;
   private long lateTriggerMillis;
   private long currentDerivedTimestamp = -1;
   private long timeIncrement;
-  private long fixedWatermarkMillis = -1;
+  protected long fixedWatermarkMillis = -1;
 
   private Map<String, Component<Context.OperatorContext>> components = new HashMap<>();
 
@@ -96,7 +96,9 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   protected RetractionStorageT retractionStorage;
   protected AccumulationT accumulation;
 
-  private static final transient Collection<? extends Window> GLOBAL_WINDOW_SINGLETON_SET = Collections.singleton(Window.GlobalWindow.INSTANCE);
+
+  protected static final transient Collection<? extends Window> GLOBAL_WINDOW_SINGLETON_SET = Collections.singleton(Window.GlobalWindow.INSTANCE);
+
   private static final transient Logger LOG = LoggerFactory.getLogger(AbstractWindowedOperator.class);
 
   public final transient DefaultInputPort<Tuple<InputT>> input = new DefaultInputPort<Tuple<InputT>>()
@@ -135,28 +137,32 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
    */
   public void processTuple(Tuple<InputT> tuple)
   {
-    long timestamp = extractTimestamp(tuple);
+    long timestamp = extractTimestamp(tuple, timestampExtractor);
     if (isTooLate(timestamp)) {
       dropTuple(tuple);
     } else {
       Tuple.WindowedTuple<InputT> windowedTuple = getWindowedValue(tuple);
       // do the accumulation
       accumulateTuple(windowedTuple);
+      processWindowState(windowedTuple);
+    }
+  }
 
-      for (Window window : windowedTuple.getWindows()) {
-        WindowState windowState = windowStateMap.get(window);
-        windowState.tupleCount++;
-        // process any count based triggers
-        if (windowState.watermarkArrivalTime == -1) {
-          // watermark has not arrived yet, check for early count based trigger
-          if (earlyTriggerCount > 0 && (windowState.tupleCount % earlyTriggerCount) == 0) {
-            fireTrigger(window, windowState);
-          }
-        } else {
-          // watermark has arrived, check for late count based trigger
-          if (lateTriggerCount > 0 && (windowState.tupleCount % lateTriggerCount) == 0) {
-            fireTrigger(window, windowState);
-          }
+  protected void processWindowState(Tuple.WindowedTuple<? extends Object> windowedTuple)
+  {
+    for (Window window : windowedTuple.getWindows()) {
+      WindowState windowState = windowStateMap.get(window);
+      windowState.tupleCount++;
+      // process any count based triggers
+      if (windowState.watermarkArrivalTime == -1) {
+        // watermark has not arrived yet, check for early count based trigger
+        if (earlyTriggerCount > 0 && (windowState.tupleCount % earlyTriggerCount) == 0) {
+          fireTrigger(window, windowState);
+        }
+      } else {
+        // watermark has arrived, check for late count based trigger
+        if (lateTriggerCount > 0 && (windowState.tupleCount % lateTriggerCount) == 0) {
+          fireTrigger(window, windowState);
         }
       }
     }
@@ -292,15 +298,31 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   @Override
   public Tuple.WindowedTuple<InputT> getWindowedValue(Tuple<InputT> input)
   {
+    long timestamp = extractTimestamp(input, timestampExtractor);
+    return getWindowedValueWithTimestamp(input, timestamp);
+  }
+
+  public <T> Tuple.WindowedTuple<T> getWindowedValueWithTimestamp(Tuple<T> input, long timestamp)
+  {
     if (windowOption == null && input instanceof Tuple.WindowedTuple) {
       // inherit the windows from upstream
-      return (Tuple.WindowedTuple<InputT>)input;
+      initializeWindowStates(((Tuple.WindowedTuple<T>)input).getWindows());
+      return (Tuple.WindowedTuple<T>)input;
     } else {
-      return new Tuple.WindowedTuple<>(assignWindows(input), extractTimestamp(input), input.getValue());
+      return new Tuple.WindowedTuple<>(assignWindows(input, timestamp), timestamp, input.getValue());
     }
   }
 
-  private long extractTimestamp(Tuple<InputT> tuple)
+  protected void initializeWindowStates(Collection<? extends Window> windows)
+  {
+    for (Window window : windows) {
+      if (!windowStateMap.containsWindow(window)) {
+        windowStateMap.put(window, new WindowState());
+      }
+    }
+  }
+
+  protected <T> long extractTimestamp(Tuple<T> tuple, Function<T, Long> timestampExtractor)
   {
     if (timestampExtractor == null) {
       if (tuple instanceof Tuple.TimestampedTuple) {
@@ -313,19 +335,14 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
     }
   }
 
-  private Collection<? extends Window> assignWindows(Tuple<InputT> inputTuple)
+  protected <T> Collection<? extends Window> assignWindows(Tuple<T> inputTuple, long timestamp)
   {
     if (windowOption instanceof WindowOption.GlobalWindow) {
       return GLOBAL_WINDOW_SINGLETON_SET;
     } else {
-      long timestamp = extractTimestamp(inputTuple);
       if (windowOption instanceof WindowOption.TimeWindows) {
         Collection<? extends Window> windows = getTimeWindowsForTimestamp(timestamp);
-        for (Window window : windows) {
-          if (!windowStateMap.containsWindow(window)) {
-            windowStateMap.put(window, new WindowState());
-          }
-        }
+        initializeWindowStates(windows);
         return windows;
       } else if (windowOption instanceof WindowOption.SessionWindows) {
         return assignSessionWindows(timestamp, inputTuple);
@@ -335,7 +352,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
     }
   }
 
-  protected Collection<Window.SessionWindow> assignSessionWindows(long timestamp, Tuple<InputT> inputTuple)
+  protected <T> Collection<Window.SessionWindow> assignSessionWindows(long timestamp, Tuple<T> inputTuple)
   {
     throw new UnsupportedOperationException("Session window require keyed tuples");
   }
@@ -348,7 +365,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
    * @param timestamp the timestamp
    * @return the windows this timestamp belongs to
    */
-  private Collection<Window.TimeWindow> getTimeWindowsForTimestamp(long timestamp)
+  protected Collection<Window.TimeWindow> getTimeWindowsForTimestamp(long timestamp)
   {
     List<Window.TimeWindow> windows = new ArrayList<>();
     if (windowOption instanceof WindowOption.TimeWindows) {
@@ -382,7 +399,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   }
 
   @Override
-  public void dropTuple(Tuple<InputT> input)
+  public void dropTuple(Tuple input)
   {
     // do nothing
     LOG.debug("Dropping late tuple {}", input);
@@ -464,7 +481,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
     }
   }
 
-  private void processWatermarkAtEndWindow()
+  protected void processWatermarkAtEndWindow()
   {
     if (fixedWatermarkMillis > 0) {
       watermarkTimestamp = currentDerivedTimestamp - fixedWatermarkMillis;

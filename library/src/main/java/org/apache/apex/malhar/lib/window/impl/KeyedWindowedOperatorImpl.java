@@ -52,81 +52,85 @@ public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
 {
 
   @Override
-  protected Collection<Window.SessionWindow> assignSessionWindows(long timestamp, Tuple<KeyValPair<KeyT, InputValT>> inputTuple)
+  protected <T> Collection<Window.SessionWindow> assignSessionWindows(long timestamp, Tuple<T> inputTuple)
   {
-    KeyT key = inputTuple.getValue().getKey();
-    WindowOption.SessionWindows sessionWindowOption = (WindowOption.SessionWindows)windowOption;
-    SessionWindowedStorage<KeyT, AccumT> sessionStorage = (SessionWindowedStorage<KeyT, AccumT>)dataStorage;
-    Collection<Map.Entry<Window.SessionWindow<KeyT>, AccumT>> sessionEntries = sessionStorage.getSessionEntries(key, timestamp, sessionWindowOption.getMinGap().getMillis());
-    Window.SessionWindow<KeyT> sessionWindowToAssign;
-    switch (sessionEntries.size()) {
-      case 0: {
-        // There are no existing windows within the minimum gap. Create a new session window
-        Window.SessionWindow<KeyT> sessionWindow = new Window.SessionWindow<>(key, timestamp, 1);
-        windowStateMap.put(sessionWindow, new WindowState());
-        sessionWindowToAssign = sessionWindow;
-        break;
-      }
-      case 1: {
-        // There is already one existing window within the minimum gap. See whether we need to extend the time of that window
-        Map.Entry<Window.SessionWindow<KeyT>, AccumT> sessionWindowEntry = sessionEntries.iterator().next();
-        Window.SessionWindow<KeyT> sessionWindow = sessionWindowEntry.getKey();
-        if (sessionWindow.getBeginTimestamp() <= timestamp && timestamp < sessionWindow.getBeginTimestamp() + sessionWindow.getDurationMillis()) {
-          // The session window already covers the event
+    if (!(inputTuple.getValue() instanceof KeyValPair)) {
+      throw new UnsupportedOperationException("Session window require keyed tuples");
+    } else {
+      KeyT key = ((KeyValPair<KeyT, ?>)inputTuple.getValue()).getKey();
+      WindowOption.SessionWindows sessionWindowOption = (WindowOption.SessionWindows)windowOption;
+      SessionWindowedStorage<KeyT, AccumT> sessionStorage = (SessionWindowedStorage<KeyT, AccumT>)dataStorage;
+      Collection<Map.Entry<Window.SessionWindow<KeyT>, AccumT>> sessionEntries = sessionStorage.getSessionEntries(key, timestamp, sessionWindowOption.getMinGap().getMillis());
+      Window.SessionWindow<KeyT> sessionWindowToAssign;
+      switch (sessionEntries.size()) {
+        case 0: {
+          // There are no existing windows within the minimum gap. Create a new session window
+          Window.SessionWindow<KeyT> sessionWindow = new Window.SessionWindow<>(key, timestamp, 1);
+          windowStateMap.put(sessionWindow, new WindowState());
           sessionWindowToAssign = sessionWindow;
-        } else {
-          // The session window does not cover the event but is within the min gap
+          break;
+        }
+        case 1: {
+          // There is already one existing window within the minimum gap. See whether we need to extend the time of that window
+          Map.Entry<Window.SessionWindow<KeyT>, AccumT> sessionWindowEntry = sessionEntries.iterator().next();
+          Window.SessionWindow<KeyT> sessionWindow = sessionWindowEntry.getKey();
+          if (sessionWindow.getBeginTimestamp() <= timestamp && timestamp < sessionWindow.getBeginTimestamp() + sessionWindow.getDurationMillis()) {
+            // The session window already covers the event
+            sessionWindowToAssign = sessionWindow;
+          } else {
+            // The session window does not cover the event but is within the min gap
+            if (triggerOption != null &&
+                triggerOption.getAccumulationMode() == TriggerOption.AccumulationMode.ACCUMULATING_AND_RETRACTING) {
+              // fire a retraction trigger because the session window will be enlarged
+              fireRetractionTrigger(sessionWindow, false);
+            }
+            // create a new session window that covers the timestamp
+            long newBeginTimestamp = Math.min(sessionWindow.getBeginTimestamp(), timestamp);
+            long newEndTimestamp = Math.max(sessionWindow.getBeginTimestamp() + sessionWindow.getDurationMillis(), timestamp + 1);
+            Window.SessionWindow<KeyT> newSessionWindow =
+                new Window.SessionWindow<>(key, newBeginTimestamp, newEndTimestamp - newBeginTimestamp);
+            windowStateMap.remove(sessionWindow);
+            sessionStorage.migrateWindow(sessionWindow, newSessionWindow);
+            windowStateMap.put(newSessionWindow, new WindowState());
+            sessionWindowToAssign = newSessionWindow;
+          }
+          break;
+        }
+        case 2: {
+          // There are two windows that fall within the minimum gap of the timestamp. We need to merge the two windows
+          Iterator<Map.Entry<Window.SessionWindow<KeyT>, AccumT>> iterator = sessionEntries.iterator();
+          Map.Entry<Window.SessionWindow<KeyT>, AccumT> sessionWindowEntry1 = iterator.next();
+          Map.Entry<Window.SessionWindow<KeyT>, AccumT> sessionWindowEntry2 = iterator.next();
+          Window.SessionWindow<KeyT> sessionWindow1 = sessionWindowEntry1.getKey();
+          Window.SessionWindow<KeyT> sessionWindow2 = sessionWindowEntry2.getKey();
+          AccumT sessionData1 = sessionWindowEntry1.getValue();
+          AccumT sessionData2 = sessionWindowEntry2.getValue();
           if (triggerOption != null &&
               triggerOption.getAccumulationMode() == TriggerOption.AccumulationMode.ACCUMULATING_AND_RETRACTING) {
-            // fire a retraction trigger because the session window will be enlarged
-            fireRetractionTrigger(sessionWindow, false);
+            // fire a retraction trigger because the two session windows will be merged to a new window
+            fireRetractionTrigger(sessionWindow1, false);
+            fireRetractionTrigger(sessionWindow2, false);
           }
-          // create a new session window that covers the timestamp
-          long newBeginTimestamp = Math.min(sessionWindow.getBeginTimestamp(), timestamp);
-          long newEndTimestamp = Math.max(sessionWindow.getBeginTimestamp() + sessionWindow.getDurationMillis(), timestamp + 1);
-          Window.SessionWindow<KeyT> newSessionWindow =
-              new Window.SessionWindow<>(key, newBeginTimestamp, newEndTimestamp - newBeginTimestamp);
-          windowStateMap.remove(sessionWindow);
-          sessionStorage.migrateWindow(sessionWindow, newSessionWindow);
+          long newBeginTimestamp = Math.min(sessionWindow1.getBeginTimestamp(), sessionWindow2.getBeginTimestamp());
+          long newEndTimestamp = Math.max(sessionWindow1.getBeginTimestamp() + sessionWindow1.getDurationMillis(),
+              sessionWindow2.getBeginTimestamp() + sessionWindow2.getDurationMillis());
+
+          Window.SessionWindow<KeyT> newSessionWindow = new Window.SessionWindow<>(key, newBeginTimestamp, newEndTimestamp - newBeginTimestamp);
+          AccumT newSessionData = accumulation.merge(sessionData1, sessionData2);
+          sessionStorage.remove(sessionWindow1);
+          sessionStorage.remove(sessionWindow2);
+          sessionStorage.put(newSessionWindow, key, newSessionData);
+          windowStateMap.remove(sessionWindow1);
+          windowStateMap.remove(sessionWindow2);
           windowStateMap.put(newSessionWindow, new WindowState());
           sessionWindowToAssign = newSessionWindow;
+          break;
         }
-        break;
+        default:
+          throw new IllegalStateException("There are more than two sessions matching one timestamp");
       }
-      case 2: {
-        // There are two windows that fall within the minimum gap of the timestamp. We need to merge the two windows
-        Iterator<Map.Entry<Window.SessionWindow<KeyT>, AccumT>> iterator = sessionEntries.iterator();
-        Map.Entry<Window.SessionWindow<KeyT>, AccumT> sessionWindowEntry1 = iterator.next();
-        Map.Entry<Window.SessionWindow<KeyT>, AccumT> sessionWindowEntry2 = iterator.next();
-        Window.SessionWindow<KeyT> sessionWindow1 = sessionWindowEntry1.getKey();
-        Window.SessionWindow<KeyT> sessionWindow2 = sessionWindowEntry2.getKey();
-        AccumT sessionData1 = sessionWindowEntry1.getValue();
-        AccumT sessionData2 = sessionWindowEntry2.getValue();
-        if (triggerOption != null &&
-            triggerOption.getAccumulationMode() == TriggerOption.AccumulationMode.ACCUMULATING_AND_RETRACTING) {
-          // fire a retraction trigger because the two session windows will be merged to a new window
-          fireRetractionTrigger(sessionWindow1, false);
-          fireRetractionTrigger(sessionWindow2, false);
-        }
-        long newBeginTimestamp = Math.min(sessionWindow1.getBeginTimestamp(), sessionWindow2.getBeginTimestamp());
-        long newEndTimestamp = Math.max(sessionWindow1.getBeginTimestamp() + sessionWindow1.getDurationMillis(),
-            sessionWindow2.getBeginTimestamp() + sessionWindow2.getDurationMillis());
-
-        Window.SessionWindow<KeyT> newSessionWindow = new Window.SessionWindow<>(key, newBeginTimestamp, newEndTimestamp - newBeginTimestamp);
-        AccumT newSessionData = accumulation.merge(sessionData1, sessionData2);
-        sessionStorage.remove(sessionWindow1);
-        sessionStorage.remove(sessionWindow2);
-        sessionStorage.put(newSessionWindow, key, newSessionData);
-        windowStateMap.remove(sessionWindow1);
-        windowStateMap.remove(sessionWindow2);
-        windowStateMap.put(newSessionWindow, new WindowState());
-        sessionWindowToAssign = newSessionWindow;
-        break;
-      }
-      default:
-        throw new IllegalStateException("There are more than two sessions matching one timestamp");
+      return Collections.<Window.SessionWindow>singleton(sessionWindowToAssign);
     }
-    return Collections.<Window.SessionWindow>singleton(sessionWindowToAssign);
   }
 
   @Override
