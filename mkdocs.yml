@@ -13,3 +13,4 @@ pages:
     - Enricher: operators/enricher.md
     - Filter: operators/filter.md
     - Deduper: operators/deduper.md
+    - Windowed Operator: operators/windowedOperator.md
