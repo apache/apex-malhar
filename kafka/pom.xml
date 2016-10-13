@@ -242,5 +242,12 @@
       <version>${apex.core.version}</version>
       <type>jar</type>
     </dependency>
+    <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka_2.11</artifactId>
+      <version>0.9.0.0</version>
+      <classifier>test</classifier>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>

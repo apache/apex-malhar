@@ -25,9 +25,7 @@ import java.util.Map;
 import org.codehaus.jettison.json.JSONException;
 
 import org.apache.apex.malhar.sql.schema.TupleSchemaRegistry;
-import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.classification.InterfaceStability;
-import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.xbean.asm5.ClassWriter;
 import org.apache.xbean.asm5.Opcodes;
@@ -55,16 +53,26 @@ public class BeanClassGenerator
 {
   public static final ImmutableMap<String, Character> PRIMITIVE_TYPES;
 
+  public static final char typeIdentifierBoolean = 'Z';
+  public static final char typeIdentifierChar = 'C';
+  public static final char typeIdentifierByte = 'B';
+  public static final char typeIdentifierShort = 'S';
+  public static final char typeIdentifierInt = 'I';
+  public static final char typeIdentifierFloat = 'F';
+  public static final char typeIdentifierLong = 'J';
+  public static final char typeIdentifierDouble = 'D';
+
+
   static {
     Map<String, Character> types = Maps.newHashMap();
-    types.put("boolean", 'Z');
-    types.put("char", 'C');
-    types.put("byte", 'B');
-    types.put("short", 'S');
-    types.put("int", 'I');
-    types.put("float", 'F');
-    types.put("long", 'J');
-    types.put("double", 'D');
+    types.put("boolean", typeIdentifierBoolean);
+    types.put("char", typeIdentifierChar);
+    types.put("byte", typeIdentifierByte);
+    types.put("short", typeIdentifierShort);
+    types.put("int", typeIdentifierInt);
+    types.put("float", typeIdentifierFloat);
+    types.put("long", typeIdentifierLong);
+    types.put("double", typeIdentifierDouble);
     PRIMITIVE_TYPES = ImmutableMap.copyOf(types);
   }
 
@@ -100,7 +108,7 @@ public class BeanClassGenerator
   {
     ClassNode classNode = new ClassNode();
 
-    classNode.version = Opcodes.V1_6;  //generated class will only run on JRE 1.6 or above
+    classNode.version = Opcodes.V1_7;  //generated class will only run on JRE 1.7 or above
     classNode.access = Opcodes.ACC_PUBLIC;
 
     classNode.name = fqcn.replace('.', '/');
@@ -116,38 +124,15 @@ public class BeanClassGenerator
       String fieldType = fieldInfo.getType().getJavaType().getName();
       String fieldJavaType = getJavaType(fieldType);
 
-      // Add private field
-      FieldNode fieldNode = new FieldNode(Opcodes.ACC_PRIVATE, fieldName, fieldJavaType, null, null);
-      classNode.fields.add(fieldNode);
+      addPrivateField(classNode, fieldName, fieldJavaType);
 
       String fieldNameForMethods = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
 
-      switch (fieldType) {
-        case "boolean":
-          addIntGetterNSetter(classNode, fieldName, fieldNameForMethods, fieldJavaType, true);
-          break;
-        case "byte":
-        case "char":
-        case "short":
-        case "int":
-          addIntGetterNSetter(classNode, fieldName, fieldNameForMethods, fieldJavaType, false);
-          break;
-        case "long":
-          addLongGetterNSetter(classNode, fieldName, fieldNameForMethods, fieldJavaType);
-          break;
-        case "float":
-          addFloatGetterNSetter(classNode, fieldName, fieldNameForMethods, fieldJavaType);
-          break;
-        case "double":
-          addDoubleGetterNSetter(classNode, fieldName, fieldNameForMethods, fieldJavaType);
-          break;
-        default:
-          if (fieldJavaType.equals(getJavaType("java.util.Date"))) {
-            addDateFields(classNode, fieldName, fieldNameForMethods, "java/util/Date");
-          } else {
-            addObjectGetterNSetter(classNode, fieldName, fieldNameForMethods, fieldJavaType);
-          }
-          break;
+      if (fieldJavaType.equals(getJavaType("java.util.Date"))) {
+        addDateFields(classNode, fieldName, fieldNameForMethods, "java/util/Date");
+      } else {
+        addGetter(classNode, fieldName, fieldNameForMethods, fieldJavaType);
+        addSetter(classNode, fieldName, fieldNameForMethods, fieldJavaType);
       }
     }
 
@@ -170,6 +155,11 @@ public class BeanClassGenerator
     return classBytes;
   }
 
+  /**
+   * Add Default constructor for POJO
+   * @param classNode ClassNode which needs to be populated with constructor
+   */
+  @SuppressWarnings("unchecked")
   private static void addDefaultConstructor(ClassNode classNode)
   {
     MethodNode constructorNode = new MethodNode(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
@@ -178,6 +168,95 @@ public class BeanClassGenerator
         .add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false));
     constructorNode.instructions.add(new InsnNode(Opcodes.RETURN));
     classNode.methods.add(constructorNode);
+  }
+
+  /**
+   * Add private field to the class
+   * @param classNode ClassNode which needs to be populated with private field.
+   * @param fieldName Name of the field
+   * @param fieldJavaType Java ASM type of the field
+   */
+  @SuppressWarnings("unchecked")
+  private static void addPrivateField(ClassNode classNode, String fieldName, String fieldJavaType)
+  {
+    FieldNode fieldNode = new FieldNode(Opcodes.ACC_PRIVATE, fieldName, fieldJavaType, null, null);
+    classNode.fields.add(fieldNode);
+  }
+
+  /**
+   * Add public getter method for given field
+   * @param classNode ClassNode which needs to be populated with public getter.
+   * @param fieldName Name of the field for which public getter needs to be added.
+   * @param fieldNameForMethods Suffix of the getter method, Prefix "is" or "get" is added by this method.
+   * @param fieldJavaType Java ASM type of the field
+   */
+  @SuppressWarnings("unchecked")
+  private static void addGetter(ClassNode classNode, String fieldName, String fieldNameForMethods, String fieldJavaType)
+  {
+    String getterSignature = "()" + fieldJavaType;
+    MethodNode getterNode = new MethodNode(Opcodes.ACC_PUBLIC,
+        (fieldJavaType.equals(typeIdentifierBoolean) ? "is" : "get") + fieldNameForMethods,
+        getterSignature, null, null);
+    getterNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+    getterNode.instructions.add(new FieldInsnNode(Opcodes.GETFIELD, classNode.name, fieldName, fieldJavaType));
+
+    int returnOpCode;
+    if (fieldJavaType.equals(Character.toString(typeIdentifierBoolean)) ||
+        fieldJavaType.equals(Character.toString(typeIdentifierByte))    ||
+        fieldJavaType.equals(Character.toString(typeIdentifierChar))    ||
+        fieldJavaType.equals(Character.toString(typeIdentifierShort))   ||
+        fieldJavaType.equals(Character.toString(typeIdentifierInt))) {
+      returnOpCode = Opcodes.IRETURN;
+    } else if (fieldJavaType.equals(Character.toString(typeIdentifierLong))) {
+      returnOpCode = Opcodes.LRETURN;
+    } else if (fieldJavaType.equals(Character.toString(typeIdentifierFloat))) {
+      returnOpCode = Opcodes.FRETURN;
+    } else if (fieldJavaType.equals(Character.toString(typeIdentifierDouble))) {
+      returnOpCode = Opcodes.DRETURN;
+    } else {
+      returnOpCode = Opcodes.ARETURN;
+    }
+    getterNode.instructions.add(new InsnNode(returnOpCode));
+
+    classNode.methods.add(getterNode);
+  }
+
+  /**
+   * Add public setter for given field
+   * @param classNode ClassNode which needs to be populated with public setter
+   * @param fieldName Name of the field for which setter needs to be added
+   * @param fieldNameForMethods Suffix for setter method. Prefix "set" is added by this method
+   * @param fieldJavaType Java ASM type of the field
+   */
+  @SuppressWarnings("unchecked")
+  private static void addSetter(ClassNode classNode, String fieldName, String fieldNameForMethods, String fieldJavaType)
+  {
+    String setterSignature = '(' + fieldJavaType + ')' + 'V';
+    MethodNode setterNode = new MethodNode(Opcodes.ACC_PUBLIC, "set" + fieldNameForMethods, setterSignature, null,
+        null);
+    setterNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+
+    int loadOpCode;
+    if (fieldJavaType.equals(Character.toString(typeIdentifierBoolean)) ||
+        fieldJavaType.equals(Character.toString(typeIdentifierByte))    ||
+        fieldJavaType.equals(Character.toString(typeIdentifierChar))    ||
+        fieldJavaType.equals(Character.toString(typeIdentifierShort))   ||
+        fieldJavaType.equals(Character.toString(typeIdentifierInt))) {
+      loadOpCode = Opcodes.ILOAD;
+    } else if (fieldJavaType.equals(Character.toString(typeIdentifierLong))) {
+      loadOpCode = Opcodes.LLOAD;
+    } else if (fieldJavaType.equals(Character.toString(typeIdentifierFloat))) {
+      loadOpCode = Opcodes.FLOAD;
+    } else if (fieldJavaType.equals(Character.toString(typeIdentifierDouble))) {
+      loadOpCode = Opcodes.DLOAD;
+    } else {
+      loadOpCode = Opcodes.ALOAD;
+    }
+    setterNode.instructions.add(new VarInsnNode(loadOpCode, 1));
+
+    setterNode.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, classNode.name, fieldName, fieldJavaType));
+    setterNode.instructions.add(new InsnNode(Opcodes.RETURN));
+    classNode.methods.add(setterNode);
   }
 
   /**
@@ -327,126 +406,6 @@ public class BeanClassGenerator
     classNode.methods.add(setterNodeMs);
   }
 
-  @SuppressWarnings("unchecked")
-  private static void addIntGetterNSetter(ClassNode classNode, String fieldName, String fieldNameForMethods,
-      String fieldJavaType, boolean isBoolean)
-  {
-    // Create getter
-    String getterSignature = "()" + fieldJavaType;
-    MethodNode getterNode = new MethodNode(Opcodes.ACC_PUBLIC, (isBoolean ? "is" : "get") + fieldNameForMethods,
-        getterSignature, null, null);
-    getterNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-    getterNode.instructions.add(new FieldInsnNode(Opcodes.GETFIELD, classNode.name, fieldName, fieldJavaType));
-    getterNode.instructions.add(new InsnNode(Opcodes.IRETURN));
-    classNode.methods.add(getterNode);
-
-    // Create setter
-    String setterSignature = '(' + fieldJavaType + ')' + 'V';
-    MethodNode setterNode = new MethodNode(Opcodes.ACC_PUBLIC, "set" + fieldNameForMethods, setterSignature, null,
-        null);
-    setterNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-    setterNode.instructions.add(new VarInsnNode(Opcodes.ILOAD, 1));
-    setterNode.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, classNode.name, fieldName, fieldJavaType));
-    setterNode.instructions.add(new InsnNode(Opcodes.RETURN));
-    classNode.methods.add(setterNode);
-  }
-
-  @SuppressWarnings("unchecked")
-  private static void addLongGetterNSetter(ClassNode classNode, String fieldName, String fieldNameForMethods,
-      String fieldJavaType)
-  {
-    // Create getter
-    String getterSignature = "()" + fieldJavaType;
-    MethodNode getterNode = new MethodNode(Opcodes.ACC_PUBLIC, "get" + fieldNameForMethods, getterSignature, null,
-        null);
-    getterNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-    getterNode.instructions.add(new FieldInsnNode(Opcodes.GETFIELD, classNode.name, fieldName, fieldJavaType));
-    getterNode.instructions.add(new InsnNode(Opcodes.LRETURN));
-    classNode.methods.add(getterNode);
-
-    // Create setter
-    String setterSignature = '(' + fieldJavaType + ')' + 'V';
-    MethodNode setterNode = new MethodNode(Opcodes.ACC_PUBLIC, "set" + fieldNameForMethods, setterSignature, null,
-        null);
-    setterNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-    setterNode.instructions.add(new VarInsnNode(Opcodes.LLOAD, 1));
-    setterNode.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, classNode.name, fieldName, fieldJavaType));
-    setterNode.instructions.add(new InsnNode(Opcodes.RETURN));
-    classNode.methods.add(setterNode);
-  }
-
-  @SuppressWarnings("unchecked")
-  private static void addFloatGetterNSetter(ClassNode classNode, String fieldName, String fieldNameForMethods,
-      String fieldJavaType)
-  {
-    // Create getter
-    String getterSignature = "()" + fieldJavaType;
-    MethodNode getterNode = new MethodNode(Opcodes.ACC_PUBLIC, "get" + fieldNameForMethods, getterSignature, null,
-        null);
-    getterNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-    getterNode.instructions.add(new FieldInsnNode(Opcodes.GETFIELD, classNode.name, fieldName, fieldJavaType));
-    getterNode.instructions.add(new InsnNode(Opcodes.FRETURN));
-    classNode.methods.add(getterNode);
-
-    // Create setter
-    String setterSignature = '(' + fieldJavaType + ')' + 'V';
-    MethodNode setterNode = new MethodNode(Opcodes.ACC_PUBLIC, "set" + fieldNameForMethods, setterSignature, null,
-        null);
-    setterNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-    setterNode.instructions.add(new VarInsnNode(Opcodes.FLOAD, 1));
-    setterNode.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, classNode.name, fieldName, fieldJavaType));
-    setterNode.instructions.add(new InsnNode(Opcodes.RETURN));
-    classNode.methods.add(setterNode);
-  }
-
-  @SuppressWarnings("unchecked")
-  private static void addDoubleGetterNSetter(ClassNode classNode, String fieldName, String fieldNameForMethods,
-      String fieldJavaType)
-  {
-    // Create getter
-    String getterSignature = "()" + fieldJavaType;
-    MethodNode getterNode = new MethodNode(Opcodes.ACC_PUBLIC, "get" + fieldNameForMethods, getterSignature, null,
-        null);
-    getterNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-    getterNode.instructions.add(new FieldInsnNode(Opcodes.GETFIELD, classNode.name, fieldName, fieldJavaType));
-    getterNode.instructions.add(new InsnNode(Opcodes.DRETURN));
-    classNode.methods.add(getterNode);
-
-    // Create setter
-    String setterSignature = '(' + fieldJavaType + ')' + 'V';
-    MethodNode setterNode = new MethodNode(Opcodes.ACC_PUBLIC, "set" + fieldNameForMethods, setterSignature, null,
-        null);
-    setterNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-    setterNode.instructions.add(new VarInsnNode(Opcodes.DLOAD, 1));
-    setterNode.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, classNode.name, fieldName, fieldJavaType));
-    setterNode.instructions.add(new InsnNode(Opcodes.RETURN));
-    classNode.methods.add(setterNode);
-  }
-
-  @SuppressWarnings("unchecked")
-  private static void addObjectGetterNSetter(ClassNode classNode, String fieldName, String fieldNameForMethods,
-      String fieldJavaType)
-  {
-    // Create getter
-    String getterSignature = "()" + fieldJavaType;
-    MethodNode getterNode = new MethodNode(Opcodes.ACC_PUBLIC, "get" + fieldNameForMethods, getterSignature, null,
-        null);
-    getterNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-    getterNode.instructions.add(new FieldInsnNode(Opcodes.GETFIELD, classNode.name, fieldName, fieldJavaType));
-    getterNode.instructions.add(new InsnNode(Opcodes.ARETURN));
-    classNode.methods.add(getterNode);
-
-    // Create setter
-    String setterSignature = '(' + fieldJavaType + ')' + 'V';
-    MethodNode setterNode = new MethodNode(Opcodes.ACC_PUBLIC, "set" + fieldNameForMethods, setterSignature, null,
-        null);
-    setterNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-    setterNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 1));
-    setterNode.instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, classNode.name, fieldName, fieldJavaType));
-    setterNode.instructions.add(new InsnNode(Opcodes.RETURN));
-    classNode.methods.add(setterNode);
-  }
-
   /**
    * Adds a toString method to underlying class. Uses StringBuilder to generate the final string.
    *
@@ -488,7 +447,8 @@ public class BeanClassGenerator
       toStringNode.instructions.add(new FieldInsnNode(Opcodes.GETFIELD, classNode.name, fieldName, fieldJavaType));
 
       // There is no StringBuilder.append method for short and byte. It takes it as int.
-      if (fieldJavaType.equals("S") || fieldJavaType.equals("B")) {
+      if (fieldJavaType.equals(Character.toString(typeIdentifierShort)) ||
+          fieldJavaType.equals(Character.toString(typeIdentifierByte))) {
         fieldJavaType = "I";
       }
 
@@ -756,41 +716,5 @@ public class BeanClassGenerator
     }
     //non-primitive so find the internal name of the class.
     return 'L' + fieldType.replace('.', '/') + ';';
-  }
-
-  /**
-   * Given the class name it reads and loads the class from the input stream.
-   *
-   * @param fqcn        fully qualified class name.
-   * @param inputStream stream from which class is read.
-   * @return loaded class
-   * @throws IOException
-   */
-  public static Class<?> readBeanClass(String fqcn, FSDataInputStream inputStream) throws IOException
-  {
-    byte[] bytes = IOUtils.toByteArray(inputStream);
-    inputStream.close();
-    return new ByteArrayClassLoader().defineClass(fqcn, bytes);
-  }
-
-  /**
-   * Given the class name it reads and loads the class from given byte array.
-   *
-   * @param fqcn       fully qualified class name.
-   * @param inputClass byte[] from which class is read.
-   * @return loaded class
-   * @throws IOException
-   */
-  public static Class<?> readBeanClass(String fqcn, byte[] inputClass) throws IOException
-  {
-    return new ByteArrayClassLoader().defineClass(fqcn, inputClass);
-  }
-
-  private static class ByteArrayClassLoader extends ClassLoader
-  {
-    Class<?> defineClass(String name, byte[] ba)
-    {
-      return defineClass(name, ba, 0, ba.length);
-    }
   }
 }
