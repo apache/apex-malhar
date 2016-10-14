@@ -22,6 +22,7 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -37,6 +38,7 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.stram.engine.PortContext;
 
+@Ignore
 public class POJOInnerJoinOperatorTest
 {
   @Rule
