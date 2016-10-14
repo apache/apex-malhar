@@ -19,8 +19,8 @@
 package org.apache.apex.malhar.lib.window.impl;
 
 import org.apache.apex.malhar.lib.window.ControlTuple;
-import org.apache.apex.malhar.lib.window.MergeWindowedOperator;
 import org.apache.apex.malhar.lib.window.Tuple;
+import org.apache.apex.malhar.lib.window.WindowedMergeOperator;
 
 import com.google.common.base.Function;
 
@@ -41,7 +41,7 @@ import com.datatorrent.lib.util.KeyValPair;
  */
 public class KeyedWindowedMergeOperatorImpl<KeyT, InputT1, InputT2, AccumT, OutputT>
     extends KeyedWindowedOperatorImpl<KeyT, InputT1, AccumT, OutputT>
-    implements MergeWindowedOperator<KeyValPair<KeyT, InputT1>, KeyValPair<KeyT, InputT2>>
+    implements WindowedMergeOperator<KeyValPair<KeyT, InputT1>, KeyValPair<KeyT, InputT2>>
 {
   private Function<KeyValPair<KeyT, InputT2>, Long> timestampExtractor2;
 

@@ -19,8 +19,8 @@
 package org.apache.apex.malhar.lib.window.impl;
 
 import org.apache.apex.malhar.lib.window.ControlTuple;
-import org.apache.apex.malhar.lib.window.MergeWindowedOperator;
 import org.apache.apex.malhar.lib.window.Tuple;
+import org.apache.apex.malhar.lib.window.WindowedMergeOperator;
 
 import com.google.common.base.Function;
 
@@ -38,7 +38,7 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
  * @param <OutputT> The type of output tuple.
  */
 public class WindowedMergeOperatorImpl<InputT1, InputT2, AccumT, OutputT>
-    extends WindowedOperatorImpl<InputT1, AccumT, OutputT> implements MergeWindowedOperator<InputT1, InputT2>
+    extends WindowedOperatorImpl<InputT1, AccumT, OutputT> implements WindowedMergeOperator<InputT1, InputT2>
 {
   private Function<InputT2, Long> timestampExtractor2;
 
