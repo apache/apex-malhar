@@ -335,6 +335,98 @@ public class JdbcPojoOperatorTest extends JdbcOperatorTest
   }
 
   /**
+   * This test will assume direct mapping for POJO fields to DB columns All
+   * fields in DB present in POJO and will test it for exactly once criteria
+   */
+  @Test
+  public void testJdbcPojoInsertOutputOperatorExactlyOnce()
+  {
+    JdbcTransactionalStore transactionalStore = new JdbcTransactionalStore();
+    transactionalStore.setDatabaseDriver(DB_DRIVER);
+    transactionalStore.setDatabaseUrl(URL);
+
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
+    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
+        OPERATOR_ID, attributeMap);
+
+    TestPOJOOutputOperator outputOperator = new TestPOJOOutputOperator();
+    outputOperator.setBatchSize(3);
+    outputOperator.setTablename(TABLE_POJO_NAME);
+
+    outputOperator.setStore(transactionalStore);
+
+    outputOperator.setup(context);
+
+    Attribute.AttributeMap.DefaultAttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();
+    portAttributes.put(Context.PortContext.TUPLE_CLASS, TestPOJOEvent.class);
+    TestPortContext tpc = new TestPortContext(portAttributes);
+    outputOperator.input.setup(tpc);
+
+    CollectorTestSink<Object> errorSink = new CollectorTestSink<>();
+    TestUtils.setSink(outputOperator.error, errorSink);
+
+    outputOperator.activate(context);
+
+    List<TestPOJOEvent> events = Lists.newArrayList();
+    for (int i = 0; i < 70; i++) {
+      events.add(new TestPOJOEvent(i, "test" + i));
+    }
+
+    outputOperator.beginWindow(0);
+    for (int i = 0; i < 10; i++) {
+      outputOperator.input.process(events.get(i));
+    }
+    outputOperator.endWindow();
+
+    outputOperator.beginWindow(1);
+    for (int i = 10; i < 20; i++) {
+      outputOperator.input.process(events.get(i));
+    }
+    outputOperator.endWindow();
+
+    outputOperator.beginWindow(2);
+    for (int i = 20; i < 30; i++) {
+      outputOperator.input.process(events.get(i));
+    }
+    outputOperator.endWindow();
+
+    outputOperator.setup(context);
+    outputOperator.input.setup(tpc);
+    outputOperator.activate(context);
+
+    outputOperator.beginWindow(0);
+    for (int i = 30; i < 40; i++) {
+      outputOperator.input.process(events.get(i));
+    }
+    outputOperator.endWindow();
+
+    outputOperator.beginWindow(1);
+    for (int i = 40; i < 50; i++) {
+      outputOperator.input.process(events.get(i));
+    }
+    outputOperator.endWindow();
+
+    outputOperator.beginWindow(2);
+    for (int i = 50; i < 60; i++) {
+      outputOperator.input.process(events.get(i));
+    }
+
+    outputOperator.beginWindow(3);
+    for (int i = 60; i < 70; i++) {
+      outputOperator.input.process(events.get(i));
+    }
+    outputOperator.endWindow();
+
+    outputOperator.deactivate();
+    outputOperator.teardown();
+
+    Assert.assertEquals("rows in db", 40, outputOperator.getNumOfEventsInStore(TABLE_POJO_NAME));
+
+  }
+
+
+  /**
    * This test will assume direct mapping for POJO fields to DB columns Nullable
    * DB field missing in POJO name1 field, which is nullable in DB is missing
    * from POJO POJO(id, name) -> DB(id, name1)
