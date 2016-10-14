@@ -135,6 +135,7 @@
                 <exclude>@org.apache.hadoop.classification.InterfaceStability$Evolving</exclude>
                 <exclude>@org.apache.hadoop.classification.InterfaceStability$Unstable</exclude>
                 <exclude>com.datatorrent.lib.io.fs.FSInputModule</exclude>
+                <exclude>com.datatorrent.lib.io.fs.AbstractFileInputOperator</exclude>
               </excludes>
             </parameter>
             <skip>${semver.plugin.skip}</skip>
