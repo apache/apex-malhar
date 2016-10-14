@@ -92,4 +92,25 @@ public class TimeBucketAssignerTest
     Assert.assertEquals("time bucket", -1, testMeta.timeBucketAssigner.getTimeBucketAndAdjustBoundaries(expiredTime));
     testMeta.timeBucketAssigner.teardown();
   }
+
+  @Test
+  public void testTimeBucketKeyExpiry()
+  {
+    testMeta.timeBucketAssigner.setExpireBefore(Duration.standardSeconds(1));
+    testMeta.timeBucketAssigner.setBucketSpan(Duration.standardSeconds(1));
+
+    long referenceTime = testMeta.timeBucketAssigner.getReferenceInstant().getMillis();
+    testMeta.timeBucketAssigner.setup(testMeta.mockManagedStateContext);
+
+    long time1 = Duration.standardSeconds(9).getMillis() + referenceTime;
+    Assert.assertEquals("time bucket", 10, testMeta.timeBucketAssigner.getTimeBucketAndAdjustBoundaries(time1) );
+
+    long time2 = Duration.standardSeconds(10).getMillis()  + referenceTime;
+    Assert.assertEquals("time bucket", 11, testMeta.timeBucketAssigner.getTimeBucketAndAdjustBoundaries(time2) );
+
+    //Check for expiry of time1 now
+    Assert.assertEquals("time bucket", -1, testMeta.timeBucketAssigner.getTimeBucketAndAdjustBoundaries(time1) );
+
+    testMeta.timeBucketAssigner.teardown();
+  }
 }
