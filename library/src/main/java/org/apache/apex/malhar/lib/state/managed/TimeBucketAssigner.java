@@ -124,7 +124,7 @@ public class TimeBucketAssigner implements ManagedStateComponent
     }
     long diffFromStart = value - fixedStart;
     long key = diffFromStart / bucketSpanMillis;
-    if (value > end) {
+    if (value >= end) {
       long diffInBuckets = (value - end) / bucketSpanMillis;
       long move = (diffInBuckets + 1) * bucketSpanMillis;
       start += move;
