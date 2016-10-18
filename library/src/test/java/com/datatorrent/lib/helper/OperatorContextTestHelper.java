@@ -99,6 +99,12 @@ public class OperatorContextTestHelper
     {
       return 0;
     }
+
+    @Override
+    public String getName()
+    {
+      return null;
+    }
   }
 
   private static class TestContext implements Context
