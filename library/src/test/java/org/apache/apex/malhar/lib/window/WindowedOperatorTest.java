@@ -438,7 +438,7 @@ public class WindowedOperatorTest
     Assert.assertEquals(1, out.getWindows().size());
     Window.SessionWindow<String> window1 = (Window.SessionWindow<String>)out.getWindows().iterator().next();
     Assert.assertEquals(1100L, window1.getBeginTimestamp());
-    Assert.assertEquals(1, window1.getDurationMillis());
+    Assert.assertEquals(2000, window1.getDurationMillis());
     Assert.assertEquals("a", window1.getKey());
     Assert.assertEquals("a", out.getValue().getKey());
     Assert.assertEquals(2L, out.getValue().getValue().longValue());
@@ -461,7 +461,7 @@ public class WindowedOperatorTest
     Window.SessionWindow<String> window2 = (Window.SessionWindow<String>)out.getWindows().iterator().next();
 
     Assert.assertEquals(1100L, window2.getBeginTimestamp());
-    Assert.assertEquals(901, window2.getDurationMillis());
+    Assert.assertEquals(2900, window2.getDurationMillis());
     Assert.assertEquals("a", out.getValue().getKey());
     Assert.assertEquals(5L, out.getValue().getValue().longValue());
     sink.clear();
@@ -474,7 +474,7 @@ public class WindowedOperatorTest
     Assert.assertEquals(1, out.getWindows().size());
     Window.SessionWindow<String> window3 = (Window.SessionWindow<String>)out.getWindows().iterator().next();
     Assert.assertEquals(5000L, window3.getBeginTimestamp());
-    Assert.assertEquals(1, window3.getDurationMillis());
+    Assert.assertEquals(2000, window3.getDurationMillis());
     Assert.assertEquals("a", out.getValue().getKey());
     Assert.assertEquals(4L, out.getValue().getValue().longValue());
     sink.clear();
@@ -510,7 +510,7 @@ public class WindowedOperatorTest
     Assert.assertEquals(1, out.getWindows().size());
     Window.SessionWindow<String> window4 = (Window.SessionWindow<String>)out.getWindows().iterator().next();
     Assert.assertEquals(1100L, window4.getBeginTimestamp());
-    Assert.assertEquals(3901, window4.getDurationMillis());
+    Assert.assertEquals(5900, window4.getDurationMillis());
     Assert.assertEquals("a", out.getValue().getKey());
     Assert.assertEquals(12L, out.getValue().getValue().longValue());
 

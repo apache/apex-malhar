@@ -44,10 +44,10 @@ public interface SessionWindowedStorage<K, V> extends WindowedStorage.WindowedKe
   void migrateWindow(Window.SessionWindow<K> fromWindow, Window.SessionWindow<K> toWindow);
 
   /**
-   * Given the key, the timestamp and the gap, gets the data that falls into timestamp +/- gap.
-   * This is used for getting the entry the data given the timestamp belongs to, and for determining whether to merge
+   * Given the key, the timestamp and the gap, gets the windows that overlaps with timestamp to (timestamp + gap).
+   * This is used for getting the windows the timestamp belongs to, and for determining whether to merge
    * session windows.
-   * This should only return at most two entries if sessions have been merged appropriately.
+   * This should only return at most two windows if sessions have been merged appropriately.
    *
    * @param key the key
    * @param timestamp the timestamp

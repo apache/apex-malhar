@@ -106,7 +106,7 @@ public class SpillableSessionWindowedStorage<K, V> extends SpillableWindowedKeye
     if (sessionWindows != null) {
       for (Window.SessionWindow<K> window : sessionWindows) {
         if (timestamp > window.getBeginTimestamp()) {
-          if (window.getBeginTimestamp() + window.getDurationMillis() + gap > timestamp) {
+          if (window.getBeginTimestamp() + window.getDurationMillis() > timestamp) {
             results.add(new AbstractMap.SimpleEntry<>(window, windowKeyToValueMap.get(new ImmutablePair<Window, K>(window, key))));
           }
         } else if (timestamp < window.getBeginTimestamp()) {

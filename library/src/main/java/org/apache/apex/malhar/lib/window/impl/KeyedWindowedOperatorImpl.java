@@ -60,12 +60,13 @@ public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
       KeyT key = ((KeyValPair<KeyT, ?>)inputTuple.getValue()).getKey();
       WindowOption.SessionWindows sessionWindowOption = (WindowOption.SessionWindows)windowOption;
       SessionWindowedStorage<KeyT, AccumT> sessionStorage = (SessionWindowedStorage<KeyT, AccumT>)dataStorage;
-      Collection<Map.Entry<Window.SessionWindow<KeyT>, AccumT>> sessionEntries = sessionStorage.getSessionEntries(key, timestamp, sessionWindowOption.getMinGap().getMillis());
+      long minGapMillis = sessionWindowOption.getMinGap().getMillis();
+      Collection<Map.Entry<Window.SessionWindow<KeyT>, AccumT>> sessionEntries = sessionStorage.getSessionEntries(key, timestamp, minGapMillis);
       Window.SessionWindow<KeyT> sessionWindowToAssign;
       switch (sessionEntries.size()) {
         case 0: {
           // There are no existing windows within the minimum gap. Create a new session window
-          Window.SessionWindow<KeyT> sessionWindow = new Window.SessionWindow<>(key, timestamp, 1);
+          Window.SessionWindow<KeyT> sessionWindow = new Window.SessionWindow<>(key, timestamp, minGapMillis);
           windowStateMap.put(sessionWindow, new WindowState());
           sessionWindowToAssign = sessionWindow;
           break;
@@ -74,7 +75,7 @@ public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
           // There is already one existing window within the minimum gap. See whether we need to extend the time of that window
           Map.Entry<Window.SessionWindow<KeyT>, AccumT> sessionWindowEntry = sessionEntries.iterator().next();
           Window.SessionWindow<KeyT> sessionWindow = sessionWindowEntry.getKey();
-          if (sessionWindow.getBeginTimestamp() <= timestamp && timestamp < sessionWindow.getBeginTimestamp() + sessionWindow.getDurationMillis()) {
+          if (sessionWindow.getBeginTimestamp() <= timestamp && timestamp + minGapMillis <= sessionWindow.getBeginTimestamp() + sessionWindow.getDurationMillis()) {
             // The session window already covers the event
             sessionWindowToAssign = sessionWindow;
           } else {
@@ -86,7 +87,7 @@ public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
             }
             // create a new session window that covers the timestamp
             long newBeginTimestamp = Math.min(sessionWindow.getBeginTimestamp(), timestamp);
-            long newEndTimestamp = Math.max(sessionWindow.getBeginTimestamp() + sessionWindow.getDurationMillis(), timestamp + 1);
+            long newEndTimestamp = Math.max(sessionWindow.getBeginTimestamp() + sessionWindow.getDurationMillis(), timestamp + minGapMillis);
             Window.SessionWindow<KeyT> newSessionWindow =
                 new Window.SessionWindow<>(key, newBeginTimestamp, newEndTimestamp - newBeginTimestamp);
             windowStateMap.remove(sessionWindow);
@@ -97,7 +98,7 @@ public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
           break;
         }
         case 2: {
-          // There are two windows that fall within the minimum gap of the timestamp. We need to merge the two windows
+          // There are two windows that overlap the proto-session window of the timestamp. We need to merge the two windows
           Iterator<Map.Entry<Window.SessionWindow<KeyT>, AccumT>> iterator = sessionEntries.iterator();
           Map.Entry<Window.SessionWindow<KeyT>, AccumT> sessionWindowEntry1 = iterator.next();
           Map.Entry<Window.SessionWindow<KeyT>, AccumT> sessionWindowEntry2 = iterator.next();

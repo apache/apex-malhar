@@ -73,7 +73,7 @@ public class InMemorySessionWindowedStorage<K, V> extends InMemoryWindowedKeyedS
       Window.SessionWindow<K> refWindow = new Window.SessionWindow<>(key, timestamp, 1);
       Window.SessionWindow<K> floor = sessionWindows.floor(refWindow);
       if (floor != null) {
-        if (floor.getBeginTimestamp() + floor.getDurationMillis() + gap > timestamp) {
+        if (floor.getBeginTimestamp() + floor.getDurationMillis() > timestamp) {
           results.add(new AbstractMap.SimpleEntry<>(floor, map.get(floor).get(key)));
         }
       }
