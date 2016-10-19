@@ -86,7 +86,7 @@ class KinesisPair <F, S> extends Pair<F, S>
  * @since 2.0.0
  */
 @SuppressWarnings("rawtypes")
-public abstract class AbstractKinesisInputOperator <T> implements InputOperator, ActivationListener<OperatorContext>, Partitioner<AbstractKinesisInputOperator>, StatsListener,Operator.CheckpointListener
+public abstract class AbstractKinesisInputOperator <T> implements InputOperator, ActivationListener<OperatorContext>, Partitioner<AbstractKinesisInputOperator>, StatsListener,Operator.CheckpointNotificationListener
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractKinesisInputOperator.class);
 
@@ -530,6 +530,12 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   public void checkpointed(long windowId)
   {
   }
+
+  @Override
+  public void beforeCheckpoint(long windowId)
+  {
+  }
+
   /**
    * Implement ActivationListener Interface.
    */
