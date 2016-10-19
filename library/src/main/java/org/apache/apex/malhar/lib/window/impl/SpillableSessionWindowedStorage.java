@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.apache.apex.malhar.lib.state.spillable.Spillable;
@@ -79,23 +80,19 @@ public class SpillableSessionWindowedStorage<K, V> extends SpillableWindowedKeye
   @Override
   public void migrateWindow(Window.SessionWindow<K> fromWindow, Window.SessionWindow<K> toWindow)
   {
-    Set<K> keys = windowToKeysMap.get(fromWindow);
-    if (keys == null) {
-      return;
+    K key = fromWindow.getKey();
+    ImmutablePair<Window, K> oldKey = new ImmutablePair<Window, K>(fromWindow, key);
+    ImmutablePair<Window, K> newKey = new ImmutablePair<Window, K>(toWindow, key);
+    V value = windowKeyToValueMap.get(oldKey);
+    if (value == null) {
+      throw new NoSuchElementException();
     }
-    windowKeyToValueMap.remove(toWindow);
-    for (K key : keys) {
-      windowToKeysMap.put(toWindow, key);
-      ImmutablePair<Window, K> oldKey = new ImmutablePair<Window, K>(fromWindow, key);
-      ImmutablePair<Window, K> newKey = new ImmutablePair<Window, K>(toWindow, key);
-
-      V value = windowKeyToValueMap.get(oldKey);
-      windowKeyToValueMap.remove(oldKey);
-      windowKeyToValueMap.put(newKey, value);
-      keyToWindowsMap.remove(key, fromWindow);
-      keyToWindowsMap.put(key, toWindow);
-    }
+    windowKeyToValueMap.remove(oldKey);
+    windowKeyToValueMap.put(newKey, value);
+    keyToWindowsMap.remove(key, fromWindow);
+    keyToWindowsMap.put(key, toWindow);
     windowToKeysMap.removeAll(fromWindow);
+    windowToKeysMap.put(toWindow, key);
   }
 
   @Override

@@ -24,11 +24,17 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.apex.malhar.lib.window.SessionWindowedStorage;
 import org.apache.apex.malhar.lib.window.Window;
 import org.apache.hadoop.classification.InterfaceStability;
+
+import com.google.common.base.Supplier;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.SortedSetMultimap;
 
 /**
  * This is the in-memory implementation of {@link WindowedKeyedStorage}. Do not use this class if you have a large state that
@@ -40,7 +46,14 @@ import org.apache.hadoop.classification.InterfaceStability;
 public class InMemorySessionWindowedStorage<K, V> extends InMemoryWindowedKeyedStorage<K, V>
     implements SessionWindowedStorage<K, V>
 {
-  private Map<K, TreeSet<Window.SessionWindow<K>>> keyToWindows = new HashMap<>();
+  private SortedSetMultimap<K, Window.SessionWindow<K>> keyToWindows = Multimaps.newSortedSetMultimap(new HashMap<K, Collection<Window.SessionWindow<K>>>(), new Supplier<SortedSet<Window.SessionWindow<K>>>()
+  {
+    @Override
+    public SortedSet<Window.SessionWindow<K>> get()
+    {
+      return new TreeSet<>();
+    }
+  });
 
   @Override
   public void put(Window window, K key, V value)
@@ -48,37 +61,46 @@ public class InMemorySessionWindowedStorage<K, V> extends InMemoryWindowedKeyedS
     @SuppressWarnings("unchecked")
     Window.SessionWindow<K> sessionWindow = (Window.SessionWindow<K>)window;
     super.put(window, key, value);
-    TreeSet<Window.SessionWindow<K>> sessionWindows = keyToWindows.get(key);
-    if (sessionWindows == null) {
-      sessionWindows = new TreeSet<>();
-      keyToWindows.put(key, sessionWindows);
-    }
-    sessionWindows.add(sessionWindow);
+    keyToWindows.put(key, sessionWindow);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public void remove(Window window)
+  {
+    super.remove(window);
+    Window.SessionWindow<K> sessionWindow = (Window.SessionWindow<K>)window;
+    keyToWindows.remove(sessionWindow.getKey(), sessionWindow);
   }
 
   @Override
   public void migrateWindow(Window.SessionWindow<K> fromWindow, Window.SessionWindow<K> toWindow)
   {
-    if (containsWindow(fromWindow)) {
-      map.put(toWindow, map.remove(fromWindow));
+    if (!containsWindow(fromWindow)) {
+      throw new NoSuchElementException();
     }
+    map.put(toWindow, map.remove(fromWindow));
+    keyToWindows.remove(fromWindow.getKey(), fromWindow);
+    keyToWindows.put(toWindow.getKey(), toWindow);
   }
 
   @Override
   public Collection<Map.Entry<Window.SessionWindow<K>, V>> getSessionEntries(K key, long timestamp, long gap)
   {
     List<Map.Entry<Window.SessionWindow<K>, V>> results = new ArrayList<>();
-    TreeSet<Window.SessionWindow<K>> sessionWindows = keyToWindows.get(key);
+    SortedSet<Window.SessionWindow<K>> sessionWindows = keyToWindows.get(key);
     if (sessionWindows != null) {
-      Window.SessionWindow<K> refWindow = new Window.SessionWindow<>(key, timestamp, 1);
-      Window.SessionWindow<K> floor = sessionWindows.floor(refWindow);
-      if (floor != null) {
-        if (floor.getBeginTimestamp() + floor.getDurationMillis() > timestamp) {
-          results.add(new AbstractMap.SimpleEntry<>(floor, map.get(floor).get(key)));
+      Window.SessionWindow<K> refWindow = new Window.SessionWindow<>(key, timestamp, gap);
+      SortedSet<Window.SessionWindow<K>> headSet = sessionWindows.headSet(refWindow);
+      if (!headSet.isEmpty()) {
+        Window.SessionWindow<K> lower = headSet.last();
+        if (lower.getBeginTimestamp() + lower.getDurationMillis() > timestamp) {
+          results.add(new AbstractMap.SimpleEntry<>(lower, map.get(lower).get(key)));
         }
       }
-      Window.SessionWindow<K> higher = sessionWindows.higher(refWindow);
-      if (higher != null) {
+      SortedSet<Window.SessionWindow<K>> tailSet = sessionWindows.tailSet(refWindow);
+      if (!tailSet.isEmpty()) {
+        Window.SessionWindow<K> higher = tailSet.first();
         if (higher.getBeginTimestamp() - gap <= timestamp) {
           results.add(new AbstractMap.SimpleEntry<>(higher, map.get(higher).get(key)));
         }
