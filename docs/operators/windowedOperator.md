@@ -81,36 +81,40 @@ windowedOperator.setWindowOption(new WindowOption.TimeWindows(Duration.standardM
 
 ### `SessionWindows`
 
-`SessionWindow`s have variable durations and are based on the key of the tuple. Each tuple is assigned to exactly one window. It takes a duration parameter `minGap`, which specifies the minimum time gap between two `SessionWindow`s of the same key. 
+`SessionWindow`s have variable durations and are based on the key of the tuple. Each tuple is assigned to exactly one window. It takes a duration parameter `minGap`, which specifies the minimum time gap between two tuples that belong to two *different* `SessionWindows` of the same key. `minGap` is also the duration of the "proto-session" window for a single timestamp, and it is the minimum duration of any session window.
 
 ```java
 // Setting a session window option with a minimum gap of one hour
 windowedOperator.setWindowOption(new WindowOption.SessionWindows(Duration.standardHours(1)));
 ```
 
-To ensure that no two `SessionWindow`s of the same key are less than `minGap` apart, upon an arrival of a tuple, the `WindowedOperator` does the following checks:
+Upon arrival of a tuple, a proto-session window is created. A proto-session window for a tuple is a temporary session window with begin timestamp being the tuple timestamp and the duration being `minGap`.
 
-#### The new tuple can be assigned to an existing `SessionWindow` without change
+![](images/windowedOperator/session-windows-4.png)
+
+To ensure that there are no two tuples of the same key in different session windows that are less than `minGap` apart, the `WindowedOperator` does the following checks:
+
+#### The proto-session window can be fit into an existing `SessionWindow` of the same key without change
 
 The new tuple is simply applied to the state of the existing `SessionWindow`.
 
 ![](images/windowedOperator/session-windows-3.png)
 
-#### The arrival of the new tuple would result in a merge of the two existing session windows
+#### The proto-session window overlaps with two existing session windows of the same key
 
-A new Session Window is created with the merged state of the two existing `SessionWindow`s of the same key, plus the new tuple. The two existing `SessionWindow`s will be deleted and retraction triggers for the two deleted windows will be fired. (Please see [here](#triggers) for details on `Trigger`s)
+A new Session Window is created with the merged state of the two existing `SessionWindow`s, plus the new tuple. The two existing `SessionWindow`s will be deleted and retraction triggers for the two deleted windows will be fired. (Please see [here](#triggers) for details on `Trigger`s)
 
 ![](images/windowedOperator/session-windows-1.png) 
 
-#### The arrival of the new tuple would result in an extension of an existing `SessionWindow`s
+#### The proto-session window overlaps with one existing session window of the same key
 
-A new `SessionWindow` is created with the state of the existing `SessionWindow`, plus the new tuple, with a longer duration than the existing `SessionWindow` to cover the new tuple. The existing `SessionWindow` will be deleted and a retraction trigger for the old window will be fired.
+A new `SessionWindow` is created with the state of the existing `SessionWindow`, plus the new tuple, with a longer duration than the existing `SessionWindow` and possibly an earlier begin timestamp to cover the new tuple. The existing `SessionWindow` will be deleted and a retraction trigger for the old window will be fired.
 
 ![](images/windowedOperator/session-windows-2.png) 
 
 #### All of the above checks return false
 
-A new `SessionWindow` is created for the new tuple.
+The proto-session window is in effect and the new tuple is assigned to that window.
 
 ## Timestamp Extractor
 
