@@ -112,8 +112,7 @@ public interface WindowOption
   }
 
   /**
-   * The window specification that represents session windows, with a minimum gap duration between two windows with the
-   * same key.
+   * The window specification that represents session windows, with a minimum gap duration between two tuples with the same key in two different session windows. The minimum gap is also the minimum duration of any session window.
    */
   class SessionWindows implements WindowOption
   {
