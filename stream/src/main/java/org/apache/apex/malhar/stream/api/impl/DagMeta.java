@@ -18,6 +18,7 @@
  */
 package org.apache.apex.malhar.stream.api.impl;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -27,29 +28,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.apache.apex.malhar.lib.window.ControlTuple;
+import org.apache.apex.malhar.lib.window.impl.AbstractWindowedOperator;
 import org.apache.apex.malhar.stream.api.Option;
+import org.apache.apex.malhar.stream.api.annotation.ControlPort;
+import org.apache.apex.malhar.stream.api.operator.PostprocessOperator;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.stram.plan.logical.LogicalPlan;
 
 /**
- * Logical graph data structure for DAG <br>
- *
- * With the build method({@link #buildDAG()}, {@link #buildDAG(DAG)}) to convert it to Apex DAG
+ * Graph data structure for DAG
+ * With this data structure, the framework can do lazy load and optimization
  *
  * @since 3.4.0
  */
 @InterfaceStability.Evolving
 public class DagMeta
 {
+
+  public static String POST_PROCESS_OPERATOR_SUFFIX = "_PostProcess";
+
   private List<NodeMeta> heads = new LinkedList<>();
 
   List<Pair<Attribute, Object>> dagAttributes = new LinkedList<>();
@@ -132,6 +138,11 @@ public class DagMeta
       }
       return operator.toString();
     }
+
+    public Option[] getOptions()
+    {
+      return options;
+    }
   }
 
   public DagMeta()
@@ -149,37 +160,67 @@ public class DagMeta
   public void buildDAG(DAG dag)
   {
     for (NodeMeta nm : heads) {
-      visitNode(nm, dag);
+      visitNode(nm, dag, null);
     }
-    logger.debug("Finish building the dag:\n {}", dag.toString());
   }
 
-  private void visitNode(NodeMeta nm, DAG dag)
+  private void visitNode(NodeMeta nm, DAG dag, DefaultOutputPort<ControlTuple> controlTupleOutputPort)
   {
-    String opName = nm.getOperatorName();
-    logger.debug("Building DAG: add operator {}: {}", opName, nm.operator);
-    dag.addOperator(opName, nm.operator);
+
+    DefaultOutputPort<ControlTuple> possibleControlTuplePort = controlTupleOutputPort;
+    // add logical operator
+    dag.addOperator(nm.getOperatorName(), nm.operator);
+
+    possibleControlTuplePort = connectControlPort(dag, possibleControlTuplePort, nm.getOperator());
+
+    PostprocessOperator postprocessOperator = null;
+    //deal with options
+    for (Option opt : nm.getOptions()) {
+      if (opt instanceof Option.WatermarkGenerator) {
+        postprocessOperator = getOrNew(postprocessOperator);
+        postprocessOperator.setWatermarkGenerator((Option.WatermarkGenerator)opt);
+      }
+    }
+
+    if (postprocessOperator != null) {
+      dag.addOperator(nm.getOperatorName() + POST_PROCESS_OPERATOR_SUFFIX, postprocessOperator);
+      possibleControlTuplePort = connectControlPort(dag, possibleControlTuplePort, postprocessOperator);
+      Map.Entry<Operator.OutputPort, Pair<List<Operator.InputPort>, DAG.Locality>> toReplace = null;
+      for (Map.Entry<Operator.OutputPort, Pair<List<Operator.InputPort>, DAG.Locality>> entry : nm.nodeStreams.entrySet()) {
+        if (entry.getKey() == null || entry.getValue().getKey() == null || 0 == entry.getValue().getKey().size()) {
+          continue;
+        } else {
+          DAG.StreamMeta streamMeta = dag.addStream("inner_stream_post", entry.getKey(),
+              postprocessOperator.dataInput);
+          // always run postprocess operator to thread local
+          streamMeta.setLocality(DAG.Locality.THREAD_LOCAL);
+          toReplace = entry;
+        }
+      }
+      if (toReplace != null) {
+        Pair<List<Operator.InputPort>, DAG.Locality> val = nm.nodeStreams.remove(toReplace.getKey());
+        nm.nodeStreams.put(postprocessOperator.dataOutput, val);
+      }
+    }
+
 
     for (NodeMeta child : nm.children) {
-      visitNode(child, dag);
+      visitNode(child, dag, possibleControlTuplePort);
     }
 
     for (Map.Entry<Operator.OutputPort, Pair<List<Operator.InputPort>, DAG.Locality>> entry : nm.nodeStreams.entrySet()) {
       if (entry.getKey() == null || entry.getValue().getKey() == null || 0 == entry.getValue().getKey().size()) {
         continue;
       }
-      logger.debug("Building DAG: add stream {} from {} to {}", entry.getKey().toString(), entry.getKey(), entry.getValue().getLeft().toArray(new Operator.InputPort[]{}));
       DAG.StreamMeta streamMeta = dag.addStream(entry.getKey().toString(), entry.getKey(),
           entry.getValue().getLeft().toArray(new Operator.InputPort[]{}));
       // set locality
       if (entry.getValue().getRight() != null) {
-        logger.debug("Building DAG: set locality of the stream {} to {}", entry.getKey().toString(), entry.getValue().getRight());
         streamMeta.setLocality(entry.getValue().getRight());
       }
       //set attributes for output port
       if (nm.outputPortAttributes.containsKey(entry.getKey())) {
         for (Pair<Attribute, Object> attr : nm.outputPortAttributes.get(entry.getKey())) {
-          logger.debug("Building DAG: set port attribute {} to {} for port {}", attr.getLeft(), attr.getValue(), entry.getKey());
           dag.setOutputPortAttribute(entry.getKey(), attr.getLeft(), attr.getValue());
         }
       }
@@ -190,7 +231,6 @@ public class DagMeta
       //set input port attributes
       if (nm.inputPortAttributes.containsKey(input)) {
         for (Pair<Attribute, Object> attr : nm.inputPortAttributes.get(input)) {
-          logger.debug("Building DAG: set port attribute {} to {} for port {}", attr.getLeft(), attr.getValue(), input);
           dag.setInputPortAttribute(input, attr.getLeft(), attr.getValue());
         }
       }
@@ -198,10 +238,75 @@ public class DagMeta
 
     // set operator attributes
     for (Pair<Attribute, Object> attr : nm.operatorAttributes) {
-      logger.debug("Building DAG: set operator attribute {} to {} for operator {}", attr.getLeft(), attr.getValue(), nm.operator);
       dag.setAttribute(nm.operator, attr.getLeft(), attr.getValue());
     }
 
+  }
+
+  /**
+   * Connect transitiveControlTupleOutputPort to operator if the operator has control tuple port
+   * and return the new control output port if possible
+   * @param dag
+   * @param transitiveControlTupleOutputPort
+   * @param operator
+   * @return
+   */
+  private DefaultOutputPort<ControlTuple> connectControlPort(DAG dag, DefaultOutputPort<ControlTuple> transitiveControlTupleOutputPort, Operator operator)
+  {
+    if (operator == null) {
+      return transitiveControlTupleOutputPort;
+    }
+
+    DefaultOutputPort<ControlTuple> newOutput = null;
+    DefaultInputPort<ControlTuple> inputToBeConnected = null;
+
+    if (operator instanceof AbstractWindowedOperator) {
+      inputToBeConnected = ((AbstractWindowedOperator)operator).controlInput;
+      newOutput = ((AbstractWindowedOperator)operator).controlOutput;
+    } else {
+      Operator.Port[] inputOutput = findControlTuplePort(operator);
+      inputToBeConnected = (DefaultInputPort<ControlTuple>)inputOutput[0];
+      newOutput = (DefaultOutputPort<ControlTuple>)inputOutput[1];
+    }
+
+
+    // connect control tuple port if possible
+    if (transitiveControlTupleOutputPort != null && inputToBeConnected != null) {
+      dag.addStream(IDGenerator.generateControlStreamNameWithUUID(), transitiveControlTupleOutputPort, inputToBeConnected);
+    }
+
+    return newOutput != null ? newOutput : transitiveControlTupleOutputPort;
+  }
+
+  private Operator.Port[] findControlTuplePort(Operator operator)
+  {
+    Operator.Port[] result = new Operator.Port[2];
+    try {
+      for (Field f : operator.getClass().getFields()) {
+        for (Annotation an : f.getDeclaredAnnotations()) {
+          if (an instanceof ControlPort) {
+            if (Operator.InputPort.class.isAssignableFrom(f.getType())) {
+              result[0] = (Operator.Port)f.get(operator);
+            } else if (Operator.OutputPort.class.isAssignableFrom(f.getType())) {
+              result[1] = (Operator.Port)f.get(operator);
+            }
+          }
+        }
+      }
+    } catch (IllegalAccessException e) {
+      // should never get into this block
+      throw new RuntimeException("Port field needs to be public");
+    }
+    return result;
+  }
+
+  private PostprocessOperator getOrNew(PostprocessOperator postprocessOperator)
+  {
+    if (postprocessOperator == null) {
+      return new PostprocessOperator();
+    } else {
+      return postprocessOperator;
+    }
   }
 
   public NodeMeta addNode(Operator operator, NodeMeta parent, Operator.OutputPort parentOutput, Operator.InputPort inputPort, Option... options)
@@ -217,7 +322,5 @@ public class DagMeta
     }
     return newNode;
   }
-
-  private static final Logger logger = LoggerFactory.getLogger(DagMeta.class);
 
 }
