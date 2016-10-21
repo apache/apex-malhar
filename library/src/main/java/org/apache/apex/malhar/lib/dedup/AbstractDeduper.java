@@ -311,7 +311,8 @@ public abstract class AbstractDeduper<T>
         Future<Slice> future = waitingEvent.getValue();
         if (future.isDone() || finalize ) {
           try {
-            if (future.get() == null && asyncEvents.get(tupleKey) == null) {
+            Long asyncEventsTupleTime = asyncEvents.get(tupleKey);
+            if (future.get() == null && (asyncEventsTupleTime == null || asyncEventsTupleTime < tupleTime) ) {
               putManagedState(tuple);
               asyncEvents.put(tupleKey, tupleTime);
               processUnique(tuple);

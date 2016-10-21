@@ -102,6 +102,50 @@ public class DeduperTimeBasedPOJOImplTest
     deduper.teardown();
   }
 
+  @Test
+  public void testDedupDifferentWindowSameKey()
+  {
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributes =
+        new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
+    attributes.put(DAG.APPLICATION_ID, APP_ID);
+    attributes.put(DAG.APPLICATION_PATH, applicationPath);
+    attributes.put(DAG.InputPortMeta.TUPLE_CLASS, TestPojo.class);
+    OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributes);
+    deduper.setup(context);
+    deduper.input.setup(new PortContext(attributes, context));
+    deduper.activate(context);
+    CollectorTestSink<TestPojo> uniqueSink = new CollectorTestSink<TestPojo>();
+    TestUtils.setSink(deduper.unique, uniqueSink);
+    CollectorTestSink<TestPojo> duplicateSink = new CollectorTestSink<TestPojo>();
+    TestUtils.setSink(deduper.duplicate, duplicateSink);
+    CollectorTestSink<TestPojo> expiredSink = new CollectorTestSink<TestPojo>();
+    TestUtils.setSink(deduper.expired, expiredSink);
+
+    deduper.beginWindow(0);
+
+    long millis = System.currentTimeMillis();
+    deduper.input.process( new TestPojo(10, new Date(millis)));
+    deduper.input.process( new TestPojo(11, new Date(millis + 10000)));
+    deduper.input.process( new TestPojo(12, new Date(millis + 20000)));
+    deduper.input.process( new TestPojo(13, new Date(millis + 30000)));
+    deduper.input.process( new TestPojo(14, new Date(millis + 40000)));
+    deduper.input.process( new TestPojo(15, new Date(millis + 50000)));
+    deduper.input.process( new TestPojo(10, new Date(millis))); //Duplicate
+    deduper.input.process( new TestPojo(16, new Date(millis + 60000)));
+    deduper.input.process( new TestPojo(10, new Date(millis + 70000))); // New tuple with same key but outside expired window.
+    deduper.input.process( new TestPojo(10, new Date(millis))); // Earlier tuple with earlier time -- Expired
+    deduper.input.process( new TestPojo(10, new Date(millis + 70000))); // New tuple repeated again - Duplicate
+
+    deduper.handleIdleTime();
+    deduper.endWindow();
+
+    Assert.assertTrue(uniqueSink.collectedTuples.size() == 8);
+    Assert.assertTrue(duplicateSink.collectedTuples.size() == 2);
+    Assert.assertTrue(expiredSink.collectedTuples.size() == 1);
+
+    deduper.teardown();
+  }
+
   @After
   public void teardown()
   {
