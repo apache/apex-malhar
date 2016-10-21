@@ -393,6 +393,18 @@ public class FileSplitterInput extends AbstractFileSplitter implements InputOper
       if (lastScannedInfo == null) { // first iteration started
         return true;
       }
+
+      LOG.debug("Directory path: {} Sub-Directory or File path: {}", lastScannedInfo.getDirectoryPath(), lastScannedInfo.getFilePath());
+
+      /*
+       * As referenceTimes is now concurrentHashMap, it throws exception if key passed is null.
+       * So in case where the last scanned directory is null which likely possible when
+       * only file name is specified instead of directory path.
+       */
+      if (lastScannedInfo.getDirectoryPath() == null) {
+        return true;
+      }
+
       Map<String, Long> referenceTime = referenceTimes.get(lastScannedInfo.getDirectoryPath());
       if (referenceTime != null) {
         return referenceTime.get(lastScannedInfo.getFilePath()) != null;
