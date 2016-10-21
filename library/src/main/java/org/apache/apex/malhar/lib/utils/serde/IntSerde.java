@@ -18,6 +18,8 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
+import java.io.IOException;
+
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.classification.InterfaceStability;
 
@@ -34,7 +36,11 @@ public class IntSerde implements Serde<Integer>
   @Override
   public void serialize(Integer object, SerializationBuffer buffer)
   {
-    buffer.write(object.intValue());
+    try {
+      buffer.writeInt(object.intValue());
+    } catch (IOException e) {
+      throw new RuntimeException("Not suppose to get this exception");
+    }
   }
 
   @Override

@@ -28,10 +28,10 @@ public interface KeyValueByteStreamProvider
   /**
    * @return The stream for keeping key
    */
-  public WindowedByteStream getKeyStream();
+  public WindowedBlockStream getKeyStream();
 
   /**
    * @return The stream for keeping value
    */
-  public WindowedByteStream getValueStream();
+  public WindowedBlockStream getValueStream();
 }

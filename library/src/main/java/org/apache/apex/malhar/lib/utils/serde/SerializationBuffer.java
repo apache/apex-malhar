@@ -18,29 +18,35 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
+import java.io.DataOutput;
+
+import org.apache.apex.malhar.lib.state.spillable.WindowListener;
+
 import com.datatorrent.netlet.util.Slice;
 
 /**
  * This interface declares methods of writing binary data and manages the buffer.
  *
  */
-public interface SerializationBuffer extends ResettableWindowListener
+public interface SerializationBuffer extends DataOutput, WindowListener
 {
   /**
-   * write value. it could be part of the object
-   * @param value
+   * Override the super interface to avoid throw IOException.
    */
-  public void write(byte[] value);
-
+  @Override
+  public void write(int b);
 
   /**
-   * write value. it could be part of the object
-   *
-   * @param value
-   * @param offset
-   * @param length
+   * Override the super interface to avoid throw IOException.
    */
-  public void write(byte[] value, int offset, int length);
+  @Override
+  public void write(byte[] b, int off, int len);
+
+  /**
+   * Override the super interface to avoid throw IOException.
+   */
+  @Override
+  void write(byte[] b);
 
   /**
    * write one byte
@@ -49,45 +55,25 @@ public interface SerializationBuffer extends ResettableWindowListener
   public void write(byte value);
 
   /**
-   * write int
-   * @param value
-   */
-  public void write(int value);
-
-  /**
-   * write long
-   * @param value
-   */
-  public void write(long value);
-
-  /**
-   * Writes the string to the buffer prefixed by the string length
-   * @param string
-   * @return
-   */
-  public int writeStringPrefixedByLength(String string);
-
-  /**
-   * write String
-   * @param string
-   * @return The length of the serialized string
-   */
-  public int writeString(String string);
-
-  /**
    * reset to reuse the resource.
    */
-  public void reset();
+  void reset();
 
   /**
    * release allocated resource.
    */
-  public void release();
+  void release();
 
   /**
    * This method should be called only after the whole object has been written.
    * Call toSlice() means the end of one object and start with another new object
    * @return The slice which represents the object
    */
-  public Slice toSlice();
+  Slice toSlice();
+
+  /**
+   *
+   * @return The output stream
+   */
+  WindowedBlockStream getOutputStream();
 }

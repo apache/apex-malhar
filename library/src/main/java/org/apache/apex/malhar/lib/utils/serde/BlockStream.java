@@ -18,6 +18,7 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
+import java.io.OutputStream;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -32,7 +33,7 @@ import com.datatorrent.netlet.util.Slice;
  * BlockStream avoids copying the data that are already exposed to the caller
  *
  */
-public class BlockStream implements ByteStream
+public class BlockStream extends OutputStream implements ByteStream
 {
   private static final Logger logger = LoggerFactory.getLogger(BlockStream.class);
 
@@ -164,5 +165,18 @@ public class BlockStream implements ByteStream
   {
     reset();
     blocks.clear();
+  }
+
+  @Override
+  public void write(int b)
+  {
+    write((byte)b);
+  }
+
+  private byte[] tmpByteAsArray = new byte[1];
+  public void write(byte value)
+  {
+    tmpByteAsArray[0] = value;
+    write(tmpByteAsArray);
   }
 }

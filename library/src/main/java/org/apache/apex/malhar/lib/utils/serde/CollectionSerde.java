@@ -18,6 +18,7 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
+import java.io.IOException;
 import java.util.Collection;
 
 import javax.validation.constraints.NotNull;
@@ -67,7 +68,11 @@ public class CollectionSerde<T, CollectionT extends Collection<T>> implements Se
     if (objects.size() == 0) {
       return;
     }
-    buffer.write(objects.size());
+    try {
+      buffer.writeInt(objects.size());
+    } catch (IOException e) {
+      throw new RuntimeException("Not suppose to get this exception.");
+    }
     Serde<T> serializer = getItemSerde();
     for (T object : objects) {
       serializer.serialize(object, buffer);

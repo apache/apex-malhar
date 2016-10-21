@@ -26,45 +26,32 @@ import com.datatorrent.netlet.util.Slice;
  *   - write(): Write the data of the object, the write() methods could call multiple times.
  *   - toSlice(): Return the slice that represents the object. This method also indicates the end of current object and is ready for next object.
  */
-public interface ByteStream
+public abstract interface ByteStream
 {
-  /**
-   * write data to stream
-   * @param data
-   */
-  void write(byte[] data);
-
-  /**
-   * write data with the given offset and length to the stream
-   * @param data
-   * @param offset
-   * @param length
-   */
-  void write(byte[] data, final int offset, final int length);
 
   /**
    * @return The size of the data in stream
    */
-  long size();
+  public long size();
 
   /**
    * @return The current capacity of the stream.
    */
-  long capacity();
+  public long capacity();
 
   /**
    * @return The slice of the serialized object.
    */
-  Slice toSlice();
+  public Slice toSlice();
 
   /**
    * Reset the stream. Invalid all previous written data for reuse the buffer
    */
-  void reset();
+  public void reset();
 
   /**
    * Release allocated resource.
    */
-  void release();
+  public void release();
 
 }

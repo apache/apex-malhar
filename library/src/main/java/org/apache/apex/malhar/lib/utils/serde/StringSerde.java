@@ -18,10 +18,12 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.classification.InterfaceStability;
-
-import com.datatorrent.lib.appdata.gpo.GPOUtils;
 
 /**
  * An implementation of {@link Serde} which serializes and deserializes {@link String}s.
@@ -34,12 +36,23 @@ public class StringSerde implements Serde<String>
   @Override
   public void serialize(String string, SerializationBuffer buffer)
   {
-    buffer.writeStringPrefixedByLength(string);
+    try {
+      buffer.writeUTF(string);
+    } catch (IOException e) {
+      throw new RuntimeException("Not suppose to get this exception");
+    }
   }
 
   @Override
   public String deserialize(byte[] buffer, MutableInt offset, int length)
   {
-    return GPOUtils.deserializeString(buffer, offset);
+    int len = (((buffer[offset.intValue()]) & 0xFF) << 8) | ((buffer[1 + offset.intValue()]) & 0xFF);
+    DataInputStream dis = new DataInputStream(new ByteArrayInputStream(buffer, offset.intValue(), length));
+    offset.add(len + 2);
+    try {
+      return dis.readUTF();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

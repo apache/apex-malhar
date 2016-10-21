@@ -22,7 +22,7 @@ package org.apache.apex.malhar.lib.utils.serde;
  * This interface represents a ByteStream that is windowed.
  *
  */
-public interface WindowedByteStream extends ByteStream, ResettableWindowListener
+public interface WindowedByteStream extends ResettableWindowListener
 {
   /**
    * The size of the data of all windows with id less than or equals to windowId

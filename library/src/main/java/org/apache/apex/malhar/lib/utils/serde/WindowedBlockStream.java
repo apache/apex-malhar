@@ -34,7 +34,7 @@ import com.google.common.collect.Sets;
  * This is a stream which manages blocks and supports window related operations.
  *
  */
-public class WindowedBlockStream extends BlockStream implements WindowedByteStream
+public class WindowedBlockStream extends BlockStream
 {
   private static final Logger logger = LoggerFactory.getLogger(WindowedBlockStream.class);
   /**
@@ -69,7 +69,6 @@ public class WindowedBlockStream extends BlockStream implements WindowedByteStre
     super(blockCapacity);
   }
 
-  @Override
   public void beginWindow(long windowId)
   {
     currentWindowId = windowId;
@@ -120,13 +119,11 @@ public class WindowedBlockStream extends BlockStream implements WindowedByteStre
     }
   }
 
-  @Override
   public void endWindow()
   {
     releaseMemory();
   }
 
-  @Override
   public void resetUpToWindow(long windowId)
   {
     lock.writeLock().lock();
@@ -188,7 +185,6 @@ public class WindowedBlockStream extends BlockStream implements WindowedByteStre
    * @param windowId
    * @return
    */
-  @Override
   public long dataSizeUpToWindow(long windowId)
   {
     lock.readLock().lock();
@@ -220,7 +216,6 @@ public class WindowedBlockStream extends BlockStream implements WindowedByteStre
     }
   }
 
-  @Override
   public void releaseMemory()
   {
     /**

@@ -18,6 +18,8 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
+import java.io.IOException;
+
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.classification.InterfaceStability;
 
@@ -34,7 +36,11 @@ public class LongSerde implements Serde<Long>
   @Override
   public void serialize(Long value, SerializationBuffer buffer)
   {
-    buffer.write(value);
+    try {
+      buffer.writeLong(value);
+    } catch (IOException e) {
+      throw new RuntimeException("Not suppose to get this exception");
+    }
   }
 
   @Override

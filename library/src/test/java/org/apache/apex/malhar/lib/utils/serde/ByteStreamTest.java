@@ -82,7 +82,7 @@ public class ByteStreamTest
     }
   }
 
-  protected void writeToByteStream(ByteStream bs, List<byte[]> list, List<Slice> slices)
+  protected void writeToByteStream(BlockStream bs, List<byte[]> list, List<Slice> slices)
   {
     for (byte[] bytes : list) {
       int times = random.nextInt(100) + 1;

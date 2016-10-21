@@ -18,6 +18,7 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -69,7 +70,11 @@ public class ArraySerde<T> implements Serde<T[]>
     }
 
     if (keepArraySize) {
-      buffer.write(objects.length);
+      try {
+        buffer.writeInt(objects.length);
+      } catch (IOException e) {
+        throw new RuntimeException("Not suppose to get this exception.");
+      }
     }
 
     Serde<T> serializer = getItemSerde();

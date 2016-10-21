@@ -219,7 +219,7 @@ public class DefaultBucketTest
     //call this method to invoke the release memory
     testMeta.defaultBucket.get(keySlice, -1, ReadSource.MEMORY);
     long sizeFreed = currentSize - testMeta.defaultBucket.getSizeInBytes();
-    int expectedFreedSize = 1 + 4 + 1 + 4 + 1; //key prefix, key length, key; value length, value
+    int expectedFreedSize = 1 + 2 + 1 + 2 + 1; //key prefix, key length, key; value length, value
     Assert.assertEquals("size freed", expectedFreedSize, sizeFreed);
     Assert.assertEquals("existing size", currentSize - expectedFreedSize, testMeta.defaultBucket.getSizeInBytes());
 

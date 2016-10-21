@@ -64,6 +64,20 @@ public class SerdeGeneralTest
   }
 
   @Test
+  public void testSerdeSimpleString()
+  {
+    StringSerde serde = new StringSerde();
+    SerializationBuffer buffer = new DefaultSerializationBuffer();
+    String[] strs = new String[]{"a", "ab", "cde"};
+    for (String str : strs) {
+      serde.serialize(str, buffer);
+      Slice slice = buffer.toSlice();
+      String newStr = serde.deserialize(slice.buffer, new MutableInt(slice.offset), slice.length);
+      Assert.assertEquals(newStr, str);
+    }
+  }
+
+  @Test
   public void testSerdeString()
   {
     testSerde(testData, new StringSerde(), new StringSerdeVerifier());
@@ -94,7 +108,7 @@ public class SerdeGeneralTest
       verifier.verifySerde(strs, serde, buffer);
       buffer.endWindow();
       if (i % 3 == 0) {
-        buffer.resetUpToWindow(i);
+        buffer.getOutputStream().resetUpToWindow(i);
       }
       if (i % 4 == 0) {
         buffer.reset();

@@ -37,7 +37,7 @@ public class AffixSerdeTest
     serde.serialize(orgValue, buffer);
     Slice slice = buffer.toSlice();
 
-    Assert.assertArrayEquals(new byte[]{1, 2, 3, 0, 0, 0, 3, 'a', 'b', 'c', 9}, slice.toByteArray());
+    Assert.assertArrayEquals(new byte[]{1, 2, 3, 0, 3, 'a', 'b', 'c', 9}, slice.toByteArray());
 
     String value = serde.deserialize(slice.buffer, new MutableInt(slice.offset), slice.length);
     Assert.assertEquals("Expected value: " + orgValue + ", actual value: " + value, orgValue, value);
