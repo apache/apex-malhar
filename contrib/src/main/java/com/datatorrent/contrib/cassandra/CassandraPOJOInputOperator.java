@@ -345,7 +345,7 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
           ((Setter<Object, List<?>>)setters.get(i)).set(obj, list);
           break;
         case TIMESTAMP:
-          final Date date = row.getDate(columnName);
+          final Date date = new Date(row.getDate(columnName).getMillisSinceEpoch());
           ((Setter<Object, Date>)setters.get(i)).set(obj, date);
           break;
         default:

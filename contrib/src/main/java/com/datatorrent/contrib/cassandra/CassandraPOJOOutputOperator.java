@@ -295,7 +295,7 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
           break;
         case TIMESTAMP:
           final Date date = ((Getter<Object, Date>)getters.get(i)).get(tuple);
-          boundStmnt.setDate(i, date);
+          boundStmnt.setDate(i, LocalDate.fromMillisSinceEpoch(date.getTime()));
           break;
         default:
           throw new RuntimeException("unsupported data type " + type.getName());
