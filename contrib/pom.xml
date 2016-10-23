@@ -487,13 +487,13 @@
     <dependency>
       <groupId>com.datastax.cassandra</groupId>
       <artifactId>cassandra-driver-core</artifactId>
-      <version>2.1.8</version>
+      <version>3.1.0</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>14.0.1</version>
+      <version>16.0.1</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
@@ -639,13 +639,13 @@
            <artifactId>*</artifactId>
          </exclusion>
        </exclusions>
-    </dependency>  
+    </dependency>
     <dependency>
       <groupId>com.googlecode.json-simple</groupId>
       <artifactId>json-simple</artifactId>
       <version>1.1.1</version>
       <optional>true</optional>
-    </dependency> 
+    </dependency>
     <dependency>
       <groupId>com.github.fge</groupId>
       <artifactId>json-schema-validator</artifactId>
