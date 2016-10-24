@@ -125,7 +125,7 @@ import com.datatorrent.netlet.util.Slice;
  */
 public abstract class AbstractManagedStateImpl
     implements ManagedState, Component<OperatorContext>, Operator.CheckpointNotificationListener, ManagedStateContext,
-    TimeBucketAssigner.PurgeListener
+    TimeBucketAssigner.PurgeListener, BucketProvider
 {
   private long maxMemorySize;
 
@@ -319,9 +319,22 @@ public abstract class AbstractManagedStateImpl
     return (int)(bucketId % numBuckets);
   }
 
-  Bucket getBucket(long bucketId)
+  @Override
+  public Bucket getBucket(long bucketId)
   {
     return buckets[getBucketIdx(bucketId)];
+  }
+
+  @Override
+  public Bucket ensureBucket(long bucketId)
+  {
+    Bucket b = getBucket(bucketId);
+    if (b == null) {
+      b = newBucket(bucketId);
+      b.setup(this);
+      buckets[getBucketIdx(bucketId)] = b;
+    }
+    return b;
   }
 
   protected Bucket newBucket(long bucketId)
@@ -382,6 +395,22 @@ public abstract class AbstractManagedStateImpl
         throw new RuntimeException("committing " + windowId, e);
       }
     }
+  }
+
+  /**
+   * get the memory usage for each bucket
+   * @return The map of bucket id to memory size used by the bucket
+   */
+  public Map<Long, Long> getBucketMemoryUsage()
+  {
+    Map<Long, Long> bucketToSize = Maps.newHashMap();
+    for (Bucket bucket : buckets) {
+      if (bucket == null) {
+        continue;
+      }
+      bucketToSize.put(bucket.getBucketId(), bucket.getKeyStream().size() + bucket.getValueStream().size());
+    }
+    return bucketToSize;
   }
 
   @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
@@ -476,6 +505,7 @@ public abstract class AbstractManagedStateImpl
     this.keyComparator = Preconditions.checkNotNull(keyComparator);
   }
 
+  @Override
   public BucketsFileSystem getBucketsFileSystem()
   {
     return bucketsFileSystem;

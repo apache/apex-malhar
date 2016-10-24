@@ -26,10 +26,10 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.utils.serde.AffixKeyValueSerdeManager;
+import org.apache.apex.malhar.lib.utils.serde.IntSerde;
 import org.apache.apex.malhar.lib.utils.serde.PassThruSliceSerde;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
-import org.apache.apex.malhar.lib.utils.serde.SerdeIntSlice;
-import org.apache.apex.malhar.lib.utils.serde.SliceUtils;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.esotericsoftware.kryo.DefaultSerializer;
@@ -62,10 +62,11 @@ public class SpillableArrayListMultimapImpl<K, V> implements Spillable.Spillable
   @NotNull
   private SpillableMapImpl<Slice, Integer> map;
   private SpillableStateStore store;
-  private byte[] identifier;
   private long bucket;
-  private Serde<K, Slice> serdeKey;
-  private Serde<V, Slice> serdeValue;
+  private Serde<V> valueSerde;
+
+  protected transient Context.OperatorContext context;
+  protected AffixKeyValueSerdeManager<K, V> keyValueSerdeManager;
 
   private SpillableArrayListMultimapImpl()
   {
@@ -78,20 +79,20 @@ public class SpillableArrayListMultimapImpl<K, V> implements Spillable.Spillable
    * @param identifier The Id of this {@link SpillableArrayListMultimapImpl}.
    * @param bucket The Id of the bucket used to store this
    * {@link SpillableArrayListMultimapImpl} in the provided {@link SpillableStateStore}.
-   * @param serdeKey The {@link Serde} to use when serializing and deserializing keys.
-   * @param serdeKey The {@link Serde} to use when serializing and deserializing values.
+   * @param keySerde The {@link Serde} to use when serializing and deserializing keys.
+   * @param valueSerde The {@link Serde} to use when serializing and deserializing values.
    */
   public SpillableArrayListMultimapImpl(SpillableStateStore store, byte[] identifier, long bucket,
-      Serde<K, Slice> serdeKey,
-      Serde<V, Slice> serdeValue)
+      Serde<K> keySerde,
+      Serde<V> valueSerde)
   {
     this.store = Preconditions.checkNotNull(store);
-    this.identifier = Preconditions.checkNotNull(identifier);
     this.bucket = bucket;
-    this.serdeKey = Preconditions.checkNotNull(serdeKey);
-    this.serdeValue = Preconditions.checkNotNull(serdeValue);
+    this.valueSerde = Preconditions.checkNotNull(valueSerde);
 
-    map = new SpillableMapImpl(store, identifier, bucket, new PassThruSliceSerde(), new SerdeIntSlice());
+    keyValueSerdeManager = new AffixKeyValueSerdeManager<K, V>(SIZE_KEY_SUFFIX, identifier, Preconditions.checkNotNull(keySerde), valueSerde);
+
+    map = new SpillableMapImpl(store, identifier, bucket, new PassThruSliceSerde(), new IntSerde());
   }
 
   public SpillableStateStore getStore()
@@ -110,15 +111,12 @@ public class SpillableArrayListMultimapImpl<K, V> implements Spillable.Spillable
     SpillableArrayListImpl<V> spillableArrayList = cache.get(key);
 
     if (spillableArrayList == null) {
-      Slice keySlice = serdeKey.serialize(key);
-      Integer size = map.get(SliceUtils.concatenate(keySlice, SIZE_KEY_SUFFIX));
-
+      Integer size = map.get(keyValueSerdeManager.serializeMetaKey(key, false));
       if (size == null) {
         return null;
       }
 
-      Slice keyPrefix = SliceUtils.concatenate(identifier, keySlice);
-      spillableArrayList = new SpillableArrayListImpl<V>(bucket, keyPrefix.toByteArray(), store, serdeValue);
+      spillableArrayList = new SpillableArrayListImpl<V>(bucket, keyValueSerdeManager.serializeDataKey(key, false).toByteArray(), store, valueSerde);
       spillableArrayList.setSize(size);
     }
 
@@ -179,8 +177,7 @@ public class SpillableArrayListMultimapImpl<K, V> implements Spillable.Spillable
   @Override
   public boolean containsKey(@Nullable Object key)
   {
-    return cache.contains((K)key) || map.containsKey(SliceUtils.concatenate(serdeKey.serialize((K)key),
-        SIZE_KEY_SUFFIX));
+    return cache.contains((K)key) || map.containsKey(keyValueSerdeManager.serializeMetaKey((K)key, false));
   }
 
   @Override
@@ -217,9 +214,9 @@ public class SpillableArrayListMultimapImpl<K, V> implements Spillable.Spillable
     SpillableArrayListImpl<V> spillableArrayList = getHelper(key);
 
     if (spillableArrayList == null) {
-      Slice keyPrefix = SliceUtils.concatenate(identifier, serdeKey.serialize(key));
-      spillableArrayList = new SpillableArrayListImpl<V>(bucket, keyPrefix.toByteArray(), store, serdeValue);
-
+      Slice keyPrefix = keyValueSerdeManager.serializeDataKey(key, true);
+      spillableArrayList = new SpillableArrayListImpl<V>(bucket, keyPrefix.toByteArray(), store, valueSerde);
+      spillableArrayList.setup(context);
       cache.put(key, spillableArrayList);
     }
 
@@ -272,14 +269,19 @@ public class SpillableArrayListMultimapImpl<K, V> implements Spillable.Spillable
   @Override
   public void setup(Context.OperatorContext context)
   {
+    this.context = context;
+
     map.setup(context);
     isRunning = true;
+
+    keyValueSerdeManager.setup(store, bucket);
   }
 
   @Override
   public void beginWindow(long windowId)
   {
     map.beginWindow(windowId);
+    keyValueSerdeManager.beginWindow(windowId);
     isInWindow = true;
   }
 
@@ -292,13 +294,14 @@ public class SpillableArrayListMultimapImpl<K, V> implements Spillable.Spillable
       SpillableArrayListImpl<V> spillableArrayList = cache.get(key);
       spillableArrayList.endWindow();
 
-      Integer size = map.put(SliceUtils.concatenate(serdeKey.serialize(key), SIZE_KEY_SUFFIX),
-          spillableArrayList.size());
+      map.put(keyValueSerdeManager.serializeMetaKey(key, true), spillableArrayList.size());
     }
 
     Preconditions.checkState(cache.getRemovedKeys().isEmpty());
     cache.endWindow();
     map.endWindow();
+
+    keyValueSerdeManager.resetReadBuffer();
   }
 
   @Override

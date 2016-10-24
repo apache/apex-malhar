@@ -26,9 +26,12 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.apex.malhar.lib.state.spillable.inmem.InMemSpillableStateStore;
-import org.apache.apex.malhar.lib.utils.serde.SerdeIntSlice;
-import org.apache.apex.malhar.lib.utils.serde.SerdeStringSlice;
+import org.apache.apex.malhar.lib.utils.serde.DefaultSerializationBuffer;
+import org.apache.apex.malhar.lib.utils.serde.IntSerde;
+import org.apache.apex.malhar.lib.utils.serde.SerializationBuffer;
 import org.apache.apex.malhar.lib.utils.serde.SliceUtils;
+import org.apache.apex.malhar.lib.utils.serde.StringSerde;
+import org.apache.apex.malhar.lib.utils.serde.WindowedBlockStream;
 
 import com.google.common.collect.Lists;
 
@@ -63,8 +66,8 @@ public class SpillableArrayListMultimapImplTest
   public void simpleMultiKeyTestHelper(SpillableStateStore store)
   {
     SpillableArrayListMultimapImpl<String, String> map =
-        new SpillableArrayListMultimapImpl<String, String>(store, ID1, 0L, new SerdeStringSlice(),
-        new SerdeStringSlice());
+        new SpillableArrayListMultimapImpl<String, String>(store, ID1, 0L, new StringSerde(),
+        new StringSerde());
 
     store.setup(testMeta.operatorContext);
     map.setup(testMeta.operatorContext);
@@ -112,11 +115,11 @@ public class SpillableArrayListMultimapImplTest
   public long simpleMultiKeyTestHelper(SpillableStateStore store,
       SpillableArrayListMultimapImpl<String, String> map, String key, long nextWindowId)
   {
-    SerdeStringSlice serdeString = new SerdeStringSlice();
-    SerdeIntSlice serdeInt = new SerdeIntSlice();
-
-    Slice keySlice = serdeString.serialize(key);
-
+    StringSerde serdeString = new StringSerde();
+    IntSerde serdeInt = new IntSerde();
+    SerializationBuffer buffer = new DefaultSerializationBuffer(new WindowedBlockStream());
+    serdeString.serialize(key, buffer);
+    Slice keySlice = buffer.toSlice();
     byte[] keyBytes = SliceUtils.concatenate(ID1, keySlice.toByteArray());
 
     nextWindowId++;
@@ -249,7 +252,7 @@ public class SpillableArrayListMultimapImplTest
     SpillableStateStore store = testMeta.store;
 
     SpillableArrayListMultimapImpl<String, String> map =
-        new SpillableArrayListMultimapImpl<>(store, ID1, 0L, new SerdeStringSlice(), new SerdeStringSlice());
+        new SpillableArrayListMultimapImpl<>(store, ID1, 0L, new StringSerde(), new StringSerde());
 
     store.setup(testMeta.operatorContext);
     map.setup(testMeta.operatorContext);
@@ -323,8 +326,10 @@ public class SpillableArrayListMultimapImplTest
     store.beginWindow(nextWindowId);
     map.beginWindow(nextWindowId);
 
-    SerdeStringSlice serdeString = new SerdeStringSlice();
-    Slice keySlice = serdeString.serialize("a");
+    StringSerde serdeString = new StringSerde();
+    SerializationBuffer buffer = new DefaultSerializationBuffer(new WindowedBlockStream());
+    serdeString.serialize("a", buffer);
+    Slice keySlice = buffer.toSlice();
     byte[] keyBytes = SliceUtils.concatenate(ID1, keySlice.toByteArray());
 
     SpillableTestUtils.checkValue(store, 0L, keyBytes, 0, Lists.<String>newArrayList("a", "111", "b", "222", "d",
@@ -350,7 +355,7 @@ public class SpillableArrayListMultimapImplTest
 
     SpillableStateStore store = testMeta.store;
     SpillableArrayListMultimapImpl<String, String> multimap = new SpillableArrayListMultimapImpl<>(
-        this.testMeta.store, ID1, 0L, new SerdeStringSlice(), new SerdeStringSlice());
+        this.testMeta.store, ID1, 0L, new StringSerde(), new StringSerde());
 
     Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_PATH, testMeta.applicationPath);

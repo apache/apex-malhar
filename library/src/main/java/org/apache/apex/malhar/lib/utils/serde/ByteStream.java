@@ -18,32 +18,40 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
-import org.apache.commons.lang3.mutable.MutableInt;
+import com.datatorrent.netlet.util.Slice;
 
 /**
- * This is an interface for a Serializer/Deserializer class.
- * @param <T> The type of the object to Serialize and Deserialize.
- *
- * @since 3.4.0
+ * This interface provides methods to write binary data and manage blocks.
+ * The process of write an object is as follow:
+ *   - write(): Write the data of the object, the write() methods could call multiple times.
+ *   - toSlice(): Return the slice that represents the object. This method also indicates the end of current object and is ready for next object.
  */
-public interface Serde<T>
+public abstract interface ByteStream
 {
-  /**
-   * Serialize the object to the input SerializeBuffer. This give the chance of share same SerializeBuffer with different object.
-   * @param object
-   * @param buffer
-   */
-  void serialize(T object, SerializationBuffer buffer);
 
   /**
-   * Deserialize from the buffer and return a new object.
-   * After the deserialize method completes the offset is updated, so that the offset points to
-   * the remaining unprocessed portion of the serialization buffer.
-   *
-   * @param buffer
-   * @param offset An offset of the buffer.
-   * @param length The input length
-   * @return
+   * @return The size of the data in stream
    */
-  T deserialize(byte[] buffer, MutableInt offset, int length);
+  public long size();
+
+  /**
+   * @return The current capacity of the stream.
+   */
+  public long capacity();
+
+  /**
+   * @return The slice of the serialized object.
+   */
+  public Slice toSlice();
+
+  /**
+   * Reset the stream. Invalid all previous written data for reuse the buffer
+   */
+  public void reset();
+
+  /**
+   * Release allocated resource.
+   */
+  public void release();
+
 }

@@ -19,6 +19,7 @@
 package org.apache.apex.malhar.lib.state.spillable;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
@@ -27,9 +28,9 @@ import org.apache.hadoop.classification.InterfaceStability;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.netlet.util.Slice;
 
 /**
  * This is a factory that is used for Spillable datastructures. This component is used by nesting it inside of an
@@ -50,6 +51,11 @@ public class SpillableComplexComponentImpl implements SpillableComplexComponent
   @NotNull
   private SpillableIdentifierGenerator identifierGenerator;
 
+  /**
+   * need to make sure all the buckets are created during setup.
+   */
+  protected transient Set<Long> bucketIds = Sets.newHashSet();
+
   private SpillableComplexComponentImpl()
   {
     // for kryo
@@ -66,84 +72,99 @@ public class SpillableComplexComponentImpl implements SpillableComplexComponent
     this.identifierGenerator = Preconditions.checkNotNull(identifierGenerator);
   }
 
-  public <T> SpillableList<T> newSpillableArrayList(long bucket, Serde<T, Slice> serde)
+  @Override
+  public <T> SpillableList<T> newSpillableArrayList(long bucket, Serde<T> serde)
   {
     SpillableArrayListImpl<T> list = new SpillableArrayListImpl<T>(bucket, identifierGenerator.next(), store, serde);
     componentList.add(list);
     return list;
   }
 
-  public <T> SpillableList<T> newSpillableArrayList(byte[] identifier, long bucket, Serde<T, Slice> serde)
+  @Override
+  public <T> SpillableList<T> newSpillableArrayList(byte[] identifier, long bucket, Serde<T> serde)
   {
     identifierGenerator.register(identifier);
     SpillableArrayListImpl<T> list = new SpillableArrayListImpl<T>(bucket, identifier, store, serde);
+    bucketIds.add(bucket);
     componentList.add(list);
     return list;
   }
 
-  public <K, V> SpillableMap<K, V> newSpillableMap(long bucket, Serde<K, Slice> serdeKey,
-      Serde<V, Slice> serdeValue)
+  @Override
+  public <K, V> SpillableMap<K, V> newSpillableMap(long bucket, Serde<K> serdeKey,
+      Serde<V> serdeValue)
   {
     SpillableMapImpl<K, V> map = new SpillableMapImpl<K, V>(store, identifierGenerator.next(),
         bucket, serdeKey, serdeValue);
+    bucketIds.add(bucket);
     componentList.add(map);
     return map;
   }
 
-  public <K, V> SpillableMap<K, V> newSpillableMap(byte[] identifier, long bucket, Serde<K, Slice> serdeKey,
-      Serde<V, Slice> serdeValue)
+  @Override
+  public <K, V> SpillableMap<K, V> newSpillableMap(byte[] identifier, long bucket, Serde<K> serdeKey,
+      Serde<V> serdeValue)
   {
     identifierGenerator.register(identifier);
     SpillableMapImpl<K, V> map = new SpillableMapImpl<K, V>(store, identifier, bucket, serdeKey, serdeValue);
+    bucketIds.add(bucket);
     componentList.add(map);
     return map;
   }
 
-  public <K, V> SpillableListMultimap<K, V> newSpillableArrayListMultimap(long bucket, Serde<K,
-      Slice> serdeKey, Serde<V, Slice> serdeValue)
+  @Override
+  public <K, V> SpillableListMultimap<K, V> newSpillableArrayListMultimap(long bucket, Serde<K> serdeKey, Serde<V> serdeValue)
   {
     SpillableArrayListMultimapImpl<K, V> map = new SpillableArrayListMultimapImpl<K, V>(store,
         identifierGenerator.next(), bucket, serdeKey, serdeValue);
+    bucketIds.add(bucket);
     componentList.add(map);
     return map;
   }
 
+  @Override
   public <K, V> SpillableListMultimap<K, V> newSpillableArrayListMultimap(byte[] identifier, long bucket,
-      Serde<K, Slice> serdeKey,
-      Serde<V, Slice> serdeValue)
+      Serde<K> serdeKey,
+      Serde<V> serdeValue)
   {
     identifierGenerator.register(identifier);
     SpillableArrayListMultimapImpl<K, V> map = new SpillableArrayListMultimapImpl<K, V>(store,
         identifier, bucket, serdeKey, serdeValue);
+    bucketIds.add(bucket);
     componentList.add(map);
     return map;
   }
 
-  public <K, V> SpillableSetMultimap<K, V> newSpillableSetMultimap(long bucket, Serde<K,
-      Slice> serdeKey, Serde<V, Slice> serdeValue)
+  @Override
+  public <K, V> SpillableSetMultimap<K, V> newSpillableSetMultimap(long bucket, Serde<K> serdeKey, Serde<V> serdeValue)
   {
     SpillableSetMultimapImpl<K, V> map = new SpillableSetMultimapImpl<K, V>(store,
         identifierGenerator.next(), bucket, serdeKey, serdeValue);
+    bucketIds.add(bucket);
     componentList.add(map);
     return map;
   }
 
-  public <T> SpillableMultiset<T> newSpillableMultiset(long bucket, Serde<T, Slice> serde)
+  @Override
+  public <T> SpillableMultiset<T> newSpillableMultiset(long bucket, Serde<T> serde)
   {
     throw new UnsupportedOperationException("Unsupported Operation");
   }
 
-  public <T> SpillableMultiset<T> newSpillableMultiset(byte[] identifier, long bucket, Serde<T, Slice> serde)
+  @Override
+  public <T> SpillableMultiset<T> newSpillableMultiset(byte[] identifier, long bucket, Serde<T> serde)
   {
     throw new UnsupportedOperationException("Unsupported Operation");
   }
 
-  public <T> SpillableQueue<T> newSpillableQueue(long bucket, Serde<T, Slice> serde)
+  @Override
+  public <T> SpillableQueue<T> newSpillableQueue(long bucket, Serde<T> serde)
   {
     throw new UnsupportedOperationException("Unsupported Operation");
   }
 
-  public <T> SpillableQueue<T> newSpillableQueue(byte[] identifier, long bucket, Serde<T, Slice> serde)
+  @Override
+  public <T> SpillableQueue<T> newSpillableQueue(byte[] identifier, long bucket, Serde<T> serde)
   {
     throw new UnsupportedOperationException("Unsupported Operation");
   }
@@ -152,6 +173,15 @@ public class SpillableComplexComponentImpl implements SpillableComplexComponent
   public void setup(Context.OperatorContext context)
   {
     store.setup(context);
+
+    //ensure buckets created.
+    for (long bucketId : bucketIds) {
+      store.ensureBucket(bucketId);
+    }
+
+    //the bucket ids are only for setup. We don't need bucket ids during run time.
+    bucketIds.clear();
+
     for (SpillableComponent spillableComponent: componentList) {
       spillableComponent.setup(context);
     }

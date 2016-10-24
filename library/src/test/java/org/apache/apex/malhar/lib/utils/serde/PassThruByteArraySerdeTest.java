@@ -47,16 +47,17 @@ public class PassThruByteArraySerdeTest
   public void simpleSerializeTest()
   {
     byte[] byteArray = new byte[]{1, 2, 3};
-    byte[] serialized = testMeta.serde.serialize(byteArray);
+    SerializationBuffer buffer = new DefaultSerializationBuffer(new WindowedBlockStream());
+    testMeta.serde.serialize(byteArray, buffer);
 
-    Assert.assertArrayEquals(byteArray, serialized);
+    Assert.assertArrayEquals(byteArray, buffer.toSlice().toByteArray());
   }
 
   @Test
   public void simpleDeserializeTest()
   {
     byte[] byteArray = new byte[]{1, 2, 3};
-    byte[] serialized = testMeta.serde.deserialize(byteArray);
+    byte[] serialized = testMeta.serde.deserialize(byteArray, new MutableInt(0), byteArray.length);
 
     Assert.assertArrayEquals(byteArray, serialized);
   }
@@ -65,7 +66,7 @@ public class PassThruByteArraySerdeTest
   public void simpleDeserializeOffsetTest()
   {
     byte[] byteArray = new byte[]{1, 2, 3};
-    byte[] serialized = testMeta.serde.deserialize(byteArray, new MutableInt(0));
+    byte[] serialized = testMeta.serde.deserialize(byteArray, new MutableInt(0), byteArray.length);
 
     Assert.assertArrayEquals(byteArray, serialized);
   }

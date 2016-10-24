@@ -18,11 +18,12 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
+import java.io.IOException;
+
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
-import com.datatorrent.netlet.util.Slice;
 
 /**
  * This is an implementation of {@link Serde} which deserializes and serializes integers.
@@ -30,25 +31,22 @@ import com.datatorrent.netlet.util.Slice;
  * @since 3.5.0
  */
 @InterfaceStability.Evolving
-public class SerdeLongSlice implements Serde<Long, Slice>
+public class LongSerde implements Serde<Long>
 {
   @Override
-  public Slice serialize(Long object)
+  public void serialize(Long value, SerializationBuffer buffer)
   {
-    return new Slice(GPOUtils.serializeLong(object));
+    try {
+      buffer.writeLong(value);
+    } catch (IOException e) {
+      throw new RuntimeException("Not suppose to get this exception");
+    }
   }
 
   @Override
-  public Long deserialize(Slice slice, MutableInt offset)
+  public Long deserialize(byte[] buffer, MutableInt offset, int length)
   {
-    long val = GPOUtils.deserializeLong(slice.buffer, new MutableInt(slice.offset + offset.intValue()));
-    offset.add(8);
+    long val = GPOUtils.deserializeLong(buffer, offset);
     return val;
-  }
-
-  @Override
-  public Long deserialize(Slice object)
-  {
-    return deserialize(object, new MutableInt(0));
   }
 }

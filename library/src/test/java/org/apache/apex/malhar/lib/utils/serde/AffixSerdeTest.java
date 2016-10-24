@@ -18,28 +18,28 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.hadoop.classification.InterfaceStability;
 
-/**
- * This is a simple pass through {@link Serde}. When serialization is performed the input byte array is returned.
- * Similarly when deserialization is performed the input byte array is returned.
- *
- * @since 3.4.0
- */
-@InterfaceStability.Evolving
-public class PassThruByteArraySerde implements Serde<byte[]>
+import com.datatorrent.netlet.util.Slice;
+
+public class AffixSerdeTest
 {
-  @Override
-  public void serialize(byte[] object, SerializationBuffer buffer)
+  @Test
+  public void simpleTest()
   {
-    buffer.write(object);
-  }
+    SerializationBuffer buffer = new DefaultSerializationBuffer(new WindowedBlockStream());
+    AffixSerde<String> serde = new AffixSerde<>(new byte[]{1, 2, 3}, new StringSerde(), new byte[]{9});
 
-  @Override
-  public byte[] deserialize(byte[] object, MutableInt offset, int length)
-  {
-    offset.add(object.length);
-    return object;
+    final String orgValue = "abc";
+    serde.serialize(orgValue, buffer);
+    Slice slice = buffer.toSlice();
+
+    Assert.assertArrayEquals(new byte[]{1, 2, 3, 0, 3, 'a', 'b', 'c', 9}, slice.toByteArray());
+
+    String value = serde.deserialize(slice.buffer, new MutableInt(slice.offset), slice.length);
+    Assert.assertEquals("Expected value: " + orgValue + ", actual value: " + value, orgValue, value);
   }
 }

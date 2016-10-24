@@ -16,23 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.state.spillable;
-
-import org.apache.apex.malhar.lib.state.BucketedState;
-import org.apache.apex.malhar.lib.state.managed.BucketProvider;
-import org.apache.hadoop.classification.InterfaceStability;
-
-import com.datatorrent.api.Component;
-import com.datatorrent.api.Context;
-import com.datatorrent.api.Operator;
+package org.apache.apex.malhar.lib.utils.serde;
 
 /**
- * Implementations of this interface are used by Spillable datastructures to spill data to disk.
+ * This interface represents a ByteStream that is windowed.
  *
- * @since 3.5.0
  */
-@InterfaceStability.Evolving
-public interface SpillableStateStore extends BucketedState, Component<Context.OperatorContext>,
-    Operator.CheckpointNotificationListener, WindowListener, BucketProvider
+public interface WindowedByteStream extends ResettableWindowListener
 {
+  /**
+   * The size of the data of all windows with id less than or equals to windowId
+   * @param windowId
+   * @return
+   */
+  long dataSizeUpToWindow(long windowId);
+
+  /**
+   * Release memory.
+   * The size of stream grows over time
+   * Call this method to release unused memory
+   */
+  void releaseMemory();
 }

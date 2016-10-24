@@ -19,36 +19,52 @@
 package org.apache.apex.malhar.lib.utils.serde;
 
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.hadoop.classification.InterfaceStability;
-
-import com.datatorrent.lib.appdata.gpo.GPOUtils;
-import com.datatorrent.netlet.util.Slice;
 
 /**
- * This is an implementation of {@link Serde} which deserializes and serializes integers.
+ * AffixSerde provides serde for adding prefix or suffix
  *
- * @since 3.5.0
+ * @param <T>
  */
-@InterfaceStability.Evolving
-public class SerdeIntSlice implements Serde<Integer, Slice>
+public class AffixSerde<T> implements Serde<T>
 {
-  @Override
-  public Slice serialize(Integer object)
+  protected Serde<T> serde;
+  protected byte[] prefix;
+  protected byte[] suffix;
+
+  protected AffixSerde()
   {
-    return new Slice(GPOUtils.serializeInt(object));
+    //kyro
+  }
+
+  public AffixSerde(byte[] prefix, Serde<T> serde, byte[] suffix)
+  {
+    this.prefix = prefix;
+    this.suffix = suffix;
+    this.serde = serde;
   }
 
   @Override
-  public Integer deserialize(Slice slice, MutableInt offset)
+  public void serialize(T object, SerializationBuffer buffer)
   {
-    int val = GPOUtils.deserializeInt(slice.buffer, new MutableInt(slice.offset + offset.intValue()));
-    offset.add(4);
-    return val;
+    if (buffer == null) {
+      throw new IllegalArgumentException("Buffer should not null.");
+    }
+    if (prefix != null && prefix.length > 0) {
+      buffer.write(prefix);
+    }
+    serde.serialize(object, buffer);
+    if (suffix != null && suffix.length > 0) {
+      buffer.write(suffix);
+    }
   }
 
   @Override
-  public Integer deserialize(Slice object)
+  public T deserialize(byte[] buffer, MutableInt offset, int length)
   {
-    return deserialize(object, new MutableInt(0));
+    if (prefix != null && prefix.length > 0) {
+      offset.add(prefix.length);
+    }
+    return serde.deserialize(buffer, offset, length);
   }
+
 }

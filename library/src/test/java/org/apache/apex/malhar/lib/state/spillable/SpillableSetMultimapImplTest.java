@@ -27,7 +27,8 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.apex.malhar.lib.state.spillable.inmem.InMemSpillableStateStore;
-import org.apache.apex.malhar.lib.utils.serde.SerdeStringSlice;
+import org.apache.apex.malhar.lib.utils.serde.Serde;
+import org.apache.apex.malhar.lib.utils.serde.StringSerde;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -62,8 +63,7 @@ public class SpillableSetMultimapImplTest
   public void simpleMultiKeyTestHelper(SpillableStateStore store)
   {
     SpillableSetMultimapImpl<String, String> map =
-        new SpillableSetMultimapImpl<>(store, ID1, 0L, new SerdeStringSlice(),
-        new SerdeStringSlice());
+        new SpillableSetMultimapImpl<>(store, ID1, 0L, createStringSerde(), createStringSerde());
 
     store.setup(testMeta.operatorContext);
     map.setup(testMeta.operatorContext);
@@ -201,7 +201,7 @@ public class SpillableSetMultimapImplTest
     SpillableStateStore store = testMeta.store;
 
     SpillableSetMultimapImpl<String, String> map =
-        new SpillableSetMultimapImpl<>(store, ID1, 0L, new SerdeStringSlice(), new SerdeStringSlice());
+        new SpillableSetMultimapImpl<>(store, ID1, 0L, createStringSerde(), createStringSerde());
 
     store.setup(testMeta.operatorContext);
     map.setup(testMeta.operatorContext);
@@ -276,8 +276,9 @@ public class SpillableSetMultimapImplTest
     final int numOfEntry = 100000;
 
     SpillableStateStore store = testMeta.store;
-    SpillableSetMultimapImpl<String, String> multimap = new SpillableSetMultimapImpl<>(
-        this.testMeta.store, ID1, 0L, new SerdeStringSlice(), new SerdeStringSlice());
+
+    SpillableSetMultimapImpl<String, String> multimap = new SpillableSetMultimapImpl<>(testMeta.store, ID1, 0L,
+        createStringSerde(), createStringSerde());
 
     Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_PATH, testMeta.applicationPath);
@@ -293,5 +294,10 @@ public class SpillableSetMultimapImplTest
     }
     multimap.endWindow();
     store.endWindow();
+  }
+
+  protected Serde<String> createStringSerde()
+  {
+    return new StringSerde();
   }
 }

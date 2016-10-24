@@ -18,38 +18,20 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.hadoop.classification.InterfaceStability;
-
-import com.datatorrent.lib.appdata.gpo.GPOUtils;
-import com.datatorrent.netlet.util.Slice;
-
 /**
- * An implementation of {@link Serde} which serializes and deserializes {@link String}s.
+ * This interface provides methods for stream for key/value.
+ * The implementation can separate the stream for key and value or share the same one.
  *
- * @since 3.5.0
  */
-@InterfaceStability.Evolving
-public class SerdeStringSlice implements Serde<String, Slice>
+public interface KeyValueByteStreamProvider
 {
-  @Override
-  public Slice serialize(String object)
-  {
-    return new Slice(GPOUtils.serializeString(object));
-  }
+  /**
+   * @return The stream for keeping key
+   */
+  public WindowedBlockStream getKeyStream();
 
-  @Override
-  public String deserialize(Slice object, MutableInt offset)
-  {
-    offset.add(object.offset);
-    String string = GPOUtils.deserializeString(object.buffer, offset);
-    offset.subtract(object.offset);
-    return string;
-  }
-
-  @Override
-  public String deserialize(Slice object)
-  {
-    return deserialize(object, new MutableInt(0));
-  }
+  /**
+   * @return The stream for keeping value
+   */
+  public WindowedBlockStream getValueStream();
 }

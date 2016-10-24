@@ -26,9 +26,9 @@ import java.util.Set;
 import javax.validation.constraints.NotNull;
 
 import org.apache.apex.malhar.lib.state.BucketedState;
+import org.apache.apex.malhar.lib.utils.serde.AffixKeyValueSerdeManager;
+import org.apache.apex.malhar.lib.utils.serde.BufferSlice;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
-import org.apache.apex.malhar.lib.utils.serde.SliceUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.classification.InterfaceStability;
 
@@ -51,6 +51,7 @@ import com.datatorrent.netlet.util.Slice;
 public class SpillableMapImpl<K, V> implements Spillable.SpillableMap<K, V>, Spillable.SpillableComponent,
     Serializable
 {
+  private static final long serialVersionUID = 4552547110215784584L;
   private transient WindowBoundedMapCache<K, V> cache = new WindowBoundedMapCache<>();
   private transient MutableInt tempOffset = new MutableInt();
 
@@ -59,12 +60,10 @@ public class SpillableMapImpl<K, V> implements Spillable.SpillableMap<K, V>, Spi
   @NotNull
   private byte[] identifier;
   private long bucket;
-  @NotNull
-  private Serde<K, Slice> serdeKey;
-  @NotNull
-  private Serde<V, Slice> serdeValue;
 
   private int size = 0;
+
+  protected AffixKeyValueSerdeManager<K, V> keyValueSerdeManager;
 
   private SpillableMapImpl()
   {
@@ -77,17 +76,16 @@ public class SpillableMapImpl<K, V> implements Spillable.SpillableMap<K, V>, Spi
    * @param identifier The Id of this {@link SpillableMapImpl}.
    * @param bucket The Id of the bucket used to store this
    * {@link SpillableMapImpl} in the provided {@link SpillableStateStore}.
-   * @param serdeKey The {@link Serde} to use when serializing and deserializing keys.
-   * @param serdeKey The {@link Serde} to use when serializing and deserializing values.
+   * @param keySerde The {@link Serde} to use when serializing and deserializing keys.
+   * @param keySerde The {@link Serde} to use when serializing and deserializing values.
    */
-  public SpillableMapImpl(SpillableStateStore store, byte[] identifier, long bucket, Serde<K, Slice> serdeKey,
-      Serde<V, Slice> serdeValue)
+  public SpillableMapImpl(SpillableStateStore store, byte[] identifier, long bucket, Serde<K> keySerde,
+      Serde<V> valueSerde)
   {
     this.store = Preconditions.checkNotNull(store);
     this.identifier = Preconditions.checkNotNull(identifier);
     this.bucket = bucket;
-    this.serdeKey = Preconditions.checkNotNull(serdeKey);
-    this.serdeValue = Preconditions.checkNotNull(serdeValue);
+    keyValueSerdeManager = new AffixKeyValueSerdeManager<K, V>(null, identifier, Preconditions.checkNotNull(keySerde), Preconditions.checkNotNull(valueSerde));
   }
 
   public SpillableStateStore getStore()
@@ -134,15 +132,16 @@ public class SpillableMapImpl<K, V> implements Spillable.SpillableMap<K, V>, Spi
       return val;
     }
 
-    Slice valSlice = store.getSync(bucket, SliceUtils.concatenate(identifier, serdeKey.serialize(key)));
+    Slice valSlice = store.getSync(bucket, keyValueSerdeManager.serializeDataKey(key, false));
 
     if (valSlice == null || valSlice == BucketedState.EXPIRED || valSlice.length == 0) {
       return null;
     }
 
-    tempOffset.setValue(0);
-    return serdeValue.deserialize(valSlice, tempOffset);
+    tempOffset.setValue(valSlice.offset);
+    return keyValueSerdeManager.deserializeValue(valSlice.buffer, tempOffset, valSlice.length);
   }
+
 
   @Override
   public V put(K k, V v)
@@ -207,6 +206,8 @@ public class SpillableMapImpl<K, V> implements Spillable.SpillableMap<K, V>, Spi
   @Override
   public void setup(Context.OperatorContext context)
   {
+    store.ensureBucket(bucket);
+    keyValueSerdeManager.setup(store, bucket);
   }
 
   @Override
@@ -218,16 +219,15 @@ public class SpillableMapImpl<K, V> implements Spillable.SpillableMap<K, V>, Spi
   public void endWindow()
   {
     for (K key: cache.getChangedKeys()) {
-      store.put(this.bucket, SliceUtils.concatenate(identifier, serdeKey.serialize(key)),
-          serdeValue.serialize(cache.get(key)));
+      store.put(bucket, keyValueSerdeManager.serializeDataKey(key, true),
+          keyValueSerdeManager.serializeValue(cache.get(key)));
     }
 
     for (K key: cache.getRemovedKeys()) {
-      store.put(this.bucket, SliceUtils.concatenate(identifier, serdeKey.serialize(key)),
-          new Slice(ArrayUtils.EMPTY_BYTE_ARRAY));
+      store.put(this.bucket, keyValueSerdeManager.serializeDataKey(key, true), BufferSlice.EMPTY_SLICE);
     }
-
     cache.endWindow();
+    keyValueSerdeManager.resetReadBuffer();
   }
 
   @Override

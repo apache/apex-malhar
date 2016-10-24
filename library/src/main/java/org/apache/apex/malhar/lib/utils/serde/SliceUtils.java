@@ -100,4 +100,14 @@ public class SliceUtils
 
     return new Slice(bytes);
   }
+
+  public static BufferSlice toBufferSlice(Slice slice)
+  {
+    if (slice instanceof BufferSlice) {
+      return (BufferSlice)slice;
+    }
+
+    //The hashCode of Slice was not correct, so correct it
+    return new BufferSlice(slice);
+  }
 }
