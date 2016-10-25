@@ -27,6 +27,7 @@ import java.util.TimeZone;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import org.apache.apex.malhar.kafka.EmbeddedKafka;
@@ -135,6 +136,7 @@ public class KafkaEndpointTest
     }
   }
 
+  @Ignore("Skipping because POJOInnerJoinOperator has issues and needs to be replaced with Windowed variant first.")
   @Test
   public void testApplicationJoin() throws Exception
   {
@@ -176,6 +178,7 @@ public class KafkaEndpointTest
     }
   }
 
+  @Ignore("Skipping because POJOInnerJoinOperator has issues and needs to be replaced with Windowed variant first.")
   @Test
   public void testApplicationJoinFilter() throws Exception
   {
