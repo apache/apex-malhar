@@ -27,7 +27,7 @@ public class SpillableTestInputOperator extends BaseOperator implements InputOpe
   public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
   public long count = 0;
   public int batchSize = 100;
-  public int sleepBetweenBatch = 1;
+  public int sleepBetweenBatch = 0;
 
   @Override
   public void emitTuples()

@@ -18,12 +18,16 @@
  */
 package com.datatorrent.benchmark.spillable;
 
+import java.io.File;
+
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileUtil;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
@@ -33,6 +37,13 @@ public class SpillableBenchmarkAppTester extends SpillableBenchmarkApp
 {
   private static final Logger logger = LoggerFactory.getLogger(SpillableBenchmarkAppTester.class);
   public static final String basePath = "target/temp";
+
+  @Before
+  public void before()
+  {
+    FileUtil.fullyDelete(new File(basePath));
+  }
+
   @Test
   public void test() throws Exception
   {
@@ -55,7 +66,7 @@ public class SpillableBenchmarkAppTester extends SpillableBenchmarkApp
 
     // Create local cluster
     final LocalMode.Controller lc = lma.getController();
-    lc.run(60000);
+    lc.run(600000);
 
     lc.shutdown();
 
