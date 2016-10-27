@@ -23,6 +23,7 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.state.managed.TimeExtractor;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
 import org.apache.hadoop.classification.InterfaceStability;
 
@@ -75,7 +76,7 @@ public class SpillableComplexComponentImpl implements SpillableComplexComponent
   @Override
   public <T> SpillableList<T> newSpillableArrayList(long bucket, Serde<T> serde)
   {
-    SpillableArrayListImpl<T> list = new SpillableArrayListImpl<T>(bucket, identifierGenerator.next(), store, serde);
+    SpillableArrayListImpl<T> list = new SpillableArrayListImpl<>(bucket, identifierGenerator.next(), store, serde);
     componentList.add(list);
     return list;
   }
@@ -84,7 +85,7 @@ public class SpillableComplexComponentImpl implements SpillableComplexComponent
   public <T> SpillableList<T> newSpillableArrayList(byte[] identifier, long bucket, Serde<T> serde)
   {
     identifierGenerator.register(identifier);
-    SpillableArrayListImpl<T> list = new SpillableArrayListImpl<T>(bucket, identifier, store, serde);
+    SpillableArrayListImpl<T> list = new SpillableArrayListImpl<>(bucket, identifier, store, serde);
     bucketIds.add(bucket);
     componentList.add(list);
     return list;
@@ -94,7 +95,7 @@ public class SpillableComplexComponentImpl implements SpillableComplexComponent
   public <K, V> SpillableMap<K, V> newSpillableMap(long bucket, Serde<K> serdeKey,
       Serde<V> serdeValue)
   {
-    SpillableMapImpl<K, V> map = new SpillableMapImpl<K, V>(store, identifierGenerator.next(),
+    SpillableMapImpl<K, V> map = new SpillableMapImpl<>(store, identifierGenerator.next(),
         bucket, serdeKey, serdeValue);
     bucketIds.add(bucket);
     componentList.add(map);
@@ -106,8 +107,27 @@ public class SpillableComplexComponentImpl implements SpillableComplexComponent
       Serde<V> serdeValue)
   {
     identifierGenerator.register(identifier);
-    SpillableMapImpl<K, V> map = new SpillableMapImpl<K, V>(store, identifier, bucket, serdeKey, serdeValue);
+    SpillableMapImpl<K, V> map = new SpillableMapImpl<>(store, identifier, bucket, serdeKey, serdeValue);
     bucketIds.add(bucket);
+    componentList.add(map);
+    return map;
+  }
+
+  @Override
+  public <K, V> SpillableMap<K, V> newSpillableMap(Serde<K> serdeKey,
+      Serde<V> serdeValue, TimeExtractor<K> timeExtractor)
+  {
+    SpillableMapImpl<K, V> map = new SpillableMapImpl<>(store, identifierGenerator.next(), serdeKey, serdeValue, timeExtractor);
+    componentList.add(map);
+    return map;
+  }
+
+  @Override
+  public <K, V> SpillableMap<K, V> newSpillableMap(byte[] identifier, Serde<K> serdeKey,
+      Serde<V> serdeValue, TimeExtractor<K> timeExtractor)
+  {
+    identifierGenerator.register(identifier);
+    SpillableMapImpl<K, V> map = new SpillableMapImpl<>(store, identifier, serdeKey, serdeValue, timeExtractor);
     componentList.add(map);
     return map;
   }
@@ -115,7 +135,7 @@ public class SpillableComplexComponentImpl implements SpillableComplexComponent
   @Override
   public <K, V> SpillableListMultimap<K, V> newSpillableArrayListMultimap(long bucket, Serde<K> serdeKey, Serde<V> serdeValue)
   {
-    SpillableArrayListMultimapImpl<K, V> map = new SpillableArrayListMultimapImpl<K, V>(store,
+    SpillableArrayListMultimapImpl<K, V> map = new SpillableArrayListMultimapImpl<>(store,
         identifierGenerator.next(), bucket, serdeKey, serdeValue);
     bucketIds.add(bucket);
     componentList.add(map);
@@ -128,7 +148,7 @@ public class SpillableComplexComponentImpl implements SpillableComplexComponent
       Serde<V> serdeValue)
   {
     identifierGenerator.register(identifier);
-    SpillableArrayListMultimapImpl<K, V> map = new SpillableArrayListMultimapImpl<K, V>(store,
+    SpillableArrayListMultimapImpl<K, V> map = new SpillableArrayListMultimapImpl<>(store,
         identifier, bucket, serdeKey, serdeValue);
     bucketIds.add(bucket);
     componentList.add(map);
@@ -138,9 +158,19 @@ public class SpillableComplexComponentImpl implements SpillableComplexComponent
   @Override
   public <K, V> SpillableSetMultimap<K, V> newSpillableSetMultimap(long bucket, Serde<K> serdeKey, Serde<V> serdeValue)
   {
-    SpillableSetMultimapImpl<K, V> map = new SpillableSetMultimapImpl<K, V>(store,
+    SpillableSetMultimapImpl<K, V> map = new SpillableSetMultimapImpl<>(store,
         identifierGenerator.next(), bucket, serdeKey, serdeValue);
     bucketIds.add(bucket);
+    componentList.add(map);
+    return map;
+  }
+
+  @Override
+  public <K, V> SpillableSetMultimap<K, V> newSpillableSetMultimap(long bucket, Serde<K> serdeKey,
+      Serde<V> serdeValue, TimeExtractor<K> timeExtractor)
+  {
+    SpillableSetMultimapImpl<K, V> map = new SpillableSetMultimapImpl<>(store,
+        identifierGenerator.next(), bucket, serdeKey, serdeValue, timeExtractor);
     componentList.add(map);
     return map;
   }

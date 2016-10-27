@@ -57,6 +57,9 @@ import com.datatorrent.lib.util.KeyValPair;
 @RunWith(Parameterized.class)
 public class WindowedOperatorTest
 {
+
+  public static final long BASE = (System.currentTimeMillis() / 1000) * 1000;
+
   @Parameterized.Parameters
   public static Collection<Object[]> testParameters()
   {
@@ -90,7 +93,7 @@ public class WindowedOperatorTest
   {
     WindowedOperatorImpl<Long, MutableLong, Long> windowedOperator = new WindowedOperatorImpl<>();
     if (useSpillable) {
-      sccImpl = new SpillableComplexComponentImpl(testMeta.store);
+      sccImpl = new SpillableComplexComponentImpl(testMeta.timeStore);
       // TODO: We don't yet support Spillable data structures for window state storage because SpillableMapImpl does not yet support iterating over all keys.
       windowStateStorage = new InMemoryWindowedStorage<>();
       SpillableWindowedPlainStorage<MutableLong> pds = new SpillableWindowedPlainStorage<>();
@@ -116,7 +119,7 @@ public class WindowedOperatorTest
   {
     KeyedWindowedOperatorImpl<String, Long, MutableLong, Long> windowedOperator = new KeyedWindowedOperatorImpl<>();
     if (useSpillable) {
-      sccImpl = new SpillableComplexComponentImpl(testMeta.store);
+      sccImpl = new SpillableComplexComponentImpl(testMeta.timeStore);
       // TODO: We don't yet support Spillable data structures for window state storage because SpillableMapImpl does not yet support iterating over all keys.
       windowStateStorage = new InMemoryWindowedStorage<>();
       if (forSession) {
@@ -183,7 +186,7 @@ public class WindowedOperatorTest
 
     windowedOperator.setup(testMeta.operatorContext);
     windowedOperator.beginWindow(1);
-    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(100L, 2L));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 100L, 2L));
     Assert.assertEquals("There should be exactly one window in the storage", 1, plainDataStorage.size());
     Assert.assertEquals("There should be exactly one window in the storage", 1, windowStateStorage.size());
 
@@ -192,23 +195,22 @@ public class WindowedOperatorTest
     WindowState windowState = entry.getValue();
     Assert.assertEquals(-1, windowState.watermarkArrivalTime);
     Assert.assertEquals(2L, plainDataStorage.get(window).longValue());
-
-    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(200L, 3L));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 200L, 3L));
     Assert.assertEquals(5L, plainDataStorage.get(window).longValue());
 
-    windowedOperator.processWatermark(new WatermarkImpl(1200));
+    windowedOperator.processWatermark(new WatermarkImpl(BASE + 1200));
     windowedOperator.endWindow();
     Assert.assertTrue(windowState.watermarkArrivalTime >= 0);
     Assert.assertEquals("We should get one watermark tuple", 1, controlSink.getCount(false));
 
     windowedOperator.beginWindow(2);
-    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(900L, 4L));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 900L, 4L));
     Assert.assertEquals("Late but not too late", 9L, plainDataStorage.get(window).longValue());
-    windowedOperator.processWatermark(new WatermarkImpl(3000));
+    windowedOperator.processWatermark(new WatermarkImpl(BASE + 3000));
     windowedOperator.endWindow();
     Assert.assertEquals("We should get two watermark tuples", 2, controlSink.getCount(false));
     windowedOperator.beginWindow(3);
-    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(120L, 5L)); // this tuple should be dropped
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 120L, 5L)); // this tuple should be dropped
     Assert.assertEquals("The window should be dropped because it's too late", 0, plainDataStorage.size());
     Assert.assertEquals("The window should be dropped because it's too late", 0, windowStateStorage.size());
     windowedOperator.endWindow();
@@ -238,8 +240,8 @@ public class WindowedOperatorTest
     windowedOperator.output.setSink(sink);
     windowedOperator.setup(testMeta.operatorContext);
     windowedOperator.beginWindow(1);
-    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(100L, 2L));
-    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(200L, 3L));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 100L, 2L));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 200L, 3L));
     windowedOperator.endWindow();
     Assert.assertTrue("No trigger should be fired yet", sink.collectedTuples.isEmpty());
     windowedOperator.beginWindow(2);
@@ -251,11 +253,11 @@ public class WindowedOperatorTest
     Assert.assertEquals(5L, ((Tuple<Long>)sink.collectedTuples.get(0)).getValue().longValue());
     sink.collectedTuples.clear();
     windowedOperator.beginWindow(4);
-    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(400L, 4L));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 400L, 4L));
     windowedOperator.endWindow();
     Assert.assertTrue("No trigger should be fired yet", sink.collectedTuples.isEmpty());
     windowedOperator.beginWindow(5);
-    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(300L, 5L));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 300L, 5L));
     windowedOperator.endWindow();
     switch (accumulationMode) {
       case ACCUMULATING:
@@ -337,8 +339,8 @@ public class WindowedOperatorTest
     windowedOperator.output.setSink(sink);
     windowedOperator.setup(testMeta.operatorContext);
     windowedOperator.beginWindow(1);
-    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(100L, 2L));
-    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(200L, 3L));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 100L, 2L));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 200L, 3L));
     windowedOperator.endWindow();
     Assert.assertTrue("No trigger should be fired yet", sink.collectedTuples.isEmpty());
     windowedOperator.beginWindow(2);
@@ -376,7 +378,7 @@ public class WindowedOperatorTest
     WindowedOperatorImpl<Long, MutableLong, Long> windowedOperator = createDefaultWindowedOperator();
     windowedOperator.setWindowOption(new WindowOption.GlobalWindow());
     windowedOperator.setup(testMeta.operatorContext);
-    Tuple.WindowedTuple<Long> windowedValue = windowedOperator.getWindowedValue(new Tuple.TimestampedTuple<>(1100L, 2L));
+    Tuple.WindowedTuple<Long> windowedValue = windowedOperator.getWindowedValue(new Tuple.TimestampedTuple<>(BASE + 1100L, 2L));
     Collection<? extends Window> windows = windowedValue.getWindows();
     Assert.assertEquals(1, windows.size());
     Assert.assertEquals(Window.GlobalWindow.INSTANCE, windows.iterator().next());
@@ -389,11 +391,11 @@ public class WindowedOperatorTest
     WindowedOperatorImpl<Long, MutableLong, Long> windowedOperator = createDefaultWindowedOperator();
     windowedOperator.setWindowOption(new WindowOption.TimeWindows(Duration.millis(1000)));
     windowedOperator.setup(testMeta.operatorContext);
-    Tuple.WindowedTuple<Long> windowedValue = windowedOperator.getWindowedValue(new Tuple.TimestampedTuple<>(1100L, 2L));
+    Tuple.WindowedTuple<Long> windowedValue = windowedOperator.getWindowedValue(new Tuple.TimestampedTuple<>(BASE + 1100L, 2L));
     Collection<? extends Window> windows = windowedValue.getWindows();
     Assert.assertEquals(1, windows.size());
     Window window = windows.iterator().next();
-    Assert.assertEquals(1000, window.getBeginTimestamp());
+    Assert.assertEquals(BASE + 1000, window.getBeginTimestamp());
     Assert.assertEquals(1000, window.getDurationMillis());
   }
 
@@ -403,19 +405,19 @@ public class WindowedOperatorTest
     WindowedOperatorImpl<Long, MutableLong, Long> windowedOperator = createDefaultWindowedOperator();
     windowedOperator.setWindowOption(new WindowOption.SlidingTimeWindows(Duration.millis(1000), Duration.millis(200)));
     windowedOperator.setup(testMeta.operatorContext);
-    Tuple.WindowedTuple<Long> windowedValue = windowedOperator.getWindowedValue(new Tuple.TimestampedTuple<>(1600L, 2L));
+    Tuple.WindowedTuple<Long> windowedValue = windowedOperator.getWindowedValue(new Tuple.TimestampedTuple<>(BASE + 1600L, 2L));
     Collection<? extends Window> windows = windowedValue.getWindows();
     Window[] winArray = windows.toArray(new Window[]{});
     Assert.assertEquals(5, winArray.length);
-    Assert.assertEquals(800, winArray[0].getBeginTimestamp());
+    Assert.assertEquals(BASE + 800, winArray[0].getBeginTimestamp());
     Assert.assertEquals(1000, winArray[0].getDurationMillis());
-    Assert.assertEquals(1000, winArray[1].getBeginTimestamp());
+    Assert.assertEquals(BASE + 1000, winArray[1].getBeginTimestamp());
     Assert.assertEquals(1000, winArray[1].getDurationMillis());
-    Assert.assertEquals(1200, winArray[2].getBeginTimestamp());
+    Assert.assertEquals(BASE + 1200, winArray[2].getBeginTimestamp());
     Assert.assertEquals(1000, winArray[2].getDurationMillis());
-    Assert.assertEquals(1400, winArray[3].getBeginTimestamp());
+    Assert.assertEquals(BASE + 1400, winArray[3].getBeginTimestamp());
     Assert.assertEquals(1000, winArray[3].getDurationMillis());
-    Assert.assertEquals(1600, winArray[4].getBeginTimestamp());
+    Assert.assertEquals(BASE + 1600, winArray[4].getBeginTimestamp());
     Assert.assertEquals(1000, winArray[4].getDurationMillis());
     windowedOperator.teardown();
   }
@@ -430,14 +432,14 @@ public class WindowedOperatorTest
     windowedOperator.output.setSink((Sink<Object>)(Sink)sink);
     windowedOperator.setup(testMeta.operatorContext);
     windowedOperator.beginWindow(1);
-    Tuple<KeyValPair<String, Long>> tuple = new Tuple.TimestampedTuple<>(1100L, new KeyValPair<>("a", 2L));
+    Tuple<KeyValPair<String, Long>> tuple = new Tuple.TimestampedTuple<>(BASE + 1100L, new KeyValPair<>("a", 2L));
     windowedOperator.processTuple(tuple);
 
     Assert.assertEquals(1, sink.getCount(false));
     Tuple.WindowedTuple<KeyValPair<String, Long>> out = (Tuple.WindowedTuple<KeyValPair<String, Long>>)sink.collectedTuples.get(0);
     Assert.assertEquals(1, out.getWindows().size());
     Window.SessionWindow<String> window1 = (Window.SessionWindow<String>)out.getWindows().iterator().next();
-    Assert.assertEquals(1100L, window1.getBeginTimestamp());
+    Assert.assertEquals(BASE + 1100L, window1.getBeginTimestamp());
     Assert.assertEquals(2000, window1.getDurationMillis());
     Assert.assertEquals("a", window1.getKey());
     Assert.assertEquals("a", out.getValue().getKey());
@@ -445,7 +447,7 @@ public class WindowedOperatorTest
     sink.clear();
 
     // extending an existing session window
-    tuple = new Tuple.TimestampedTuple<>(2000L, new KeyValPair<>("a", 3L));
+    tuple = new Tuple.TimestampedTuple<>(BASE + 2000L, new KeyValPair<>("a", 3L));
     windowedOperator.processTuple(tuple);
     Assert.assertEquals(2, sink.getCount(false));
 
@@ -460,27 +462,27 @@ public class WindowedOperatorTest
     out = (Tuple.WindowedTuple<KeyValPair<String, Long>>)sink.collectedTuples.get(1);
     Window.SessionWindow<String> window2 = (Window.SessionWindow<String>)out.getWindows().iterator().next();
 
-    Assert.assertEquals(1100L, window2.getBeginTimestamp());
+    Assert.assertEquals(BASE + 1100L, window2.getBeginTimestamp());
     Assert.assertEquals(2900, window2.getDurationMillis());
     Assert.assertEquals("a", out.getValue().getKey());
     Assert.assertEquals(5L, out.getValue().getValue().longValue());
     sink.clear();
 
     // a separate session window
-    tuple = new Tuple.TimestampedTuple<>(5000L, new KeyValPair<>("a", 4L));
+    tuple = new Tuple.TimestampedTuple<>(BASE + 5000L, new KeyValPair<>("a", 4L));
     windowedOperator.processTuple(tuple);
     Assert.assertEquals(1, sink.getCount(false));
     out = (Tuple.WindowedTuple<KeyValPair<String, Long>>)sink.collectedTuples.get(0);
     Assert.assertEquals(1, out.getWindows().size());
     Window.SessionWindow<String> window3 = (Window.SessionWindow<String>)out.getWindows().iterator().next();
-    Assert.assertEquals(5000L, window3.getBeginTimestamp());
+    Assert.assertEquals(BASE + 5000L, window3.getBeginTimestamp());
     Assert.assertEquals(2000, window3.getDurationMillis());
     Assert.assertEquals("a", out.getValue().getKey());
     Assert.assertEquals(4L, out.getValue().getValue().longValue());
     sink.clear();
 
     // session window merging
-    tuple = new Tuple.TimestampedTuple<>(3500L, new KeyValPair<>("a", 3L));
+    tuple = new Tuple.TimestampedTuple<>(BASE + 3500L, new KeyValPair<>("a", 3L));
     windowedOperator.processTuple(tuple);
 
     Assert.assertEquals(3, sink.getCount(false));
@@ -509,7 +511,7 @@ public class WindowedOperatorTest
     out = (Tuple.WindowedTuple<KeyValPair<String, Long>>)sink.collectedTuples.get(2);
     Assert.assertEquals(1, out.getWindows().size());
     Window.SessionWindow<String> window4 = (Window.SessionWindow<String>)out.getWindows().iterator().next();
-    Assert.assertEquals(1100L, window4.getBeginTimestamp());
+    Assert.assertEquals(BASE + 1100L, window4.getBeginTimestamp());
     Assert.assertEquals(5900, window4.getDurationMillis());
     Assert.assertEquals("a", out.getValue().getKey());
     Assert.assertEquals(12L, out.getValue().getValue().longValue());
@@ -525,14 +527,14 @@ public class WindowedOperatorTest
     windowedOperator.setWindowOption(new WindowOption.TimeWindows(Duration.millis(1000)));
     windowedOperator.setup(testMeta.operatorContext);
     windowedOperator.beginWindow(1);
-    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(100L, new KeyValPair<>("a", 2L)));
-    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(200L, new KeyValPair<>("a", 3L)));
-    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(300L, new KeyValPair<>("b", 4L)));
-    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(150L, new KeyValPair<>("b", 5L)));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 100L, new KeyValPair<>("a", 2L)));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 200L, new KeyValPair<>("a", 3L)));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 300L, new KeyValPair<>("b", 4L)));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 150L, new KeyValPair<>("b", 5L)));
     windowedOperator.endWindow();
     Assert.assertEquals(1, keyedDataStorage.size());
-    Assert.assertEquals(5L, keyedDataStorage.get(new Window.TimeWindow(0, 1000), "a").longValue());
-    Assert.assertEquals(9L, keyedDataStorage.get(new Window.TimeWindow(0, 1000), "b").longValue());
+    Assert.assertEquals(5L, keyedDataStorage.get(new Window.TimeWindow(BASE, 1000), "a").longValue());
+    Assert.assertEquals(9L, keyedDataStorage.get(new Window.TimeWindow(BASE, 1000), "b").longValue());
     windowedOperator.teardown();
   }
 
@@ -559,10 +561,10 @@ public class WindowedOperatorTest
     windowedOperator.output.setSink((Sink<Object>)(Sink)sink);
     windowedOperator.setup(testMeta.operatorContext);
     windowedOperator.beginWindow(1);
-    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(100L, new KeyValPair<>("a", 2L)));
-    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(200L, new KeyValPair<>("b", 3L)));
-    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(400L, new KeyValPair<>("b", 5L)));
-    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(300L, new KeyValPair<>("a", 4L)));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 100L, new KeyValPair<>("a", 2L)));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 200L, new KeyValPair<>("b", 3L)));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 400L, new KeyValPair<>("b", 5L)));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 300L, new KeyValPair<>("a", 4L)));
     windowedOperator.endWindow();
     Assert.assertTrue("No trigger should be fired yet", sink.collectedTuples.isEmpty());
     windowedOperator.beginWindow(2);
@@ -581,11 +583,11 @@ public class WindowedOperatorTest
     }
     sink.collectedTuples.clear();
     windowedOperator.beginWindow(4);
-    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(400L, new KeyValPair<>("a", 8L)));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 400L, new KeyValPair<>("a", 8L)));
     windowedOperator.endWindow();
     Assert.assertTrue("No trigger should be fired yet", sink.collectedTuples.isEmpty());
     windowedOperator.beginWindow(5);
-    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(300L, new KeyValPair<>("b", 9L)));
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 300L, new KeyValPair<>("b", 9L)));
     windowedOperator.endWindow();
     Map<String, Long> map = new HashMap<>();
     switch (accumulationMode) {

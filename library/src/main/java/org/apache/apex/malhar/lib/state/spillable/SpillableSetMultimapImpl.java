@@ -27,10 +27,11 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.state.managed.TimeExtractor;
 import org.apache.apex.malhar.lib.utils.serde.AffixKeyValueSerdeManager;
+import org.apache.apex.malhar.lib.utils.serde.AffixSerde;
 import org.apache.apex.malhar.lib.utils.serde.IntSerde;
 import org.apache.apex.malhar.lib.utils.serde.PairSerde;
-import org.apache.apex.malhar.lib.utils.serde.PassThruSliceSerde;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -55,21 +56,46 @@ import com.datatorrent.netlet.util.Slice;
 public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMultimap<K, V>,
     Spillable.SpillableComponent
 {
+
+  private static class FixedTimeExtractor<V> implements TimeExtractor<V>
+  {
+
+    private long fixedTime;
+
+    private FixedTimeExtractor(long fixedTime)
+    {
+      this.fixedTime = fixedTime;
+    }
+
+    private FixedTimeExtractor()
+    {
+      // For kryo
+    }
+
+    @Override
+    public long getTime(V v)
+    {
+      return fixedTime;
+    }
+
+  }
+
   public static final int DEFAULT_BATCH_SIZE = 1000;
   public static final byte[] META_KEY_SUFFIX = new byte[]{(byte)0, (byte)0, (byte)0};
 
   private transient WindowBoundedMapCache<K, SpillableSetImpl<V>> cache = new WindowBoundedMapCache<>();
 
   @NotNull
-  private SpillableMapImpl<Slice, Pair<Integer, V>> map;
+  private SpillableMapImpl<K, Pair<Integer, V>> map;
   private SpillableStateStore store;
-  private byte[] identifier;
   private long bucket;
   private Serde<V> valueSerde;
   private transient List<SpillableSetImpl<V>> removedSets = new ArrayList<>();
 
-  protected AffixKeyValueSerdeManager<K, V> keyValueSerdeManager;
-  protected transient Context.OperatorContext context;
+  private TimeExtractor<K> timeExtractor = null;
+  private AffixKeyValueSerdeManager<K, V> keyValueSerdeManager;
+  private transient Context.OperatorContext context;
+
   private SpillableSetMultimapImpl()
   {
     // for kryo
@@ -81,8 +107,8 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
    * @param identifier The Id of this {@link SpillableSetMultimapImpl}.
    * @param bucket The Id of the bucket used to store this
    * {@link SpillableSetMultimapImpl} in the provided {@link SpillableStateStore}.
-   * @param serdeKey The {@link Serde} to use when serializing and deserializing keys.
-   * @param serdeKey The {@link Serde} to use when serializing and deserializing values.
+   * @param keySerde The {@link Serde} to use when serializing and deserializing keys.
+   * @param valueSerde The {@link Serde} to use when serializing and deserializing values.
    */
   public SpillableSetMultimapImpl(SpillableStateStore store, byte[] identifier, long bucket,
       Serde<K> keySerde,
@@ -93,7 +119,32 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
     this.valueSerde = Preconditions.checkNotNull(valueSerde);
     keyValueSerdeManager = new AffixKeyValueSerdeManager<K, V>(META_KEY_SUFFIX, identifier, Preconditions.checkNotNull(keySerde), valueSerde);
 
-    map = new SpillableMapImpl(store, identifier, bucket, new PassThruSliceSerde(), new PairSerde<>(new IntSerde(), valueSerde));
+    map = new SpillableMapImpl<>(store, identifier, bucket, new AffixSerde<>(null, keySerde, META_KEY_SUFFIX), new PairSerde<>(new IntSerde(), valueSerde));
+  }
+
+
+  /**
+   * Creates a {@link SpillableSetMultimapImpl}.
+   * @param store The {@link SpillableStateStore} in which to spill to.
+   * @param identifier The Id of this {@link SpillableSetMultimapImpl}.
+   * @param bucket The Id of the bucket used to store this
+   * {@link SpillableSetMultimapImpl} in the provided {@link SpillableStateStore}.
+   * @param keySerde The {@link Serde} to use when serializing and deserializing keys.
+   * @param valueSerde The {@link Serde} to use when serializing and deserializing values.
+   * @param timeExtractor The {@link TimeExtractor} to be used to retrieve time from key
+   */
+  public SpillableSetMultimapImpl(SpillableStateStore store, byte[] identifier, long bucket,
+      Serde<K> keySerde,
+      Serde<V> valueSerde,
+      TimeExtractor<K> timeExtractor)
+  {
+    this.store = Preconditions.checkNotNull(store);
+    this.bucket = bucket;
+    this.valueSerde = Preconditions.checkNotNull(valueSerde);
+    keyValueSerdeManager = new AffixKeyValueSerdeManager<K, V>(META_KEY_SUFFIX, identifier, Preconditions.checkNotNull(keySerde), valueSerde);
+    this.timeExtractor = timeExtractor;
+
+    map = new SpillableMapImpl<>(store, identifier, new AffixSerde<>(null, keySerde, META_KEY_SUFFIX), new PairSerde<>(new IntSerde(), valueSerde), timeExtractor);
   }
 
   public SpillableStateStore getStore()
@@ -112,14 +163,23 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
     SpillableSetImpl<V> spillableSet = cache.get(key);
 
     if (spillableSet == null) {
-      Pair<Integer, V> meta = map.get(keyValueSerdeManager.serializeMetaKey(key, false));
+      long keyTime = -1;
+      Pair<Integer, V> meta;
+      if (timeExtractor != null) {
+        keyTime = timeExtractor.getTime(key);
+      }
+      meta = map.get(key);
 
       if (meta == null) {
         return null;
       }
 
       Slice keyPrefix = keyValueSerdeManager.serializeDataKey(key, false);
-      spillableSet = new SpillableSetImpl<>(bucket, keyPrefix.toByteArray(), store, valueSerde);
+      if (timeExtractor != null) {
+        spillableSet = new SpillableSetImpl<>(keyPrefix.toByteArray(), store, valueSerde, new FixedTimeExtractor(keyTime));
+      } else {
+        spillableSet = new SpillableSetImpl<>(bucket, keyPrefix.toByteArray(), store, valueSerde);
+      }
       spillableSet.setSize(meta.getLeft());
       spillableSet.setHead(meta.getRight());
       spillableSet.setup(context);
@@ -166,8 +226,7 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
     SpillableSetImpl<V> spillableSet = getHelper((K)key);
     if (spillableSet != null) {
       cache.remove((K)key);
-      Slice keySlice = keyValueSerdeManager.serializeMetaKey((K)key, false);
-      map.put(keySlice, new ImmutablePair<>(0, spillableSet.getHead()));
+      map.put((K)key, new ImmutablePair<>(0, spillableSet.getHead()));
       spillableSet.clear();
       removedSets.add(spillableSet);
     }
@@ -199,8 +258,7 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
     if (cache.contains((K)key)) {
       return true;
     }
-    Slice keySlice = keyValueSerdeManager.serializeMetaKey((K)key, false);
-    Pair<Integer, V> meta = map.get(keySlice);
+    Pair<Integer, V> meta = map.get((K)key);
     return meta != null && meta.getLeft() > 0;
   }
 
@@ -227,7 +285,11 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
     SpillableSetImpl<V> spillableSet = getHelper(key);
 
     if (spillableSet == null) {
-      spillableSet = new SpillableSetImpl<V>(bucket, keyValueSerdeManager.serializeDataKey(key, true).toByteArray(), store, valueSerde);
+      if (timeExtractor == null) {
+        spillableSet = new SpillableSetImpl<>(bucket, keyValueSerdeManager.serializeDataKey(key, true).toByteArray(), store, valueSerde);
+      } else {
+        spillableSet = new SpillableSetImpl<>(keyValueSerdeManager.serializeDataKey(key, true).toByteArray(), store, valueSerde, new FixedTimeExtractor(timeExtractor.getTime(key)));
+      }
       spillableSet.setup(context);
       cache.put(key, spillableSet);
     }
@@ -304,8 +366,7 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
       SpillableSetImpl<V> spillableSet = cache.get(key);
       spillableSet.endWindow();
 
-      map.put(keyValueSerdeManager.serializeMetaKey(key, true),
-          new ImmutablePair<>(spillableSet.size(), spillableSet.getHead()));
+      map.put(key, new ImmutablePair<>(spillableSet.size(), spillableSet.getHead()));
     }
 
     for (SpillableSetImpl removedSet : removedSets) {

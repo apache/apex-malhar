@@ -316,7 +316,7 @@ public abstract class AbstractManagedStateImpl
 
   protected int getBucketIdx(long bucketId)
   {
-    return (int)(bucketId % numBuckets);
+    return (int)Math.abs(bucketId % numBuckets);
   }
 
   @Override

@@ -133,7 +133,7 @@ public class SpillableWindowedPlainStorage<T> implements WindowedStorage.Windowe
       valueSerde = new GenericSerde<>();
     }
     if (windowToDataMap == null) {
-      windowToDataMap = scc.newSpillableMap(bucket, windowSerde, valueSerde);
+      windowToDataMap = scc.newSpillableMap(windowSerde, valueSerde, new WindowTimeExtractor());
     }
   }
 

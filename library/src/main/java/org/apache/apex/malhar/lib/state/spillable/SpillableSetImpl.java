@@ -25,6 +25,7 @@ import java.util.NoSuchElementException;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.state.managed.TimeExtractor;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
 import org.apache.hadoop.classification.InterfaceStability;
 
@@ -89,8 +90,6 @@ public class SpillableSetImpl<T> implements Spillable.SpillableSet<T>, Spillable
   }
 
   @NotNull
-  private SpillableStateStore store;
-  @NotNull
   private SpillableMapImpl<T, ListNode<T>> map;
 
   private T head;
@@ -103,7 +102,7 @@ public class SpillableSetImpl<T> implements Spillable.SpillableSet<T>, Spillable
 
   public SpillableStateStore getStore()
   {
-    return store;
+    return map.getStore();
   }
 
   /**
@@ -118,9 +117,23 @@ public class SpillableSetImpl<T> implements Spillable.SpillableSet<T>, Spillable
       @NotNull SpillableStateStore store,
       @NotNull Serde<T> serde)
   {
-    this.store = Preconditions.checkNotNull(store);
+    map = new SpillableMapImpl<>(Preconditions.checkNotNull(store), prefix, bucketId, serde, new ListNodeSerde<>(serde));
+  }
 
-    map = new SpillableMapImpl<>(store, prefix, bucketId, serde, new ListNodeSerde(serde));
+  /**
+   * Creates a {@link SpillableSetImpl}.
+   * {@link SpillableSetImpl} in the provided {@link SpillableStateStore}.
+   * @param prefix The Id of this {@link SpillableSetImpl}.
+   * @param store The {@link SpillableStateStore} in which to spill to.
+   * @param serde The {@link Serde} to use when serializing and deserializing data.
+   * @param timeExtractor Extract time from the each element and use it to decide where the data goes.
+   */
+  public SpillableSetImpl(@NotNull byte[] prefix,
+      @NotNull SpillableStateStore store,
+      @NotNull Serde<T> serde,
+      @NotNull TimeExtractor timeExtractor)
+  {
+    map = new SpillableMapImpl<>(Preconditions.checkNotNull(store), prefix, serde, new ListNodeSerde<>(serde), timeExtractor);
   }
 
   public void setSize(int size)

@@ -25,6 +25,7 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.state.managed.TimeExtractor;
 import org.apache.apex.malhar.lib.state.spillable.inmem.InMemSpillableStateStore;
 import org.apache.apex.malhar.lib.utils.serde.StringSerde;
 
@@ -37,24 +38,38 @@ public class SpillableSetImplTest
   @Rule
   public SpillableTestUtils.TestMeta testMeta = new SpillableTestUtils.TestMeta();
 
+  public TimeExtractor<String> te = null;
+
   @Test
-  public void simpleAddGetAndSetTest1()
+  public void simpleAddGetAndSetTest()
   {
     InMemSpillableStateStore store = new InMemSpillableStateStore();
 
-    simpleAddGetAndSetTest1Helper(store);
+    simpleAddGetAndSetTestHelper(store);
   }
 
   @Test
-  public void simpleAddGetAndSetManagedStateTest1()
+  public void simpleAddGetAndSetTimeUnifiedManagedStateTest()
   {
-    simpleAddGetAndSetTest1Helper(testMeta.store);
+    te = new TestStringTimeExtractor();
+    simpleAddGetAndSetTestHelper(testMeta.timeStore);
   }
 
-  public void simpleAddGetAndSetTest1Helper(SpillableStateStore store)
+  @Test
+  public void simpleAddGetAndSetManagedStateTest()
   {
-    SpillableSetImpl<String> set = new SpillableSetImpl<>(0L, ID1, store, new StringSerde());
+    simpleAddGetAndSetTestHelper(testMeta.store);
+  }
 
+  public void simpleAddGetAndSetTestHelper(SpillableStateStore store)
+  {
+    SpillableSetImpl<String> set;
+
+    if (te == null) {
+      set = new SpillableSetImpl<>(0L, ID1, store, new StringSerde());
+    } else {
+      set = new SpillableSetImpl<>(ID1, store, new StringSerde(), te);
+    }
     store.setup(testMeta.operatorContext);
     set.setup(testMeta.operatorContext);
 

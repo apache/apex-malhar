@@ -21,7 +21,9 @@ package org.apache.apex.malhar.lib.state.spillable;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+import org.apache.apex.malhar.lib.state.managed.TimeExtractor;
 import org.apache.apex.malhar.lib.state.spillable.inmem.InMemSpillableStateStore;
 import org.apache.apex.malhar.lib.utils.serde.StringSerde;
 
@@ -31,31 +33,46 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.util.KryoCloneUtils;
 
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
+
+@RunWith(JUnitParamsRunner.class)
 public class SpillableMapImplTest
 {
   public static final byte[] ID1 = new byte[]{(byte)0};
   public static final byte[] ID2 = new byte[]{(byte)1};
 
+  public static final TestStringTimeExtractor TE = new TestStringTimeExtractor();
+
+  private SpillableStateStore store;
+
+  private TimeExtractor<String> te = null;
+
+
   @Rule
   public SpillableTestUtils.TestMeta testMeta = new SpillableTestUtils.TestMeta();
 
-  @Test
-  public void simpleGetAndPutTest()
-  {
-    InMemSpillableStateStore store = new InMemSpillableStateStore();
 
-    simpleGetAndPutTestHelper(store);
+  private void setup(String opt)
+  {
+    if (opt.equals("InMem")) {
+      store = new InMemSpillableStateStore();
+      te = null;
+    } else if (opt.equals("ManagedState")) {
+      store = testMeta.store;
+      te = null;
+    } else {
+      store = testMeta.timeStore;
+      te = TE;
+    }
   }
 
 
   @Test
-  public void simpleGetAndPutManagedStateTest()
+  @Parameters({"InMem","ManagedState","TimeUnifiedManagedState"})
+  public void simpleGetAndPutTest(String opt)
   {
-    simpleGetAndPutTestHelper(testMeta.store);
-  }
-
-  private void simpleGetAndPutTestHelper(SpillableStateStore store)
-  {
+    setup(opt);
     SpillableMapImpl<String, String> map = createSpillableMap(store);
 
     store.setup(testMeta.operatorContext);
@@ -73,15 +90,9 @@ public class SpillableMapImplTest
 
     Assert.assertEquals(3, map.size());
 
-    Assert.assertEquals("1", map.get("a"));
-    Assert.assertEquals("2", map.get("b"));
-    Assert.assertEquals("3", map.get("c"));
-    Assert.assertEquals(null, map.get("d"));
+    assertMultiEqualsFromMap(map, new String[]{"1", "2", "3", null}, new String[]{"a", "b", "c", "d"});
 
-    SpillableTestUtils.checkValue(store, 0L, "a", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "b", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "c", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "d", ID1, null);
+    multiValueCheck(new String[]{"a", "b", "c", "d"}, ID1, new String[]{null, null, null, null});
 
     map.endWindow();
     store.endWindow();
@@ -93,17 +104,11 @@ public class SpillableMapImplTest
     store.beginWindow(windowId);
     map.beginWindow(windowId);
 
-    SpillableTestUtils.checkValue(store, 0L, "a", ID1, "1");
-    SpillableTestUtils.checkValue(store, 0L, "b", ID1, "2");
-    SpillableTestUtils.checkValue(store, 0L, "c", ID1, "3");
-    SpillableTestUtils.checkValue(store, 0L, "d", ID1, null);
+    multiValueCheck(new String[]{"a", "b", "c", "d"}, ID1, new String[]{"1", "2", "3", null});
 
     Assert.assertEquals(3, map.size());
 
-    Assert.assertEquals("1", map.get("a"));
-    Assert.assertEquals("2", map.get("b"));
-    Assert.assertEquals("3", map.get("c"));
-    Assert.assertEquals(null, map.get("d"));
+    assertMultiEqualsFromMap(map, new String[]{"1", "2", "3", null}, new String[]{"a", "b", "c", "d"});
 
     map.put("d", "4");
     map.put("e", "5");
@@ -111,16 +116,9 @@ public class SpillableMapImplTest
 
     Assert.assertEquals(6, map.size());
 
-    Assert.assertEquals("4", map.get("d"));
-    Assert.assertEquals("5", map.get("e"));
-    Assert.assertEquals("6", map.get("f"));
+    assertMultiEqualsFromMap(map, new String[]{"4", "5", "6"}, new String[]{"d", "e", "f"});
 
-    SpillableTestUtils.checkValue(store, 0L, "a", ID1, "1");
-    SpillableTestUtils.checkValue(store, 0L, "b", ID1, "2");
-    SpillableTestUtils.checkValue(store, 0L, "c", ID1, "3");
-    SpillableTestUtils.checkValue(store, 0L, "d", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "e", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "f", ID1, null);
+    multiValueCheck(new String[]{"a", "b", "c", "d", "e", "f"}, ID1, new String[]{"1", "2", "3", null, null, null});
 
     map.endWindow();
     store.endWindow();
@@ -132,13 +130,8 @@ public class SpillableMapImplTest
     store.beginWindow(windowId);
     map.beginWindow(windowId);
 
-    SpillableTestUtils.checkValue(store, 0L, "a", ID1, "1");
-    SpillableTestUtils.checkValue(store, 0L, "b", ID1, "2");
-    SpillableTestUtils.checkValue(store, 0L, "c", ID1, "3");
-    SpillableTestUtils.checkValue(store, 0L, "d", ID1, "4");
-    SpillableTestUtils.checkValue(store, 0L, "e", ID1, "5");
-    SpillableTestUtils.checkValue(store, 0L, "f", ID1, "6");
-    SpillableTestUtils.checkValue(store, 0L, "g", ID1, null);
+
+    multiValueCheck(new String[]{"a", "b", "c", "d", "e", "f", "g"}, ID1, new String[]{"1", "2", "3", "4", "5", "6", null});
 
     map.endWindow();
     store.endWindow();
@@ -150,28 +143,43 @@ public class SpillableMapImplTest
     store.teardown();
   }
 
+  private void multiValueCheck(String[] keys, byte[] samePrefix, String[] expectedVal)
+  {
+    for (int i = 0; i < keys.length; i++) {
+      SpillableTestUtils.checkValue(store, _bid(keys[i], te), keys[i], samePrefix, expectedVal[i]);
+    }
+  }
+
+  private void assertMultiEqualsFromMap(SpillableMapImpl<String, String> map, String[] expectedV, String[] keys)
+  {
+    for (int i = 0; i < expectedV.length; i++) {
+      Assert.assertEquals(expectedV[i], map.get(keys[i]));
+    }
+  }
+
+  private long _bid(String key, TimeExtractor<String> te)
+  {
+    if (te != null) {
+      return te.getTime(key);
+    } else {
+      return 0L;
+    }
+  }
+
+  private SpillableMapImpl<String, String> createSpillableMap(SpillableStateStore store)
+  {
+    if (te == null) {
+      return new SpillableMapImpl<>(store,ID1,0L,new StringSerde(), new StringSerde());
+    } else {
+      return new SpillableMapImpl<>(store,ID1,new StringSerde(), new StringSerde(), te);
+    }
+  }
+
   @Test
-  public void simpleRemoveTest()
+  @Parameters({"InMem","ManagedState","TimeUnifiedManagedState"})
+  public void simpleRemoveTest(String opt)
   {
-    InMemSpillableStateStore store = new InMemSpillableStateStore();
-    simpleRemoveTestHelper(store);
-  }
-
-
-  @Test
-  public void simpleRemoveManagedStateTest()
-  {
-    simpleRemoveTestHelper(testMeta.store);
-  }
-
-  protected SpillableMapImpl<String, String> createSpillableMap(SpillableStateStore store)
-  {
-    return new SpillableMapImpl<String, String>(store, ID1, 0L, new StringSerde(),
-        new StringSerde());
-  }
-
-  private void simpleRemoveTestHelper(SpillableStateStore store)
-  {
+    setup(opt);
     SpillableMapImpl<String, String> map = createSpillableMap(store);
 
     store.setup(testMeta.operatorContext);
@@ -199,10 +207,7 @@ public class SpillableMapImplTest
 
     Assert.assertEquals(1, map.size());
 
-    SpillableTestUtils.checkValue(store, 0L, "a", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "b", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "c", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "d", ID1, null);
+    multiValueCheck(new String[]{"a", "b", "c", "d"}, ID1, new String[]{null, null, null, null});
 
     map.endWindow();
     store.endWindow();
@@ -210,10 +215,7 @@ public class SpillableMapImplTest
     store.checkpointed(windowId);
     store.committed(windowId);
 
-    SpillableTestUtils.checkValue(store, 0L, "a", ID1, "1");
-    SpillableTestUtils.checkValue(store, 0L, "b", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "c", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "d", ID1, null);
+    multiValueCheck(new String[]{"a", "b", "c", "d"}, ID1, new String[]{"1", null, null, null});
 
     windowId++;
     store.beginWindow(windowId);
@@ -236,12 +238,7 @@ public class SpillableMapImplTest
     Assert.assertEquals("5", map.get("e"));
     Assert.assertEquals("6", map.get("f"));
 
-    SpillableTestUtils.checkValue(store, 0L, "a", ID1, "1");
-    SpillableTestUtils.checkValue(store, 0L, "b", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "c", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "d", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "e", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "f", ID1, null);
+    multiValueCheck(new String[]{"a", "b", "c", "d", "e", "f"}, ID1, new String[]{"1", null, null, null, null, null});
 
     map.endWindow();
     store.endWindow();
@@ -253,13 +250,7 @@ public class SpillableMapImplTest
     store.beginWindow(windowId);
     map.beginWindow(windowId);
 
-    SpillableTestUtils.checkValue(store, 0L, "a", ID1, "1");
-    SpillableTestUtils.checkValue(store, 0L, "b", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "c", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "d", ID1, "4");
-    SpillableTestUtils.checkValue(store, 0L, "e", ID1, "5");
-    SpillableTestUtils.checkValue(store, 0L, "f", ID1, "6");
-    SpillableTestUtils.checkValue(store, 0L, "g", ID1, null);
+    multiValueCheck(new String[]{"a", "b", "c", "d", "e", "f", "g"}, ID1, new String[]{"1", null, null, "4", "5", "6", null});
 
     map.remove("a");
     map.remove("d");
@@ -271,13 +262,7 @@ public class SpillableMapImplTest
     Assert.assertEquals("6", map.get("f"));
     Assert.assertEquals(null, map.get("g"));
 
-    SpillableTestUtils.checkValue(store, 0L, "a", ID1, "1");
-    SpillableTestUtils.checkValue(store, 0L, "b", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "c", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "d", ID1, "4");
-    SpillableTestUtils.checkValue(store, 0L, "e", ID1, "5");
-    SpillableTestUtils.checkValue(store, 0L, "f", ID1, "6");
-    SpillableTestUtils.checkValue(store, 0L, "g", ID1, null);
+    multiValueCheck(new String[]{"a", "b", "c", "d", "e", "f", "g"}, ID1, new String[]{"1", null, null, "4", "5", "6", null});
 
     map.endWindow();
     store.endWindow();
@@ -289,13 +274,7 @@ public class SpillableMapImplTest
     store.beginWindow(windowId);
     map.beginWindow(windowId);
 
-    SpillableTestUtils.checkValue(store, 0L, "a", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "b", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "c", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "d", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "e", ID1, "5");
-    SpillableTestUtils.checkValue(store, 0L, "f", ID1, "6");
-    SpillableTestUtils.checkValue(store, 0L, "g", ID1, null);
+    multiValueCheck(new String[]{"a", "b", "c", "d", "e", "f", "g"}, ID1, new String[]{null, null, null, null, "5", "6", null});
 
     map.endWindow();
     store.endWindow();
@@ -308,29 +287,21 @@ public class SpillableMapImplTest
   }
 
   @Test
-  public void multiMapPerBucketTest()
+  @Parameters({"InMem","ManagedState","TimeUnifiedManagedState"})
+  public void multiMapPerBucketTest(String opt)
   {
-    InMemSpillableStateStore store = new InMemSpillableStateStore();
-
-    multiMapPerBucketTestHelper(store);
-  }
-
-  @Test
-  public void multiMapPerBucketManagedStateTest()
-  {
-    multiMapPerBucketTestHelper(testMeta.store);
-  }
-
-  public void multiMapPerBucketTestHelper(SpillableStateStore store)
-  {
+    setup(opt);
     StringSerde sss = new StringSerde();
 
-    SpillableMapImpl<String, String> map1 = new SpillableMapImpl<>(store, ID1, 0L,
-        new StringSerde(),
-        new StringSerde());
-    SpillableMapImpl<String, String> map2 = new SpillableMapImpl<>(store, ID2, 0L,
-        new StringSerde(),
-        new StringSerde());
+    SpillableMapImpl<String, String> map1 = null;
+    SpillableMapImpl<String, String> map2 = null;
+    if (te == null) {
+      map1 = new SpillableMapImpl<>(store, ID1, 0L, sss, sss);
+      map2 = new SpillableMapImpl<>(store, ID2, 0L, sss, sss);
+    } else {
+      map1 = new SpillableMapImpl<>(store, ID1, sss, sss, te);
+      map2 = new SpillableMapImpl<>(store, ID2, sss, sss, te);
+    }
 
     store.setup(testMeta.operatorContext);
     map1.setup(testMeta.operatorContext);
@@ -372,12 +343,9 @@ public class SpillableMapImplTest
     map1.beginWindow(windowId);
     map2.beginWindow(windowId);
 
-    SpillableTestUtils.checkValue(store, 0L, "a", ID1, "1");
-    SpillableTestUtils.checkValue(store, 0L, "b", ID1, "2");
+    multiValueCheck(new String[]{"a", "b"}, ID1, new String[]{"1", "2"});
 
-    SpillableTestUtils.checkValue(store, 0L, "a", ID2, "a1");
-    SpillableTestUtils.checkValue(store, 0L, "b", ID2, null);
-    SpillableTestUtils.checkValue(store, 0L, "c", ID2, "3");
+    multiValueCheck(new String[]{"a", "b", "c"}, ID2, new String[]{"a1", null, "3"});
 
     map1.remove("a");
 
@@ -395,8 +363,8 @@ public class SpillableMapImplTest
     map1.beginWindow(windowId);
     map2.beginWindow(windowId);
 
-    SpillableTestUtils.checkValue(store, 0L, "a", ID1, null);
-    SpillableTestUtils.checkValue(store, 0L, "a", ID2, "a1");
+    multiValueCheck(new String[]{"a"}, ID1, new String[]{null});
+    multiValueCheck(new String[]{"a"}, ID2, new String[]{"a1"});
 
     map1.endWindow();
     map2.endWindow();
@@ -410,18 +378,22 @@ public class SpillableMapImplTest
   }
 
   @Test
-  public void recoveryWithManagedStateTest() throws Exception
+  @Parameters({"ManagedState","TimeUnifiedManagedState"})
+  public void recoveryWithManagedStateTest(String opt) throws Exception
   {
+    setup(opt);
     StringSerde sss = new StringSerde();
+    SpillableMapImpl<String, String> map1 = null;
+    if (te == null) {
+      map1 = new SpillableMapImpl<>(store, ID1, 0L, sss, sss);
+    } else {
+      map1 = new SpillableMapImpl<>(store, ID1, sss, sss, te);
+    }
 
-    SpillableMapImpl<String, String> map1 = new SpillableMapImpl<>(testMeta.store, ID1, 0L,
-        new StringSerde(),
-        new StringSerde());
-
-    testMeta.store.setup(testMeta.operatorContext);
+    store.setup(testMeta.operatorContext);
     map1.setup(testMeta.operatorContext);
 
-    testMeta.store.beginWindow(0);
+    store.beginWindow(0);
     map1.beginWindow(0);
     map1.put("x", "1");
     map1.put("y", "2");
@@ -429,9 +401,9 @@ public class SpillableMapImplTest
     map1.put("zz", "33");
     Assert.assertEquals(4, map1.size());
     map1.endWindow();
-    testMeta.store.endWindow();
+    store.endWindow();
 
-    testMeta.store.beginWindow(1);
+    store.beginWindow(1);
     map1.beginWindow(1);
     Assert.assertEquals(4, map1.size());
     map1.put("x", "4");
@@ -439,13 +411,13 @@ public class SpillableMapImplTest
     map1.remove("zz");
     Assert.assertEquals(3, map1.size());
     map1.endWindow();
-    testMeta.store.endWindow();
-    testMeta.store.beforeCheckpoint(1);
-    testMeta.store.checkpointed(1);
+    store.endWindow();
+    store.beforeCheckpoint(1);
+    store.checkpointed(1);
 
     SpillableMapImpl<String, String> clonedMap1 = KryoCloneUtils.cloneObject(map1);
 
-    testMeta.store.beginWindow(2);
+    store.beginWindow(2);
     map1.beginWindow(2);
     Assert.assertEquals(3, map1.size());
     map1.put("x", "6");
@@ -453,11 +425,11 @@ public class SpillableMapImplTest
     map1.put("w", "8");
     Assert.assertEquals(4, map1.size());
     map1.endWindow();
-    testMeta.store.endWindow();
+    store.endWindow();
 
     // simulating crash here
     map1.teardown();
-    testMeta.store.teardown();
+    store.teardown();
 
     Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_PATH, testMeta.applicationPath);

@@ -180,10 +180,10 @@ public class SpillableWindowedKeyedStorage<K, V> implements WindowedStorage.Wind
     }
 
     if (windowKeyToValueMap == null) {
-      windowKeyToValueMap = scc.newSpillableMap(bucket, windowKeyPairSerde, valueSerde);
+      windowKeyToValueMap = scc.newSpillableMap(windowKeyPairSerde, valueSerde, new WindowKeyPairTimeExtractor());
     }
     if (windowToKeysMap == null) {
-      windowToKeysMap = scc.newSpillableSetMultimap(bucket, windowSerde, keySerde);
+      windowToKeysMap = scc.newSpillableSetMultimap(bucket, windowSerde, keySerde, new WindowTimeExtractor());
     }
   }
 

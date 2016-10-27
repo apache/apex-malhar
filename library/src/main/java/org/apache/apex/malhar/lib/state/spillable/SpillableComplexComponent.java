@@ -18,6 +18,7 @@
  */
 package org.apache.apex.malhar.lib.state.spillable;
 
+import org.apache.apex.malhar.lib.state.managed.TimeExtractor;
 import org.apache.apex.malhar.lib.state.spillable.Spillable.SpillableComponent;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
 
@@ -68,6 +69,19 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
       Serde<V> serdeValue);
 
   /**
+   * This is a method for creating a {@link SpillableMap}. This method
+   * auto-generates an identifier for the data structure.
+   * @param <K> The type of the keys.
+   * @param <V> The type of the values.
+   * @param serdeKey The Serializer/Deserializer to use for the map's keys.
+   * @param serdeValue The Serializer/Deserializer to use for the map's values.
+   * @param timeExtractor a util object to extract time from key.
+   * @return A {@link SpillableMap}.
+   */
+  <K, V> SpillableMap<K, V> newSpillableMap(Serde<K> serdeKey,
+      Serde<V> serdeValue, TimeExtractor<K> timeExtractor);
+
+  /**
    * This is a method for creating a {@link SpillableMap}.
    * @param <K> The type of the keys.
    * @param <V> The type of the values.
@@ -79,6 +93,19 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    */
   <K, V> SpillableMap<K, V> newSpillableMap(byte[] identifier, long bucket,
       Serde<K> serdeKey, Serde<V> serdeValue);
+
+  /**
+   * This is a method for creating a {@link SpillableMap}.
+   * @param <K> The type of the keys.
+   * @param <V> The type of the values.
+   * @param identifier The identifier for this {@link SpillableMap}.
+   * @param serdeKey The Serializer/Deserializer to use for the map's keys.
+   * @param serdeValue The Serializer/Deserializer to use for the map's values.
+   * @param timeExtractor a util object to extract time from key.
+   * @return A {@link SpillableMap}.
+   */
+  <K, V> SpillableMap<K, V> newSpillableMap(byte[] identifier,
+      Serde<K> serdeKey, Serde<V> serdeValue, TimeExtractor<K> timeExtractor);
 
   /**
    * This is a method for creating a {@link SpillableListMultimap}. This method
@@ -116,6 +143,19 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @return A {@link SpillableSetMultimap}.
    */
   <K, V> SpillableSetMultimap<K, V> newSpillableSetMultimap(long bucket, Serde<K> serdeKey, Serde<V> serdeValue);
+
+  /**
+   * This is a method for creating a {@link SpillableSetMultimap}.
+   * @param <K> The type of the keys.
+   * @param <V> The type of the values in the map's lists.
+   * @param bucket The bucket that this {@link SpillableSetMultimap} will be spilled to.
+   * @param serdeKey The Serializer/Deserializer to use for the map's keys.
+   * @param serdeValue The Serializer/Deserializer to use for the values in the map's lists.
+   * @param timeExtractor a util object to extract time from key.
+   * @return A {@link SpillableSetMultimap}.
+   */
+  <K, V> SpillableSetMultimap<K, V> newSpillableSetMultimap(long bucket, Serde<K> serdeKey,
+      Serde<V> serdeValue, TimeExtractor<K> timeExtractor);
 
   /**
    * This is a method for creating a {@link SpillableMultiset}. This method
