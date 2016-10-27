@@ -20,6 +20,9 @@
 package org.apache.apex.malhar.lib.fs;
 
 import java.io.IOException;
+
+import javax.validation.constraints.Pattern;
+
 import org.apache.hadoop.fs.FSDataInputStream;
 
 import com.datatorrent.api.Context.OperatorContext;
@@ -72,12 +75,33 @@ public class FSRecordReader extends FSSliceReader
   {
     super.setup(context);
     if (mode == RECORD_READER_MODE.FIXED_WIDTH_RECORD) {
-      ReaderContext.FixedBytesReaderContext<FSDataInputStream> fixedBytesReaderContext = new ReaderContext.FixedBytesReaderContext<FSDataInputStream>();
-      fixedBytesReaderContext.setLength(recordLength);
-      readerContext = fixedBytesReaderContext;
+      readerContext = createFixedWidthReaderContext();
     } else {
-      readerContext = new ReaderContext.ReadAheadLineReaderContext<FSDataInputStream>();
+      readerContext = createDelimitedReaderContext();
     }
+  }
+
+  /**
+   * Creates a recordReaderContext for FixedWidthRecords
+   *
+   * @return FixedBytesReaderContext
+   */
+  protected ReaderContext<FSDataInputStream> createFixedWidthReaderContext()
+  {
+    ReaderContext.FixedBytesReaderContext<FSDataInputStream> fixedBytesReaderContext = new ReaderContext.FixedBytesReaderContext<FSDataInputStream>();
+    fixedBytesReaderContext.setLength(recordLength);
+    return fixedBytesReaderContext;
+
+  }
+
+  /**
+   * Creates a recordReaderContext for Delimited Records
+   *
+   * @return DelimitedRecordReaderContext
+   */
+  protected ReaderContext<FSDataInputStream> createDelimitedReaderContext()
+  {
+    return new ReaderContext.ReadAheadLineReaderContext<FSDataInputStream>();
   }
 
   /**
@@ -105,14 +129,15 @@ public class FSRecordReader extends FSSliceReader
   }
 
   /**
-   * Criteria for record split
+   * Criteria for record split : FIXED_WIDTH_RECORD or DELIMITED_RECORD
    *
    * @param mode
    *          Mode
    */
-  public void setMode(RECORD_READER_MODE mode)
+  public void setMode(
+      @Pattern(regexp = "FIXED_WIDTH_RECORD|DELIMITED_RECORD", flags = Pattern.Flag.CASE_INSENSITIVE) String mode)
   {
-    this.mode = mode;
+    this.mode = RECORD_READER_MODE.valueOf(mode.toUpperCase());
   }
 
   /**
@@ -120,9 +145,9 @@ public class FSRecordReader extends FSSliceReader
    *
    * @return mode
    */
-  public RECORD_READER_MODE getMode()
+  public String getMode()
   {
-    return mode;
+    return mode.toString();
   }
 
   /**

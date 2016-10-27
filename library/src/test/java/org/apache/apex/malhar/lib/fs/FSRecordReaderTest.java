@@ -32,7 +32,6 @@ import org.junit.rules.TestWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.apex.malhar.lib.fs.FSRecordReader.RECORD_READER_MODE;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 
@@ -118,6 +117,10 @@ public class FSRecordReaderTest
       }
     };
 
+    public static Set<String> getRecords()
+    {
+      return records;
+    }
   }
 
   private static class DelimitedApplication implements StreamingApplication
@@ -126,7 +129,7 @@ public class FSRecordReaderTest
     public void populateDAG(DAG dag, Configuration conf)
     {
       FSRecordReaderModule recordReader = dag.addModule("HDFSRecordReaderModule", FSRecordReaderModule.class);
-      recordReader.setMode(RECORD_READER_MODE.DELIMITED_RECORD);
+      recordReader.setMode("delimited_record");
       DelimitedValidator validator = dag.addOperator("Validator", new DelimitedValidator());
       dag.addStream("records", recordReader.records, validator.data);
     }
@@ -206,7 +209,7 @@ public class FSRecordReaderTest
     public void populateDAG(DAG dag, Configuration conf)
     {
       FSRecordReaderModule recordReader = dag.addModule("HDFSRecordReaderModule", FSRecordReaderModule.class);
-      recordReader.setMode(RECORD_READER_MODE.FIXED_WIDTH_RECORD);
+      recordReader.setMode("FIXED_WIDTH_RECORD");
       FixedWidthValidator validator = dag.addOperator("Validator", new FixedWidthValidator());
       dag.addStream("records", recordReader.records, validator.data);
     }

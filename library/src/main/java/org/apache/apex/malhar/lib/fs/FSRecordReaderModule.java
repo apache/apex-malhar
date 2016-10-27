@@ -21,6 +21,7 @@ package org.apache.apex.malhar.lib.fs;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.apache.apex.malhar.lib.fs.FSRecordReader.RECORD_READER_MODE;
@@ -82,7 +83,7 @@ public class FSRecordReaderModule implements Module
   /**
    * Criteria for record split
    */
-  private RECORD_READER_MODE mode = RECORD_READER_MODE.DELIMITED_RECORD;
+  private String mode = RECORD_READER_MODE.DELIMITED_RECORD.toString();
 
   /**
    * Length for fixed width record
@@ -370,24 +371,25 @@ public class FSRecordReaderModule implements Module
   }
 
   /**
-   * Criteria for record split
+   * Criteria for record split : FIXED_WIDTH_RECORD or DELIMITED_RECORD
    *
-   * @return mode
+   * @param mode
+   *          Mode
    */
-  public RECORD_READER_MODE getMode()
+  public void setMode(
+      @Pattern(regexp = "FIXED_WIDTH_RECORD|DELIMITED_RECORD", flags = Pattern.Flag.CASE_INSENSITIVE) String mode)
   {
-    return mode;
+    this.mode = mode;
   }
 
   /**
    * Criteria for record split
    *
-   * @param mode
-   *          Mode
+   * @return mode
    */
-  public void setMode(RECORD_READER_MODE mode)
+  public String getMode()
   {
-    this.mode = mode;
+    return mode;
   }
 
   /**

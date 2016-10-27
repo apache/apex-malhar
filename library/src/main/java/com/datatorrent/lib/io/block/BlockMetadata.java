@@ -202,6 +202,7 @@ public interface BlockMetadata
   class FileBlockMetadata extends AbstractBlockMetadata
   {
     private final String filePath;
+    private long fileLength;
 
     protected FileBlockMetadata()
     {
@@ -216,14 +217,48 @@ public interface BlockMetadata
       this.filePath = filePath;
     }
 
+    public FileBlockMetadata(String filePath, long blockId, long offset, long length, boolean isLastBlock,
+        long previousBlockId, long fileLength)
+    {
+      super(blockId, offset, length, isLastBlock, previousBlockId);
+      this.filePath = filePath;
+      this.fileLength = fileLength;
+    }
+
     public FileBlockMetadata(String filePath)
     {
       this.filePath = filePath;
     }
 
+    public FileBlockMetadata(String filePath, long fileLength)
+    {
+      this.filePath = filePath;
+      this.fileLength = fileLength;
+    }
+
     public String getFilePath()
     {
       return filePath;
+    }
+
+    /**
+     * Returns the length of the file to which this block belongs
+     *
+     * @return length of the file to which this block belongs
+     */
+    public long getFileLength()
+    {
+      return fileLength;
+    }
+
+    /**
+     * Set the length of the file to which this block belongs
+     *
+     * @param fileLength
+     */
+    public void setFileLength(long fileLength)
+    {
+      this.fileLength = fileLength;
     }
 
     public FileBlockMetadata newInstance(@NotNull String filePath)

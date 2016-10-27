@@ -293,7 +293,8 @@ public class FileSplitter implements InputOperator, Operator.CheckpointListener,
       FileMetadata fileMetadata, boolean isLast)
   {
     return new FileBlockMetadata(fileMetadata.getFilePath(), fileMetadata.getBlockIds()[blockNumber - 1], pos,
-      lengthOfFileInBlock, isLast, blockNumber == 1 ? -1 : fileMetadata.getBlockIds()[blockNumber - 2]);
+        lengthOfFileInBlock, isLast, blockNumber == 1 ? -1 : fileMetadata.getBlockIds()[blockNumber - 2],
+        fileMetadata.getFileLength());
 
   }
 

@@ -146,19 +146,26 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
   {
 
     protected int bufferSize;
+    /**
+    * overflowBufferSize is the number of bytes fetched when a record overflows
+    * to consecutive block
+    */
+    protected int overflowBufferSize;
 
     private final transient ByteArrayOutputStream lineBuilder;
     private final transient ByteArrayOutputStream emptyBuilder;
     private final transient ByteArrayOutputStream tmpBuilder;
 
-    private transient byte[] buffer;
+    protected transient byte[] buffer;
     private transient String bufferStr;
     private transient int posInStr;
+    private transient boolean overflowBlockRead;
 
     public LineReaderContext()
     {
       super();
       bufferSize = 8192;
+      overflowBufferSize = 8192;
       lineBuilder = new ByteArrayOutputStream();
       emptyBuilder = new ByteArrayOutputStream();
       tmpBuilder = new ByteArrayOutputStream();
@@ -167,10 +174,54 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
     @Override
     public void initialize(STREAM stream, BlockMetadata blockMetadata, boolean consecutiveBlock)
     {
-      if (buffer == null) {
-        buffer = new byte[bufferSize];
-      }
+      overflowBlockRead = false;
+      posInStr = 0;
+      offset = blockMetadata.getOffset();
       super.initialize(stream, blockMetadata, consecutiveBlock);
+    }
+
+    /**
+     * Reads bytes from the stream starting from the offset into the buffer
+     *
+     * @param bytesFromCurrentOffset
+     *          bytes read till now from current block
+     * @param bytesToFetch
+     *          the number of bytes to be read from stream
+     * @return the number of bytes actually read, -1 if 0 bytes read
+     * @throws IOException
+     */
+    protected int readData(final long bytesFromCurrentOffset, final int bytesToFetch) throws IOException
+    {
+      if (buffer == null) {
+        buffer = new byte[bytesToFetch];
+      }
+      return stream.read(offset + bytesFromCurrentOffset, buffer, 0, bytesToFetch);
+    }
+
+    /**
+     * @param usedBytesFromOffset
+     *          number of bytes the pointer is ahead of the offset
+     * @return true if end of stream reached, false otherwise
+     */
+    protected boolean checkEndOfStream(final long usedBytesFromOffset)
+    {
+      if (!overflowBlockRead) {
+        return (offset - blockMetadata.getOffset() + usedBytesFromOffset < bufferSize);
+      } else {
+        return (offset - blockMetadata.getOffset() + usedBytesFromOffset < overflowBufferSize);
+      }
+    }
+
+    /**
+     * Gives the number of bytes to be fetched from the stream
+     *
+     * @param overflowBlockRead
+     *          indicates whether we are reading main block or overflow block
+     * @return bytes to be fetched from stream
+     */
+    protected int calculateBytesToFetch()
+    {
+      return (overflowBlockRead ? overflowBufferSize : (bufferSize));
     }
 
     @Override
@@ -186,7 +237,9 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
       while (!foundEOL) {
         tmpBuilder.reset();
         if (posInStr == 0) {
-          bytesRead = stream.read(offset + usedBytes, buffer, 0, bufferSize);
+          int bytesToFetch = calculateBytesToFetch();
+          overflowBlockRead = true;
+          bytesRead = readData(usedBytes, bytesToFetch);
           if (bytesRead == -1) {
             break;
           }
@@ -220,14 +273,13 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
           usedBytes += emptyBuilder.toByteArray().length;
         } else {
           //end of stream reached
-          if (bytesRead < bufferSize) {
+          if (checkEndOfStream(usedBytes)) {
             break;
           }
           //read more bytes from the input stream
           posInStr = 0;
         }
       }
-      posInStr = 0;
       //when end of stream is reached then bytesRead is -1
       if (bytesRead == -1) {
         lineBuilder.reset();
@@ -260,6 +312,47 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
     {
       return this.bufferSize;
     }
+
+    /**
+     * Sets the overflow buffer size of read.
+     *
+     * @param overflowBufferSize
+     *          size of the overflow buffer
+     */
+    public void setOverflowBufferSize(int overflowBufferSize)
+    {
+      this.overflowBufferSize = overflowBufferSize;
+    }
+
+    /**
+     * @param buffer
+     *          the bytes read from the source
+     */
+    protected void setBuffer(byte[] buffer)
+    {
+      this.buffer = buffer;
+    }
+
+    /**
+     * Sets whether to read overflow block during next fetch.
+     *
+     * @param overflowBlockRead
+     *          boolean indicating whether to read overflow block during next read
+     */
+    public void setOverflowBlockRead(boolean overflowBlockRead)
+    {
+      this.overflowBlockRead = overflowBlockRead;
+    }
+
+    /**
+     * Returns a boolean indicating whether to read overflow block during next read
+     *
+     * @returnoverflowBlockRead
+     */
+    protected boolean isOverflowBlockRead()
+    {
+      return overflowBlockRead;
+    }
   }
 
   /**
@@ -280,7 +373,7 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
       super.initialize(stream, blockMetadata, consecutiveBlock);
       //ignore first entity of  all the blocks except the first one because those bytes
       //were used during the parsing of the previous block.
-      if (!consecutiveBlock && blockMetadata.getOffset() != 0) {
+      if (blockMetadata.getPreviousBlockId() != -1 && blockMetadata.getOffset() != 0) {
         try {
           Entity entity = readEntity();
           offset += entity.usedBytes;
@@ -299,6 +392,15 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
         return entity;
       }
       return null;
+    }
+
+    @Override
+    protected int calculateBytesToFetch()
+    {
+      /*
+       * With readAheadLineReaderContext, we always read at least one overflowBlock. Hence, fetch it in advance
+       */
+      return (this.isOverflowBlockRead() ? overflowBufferSize : (bufferSize + overflowBufferSize));
     }
   }
 

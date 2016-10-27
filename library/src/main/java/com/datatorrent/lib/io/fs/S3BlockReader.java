@@ -69,7 +69,7 @@ public class S3BlockReader extends FSSliceReader
    * @param s3uri s3 uri
    * @return name of the bucket
    */
-  protected static String extractBucket(String s3uri)
+  public static String extractBucket(String s3uri)
   {
     return s3uri.substring(s3uri.indexOf('@') + 1, s3uri.indexOf("/", s3uri.indexOf('@')));
   }
@@ -79,7 +79,7 @@ public class S3BlockReader extends FSSliceReader
    * @param s3uri given s3 uri
    * @return the accessKey
    */
-  protected static String extractAccessKey(String s3uri)
+  public static String extractAccessKey(String s3uri)
   {
     return s3uri.substring(s3uri.indexOf("://") + 3, s3uri.indexOf(':', s3uri.indexOf("://") + 3));
   }
@@ -89,7 +89,7 @@ public class S3BlockReader extends FSSliceReader
    * @param s3uri given s3uri
    * @return the secretAccessKey
    */
-  protected static String extractSecretAccessKey(String s3uri)
+  public static String extractSecretAccessKey(String s3uri)
   {
     return s3uri.substring(s3uri.indexOf(':', s3uri.indexOf("://") + 1) + 1, s3uri.indexOf('@'));
   }
