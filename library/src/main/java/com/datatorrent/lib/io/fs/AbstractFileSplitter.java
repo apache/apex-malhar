@@ -178,7 +178,7 @@ public abstract class AbstractFileSplitter extends BaseOperator
    */
   protected BlockMetadata.FileBlockMetadata createBlockMetadata(FileMetadata fileMetadata)
   {
-    return new BlockMetadata.FileBlockMetadata(fileMetadata.getFilePath());
+    return new BlockMetadata.FileBlockMetadata(fileMetadata.getFilePath(), fileMetadata.getFileLength());
   }
 
   /**

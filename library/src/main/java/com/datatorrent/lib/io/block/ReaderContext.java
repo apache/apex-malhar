@@ -146,6 +146,11 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
   {
 
     protected int bufferSize;
+    /**
+    * overflowBufferSize is the number of bytes fetched when a record overflows
+    * to consecutive block
+    */
+    protected int overflowBufferSize;
 
     private final transient ByteArrayOutputStream lineBuilder;
     private final transient ByteArrayOutputStream emptyBuilder;
@@ -154,11 +159,13 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
     private transient byte[] buffer;
     private transient String bufferStr;
     private transient int posInStr;
+    private transient boolean overflowBlockRead;
 
     public LineReaderContext()
     {
       super();
       bufferSize = 8192;
+      overflowBufferSize = 8192;
       lineBuilder = new ByteArrayOutputStream();
       emptyBuilder = new ByteArrayOutputStream();
       tmpBuilder = new ByteArrayOutputStream();
@@ -170,7 +177,39 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
       if (buffer == null) {
         buffer = new byte[bufferSize];
       }
+      overflowBlockRead = false;
+      posInStr = 0;
+      offset = blockMetadata.getOffset();
       super.initialize(stream, blockMetadata, consecutiveBlock);
+    }
+
+    /**
+     * Reads bytes from the stream starting from the offset into the buffer
+     *
+     * @param usedBytes
+     *          bytes read till now from current block
+     * @param endByte
+     *          byte upto which the data is to be read
+     * @return the number of bytes read, -1 if 0 bytes read
+     * @throws IOException
+     */
+    protected int readData(long usedBytes, int bytesToFetch) throws IOException
+    {
+      return stream.read(offset + usedBytes, buffer, 0, bytesToFetch);
+    }
+
+    /**
+     * @param usedBytesFromOffset
+     *          number of bytes the pointer is ahead of the offset
+     * @return true if end of stream reached, false otherwise
+     */
+    protected boolean checkEndOfStream(long usedBytesFromOffset)
+    {
+      if (!overflowBlockRead) {
+        return (offset - blockMetadata.getOffset() + usedBytesFromOffset < bufferSize);
+      } else {
+        return (offset - blockMetadata.getOffset() + usedBytesFromOffset < overflowBufferSize);
+      }
     }
 
     @Override
@@ -186,7 +225,9 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
       while (!foundEOL) {
         tmpBuilder.reset();
         if (posInStr == 0) {
-          bytesRead = stream.read(offset + usedBytes, buffer, 0, bufferSize);
+          int bytesToFetch = (overflowBlockRead ? overflowBufferSize : bufferSize);
+          overflowBlockRead = true;
+          bytesRead = readData(usedBytes, bytesToFetch);
           if (bytesRead == -1) {
             break;
           }
@@ -220,14 +261,13 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
           usedBytes += emptyBuilder.toByteArray().length;
         } else {
           //end of stream reached
-          if (bytesRead < bufferSize) {
+          if (checkEndOfStream(usedBytes)) {
             break;
           }
           //read more bytes from the input stream
           posInStr = 0;
         }
       }
-      posInStr = 0;
       //when end of stream is reached then bytesRead is -1
       if (bytesRead == -1) {
         lineBuilder.reset();
@@ -260,6 +300,26 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
     {
       return this.bufferSize;
     }
+
+    /**
+     * Sets the overflow buffer size of read.
+     *
+     * @param overflowBufferSize
+     *          size of the overflow buffer
+     */
+    public void setOverflowBufferSize(int overflowBufferSize)
+    {
+      this.overflowBufferSize = overflowBufferSize;
+    }
+
+    /**
+     * @param buffer
+     *          the bytes read from the source
+     */
+    protected void setBuffer(byte[] buffer)
+    {
+      this.buffer = buffer;
+    }
   }
 
   /**
@@ -280,7 +340,7 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
       super.initialize(stream, blockMetadata, consecutiveBlock);
       //ignore first entity of  all the blocks except the first one because those bytes
       //were used during the parsing of the previous block.
-      if (!consecutiveBlock && blockMetadata.getOffset() != 0) {
+      if (blockMetadata.getPreviousBlockId() != -1 && blockMetadata.getOffset() != 0) {
         try {
           Entity entity = readEntity();
           offset += entity.usedBytes;

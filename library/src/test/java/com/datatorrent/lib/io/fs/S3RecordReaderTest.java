@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io.block;
+
+package com.datatorrent.lib.io.fs;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -25,10 +26,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
@@ -36,40 +38,71 @@ import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.google.common.collect.Lists;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.io.block.AbstractFSBlockReader;
+import com.datatorrent.lib.io.block.BlockMetadata;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.netlet.util.Slice;
 
-public class FSLineReaderTest
+@Ignore
+public class S3RecordReaderTest
 {
-  AbstractFSBlockReader<String> getBlockReader()
+  private final String accessKey = "*************";
+  private final String secretKey = "*********************";
+  private final int overflowBufferSize = 50;
+  private static final String FILE_1 = "file1.txt";
+  private static final String s3Directory = "input/";
+
+  AbstractFSBlockReader<Slice> getBlockReader(String bucketKey)
   {
-    return new BlockReader();
+    AbstractFSBlockReader<Slice> blockReader = new S3RecordReader();
+
+    ((S3RecordReader)blockReader).setAccessKey(accessKey);
+    ((S3RecordReader)blockReader).setSecretAccessKey(secretKey);
+    ((S3RecordReader)blockReader).setBucketName(bucketKey);
+    ((S3RecordReader)blockReader).setOverflowBufferSize(overflowBufferSize);
+    return blockReader;
   }
 
-  public class TestMeta extends TestWatcher
+  class TestMeta extends TestWatcher
   {
-    String dataFilePath;
-    File dataFile;
     Context.OperatorContext readerContext;
-    AbstractFSBlockReader<String> blockReader;
+    AbstractFSBlockReader<Slice> blockReader;
     CollectorTestSink<Object> blockMetadataSink;
     CollectorTestSink<Object> messageSink;
-
     List<String[]> messages = Lists.newArrayList();
     String appId;
+
+    String dataFilePath;
+    File dataFile;
+    public String bucketKey;
+    private AmazonS3 client;
 
     @Override
     protected void starting(org.junit.runner.Description description)
     {
-      this.dataFilePath = "src/test/resources/reader_test_data.csv";
-      this.dataFile = new File(dataFilePath);
+      dataFilePath = "src/test/resources/reader_test_data.csv";
+      dataFile = new File(dataFilePath);
+      bucketKey = new String("target-" + description.getMethodName()).toLowerCase();
+
+      client = new AmazonS3Client(new BasicAWSCredentials(accessKey, secretKey));
+      client.createBucket(bucketKey);
+
+      client.putObject(new PutObjectRequest(bucketKey, s3Directory + FILE_1, dataFile));
+
       appId = Long.toHexString(System.currentTimeMillis());
-      blockReader = getBlockReader();
+      blockReader = getBlockReader(bucketKey);
 
       Attribute.AttributeMap.DefaultAttributeMap readerAttr = new Attribute.AttributeMap.DefaultAttributeMap();
       readerAttr.put(DAG.APPLICATION_ID, appId);
@@ -79,14 +112,14 @@ public class FSLineReaderTest
       blockReader.setup(readerContext);
 
       messageSink = new CollectorTestSink<>();
-      blockReader.messages.setSink(messageSink);
+      ((S3RecordReader)blockReader).records.setSink(messageSink);
 
       blockMetadataSink = new CollectorTestSink<>();
       blockReader.blocksMetadataOutput.setSink(blockMetadataSink);
 
       BufferedReader reader;
       try {
-        reader = new BufferedReader(new InputStreamReader(new FileInputStream(this.dataFile.getAbsolutePath())));
+        reader = new BufferedReader(new InputStreamReader(new FileInputStream(dataFile.getAbsolutePath())));
         String line;
         while ((line = reader.readLine()) != null) {
           messages.add(line.split(","));
@@ -100,49 +133,65 @@ public class FSLineReaderTest
     @Override
     protected void finished(Description description)
     {
+      deleteBucketAndContent();
       blockReader.teardown();
+    }
+
+    public void deleteBucketAndContent()
+    {
+      //Get the list of objects
+      ObjectListing objectListing = client.listObjects(bucketKey);
+      for (Iterator<?> iterator = objectListing.getObjectSummaries().iterator(); iterator.hasNext();) {
+        S3ObjectSummary objectSummary = (S3ObjectSummary)iterator.next();
+        LOG.info("Deleting an object: {}", objectSummary.getKey());
+        client.deleteObject(bucketKey, objectSummary.getKey());
+      }
+      client.deleteBucket(bucketKey);
     }
   }
 
   @Rule
   public TestMeta testMeta = new TestMeta();
 
+  /**
+   * The file is processed as a single block
+   */
   @Test
-  public void test()
+  public void testSingleBlock()
   {
-
-    BlockMetadata.FileBlockMetadata block = new BlockMetadata.FileBlockMetadata(testMeta.dataFile.getAbsolutePath(), 0L,
-        0L, testMeta.dataFile.length(),
-        true, -1);
+    BlockMetadata.FileBlockMetadata block = new BlockMetadata.FileBlockMetadata(s3Directory + FILE_1, 0L, 0L,
+        testMeta.dataFile.length(), true, -1, testMeta.dataFile.length());
 
     testMeta.blockReader.beginWindow(1);
     testMeta.blockReader.blocksMetadataInput.process(block);
     testMeta.blockReader.endWindow();
 
-    List<Object> messages = testMeta.messageSink.collectedTuples;
-    Assert.assertEquals("No of records", testMeta.messages.size(), messages.size());
+    List<Object> actualMessages = testMeta.messageSink.collectedTuples;
+    Assert.assertEquals("No of records", testMeta.messages.size(), actualMessages.size());
 
-    for (int i = 0; i < messages.size(); i++) {
-      @SuppressWarnings("unchecked")
-      AbstractBlockReader.ReaderRecord<String> msg = (AbstractBlockReader.ReaderRecord<String>)messages.get(i);
-      Assert.assertTrue("line " + i, Arrays.equals(msg.getRecord().split(","), testMeta.messages.get(i)));
+    for (int i = 0; i < actualMessages.size(); i++) {
+      byte[] msg = (byte[])actualMessages.get(i);
+      Assert.assertTrue("line " + i, Arrays.equals(new String(msg).split(","), testMeta.messages.get(i)));
     }
   }
 
+  /**
+   * The file is divided into multiple blocks, blocks are processed
+   * consecutively
+   */
   @Test
   public void testMultipleBlocks()
   {
     long blockSize = 1000;
-    int noOfBlocks = (int)((testMeta.dataFile.length() / blockSize) + (((testMeta.dataFile.length() % blockSize) == 0) ?
-        0 :
-        1));
+    int noOfBlocks = (int)((testMeta.dataFile.length() / blockSize)
+        + (((testMeta.dataFile.length() % blockSize) == 0) ? 0 : 1));
 
     testMeta.blockReader.beginWindow(1);
 
     for (int i = 0; i < noOfBlocks; i++) {
-      BlockMetadata.FileBlockMetadata blockMetadata = new BlockMetadata.FileBlockMetadata(
-          testMeta.dataFile.getAbsolutePath(), i, i * blockSize,
-          i == noOfBlocks - 1 ? testMeta.dataFile.length() : (i + 1) * blockSize, i == noOfBlocks - 1, i - 1);
+      BlockMetadata.FileBlockMetadata blockMetadata = new BlockMetadata.FileBlockMetadata(s3Directory + FILE_1, i,
+          i * blockSize, i == noOfBlocks - 1 ? testMeta.dataFile.length() : (i + 1) * blockSize, i == noOfBlocks - 1,
+          i - 1, testMeta.dataFile.length());
       testMeta.blockReader.blocksMetadataInput.process(blockMetadata);
     }
 
@@ -151,19 +200,22 @@ public class FSLineReaderTest
     List<Object> messages = testMeta.messageSink.collectedTuples;
     Assert.assertEquals("No of records", testMeta.messages.size(), messages.size());
     for (int i = 0; i < messages.size(); i++) {
-      @SuppressWarnings("unchecked")
-      AbstractBlockReader.ReaderRecord<String> msg = (AbstractBlockReader.ReaderRecord<String>)messages.get(i);
-      Assert.assertTrue("line " + i, Arrays.equals(msg.getRecord().split(","), testMeta.messages.get(i)));
+
+      byte[] msg = (byte[])messages.get(i);
+      Assert.assertTrue("line " + i, Arrays.equals(new String(msg).split(","), testMeta.messages.get(i)));
     }
   }
 
+  /**
+   * The file is divided into multiple blocks, blocks are processed
+   * non-consecutively
+   */
   @Test
   public void testNonConsecutiveBlocks()
   {
     long blockSize = 1000;
-    int noOfBlocks = (int)((testMeta.dataFile.length() / blockSize) + (((testMeta.dataFile.length() % blockSize) == 0) ?
-        0 :
-        1));
+    int noOfBlocks = (int)((testMeta.dataFile.length() / blockSize)
+        + (((testMeta.dataFile.length() % blockSize) == 0) ? 0 : 1));
 
     testMeta.blockReader.beginWindow(1);
 
@@ -173,10 +225,10 @@ public class FSLineReaderTest
         if (blockNo >= noOfBlocks) {
           continue;
         }
-        BlockMetadata.FileBlockMetadata blockMetadata = new BlockMetadata.FileBlockMetadata(
-            testMeta.dataFile.getAbsolutePath(), blockNo, blockNo * blockSize,
+        BlockMetadata.FileBlockMetadata blockMetadata = new BlockMetadata.FileBlockMetadata(s3Directory + FILE_1,
+            blockNo, blockNo * blockSize,
             blockNo == noOfBlocks - 1 ? testMeta.dataFile.length() : (blockNo + 1) * blockSize,
-            blockNo == noOfBlocks - 1, blockNo - 1);
+            blockNo == noOfBlocks - 1, blockNo - 1, testMeta.dataFile.length());
         testMeta.blockReader.blocksMetadataInput.process(blockMetadata);
       }
     }
@@ -200,31 +252,14 @@ public class FSLineReaderTest
       @Override
       public int compare(Object object1, Object object2)
       {
-        @SuppressWarnings("unchecked")
-        String[] rec1 = ((AbstractBlockReader.ReaderRecord<String>)object1).getRecord().split(",");
-        @SuppressWarnings("unchecked")
-        String[] rec2 = ((AbstractBlockReader.ReaderRecord<String>)object2).getRecord().split(",");
+        String[] rec1 = new String((byte[])object1).split(",");
+        String[] rec2 = new String((byte[])object2).split(",");
         return compareStringArrayRecords(rec1, rec2);
       }
     });
-
     for (int i = 0; i < messages.size(); i++) {
-      @SuppressWarnings("unchecked")
-      AbstractBlockReader.ReaderRecord<String> msg = (AbstractBlockReader.ReaderRecord<String>)messages.get(i);
-      Assert.assertTrue("line " + i, Arrays.equals(msg.getRecord().split(","), testMeta.messages.get(i)));
-    }
-  }
-
-  public static final class BlockReader extends AbstractFSBlockReader.AbstractFSLineReader<String>
-  {
-    private final Pattern datePattern = Pattern.compile("\\d{2}?/\\d{2}?/\\d{4}?");
-
-    @Override
-    protected String convertToRecord(byte[] bytes)
-    {
-      String record = new String(bytes);
-      String[] parts = record.split(",");
-      return parts.length > 0 && datePattern.matcher(parts[0]).find() ? record : null;
+      byte[] msg = (byte[])messages.get(i);
+      Assert.assertTrue("line " + i, Arrays.equals(new String(msg).split(","), testMeta.messages.get(i)));
     }
   }
 
@@ -247,5 +282,5 @@ public class FSLineReaderTest
   }
 
   @SuppressWarnings("unused")
-  private static final Logger LOG = LoggerFactory.getLogger(FSLineReaderTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(S3RecordReaderTest.class);
 }
