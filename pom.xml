@@ -52,6 +52,7 @@
     <apex.core.version>3.4.0</apex.core.version>
     <semver.plugin.skip>false</semver.plugin.skip>
     <surefire.args>-Xmx2048m</surefire.args>
+    <additionalparam>-Xdoclint:none</additionalparam>
   </properties>
 
   <build>
