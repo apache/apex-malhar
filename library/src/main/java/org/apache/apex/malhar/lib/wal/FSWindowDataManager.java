@@ -18,7 +18,6 @@
  */
 package org.apache.apex.malhar.lib.wal;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +37,8 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.apex.malhar.lib.state.managed.IncrementalCheckpointManager;
 import org.apache.apex.malhar.lib.utils.FileContextUtils;
+import org.apache.apex.malhar.lib.utils.serde.SerializationBuffer;
+import org.apache.apex.malhar.lib.utils.serde.WindowedBlockStream;
 import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
@@ -45,7 +46,6 @@ import org.apache.hadoop.fs.RemoteIterator;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -149,6 +149,8 @@ public class FSWindowDataManager implements WindowDataManager
 
   private transient FileContext fileContext;
 
+  private transient SerializationBuffer serializationBuffer;
+
   public FSWindowDataManager()
   {
     kryo.setClassLoader(Thread.currentThread().getContextClassLoader());
@@ -157,6 +159,7 @@ public class FSWindowDataManager implements WindowDataManager
   @Override
   public void setup(Context.OperatorContext context)
   {
+    serializationBuffer = new SerializationBuffer(new WindowedBlockStream());
     operatorId = context.getId();
 
     if (isStatePathRelativeToAppPath) {
@@ -416,7 +419,17 @@ public class FSWindowDataManager implements WindowDataManager
 
     byte[] windowIdBytes = Longs.toByteArray(windowId);
     writer.append(new Slice(windowIdBytes));
+
+    /**
+     * writer.append() will copy the data to the file output stream.
+     * So the data in the buffer is not needed any more, and it is safe to reset the serializationBuffer.
+     *
+     * And as the data in stream memory can be cleaned all at once. So don't need to separate data by different windows,
+     * so beginWindow() and endWindow() don't need to be called
+     */
     writer.append(toSlice(object));
+    serializationBuffer.reset();
+
     wal.beforeCheckpoint(windowId);
     wal.windowWalParts.put(windowId, writer.getCurrentPointer().getPartNum());
     writer.rotateIfNecessary();
@@ -594,13 +607,8 @@ public class FSWindowDataManager implements WindowDataManager
 
   private Slice toSlice(Object object)
   {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    Output output = new Output(baos);
-    kryo.writeClassAndObject(output, object);
-    output.close();
-    byte[] bytes = baos.toByteArray();
-
-    return new Slice(bytes);
+    kryo.writeClassAndObject(serializationBuffer, object);
+    return serializationBuffer.toSlice();
   }
 
   protected Object fromSlice(Slice slice)
