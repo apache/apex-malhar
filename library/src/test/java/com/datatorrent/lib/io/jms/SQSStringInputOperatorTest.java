@@ -22,7 +22,11 @@ import java.io.File;
 
 import javax.jms.ConnectionFactory;
 
+import org.elasticmq.rest.sqs.SQSRestServer;
+import org.elasticmq.rest.sqs.SQSRestServerBuilder;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.internal.AssumptionViolatedException;
@@ -30,13 +34,15 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.commons.io.FileUtils;
 
 import com.amazon.sqs.javamessaging.SQSConnectionFactory;
-import com.amazonaws.auth.PropertiesFileCredentialsProvider;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
@@ -71,7 +77,17 @@ public class SQSStringInputOperatorTest
     JMSStringInputOperator operator;
     CollectorTestSink<Object> sink;
     Context.OperatorContext context;
+    String accessKeyId = "";
+    String secretKey = "";
     SQSTestBase testBase;
+
+    private void createElasticMQMockServer()
+    {
+      // just use x and y as access and secret keys respectively: not checked by the mock server
+      testBase.sqs = new AmazonSQSClient(new BasicAWSCredentials("x", "y"));
+      // have it talk to the embedded server
+      testBase.sqs.setEndpoint("http://localhost:9324");
+    }
 
     @Override
     protected void starting(Description description)
@@ -80,10 +96,8 @@ public class SQSStringInputOperatorTest
       final String className = description.getClassName();
 
       testBase = new SQSTestBase();
-      if (testBase.validateTestCreds() == false) {
-        return;
-      }
       testBase.generateCurrentQueueName(methodName);
+      createElasticMQMockServer();
       try {
         testBase.beforTest();
       } catch (AssumptionViolatedException ave) {
@@ -91,7 +105,6 @@ public class SQSStringInputOperatorTest
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
-
       baseDir = "target/" + className + "/" + methodName;
 
       Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
@@ -99,6 +112,7 @@ public class SQSStringInputOperatorTest
       attributeMap.put(Context.DAGContext.APPLICATION_PATH, baseDir);
 
       context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+
       operator = new JMSStringInputOperator();
       operator.setConnectionFactoryBuilder(new JMSBase.ConnectionFactoryBuilder()
       {
@@ -106,12 +120,42 @@ public class SQSStringInputOperatorTest
         @Override
         public ConnectionFactory buildConnectionFactory()
         {
+          AWSCredentialsProvider provider = new AWSCredentialsProvider()
+          {
+
+            @Override
+            public AWSCredentials getCredentials()
+            {
+              return new AWSCredentials()
+              {
+                @Override
+                public String getAWSAccessKeyId()
+                {
+                  return accessKeyId;
+                }
+
+                @Override
+                public String getAWSSecretKey()
+                {
+                  return secretKey;
+                }
+              };
+            }
+
+            @Override
+            public void refresh()
+            {
+              // nothing to do
+            }
+
+          };
           // Create the connection factory using the environment variable credential provider.
           // Connections this factory creates can talk to the queues in us-east-1 region.
           SQSConnectionFactory connectionFactory =
               SQSConnectionFactory.builder()
               .withRegion(Region.getRegion(Regions.US_EAST_1))
-              .withAWSCredentialsProvider(new PropertiesFileCredentialsProvider(testBase.getDevCredsFilePath()))
+              .withAWSCredentialsProvider(provider)
+              .withEndpoint("http://localhost:9324")
               .build();
           return connectionFactory;
         }
@@ -137,10 +181,6 @@ public class SQSStringInputOperatorTest
     @Override
     protected void finished(Description description)
     {
-      if (operator == null) {
-        Assert.assertFalse(testBase.validateTestCreds());
-        return;
-      }
       operator.deactivate();
       operator.teardown();
       try {
@@ -154,7 +194,20 @@ public class SQSStringInputOperatorTest
 
   @Rule
   public TestMeta testMeta = new TestMeta();
+  private static SQSRestServer mockServer;
 
+  @BeforeClass
+  public static void createMockServer()
+  {
+    // By default the urls will use http://localhost:9324 as the base URL
+    mockServer = SQSRestServerBuilder.start();
+  }
+
+  @AfterClass
+  public static void shutDownMockServer() throws InterruptedException
+  {
+    // shut down the mock server?
+  }
 
   /**
    * Basic string input test
@@ -164,7 +217,6 @@ public class SQSStringInputOperatorTest
   @Test
   public void testStringMsgInput() throws Exception
   {
-    testMeta.testBase.validateAssumption();
     testMeta.testBase.produceMsg("testStringMsgInput", 10, false);
     Thread.sleep(1000);
     testMeta.operator.emitTuples();
@@ -175,7 +227,6 @@ public class SQSStringInputOperatorTest
   @Test
   public void testRecoveryAndIdempotency() throws Exception
   {
-    testMeta.testBase.validateAssumption();
     testMeta.testBase.produceUniqueMsgs("testRecoveryAndIdempotency", 25, false);
     Thread.sleep(3000);
     testMeta.operator.beginWindow(1);
@@ -221,7 +272,6 @@ public class SQSStringInputOperatorTest
   @Test
   public void testFailureAfterPersistenceAndBeforeRecovery() throws Exception
   {
-    testMeta.testBase.validateAssumption();
     testMeta.sink = new CollectorTestSink<Object>()
     {
       @Override
