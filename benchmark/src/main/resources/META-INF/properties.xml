@@ -195,7 +195,7 @@
   </property>
   <property>
     <name>dt.application.ManagedStateBenchmark.operator.Store.execModeStr</name>
-    <!-- valid value are: INSERT, UPDATESYNC, UPDATEASYNC -->
+    <!-- valid value are: INSERT, UPDATE_SYNC, UPDATE_ASYNC -->
     <value>INSERT</value>
   </property>
 

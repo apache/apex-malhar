@@ -49,13 +49,13 @@ public class ManagedStateBenchmarkAppTest extends ManagedStateBenchmarkApp
   @Test
   public void testUpdateSync() throws Exception
   {
-    test(ExecMode.UPDATESYNC);
+    test(ExecMode.UPDATE_SYNC);
   }
 
   @Test
   public void testUpdateAsync() throws Exception
   {
-    test(ExecMode.UPDATEASYNC);
+    test(ExecMode.UPDATE_ASYNC);
   }
 
   @Test
