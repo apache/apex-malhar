@@ -147,11 +147,21 @@ public interface FileAccess extends Closeable
   {
     /**
      * Appends key/value pair to the underlying file.
+     * @deprecated use {@link FileWriter#append(Slice, Slice)} instead.
      * @param key
      * @param value
      * @throws IOException
      */
+    @Deprecated
     void append(byte[] key, byte[] value) throws IOException;
+
+    /**
+     * Appends key/value pair to the underlying file.
+     * @param key
+     * @param value
+     * @throws IOException
+     */
+    void append(Slice key, Slice value) throws IOException;
 
     /**
      * Returns number of bytes written to the underlying stream.

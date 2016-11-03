@@ -25,6 +25,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.io.file.tfile.TFile.Writer;
 
+import com.datatorrent.netlet.util.Slice;
+
 /**
  * TFileWriter
  *
@@ -56,6 +58,12 @@ public final class TFileWriter implements FileAccess.FileWriter
   public void append(byte[] key, byte[] value) throws IOException
   {
     writer.append(key, value);
+  }
+
+  @Override
+  public void append(Slice key, Slice value) throws IOException
+  {
+    writer.append(key.buffer, key.offset, key.length, value.buffer, value.offset, value.length);
   }
 
   @Override

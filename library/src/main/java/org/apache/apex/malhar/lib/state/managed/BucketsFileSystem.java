@@ -173,7 +173,7 @@ public class BucketsFileSystem implements ManagedStateComponent
           dataSize += key.length;
           dataSize += value.length;
 
-          fileWriter.append(key.toByteArray(), value.toByteArray());
+          fileWriter.append(key, value);
           if (firstKey == null) {
             firstKey = key;
           }
@@ -197,7 +197,7 @@ public class BucketsFileSystem implements ManagedStateComponent
           dataSize += key.length;
           dataSize += value.length;
 
-          fileWriter.append(key.toByteArray(), value.toByteArray());
+          fileWriter.append(key, value);
           if (firstKey == null) {
             firstKey = key;
           }
