@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.stream.api.util;
+package org.apache.apex.malhar.lib.utils;
 
 import org.apache.apex.malhar.lib.window.Tuple;
 

@@ -29,6 +29,9 @@ import java.util.concurrent.Callable;
 
 import org.joda.time.Duration;
 
+import org.apache.apex.malhar.lib.function.Function;
+import org.apache.apex.malhar.lib.function.Function.FlatMapFunction;
+import org.apache.apex.malhar.lib.function.FunctionOperator;
 import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.WindowOption;
 
@@ -36,9 +39,6 @@ import org.apache.apex.malhar.stream.api.ApexStream;
 import org.apache.apex.malhar.stream.api.CompositeStreamTransform;
 import org.apache.apex.malhar.stream.api.Option;
 import org.apache.apex.malhar.stream.api.WindowedStream;
-import org.apache.apex.malhar.stream.api.function.Function;
-import org.apache.apex.malhar.stream.api.function.Function.FlatMapFunction;
-import org.apache.apex.malhar.stream.api.operator.FunctionOperator;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.classification.InterfaceStability;

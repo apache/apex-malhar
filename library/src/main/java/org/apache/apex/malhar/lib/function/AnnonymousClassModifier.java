@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.stream.api.operator;
+package org.apache.apex.malhar.lib.function;
 
 import org.apache.hadoop.classification.InterfaceStability;
 

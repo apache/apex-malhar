@@ -18,7 +18,7 @@
  */
 package org.apache.apex.malhar.stream.sample;
 
-import org.apache.apex.malhar.stream.api.function.Function;
+import org.apache.apex.malhar.lib.function.Function;
 import org.apache.apex.malhar.stream.api.impl.ApexStreamImpl;
 
 import com.datatorrent.api.DAG;

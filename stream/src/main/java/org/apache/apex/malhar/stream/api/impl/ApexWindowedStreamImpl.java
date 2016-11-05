@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.joda.time.Duration;
 
+import org.apache.apex.malhar.lib.function.Function;
 import org.apache.apex.malhar.lib.window.Accumulation;
 import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.Tuple;
@@ -40,7 +41,6 @@ import org.apache.apex.malhar.lib.window.impl.WindowedOperatorImpl;
 import org.apache.apex.malhar.stream.api.ApexStream;
 import org.apache.apex.malhar.stream.api.Option;
 import org.apache.apex.malhar.stream.api.WindowedStream;
-import org.apache.apex.malhar.stream.api.function.Function;
 
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.apache.hadoop.classification.InterfaceStability;

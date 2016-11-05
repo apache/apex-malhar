@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.stream.api.operator;
+package org.apache.apex.malhar.lib.utils;
 
 
 import java.util.Map;
@@ -42,7 +42,7 @@ public class ByteArrayClassLoader extends ClassLoader
     this.classes = classes;
   }
 
-  protected Class findClass(String name) throws ClassNotFoundException
+  public Class findClass(String name) throws ClassNotFoundException
   {
     byte[] data = (byte[])((byte[])this.classes.get(name));
     if (data == null) {

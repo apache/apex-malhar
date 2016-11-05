@@ -26,10 +26,10 @@ import java.util.concurrent.Callable;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.function.Function;
+import org.apache.apex.malhar.lib.function.FunctionOperator;
 import org.apache.apex.malhar.stream.api.ApexStream;
-import org.apache.apex.malhar.stream.api.function.Function;
 import org.apache.apex.malhar.stream.api.impl.StreamFactory;
-import org.apache.apex.malhar.stream.api.operator.FunctionOperator;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
