@@ -18,6 +18,7 @@
  */
 package com.datatorrent.lib.parser;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import javax.xml.XMLConstants;
@@ -35,6 +36,7 @@ import javax.xml.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
@@ -42,7 +44,9 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
+import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator;
 import com.datatorrent.lib.util.ReusableStringReader;
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -61,11 +65,12 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @since 3.2.0
  */
 @InterfaceStability.Evolving
-public class XmlParser extends Parser<String, String>
+public class XmlParser extends Parser<String, String> implements Operator.ActivationListener<Context>
 {
   private String schemaXSDFile;
   private transient Unmarshaller unmarshaller;
   private transient Validator validator;
+  private transient Schema schema;
   private ReusableStringReader reader = new ReusableStringReader();
   public transient DefaultOutputPort<Document> parsedOutput = new DefaultOutputPort<Document>();
 
@@ -94,7 +99,7 @@ public class XmlParser extends Parser<String, String>
         DocumentBuilder builder;
         try {
           builder = factory.newDocumentBuilder();
-          Document doc = builder.parse(inputTuple);
+          Document doc = builder.parse(new InputSource(new ByteArrayInputStream(inputTuple.getBytes("UTF-8"))));
           parsedOutput.emit(doc);
 
         } catch (Exception e) {
@@ -132,8 +137,6 @@ public class XmlParser extends Parser<String, String>
   public void setup(com.datatorrent.api.Context.OperatorContext context)
   {
     try {
-      JAXBContext ctx = JAXBContext.newInstance(getClazz());
-      unmarshaller = ctx.createUnmarshaller();
       if (schemaXSDFile != null) {
         Path filePath = new Path(schemaXSDFile);
         Configuration configuration = new Configuration();
@@ -141,14 +144,11 @@ public class XmlParser extends Parser<String, String>
         FSDataInputStream inputStream = fs.open(filePath);
 
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        Schema schema = factory.newSchema(new StreamSource(inputStream));
-        unmarshaller.setSchema(schema);
+        schema = factory.newSchema(new StreamSource(inputStream));
         validator = schema.newValidator();
         fs.close();
       }
     } catch (SAXException e) {
-      DTThrowable.wrapIfChecked(e);
-    } catch (JAXBException e) {
       DTThrowable.wrapIfChecked(e);
     } catch (IOException e) {
       DTThrowable.wrapIfChecked(e);
@@ -166,4 +166,24 @@ public class XmlParser extends Parser<String, String>
   }
 
   public static Logger LOG = LoggerFactory.getLogger(Parser.class);
+
+  @Override
+  public void activate(Context context)
+  {
+    try {
+      JAXBContext ctx = JAXBContext.newInstance(getClazz());
+      unmarshaller = ctx.createUnmarshaller();
+      if (schemaXSDFile != null) {
+        unmarshaller.setSchema(schema);
+      }
+    } catch (JAXBException e) {
+      DTThrowable.wrapIfChecked(e);
+    }
+  }
+
+  @Override
+  public void deactivate()
+  {
+
+  }
 }
