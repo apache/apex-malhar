@@ -20,7 +20,6 @@
 package org.apache.apex.malhar.lib.fs;
 
 import javax.validation.constraints.Min;
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -30,8 +29,7 @@ import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Module;
-import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
-import com.datatorrent.lib.io.block.BlockMetadata;
+import com.datatorrent.lib.io.fs.FSInputModule.SequentialFileBlockMetadataCodec;
 import com.datatorrent.lib.io.fs.FileSplitterInput;
 
 /**
@@ -410,15 +408,5 @@ public class FSRecordReaderModule implements Module
   public void setRecordLength(int recordLength)
   {
     this.recordLength = recordLength;
-  }
-
-  public static class SequentialFileBlockMetadataCodec
-      extends KryoSerializableStreamCodec<BlockMetadata.FileBlockMetadata>
-  {
-    @Override
-    public int getPartition(BlockMetadata.FileBlockMetadata fileBlockMetadata)
-    {
-      return fileBlockMetadata.hashCode();
-    }
   }
 }
