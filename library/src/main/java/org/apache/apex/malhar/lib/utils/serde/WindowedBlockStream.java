@@ -246,4 +246,28 @@ public class WindowedBlockStream extends BlockStream implements WindowListener, 
     }
   }
 
+  /**
+   * This method releases all free memory immediately.
+   * This method will not be controlled by release strategy
+   */
+  public void releaseAllFreeMemory()
+  {
+    int releasedBlocks = 0;
+
+    Iterator<Integer> iter = freeBlockIds.iterator();
+    while (iter.hasNext()) {
+      //release blocks
+      int blockId = iter.next();
+      iter.remove();
+      blocks.remove(blockId);
+      releasedBlocks++;
+    }
+
+    /**
+     * report number of released blocks
+     */
+    if (releasedBlocks > 0) {
+      releaseStrategy.releasedBlocks(releasedBlocks);
+    }
+  }
 }

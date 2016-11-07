@@ -28,11 +28,9 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-import org.apache.apex.malhar.lib.state.managed.Bucket.ReadSource;
 import org.apache.apex.malhar.lib.utils.serde.AffixSerde;
 import org.apache.apex.malhar.lib.utils.serde.SerializationBuffer;
 import org.apache.apex.malhar.lib.utils.serde.StringSerde;
-import org.apache.apex.malhar.lib.utils.serde.WindowedBlockStream;
 
 import com.google.common.primitives.Longs;
 
@@ -216,20 +214,16 @@ public class DefaultBucketTest
     testMeta.defaultBucket.put(keySlice, 1, valueSlice);
     testMeta.defaultBucket.getKeyStream().endWindow();
     testMeta.defaultBucket.getValueStream().endWindow();
-
     long currentSize = testMeta.defaultBucket.getSizeInBytes();
-    testMeta.defaultBucket.freeMemory(Long.MAX_VALUE);
-    //call this method to invoke the release memory
-    testMeta.defaultBucket.get(keySlice, -1, ReadSource.MEMORY);
-    long sizeFreed = currentSize - testMeta.defaultBucket.getSizeInBytes();
 
-    SerializationBuffer tmpBuffer = new SerializationBuffer(new WindowedBlockStream());
-    tmpBuffer.writeBytes(keyPrefix);
-    tmpBuffer.writeString(key);
-    tmpBuffer.writeString(value);
-    int expectedFreedSize = tmpBuffer.toSlice().toByteArray().length; //key prefix, key length, key; value length, value
-    Assert.assertEquals("size freed", expectedFreedSize, sizeFreed);
-    Assert.assertEquals("existing size", currentSize - expectedFreedSize, testMeta.defaultBucket.getSizeInBytes());
+    testMeta.defaultBucket.checkpoint(1);
+    testMeta.defaultBucket.committed(1);
+
+    long freedMemory = testMeta.defaultBucket.freeMemory(Long.MAX_VALUE);
+    long sizeFreed = currentSize - testMeta.defaultBucket.getSizeInBytes();
+    Assert.assertEquals("size freed", freedMemory, sizeFreed);
+
+    Assert.assertEquals("existing size", currentSize - freedMemory, initSize);
 
     testMeta.defaultBucket.teardown();
   }

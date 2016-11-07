@@ -18,8 +18,6 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
-import java.util.Arrays;
-
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 
 /**
@@ -30,7 +28,6 @@ public class DefaultBlockReleaseStrategy implements BlockReleaseStrategy
 {
   public static final int DEFAULT_PERIOD = 60; // 60 reports
   private CircularFifoBuffer freeBlockNumQueue;
-  private Integer[] tmpArray;
 
   public DefaultBlockReleaseStrategy()
   {
@@ -40,8 +37,9 @@ public class DefaultBlockReleaseStrategy implements BlockReleaseStrategy
   public DefaultBlockReleaseStrategy(int period)
   {
     freeBlockNumQueue = new CircularFifoBuffer(period);
-    tmpArray = new Integer[period];
-    Arrays.fill(tmpArray, 0);
+    for (int i = 0; i < freeBlockNumQueue.maxSize(); ++i) {
+      freeBlockNumQueue.add(0);
+    }
   }
 
   /**
@@ -85,11 +83,13 @@ public class DefaultBlockReleaseStrategy implements BlockReleaseStrategy
     if (numReleasedBlocks < 0) {
       throw new IllegalArgumentException("Num of released blocks should not be negative");
     }
+
     /**
      * decrease by released blocks
      */
-    for (Object num : freeBlockNumQueue) {
-      freeBlockNumQueue.add(Math.max((Integer)num - numReleasedBlocks, 0));
+
+    for (int size = freeBlockNumQueue.size(); size > 0; --size) {
+      freeBlockNumQueue.add(Math.max((Integer)freeBlockNumQueue.remove() - numReleasedBlocks, 0));
     }
   }
 
