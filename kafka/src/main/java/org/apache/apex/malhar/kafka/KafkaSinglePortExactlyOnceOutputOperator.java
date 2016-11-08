@@ -32,14 +32,13 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
-
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.Callback;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
-
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 
@@ -55,6 +54,11 @@ import static org.apache.kafka.clients.consumer.ConsumerConfig.VALUE_DESERIALIZE
  * Kafka output operator with exactly once processing semantics.
  *<br>
  *
+ *  <p>
+ * <b>Requirements</b>
+ * <li>In the Kafka message, only Value will be available for users</li>
+ * <li>Users need to provide Value deserializers for Kafka message as it is used during recovery</li>
+ * <li>Value type should have well defined Equals & HashCodes, as during messages are stored in HashMaps for comparison.</li>
  * <p>
  * <b>Recovery handling</b>
  * <li> Offsets of the Kafka partitions are stored in the WindowDataManager at the endWindow</li>
@@ -106,8 +110,8 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
   private final int KAFKA_CONNECT_ATTEMPT = 10;
   private final String KEY_SEPARATOR = "#";
 
-  private final String KEY_DESERIALIZER = "org.apache.kafka.common.serialization.StringDeserializer";
-  private final String VALUE_DESERIALIZER = "org.apache.kafka.common.serialization.StringDeserializer";
+  public static final String KEY_DESERIALIZER = "org.apache.kafka.common.serialization.StringDeserializer";
+  public static final String KEY_SERIALIZER = "org.apache.kafka.common.serialization.StringSerializer";
 
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()
   {
@@ -121,12 +125,19 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
   @Override
   public void setup(Context.OperatorContext context)
   {
+    setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KEY_SERIALIZER);
+
+    if (getProperties().getProperty(VALUE_DESERIALIZER_CLASS_CONFIG) == null) {
+      throw new IllegalArgumentException("Value deserializer needs to be set for the operator, as it is used during recovery.");
+    }
+
     super.setup(context);
 
     this.operatorId = context.getId();
     this.windowDataManager.setup(context);
     this.appName = context.getValue(Context.DAGContext.APPLICATION_NAME);
     this.key = appName + KEY_SEPARATOR + (new Integer(operatorId));
+
     this.consumer = KafkaConsumerInit();
   }
 
@@ -211,7 +222,7 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
 
   private boolean alreadyInKafka(T message)
   {
-    if ( windowId <= windowDataManager.getLargestCompletedWindow() ) {
+    if (windowId <= windowDataManager.getLargestCompletedWindow()) {
       return true;
     }
 
@@ -219,17 +230,15 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
 
       Integer val = partialWindowTuples.get(message);
 
-      if ( val == 0 ) {
+      if (val == 0) {
         return false;
-      } else if ( val == 1 ) {
+      } else if (val == 1) {
         partialWindowTuples.remove(message);
       } else {
         partialWindowTuples.put(message, val - 1);
       }
-
       return true;
     }
-
     return false;
   }
 
@@ -245,10 +254,8 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
     Map<Integer,Long> parttionsAndOffset = new HashMap<>();
     consumer.assign(topicPartitionList);
 
-    for ( PartitionInfo partitionInfo: partitionInfoList) {
-
+    for (PartitionInfo partitionInfo: partitionInfoList) {
       try {
-
         TopicPartition topicPartition = new TopicPartition(getTopic(), partitionInfo.partition());
         if (latest) {
           consumer.seekToEnd(topicPartition);
@@ -256,7 +263,6 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
           consumer.seekToBeginning(topicPartition);
         }
         parttionsAndOffset.put(partitionInfo.partition(), consumer.position(topicPartition));
-
       } catch (Exception ex) {
         throw new RuntimeException(ex);
       }
@@ -280,13 +286,13 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
     }
 
     if (currentOffsets == null) {
-      logger.debug("No tuples found while building partial window " + windowDataManager.getLargestCompletedWindow());
+      logger.info("No tuples found while building partial window " + windowDataManager.getLargestCompletedWindow());
       return;
     }
 
     if (storedOffsets == null) {
 
-      logger.debug("Stored offset not available, seeking to the beginning of the Kafka Partition.");
+      logger.info("Stored offset not available, seeking to the beginning of the Kafka Partition.");
 
       try {
         storedOffsets = getPartitionsAndOffsets(false);
@@ -298,14 +304,12 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
     List<TopicPartition> topicPartitions = new ArrayList<>();
 
     for (Map.Entry<Integer,Long> entry: currentOffsets.entrySet()) {
-
       topicPartitions.add(new TopicPartition(getTopic(), entry.getKey()));
     }
 
     consumer.assign(topicPartitions);
 
     for (Map.Entry<Integer,Long> entry: currentOffsets.entrySet()) {
-
       Long storedOffset = 0L;
       Integer currentPartition = entry.getKey();
       Long currentOffset = entry.getValue();
@@ -327,9 +331,9 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
 
       int kafkaAttempt = 0;
 
-      while ( true ) {
+      while (true) {
 
-        ConsumerRecords<String, String> consumerRecords = consumer.poll(100);
+        ConsumerRecords<String, T> consumerRecords = consumer.poll(100);
 
         if (consumerRecords.count() == 0) {
           if (kafkaAttempt++ == KAFKA_CONNECT_ATTEMPT) {
@@ -341,15 +345,15 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
 
         boolean crossedBoundary = false;
 
-        for (ConsumerRecord consumerRecord : consumerRecords) {
+        for (ConsumerRecord<String, T> consumerRecord : consumerRecords) {
 
-          if (!doesKeyBelongsToThisInstance(operatorId, (String)consumerRecord.key())) {
+          if (!doesKeyBelongsToThisInstance(operatorId, consumerRecord.key())) {
             continue;
           }
 
-          T value = (T)consumerRecord.value();
+          T value = consumerRecord.value();
 
-          if ( partialWindowTuples.containsKey(value)) {
+          if (partialWindowTuples.containsKey(value)) {
             Integer count = partialWindowTuples.get(value);
             partialWindowTuples.put(value, count + 1);
           } else {
@@ -375,14 +379,14 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
 
     props.put(BOOTSTRAP_SERVERS_CONFIG, getProperties().get(BOOTSTRAP_SERVERS_CONFIG));
     props.put(KEY_DESERIALIZER_CLASS_CONFIG, KEY_DESERIALIZER);
-    props.put(VALUE_DESERIALIZER_CLASS_CONFIG, VALUE_DESERIALIZER);
+    props.put(VALUE_DESERIALIZER_CLASS_CONFIG, getProperties().get(VALUE_DESERIALIZER_CLASS_CONFIG));
 
     return new KafkaConsumer<>(props);
   }
 
   protected void sendTuple(T tuple)
   {
-    if ( alreadyInKafka(tuple) ) {
+    if (alreadyInKafka(tuple)) {
       return;
     }
 

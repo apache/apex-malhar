@@ -25,6 +25,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
+
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
@@ -33,32 +44,20 @@ import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.stram.StramLocalCluster;
-import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
-import org.apache.apex.malhar.lib.wal.WindowDataManager;
-import org.apache.commons.io.FileUtils;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import static org.apache.kafka.clients.consumer.ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.GROUP_ID_CONFIG;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG;
 
-@Ignore
 public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
 {
   String testName;
-  private static List<String> tupleCollection = new LinkedList<>();
-  private final String KEY_DESERIALIZER = "org.apache.kafka.common.serialization.StringDeserializer";
-  private final String VALUE_DESERIALIZER = "org.apache.kafka.common.serialization.StringDeserializer";
-  private final String KEY_SERIALIZER = "org.apache.kafka.common.serialization.StringSerializer";
-  private final String VALUE_SERIALIZER = "org.apache.kafka.common.serialization.StringSerializer";
+  private static List<Person> tupleCollection = new LinkedList<>();
+  private final String VALUE_DESERIALIZER = "org.apache.apex.malhar.kafka.KafkaHelper";
+  private final String VALUE_SERIALIZER = "org.apache.apex.malhar.kafka.KafkaHelper";
 
-  public static String APPLICATION_PATH = baseDir + File.separator + StramLocalCluster.class.getName() + File.separator;
+  public static String APPLICATION_PATH = baseDir + File.separator + "MyKafkaApp" + File.separator;
 
   @Before
   public void before()
@@ -71,14 +70,20 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     }
   }
 
+  @After
+  public void after()
+  {
+    FileUtils.deleteQuietly(new File(APPLICATION_PATH));
+  }
+
   @Test
   public void testExactlyOnceWithFailure() throws Exception
   {
-    List<String> toKafka = GenerateList();
+    List<Person> toKafka = GenerateList();
 
     sendDataToKafka(true, toKafka, true, false);
 
-    List<String> fromKafka = ReadFromKafka();
+    List<Person> fromKafka = ReadFromKafka();
 
     Assert.assertTrue("With Failure", compare(fromKafka, toKafka));
   }
@@ -86,11 +91,11 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
   @Test
   public void testExactlyOnceWithNoFailure() throws Exception
   {
-    List<String> toKafka = GenerateList();
+    List<Person> toKafka = GenerateList();
 
     sendDataToKafka(true, toKafka, false, false);
 
-    List<String> fromKafka = ReadFromKafka();
+    List<Person> fromKafka = ReadFromKafka();
 
     Assert.assertTrue("With No Failure", compare(fromKafka, toKafka));
   }
@@ -98,14 +103,14 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
   @Test
   public void testExactlyOnceWithDifferentTuplesAfterRecovery() throws Exception
   {
-    List<String> toKafka = GenerateList();
+    List<Person> toKafka = GenerateList();
 
     try {
       sendDataToKafka(true, toKafka, true, true);
     } catch (RuntimeException ex) {
 
       boolean expectedException = false;
-      if ( ex.getMessage().contains("Violates")) {
+      if (ex.getMessage().contains("Violates")) {
         expectedException = true;
       }
 
@@ -119,11 +124,11 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
   @Test
   public void testKafkaOutput() throws Exception
   {
-    List<String> toKafka = GenerateList();
+    List<Person> toKafka = GenerateList();
 
     sendDataToKafka(false, toKafka, false, false);
 
-    List<String> fromKafka = ReadFromKafka();
+    List<Person> fromKafka = ReadFromKafka();
 
     Assert.assertTrue("No failure", compare(fromKafka, toKafka));
   }
@@ -131,38 +136,42 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
   @Test
   public void testKafkaOutputWithFailure() throws Exception
   {
-    List<String> toKafka = GenerateList();
+    List<Person> toKafka = GenerateList();
 
     sendDataToKafka(false, toKafka, true, true);
 
-    List<String> fromKafka = ReadFromKafka();
+    List<Person> fromKafka = ReadFromKafka();
 
     Assert.assertTrue("No failure", fromKafka.size() > toKafka.size());
   }
 
-  private void sendDataToKafka(boolean exactlyOnce, List<String> toKafka, boolean hasFailure, boolean differentTuplesAfterRecovery) throws InterruptedException
+  private void sendDataToKafka(boolean exactlyOnce, List<Person> toKafka, boolean hasFailure, boolean differentTuplesAfterRecovery) throws InterruptedException
   {
     Properties props = new Properties();
     props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, VALUE_SERIALIZER);
-    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KEY_SERIALIZER);
+    if (!exactlyOnce) {
+      props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaSinglePortExactlyOnceOutputOperator.KEY_SERIALIZER);
+    }
     props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, getClusterConfig());
+    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, VALUE_DESERIALIZER);
 
     Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(Context.DAGContext.APPLICATION_NAME, "MyKafkaApp");
+    attributeMap.put(DAG.APPLICATION_PATH, APPLICATION_PATH);
 
     OperatorContextTestHelper.TestIdOperatorContext operatorContext = new OperatorContextTestHelper.TestIdOperatorContext(2, attributeMap);
 
     cleanUp(operatorContext);
 
     Operator kafkaOutput;
-    DefaultInputPort<String> inputPort;
+    DefaultInputPort<Person> inputPort;
 
-    if ( exactlyOnce ) {
-      KafkaSinglePortExactlyOnceOutputOperator kafkaOutputTemp = ResetKafkaOutput(testName, props, operatorContext);
+    if (exactlyOnce) {
+      KafkaSinglePortExactlyOnceOutputOperator<Person> kafkaOutputTemp = ResetKafkaOutput(testName, props, operatorContext);
       inputPort = kafkaOutputTemp.inputPort;
       kafkaOutput = kafkaOutputTemp;
     } else {
-      KafkaSinglePortOutputOperator<String,String> kafkaOutputTemp = ResetKafkaSimpleOutput(testName, props, operatorContext);
+      KafkaSinglePortOutputOperator<String, Person> kafkaOutputTemp = ResetKafkaSimpleOutput(testName, props, operatorContext);
       inputPort = kafkaOutputTemp.inputPort;
       kafkaOutput = kafkaOutputTemp;
     }
@@ -181,14 +190,13 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     inputPort.getSink().put(toKafka.get(6));
     inputPort.getSink().put(toKafka.get(7));
 
-    if ( hasFailure ) {
-
-      if ( exactlyOnce ) {
-        KafkaSinglePortExactlyOnceOutputOperator kafkaOutputTemp = ResetKafkaOutput(testName, props, operatorContext);
+    if (hasFailure) {
+      if (exactlyOnce) {
+        KafkaSinglePortExactlyOnceOutputOperator<Person> kafkaOutputTemp = ResetKafkaOutput(testName, props, operatorContext);
         inputPort = kafkaOutputTemp.inputPort;
         kafkaOutput = kafkaOutputTemp;
       } else {
-        KafkaSinglePortOutputOperator<String,String> kafkaOutputTemp = ResetKafkaSimpleOutput(testName, props, operatorContext);
+        KafkaSinglePortOutputOperator<String,Person> kafkaOutputTemp = ResetKafkaSimpleOutput(testName, props, operatorContext);
         inputPort = kafkaOutputTemp.inputPort;
         kafkaOutput = kafkaOutputTemp;
       }
@@ -217,9 +225,9 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     cleanUp(operatorContext);
   }
 
-  private KafkaSinglePortExactlyOnceOutputOperator<String> ResetKafkaOutput(String testName, Properties props, Context.OperatorContext operatorContext)
+  private KafkaSinglePortExactlyOnceOutputOperator<Person> ResetKafkaOutput(String testName, Properties props, Context.OperatorContext operatorContext)
   {
-    KafkaSinglePortExactlyOnceOutputOperator<String> kafkaOutput = new KafkaSinglePortExactlyOnceOutputOperator<>();
+    KafkaSinglePortExactlyOnceOutputOperator<Person> kafkaOutput = new KafkaSinglePortExactlyOnceOutputOperator<>();
     kafkaOutput.setTopic(testName);
     kafkaOutput.setProperties(props);
     kafkaOutput.setup(operatorContext);
@@ -227,9 +235,9 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     return kafkaOutput;
   }
 
-  private KafkaSinglePortOutputOperator<String,String> ResetKafkaSimpleOutput(String testName, Properties props, Context.OperatorContext operatorContext)
+  private KafkaSinglePortOutputOperator<String, Person> ResetKafkaSimpleOutput(String testName, Properties props, Context.OperatorContext operatorContext)
   {
-    KafkaSinglePortOutputOperator<String,String> kafkaOutput = new KafkaSinglePortOutputOperator<>();
+    KafkaSinglePortOutputOperator<String,Person> kafkaOutput = new KafkaSinglePortOutputOperator<>();
     kafkaOutput.setTopic(testName);
     kafkaOutput.setProperties(props);
     kafkaOutput.setup(operatorContext);
@@ -239,7 +247,7 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
 
   private void cleanUp(Context.OperatorContext operatorContext)
   {
-    WindowDataManager windowDataManager = new FSWindowDataManager();
+    FSWindowDataManager windowDataManager = new FSWindowDataManager();
     windowDataManager.setup(operatorContext);
     try {
       windowDataManager.committed(windowDataManager.getLargestCompletedWindow());
@@ -248,7 +256,7 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     }
   }
 
-  private boolean compare(List<String> fromKafka, List<String> toKafka)
+  private boolean compare(List<Person> fromKafka, List<Person> toKafka)
   {
     if (fromKafka.size() != toKafka.size()) {
       return false;
@@ -272,19 +280,18 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
         (hasMultiCluster && hasMultiPartition ? "," + l  + TEST_KAFKA_BROKER_PORT[1][1] : "");
   }
 
-  private List<String> GenerateList()
+  private List<Person> GenerateList()
   {
-    List<String> strings = new ArrayList<>();
+    List<Person> people = new ArrayList<>();
 
     for (Integer i = 0; i < 12; ++i) {
-
-      strings.add(i.toString());
+      people.add(new Person(i.toString(), i));
     }
 
-    return strings;
+    return people;
   }
 
-  public List<String> ReadFromKafka()
+  private List<Person> ReadFromKafka()
   {
     tupleCollection.clear();
 
@@ -292,10 +299,9 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     Properties props = new Properties();
     props.put(BOOTSTRAP_SERVERS_CONFIG, getClusterConfig());
     props.put(BOOTSTRAP_SERVERS_CONFIG, getClusterConfig());
-    props.put(KEY_DESERIALIZER_CLASS_CONFIG, KEY_DESERIALIZER);
+    props.put(KEY_DESERIALIZER_CLASS_CONFIG, KafkaSinglePortExactlyOnceOutputOperator.KEY_DESERIALIZER);
     props.put(VALUE_DESERIALIZER_CLASS_CONFIG, VALUE_DESERIALIZER);
     props.put(GROUP_ID_CONFIG, "KafkaTest");
-
 
     LocalMode lma = LocalMode.newInstance();
     DAG dag = lma.getDAG();
@@ -316,7 +322,6 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     // Connect ports
     dag.addStream("Kafka message", node.outputPort, collector1.inputPort);
 
-
     // Create local cluster
     final LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
@@ -328,7 +333,6 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
 
   public static class CollectorModule extends BaseOperator
   {
-
     public final transient CollectorInputPort inputPort = new CollectorInputPort(this);
 
     long currentWindowId;
@@ -353,7 +357,6 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     {
       super.endWindow();
     }
-
   }
 
   public static class CollectorInputPort extends DefaultInputPort<byte[]>
@@ -368,8 +371,52 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     @Override
     public void process(byte[] bt)
     {
-      String tuple = new String(bt);
-      tupleCollection.add(tuple);
+      tupleCollection.add(new KafkaHelper().deserialize("r", bt));
+    }
+  }
+
+  public static class Person
+  {
+    public String name;
+    public Integer age;
+
+    public Person(String name, Integer age)
+    {
+      this.name = name;
+      this.age = age;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+
+      Person person = (Person)o;
+
+      if (name != null ? !name.equals(person.name) : person.name != null) {
+        return false;
+      }
+
+      return age != null ? age.equals(person.age) : person.age == null;
+    }
+
+    @Override
+    public int hashCode()
+    {
+      int result = name != null ? name.hashCode() : 0;
+      result = 31 * result + (age != null ? age.hashCode() : 0);
+      return result;
+    }
+
+    @Override
+    public String toString()
+    {
+      return name + age.toString();
     }
   }
 }
