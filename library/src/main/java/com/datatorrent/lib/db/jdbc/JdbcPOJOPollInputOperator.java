@@ -195,11 +195,11 @@ public class JdbcPOJOPollInputOperator extends AbstractJdbcPollInputOperator<Obj
         int type = rsMetaData.getColumnType(i);
         String name = rsMetaData.getColumnName(i);
         LOG.debug("column name {} type {}", name, type);
-        nameToType.put(name, type);
+        nameToType.put(name.toUpperCase(), type);
       }
 
       for (FieldInfo fieldInfo : fieldInfos) {
-        columnDataTypes.add(nameToType.get(fieldInfo.getColumnName()));
+        columnDataTypes.add(nameToType.get(fieldInfo.getColumnName().toUpperCase()));
       }
     }
   }
