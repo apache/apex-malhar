@@ -34,6 +34,7 @@ import com.google.common.collect.Maps;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Operator;
+import com.datatorrent.benchmark.monitor.ResourceMonitorService;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.netlet.util.Slice;
@@ -51,7 +52,8 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
     DO_NOTHING
   }
 
-  private static final int numOfWindowPerStatistics = 120;
+  private int numOfWindowPerStatistics = 120;
+  private static final int BUCKET_NUM = 20;
 
   //this is the store we are going to use
   private ManagedTimeUnifiedStateImpl store;
@@ -62,9 +64,10 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
   private int windowCountPerStatistics = 0;
   private long statisticsBeginTime = 0;
 
-  private ExecMode execMode = ExecMode.INSERT;
+  public ExecMode execMode = ExecMode.INSERT;
   private int timeRange = 1000 * 60;
 
+  private transient ResourceMonitorService monitorService;
   public final transient DefaultInputPort<KeyValPair<byte[], byte[]>> input = new DefaultInputPort<KeyValPair<byte[], byte[]>>()
   {
     @Override
@@ -79,11 +82,13 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
   {
     logger.info("The execute mode is: {}", execMode.name());
     store.setup(context);
+    monitorService = ResourceMonitorService.create(60000).start();
   }
 
   @Override
   public void teardown()
   {
+    monitorService.shutdownNow();
   }
 
   @Override
@@ -283,4 +288,8 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
     this.timeRange = timeRange;
   }
 
+  public void setNumOfWindowPerStatistics(int numOfWindowPerStatistics)
+  {
+    this.numOfWindowPerStatistics = numOfWindowPerStatistics;
+  }
 }

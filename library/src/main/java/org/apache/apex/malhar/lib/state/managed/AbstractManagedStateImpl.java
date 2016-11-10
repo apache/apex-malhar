@@ -46,7 +46,6 @@ import com.google.common.collect.Multimaps;
 import com.google.common.util.concurrent.Futures;
 
 import com.datatorrent.api.Component;
-import com.datatorrent.api.Context.DAGContext;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.Stateless;
@@ -158,8 +157,11 @@ public abstract class AbstractManagedStateImpl
 
   @NotNull
   @FieldSerializer.Bind(JavaSerializer.class)
-  private Duration checkStateSizeInterval = Duration.millis(
-      DAGContext.STREAMING_WINDOW_SIZE_MILLIS.defaultValue * OperatorContext.APPLICATION_WINDOW_COUNT.defaultValue);
+
+  //checkStateSizeInterval should not depend on APPLICATION_WINDOW_COUNT as it could be large and the memory can't hold all data
+//  private Duration checkStateSizeInterval = Duration.millis(
+//      DAGContext.STREAMING_WINDOW_SIZE_MILLIS.defaultValue * OperatorContext.APPLICATION_WINDOW_COUNT.defaultValue);
+  private Duration checkStateSizeInterval = Duration.millis(60000);
 
   @FieldSerializer.Bind(JavaSerializer.class)
   private Duration durationPreventingFreeingSpace;
@@ -395,6 +397,17 @@ public abstract class AbstractManagedStateImpl
         throw new RuntimeException("committing " + windowId, e);
       }
     }
+
+    //for test
+    LOG.info("==== Committed: windowId: {}", windowId % 100000);
+    StringBuilder sb = new StringBuilder();
+    for (Bucket bucket : buckets) {
+      if (bucket != null) {
+        sb.append(System.identityHashCode(bucket) % 100000).append(": ").append(((Bucket.DefaultBucket)bucket).getMemoryUsage());
+      }
+    }
+    LOG.info("==== buckets:\n {}", sb.toString());
+
   }
 
   /**

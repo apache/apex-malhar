@@ -48,6 +48,7 @@ import com.datatorrent.lib.util.KeyValPair;
 @ApplicationAnnotation(name = "ManagedStateBenchmark")
 public class ManagedStateBenchmarkApp implements StreamingApplication
 {
+  public static final int APP_WINDOWS = 20;
   protected static final String PROP_STORE_PATH = "dt.application.ManagedStateBenchmark.storeBasePath";
   protected static final String DEFAULT_BASE_PATH = "ManagedStateBenchmark/Store";
 
@@ -64,6 +65,7 @@ public class ManagedStateBenchmarkApp implements StreamingApplication
     dag.setAttribute(gen, OperatorContext.STATS_LISTENERS, Lists.newArrayList((StatsListener)sl));
 
     storeOperator = new StoreOperator();
+    storeOperator.setNumOfWindowPerStatistics(1);
     storeOperator.setStore(createStore(conf));
     storeOperator.setTimeRange(timeRange);
     storeOperator = dag.addOperator("Store", storeOperator);
@@ -71,6 +73,7 @@ public class ManagedStateBenchmarkApp implements StreamingApplication
     dag.setAttribute(storeOperator, OperatorContext.STATS_LISTENERS, Lists.newArrayList((StatsListener)sl));
 
     dag.addStream("Events", gen.data, storeOperator.input).setLocality(Locality.CONTAINER_LOCAL);
+    dag.setAttribute(OperatorContext.APPLICATION_WINDOW_COUNT, APP_WINDOWS);
   }
 
   public ManagedTimeUnifiedStateImpl createStore(Configuration conf)
@@ -96,7 +99,7 @@ public class ManagedStateBenchmarkApp implements StreamingApplication
     public final transient DefaultOutputPort<KeyValPair<byte[], byte[]>> data = new DefaultOutputPort<KeyValPair<byte[], byte[]>>();
     int emitBatchSize = 1000;
     byte[] val = ByteBuffer.allocate(1000).putLong(1234).array();
-    int rate = 20000;
+    int rate = 20000 * APP_WINDOWS;
     int emitCount = 0;
     private final Random random = new Random();
     private int range = 1000 * 60; // one minute range of hot keys

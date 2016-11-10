@@ -431,21 +431,62 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
       }
     }
 
+
+    //for test
+    private long freedWindowId = -2;
+
     /**
      * Free memory up to the given windowId
      * This method will be called by another thread. Adding concurrency control to Stream would impact the performance.
      * This method only calculates the size of the memory that could be released and then sends free memory request to the operator thread
+     *
+     * We intend to manage memory by keyStream and valueStream. But the we can't avoid caller use other mechanism to manage memory.
+     * It is required to cleanup maps in this case.
      */
     @Override
     public long freeMemory(long windowId) throws IOException
     {
-      // calculate the size first and then send the release memory request. It could reduce the chance of conflict and increase the performance.
-      long size = keyStream.dataSizeUpToWindow(windowId) + valueStream.dataSizeUpToWindow(windowId);
+
+      long memoryFreed = 0;
+      Long clearWindowId;
+
+      while ((clearWindowId = committedData.floorKey(windowId)) != null) {
+        Map<Slice, BucketedValue> windowData = committedData.remove(clearWindowId);
+
+        for (Map.Entry<Slice, BucketedValue> entry: windowData.entrySet()) {
+          memoryFreed += entry.getKey().length + entry.getValue().getSize();
+        }
+      }
+      fileCache.clear();
+      if (cachedBucketMetas != null) {
+
+        for (BucketsFileSystem.TimeBucketMeta tbm : cachedBucketMetas.values()) {
+          FileAccess.FileReader reader = readers.remove(tbm.getTimeBucketId());
+          if (reader != null) {
+            memoryFreed += tbm.getSizeInBytes();
+            reader.close();
+          }
+        }
+
+      }
+      sizeInBytes.getAndAdd(-memoryFreed);
+
+      //for test
+      if (memoryFreed > 0 || windowId > freedWindowId) {
+        LOG.info("==== freeMemory: bucket: {}; window: {}, freed space: {}, committedData size: {}", System.identityHashCode(this) % 100000, windowId % 100000, memoryFreed, committedData.size());
+        freedWindowId = windowId;
+      }
+
+      LOG.debug("space freed {} {}", bucketId, memoryFreed);
+
+      //add the windowId to the queue to let operator thread release memory from keyStream and valueStream
       windowsForFreeMemory.add(windowId);
-      return size;
+
+      return memoryFreed;
     }
 
     /**
+     * Release the memory managed by keyStream and valueStream.
      * This operation must be called from operator thread. It won't do anything if no memory to be freed
      */
     protected long releaseMemory()
@@ -459,16 +500,21 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
         memoryFreed += originSize - (keyStream.size() + valueStream.size());
       }
 
-      if (memoryFreed > 0) {
-        LOG.debug("Total freed memory size: {}", memoryFreed);
-        sizeInBytes.getAndAdd(-memoryFreed);
-      }
+      //release the free memory immediately
+      keyStream.releaseAllFreeMemory();
+      valueStream.releaseAllFreeMemory();
+
       return memoryFreed;
     }
 
+    private long lastCheckpointWindowId = 0;
     @Override
     public Map<Slice, BucketedValue> checkpoint(long windowId)
     {
+      //For debug only
+//      lastCheckpointWindowId = windowId;
+//      LOG.info("==== checkpoint: Bucket: {}, windowId: {}", System.identityHashCode(this) % 100000, windowId % 100000);
+
       releaseMemory();
       try {
         //transferring the data from flash to check-pointed state in finally block and re-initializing the flash.
@@ -479,9 +525,19 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
       }
     }
 
+    private long lastCommittedWindowId = 0;
     @Override
     public void committed(long committedWindowId)
     {
+      //For debug only
+//      LOG.info("==== committed: bucket: {}, windowId: {}", System.identityHashCode(this) % 100000, committedWindowId % 100000);
+//      lastCommittedWindowId = committedWindowId;
+//      if(lastCommittedWindowId < lastCheckpointWindowId) {
+//        LOG.warn("==== committed before checkpoint: bucket: {}, last committed id: {}; last checkpoint id: {}", System.identityHashCode(this) % 100000,
+//          lastCommittedWindowId % 100000, lastCheckpointWindowId % 100000);
+//      }
+
+      releaseMemory();
       Iterator<Map.Entry<Long, Map<Slice, BucketedValue>>> stateIterator = checkpointedData.entrySet().iterator();
 
       while (stateIterator.hasNext()) {
@@ -518,7 +574,9 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
             }
           }
           sizeInBytes.getAndAdd(-memoryFreed);
-          committedData.put(savedWindow, bucketData);
+          if (!bucketData.isEmpty()) {
+            committedData.put(savedWindow, bucketData);
+          }
           stateIterator.remove();
         } else {
           break;
@@ -556,6 +614,17 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
         builder.append(">");
         throw new RuntimeException(builder.toString());
       }
+    }
+
+    public String getMemoryUsage()
+    {
+      if (flash.size() == 0 || checkpointedData.size() == 0 || committedData.size() == 0) {
+        return "";
+      }
+      StringBuilder sb = new StringBuilder();
+      sb.append("flash: " + flash.size() + "; checkpointed: " + checkpointedData.size() + "; committed: "
+          + committedData.size()).append("\n");
+      return sb.toString();
     }
 
     @VisibleForTesting

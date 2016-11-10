@@ -72,7 +72,7 @@ public class ManagedStateBenchmarkAppTest extends ManagedStateBenchmarkApp
     DAG dag = lma.getDAG();
 
     super.populateDAG(dag, conf);
-    storeOperator.setExecMode(exeMode);
+    storeOperator.execMode = exeMode;
 
     StreamingApplication app = new StreamingApplication()
     {
@@ -86,7 +86,7 @@ public class ManagedStateBenchmarkAppTest extends ManagedStateBenchmarkApp
 
     // Create local cluster
     final LocalMode.Controller lc = lma.getController();
-    lc.run(300000);
+    lc.run(3000000);
 
     lc.shutdown();
   }
