@@ -29,6 +29,7 @@ import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.lib.io.block.AbstractBlockReader;
 import com.datatorrent.lib.io.block.BlockMetadata;
 import com.datatorrent.lib.io.block.FSSliceReader;
+import com.datatorrent.lib.io.block.ReaderContext;
 import com.datatorrent.netlet.util.Slice;
 
 /**
@@ -98,6 +99,9 @@ public class FSInputModule implements Module
     }
     if (blockSize != 0) {
       fileSplitter.setBlockSize(blockSize);
+      if (blockReader.getReaderContext() instanceof ReaderContext.FixedBytesReaderContext) {
+        ((ReaderContext.FixedBytesReaderContext)blockReader.getReaderContext()).setLength((int)blockSize);
+      }
     }
 
     FileSplitterInput.TimeBasedDirectoryScanner fileScanner = fileSplitter.getScanner();

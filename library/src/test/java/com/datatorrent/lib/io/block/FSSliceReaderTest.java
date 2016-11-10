@@ -24,12 +24,17 @@ import java.io.IOException;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
@@ -37,6 +42,8 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.netlet.util.Slice;
+
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link FSSliceReader}.
@@ -135,4 +142,37 @@ public class FSSliceReaderTest
     FileUtils.contentEquals(testMeta.dataFile, outputFile);
   }
 
+  @Mock
+  FileSystem fileSystem;
+
+  public class FSTestReader extends FSSliceReader
+  {
+    @Override
+    protected FileSystem getFSInstance() throws IOException
+    {
+      return fileSystem;
+    }
+  }
+
+  @Before
+  public void beforeTest()
+  {
+    MockitoAnnotations.initMocks(this);
+  }
+
+  @Test
+  public void testBlockSize() throws IOException
+  {
+    long blockSize = 1000;
+    Path path = new Path(testMeta.output);
+    when(fileSystem.getDefaultBlockSize(path)).thenReturn(blockSize);
+    Attribute.AttributeMap.DefaultAttributeMap readerAttr = new Attribute.AttributeMap.DefaultAttributeMap();
+    readerAttr.put(DAG.APPLICATION_ID, Long.toHexString(System.currentTimeMillis()));
+    readerAttr.put(Context.OperatorContext.SPIN_MILLIS, 10);
+
+    FSTestReader reader = new FSTestReader();
+    reader.setBasePath(testMeta.output);
+    reader.setup(new OperatorContextTestHelper.TestIdOperatorContext(1, readerAttr));
+    Assert.assertEquals("Block Size", blockSize, (long)((ReaderContext.FixedBytesReaderContext)reader.getReaderContext()).getLength());
+  }
 }

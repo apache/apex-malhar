@@ -18,6 +18,9 @@
  */
 package com.datatorrent.lib.io.block;
 
+import org.apache.hadoop.fs.Path;
+
+import com.datatorrent.api.Context;
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.netlet.util.Slice;
 
@@ -36,6 +39,15 @@ public class FSSliceReader extends AbstractFSBlockReader<Slice>
   {
     super();
     this.readerContext = new ReaderContext.FixedBytesReaderContext<>();
+  }
+
+  @Override
+  public void setup(Context.OperatorContext context)
+  {
+    super.setup(context);
+    if (basePath != null && this.readerContext instanceof ReaderContext.FixedBytesReaderContext) {
+      ((ReaderContext.FixedBytesReaderContext)this.readerContext).setLength((int)fs.getDefaultBlockSize(new Path(basePath)));
+    }
   }
 
   @Override
