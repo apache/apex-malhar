@@ -618,8 +618,12 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
 
     public String getMemoryUsage()
     {
+      if (flash.size() == 0 || checkpointedData.size() == 0 || committedData.size() == 0) {
+        return "";
+      }
       StringBuilder sb = new StringBuilder();
-      sb.append("flash: " + flash.size() + "; checkpointed: " + checkpointedData.size() + "; committed: " + committedData.size());
+      sb.append("flash: " + flash.size() + "; checkpointed: " + checkpointedData.size() + "; committed: "
+          + committedData.size()).append("\n");
       return sb.toString();
     }
 

@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeSet;
-
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -87,6 +86,7 @@ class StateTracker extends TimerTask
       } finally {
         bucketAcessLock.writeLock().unlock();
       }
+      accessedBucketIds.clear();
       lastUpdateAccessTime = System.currentTimeMillis();
     }
   }
@@ -104,7 +104,6 @@ class StateTracker extends TimerTask
           bytesSum += bucket.getSizeInBytes();
         }
       }
-
 
       if (bytesSum > managedStateImpl.getMaxMemorySize()) {
         Duration duration = managedStateImpl.getDurationPreventingFreeingSpace();
@@ -184,7 +183,7 @@ class StateTracker extends TimerTask
         if (o1.bucketId == o2.bucketId) {
           return 0;
         }
-        return (int)(o1.lastAccessedTime - o2.lastAccessedTime);
+        return (int)(o1.bucketId - o2.bucketId);
       }
     }
 
