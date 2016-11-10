@@ -56,11 +56,12 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
   //this is the store we are going to use
   private ManagedTimeUnifiedStateImpl store;
 
-  private long lastCheckPointWindowId = -1;
-  private long currentWindowId;
   private long tupleCount = 0;
   private int windowCountPerStatistics = 0;
   private long statisticsBeginTime = 0;
+  private long applicationBeginTime = 0;
+  private long totalTupleCount = 0;
+
 
   private ExecMode execMode = ExecMode.INSERT;
   private int timeRange = 1000 * 60;
@@ -89,10 +90,12 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
   @Override
   public void beginWindow(long windowId)
   {
-    currentWindowId = windowId;
     store.beginWindow(windowId);
     if (statisticsBeginTime <= 0) {
       statisticsBeginTime = System.currentTimeMillis();
+    }
+    if (applicationBeginTime <= 0) {
+      applicationBeginTime = System.currentTimeMillis();
     }
   }
 
@@ -226,7 +229,7 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
   public void beforeCheckpoint(long windowId)
   {
     store.beforeCheckpoint(windowId);
-    logger.info("beforeCheckpoint {}", windowId);
+    logger.debug("beforeCheckpoint {}", windowId);
   }
 
   public ManagedTimeUnifiedStateImpl getStore()
@@ -241,8 +244,12 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
 
   private void logStatistics()
   {
-    long spentTime = System.currentTimeMillis() - statisticsBeginTime;
-    logger.info("Windows: {}; Time Spent: {}, Processed tuples: {}, rate per second: {}", windowCountPerStatistics, spentTime, tupleCount, tupleCount * 1000 / spentTime);
+    final long now = System.currentTimeMillis();
+    long spentTime = now - statisticsBeginTime;
+    long totalSpentTime = now - applicationBeginTime;
+    totalTupleCount += tupleCount;
+    logger.info("Windows: {}; Time Spent: {}, Processed tuples: {}, rate per second: {}; total rate: {}", windowCountPerStatistics, spentTime, tupleCount, tupleCount * 1000 / spentTime,
+        totalTupleCount * 1000 / totalSpentTime);
 
     statisticsBeginTime = System.currentTimeMillis();
     tupleCount = 0;

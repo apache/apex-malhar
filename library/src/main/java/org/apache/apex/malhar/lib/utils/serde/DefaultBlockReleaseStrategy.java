@@ -18,9 +18,8 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
-import java.util.Arrays;
-
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 /**
  * This implementation get the minimum number of free blocks in the period to release.
@@ -30,7 +29,6 @@ public class DefaultBlockReleaseStrategy implements BlockReleaseStrategy
 {
   public static final int DEFAULT_PERIOD = 60; // 60 reports
   private CircularFifoBuffer freeBlockNumQueue;
-  private Integer[] tmpArray;
 
   public DefaultBlockReleaseStrategy()
   {
@@ -40,8 +38,6 @@ public class DefaultBlockReleaseStrategy implements BlockReleaseStrategy
   public DefaultBlockReleaseStrategy(int period)
   {
     freeBlockNumQueue = new CircularFifoBuffer(period);
-    tmpArray = new Integer[period];
-    Arrays.fill(tmpArray, 0);
   }
 
   /**
@@ -54,7 +50,7 @@ public class DefaultBlockReleaseStrategy implements BlockReleaseStrategy
     if (freeBlockNum < 0) {
       throw new IllegalArgumentException("The number of free blocks could not less than zero.");
     }
-    freeBlockNumQueue.add(freeBlockNum);
+    freeBlockNumQueue.add(new MutableInt(freeBlockNum));
   }
 
   /**
@@ -66,7 +62,7 @@ public class DefaultBlockReleaseStrategy implements BlockReleaseStrategy
   {
     int minNum = Integer.MAX_VALUE;
     for (Object num : freeBlockNumQueue) {
-      minNum = Math.min((Integer)num, minNum);
+      minNum = Math.min(((MutableInt)num).intValue(), minNum);
     }
     return minNum;
   }
@@ -89,7 +85,7 @@ public class DefaultBlockReleaseStrategy implements BlockReleaseStrategy
      * decrease by released blocks
      */
     for (Object num : freeBlockNumQueue) {
-      freeBlockNumQueue.add(Math.max((Integer)num - numReleasedBlocks, 0));
+      ((MutableInt)num).setValue(Math.max(((MutableInt)num).intValue() - numReleasedBlocks, 0));
     }
   }
 

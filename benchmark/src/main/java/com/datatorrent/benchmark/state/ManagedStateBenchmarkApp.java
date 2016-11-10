@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.Random;
 
+import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +79,7 @@ public class ManagedStateBenchmarkApp implements StreamingApplication
     String basePath = getStoreBasePath(conf);
     ManagedTimeUnifiedStateImpl store = new ManagedTimeUnifiedStateImpl();
     ((TFileImpl.DTFileImpl)store.getFileAccess()).setBasePath(basePath);
+    store.getTimeBucketAssigner().setBucketSpan(Duration.millis(10000));
     return store;
   }
 

@@ -32,7 +32,6 @@ import org.apache.apex.malhar.lib.state.managed.Bucket.ReadSource;
 import org.apache.apex.malhar.lib.utils.serde.AffixSerde;
 import org.apache.apex.malhar.lib.utils.serde.SerializationBuffer;
 import org.apache.apex.malhar.lib.utils.serde.StringSerde;
-import org.apache.apex.malhar.lib.utils.serde.WindowedBlockStream;
 
 import com.google.common.primitives.Longs;
 
@@ -223,13 +222,8 @@ public class DefaultBucketTest
     testMeta.defaultBucket.get(keySlice, -1, ReadSource.MEMORY);
     long sizeFreed = currentSize - testMeta.defaultBucket.getSizeInBytes();
 
-    SerializationBuffer tmpBuffer = new SerializationBuffer(new WindowedBlockStream());
-    tmpBuffer.writeBytes(keyPrefix);
-    tmpBuffer.writeString(key);
-    tmpBuffer.writeString(value);
-    int expectedFreedSize = tmpBuffer.toSlice().toByteArray().length; //key prefix, key length, key; value length, value
-    Assert.assertEquals("size freed", expectedFreedSize, sizeFreed);
-    Assert.assertEquals("existing size", currentSize - expectedFreedSize, testMeta.defaultBucket.getSizeInBytes());
+    Assert.assertEquals("size freed", initSize, sizeFreed);
+    Assert.assertEquals("existing size", currentSize - initSize, testMeta.defaultBucket.getSizeInBytes());
 
     testMeta.defaultBucket.teardown();
   }

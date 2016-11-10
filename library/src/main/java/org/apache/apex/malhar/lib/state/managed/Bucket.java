@@ -435,17 +435,51 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
      * Free memory up to the given windowId
      * This method will be called by another thread. Adding concurrency control to Stream would impact the performance.
      * This method only calculates the size of the memory that could be released and then sends free memory request to the operator thread
+     *
+     * We intend to manage memory by keyStream and valueStream. But the we can't avoid caller use other mechanism to manage memory.
+     * It is required to cleanup maps in this case.
      */
     @Override
     public long freeMemory(long windowId) throws IOException
     {
-      // calculate the size first and then send the release memory request. It could reduce the chance of conflict and increase the performance.
-      long size = keyStream.dataSizeUpToWindow(windowId) + valueStream.dataSizeUpToWindow(windowId);
+      long memoryFreed = 0;
+      Iterator<Map.Entry<Long, Map<Slice, BucketedValue>>> entryIter = committedData.entrySet().iterator();
+      while (entryIter.hasNext()) {
+        Map.Entry<Long, Map<Slice, BucketedValue>> bucketEntry = entryIter.next();
+        if (bucketEntry.getKey() > windowId) {
+          break;
+        }
+
+        Map<Slice, BucketedValue> windowData = bucketEntry.getValue();
+        entryIter.remove();
+
+        for (Map.Entry<Slice, BucketedValue> entry : windowData.entrySet()) {
+          memoryFreed += entry.getKey().length + entry.getValue().getSize();
+        }
+      }
+
+      fileCache.clear();
+      if (cachedBucketMetas != null) {
+
+        for (BucketsFileSystem.TimeBucketMeta tbm : cachedBucketMetas.values()) {
+          FileAccess.FileReader reader = readers.remove(tbm.getTimeBucketId());
+          if (reader != null) {
+            memoryFreed += tbm.getSizeInBytes();
+            reader.close();
+          }
+        }
+      }
+
+      sizeInBytes.getAndAdd(-memoryFreed);
+
+      //add the windowId to the queue to let operator thread release memory from keyStream and valueStream
       windowsForFreeMemory.add(windowId);
-      return size;
+
+      return memoryFreed;
     }
 
     /**
+     * Release the memory managed by keyStream and valueStream.
      * This operation must be called from operator thread. It won't do anything if no memory to be freed
      */
     protected long releaseMemory()
@@ -459,10 +493,10 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
         memoryFreed += originSize - (keyStream.size() + valueStream.size());
       }
 
-      if (memoryFreed > 0) {
-        LOG.debug("Total freed memory size: {}", memoryFreed);
-        sizeInBytes.getAndAdd(-memoryFreed);
-      }
+      //release the free memory immediately
+      keyStream.releaseAllFreeMemory();
+      valueStream.releaseAllFreeMemory();
+
       return memoryFreed;
     }
 
@@ -482,6 +516,7 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
     @Override
     public void committed(long committedWindowId)
     {
+      releaseMemory();
       Iterator<Map.Entry<Long, Map<Slice, BucketedValue>>> stateIterator = checkpointedData.entrySet().iterator();
 
       while (stateIterator.hasNext()) {
@@ -518,7 +553,9 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
             }
           }
           sizeInBytes.getAndAdd(-memoryFreed);
-          committedData.put(savedWindow, bucketData);
+          if (!bucketData.isEmpty()) {
+            committedData.put(savedWindow, bucketData);
+          }
           stateIterator.remove();
         } else {
           break;

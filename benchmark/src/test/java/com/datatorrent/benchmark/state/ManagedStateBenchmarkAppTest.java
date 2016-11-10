@@ -86,7 +86,7 @@ public class ManagedStateBenchmarkAppTest extends ManagedStateBenchmarkApp
 
     // Create local cluster
     final LocalMode.Controller lc = lma.getController();
-    lc.run(300000);
+    lc.run(3000000);
 
     lc.shutdown();
   }
