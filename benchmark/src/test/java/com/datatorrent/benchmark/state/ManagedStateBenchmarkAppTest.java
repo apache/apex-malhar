@@ -49,13 +49,13 @@ public class ManagedStateBenchmarkAppTest extends ManagedStateBenchmarkApp
   @Test
   public void testUpdateSync() throws Exception
   {
-    test(ExecMode.UPDATESYNC);
+    test(ExecMode.UPDATE_SYNC);
   }
 
   @Test
   public void testUpdateAsync() throws Exception
   {
-    test(ExecMode.UPDATEASYNC);
+    test(ExecMode.UPDATE_ASYNC);
   }
 
   @Test
@@ -72,7 +72,7 @@ public class ManagedStateBenchmarkAppTest extends ManagedStateBenchmarkApp
     DAG dag = lma.getDAG();
 
     super.populateDAG(dag, conf);
-    storeOperator.execMode = exeMode;
+    storeOperator.setExecMode(exeMode);
 
     StreamingApplication app = new StreamingApplication()
     {
