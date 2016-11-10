@@ -158,8 +158,9 @@ public abstract class AbstractManagedStateImpl
 
   @NotNull
   @FieldSerializer.Bind(JavaSerializer.class)
-  private Duration checkStateSizeInterval = Duration.millis(
-      DAGContext.STREAMING_WINDOW_SIZE_MILLIS.defaultValue * OperatorContext.APPLICATION_WINDOW_COUNT.defaultValue);
+//  private Duration checkStateSizeInterval = Duration.millis(
+//      DAGContext.STREAMING_WINDOW_SIZE_MILLIS.defaultValue * OperatorContext.APPLICATION_WINDOW_COUNT.defaultValue);
+  private Duration checkStateSizeInterval = Duration.millis(DAGContext.STREAMING_WINDOW_SIZE_MILLIS.defaultValue * 5);
 
   @FieldSerializer.Bind(JavaSerializer.class)
   private Duration durationPreventingFreeingSpace;
@@ -395,6 +396,17 @@ public abstract class AbstractManagedStateImpl
         throw new RuntimeException("committing " + windowId, e);
       }
     }
+
+    //for test
+    LOG.info("==== Committed: windowId: {}", windowId % 100000);
+    StringBuilder sb = new StringBuilder();
+    for (Bucket bucket : buckets) {
+      if (bucket != null) {
+        sb.append(System.identityHashCode(bucket) % 100000).append(": ").append(((Bucket.DefaultBucket)bucket).getMemoryUsage()).append("\n");
+      }
+    }
+    LOG.info("==== buckets:\n {}", sb.toString());
+
   }
 
   /**

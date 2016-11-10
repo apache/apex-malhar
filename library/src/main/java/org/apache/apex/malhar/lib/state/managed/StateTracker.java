@@ -20,10 +20,14 @@ package org.apache.apex.malhar.lib.state.managed;
 
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.TreeSet;
+
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.validation.constraints.NotNull;
 
@@ -32,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 
 /**
  * Tracks the size of state in memory and evicts buckets.
@@ -39,9 +44,9 @@ import com.google.common.base.Preconditions;
 class StateTracker extends TimerTask
 {
   //bucket id -> bucket id & time wrapper
-  private final transient ConcurrentHashMap<Long, BucketIdTimeWrapper> bucketAccessTimes = new ConcurrentHashMap<>();
-
-  private transient ConcurrentSkipListSet<BucketIdTimeWrapper> bucketHeap;
+//  private final transient ConcurrentHashMap<Long, BucketIdTimeWrapper> bucketAccessTimes = new ConcurrentHashMap<>();
+//
+//  private transient ConcurrentSkipListSet<BucketIdTimeWrapper> bucketHeap;
 
   private final transient Timer memoryFreeService = new Timer();
 
@@ -51,37 +56,39 @@ class StateTracker extends TimerTask
   {
     this.managedStateImpl = Preconditions.checkNotNull(managedStateImpl, "managed state impl");
 
-    this.bucketHeap = new ConcurrentSkipListSet<>(
-        new Comparator<BucketIdTimeWrapper>()
-        {
-          //Note: this comparator imposes orderings that are inconsistent with equals.
-          @Override
-          public int compare(BucketIdTimeWrapper o1, BucketIdTimeWrapper o2)
-          {
-            if (o1.getLastAccessedTime() < o2.getLastAccessedTime()) {
-              return -1;
-            }
-            if (o1.getLastAccessedTime() > o2.getLastAccessedTime()) {
-              return 1;
-            }
-
-            return Long.compare(o1.bucketId, o2.bucketId);
-          }
-        });
     long intervalMillis = managedStateImpl.getCheckStateSizeInterval().getMillis();
     memoryFreeService.scheduleAtFixedRate(this, intervalMillis, intervalMillis);
   }
 
+  private transient long lastUpdateAccessTime = 0;
+  private transient Set<Long> accessedBucketIds = Sets.newHashSet();
+  private transient TreeSet<BucketIdTimeWrapper> bucketHeapForAccess = Sets.newTreeSet(new BucketIdTimeWrapper.BucketTimeComparator());
+  private transient TreeSet<BucketIdTimeWrapper> bucketHeapForRelease = Sets.newTreeSet(new BucketIdTimeWrapper.BucketTimeComparator());
+  private transient ReadWriteLock bucketAcessLock = new ReentrantReadWriteLock();
+  private int updateAccessTimePeriod = 500;
+
   void bucketAccessed(long bucketId)
   {
-    BucketIdTimeWrapper idTimeWrapper = bucketAccessTimes.get(bucketId);
-    if (idTimeWrapper != null) {
-      bucketHeap.remove(idTimeWrapper);
-    }  else {
-      idTimeWrapper = new BucketIdTimeWrapper(bucketId);
+    accessedBucketIds.add(bucketId);
+    if (System.currentTimeMillis() - lastUpdateAccessTime > updateAccessTimePeriod) {
+      bucketAcessLock.writeLock().lock();
+      try {
+        //remove the duplicate
+        Iterator<BucketIdTimeWrapper> bucketIter = bucketHeapForAccess.iterator();
+        while (bucketIter.hasNext()) {
+          if (accessedBucketIds.contains(bucketIter.next().bucketId)) {
+            bucketIter.remove();
+          }
+        }
+
+        for (long id : accessedBucketIds) {
+          bucketHeapForAccess.add(new BucketIdTimeWrapper(id));
+        }
+      } finally {
+        bucketAcessLock.writeLock().unlock();
+      }
+      lastUpdateAccessTime = System.currentTimeMillis();
     }
-    idTimeWrapper.setLastAccessedTime(System.currentTimeMillis());
-    bucketHeap.add(idTimeWrapper);
   }
 
   @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
@@ -98,6 +105,7 @@ class StateTracker extends TimerTask
         }
       }
 
+
       if (bytesSum > managedStateImpl.getMaxMemorySize()) {
         Duration duration = managedStateImpl.getDurationPreventingFreeingSpace();
         long durationMillis = 0;
@@ -105,10 +113,28 @@ class StateTracker extends TimerTask
           durationMillis = duration.getMillis();
         }
 
+        bucketAcessLock.writeLock().lock();
+        try {
+          //add the last release leftover for this release
+          for (BucketIdTimeWrapper releaseItem : bucketHeapForRelease) {
+            bucketHeapForAccess.add(releaseItem);
+          }
+          bucketHeapForRelease.clear();
+
+          //switch the access and release list
+          TreeSet<BucketIdTimeWrapper> tmp = bucketHeapForAccess;
+          bucketHeapForAccess = bucketHeapForRelease;
+          bucketHeapForRelease = tmp;
+        } finally {
+          bucketAcessLock.writeLock().unlock();
+        }
+
+
+        Iterator<BucketIdTimeWrapper> bucketIter = bucketHeapForRelease.iterator();
         BucketIdTimeWrapper idTimeWrapper;
-        while (bytesSum > managedStateImpl.getMaxMemorySize() && bucketHeap.size() > 0 &&
-            null != (idTimeWrapper = bucketHeap.first())) {
+        while (bytesSum > managedStateImpl.getMaxMemorySize() && bucketIter.hasNext()) {
           //trigger buckets to free space
+          idTimeWrapper = bucketIter.next();
 
           if (System.currentTimeMillis() - idTimeWrapper.getLastAccessedTime() < durationMillis) {
             //if the least recently used bucket cannot free up space because it was accessed within the
@@ -130,8 +156,9 @@ class StateTracker extends TimerTask
               }
               bytesSum -= sizeFreed;
             }
-            bucketHeap.remove(idTimeWrapper);
-            bucketAccessTimes.remove(bucketId);
+            if (bucket.getSizeInBytes() == 0) {
+              bucketIter.remove();
+            }
           }
         }
       }
@@ -148,6 +175,19 @@ class StateTracker extends TimerTask
    */
   private static class BucketIdTimeWrapper
   {
+    public static class BucketTimeComparator implements Comparator<BucketIdTimeWrapper>
+    {
+      @Override
+      public int compare(BucketIdTimeWrapper o1, BucketIdTimeWrapper o2)
+      {
+        //same bucket are equals.
+        if (o1.bucketId == o2.bucketId) {
+          return 0;
+        }
+        return (int)(o1.lastAccessedTime - o2.lastAccessedTime);
+      }
+    }
+
     private final long bucketId;
     private long lastAccessedTime;
 
