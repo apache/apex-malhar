@@ -19,7 +19,7 @@ additional capabilities such as scanning multiple directories.
 
 It tracks the current file offset as part of checkpoint state. It it fails and is restarted
 by the platform, it will seek to the saved offset to avoid duplicate processing. Exactly once processing
-for fault tolerance is handled using window data manager. For more details check the blog about [Fault-Tolerant File Processing](#https://www.datatorrent.com/blog/fault-tolerant-file-processing/).
+for fault tolerance is handled using window data manager. For more details check the blog about [Fault-Tolerant File Processing](https://www.datatorrent.com/blog/fault-tolerant-file-processing/).
 It supports both static and dynamic partitioning.
 
 ## Use Cases
@@ -97,7 +97,7 @@ a repartition event, all existing partitions are shutdown and the new ones start
 ### AbstractFileInputOperator
 This is the abstract implementation that, as noted above, scans a single directory.
 It can be extended to modify functionality or add new capabilities. For example, the
-directory scanner can be overriden to monitor multiple directories. [This](#https://github.com/DataTorrent/examples/tree/master/tutorials/fileIO-multiDir) example demostrates how to do that.
+directory scanner can be overriden to monitor multiple directories. [This](https://github.com/DataTorrent/examples/tree/master/tutorials/fileIO-multiDir) example demonstrates how to do that.
 As noted in the overview above, this class has no ports, so concrete subclasses will need to
 provide them if necessary.
 
