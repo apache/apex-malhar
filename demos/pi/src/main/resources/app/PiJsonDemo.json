@@ -1,0 +1,52 @@
+{
+  "description": "Pi JSON Demo that is intended to demonstrate the capability of specifying an app using JSON",
+  "operators": [
+    {
+      "name": "rand",
+      "class": "com.datatorrent.lib.testbench.RandomEventGenerator",
+      "properties": {
+        "minvalue": 0,
+        "maxvalue": 30000
+      }
+    },
+    {
+      "name": "picalc",
+      "class": "com.datatorrent.demos.pi.PiCalculateOperator",
+      "properties": {
+        "base": 900000000
+      }
+    },
+    {
+      "name": "console",
+      "class": "com.datatorrent.lib.io.ConsoleOutputOperator"
+    }
+  ],
+  "streams": [
+    {
+      "name": "rand_calc",
+      "source": {
+        "operatorName": "rand",
+        "portName": "integer_data"
+      },
+      "sinks": [
+        {
+          "operatorName": "picalc",
+          "portName": "input"
+        }
+      ]
+    },
+    {
+      "name": "calc_console",
+      "source": {
+        "operatorName": "picalc",
+        "portName": "output"
+      },
+      "sinks": [
+        {
+          "operatorName": "console",
+          "portName": "input"
+        }
+      ]
+    }
+  ]
+}

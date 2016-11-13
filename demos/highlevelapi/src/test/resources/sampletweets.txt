@@ -1,0 +1,44 @@
+Last week, I published a blog announcing that Apex was accepted as an Apache incubator project.
+This week, I’ll give you a little more detail on what Apache Apex is, and why it’s important.
+
+Apache #Hadoop has been around for over a decade. It has become the de-facto big data platform,
+allowing enterprises to transform their business operations by turning big data into something useful, meaningful,
+and revenue-generating. #Hadoop promised the enablement of big data without incurring the costs you would normally think such powerful
+processing systems would demand. This tremendous promise of transforming business operations continues to fuel high growth in the industry.
+
+It all got started when Hadoop engineers at Yahoo! asked, “How can we build an efficient search indexing capability?”
+The ensuing iterations and some inspiration resulted in the #MapReduce programming model. Although powerful, MapReduce wasn’t perfect.
+
+Mastering MapReduce required a steep learning curve. Migrating applications to MapReduce required an almost complete rewrite.
+Equally worrisome was the fact that MapReduce had batch processing paradigm and “compute going to data” at its core,
+thus posing a deterrent to Hadoop realizing its true potential.
+
+Expectedly enough, #MapReduce was an impediment that did little to bolster productization of big data.
+Not to be deterred, there were faster substitutes for MapReduce. Just like Hadoop, these models required deeper expertise, were tough to operate and difficult to master.
+As such, #Hadoop disrupted the way big data needs were handled, but remained largely under-productized.
+
+A decade after Hadoop was started, only a small percentage of big data projects are in production.
+Data is growing rapidly and the ability to harness big data has become a decisive competitive advantage.
+MapReduce impedes this demand (actually more of a scramble) to transform into a data-driven business.
+
+In hindsight, it is clear that in the early days, the subsequent success of Hadoop was not anticipated.
+If they had anticipated Hadoop’s success, the question would have been, “What can we do with massively distributed resources?”
+The answer to this question, which came about soon after, was YARN (Hadoop 2.0), the next generation Hadoop.
+For the first time, #YARN brought the capability of exploring how distributed resources handling big data could perform “a lot of things”,
+thus going beyond the early MapReduce paradigm, and in a way beyond batch or even compute-going-to-data paradigms.
+YARN presented the capability to allow big data to not just become big in size, but broader in use cases. With its enabling capability as a Hadoop facilitator,
+YARN has pushed Hadoop towards realizing its true potential. The Hadoop predicament is similar to what
+cellphones would have been without the more popular features such as messaging and internet connectivity.
+
+
+In their early years, cellphones upset the landline market, but did not foster an immediate market furor till
+it transformed into the new-age “smartphone” with impressive features.
+YARN is most certainly the enabling factor for big data dreaming bigger and wider, and with it, Hadoop 2.0 is now a true de-facto distributed operating system.
+
+What’s needed is bleeding edge YARN-based platforms capable of radically realizing Hadoop’s potential
+
+Now is the right time to not only productize big data, but to see how setting it in motion can ensure realization of greater business goals.
+A Herculean task, this demands platforms that are easy to deploy, require nothing beyond everyday IT expertise, can effortlessly integrate with an existing IT infrastructure while ensuring ease of migration.
+The new-age Hadoop platforms need to be designed with an approach to reduce time-to-market by shortening the application lifecycle, from building to launching, thus quickening the realization of revenue for businesses.
+They will also have to reduce time for developers to develop, devOps to operationalize, and finally reduce time to insight for business.
+Platforms such as these will need to learn, adapt, and change to meet the burgeoning needs of the big data world.

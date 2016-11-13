@@ -1,0 +1,27 @@
+{
+  "version": "1.0",
+  "defaultSchema": "APEX",
+  "schemas": [{
+    "name": "APEX",
+    "tables": [
+      {
+        "name": "ORDERS",
+        "type": "custom",
+        "factory": "org.apache.apex.malhar.sql.schema.ApexSQLTableFactory",
+        "stream": {
+        "stream": true
+        },
+        "operand": {
+          "endpoint": "file",
+          "messageFormat": "csv",
+          "endpointOperands": {
+            "directory": "src/test/resources/input.csv"
+          },
+          "messageFormatOperands": {
+            "schema": "{\"separator\":\",\",\"quoteChar\":\"\\\"\",\"fields\":[{\"name\":\"RowTime\",\"type\":\"Date\",\"constraints\":{\"format\":\"dd/MM/yyyy hh:mm:ss\"}},{\"name\":\"id\",\"type\":\"Integer\"},{\"name\":\"Product\",\"type\":\"String\"},{\"name\":\"units\",\"type\":\"Integer\"}]}"
+          }
+        }
+      }
+    ]
+  }]
+}

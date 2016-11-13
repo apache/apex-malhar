@@ -1,0 +1,7 @@
+{
+"id": 1,
+"type": "dataQuery",
+"data": {
+    "fields": ["url", "count"]
+  }
+}

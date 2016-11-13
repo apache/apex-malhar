@@ -1,0 +1,132 @@
+This test text file is taken from http://apache.org/foundation/glossary.html. 
+
+Copyright © 2016 The Apache Software Foundation, Licensed under the Apache License, Version 2.0.
+
+This glossary provides a brief description of some of the organizational terms used at the ASF and in Apache projects. For more overview information about anything Apache, please see the /dev documentation or the Community Development project.
+
+ApacheCon
+The official regular developer and user conference of the ASF (see the ApacheCon Web site ).
+Artifact
+A file which is created as the outcome of a process, typically the release preparation process.
+ASF
+The Apache Software Foundation, a non-profit organization.
+Attic
+A location where discontinued, abandoned, and retired codebases and projects are stored. The Apache Attic project preserves the information for posterity, reference, and potential future re-activation, while keeping it clearly distinct from active work.
+Board
+The nine-person legal governing body of the ASF, elected by the members. The board provides the oversight of the Foundation's activities and operation, and has the responsibility of applying and enforcing the ASF's bylaws. Among other things, the board approves or rejects resolutions brought before it, such as for the creation or dissolution of ASF projects , funding requests, legal concerns, and disciplinary actions. As an open and non-profit corporation, the minutes of the board's meetings are publicly available at http://www.apache.org/foundation/records/minutes/. These minutes include all decisions not made in executive session. Also see Director.
+Bikeshed Argument
+Arguing (pointlessly) about which color to paint the bikeshed. As explained here it may happen when the argument is so trivial that it's easy for anyone to have an opinion, and want to see theirs prevail.
+Build
+A Build is a package which is not suitable for distribution to the general public. They are works-in-progress, and as such the only people builds should be offered to are other people working on product development at the foundation.
+Bylaws
+Bylaws are a codification of the rules that some organisation follows. Some, such as the ASF bylaws, are legally binding and have significance outside the organisation. Others, such as the Jakarta bylaws, are only meaningful within the community and are only as binding as the community itself makes them. The bylaws of an organisation within the ASF may not contradict those of the ASF proper; any such conflicting parts in the organisation bylaws are necessarily null and void.
+Chair
+1. The Chair of the Board of Directors of the ASF , responsible for the orderly meeting and functioning of the Board. 2. The official head of a committee, such as a Project Management Committee PMC. PMC Chairs are Vice Presidents given charge of the proper operation of their projects.
+Codebase
+A meaningful group of source. Some projects involve only a single codebase, while others have several.
+Commit access
+ASF projects collaborate on code using version control software to coordinate changes. The ability to make direct changes to that code is known as commit access (from the [VCS] commit subcommand). This process patches the actual official code. Also see Karma .
+Committer
+An individual who has been granted the privilege of being able to directly commit changes to an Apache codebase ( commit access ).
+Commit-Then-Review
+(Often abbreviated 'CTR' or 'C-T-R'.) A policy governing code changes which permits developers to make changes at will, with the possibility of being retroactively vetoed. C-T-R is an application of decision making through lazy consensus. The C-T-R model is useful in rapid-prototyping environments, but because of the lack of mandatory review it may permit more bugs through in daily practice than the R-T-C alternative. Compare R-T-C , and see the description of the voting process.
+Community
+Group of individuals with a common cause. The community of a project consists of all those with an interest in that project.
+Consensus Approval
+'Consensus approval' refers to a vote (sense 1) which has completed with at least three binding +1 votes and no vetos. Compare Majority Approval.
+Contributor
+Someone who makes consistent improvements to the entities under an ASF PMC , either code or documentation or otherwise. This does not, in and of itself, imply commit access , though frequent and valued contributors are readily voted on for such access.
+Contributor License Agreement
+Contributor License Agreement (CLA) is sometimes referred to as Individual Contributor License Agreement (ICLA). There is also a Corporate Contributor License Agreement (CCLA). All are explained on the Licenses page.
+CTR , C-T-R
+See CommitThenReview
+CVS
+The Concurrent Versioning System, an older version control system.
+Darwinism
+See Software Darwinism.
+Developer
+A user who contributes to a project in the form of code or documentation becomes a developer. They take extra steps to participate in a project, are active on the developer mailing list, participate in discussions, provide patches, documentation, suggestions, and criticism. Developers are also known as "contributors".
+Director
+One of nine individuals elected annually by the members to the Foundation's board of directors. Directors may or may not have individual responsibilities, but all are generally expected to stay informed about as much of the Foundation's operations and activity as possible, since the Board provides oversight for the Foundation as a whole.
+Emeritus
+A term used to formally designate someone as no longer active, but still entitled to many of the rights and privileges of the position. For example, an ASF member who hasn't attended any membership meetings for a long time is declared emeritus; someone who no longer has time to work on a particular project may declare itself emeritus. Emeritus status indicates interest but not activity, as opposed to having resigned.
+Evolution
+Progress by gradual accumulation of small changes. Typical mode for Apache projects. Compare Revolution.
+Executive Session
+A portion of a board meeting which concerns confidential matters and which therefore cannot be publicly minuted. Examples include salary discussions, areas covered by non-disclosure agreements, disciplinary actions, and some types of funding decisions.
+Hackathon
+Informal event at which ASF participants can get together, network, and discuss/argue/hack/prototype according to their interests. Hackathons are open to all committers and invited contributors, and typically take place immediately preceding or following the ApacheCon events.
+Hibernation
+Sleeplike state with a depressed metabolic rate. Sometimes used to describe a project with low levels of activity.
+Karma
+1. Sufficient access to perform an operation, such as committing changes to a version control. ("Please grant Yo Mega karma to the foo-bar.") 2. Respect and merit in the community. ("Al Faa has good karma because of the careful and tactful way he makes his points and the quality of his technical contributions.") 3. Any combination of senses 1 and two; they are indirectly related.
+Lazy consensus
+(Also called 'lazy approval'.) A decision-making policy which assumes general consent if no responses are posted within a defined period. For example, "I'm going to commit this by lazy consensus if no-one objects within the next three days." Also see Consensus Approval , Majority Approval , and the description of the voting process.
+License Header
+Text referring to the license for a file (as opposed to the complete license text).
+Majority Approval
+Refers to a vote (sense 1) which has completed with at least three binding +1 votes and more +1 votes than -1 votes. ( I.e. , a simple majority with a minimum quorum of three positive votes.) Note that in votes requiring majority approval a -1 vote is simply a vote against, not a veto. Compare Consensus Approval. See also the description of the voting process.
+Member
+An individual who has been elected to membership in the ASF by the existing members. Membership benefits include having a voice in the functioning of the Foundation, the ability to nominate and vote on new Member candidates and on directors.
+Merit
+The concept of 'merit' is central to the Apache philosophy and community methodology. Merit is a qualitative and subjective term, referring essentially to attributes such as those below; however, it can probably be summed up as the combination of the worth of one's accomplishments and the respect of one's peers. - technical competence - ability to get along with others - positive contributions to discussions and code The acquisition of merit is a cumulative process; once acquired, it doesn't decay. It is possible to lose merit, though, by violating the community ethics, guidelines, or sensibilities.
+Meritocracy
+Meritocracy is one of the principles underlying the ASF and its philosophy. As it has been put, 'the more you do the more you are allowed to do.' As a person acquires merit, his or her stature in the community grows, and (to a certain extent) the weight given to his or her opinions.
+Netiquette
+Netiquette is the term applied to the common rules of good online behaviour. For the general case, it is defined in IETF RFC 1855 ; for the more specific Apache environment, it boils down to things like: - don't flame - lurk for a while after joining a list before posting; this allows you to get a feel for the personalities, attitudes, and issues, as well as existing rules for acceptable behaviour - be aware of the project 's/list's guidelines (such as on voting), and don't violate them - if you have a question, search the list archives and the bug database before asking what may have already been answered> These are just the rough outline of things that may be more (or less) the rule on a per -list basis. They boil down to 'be polite' and 'don't make unnecessary work for others'.
+Officer
+An individual appointed by the ASF Board of Directors and given specific authority over and responsibility for some portion of the Foundation's activities. An officer may or may not be a director of the Foundation.
+Package (sometimes referred to informally as Tarball or Distribution)
+A Package is a compressed archive file created from a project's source code with the intent to distribute. Packages are typically either source packages or binary packages built from source; sometimes separate documentation packages are released alongside the source package. Often packages have have external dependencies which may require additional software be installed as a prerequisite.
+PMC
+Project Management Committee, the group of people with formal oversight of a project. The chair of a PMC is always an officer of the Foundation. As the PMC has official oversight responsibilities assigned by the Board , its actions are considered to be on behalf of the Foundation, with all the legal protections and responsibilities implied. See the Bylaws.
+Podling
+A codebase and its community while in the process of being incubated. See the description of the Incubation process.
+President
+Primary executive officer of the ASF , serving at the direction of the Board. [duties?]
+Project
+In the Apache Software Foundation, the term ' project ' typically refers to a community focussed on one or more codebases , overseen by a PMC.
+Release Candidate
+A source package and other accompanying artifacts to be inspected and voted on in order to release.
+Release Manager
+The individual who takes responsibility for shepherding a release through the release process to final distribution. Any project committer can serve as Release Manager. Often abbreviated as "RM".
+Review-Then-Commit
+(Often referenced as 'RTC' or 'R-T-C'.) Commit policy which requires that all changes receive consensus approval in order to be committed. Compare C-T-R , and see the description of the voting process.
+Revolution
+In the Apache environment, some communities may decide to permit (or encourage) revolutions as ways of reconciling differences, particularly code changes which have been blocked on a particular branch by a veto. Originally described by James Duncan Davison in his 'Rules for Revolutionaries,' the concept has been adopted, formally or informally, by at least one Apache project. Essentially, a revolution occurs when a group of committers decides to fork the current main branch in order to work on problematic code or concepts. This permits them to pursue it without disturbing the evolutionary work on the main branch. A revolutionary branch may eventually be merged back into the main branch, die out, split completely and become a new main branch, or may absorb the current main branch into itself (essentially no different than the first option). See the ' Rules for Revolutionaries ' and compare Evolution.
+Release
+A Release is a package offered to the general public by The Apache Software Foundation.
+RTC , R-T-C
+See ReviewThenCommit
+Software Darwinism
+A deceptively simple concept, often expressed as 'the best code survives'. The evolutionary processes inherent in the Apache peer-review environment support this idea.
+Software Grant Agreement
+See details of SGAs.
+STATUS files
+Due to the noninteractive style of communication practised by most of the Apache development projects, maintaining a record of decisions made -- and in progress -- can be a useful thing. A number of the Apache projects accomplish this through the use of a file, typically named STATUS , stored in the project's own code repository. In addition to keeping existing developers informed of current issues, such files also provide useful information to new would-be developers investigating the project.
+STV
+Single Transferable Vote, used in Apache board elections for example. See http://en.wikipedia.org/wiki/Single_Transferable_Vote
+Subversion
+A version control system that is "a compelling replacement for CVS ".
+SVN
+See Subversion.
+TLP
+Top Level Project, see also PMC
+Treasurer
+The treasurer of the ASF is an officer of the corporation, and is responsible for managing the funds and assets of the Foundation, reporting tax information, and so on. The treasurer need not be a member of the Foundation, nor a director , though the role is often filled by someone who is.
+Troll
+Some definitions: - Gentle - Naughty - Definitive For how to deal with trolls, see this thread but (for those who are impatient) here's Ted's opinion (which acts as a good summary).
+User
+Someone that uses our software. Users contribute to the Apache projects by providing feedback to developers in the form of bug reports and feature suggestions. Users participate in the Apache community by helping other users on mailing lists and user support forums.
+Version Control System
+Version control systems provide the ability to track (and potentially revert) incremental changes to files, reporting them to a mailing list as they are made, and can be used concurrently by many developers. All of the Foundation's code and documentation are managed in such systems thus providing a complete history for each codebase. See subversion and CVS
+Veto
+According to the Apache methodology, a change which has been made or proposed may be made moot through the exercise of a veto by a committer to the codebase in question. If the R-T-C commit policy is in effect, a veto prevents the change from being made. In either the R-T-C or C-T-R environments, a veto applied to a change that has already been made forces it to be reverted. Vetos may not be overridden nor voted down, and only cease to apply when the committer who issued the veto withdraws it. All vetos must be accompanied by a valid technical justification; a veto without such a justification is invalid; in case of doubt, deciding whether a technical justification is valid is up to the PMC. Vetos force discussion and, if supported, version control rollback or appropriate code changes. Vetoed code commits are best reverted by the original committer, unless an urgent solution is needed (e.g., build breakers). Vetos only apply to code changes; they do not apply to procedural issues such as software releases.
+Vice-President
+ASF vice-presidents are officers of the corporation, with authority over and responsibility for specific areas of the Foundation's work. PMC chairs are vice-presidents given charge of the proper operation of their projects.
+Vote
+1. The process of making a formal decision. ('The vote for foo will close in three days.') 2. The expression of a positive or negative opinion, or a veto, as part of a formal decision. ('My vote is -1 because foo smells bad.')
+
+Binding votes are those cast by the PMC committers for the project to which the decision applies. Votes cast by others are advisory or indicative only.
+
+See also ConsensusApproval , MajorityApproval , LazyConsensus , and the description of the voting process.

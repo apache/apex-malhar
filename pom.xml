@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.apache.apex</groupId>
+    <artifactId>apex</artifactId>
+    <version>3.4.0</version>
+  </parent>
+
+  <groupId>org.apache.apex</groupId>
+  <artifactId>malhar</artifactId>
+  <version>3.6.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>Apache Apex Malhar</name>
+  <url>http://apex.apache.org</url>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <prerequisites>
+    <maven>3.0.5</maven>
+  </prerequisites>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.deploy.skip>false</maven.deploy.skip>
+    <apex.core.version>3.4.0</apex.core.version>
+    <semver.plugin.skip>false</semver.plugin.skip>
+    <surefire.args>-Xmx2048m</surefire.args>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <configuration>
+          <excludes combine.children="append">
+            <exclude>**/src/test/resources/**/sample_logs/**</exclude>
+            <exclude>src/test/resources/*.csv</exclude>
+            <exclude>src/test/resources/*.xsd</exclude>
+            <exclude>**/src/main/resources/com/datatorrent/apps/logstream/**</exclude>
+            <exclude>src/main/c/zmq_push/Makefile</exclude>
+            <exclude>src/test/resources/com/datatorrent/contrib/romesyndication/*.rss</exclude>
+            <exclude>**/*.md</exclude>
+            <exclude>**/*.yml</exclude>
+          </excludes>
+          <mapping combine.children="append">
+            <R>SCRIPT_STYLE</R>
+          </mapping>
+        </configuration>
+      </plugin>
+      <plugin>
+      	<groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <argLine>${surefire.args}</argLine>
+        </configuration>
+      </plugin>      
+      <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <configuration>
+          <excludes combine.children="append">
+            <exclude>**/src/test/resources/**/sample_logs/**</exclude>
+            <exclude>src/test/resources/*.csv</exclude>
+            <exclude>src/test/resources/*.xsd</exclude>
+            <exclude>**/src/main/resources/com/datatorrent/apps/logstream/**</exclude>
+            <exclude>src/main/c/zmq_push/Makefile</exclude>
+            <exclude>src/test/resources/com/datatorrent/contrib/romesyndication/*.rss</exclude>
+            <exclude>src/main/resources/**/*.txt</exclude>
+            <exclude>**/*.json</exclude>
+            <exclude>**/*.md</exclude>
+            <exclude>**/*.yml</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+    </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>com.github.siom79.japicmp</groupId>
+          <artifactId>japicmp-maven-plugin</artifactId>
+          <version>0.9.0</version>
+          <configuration>
+            <oldVersion>
+              <dependency>
+                <groupId>org.apache.apex</groupId>
+                <artifactId>${project.artifactId}</artifactId>
+                <version>3.5.0</version>
+              </dependency>
+            </oldVersion>
+            <newVersion>
+              <file>
+                <path>${project.build.directory}/${project.artifactId}-${project.version}.jar</path>
+              </file>
+            </newVersion>
+            <parameter>
+              <onlyModified>true</onlyModified>
+              <accessModifier>protected</accessModifier>
+              <breakBuildBasedOnSemanticVersioning>true</breakBuildBasedOnSemanticVersioning>
+              <onlyBinaryIncompatible>false</onlyBinaryIncompatible>
+              <includeSynthetic>false</includeSynthetic>
+              <ignoreMissingClasses>true</ignoreMissingClasses>
+              <excludes>
+                <exclude>@org.apache.hadoop.classification.InterfaceStability$Evolving</exclude>
+                <exclude>@org.apache.hadoop.classification.InterfaceStability$Unstable</exclude>
+                <exclude>com.datatorrent.lib.io.fs.FSInputModule</exclude>
+                <exclude>com.datatorrent.lib.io.fs.AbstractFileInputOperator</exclude>
+              </excludes>
+            </parameter>
+            <skip>${semver.plugin.skip}</skip>
+          </configuration>
+          <executions>
+            <execution>
+              <phase>verify</phase>
+              <goals>
+                <goal>cmp</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.apex</groupId>
+              <artifactId>apex-codestyle-config</artifactId>
+              <version>1.1.0</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <profiles>
+    <profile>
+      <activation>
+        <file>
+          <exists>src</exists>
+        </file>
+      </activation>
+    </profile>
+    <profile>
+      <id>skip-source-release-attach</id>
+      <activation>
+        <file>
+          <exists>${basedir}/NOTICE</exists>
+        </file>
+      </activation>
+      <properties>
+        <remoteresources.skip>true</remoteresources.skip>
+        <!-- do not push source archives to the repo - see MPOM-90 -->
+        <assembly.attach>false</assembly.attach>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <configuration>
+              <finalName>apache-apex-${project.build.finalName}</finalName>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>all-modules</id>
+      <modules>
+        <module>kafka</module>
+        <module>hive</module>
+        <module>stream</module>
+        <module>benchmark</module>
+        <module>apps</module>
+        <module>samples</module>
+        <module>sql</module>
+      </modules>
+    </profile>
+  </profiles>
+
+  <modules>
+    <module>library</module>
+    <module>contrib</module>
+    <module>demos</module>
+  </modules>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>apex-engine</artifactId>
+      <version>${apex.core.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+</project>
