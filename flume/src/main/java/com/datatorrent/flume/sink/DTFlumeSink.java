@@ -1,9 +1,11 @@
 /**
- * Copyright (c) 2016 DataTorrent, Inc. ALL Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -46,7 +48,7 @@ import com.datatorrent.netlet.NetletThrowable.NetletRuntimeException;
 import com.datatorrent.netlet.util.Slice;
 
 /**
- * DTFlumeSink is a flume sink developed to ingest the data into DataTorrent DAG
+ * DTFlumeSink is a flume sink developed to ingest the data into Apex DAG
  * from flume. It's essentially a flume sink which acts as a server capable of
  * talking to one client at a time. The client for this server is AbstractFlumeInputOperator.
  * <p />
@@ -65,7 +67,6 @@ import com.datatorrent.netlet.util.Slice;
  * maximumEventsPerTransaction - integer value indicating the maximum number of events per transaction. This value can
  * not be more than channel's transaction capacity.<br />
  *
- * @author Chetan Narsude <chetan@datatorrent.com>
  * @since 0.9.2
  */
 public class DTFlumeSink extends AbstractSink implements Configurable
