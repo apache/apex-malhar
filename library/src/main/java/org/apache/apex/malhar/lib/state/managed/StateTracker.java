@@ -79,6 +79,7 @@ class StateTracker extends TimerTask
       bucketHeap.remove(idTimeWrapper);
     }  else {
       idTimeWrapper = new BucketIdTimeWrapper(bucketId);
+      bucketAccessTimes.put(bucketId, idTimeWrapper);
     }
     idTimeWrapper.setLastAccessedTime(System.currentTimeMillis());
     bucketHeap.add(idTimeWrapper);
