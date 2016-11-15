@@ -24,7 +24,7 @@ import org.apache.apex.malhar.lib.window.Window;
 /**
  *　A {@link TimeExtractor} to extract time from {@link Window}
  */
-public class WindowTimeExtractor implements TimeExtractor<Window>
+public class WindowTimeExtractor<T extends Window> implements TimeExtractor<T>
 {
   @Override
   public long getTime(Window window)

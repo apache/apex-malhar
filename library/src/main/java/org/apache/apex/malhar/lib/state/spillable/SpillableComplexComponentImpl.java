@@ -165,6 +165,17 @@ public class SpillableComplexComponentImpl implements SpillableComplexComponent
     return map;
   }
 
+
+  @Override
+  public <K, V> SpillableSetMultimap<K, V> newSpillableSetMultimap(Serde<K> serdeKey, Serde<V> serdeValue,
+      TimeExtractor<V> timeExtractorFromValue)
+  {
+    SpillableSetMultimapImpl2<K, V> map = new SpillableSetMultimapImpl2<>(store,
+        identifierGenerator.next(), serdeKey, serdeValue, timeExtractorFromValue);
+    componentList.add(map);
+    return map;
+  }
+
   @Override
   public <K, V> SpillableSetMultimap<K, V> newSpillableSetMultimap(long bucket, Serde<K> serdeKey,
       Serde<V> serdeValue, TimeExtractor<K> timeExtractor)
