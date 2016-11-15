@@ -412,7 +412,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
               activePath = new Path(filePath + Path.SEPARATOR + seenPartFileName);
             }
 
-            if (activePath != null && fs.getFileStatus(activePath).getLen() > maxLength) {
+            if (activePath != null && fs.exists(activePath) && fs.getFileStatus(activePath).getLen() > maxLength) {
               //Handle the case when restoring to a checkpoint where the current rolling file
               //already has a length greater than max length.
               LOG.debug("rotating file at setup.");
