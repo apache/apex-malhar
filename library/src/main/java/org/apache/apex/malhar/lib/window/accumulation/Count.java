@@ -26,7 +26,7 @@ import org.apache.commons.lang3.mutable.MutableLong;
  *
  * @since 3.5.0
  */
-public class Count implements Accumulation<Long, MutableLong, Long>
+public class Count<T> implements Accumulation<T, MutableLong, Long>
 {
 
   @Override
@@ -36,9 +36,9 @@ public class Count implements Accumulation<Long, MutableLong, Long>
   }
 
   @Override
-  public MutableLong accumulate(MutableLong accumulatedValue, Long input)
+  public MutableLong accumulate(MutableLong accumulatedValue, T input)
   {
-    accumulatedValue.add(input);
+    accumulatedValue.increment();
     return accumulatedValue;
   }
 
