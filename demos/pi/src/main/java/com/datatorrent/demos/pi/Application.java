@@ -33,17 +33,14 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
  * formula.
  * <p>
  * Running Java Test or Main app in IDE:
- *
  * <pre>
  * LocalMode.runApp(new Application(), 600000); // 10 min run
  * </pre>
- *
  * Run Success : <br>
  * For successful deployment and run, user should see something like the
  * following output on the console (since the input sequence of random numbers
- * can vary from one run to the next, there will be some variation in the
- * output values):
- *
+ * can vary from one run to the next, there will be some variation in the output
+ * values):
  * <pre>
  * 3.1430480549199085
  * 3.1423454157782515
@@ -51,11 +48,9 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
  * 3.142078799249531
  * 2013-06-18 10:43:18,335 [main] INFO  stram.StramLocalCluster run - Application finished.
  * </pre>
- *
  * Application DAG : <br>
  * <img src="doc-files/Application.gif" width=600px > <br>
  * <br>
- *
  * Streaming Window Size : 1000 ms(1 Sec) <br>
  * Operator Details : <br>
  * <ul>
@@ -71,7 +66,6 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
  * to the console (or stdout). You can use other output adapters if needed.<br>
  * </li>
  * </ul>
- *
  * @since 0.3.2
  */
 @ApplicationAnnotation(name = "PiDemo")
@@ -86,7 +80,7 @@ public class Application implements StreamingApplication
     PiCalculateOperator calc = dag.addOperator("picalc", new PiCalculateOperator());
     ConsoleOutputOperator console = dag.addOperator("console", new ConsoleOutputOperator());
     dag.addStream("rand_calc", rand.integer_data, calc.input).setLocality(locality);
-    dag.addStream("rand_console",calc.output, console.input).setLocality(locality);
+    dag.addStream("rand_console", calc.output, console.input).setLocality(locality);
   }
 
 }

@@ -18,8 +18,6 @@
  */
 package com.datatorrent.lib.codec;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -33,6 +31,7 @@ import com.datatorrent.api.StreamCodec;
 import com.datatorrent.netlet.util.Slice;
 
 /**
+/**
  * This codec is used for serializing the objects of class which are Kryo serializable.
  * It is needed when custom static partitioning is required.
  *
@@ -41,6 +40,7 @@ import com.datatorrent.netlet.util.Slice;
  */
 public class KryoSerializableStreamCodec<T> implements StreamCodec<T>, Serializable
 {
+
   protected transient Kryo kryo;
 
   public KryoSerializableStreamCodec()
@@ -82,20 +82,24 @@ public class KryoSerializableStreamCodec<T> implements StreamCodec<T>, Serializa
   @Override
   public Object fromByteArray(Slice fragment)
   {
-    ByteArrayInputStream is = new ByteArrayInputStream(fragment.buffer, fragment.offset, fragment.length);
-    Input input = new Input(is);
-    return kryo.readClassAndObject(input);
+    final Input input = new Input(fragment.buffer, fragment.offset, fragment.length);
+    try {
+      return kryo.readClassAndObject(input);
+    } finally {
+      input.close();
+    }
   }
 
   @Override
   public Slice toByteArray(T info)
   {
-    ByteArrayOutputStream os = new ByteArrayOutputStream();
-    Output output = new Output(os);
-
-    kryo.writeClassAndObject(output, info);
-    output.flush();
-    return new Slice(os.toByteArray(), 0, os.toByteArray().length);
+    final Output output = new Output(1048576);
+    try {
+      kryo.writeClassAndObject(output, info);
+    } finally {
+      output.close();
+    }
+    return new Slice(output.getBuffer(), 0, output.position());
   }
 
   @Override
