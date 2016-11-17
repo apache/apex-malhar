@@ -22,8 +22,13 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.state.managed.ManagedTimeUnifiedStateImpl;
 import org.apache.apex.malhar.lib.state.spillable.Spillable;
 import org.apache.apex.malhar.lib.state.spillable.SpillableComplexComponent;
+import org.apache.apex.malhar.lib.state.spillable.SpillableStateStore;
 import org.apache.apex.malhar.lib.utils.serde.GenericSerde;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
 import org.apache.apex.malhar.lib.window.Window;
@@ -45,6 +50,7 @@ public class SpillableWindowedPlainStorage<T> implements WindowedStorage.Windowe
   private long bucket;
   private Serde<Window> windowSerde;
   private Serde<T> valueSerde;
+  private static final Logger LOG = LoggerFactory.getLogger(SpillableWindowedPlainStorage.class);
 
   protected Spillable.SpillableMap<Window, T> windowToDataMap;
 
@@ -142,5 +148,17 @@ public class SpillableWindowedPlainStorage<T> implements WindowedStorage.Windowe
   @Override
   public void teardown()
   {
+  }
+
+  @Override
+  public void purge(long horizonMillis)
+  {
+    SpillableStateStore store = scc.getStore();
+    if (store instanceof ManagedTimeUnifiedStateImpl) {
+      ManagedTimeUnifiedStateImpl timeState = (ManagedTimeUnifiedStateImpl)store;
+      long purgeTimeBucket = horizonMillis - timeState.getTimeBucketAssigner().getBucketSpan().getMillis();
+      LOG.debug("Purging state less than equal to {}", purgeTimeBucket);
+      timeState.purgeTimeBucketsLessThanEqualTo(purgeTimeBucket);
+    }
   }
 }

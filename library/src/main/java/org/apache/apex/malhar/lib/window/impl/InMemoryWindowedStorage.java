@@ -18,6 +18,7 @@
  */
 package org.apache.apex.malhar.lib.window.impl;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -86,4 +87,16 @@ public class InMemoryWindowedStorage<T> implements WindowedStorage.WindowedPlain
   {
   }
 
+  @Override
+  public void purge(long horizonMillis)
+  {
+    for (Iterator<Map.Entry<Window, T>> iterator = map.entrySet().iterator(); iterator.hasNext(); ) {
+      Window window = iterator.next().getKey();
+      if (window.getBeginTimestamp() + window.getDurationMillis() < horizonMillis) {
+        iterator.remove();
+      } else {
+        break;
+      }
+    }
+  }
 }

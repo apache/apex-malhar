@@ -146,16 +146,12 @@ public interface Window<WINDOW extends Comparable<WINDOW>> extends Comparable<WI
     @Override
     public int compareTo(TimeWindow o)
     {
-      if (this.getBeginTimestamp() < o.getBeginTimestamp()) {
-        return -1;
-      } else if (this.getBeginTimestamp() > o.getBeginTimestamp()) {
-        return 1;
-      } else if (this.getDurationMillis() < o.getDurationMillis()) {
-        return -1;
-      } else if (this.getDurationMillis() > o.getDurationMillis()) {
-        return 1;
+      long diff = (this.getBeginTimestamp() + this.getDurationMillis()) - (o.getBeginTimestamp() + o.getDurationMillis());
+      if (diff == 0) {
+        return Long.signum(this.getBeginTimestamp() - o.getBeginTimestamp());
+      } else {
+        return Long.signum(diff);
       }
-      return 0;
     }
 
     @Override

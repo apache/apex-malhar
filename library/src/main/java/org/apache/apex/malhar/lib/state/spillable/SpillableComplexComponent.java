@@ -196,4 +196,6 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
    * @return A {@link SpillableQueue}.
    */
   <T> SpillableQueue<T> newSpillableQueue(byte[] identifier, long bucket, Serde<T> serde);
+
+  SpillableStateStore getStore();
 }

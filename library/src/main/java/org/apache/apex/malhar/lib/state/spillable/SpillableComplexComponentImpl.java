@@ -261,4 +261,9 @@ public class SpillableComplexComponentImpl implements SpillableComplexComponent
   {
     store.committed(l);
   }
+
+  public SpillableStateStore getStore()
+  {
+    return store;
+  }
 }

@@ -25,6 +25,7 @@ import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.state.managed.UnboundedTimeBucketAssigner;
 import org.apache.apex.malhar.lib.state.spillable.SpillableComplexComponentImpl;
 import org.apache.apex.malhar.lib.state.spillable.SpillableStateStore;
 import org.apache.apex.malhar.lib.state.spillable.managed.ManagedTimeUnifiedStateSpillableStateStore;
@@ -141,6 +142,7 @@ public abstract class AbstractWindowedOperatorBenchmarkApp<G extends Operator, O
   {
     String basePath = getStoreBasePath(conf);
     ManagedTimeUnifiedStateSpillableStateStore store = new ManagedTimeUnifiedStateSpillableStateStore();
+    store.setTimeBucketAssigner(new UnboundedTimeBucketAssigner());
     store.getTimeBucketAssigner().setBucketSpan(Duration.millis(10000));
     ((TFileImpl.DTFileImpl)store.getFileAccess()).setBasePath(basePath);
 

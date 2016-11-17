@@ -56,6 +56,11 @@ public interface WindowedStorage extends Component<Context.OperatorContext>
   void remove(Window window);
 
   /**
+   * Purge checkpointed data for all the windows that lie totally beyond the given horizon
+   */
+  void purge(long horizonMillis);
+
+  /**
    * This interface handles plain value per window. If there is a key/value map for each window, use
    * {@link WindowedKeyedStorage}. Also note that a single T object is assumed to be fit in memory
    *

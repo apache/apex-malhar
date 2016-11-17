@@ -72,6 +72,7 @@ public class IncrementalCheckpointManager extends FSWindowDataManager
   protected transient ManagedStateContext managedStateContext;
 
   private final transient AtomicLong latestExpiredTimeBucket = new AtomicLong(-1);
+  private long latestPurgedTimeBucket = -1;
 
   private transient int waitMillis;
   private volatile long lastTransferredWindow = Stateless.WINDOW_ID;
@@ -109,8 +110,8 @@ public class IncrementalCheckpointManager extends FSWindowDataManager
           transferWindowFiles();
           if (latestExpiredTimeBucket.get() > -1) {
             try {
-              managedStateContext.getBucketsFileSystem().deleteTimeBucketsLessThanEqualTo(
-                  latestExpiredTimeBucket.getAndSet(-1));
+              latestPurgedTimeBucket = latestExpiredTimeBucket.getAndSet(-1);
+              managedStateContext.getBucketsFileSystem().deleteTimeBucketsLessThanEqualTo(latestPurgedTimeBucket);
             } catch (IOException e) {
               throwable.set(e);
               LOG.debug("delete files", e);
@@ -133,8 +134,10 @@ public class IncrementalCheckpointManager extends FSWindowDataManager
           Map<Long, Map<Slice, Bucket.BucketedValue>> buckets = savedWindows.remove(windowId);
 
           for (Map.Entry<Long, Map<Slice, Bucket.BucketedValue>> singleBucket : buckets.entrySet()) {
-            managedStateContext.getBucketsFileSystem().writeBucketData(windowId, singleBucket.getKey(),
-                singleBucket.getValue());
+            long bucketId = singleBucket.getKey();
+            if (bucketId > latestPurgedTimeBucket) {
+              managedStateContext.getBucketsFileSystem().writeBucketData(windowId, bucketId, singleBucket.getValue());
+            }
           }
           committed(windowId);
         } catch (Throwable t) {

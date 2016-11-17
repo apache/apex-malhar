@@ -142,7 +142,7 @@ public class ManagedTimeUnifiedStateImpl extends AbstractManagedStateImpl implem
   @Override
   public void setup(Context.OperatorContext context)
   {
-    // set UnBoundedTimeBucketAssigner to this managed state impl
+    // set UnboundedTimeBucketAssigner to this managed state impl
     if (timeBucketAssigner == null) {
       UnboundedTimeBucketAssigner unboundedTimeBucketAssigner = new UnboundedTimeBucketAssigner();
       setTimeBucketAssigner(unboundedTimeBucketAssigner);

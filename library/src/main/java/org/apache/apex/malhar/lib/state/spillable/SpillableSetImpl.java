@@ -131,7 +131,7 @@ public class SpillableSetImpl<T> implements Spillable.SpillableSet<T>, Spillable
   public SpillableSetImpl(@NotNull byte[] prefix,
       @NotNull SpillableStateStore store,
       @NotNull Serde<T> serde,
-      @NotNull TimeExtractor timeExtractor)
+      @NotNull TimeExtractor<T> timeExtractor)
   {
     map = new SpillableMapImpl<>(Preconditions.checkNotNull(store), prefix, serde, new ListNodeSerde<>(serde), timeExtractor);
   }
