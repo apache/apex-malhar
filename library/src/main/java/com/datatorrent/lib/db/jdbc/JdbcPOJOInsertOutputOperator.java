@@ -67,7 +67,7 @@ public class JdbcPOJOInsertOutputOperator extends AbstractJdbcPOJOOutputOperator
        * columnNamesSet is the set having column names given by the user
        */
       HashSet<String> columnNamesSet = new HashSet<>();
-      if (getFieldInfos() == null) { // then assume direct mapping
+      if (getFieldInfos().size() == 0) { // then assume direct mapping
         LOG.info("FieldInfo missing. Assuming direct mapping between POJO fields and DB columns");
       } else {
         // FieldInfo supplied by user
@@ -93,7 +93,7 @@ public class JdbcPOJOInsertOutputOperator extends AbstractJdbcPOJOOutputOperator
   @Override
   public void activate(OperatorContext context)
   {
-    if (getFieldInfos() == null) {
+    if (getFieldInfos().size() == 0) {
       Field[] fields = pojoClass.getDeclaredFields();
       // Create fieldInfos in case of direct mapping
       List<JdbcFieldInfo> fieldInfos = Lists.newArrayList();
