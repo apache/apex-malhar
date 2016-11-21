@@ -57,29 +57,6 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
     Spillable.SpillableComponent
 {
 
-  private static class FixedTimeExtractor<V> implements TimeExtractor<V>
-  {
-
-    private long fixedTime;
-
-    private FixedTimeExtractor(long fixedTime)
-    {
-      this.fixedTime = fixedTime;
-    }
-
-    private FixedTimeExtractor()
-    {
-      // For kryo
-    }
-
-    @Override
-    public long getTime(V v)
-    {
-      return fixedTime;
-    }
-
-  }
-
   public static final int DEFAULT_BATCH_SIZE = 1000;
   public static final byte[] META_KEY_SUFFIX = new byte[]{(byte)0, (byte)0, (byte)0};
 
@@ -176,7 +153,7 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
 
       Slice keyPrefix = keyValueSerdeManager.serializeDataKey(key, false);
       if (timeExtractor != null) {
-        spillableSet = new SpillableSetImpl<>(keyPrefix.toByteArray(), store, valueSerde, new FixedTimeExtractor(keyTime));
+        spillableSet = new SpillableSetImpl<>(keyPrefix.toByteArray(), store, valueSerde, new TimeExtractor.FixedTimeExtractor(keyTime));
       } else {
         spillableSet = new SpillableSetImpl<>(bucket, keyPrefix.toByteArray(), store, valueSerde);
       }
@@ -288,7 +265,7 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
       if (timeExtractor == null) {
         spillableSet = new SpillableSetImpl<>(bucket, keyValueSerdeManager.serializeDataKey(key, true).toByteArray(), store, valueSerde);
       } else {
-        spillableSet = new SpillableSetImpl<>(keyValueSerdeManager.serializeDataKey(key, true).toByteArray(), store, valueSerde, new FixedTimeExtractor(timeExtractor.getTime(key)));
+        spillableSet = new SpillableSetImpl<>(keyValueSerdeManager.serializeDataKey(key, true).toByteArray(), store, valueSerde, new TimeExtractor.FixedTimeExtractor(timeExtractor.getTime(key)));
       }
       spillableSet.setup(context);
       cache.put(key, spillableSet);

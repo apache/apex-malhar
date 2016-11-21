@@ -25,7 +25,7 @@ import javax.validation.constraints.NotNull;
 import org.joda.time.Duration;
 import org.joda.time.Instant;
 import org.apache.apex.malhar.lib.state.managed.ManagedTimeUnifiedStateImpl;
-import org.apache.apex.malhar.lib.state.managed.TimeBucketAssigner;
+import org.apache.apex.malhar.lib.state.managed.MovingBoundaryTimeBucketAssigner;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 
 import com.datatorrent.api.Context;
@@ -64,7 +64,7 @@ import com.datatorrent.netlet.util.Slice;
  * 3. {@link #referenceInstant} - The reference point from which to start the time which is used for expiry.
  * Setting the {@link #referenceInstant} to say, r seconds from the epoch, would initialize the start of expiry
  * to be from that instant = r. The start and end of the expiry window periodically move by the span of a single
- * bucket. Refer {@link TimeBucketAssigner} for details.
+ * bucket. Refer {@link MovingBoundaryTimeBucketAssigner} for details.
  *
  * Additionally, it also needs the following parameters:
  * 1. {@link #keyExpression} - The java expression to extract the key fields in the incoming tuple (POJO)
@@ -151,7 +151,7 @@ public class TimeBasedDedupOperator extends AbstractDeduper<Object> implements A
   @Override
   public void setup(OperatorContext context)
   {
-    TimeBucketAssigner timeBucketAssigner = new TimeBucketAssigner();
+    MovingBoundaryTimeBucketAssigner timeBucketAssigner = new MovingBoundaryTimeBucketAssigner();
     timeBucketAssigner.setBucketSpan(Duration.standardSeconds(bucketSpan));
     timeBucketAssigner.setExpireBefore(Duration.standardSeconds(expireBefore));
     timeBucketAssigner.setReferenceInstant(new Instant(referenceInstant * 1000));

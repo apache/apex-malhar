@@ -20,6 +20,7 @@ package org.apache.apex.malhar.lib.state.managed;
 
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -128,14 +129,14 @@ public abstract class AbstractManagedStateImpl
 {
   private long maxMemorySize;
 
-  protected int numBuckets;
+  protected long numBuckets;
 
   @NotNull
   private FileAccess fileAccess = new TFileImpl.DTFileImpl();
   @NotNull
-  protected TimeBucketAssigner timeBucketAssigner = new TimeBucketAssigner();
+  protected TimeBucketAssigner timeBucketAssigner;
 
-  protected Bucket[] buckets;
+  protected Map<Long, Bucket> buckets;
 
   @Min(1)
   private int numReaders = 1;
@@ -176,6 +177,11 @@ public abstract class AbstractManagedStateImpl
     operatorContext = context;
     fileAccess.init();
 
+    if (timeBucketAssigner == null) {
+      // set default time bucket assigner
+      MovingBoundaryTimeBucketAssigner movingBoundaryTimeBucketAssigner = new MovingBoundaryTimeBucketAssigner();
+      setTimeBucketAssigner(movingBoundaryTimeBucketAssigner);
+    }
     timeBucketAssigner.setPurgeListener(this);
 
     //setup all the managed state components
@@ -184,11 +190,11 @@ public abstract class AbstractManagedStateImpl
     bucketsFileSystem.setup(this);
 
     if (buckets == null) {
-      //create buckets array only once at start when it is not created.
+      //create buckets map only once at start if it is not created.
       numBuckets = getNumBuckets();
-      buckets = new Bucket[numBuckets];
+      buckets = new HashMap<>();
     }
-    for (Bucket bucket : buckets) {
+    for (Bucket bucket : buckets.values()) {
       if (bucket != null) {
         bucket.setup(this);
       }
@@ -210,8 +216,8 @@ public abstract class AbstractManagedStateImpl
               stateEntry.getValue();
           if (state != null && !state.isEmpty()) {
             for (Map.Entry<Long, Map<Slice, Bucket.BucketedValue>> bucketEntry : state.entrySet()) {
-              int bucketIdx = prepareBucket(bucketEntry.getKey());
-              buckets[bucketIdx].recoveredData(stateEntry.getKey(), bucketEntry.getValue());
+              long bucketIdx = prepareBucket(bucketEntry.getKey());
+              buckets.get(bucketIdx).recoveredData(stateEntry.getKey(), bucketEntry.getValue());
             }
           }
           checkpointManager.save(state, stateEntry.getKey(), true /*skipWritingToWindowFile*/);
@@ -231,7 +237,7 @@ public abstract class AbstractManagedStateImpl
    *
    * @return number of buckets.
    */
-  public abstract int getNumBuckets();
+  public abstract long getNumBuckets();
 
   public void beginWindow(long windowId)
   {
@@ -246,17 +252,17 @@ public abstract class AbstractManagedStateImpl
    * @param bucketId bucket key
    * @return bucket index
    */
-  protected int prepareBucket(long bucketId)
+  protected long prepareBucket(long bucketId)
   {
     stateTracker.bucketAccessed(bucketId);
-    int bucketIdx = getBucketIdx(bucketId);
+    long bucketIdx = getBucketIdx(bucketId);
 
-    Bucket bucket = buckets[bucketIdx];
+    Bucket bucket = buckets.get(bucketIdx);
     if (bucket == null) {
       //bucket is not in memory
       bucket = newBucket(bucketId);
       bucket.setup(this);
-      buckets[bucketIdx] = bucket;
+      buckets.put(bucketIdx, bucket);
     } else if (bucket.getBucketId() != bucketId) {
       handleBucketConflict(bucketIdx, bucketId);
     }
@@ -269,13 +275,13 @@ public abstract class AbstractManagedStateImpl
     Preconditions.checkNotNull(value, "value");
     if (timeBucket != -1) {
       //time bucket is invalid data is not stored
-      int bucketIdx = prepareBucket(bucketId);
+      long bucketIdx = prepareBucket(bucketId);
       //synchronization on a bucket isn't required for put because the event is added to flash which is
       //a concurrent map. The assumption here is that the calls to put & get(sync/async) are being made synchronously by
       //a single thread (operator thread). The get(sync/async) always checks memory first synchronously.
       //If the key is not in the memory, then the async get will uses other reader threads which will fetch it from
       //the files.
-      buckets[bucketIdx].put(key, timeBucket, value);
+      buckets.get(bucketIdx).put(key, timeBucket, value);
     }
   }
 
@@ -283,8 +289,8 @@ public abstract class AbstractManagedStateImpl
   protected Slice getValueFromBucketSync(long bucketId, long timeBucket, @NotNull Slice key)
   {
     Preconditions.checkNotNull(key, "key");
-    int bucketIdx = prepareBucket(bucketId);
-    Bucket bucket = buckets[bucketIdx];
+    long bucketIdx = prepareBucket(bucketId);
+    Bucket bucket = buckets.get(bucketIdx);
     synchronized (bucket) {
       return bucket.get(key, timeBucket, Bucket.ReadSource.ALL);
     }
@@ -294,8 +300,8 @@ public abstract class AbstractManagedStateImpl
   protected Future<Slice> getValueFromBucketAsync(long bucketId, long timeBucket, @NotNull Slice key)
   {
     Preconditions.checkNotNull(key, "key");
-    int bucketIdx = prepareBucket(bucketId);
-    Bucket bucket = buckets[bucketIdx];
+    long bucketIdx = prepareBucket(bucketId);
+    Bucket bucket = buckets.get(bucketIdx);
     synchronized (bucket) {
       Slice cachedVal = bucket.get(key, timeBucket, Bucket.ReadSource.MEMORY);
       if (cachedVal != null) {
@@ -307,20 +313,20 @@ public abstract class AbstractManagedStateImpl
     }
   }
 
-  protected void handleBucketConflict(int bucketIdx, long newBucketId)
+  protected void handleBucketConflict(long bucketIdx, long newBucketId)
   {
-    throw new IllegalArgumentException("bucket conflict " + buckets[bucketIdx].getBucketId() + " " + newBucketId);
+    throw new IllegalArgumentException("bucket conflict " + buckets.get(bucketIdx).getBucketId() + " " + newBucketId);
   }
 
-  protected int getBucketIdx(long bucketId)
+  protected long getBucketIdx(long bucketId)
   {
-    return (int)Math.abs(bucketId % numBuckets);
+    return Math.abs(bucketId % numBuckets);
   }
 
   @Override
   public Bucket getBucket(long bucketId)
   {
-    return buckets[getBucketIdx(bucketId)];
+    return buckets.get(getBucketIdx(bucketId));
   }
 
   @Override
@@ -330,7 +336,7 @@ public abstract class AbstractManagedStateImpl
     if (b == null) {
       b = newBucket(bucketId);
       b.setup(this);
-      buckets[getBucketIdx(bucketId)] = b;
+      buckets.put(getBucketIdx(bucketId), b);
     }
     return b;
   }
@@ -351,7 +357,7 @@ public abstract class AbstractManagedStateImpl
   {
     Map<Long, Map<Slice, Bucket.BucketedValue>> flashData = Maps.newHashMap();
 
-    for (Bucket bucket : buckets) {
+    for (Bucket bucket : buckets.values()) {
       if (bucket != null) {
         synchronized (bucket) {
           Map<Slice, Bucket.BucketedValue> flashDataForBucket = bucket.checkpoint(windowId);
@@ -381,7 +387,7 @@ public abstract class AbstractManagedStateImpl
   {
     synchronized (commitLock) {
       try {
-        for (Bucket bucket : buckets) {
+        for (Bucket bucket : buckets.values()) {
           if (bucket != null) {
             synchronized (bucket) {
               bucket.committed(windowId);
@@ -402,7 +408,7 @@ public abstract class AbstractManagedStateImpl
   public Map<Long, Long> getBucketMemoryUsage()
   {
     Map<Long, Long> bucketToSize = Maps.newHashMap();
-    for (Bucket bucket : buckets) {
+    for (Bucket bucket : buckets.values()) {
       if (bucket == null) {
         continue;
       }
@@ -419,7 +425,7 @@ public abstract class AbstractManagedStateImpl
     bucketsFileSystem.teardown();
     timeBucketAssigner.teardown();
     readerService.shutdownNow();
-    for (Bucket bucket : buckets) {
+    for (Bucket bucket : buckets.values()) {
       if (bucket != null) {
         synchronized (bucket) {
           bucket.teardown();

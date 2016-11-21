@@ -58,7 +58,8 @@ import com.datatorrent.lib.util.KeyValPair;
 public class WindowedOperatorTest
 {
 
-  public static final long BASE = (System.currentTimeMillis() / 1000) * 1000;
+  // To test the extreme condition counting from
+  public static final long BASE = ((System.currentTimeMillis() - 3600000L * 24 * 365) / 1000) * 1000;
 
   @Parameterized.Parameters
   public static Collection<Object[]> testParameters()

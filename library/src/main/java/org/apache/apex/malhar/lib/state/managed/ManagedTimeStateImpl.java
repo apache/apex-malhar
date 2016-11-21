@@ -28,6 +28,7 @@ import org.apache.apex.malhar.lib.state.TimeSlicedBucketedState;
 
 import com.google.common.util.concurrent.Futures;
 
+import com.datatorrent.api.Context;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.netlet.util.Slice;
 
@@ -48,7 +49,7 @@ public class ManagedTimeStateImpl extends AbstractManagedStateImpl implements Ti
   @Override
   public void put(long bucketId, long time, @NotNull Slice key, @NotNull Slice value)
   {
-    long timeBucket = timeBucketAssigner.getTimeBucketAndAdjustBoundaries(time);
+    long timeBucket = timeBucketAssigner.getTimeBucket(time);
     putInBucket(bucketId, timeBucket, key, value);
   }
 
@@ -61,7 +62,7 @@ public class ManagedTimeStateImpl extends AbstractManagedStateImpl implements Ti
   @Override
   public Slice getSync(long bucketId, long time, @NotNull Slice key)
   {
-    long timeBucket = timeBucketAssigner.getTimeBucketAndAdjustBoundaries(time);
+    long timeBucket = timeBucketAssigner.getTimeBucket(time);
     if (timeBucket == -1) {
       //time is expired so no point in looking further.
       return BucketedState.EXPIRED;
@@ -78,7 +79,7 @@ public class ManagedTimeStateImpl extends AbstractManagedStateImpl implements Ti
   @Override
   public Future<Slice> getAsync(long bucketId, long time, Slice key)
   {
-    long timeBucket = timeBucketAssigner.getTimeBucketAndAdjustBoundaries(time);
+    long timeBucket = timeBucketAssigner.getTimeBucket(time);
     if (timeBucket == -1) {
       //time is expired so no point in looking further.
       return Futures.immediateFuture(BucketedState.EXPIRED);
@@ -88,9 +89,15 @@ public class ManagedTimeStateImpl extends AbstractManagedStateImpl implements Ti
 
   @Min(1)
   @Override
-  public int getNumBuckets()
+  public long getNumBuckets()
   {
     return numBuckets;
+  }
+
+  @Override
+  public void setup(Context.OperatorContext context)
+  {
+    super.setup(context);
   }
 
   /**

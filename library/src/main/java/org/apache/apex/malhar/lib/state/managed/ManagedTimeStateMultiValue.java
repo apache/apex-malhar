@@ -182,7 +182,7 @@ public class ManagedTimeStateMultiValue<K,V> implements Spillable.SpillableListM
   {
     if (isKeyContainsMultiValue) {
       Slice keySlice = streamCodec.toByteArray(k);
-      int bucketId = getBucketId(k);
+      long bucketId = getBucketId(k);
       Slice valueSlice = store.getSync(bucketId, keySlice);
       List<V> listOb;
       if (valueSlice == null || valueSlice.length == 0) {
@@ -207,7 +207,7 @@ public class ManagedTimeStateMultiValue<K,V> implements Spillable.SpillableListM
   {
     if (isKeyContainsMultiValue) {
       Slice keySlice = streamCodec.toByteArray(k);
-      int bucketId = getBucketId(k);
+      long bucketId = getBucketId(k);
       Slice valueSlice = store.getSync(bucketId, keySlice);
       List<V> listOb;
       if (valueSlice == null || valueSlice.length == 0) {
@@ -232,7 +232,7 @@ public class ManagedTimeStateMultiValue<K,V> implements Spillable.SpillableListM
    */
   private boolean insertInStore(long bucketId, long timeBucket, Slice keySlice, Slice valueSlice)
   {
-    long timeBucketId = store.getTimeBucketAssigner().getTimeBucketAndAdjustBoundaries(timeBucket);
+    long timeBucketId = store.getTimeBucketAssigner().getTimeBucket(timeBucket);
     if (timeBucketId != -1) {
       store.putInBucket(bucketId, timeBucketId, keySlice, valueSlice);
       return true;
@@ -270,7 +270,7 @@ public class ManagedTimeStateMultiValue<K,V> implements Spillable.SpillableListM
     throw new UnsupportedOperationException();
   }
 
-  public int getBucketId(K k)
+  public long getBucketId(K k)
   {
     return k.hashCode() % store.getNumBuckets();
   }

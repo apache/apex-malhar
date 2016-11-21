@@ -26,4 +26,27 @@ package org.apache.apex.malhar.lib.state.managed;
 public interface TimeExtractor<T>
 {
   long getTime(T t);
+
+  class FixedTimeExtractor<V> implements TimeExtractor<V>
+  {
+
+    private long fixedTime;
+
+    public FixedTimeExtractor(long fixedTime)
+    {
+      this.fixedTime = fixedTime;
+    }
+
+    private FixedTimeExtractor()
+    {
+      // For kryo
+    }
+
+    @Override
+    public long getTime(V v)
+    {
+      return fixedTime;
+    }
+
+  }
 }
