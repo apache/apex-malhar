@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.apex.malhar.lib.state.BucketedState;
 import org.apache.apex.malhar.lib.state.managed.AbstractManagedStateImpl;
 import org.apache.apex.malhar.lib.state.managed.ManagedTimeUnifiedStateImpl;
-import org.apache.apex.malhar.lib.state.managed.TimeBucketAssigner;
+import org.apache.apex.malhar.lib.state.managed.MovingBoundaryTimeBucketAssigner;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.apache.hadoop.fs.Path;
 
@@ -54,7 +54,7 @@ import com.datatorrent.netlet.util.Slice;
 
 /**
  * Abstract class which allows de-duplicating incoming tuples based on a configured key.
- * Also supports expiry mechanism based on a configurable expiry period configured using {@link TimeBucketAssigner}
+ * Also supports expiry mechanism based on a configurable expiry period configured using {@link MovingBoundaryTimeBucketAssigner}
  * in {@link ManagedTimeUnifiedStateImpl}
  * Following steps are used in identifying the state of a particular tuple:
  * 1. Check if the time of the tuple falls in an expired bucket. If so, the tuple is expired

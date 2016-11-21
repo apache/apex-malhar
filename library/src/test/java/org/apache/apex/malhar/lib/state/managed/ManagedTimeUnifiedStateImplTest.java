@@ -32,7 +32,6 @@ import org.junit.runner.Description;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.lib.fileaccess.FileAccessFSImpl;
-import com.datatorrent.lib.util.KryoCloneUtils;
 import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.netlet.util.Slice;
 
@@ -64,13 +63,6 @@ public class ManagedTimeUnifiedStateImplTest
 
   @Rule
   public TestMeta testMeta = new TestMeta();
-
-  @Test
-  public void testSerde() throws IOException
-  {
-    ManagedTimeUnifiedStateImpl deserialized = KryoCloneUtils.cloneObject(testMeta.managedState);
-    Assert.assertEquals("num buckets", deserialized.getNumBuckets(), testMeta.managedState.getNumBuckets());
-  }
 
   @Test
   public void testSimplePutGet()
@@ -129,7 +121,7 @@ public class ManagedTimeUnifiedStateImplTest
 
     testMeta.managedState.setup(testMeta.operatorContext);
 
-    long timeBucket = testMeta.managedState.getTimeBucketAssigner().getTimeBucketAndAdjustBoundaries(time);
+    long timeBucket = testMeta.managedState.getTimeBucketAssigner().getTimeBucket(time);
     Map<Slice, Bucket.BucketedValue> unsavedBucket0 = ManagedStateTestUtils.getTestBucketData(0, timeBucket);
 
     //write data to disk explicitly
@@ -151,7 +143,7 @@ public class ManagedTimeUnifiedStateImplTest
 
     testMeta.managedState.setup(testMeta.operatorContext);
 
-    long timeBucket = testMeta.managedState.getTimeBucketAssigner().getTimeBucketAndAdjustBoundaries(time);
+    long timeBucket = testMeta.managedState.getTimeBucketAssigner().getTimeBucket(time);
     Map<Slice, Bucket.BucketedValue> unsavedBucket0 = ManagedStateTestUtils.getTestBucketData(0, timeBucket);
 
     //write data to disk explicitly

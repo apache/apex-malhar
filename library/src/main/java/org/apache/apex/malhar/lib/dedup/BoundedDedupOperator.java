@@ -24,7 +24,7 @@ import java.util.concurrent.Future;
 import javax.validation.constraints.NotNull;
 
 import org.apache.apex.malhar.lib.state.managed.ManagedTimeStateImpl;
-import org.apache.apex.malhar.lib.state.managed.TimeBucketAssigner;
+import org.apache.apex.malhar.lib.state.managed.MovingBoundaryTimeBucketAssigner;
 
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 
@@ -110,7 +110,7 @@ public class BoundedDedupOperator extends AbstractDeduper<Object>
       numBuckets = DEFAULT_NUM_BUCKETS;
     }
     ((ManagedTimeStateImpl)managedState).setNumBuckets(numBuckets);
-    TimeBucketAssigner timeBucketAssigner = new TimeBucketAssigner();
+    MovingBoundaryTimeBucketAssigner timeBucketAssigner = new MovingBoundaryTimeBucketAssigner();
     managedState.setTimeBucketAssigner(timeBucketAssigner);
     super.setup(context);
   }

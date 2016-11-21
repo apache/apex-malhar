@@ -31,7 +31,7 @@ class MockManagedStateContext implements ManagedStateContext
   private TFileImpl.DTFileImpl fileAccess = new TFileImpl.DTFileImpl();
   private Comparator<Slice> keyComparator = new SliceComparator();
   private BucketsFileSystem bucketsFileSystem = new BucketsFileSystem();
-  private TimeBucketAssigner timeBucketAssigner = new TimeBucketAssigner();
+  private MovingBoundaryTimeBucketAssigner timeBucketAssigner = new MovingBoundaryTimeBucketAssigner();
 
   private final Context.OperatorContext operatorContext;
 
@@ -58,7 +58,7 @@ class MockManagedStateContext implements ManagedStateContext
   }
 
   @Override
-  public TimeBucketAssigner getTimeBucketAssigner()
+  public MovingBoundaryTimeBucketAssigner getTimeBucketAssigner()
   {
     return timeBucketAssigner;
   }
@@ -84,7 +84,7 @@ class MockManagedStateContext implements ManagedStateContext
     this.bucketsFileSystem = bucketsFileSystem;
   }
 
-  void setTimeBucketAssigner(TimeBucketAssigner timeBucketAssigner)
+  void setTimeBucketAssigner(MovingBoundaryTimeBucketAssigner timeBucketAssigner)
   {
     this.timeBucketAssigner = timeBucketAssigner;
   }

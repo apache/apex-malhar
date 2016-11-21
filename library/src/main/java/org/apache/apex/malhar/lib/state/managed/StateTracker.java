@@ -87,7 +87,7 @@ class StateTracker extends TimerTask
       //freeing of state needs to be stopped during commit as commit results in transferring data to a state which
       // can be freed up as well.
       long bytesSum = 0;
-      for (Bucket bucket : managedStateImpl.buckets) {
+      for (Bucket bucket : managedStateImpl.buckets.values()) {
         if (bucket != null) {
           bytesSum += bucket.getSizeInBytes();
         }
