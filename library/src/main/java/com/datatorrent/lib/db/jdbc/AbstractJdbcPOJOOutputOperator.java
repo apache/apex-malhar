@@ -296,6 +296,11 @@ public abstract class AbstractJdbcPOJOOutputOperator extends AbstractJdbcTransac
     }
   }
 
+  /**
+   * Function to initialize the list of {@link JdbcFieldInfo} from properties.xml
+   * @param index
+   * @param value
+   */
   public void setFieldInfosItem(int index, String value)
   {
     try {
