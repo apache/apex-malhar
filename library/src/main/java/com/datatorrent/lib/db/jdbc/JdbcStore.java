@@ -91,6 +91,13 @@ public class JdbcStore implements Connectable
     connectionProperties = new Properties();
   }
 
+
+  /**
+   *  Function to get the connection.
+   *  Ignoring "connection" for serialization as it was being used even after
+   *  being closed while fetching/displaying the operator properties (refer APEXMALHAR-2351)
+   */
+  @JsonIgnore
   public Connection getConnection()
   {
     return connection;
