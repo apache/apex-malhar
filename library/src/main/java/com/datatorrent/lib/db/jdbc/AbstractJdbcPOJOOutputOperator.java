@@ -25,10 +25,12 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +63,11 @@ import com.datatorrent.lib.util.PojoUtils.GetterShort;
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractJdbcPOJOOutputOperator extends AbstractJdbcTransactionableOutputOperator<Object>
 {
-  private List<JdbcFieldInfo> fieldInfos;
+  private List<JdbcFieldInfo> fieldInfos = new ArrayList<>();
+  private final String SQLTYPE = "sqlType";
+  private final String COLUMNNAME = "columnName";
+  private final String POJOFIELDEXPRESSION = "pojoFieldExpression";
+  private final String TYPE = "type";
 
   protected List<Integer> columnDataTypes;
 
@@ -294,5 +300,22 @@ public abstract class AbstractJdbcPOJOOutputOperator extends AbstractJdbcTransac
       }
     }
   }
+
+  public void setFieldInfosItem(int index, String value)
+  {
+    try {
+      JSONObject jo = new JSONObject(value);
+      JdbcFieldInfo jdbcFieldInfo = new JdbcFieldInfo(jo.getString(COLUMNNAME), jo.getString(POJOFIELDEXPRESSION),
+          FieldInfo.SupportType.valueOf(jo.getString(TYPE)), jo.getInt(SQLTYPE));
+      final int need = index - fieldInfos.size() + 1;
+      for (int i = 0; i < need; i++) {
+        fieldInfos.add(null);
+      }
+      fieldInfos.set(index,jdbcFieldInfo);
+    } catch (Exception e) {
+      throw new RuntimeException("Exception in setting JdbcFieldInfo");
+    }
+  }
+
 
 }
