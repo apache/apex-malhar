@@ -82,6 +82,7 @@ public class TimeBasedDedupOperator extends AbstractDeduper<Object> implements A
   @NotNull
   private String keyExpression;
 
+  @NotNull
   private String timeExpression;
 
   @NotNull
@@ -132,10 +133,7 @@ public class TimeBasedDedupOperator extends AbstractDeduper<Object> implements A
   @Override
   protected long getTime(Object tuple)
   {
-    if (timeGetter != null) {
-      return timeGetter.get(tuple);
-    }
-    return System.currentTimeMillis();
+    return timeGetter.get(tuple);
   }
 
   @Override
