@@ -17,4 +17,5 @@ pages:
     - Windowed Operator: operators/windowedOperator.md
     - Json Parser: operators/jsonParser.md
     - Json Formatter: operators/jsonFormatter.md
+    - Transform Operator: operators/transform.md
 
