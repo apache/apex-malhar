@@ -23,6 +23,9 @@ import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.hadoop.classification.InterfaceStability;
 
 @InterfaceStability.Evolving
+/**
+ * @since 3.6.0
+ */
 public class OperatorUtils
 {
   private static int opCount = 1;

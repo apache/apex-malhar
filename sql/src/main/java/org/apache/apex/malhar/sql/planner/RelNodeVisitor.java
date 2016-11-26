@@ -35,6 +35,8 @@ import com.datatorrent.api.Operator;
 
 /**
  * This class is the main class that converts relational algebra to a sub-DAG.
+ *
+ * @since 3.6.0
  */
 @InterfaceStability.Evolving
 public class RelNodeVisitor

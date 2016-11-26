@@ -1,6 +1,90 @@
 Apex Malhar Changelog
 ========================================================================================================================
 
+Version 3.6.0 - 2016-11-30
+------------------------------------------------------------------------------------------------------------------------
+
+### Sub-task
+* [APEXMALHAR-2244] - Optimize WindowedStorage and Spillable data structures for time series
+* [APEXMALHAR-2248] - Create SpillableSet and SpillableSetMultimap interfaces and implementation
+
+### Bug
+* [APEXMALHAR-1852] - File Splitter Test Failing
+* [APEXMALHAR-2176] - expressionFunctions for FilterOperator throws IndexOutOfBounds
+* [APEXMALHAR-2207] - JsonFormatterTest application test should check for presence of expected results
+* [APEXMALHAR-2217] - Remove some redundant code in WindowedStorage and WindowedKeyedStorage
+* [APEXMALHAR-2224] - GenericFileOutputOperator rotateCall fails if no data is written to the file
+* [APEXMALHAR-2226] - Not suppported Exception in AbstractFileOutput Operator.
+* [APEXMALHAR-2227] - Error while connecting with Kafka using Apache Apex
+* [APEXMALHAR-2236] - Potential NullPointerException in JdbcStore
+* [APEXMALHAR-2245] - WindowBoundedMapCache.remove not working when key not in cache
+* [APEXMALHAR-2246] - Key of SpillableByteArrayListMultimapImpl not comparable
+* [APEXMALHAR-2256] - POJOInnerJoinOperator should use getDeclaredField of java reflection
+* [APEXMALHAR-2258] - JavaExpressionParser does not cast type correctly when expression is binary
+* [APEXMALHAR-2263] - Offsets in AbstractFileInputOperator should be long rather than int
+* [APEXMALHAR-2265] - Add entries to mkdocs.yml for recently added operator docs
+* [APEXMALHAR-2272] - sequentialFileRead property on FSInputModule not functioning as expected
+* [APEXMALHAR-2273] - Retraction trigger is fired incorrectly when fireOnlyUpdatedPanes is true
+* [APEXMALHAR-2276] - ManagedState: value of a key does not get over-written in the same time bucket
+* [APEXMALHAR-2281] - ManagedState: race condition with put & asyncGet
+* [APEXMALHAR-2290] - JDBCPOJOInsertOutput Operator - Optimization to populate metadata from database
+* [APEXMALHAR-2291] - Exactly-once processing not working correctly for JdbcPOJOInsertOutputOperator
+* [APEXMALHAR-2299] - TimeBasedDedupOperator throws exception during time bucket assignment in certain edge cases
+* [APEXMALHAR-2305] - Change implementation of session window to reflect what is described in streaming 102 blog
+* [APEXMALHAR-2307] - Session windows are not deleted properly after merge or extend
+* [APEXMALHAR-2309] - TimeBasedDedupOperator marks new tuples as duplicates if expired tuples exist
+* [APEXMALHAR-2312] - NullPointerException in FileSplitterInput when file path is specified
+* [APEXMALHAR-2314] - Improper functioning in partitioning of sequentialFileRead property of FSRecordReader 
+* [APEXMALHAR-2315] - Ignore Join Test for because of issues in POJOInnerJoinOperator
+* [APEXMALHAR-2317] - Change SpillableBenchmarkApp to adapt the change on Spillable Data Structure
+* [APEXMALHAR-2325] - Same block id is emitting from FSInputModule
+* [APEXMALHAR-2329] - ManagedState benchmark should not use constant bucket
+* [APEXMALHAR-2333] - StateTracker#run throws NoSuchElementException
+* [APEXMALHAR-2334] - Managed State benchmark: blocked committed window 
+* [APEXMALHAR-2342] - Fix null pointer exception in AbstractFileOutputOperator setup
+* [APEXMALHAR-2351] - Exception while fetching properties for Operators using JdbcStore 
+* [APEXMALHAR-2353] - timeExpression should not be null for time based Dedup
+
+### Documentation
+* [APEXMALHAR-2166] - Add user documentation for Json Parser
+* [APEXMALHAR-2167] - Add user documentation for Json Formatter
+* [APEXMALHAR-2179] - Add documentation for JDBCPollInputOperator
+* [APEXMALHAR-2184] - Add documentation for FileSystem Input Operator
+* [APEXMALHAR-2219] - Add documentation for Deduper
+* [APEXMALHAR-2232] - Add documentation for csv parser
+* [APEXMALHAR-2242] - Add documentation for 0.9 version of Kafka Input Operator.
+* [APEXMALHAR-2257] - Add documentation for Transform operator
+* [APEXMALHAR-2264] - Add documentation for jmsInputOperator
+* [APEXMALHAR-2282] - Document Windowed Operator and Accumulation
+
+### Improvement
+* [APEXMALHAR-2017] - Use pre checkpoint notification to optimize operator IO
+* [APEXMALHAR-2139] - UniqueCounter changes
+* [APEXMALHAR-2237] - Dynamic partitioning support for FSInputModule
+* [APEXMALHAR-2267] - Remove the word "Byte" in the spillable data structures because it's implied
+* [APEXMALHAR-2280] - Add InterfaceStability annotations to all windowed operator related packages
+* [APEXMALHAR-2302] - Exposing more properties of FSSplitter and BlockReader operators to FSRecordReaderModule
+* [APEXMALHAR-2320] - FSWindowDataManager.toSlice() can cause lots of garbage collection
+* [APEXMALHAR-2327] - BucketsFileSystem.writeBucketData() call Slice.toByteArray() cause allocate unnecessary memory
+* [APEXMALHAR-2340] - Initialize the list of JdbcFieldInfo in JdbcPOJOInsertOutput from properties.xml
+
+### New Feature
+* [APEXMALHAR-1818] - Integrate Calcite to support SQL
+* [APEXMALHAR-2152] - Enricher - Add fixed length file format support to FSLoader
+* [APEXMALHAR-2181] - Non-Transactional Prepared Statement Based Cassandra Upsert (Update + Insert ) output Operator
+* [APEXMALHAR-2209] - Add inner join example application to examples repository
+* [APEXMALHAR-2229] - Add support for peek on com.datatorrent.lib.fileaccess.FileAccess.FileReader
+* [APEXMALHAR-2247] - Add iteration feature in SpillableArrayListImpl and generalize SerdeListSlice to SerdeCollectionSlice
+* [APEXMALHAR-2304] - Apex SQL: Add examples for SQL in Apex in demos folder
+
+### Task
+* [APEXMALHAR-2143] - Evaluate and retire lib/math, lib/algo, and lib/streamquery operators
+* [APEXMALHAR-2190] - Use reusable buffer to serial spillable data structure
+* [APEXMALHAR-2201] - Suppress console output in Stream API tests
+* [APEXMALHAR-2225] - Upgrade checkstyle rules to 1.1.0 and fix trailing whitespace
+* [APEXMALHAR-2240] - Implement Windowed Join Operator
+* [APEXMALHAR-2338] - Couple of links in fsInputOperator.md have a stray # which prevents proper display
+
 Version 3.5.0 - 2016-08-31
 ------------------------------------------------------------------------------------------------------------------------
 

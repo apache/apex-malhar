@@ -25,6 +25,8 @@ import org.apache.commons.lang3.tuple.Pair;
 /**
  * A {@link TimeExtractor} to extract time from Pair of {@link Window} and key
  * The type of key doesn't matter in this case, so it assumes object as the key type
+ *
+ * @since 3.6.0
  */
 public class WindowKeyPairTimeExtractor<K> implements TimeExtractor<Pair<Window, K>>
 {

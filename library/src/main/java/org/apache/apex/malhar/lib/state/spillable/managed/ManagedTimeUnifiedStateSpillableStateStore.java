@@ -23,6 +23,8 @@ import org.apache.apex.malhar.lib.state.spillable.SpillableStateStore;
 
 /**
  *
+ *
+ * @since 3.6.0
  */
 public class ManagedTimeUnifiedStateSpillableStateStore extends ManagedTimeUnifiedStateImpl implements SpillableStateStore
 {

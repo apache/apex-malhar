@@ -36,6 +36,8 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
  * @param <InputT2> The type of input tuple from first stream.
  * @param <AccumT> The type of the accumulated value in the operator state per key per window.
  * @param <OutputT> The type of output tuple.
+ *
+ * @since 3.6.0
  */
 public class WindowedMergeOperatorImpl<InputT1, InputT2, AccumT, OutputT>
     extends WindowedOperatorImpl<InputT1, AccumT, OutputT> implements WindowedMergeOperator<InputT1, InputT2>

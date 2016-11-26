@@ -29,6 +29,9 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.fileaccess.TFileImpl;
 
 @ApplicationAnnotation(name = "SpillableBenchmarkApp")
+/**
+ * @since 3.6.0
+ */
 public class SpillableBenchmarkApp implements StreamingApplication
 {
   protected final String PROP_STORE_PATH = "dt.application.SpillableBenchmarkApp.storeBasePath";

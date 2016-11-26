@@ -32,6 +32,8 @@ import com.datatorrent.netlet.util.Slice;
  * A stream is a collection of blocks
  * BlockStream avoids copying the data that are already exposed to the caller
  *
+ *
+ * @since 3.6.0
  */
 public class BlockStream extends OutputStream
 {

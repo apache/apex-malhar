@@ -38,6 +38,8 @@ import com.datatorrent.lib.util.KeyValPair;
  * @param <InputT2> The type of the value of the keyed input tuple from second stream.
  * @param <AccumT> The type of the accumulated value in the operator state per key per window.
  * @param <OutputT> The type of the value of the keyed output tuple.
+ *
+ * @since 3.6.0
  */
 public class KeyedWindowedMergeOperatorImpl<KeyT, InputT1, InputT2, AccumT, OutputT>
     extends KeyedWindowedOperatorImpl<KeyT, InputT1, AccumT, OutputT>

@@ -31,6 +31,8 @@ import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
 
 /**
  * This operator reads data from given file/folder in line by line fashion.
+ *
+ * @since 3.6.0
  */
 @InterfaceStability.Evolving
 public class LineReader extends AbstractFileInputOperator<byte[]>

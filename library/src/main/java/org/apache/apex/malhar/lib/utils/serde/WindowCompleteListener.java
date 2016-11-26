@@ -18,6 +18,9 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
+/**
+ * @since 3.6.0
+ */
 public interface WindowCompleteListener
 {
   /**

@@ -28,6 +28,8 @@ import com.datatorrent.netlet.util.Slice;
  * com.datatorrent.netlet.util.Slice has problem with the hashCode(), so
  * override here
  *
+ *
+ * @since 3.6.0
  */
 public class BufferSlice extends Slice
 {

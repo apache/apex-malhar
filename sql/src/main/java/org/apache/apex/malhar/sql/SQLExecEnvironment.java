@@ -75,6 +75,8 @@ import com.datatorrent.api.DAG;
  * </pre>
  *
  * Above code will evaluate SQL statement and convert the resultant Relational Algebra to a sub-DAG.
+ *
+ * @since 3.6.0
  */
 @InterfaceStability.Evolving
 public class SQLExecEnvironment

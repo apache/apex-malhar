@@ -21,6 +21,8 @@ package org.apache.apex.malhar.lib.state.managed;
 /**
  * This interface declares methods to get bucket by bucket id
  *
+ *
+ * @since 3.6.0
  */
 public interface BucketProvider
 {

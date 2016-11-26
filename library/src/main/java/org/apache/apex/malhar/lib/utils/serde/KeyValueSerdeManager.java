@@ -23,6 +23,9 @@ import org.apache.apex.malhar.lib.state.managed.BucketProvider;
 
 import com.datatorrent.netlet.util.Slice;
 
+/**
+ * @since 3.6.0
+ */
 public class KeyValueSerdeManager<K, V>
 {
   protected Serde<K> keySerde;

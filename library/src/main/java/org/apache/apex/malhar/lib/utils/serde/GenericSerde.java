@@ -30,6 +30,8 @@ import com.esotericsoftware.kryo.io.Output;
  * incompatible changes to the class being serialized.
  *
  * @param <T> The type being serialized
+ *
+ * @since 3.6.0
  */
 @InterfaceStability.Evolving
 public class GenericSerde<T> implements Serde<T>

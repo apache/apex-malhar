@@ -35,6 +35,9 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.ShutdownException;
 import com.datatorrent.common.util.BaseOperator;
 
+/**
+ * @since 3.6.0
+ */
 public class SpillableTestOperator extends BaseOperator implements Operator.CheckpointNotificationListener
 {
   private static final Logger logger = LoggerFactory.getLogger(SpillableTestOperator.class);

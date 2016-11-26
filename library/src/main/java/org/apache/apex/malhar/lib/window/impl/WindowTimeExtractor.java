@@ -23,6 +23,8 @@ import org.apache.apex.malhar.lib.window.Window;
 
 /**
  *　A {@link TimeExtractor} to extract time from {@link Window}
+ *
+ * @since 3.6.0
  */
 public class WindowTimeExtractor implements TimeExtractor<Window>
 {

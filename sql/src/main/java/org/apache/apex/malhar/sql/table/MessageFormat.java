@@ -31,6 +31,8 @@ import com.datatorrent.api.DAG;
 /**
  * This interface defines how message should be parsed from input or formatted for output.
  * The implementation of this interface should define both parsing and formatting representation for data.
+ *
+ * @since 3.6.0
  */
 @InterfaceStability.Evolving
 public interface MessageFormat

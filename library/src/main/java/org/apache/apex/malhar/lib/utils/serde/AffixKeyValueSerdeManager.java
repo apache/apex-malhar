@@ -30,6 +30,8 @@ import com.datatorrent.netlet.util.Slice;
  *
  * @param <K>
  * @param <V>
+ *
+ * @since 3.6.0
  */
 public class AffixKeyValueSerdeManager<K, V> extends KeyValueSerdeManager<K, V>
 {

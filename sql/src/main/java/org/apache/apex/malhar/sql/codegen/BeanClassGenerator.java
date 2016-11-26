@@ -47,6 +47,8 @@ import com.google.common.collect.Maps;
 
 /**
  * Creates a bean class on fly.
+ *
+ * @since 3.6.0
  */
 @InterfaceStability.Evolving
 public class BeanClassGenerator

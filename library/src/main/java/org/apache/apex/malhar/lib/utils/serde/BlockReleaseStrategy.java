@@ -23,6 +23,8 @@ package org.apache.apex.malhar.lib.utils.serde;
  * - Stream keep on reporting how many free blocks it has in certain frequent. usually at the end of each window
  * - Stream check how many block should release. Stream usually release the blocks but Stream can make its own decision
  * - Stream report how many blocks actually released
+ *
+ * @since 3.6.0
  */
 public interface BlockReleaseStrategy
 {

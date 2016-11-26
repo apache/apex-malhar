@@ -27,6 +27,8 @@ import org.apache.apex.malhar.lib.window.MergeAccumulation;
 
 /**
  * Combine Join Accumulation, inner-joins tuples with same type from different streams.
+ *
+ * @since 3.6.0
  */
 public class InnerJoin<T> implements MergeAccumulation<T, T, List<Set<T>>, List<List<T>>>
 {

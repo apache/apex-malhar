@@ -24,6 +24,8 @@ import java.util.Set;
 
 /**
  * CoGroup Join Accumulation.
+ *
+ * @since 3.6.0
  */
 public class CoGroup<T> extends InnerJoin<T>
 {

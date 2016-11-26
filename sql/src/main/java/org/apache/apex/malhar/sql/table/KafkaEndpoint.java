@@ -40,6 +40,8 @@ import com.datatorrent.api.Operator;
 
 /**
  * This is an implementation of {@link Endpoint} which defined how data should be read/written from kafka messaging system
+ *
+ * @since 3.6.0
  */
 @InterfaceStability.Evolving
 public class KafkaEndpoint implements Endpoint

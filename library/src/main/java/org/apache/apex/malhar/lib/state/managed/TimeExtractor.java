@@ -20,6 +20,8 @@ package org.apache.apex.malhar.lib.state.managed;
 
 /**
  * A way to extract time from data
+ *
+ * @since 3.6.0
  */
 public interface TimeExtractor<T>
 {

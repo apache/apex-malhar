@@ -25,6 +25,9 @@ import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.FSDataInputStream;
 
 @InterfaceStability.Evolving
+/**
+ * @since 3.6.0
+ */
 public class ClassLoaderUtils
 {
   /**

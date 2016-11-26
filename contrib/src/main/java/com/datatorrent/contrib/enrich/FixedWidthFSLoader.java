@@ -46,6 +46,8 @@ import com.datatorrent.contrib.parser.AbstractCsvParser.Field;
  * This implementation of {@link FSLoader} is used to load data from fixed width
  * file.User needs to set {@link FixedWidthFSLoader#fieldDescription} to specify
  * field information.
+ *
+ * @since 3.6.0
  */
 @InterfaceStability.Evolving
 public class FixedWidthFSLoader extends FSLoader
