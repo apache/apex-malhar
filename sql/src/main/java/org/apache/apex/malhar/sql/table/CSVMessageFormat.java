@@ -38,6 +38,9 @@ import com.datatorrent.contrib.parser.CsvParser;
 import com.datatorrent.contrib.parser.DelimitedSchema;
 
 @InterfaceStability.Evolving
+/**
+ * @since 3.6.0
+ */
 public class CSVMessageFormat implements MessageFormat
 {
   public static final String CSV_SCHEMA = "schema";

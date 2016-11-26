@@ -40,6 +40,9 @@ import com.datatorrent.contrib.parser.CsvParser;
 
 
 @ApplicationAnnotation(name = "FusionStyleSQLApplication")
+/**
+ * @since 3.6.0
+ */
 public class FusionStyleSQLApplication implements StreamingApplication
 {
   @Override

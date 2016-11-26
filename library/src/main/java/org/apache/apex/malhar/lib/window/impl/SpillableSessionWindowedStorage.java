@@ -37,6 +37,8 @@ import com.datatorrent.api.Context;
 
 /**
  * Spillable session windowed storage.
+ *
+ * @since 3.6.0
  */
 @InterfaceStability.Evolving
 public class SpillableSessionWindowedStorage<K, V> extends SpillableWindowedKeyedStorage<K, V> implements SessionWindowedStorage<K, V>

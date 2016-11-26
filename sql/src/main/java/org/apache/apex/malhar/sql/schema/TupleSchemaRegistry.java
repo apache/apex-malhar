@@ -45,6 +45,9 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 @InterfaceStability.Evolving
+/**
+ * @since 3.6.0
+ */
 public class TupleSchemaRegistry
 {
   public static final String FQCN_PACKAGE = "org.apache.apex.generated.schema.";

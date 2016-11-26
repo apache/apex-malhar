@@ -25,6 +25,8 @@ import com.esotericsoftware.kryo.io.Output;
  * AffixSerde provides serde for adding prefix or suffix
  *
  * @param <T>
+ *
+ * @since 3.6.0
  */
 public class AffixSerde<T> implements Serde<T>
 {

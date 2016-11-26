@@ -38,6 +38,9 @@ import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.netlet.util.Slice;
 
+/**
+ * @since 3.6.0
+ */
 public class StoreOperator extends BaseOperator implements Operator.CheckpointNotificationListener
 {
   private static final Logger logger = LoggerFactory.getLogger(StoreOperator.class);

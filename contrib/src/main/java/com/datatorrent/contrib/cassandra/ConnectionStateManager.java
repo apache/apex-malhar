@@ -74,6 +74,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * }
  * Please refer {@link ConnectionBuilder} for details about parameters that can be used to define the connection
  * and its default behaviour
+ *
+ * @since 3.6.0
  */
 @InterfaceStability.Evolving
 public class ConnectionStateManager implements AutoCloseable, Serializable

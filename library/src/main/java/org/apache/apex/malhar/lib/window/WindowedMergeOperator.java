@@ -20,6 +20,8 @@ package org.apache.apex.malhar.lib.window;
 
 /**
  * Interface for Merge Windowed Operator.
+ *
+ * @since 3.6.0
  */
 public interface WindowedMergeOperator<InputT1, InputT2>
     extends WindowedOperator<InputT1>

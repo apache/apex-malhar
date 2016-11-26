@@ -35,6 +35,8 @@ import com.datatorrent.api.Context;
  * This is an implementation of WindowedPlainStorage that makes use of {@link Spillable} data structures
  *
  * @param <T> Type of the value per window
+ *
+ * @since 3.6.0
  */
 public class SpillableWindowedPlainStorage<T> implements WindowedStorage.WindowedPlainStorage<T>
 {

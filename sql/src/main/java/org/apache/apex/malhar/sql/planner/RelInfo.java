@@ -27,6 +27,8 @@ import com.datatorrent.api.Operator;
 
 /**
  * This object communicates stream and connection data between various stages of relational algebra.
+ *
+ * @since 3.6.0
  */
 @InterfaceStability.Evolving
 public class RelInfo

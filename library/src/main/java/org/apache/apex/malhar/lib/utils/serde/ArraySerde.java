@@ -24,6 +24,9 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.base.Preconditions;
 
+/**
+ * @since 3.6.0
+ */
 public class ArraySerde<T> implements Serde<T[]>
 {
   private Serde<T> itemSerde;

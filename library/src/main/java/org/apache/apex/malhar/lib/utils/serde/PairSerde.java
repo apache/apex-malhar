@@ -30,6 +30,8 @@ import com.google.common.base.Preconditions;
 
 /**
  * This is an implementation of {@link Serde} which serializes and deserializes pairs.
+ *
+ * @since 3.6.0
  */
 @InterfaceStability.Evolving
 public class PairSerde<T1, T2> implements Serde<Pair<T1, T2>>

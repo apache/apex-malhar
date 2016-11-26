@@ -22,6 +22,9 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.common.util.BaseOperator;
 
+/**
+ * @since 3.6.0
+ */
 public class SpillableTestInputOperator extends BaseOperator implements InputOperator
 {
   public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();

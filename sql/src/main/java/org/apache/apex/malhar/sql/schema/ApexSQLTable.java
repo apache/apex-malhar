@@ -42,6 +42,8 @@ import com.google.common.collect.ImmutableList;
  * This is representation of Apex source/destination to Calcite's {@link StreamableTable} table.
  * Any table that gets registered with {@link org.apache.apex.malhar.sql.SQLExecEnvironment}
  * gets registered as {@link ApexSQLTable}.
+ *
+ * @since 3.6.0
  */
 @InterfaceStability.Evolving
 public class ApexSQLTable implements ScannableTable, StreamableTable

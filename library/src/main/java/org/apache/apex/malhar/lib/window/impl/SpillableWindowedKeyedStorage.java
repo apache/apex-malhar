@@ -41,6 +41,8 @@ import com.datatorrent.api.Context;
  *
  * @param <K> The key type
  * @param <V> The value type
+ *
+ * @since 3.6.0
  */
 public class SpillableWindowedKeyedStorage<K, V> implements WindowedStorage.WindowedKeyedStorage<K, V>
 {

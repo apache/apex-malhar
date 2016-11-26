@@ -27,6 +27,8 @@ import com.datatorrent.lib.util.PojoUtils;
 
 /**
  * This is an extension of {@link TransformOperator} which also takes care of filtering tuples.
+ *
+ * @since 3.6.0
  */
 @InterfaceStability.Evolving
 public class FilterTransformOperator extends TransformOperator

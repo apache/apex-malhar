@@ -28,6 +28,9 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 @ApplicationAnnotation(name = "SQLApplicationWithAPI")
+/**
+ * @since 3.6.0
+ */
 public class SQLApplicationWithAPI implements StreamingApplication
 {
   @Override

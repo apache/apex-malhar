@@ -42,7 +42,7 @@ import static org.junit.Assert.assertTrue;
 public class AbstractUpsertOutputOperatorCodecsTest
 {
 
-  /***
+  /**
    * The schema that is used
    *
    *
