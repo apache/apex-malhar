@@ -22,6 +22,8 @@ package org.apache.apex.malhar.lib.utils.serde;
  * This interface provides methods for stream for key/value.
  * The implementation can separate the stream for key and value or share the same one.
  *
+ *
+ * @since 3.6.0
  */
 public interface KeyValueByteStreamProvider
 {

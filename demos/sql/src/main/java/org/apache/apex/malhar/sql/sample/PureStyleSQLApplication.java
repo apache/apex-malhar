@@ -29,6 +29,9 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 @ApplicationAnnotation(name = "PureStyleSQLApplication")
+/**
+ * @since 3.6.0
+ */
 public class PureStyleSQLApplication implements StreamingApplication
 {
   @Override

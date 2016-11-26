@@ -124,6 +124,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * 13. Support for handling Nulls i.e. whether null values in the POJO are to be persisted as is or to be ignored so
  *     that the application need not perform a read to populate a POJO field if it is not available in the context
  * 14. A few autometrics are provided for monitoring the latency aspects of the cassandra cluster
+ *
+ * @since 3.6.0
  */
 
 @InterfaceStability.Evolving
@@ -922,7 +924,7 @@ public abstract class AbstractUpsertOutputOperator extends BaseOperator implemen
     this.windowDataManager = windowDataManager;
   }
 
-  /***
+  /**
    * Implementing concrete Operator instances define the Connection Builder properties by implementing this method
    * Please refer to {@link com.datatorrent.contrib.cassandra.ConnectionStateManager.ConnectionBuilder} for
    * an example implementation of the ConnectionStateManager instantiation.
@@ -993,8 +995,7 @@ public abstract class AbstractUpsertOutputOperator extends BaseOperator implemen
    * @param windowId
    * @return Whether the current POJO that is being passed in should be allowed to write into the cassandra row just for
    * the reconciling window phase
-    ***/
-
+   */
   abstract boolean reconcileRecord(Object T, long windowId);
 
   enum OperationContext

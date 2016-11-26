@@ -64,6 +64,8 @@ import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 /**
  * This class defines how to populate DAG of Apex for the relational nodes of SQL Calcite
+ *
+ * @since 3.6.0
  */
 @InterfaceStability.Evolving
 public abstract class ApexRelNode

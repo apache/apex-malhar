@@ -24,6 +24,8 @@ import org.apache.commons.lang3.mutable.MutableInt;
 /**
  * This implementation get the minimum number of free blocks in the period to release.
  *
+ *
+ * @since 3.6.0
  */
 public class DefaultBlockReleaseStrategy implements BlockReleaseStrategy
 {

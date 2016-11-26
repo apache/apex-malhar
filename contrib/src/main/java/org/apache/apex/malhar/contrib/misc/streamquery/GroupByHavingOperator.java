@@ -33,6 +33,9 @@ import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.streamquery.index.ColumnIndex;
 import com.datatorrent.lib.streamquery.condition.Condition;
 @Deprecated
+/**
+ * @since 3.6.0
+ */
 public class GroupByHavingOperator extends BaseOperator
 {
 

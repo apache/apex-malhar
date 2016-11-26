@@ -31,12 +31,14 @@ import com.datastax.driver.core.LocalDate;
 import com.datastax.driver.core.TypeCodec;
 import com.datatorrent.lib.util.PojoUtils;
 
-/***
+/**
  * Used to manage simple data type based getters for given cassandra columns
+ *
+ * @since 3.6.0
  */
 public class CassandraPojoUtils
 {
-  /***
+  /**
    * Resolves a getter that can be associated with the given field name in the Pojo matching to the given
    * data type of cassandra
    * @param tuplePayloadClass The tuple class that is used to build the getter from
@@ -99,7 +101,7 @@ public class CassandraPojoUtils
     return getter;
   }
 
-  /***
+  /**
    * Populates a given bound statement column with a value give a POJO and the map representing the getters
    * @param boundStatement The statement that needs to be populated with the value
    * @param getters A map mapping the applicable getter for a given column name as key

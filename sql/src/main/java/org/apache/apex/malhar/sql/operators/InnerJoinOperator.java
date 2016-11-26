@@ -26,6 +26,8 @@ import com.datatorrent.api.Context;
 /**
  * This is an extension of {@link POJOInnerJoinOperator} operator which works over a global scope and
  * does not have time bound expiry of join tuples.
+ *
+ * @since 3.6.0
  */
 @InterfaceStability.Evolving
 public class InnerJoinOperator extends POJOInnerJoinOperator

@@ -32,6 +32,8 @@ import com.datatorrent.api.DAG;
  * This interface defines abstract table and how it should be operated with.
  * Endpoint interface can be implemented for any type of data source eg. Kafka, File, JDBC etc.
  * Implementation of Endpoint interface should define how the table should represented for both input OR output side.
+ *
+ * @since 3.6.0
  */
 @InterfaceStability.Evolving
 public interface Endpoint

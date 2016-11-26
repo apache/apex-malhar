@@ -34,6 +34,8 @@ import com.datastax.driver.core.ConsistencyLevel;
  *  See {@link ConnectionStateManager.ConnectionBuilder} to set the default TTL for all payload executions
  *  6. Override the default Consistency level to be used for the current mutation
  *  See {@link ConnectionStateManager.ConnectionBuilder} for setting default consistency.
+ *
+ * @since 3.6.0
  */
 public class UpsertExecutionContext<T>
 {

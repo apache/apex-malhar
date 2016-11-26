@@ -32,6 +32,8 @@ import com.google.common.base.Throwables;
 
 /**
  * Inner join Accumulation for Pojo Streams.
+ *
+ * @since 3.6.0
  */
 public class PojoInnerJoin<InputT1, InputT2>
     implements MergeAccumulation<InputT1, InputT2, List<List<Map<String, Object>>>, List<Map<String, Object>>>

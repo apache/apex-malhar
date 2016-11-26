@@ -32,8 +32,10 @@ import com.datastax.driver.core.DataType;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Session;
 
-/***
+/**
  * Used to generate CQL strings that can be used to generate prepared statements.
+ *
+ * @since 3.6.0
  */
 public class CassandraPreparedStatementGenerator
 {

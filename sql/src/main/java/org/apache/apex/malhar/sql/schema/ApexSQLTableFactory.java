@@ -32,6 +32,9 @@ import org.apache.calcite.schema.TableFactory;
 import org.apache.hadoop.classification.InterfaceStability;
 
 @InterfaceStability.Evolving
+/**
+ * @since 3.6.0
+ */
 public class ApexSQLTableFactory implements TableFactory<Table>
 {
   @SuppressWarnings("unchecked")

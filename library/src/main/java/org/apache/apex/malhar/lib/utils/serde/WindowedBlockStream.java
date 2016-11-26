@@ -35,6 +35,8 @@ import com.google.common.collect.Sets;
 /**
  * This is a stream which manages blocks and supports window related operations.
  *
+ *
+ * @since 3.6.0
  */
 public class WindowedBlockStream extends BlockStream implements WindowListener, WindowCompleteListener
 {

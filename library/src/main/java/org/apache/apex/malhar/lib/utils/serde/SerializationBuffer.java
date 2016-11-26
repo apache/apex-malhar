@@ -24,6 +24,9 @@ import com.esotericsoftware.kryo.io.Output;
 
 import com.datatorrent.netlet.util.Slice;
 
+/**
+ * @since 3.6.0
+ */
 public class SerializationBuffer extends Output implements WindowCompleteListener, WindowListener
 {
   /*
