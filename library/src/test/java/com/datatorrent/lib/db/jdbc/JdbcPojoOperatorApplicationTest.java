@@ -44,7 +44,6 @@ import com.datatorrent.stram.StramLocalCluster;
 public class JdbcPojoOperatorApplicationTest extends JdbcOperatorTest
 {
   public static int TupleCount;
-  public static com.datatorrent.lib.parser.XmlParserTest.EmployeeBean obj;
 
   public int getNumOfRowsinTable(String tableName)
   {
@@ -76,7 +75,7 @@ public class JdbcPojoOperatorApplicationTest extends JdbcOperatorTest
         @Override
         public Boolean call() throws Exception
         {
-          return TupleCount == 10;
+          return getNumOfRowsinTable(TABLE_POJO_NAME) == 10;
         }
       });
       lc.run(10000);// runs for 10 seconds and quits
