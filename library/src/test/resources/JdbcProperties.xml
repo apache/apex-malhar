@@ -48,6 +48,137 @@
     </value>
   </property>
 
+  <property>
+    <name>dt.operator.JdbcPOJOPollInput.fieldInfosItem[0]</name>
+    <value>
+      {
+      "columnName":"ID",
+      "pojoFieldExpression": "id",
+      "type":"INTEGER"
+      }
+
+    </value>
+  </property>
+
+
+  <property>
+    <name>dt.operator.JdbcPOJOPollInput.fieldInfosItem[1]</name>
+    <value>
+      {
+      "columnName":"STARTDATE",
+      "pojoFieldExpression": "startDate",
+      "type":"STRING"
+      }
+
+    </value>
+  </property>
+  <property>
+    <name>dt.operator.JdbcPOJOPollInput.fieldInfosItem[2]</name>
+    <value>
+      {
+      "columnName":"STARTTIME",
+      "pojoFieldExpression": "startTime",
+      "type":"STRING"
+      }
+
+    </value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcPOJOPollInput.fieldInfosItem[3]</name>
+    <value>
+      {
+      "columnName":"STARTTIMESTAMP",
+      "pojoFieldExpression": "startTimestamp",
+      "type":"STRING"
+      }
+
+    </value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcPOJOPollInput.fieldInfosItem[4]</name>
+    <value>
+      {
+      "columnName":"SCORE",
+      "pojoFieldExpression": "score",
+      "type":"DOUBLE"
+      }
+
+    </value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcPOJOPollInput.columnsExpression</name>
+    <value>
+      id,startDate,startTime,startTimestamp,score
+    </value>
+  </property>
+
+
+
+  <property>
+    <name>dt.operator.JdbcPOJOInput.fieldInfosItem[0]</name>
+    <value>
+      {
+      "columnName":"ID",
+      "pojoFieldExpression": "id",
+      "type":"INTEGER"
+      }
+
+    </value>
+  </property>
+
+
+  <property>
+    <name>dt.operator.JdbcPOJOInput.fieldInfosItem[1]</name>
+    <value>
+      {
+      "columnName":"STARTDATE",
+      "pojoFieldExpression": "startDate",
+      "type":"STRING"
+      }
+
+    </value>
+  </property>
+  <property>
+    <name>dt.operator.JdbcPOJOInput.fieldInfosItem[2]</name>
+    <value>
+      {
+      "columnName":"STARTTIME",
+      "pojoFieldExpression": "startTime",
+      "type":"STRING"
+      }
+
+    </value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcPOJOInput.fieldInfosItem[3]</name>
+    <value>
+      {
+      "columnName":"STARTTIMESTAMP",
+      "pojoFieldExpression": "startTimestamp",
+      "type":"STRING"
+      }
+
+    </value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcPOJOInput.fieldInfosItem[4]</name>
+    <value>
+      {
+      "columnName":"SCORE",
+      "pojoFieldExpression": "score",
+      "type":"DOUBLE"
+      }
+
+    </value>
+  </property>
+
+
+
 
 
 </configuration>

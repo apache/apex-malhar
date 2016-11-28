@@ -27,11 +27,13 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +67,7 @@ public class JdbcPOJOPollInputOperator extends AbstractJdbcPollInputOperator<Obj
   protected List<Integer> columnDataTypes;
   protected transient Class<?> pojoClass;
   @NotNull
-  private List<FieldInfo> fieldInfos;
+  private List<FieldInfo> fieldInfos = new ArrayList<>();
 
   @OutputPortFieldAnnotation(schemaRequired = true)
   public final transient DefaultOutputPort<Object> outputPort = new DefaultOutputPort<Object>()
@@ -321,6 +323,39 @@ public class JdbcPOJOPollInputOperator extends AbstractJdbcPollInputOperator<Obj
   public void setFieldInfos(List<FieldInfo> fieldInfos)
   {
     this.fieldInfos = fieldInfos;
+  }
+
+  /**
+   * Function to initialize the list of {@link FieldInfo} externally from configuration/properties file.
+   * Example entry in the properties/configuration file:
+   <property>
+     <name>dt.operator.JdbcPOJOInput.fieldInfosItem[0]</name>
+     <value>
+      {
+       "columnName":"ID",
+       "pojoFieldExpression": "id",
+       "type":"INTEGER"
+      }
+     </value>
+   </property>
+   * @param index is the index in the list which is to be initialized.
+   * @param value is the JSON String with appropriate mappings for {@link FieldInfo}.
+   */
+  public void setFieldInfosItem(int index, String value)
+  {
+
+    try {
+      JSONObject jo = new JSONObject(value);
+      FieldInfo fieldInfo = new FieldInfo(jo.getString("columnName"), jo.getString("pojoFieldExpression"),
+          FieldInfo.SupportType.valueOf(jo.getString("type")));
+      final int need = index - fieldInfos.size() + 1;
+      for (int i = 0; i < need; i++) {
+        fieldInfos.add(null);
+      }
+      fieldInfos.set(index,fieldInfo);
+    } catch (Exception e) {
+      throw new RuntimeException("Exception in setting FieldInfo " + value + " " + e.getMessage());
+    }
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(JdbcPOJOPollInputOperator.class);
