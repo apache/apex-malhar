@@ -216,7 +216,7 @@ public class ManagedTimeUnifiedStateImpl extends AbstractManagedStateImpl implem
     @Override
     protected void addBucketName(long bucketId)
     {
-      long operatorId = (long)managedStateContext.getOperatorContext().getId();
+      long operatorId = managedStateContext.getOperatorContext().getId();
       if (!bucketNamesOnFS.contains(operatorId)) {
         bucketNamesOnFS.add(operatorId);
       }

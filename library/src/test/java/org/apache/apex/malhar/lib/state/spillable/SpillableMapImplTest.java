@@ -25,7 +25,12 @@ import org.junit.runner.RunWith;
 
 import org.apache.apex.malhar.lib.state.managed.TimeExtractor;
 import org.apache.apex.malhar.lib.state.spillable.inmem.InMemSpillableStateStore;
+import org.apache.apex.malhar.lib.utils.serde.AffixKeyValueSerdeManager;
+import org.apache.apex.malhar.lib.utils.serde.Serde;
+import org.apache.apex.malhar.lib.utils.serde.SerializationBuffer;
 import org.apache.apex.malhar.lib.utils.serde.StringSerde;
+
+import com.google.common.base.Preconditions;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
@@ -451,5 +456,103 @@ public class SpillableMapImplTest
     map1.getStore().endWindow();
 
     map1.teardown();
+  }
+
+
+  protected static class SerdeManagerForTest<K, V> extends AffixKeyValueSerdeManager<K, V>
+  {
+    public SerdeManagerForTest(byte[] metaKeySuffix, byte[] dataKeyIdentifier, Serde<K> keySerde, Serde<V> valueSerde)
+    {
+      super(metaKeySuffix, dataKeyIdentifier, keySerde, valueSerde);
+    }
+
+    public SerializationBuffer getValueBuffer()
+    {
+      return valueBuffer;
+    }
+
+    public SerializationBuffer getKeyBufferForWrite()
+    {
+      return keyBufferForWrite;
+    }
+  }
+
+  protected static class SpillableMapImplForTest<K, V> extends SpillableMapImpl<K, V>
+  {
+    protected SerdeManagerForTest<K, V> serdeManager;
+
+    public SpillableMapImplForTest(SpillableStateStore store, byte[] identifier, long bucket, Serde<K> serdeKey,
+        Serde<V> serdeValue)
+    {
+      super(store, identifier, bucket, serdeKey, serdeValue);
+      serdeManager = new SerdeManagerForTest<>(null, identifier, Preconditions.checkNotNull(serdeKey), Preconditions.checkNotNull(serdeValue));
+      keyValueSerdeManager = serdeManager;
+    }
+
+    public SpillableMapImplForTest(SpillableStateStore store, byte[] identifier, Serde<K> serdeKey,
+        Serde<V> serdeValue, TimeExtractor<K> timeExtractor)
+    {
+      super(store, identifier, serdeKey, serdeValue, timeExtractor);
+      serdeManager = new SerdeManagerForTest<>(null, identifier, Preconditions.checkNotNull(serdeKey), Preconditions.checkNotNull(serdeValue));
+      keyValueSerdeManager = serdeManager;
+    }
+  }
+
+  @Test
+  @Parameters({"TimeUnifiedManagedState"})
+  public void serializationBufferTest(String opt)
+  {
+    SerializationBuffer keyBuffer = null;
+    SerializationBuffer valueBuffer = null;
+    SerializationBuffer currentBuffer;
+
+    setup(opt);
+    SpillableMapImplForTest<String, String> map;
+    if (te == null) {
+      map = new SpillableMapImplForTest<>(store,ID1,0L,new StringSerde(), new StringSerde());
+    } else {
+      map = new SpillableMapImplForTest<>(store,ID1,new StringSerde(), new StringSerde(), te);
+    }
+
+    store.setup(testMeta.operatorContext);
+    map.setup(testMeta.operatorContext);
+
+    long windowId = 0L;
+    store.beginWindow(windowId);
+    map.beginWindow(windowId);
+
+    map.put("a", "1");
+
+    map.endWindow();
+    store.endWindow();
+
+    currentBuffer = map.serdeManager.getKeyBufferForWrite();
+    Assert.assertTrue(currentBuffer != keyBuffer);
+    keyBuffer = currentBuffer;
+
+    currentBuffer = map.serdeManager.getValueBuffer();
+    Assert.assertTrue(currentBuffer != valueBuffer);
+    valueBuffer = currentBuffer;
+
+    ++windowId;
+    store.beginWindow(windowId);
+    map.beginWindow(windowId);
+
+    //each put use different key to make sure use the different bucket
+    map.put("b", "2");
+
+    map.endWindow();
+    store.endWindow();
+
+    currentBuffer = map.serdeManager.getKeyBufferForWrite();
+    Assert.assertTrue(currentBuffer != keyBuffer);
+    keyBuffer = currentBuffer;
+
+    currentBuffer = map.serdeManager.getValueBuffer();
+    Assert.assertTrue(currentBuffer != valueBuffer);
+    valueBuffer = currentBuffer;
+
+    map.teardown();
+    store.teardown();
   }
 }
