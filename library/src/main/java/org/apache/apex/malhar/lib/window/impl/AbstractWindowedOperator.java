@@ -83,9 +83,9 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   protected long currentWatermark = -1;
   private boolean triggerAtWatermark;
   protected long earlyTriggerCount;
-  private long earlyTriggerMillis;
+  protected long earlyTriggerMillis;
   protected long lateTriggerCount;
-  private long lateTriggerMillis;
+  protected long lateTriggerMillis;
   private long currentDerivedTimestamp = -1;
   private long timeIncrement;
   protected long fixedWatermarkMillis = -1;
@@ -543,11 +543,16 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
     }
   }
 
+  protected boolean isFiringOnlyUpdatedPanes()
+  {
+    return triggerOption.isFiringOnlyUpdatedPanes();
+  }
+
   @Override
   public void fireTrigger(Window window, WindowState windowState)
   {
     if (triggerOption.getAccumulationMode() == TriggerOption.AccumulationMode.ACCUMULATING_AND_RETRACTING) {
-      fireRetractionTrigger(window, triggerOption.isFiringOnlyUpdatedPanes());
+      fireRetractionTrigger(window, isFiringOnlyUpdatedPanes());
     }
     fireNormalTrigger(window, triggerOption.isFiringOnlyUpdatedPanes());
     windowState.lastTriggerFiredTime = currentDerivedTimestamp;

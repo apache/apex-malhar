@@ -106,6 +106,7 @@ public abstract class AbstractWindowedOperatorBenchmarkApp<G extends Operator, O
       windowedOperator.setDataStorage(createDataStorage(sccImpl));
       windowedOperator.setRetractionStorage(createRetractionStorage(sccImpl));
       windowedOperator.setWindowStateStorage(new InMemoryWindowedStorage());
+      setUpdatedKeyStorage(windowedOperator, conf, sccImpl);
       windowedOperator.setAccumulation(createAccumulation());
 
       windowedOperator.setAllowedLateness(Duration.millis(ALLOWED_LATENESS));
@@ -119,6 +120,10 @@ public abstract class AbstractWindowedOperatorBenchmarkApp<G extends Operator, O
     } catch (Exception e) {
       throw Throwables.propagate(e);
     }
+  }
+
+  protected void setUpdatedKeyStorage(O windowedOperator, Configuration conf, SpillableComplexComponentImpl sccImpl)
+  {
   }
 
   protected abstract WindowedStorage createDataStorage(SpillableComplexComponentImpl sccImpl);
