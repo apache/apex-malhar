@@ -19,7 +19,7 @@
 package org.apache.apex.malhar.lib.window.accumulation;
 
 import org.apache.apex.malhar.lib.window.Accumulation;
-import org.apache.commons.lang.mutable.MutableDouble;
+import org.apache.commons.lang3.mutable.MutableDouble;
 
 /**
  * Sum Accumulation for doubles.

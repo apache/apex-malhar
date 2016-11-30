@@ -36,7 +36,7 @@ import org.apache.hadoop.classification.InterfaceStability;
  */
 @InterfaceStability.Evolving
 public class WindowedOperatorImpl<InputT, AccumT, OutputT>
-    extends AbstractWindowedOperator<InputT, OutputT, WindowedStorage.WindowedPlainStorage<AccumT>, WindowedStorage.WindowedPlainStorage<OutputT>, Accumulation<InputT, AccumT, OutputT>>
+    extends AbstractWindowedOperator<InputT, OutputT, WindowedStorage.WindowedPlainStorage<AccumT>, WindowedStorage.WindowedPlainStorage<OutputT>, Accumulation<? super InputT, AccumT, OutputT>>
 {
   @Override
   public void accumulateTuple(Tuple.WindowedTuple<InputT> tuple)

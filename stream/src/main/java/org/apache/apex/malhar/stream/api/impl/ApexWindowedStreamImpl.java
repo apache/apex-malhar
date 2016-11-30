@@ -28,9 +28,9 @@ import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.apex.malhar.lib.window.WindowOption;
 import org.apache.apex.malhar.lib.window.WindowState;
 
-import org.apache.apex.malhar.lib.window.accumulation.Count;
 import org.apache.apex.malhar.lib.window.accumulation.FoldFn;
 import org.apache.apex.malhar.lib.window.accumulation.ReduceFn;
+import org.apache.apex.malhar.lib.window.accumulation.SumLong;
 import org.apache.apex.malhar.lib.window.accumulation.TopN;
 import org.apache.apex.malhar.lib.window.impl.InMemoryWindowedKeyedStorage;
 import org.apache.apex.malhar.lib.window.impl.InMemoryWindowedStorage;
@@ -99,7 +99,7 @@ public class ApexWindowedStreamImpl<T> extends ApexStreamImpl<T> implements Wind
     };
 
     WindowedStream<Tuple<Long>> innerstream = map(kVMap);
-    WindowedOperatorImpl<Long, MutableLong, Long> windowedOperator = createWindowedOperator(new Count());
+    WindowedOperatorImpl<Long, MutableLong, Long> windowedOperator = createWindowedOperator(new SumLong());
     return innerstream.addOperator(windowedOperator, windowedOperator.input, windowedOperator.output, opts);
   }
 
@@ -107,7 +107,7 @@ public class ApexWindowedStreamImpl<T> extends ApexStreamImpl<T> implements Wind
   public <K, STREAM extends WindowedStream<Tuple.WindowedTuple<KeyValPair<K, Long>>>> STREAM countByKey(Function.ToKeyValue<T, K, Long> convertToKeyValue, Option... opts)
   {
     WindowedStream<Tuple<KeyValPair<K, Long>>> kvstream = map(convertToKeyValue);
-    KeyedWindowedOperatorImpl<K, Long, MutableLong, Long> keyedWindowedOperator = createKeyedWindowedOperator(new Count());
+    KeyedWindowedOperatorImpl<K, Long, MutableLong, Long> keyedWindowedOperator = createKeyedWindowedOperator(new SumLong());
     return kvstream.addOperator(keyedWindowedOperator, keyedWindowedOperator.input, keyedWindowedOperator.output, opts);
   }
 
@@ -231,7 +231,7 @@ public class ApexWindowedStreamImpl<T> extends ApexStreamImpl<T> implements Wind
    * @param <OUT>
    * @return
    */
-  private <IN, ACCU, OUT> WindowedOperatorImpl<IN, ACCU, OUT> createWindowedOperator(Accumulation<IN, ACCU, OUT> accumulationFn)
+  private <IN, ACCU, OUT> WindowedOperatorImpl<IN, ACCU, OUT> createWindowedOperator(Accumulation<? super IN, ACCU, OUT> accumulationFn)
   {
     WindowedOperatorImpl<IN, ACCU, OUT> windowedOperator = new WindowedOperatorImpl<>();
     //TODO use other default setting in the future
@@ -251,7 +251,7 @@ public class ApexWindowedStreamImpl<T> extends ApexStreamImpl<T> implements Wind
     return windowedOperator;
   }
 
-  private <K, V, ACCU, OUT> KeyedWindowedOperatorImpl<K, V, ACCU, OUT> createKeyedWindowedOperator(Accumulation<V, ACCU, OUT> accumulationFn)
+  private <K, V, ACCU, OUT> KeyedWindowedOperatorImpl<K, V, ACCU, OUT> createKeyedWindowedOperator(Accumulation<? super V, ACCU, OUT> accumulationFn)
   {
     KeyedWindowedOperatorImpl<K, V, ACCU, OUT> keyedWindowedOperator = new KeyedWindowedOperatorImpl<>();
 
