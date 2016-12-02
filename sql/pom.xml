@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.apache.apex</groupId>
     <artifactId>malhar</artifactId>
-    <version>3.6.0-SNAPSHOT</version>
+    <version>3.6.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>malhar-sql</artifactId>
