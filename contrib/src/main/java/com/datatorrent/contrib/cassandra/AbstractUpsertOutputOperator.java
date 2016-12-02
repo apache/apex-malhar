@@ -922,7 +922,7 @@ public abstract class AbstractUpsertOutputOperator extends BaseOperator implemen
     this.windowDataManager = windowDataManager;
   }
 
-  /***
+  /**
    * Implementing concrete Operator instances define the Connection Builder properties by implementing this method
    * Please refer to {@link com.datatorrent.contrib.cassandra.ConnectionStateManager.ConnectionBuilder} for
    * an example implementation of the ConnectionStateManager instantiation.
@@ -960,16 +960,16 @@ public abstract class AbstractUpsertOutputOperator extends BaseOperator implemen
    *    It may be noted case sensitivity is ignored when trying to match Cassandra Column names
    * {@code
    *  @Override
-      protected Map<String, String> getPojoFieldNameToCassandraColumnNameOverride()
-      {
-        Map<String,String> overridingColMap = new HashMap<>();
-        overridingColMap.put("topScores","top_scores"); // topScores is POJO field name and top_scores is Cassandra col
-        return overridingColMap;
-      }
+   *  protected Map<String, String> getPojoFieldNameToCassandraColumnNameOverride()
+   *  {
+   *    Map<String,String> overridingColMap = new HashMap<>();
+   *    overridingColMap.put("topScores","top_scores"); // topScores is POJO field name and top_scores is Cassandra col
+   *    return overridingColMap;
+   *  }
    *
    * }
    * @return A map of the POJO field name as key and value as the Cassandra Column name
-     */
+   */
   protected Map<String,String> getPojoFieldNameToCassandraColumnNameOverride()
   {
     return new HashMap<>();
@@ -993,7 +993,7 @@ public abstract class AbstractUpsertOutputOperator extends BaseOperator implemen
    * @param windowId
    * @return Whether the current POJO that is being passed in should be allowed to write into the cassandra row just for
    * the reconciling window phase
-    ***/
+   */
 
   abstract boolean reconcileRecord(Object T, long windowId);
 
