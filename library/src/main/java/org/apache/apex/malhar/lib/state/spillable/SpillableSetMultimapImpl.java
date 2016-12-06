@@ -372,6 +372,7 @@ public class SpillableSetMultimapImpl<K, V> implements Spillable.SpillableSetMul
     for (SpillableSetImpl removedSet : removedSets) {
       removedSet.endWindow();
     }
+    removedSets.clear();
 
     cache.endWindow();
     map.endWindow();
