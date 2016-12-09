@@ -28,6 +28,7 @@
   <property>
     <name>dt.attr.DEBUG</name>
     <value>true</value>
+  </property>
   <property>
     <name>dt.application.*.operator.*.attr.MEMORY_MB</name>
     <value>128</value>
