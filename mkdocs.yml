@@ -18,4 +18,5 @@ pages:
     - Json Parser: operators/jsonParser.md
     - Json Formatter: operators/jsonFormatter.md
     - Transform Operator: operators/transform.md
+    - Xml Parser: operators/xmlParserOperator.md
 
