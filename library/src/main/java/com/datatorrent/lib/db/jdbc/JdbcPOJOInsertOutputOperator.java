@@ -163,13 +163,12 @@ public class JdbcPOJOInsertOutputOperator extends AbstractJdbcPOJOOutputOperator
   {
     ResultSet rsColumns;
     DatabaseMetaData meta = store.getConnection().getMetaData();
+    rsColumns = meta.getColumns(null, null, getTablename(), null);
     /**Identifiers (table names, column names etc.) may be stored internally in either uppercase or lowercase.**/
-    rsColumns = meta.getColumns(null, null, getTablename().toUpperCase(), null);
     if (!rsColumns.isBeforeFirst()) {
-      rsColumns = meta.getColumns(null, null, getTablename().toLowerCase(), null);
+      rsColumns = meta.getColumns(null, null, getTablename().toUpperCase(), null);
       if (!rsColumns.isBeforeFirst()) {
-        /** If the table name is in quotes then some Databases store it without doing any uppercase or lowercase conversions */
-        rsColumns = meta.getColumns(null, null, getTablename(), null);
+        rsColumns = meta.getColumns(null, null, getTablename().toLowerCase(), null);
         if (!rsColumns.isBeforeFirst()) {
           throw new RuntimeException("Table name not found");
         }

@@ -209,7 +209,7 @@ public abstract class AbstractJdbcPOJOOutputOperator extends AbstractJdbcTransac
 
   /**
    * Set the target table name in database
-   * @param tablename
+   * @param tablename : table name as it is stored in the database
    */
   public void setTablename(String tablename)
   {
