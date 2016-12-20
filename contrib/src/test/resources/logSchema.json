@@ -1,0 +1,15 @@
+{
+  "fields": [{
+    "field": "host",
+    "regex": "^([0-9.]+)"
+  }, {
+    "field": "userName",
+    "regex": "([a-zA-Z0-9_-]{1,16})"
+  }, {
+    "field": "statusCode",
+    "regex": "(\\d{3})"
+  }, {
+    "field": "bytes",
+    "regex": "(\\d+|-)"
+  }]
+}
