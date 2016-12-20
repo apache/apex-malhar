@@ -25,10 +25,14 @@ import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
+
+import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Operator.CheckpointNotificationListener;
@@ -75,6 +79,10 @@ public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator
   private transient Queue<QUEUETUPLE> waitingTuples = Queues.newLinkedBlockingQueue();
   private transient volatile boolean execute;
   private transient AtomicReference<Throwable> cause;
+
+  @AutoMetric
+  private long queueLength;
+
 
   @Override
   public void setup(Context.OperatorContext context)
@@ -175,6 +183,7 @@ public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator
             }
             QUEUETUPLE output = waitingTuples.remove();
             processCommittedData(output);
+            --queueLength;
             doneTuples.add(output);
           }
         } catch (Throwable e) {
@@ -195,6 +204,7 @@ public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator
   protected void enqueueForProcessing(QUEUETUPLE queueTuple)
   {
     currentWindowTuples.get(currentWindowId).add(queueTuple);
+    ++queueLength;
   }
 
   /**
