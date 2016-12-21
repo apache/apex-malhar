@@ -96,17 +96,30 @@ public class AbstractFileInputOperatorTest
   public TestMeta testMeta = new TestMeta();
 
   @Test
+  public void testSinglePartitonRecursive() throws Exception
+  {
+    checkSubDir(true);
+  }
+
+  @Test
   public void testSinglePartiton() throws Exception
+  {
+    checkSubDir(false);
+  }
+
+  private void checkSubDir(boolean recursive) throws Exception
   {
     FileContext.getLocalFSFileContext().delete(new Path(new File(testMeta.dir).getAbsolutePath()), true);
     HashSet<String> allLines = Sets.newHashSet();
+    String subdir = "";
     for (int file = 0; file < 2; file++) {
+      subdir += String.format("/depth_%d", file);
       HashSet<String> lines = Sets.newHashSet();
       for (int line = 0; line < 2; line++) {
         lines.add("f" + file + "l" + line);
       }
       allLines.addAll(lines);
-      FileUtils.write(new File(testMeta.dir, "file" + file), StringUtils.join(lines, '\n'));
+      FileUtils.write(new File(testMeta.dir + subdir, "file" + file), StringUtils.join(lines, '\n'));
     }
 
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
@@ -118,6 +131,7 @@ public class AbstractFileInputOperatorTest
 
     oper.setDirectory(testMeta.dir);
     oper.getScanner().setFilePatternRegexp(".*file[\\d]");
+    oper.getScanner().setRecursive(recursive);
 
     oper.setup(testMeta.context);
     for (long wid = 0; wid < 3; wid++) {
@@ -127,7 +141,12 @@ public class AbstractFileInputOperatorTest
     }
     oper.teardown();
 
-    Assert.assertEquals("number tuples", 4, queryResults.collectedTuples.size());
+    int expectedNumTuples = 4;
+    if (!recursive) {
+      allLines = new HashSet<String>();
+      expectedNumTuples = 0;
+    }
+    Assert.assertEquals("number tuples", expectedNumTuples, queryResults.collectedTuples.size());
     Assert.assertEquals("lines", allLines, new HashSet<String>(queryResults.collectedTuples));
 
   }

@@ -1006,6 +1006,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     private static final long serialVersionUID = 4535844463258899929L;
     private String filePatternRegexp;
     private transient Pattern regex = null;
+    private boolean recursive = true;
     private int partitionIndex;
     private int partitionCount;
     protected final transient HashSet<String> ignoredFiles = new HashSet<String>();
@@ -1057,7 +1058,12 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
             continue;
           }
 
-          if (acceptFile(filePathStr)) {
+          if (status.isDirectory() ) {
+            if (isRecursive()) {
+              LinkedHashSet<Path> childPathSet = scan(fs, path, consumedFiles);
+              pathSet.addAll(childPathSet);
+            }
+          } else if (acceptFile(filePathStr)) {
             LOG.debug("Found {}", filePathStr);
             pathSet.add(path);
           } else {
@@ -1142,6 +1148,26 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     protected void setPartitionCount(int partitionCount)
     {
       this.partitionCount = partitionCount;
+    }
+
+    /**
+     * True if recursive; false otherwise.
+     *
+     * @param recursive true if recursive; false otherwise.
+     */
+    public boolean isRecursive()
+    {
+      return recursive;
+    }
+
+    /**
+     * Sets whether scan will be recursive.
+     *
+     * @return true if recursive; false otherwise.
+     */
+    public void setRecursive(boolean recursive)
+    {
+      this.recursive = recursive;
     }
   }
 
