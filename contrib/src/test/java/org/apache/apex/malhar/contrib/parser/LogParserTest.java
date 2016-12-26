@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.parser;
+package org.apache.apex.malhar.contrib.parser;
 
 import org.codehaus.jettison.json.JSONException;
 import org.jooq.exception.IOException;
@@ -25,6 +25,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
+
+import org.apache.apex.malhar.contrib.parser.LogParser;
+import org.apache.apex.malhar.contrib.parser.LogSchemaDetails;
 
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.testbench.CollectorTestSink;
