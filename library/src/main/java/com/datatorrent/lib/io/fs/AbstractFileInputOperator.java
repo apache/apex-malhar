@@ -19,6 +19,7 @@
 package com.datatorrent.lib.io.fs;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +38,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
@@ -106,14 +108,17 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   protected String directory;
   @NotNull
   protected DirectoryScanner scanner = new DirectoryScanner();
+  @Min(0)
   protected int scanIntervalMillis = 5000;
   protected long offset;
   protected String currentFile;
   protected Set<String> processedFiles = new HashSet<String>();
+  @Min(1)
   protected int emitBatchSize = 1000;
   protected int currentPartitions = 1;
   protected int partitionCount = 1;
   private int retryCount = 0;
+  @Min(0)
   private int maxRetryCount = 5;
   protected transient long skipCount = 0;
   private transient OperatorContext context;
@@ -366,6 +371,9 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
    */
   public void setScanIntervalMillis(int scanIntervalMillis)
   {
+    if (scanIntervalMillis < 0) {
+      throw new IllegalArgumentException("scanIntervalMillis should be greater than or equal to 0.");
+    }
     this.scanIntervalMillis = scanIntervalMillis;
   }
 
@@ -384,6 +392,9 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
    */
   public void setEmitBatchSize(int emitBatchSize)
   {
+    if (emitBatchSize <= 0) {
+      throw new IllegalArgumentException("emitBatchSize should be greater than 0.");
+    }
     this.emitBatchSize = emitBatchSize;
   }
 
@@ -994,6 +1005,9 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
    */
   public void setMaxRetryCount(int maxRetryCount)
   {
+    if (maxRetryCount < 0) {
+      throw new IllegalArgumentException("maxRetryCount should be greater than or equal to 0.");
+    }
     this.maxRetryCount = maxRetryCount;
   }
 
@@ -1100,7 +1114,8 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
       }
       Pattern regex = this.getRegex();
       if (regex != null) {
-        Matcher matcher = regex.matcher(filePathStr);
+        String fileName = new File(filePathStr).getName();
+        Matcher matcher = regex.matcher(fileName);
         if (!matcher.matches()) {
           return false;
         }

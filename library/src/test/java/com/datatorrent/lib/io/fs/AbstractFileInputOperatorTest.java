@@ -130,7 +130,7 @@ public class AbstractFileInputOperatorTest
     oper.output.setSink(sink);
 
     oper.setDirectory(testMeta.dir);
-    oper.getScanner().setFilePatternRegexp(".*file[\\d]");
+    oper.getScanner().setFilePatternRegexp("((?!target).)*file[\\d]");
     oper.getScanner().setRecursive(recursive);
 
     oper.setup(testMeta.context);
