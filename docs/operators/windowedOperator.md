@@ -42,7 +42,7 @@ KeyedWindowedOperatorImpl<KeyType, InputValueType, AccumulationType, OutputValue
 ```
 
 
-We will cover the concepts of [state stroage](#state_storage), [accumulation](#accumulation) and [triggers](#triggers) later in this document.
+We will cover the concepts of [state storage](#state_storage), [accumulation](#accumulation) and [triggers](#triggers) later in this document.
 
 ## Window Option
 
