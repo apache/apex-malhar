@@ -1057,7 +1057,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
             continue;
           }
 
-          if (acceptFile(filePathStr)) {
+          if (acceptFile(status)) {
             LOG.debug("Found {}", filePathStr);
             pathSet.add(path);
           } else {
@@ -1076,6 +1076,14 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     protected int getPartition(String filePathStr)
     {
       return filePathStr.hashCode();
+    }
+
+    protected boolean acceptFile(FileStatus fstatus)
+    {
+      if (fstatus.isDirectory()) {
+        return false;
+      }
+      return acceptFile(fstatus.getPath().toString());
     }
 
     protected boolean acceptFile(String filePathStr)
