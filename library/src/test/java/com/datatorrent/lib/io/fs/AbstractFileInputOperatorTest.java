@@ -23,6 +23,7 @@ import java.io.File;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -68,6 +69,8 @@ import com.datatorrent.lib.util.TestUtils;
 
 public class AbstractFileInputOperatorTest
 {
+  private static int MAX_TEST_TIME = 60 * 1000;
+
   public static class TestMeta extends TestWatcher
   {
     public String dir = null;
@@ -134,11 +137,16 @@ public class AbstractFileInputOperatorTest
     oper.getScanner().setRecursive(recursive);
 
     oper.setup(testMeta.context);
-    for (long wid = 0; wid < 3; wid++) {
+    oper.activate(testMeta.context);
+    long wid = 0;
+    long startTime = System.currentTimeMillis();
+    while (System.currentTimeMillis() - startTime <= MAX_TEST_TIME && queryResults.collectedTuples.size() < 4) {
       oper.beginWindow(wid);
       oper.emitTuples();
       oper.endWindow();
+      wid++;
     }
+    oper.deactivate();
     oper.teardown();
 
     int expectedNumTuples = 4;
@@ -221,7 +229,7 @@ public class AbstractFileInputOperatorTest
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
     oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
-    oper.setScanIntervalMillis(0);
+    oper.setScanIntervalMillis(1);
 
     LineByLineFileInputOperator initialState = new Kryo().copy(oper);
 
@@ -239,17 +247,18 @@ public class AbstractFileInputOperatorTest
     oper.output.setSink(sink);
 
     int wid = 0;
-
+    long startTime = System.currentTimeMillis();
     // Read all records to populate processedList in operator.
     oper.setup(testMeta.context);
-    for (int i = 0; i < 10; i++) {
+    oper.activate(testMeta.context);
+    while (System.currentTimeMillis() - startTime <= MAX_TEST_TIME && sink.collectedTuples.size() < 12) {
       oper.beginWindow(wid);
       oper.emitTuples();
       oper.endWindow();
       wid++;
     }
-    Assert.assertEquals("All tuples read ", 12, sink.collectedTuples.size());
 
+    Assert.assertEquals("All tuples read ", 12, sink.collectedTuples.size());
     Assert.assertEquals(1, initialState.getCurrentPartitions());
     initialState.setPartitionCount(2);
     StatsListener.Response rsp = initialState.processStats(null);
@@ -275,6 +284,7 @@ public class AbstractFileInputOperatorTest
     for (Partition<AbstractFileInputOperator<String>> p : newPartitions) {
       LineByLineFileInputOperator oi = (LineByLineFileInputOperator)p.getPartitionedInstance();
       oi.setup(testMeta.context);
+      oi.activate(testMeta.context);
       oi.output.setSink(sink);
       opers.add(oi);
     }
@@ -297,7 +307,7 @@ public class AbstractFileInputOperatorTest
       FileUtils.write(new File(testMeta.dir, "partition00" + file), "a\nb\nc\n");
     }
 
-    for (int i = 0; i < 10; i++) {
+    while (System.currentTimeMillis() - startTime <= MAX_TEST_TIME && sink.collectedTuples.size() < 12) {
       for (AbstractFileInputOperator<String> o : opers) {
         o.beginWindow(wid);
         o.emitTuples();
@@ -309,6 +319,13 @@ public class AbstractFileInputOperatorTest
     // If all files are processed only once then number of records emitted should
     // be 12.
     Assert.assertEquals("All tuples read ", 12, sink.collectedTuples.size());
+
+    oper.deactivate();
+    oper.teardown();
+    for (AbstractFileInputOperator<String> o : opers) {
+      o.deactivate();
+      o.teardown();
+    }
   }
 
   /**
@@ -324,7 +341,7 @@ public class AbstractFileInputOperatorTest
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
     oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
-    oper.setScanIntervalMillis(0);
+    oper.setScanIntervalMillis(1);
     oper.setEmitBatchSize(2);
 
     LineByLineFileInputOperator initialState = new Kryo().copy(oper);
@@ -343,10 +360,12 @@ public class AbstractFileInputOperatorTest
     oper.output.setSink(sink);
 
     int wid = 0;
+    long startTime = System.currentTimeMillis();
 
     //Read some records
     oper.setup(testMeta.context);
-    for (int i = 0; i < 5; i++) {
+    oper.activate(testMeta.context);
+    while (System.currentTimeMillis() - startTime <= MAX_TEST_TIME && sink.collectedTuples.size() < 6) {
       oper.beginWindow(wid);
       oper.emitTuples();
       oper.endWindow();
@@ -379,12 +398,14 @@ public class AbstractFileInputOperatorTest
     for (Partition<AbstractFileInputOperator<String>> p : newPartitions) {
       LineByLineFileInputOperator oi = (LineByLineFileInputOperator)p.getPartitionedInstance();
       oi.setup(testMeta.context);
+      oi.activate(testMeta.context);
       oi.output.setSink(sink);
       opers.add(oi);
     }
 
     sink.clear();
-    for (int i = 0; i < 10; i++) {
+    startTime = System.currentTimeMillis();
+    while (System.currentTimeMillis() - startTime <= MAX_TEST_TIME && sink.collectedTuples.size() < 6) {
       for (AbstractFileInputOperator<String> o : opers) {
         o.beginWindow(wid);
         o.emitTuples();
@@ -394,6 +415,13 @@ public class AbstractFileInputOperatorTest
     }
 
     Assert.assertEquals("Remaining tuples read ", 6, sink.collectedTuples.size());
+
+    oper.deactivate();
+    oper.teardown();
+    for (AbstractFileInputOperator<String> o : opers) {
+      o.deactivate();
+      o.teardown();
+    }
   }
 
   /**
@@ -409,7 +437,7 @@ public class AbstractFileInputOperatorTest
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
     oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
     oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
-    oper.setScanIntervalMillis(0);
+    oper.setScanIntervalMillis(1);
     oper.setEmitBatchSize(2);
 
     LineByLineFileInputOperator initialState = new Kryo().copy(oper);
@@ -431,7 +459,10 @@ public class AbstractFileInputOperatorTest
 
     //Read some records
     oper.setup(testMeta.context);
-    for (int i = 0; i < 5; i++) {
+    oper.activate(testMeta.context);
+    //for (int i = 0; i < 5; i++) {
+    long startTime = System.currentTimeMillis();
+    while (System.currentTimeMillis() - startTime <= MAX_TEST_TIME && sink.collectedTuples.size() < 6) {
       oper.beginWindow(wid);
       oper.emitTuples();
       oper.endWindow();
@@ -647,29 +678,38 @@ public class AbstractFileInputOperatorTest
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
     TestUtils.setSink(oper.output, queryResults);
+    Map<Long, List<String>> testResults = new HashMap<>();
 
     oper.setDirectory(testMeta.dir);
     oper.getScanner().setFilePatternRegexp(".*file[\\d]");
 
     oper.setup(testMeta.context);
-    for (long wid = 0; wid < 3; wid++) {
+    oper.activate(testMeta.context);
+    long wid = 0;
+    long startTime = System.currentTimeMillis();
+    while (System.currentTimeMillis() - startTime <= MAX_TEST_TIME && queryResults.collectedTuples.size() < 4) {
       oper.beginWindow(wid);
       oper.emitTuples();
       oper.endWindow();
+      List<String> recoveryData = Lists.newArrayList(queryResults.collectedTuples);
+      testResults.put(wid, recoveryData);
+      wid++;
     }
+    oper.deactivate();
     oper.teardown();
-    List<String> beforeRecovery = Lists.newArrayList(queryResults.collectedTuples);
 
     queryResults.clear();
 
     //idempotency  part
     oper.setup(testMeta.context);
-    for (long wid = 0; wid < 3; wid++) {
-      oper.beginWindow(wid);
+    oper.activate(testMeta.context);
+    for (long rwid = 0; rwid < wid; rwid++) {
+      oper.beginWindow(rwid);
       oper.endWindow();
+      Assert.assertEquals("window content", testResults.get(rwid), queryResults.collectedTuples);
     }
-    Assert.assertEquals("number tuples", 4, queryResults.collectedTuples.size());
-    Assert.assertEquals("lines", beforeRecovery, queryResults.collectedTuples);
+
+    oper.deactivate();
     oper.teardown();
   }
 
@@ -701,11 +741,14 @@ public class AbstractFileInputOperatorTest
     oper.getScanner().setFilePatternRegexp(".*file[\\d]");
 
     oper.setup(testMeta.context);
+    oper.activate(testMeta.context);
+    long startTime = System.currentTimeMillis();
     oper.beginWindow(0);
-    for (int i = 0; i < 3; i++) {
+    while (System.currentTimeMillis() - startTime <= MAX_TEST_TIME && queryResults.collectedTuples.size() < 4) {
       oper.emitTuples();
     }
     oper.endWindow();
+    oper.deactivate();
     oper.teardown();
     List<String> beforeRecovery = Lists.newArrayList(queryResults.collectedTuples);
 
@@ -713,10 +756,12 @@ public class AbstractFileInputOperatorTest
 
     //idempotency  part
     oper.setup(testMeta.context);
+    oper.activate(testMeta.context);
     oper.beginWindow(0);
     oper.endWindow();
     Assert.assertEquals("number tuples", 4, queryResults.collectedTuples.size());
     Assert.assertEquals("lines", beforeRecovery, queryResults.collectedTuples);
+    oper.deactivate();
     oper.teardown();
   }
 
@@ -747,34 +792,39 @@ public class AbstractFileInputOperatorTest
     oper.getScanner().setFilePatternRegexp(".*file[\\d]");
 
     oper.setup(testMeta.context);
+    oper.activate(testMeta.context);
     int offset = 0;
-    for (long wid = 0; wid < 3; wid++) {
+    long wid = 0;
+    long startTime = System.currentTimeMillis();
+    while (System.currentTimeMillis() - startTime <= MAX_TEST_TIME && offset < 10) {
       oper.beginWindow(wid);
       oper.emitTuples();
       oper.endWindow();
-      if (wid > 0) {
-        Assert.assertEquals("number tuples", 5, queryResults.collectedTuples.size());
+      wid++;
+      if (queryResults.collectedTuples.size() == 5) {
         Assert.assertEquals("lines", lines.subList(offset, offset + 5), queryResults.collectedTuples);
         offset += 5;
       }
       sink.clear();
     }
+    oper.deactivate();
     oper.teardown();
     sink.clear();
 
     //idempotency  part
     offset = 0;
     oper.setup(testMeta.context);
-    for (long wid = 0; wid < 3; wid++) {
-      oper.beginWindow(wid);
+    oper.activate(testMeta.context);
+    for (long rwid = 0; rwid < wid; rwid++) {
+      oper.beginWindow(rwid);
       oper.endWindow();
-      if (wid > 0) {
-        Assert.assertEquals("number tuples", 5, queryResults.collectedTuples.size());
+      if (queryResults.collectedTuples.size() == 5) {
         Assert.assertEquals("lines", lines.subList(offset, offset + 5), queryResults.collectedTuples);
         offset += 5;
       }
       sink.clear();
     }
+    oper.deactivate();
     oper.teardown();
   }
 
@@ -875,12 +925,18 @@ public class AbstractFileInputOperatorTest
     oper.getScanner().setFilePatternRegexp(".*file[\\d]");
 
     oper.setup(testMeta.context);
-
-    oper.setEmitBatchSize(3);
-
     // sort the pendingFiles and ensure the ordering of the files scanned
     DirectoryScannerNew newScanner = new DirectoryScannerNew();
     oper.setScanner(newScanner);
+
+    oper.activate(testMeta.context);
+
+    long startTime = System.currentTimeMillis();
+    while (System.currentTimeMillis() - startTime <= MAX_TEST_TIME && oper.fileQueue.size() < 3) {
+      Thread.sleep(MAX_TEST_TIME / 30);
+    }
+
+    oper.setEmitBatchSize(3);
 
     // scan directory
     oper.beginWindow(0);
@@ -973,6 +1029,7 @@ public class AbstractFileInputOperatorTest
 
     Assert.assertEquals("number tuples", 8, queryResults.collectedTuples.size());
 
+    oper.deactivate();
     oper.teardown();
   }
 
