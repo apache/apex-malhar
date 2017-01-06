@@ -302,7 +302,7 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
         if (timeBucket != -1) {
           BucketedValue bucketedValue = getValueFromTimeBucketReader(key, timeBucket);
           if (bucketedValue != null) {
-            if (timeBucket == cachedBucketMetas.firstKey()) {
+            if (!cachedBucketMetas.isEmpty() && timeBucket == cachedBucketMetas.firstKey()) {
               //if the requested time bucket is the latest time bucket on file, the key/value is put in the file cache.
               //Since the size of the whole time-bucket is added to total size, there is no need to add the size of
               //entries in file cache.
@@ -493,9 +493,11 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
         memoryFreed += originSize - (keyStream.size() + valueStream.size());
       }
 
-      //release the free memory immediately
-      keyStream.releaseAllFreeMemory();
-      valueStream.releaseAllFreeMemory();
+      if (memoryFreed > 0) {
+        //release the free memory immediately
+        keyStream.releaseAllFreeMemory();
+        valueStream.releaseAllFreeMemory();
+      }
 
       return memoryFreed;
     }
@@ -540,7 +542,9 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
               //so it will be re-written by BucketsDataManager
               try {
                 BucketsFileSystem.TimeBucketMeta tbm = cachedBucketMetas.get(bucketedValue.getTimeBucket());
-                memoryFreed += tbm.getSizeInBytes();
+                if (tbm != null) {
+                  memoryFreed += tbm.getSizeInBytes();
+                }
                 LOG.debug("closing reader {} {}", bucketId, bucketedValue.getTimeBucket());
                 reader.close();
               } catch (IOException e) {
