@@ -19,4 +19,4 @@ pages:
     - Json Formatter: operators/jsonFormatter.md
     - Transform Operator: operators/transform.md
     - Xml Parser: operators/xmlParserOperator.md
-
+    - Csv Formatter: operators/csvformatter.md
