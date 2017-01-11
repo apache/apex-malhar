@@ -18,11 +18,16 @@
  */
 package org.apache.apex.malhar.lib.utils.serde;
 
+import java.util.Map;
+
+import org.apache.apex.malhar.lib.window.Window;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.google.common.collect.Maps;
 
 /**
  * Generic serde using Kryo serialization. Note that while this is convenient, it may not be desirable because
@@ -36,31 +41,62 @@ import com.esotericsoftware.kryo.io.Output;
 @InterfaceStability.Evolving
 public class GenericSerde<T> implements Serde<T>
 {
-  private transient ThreadLocal<Kryo> kryos = new ThreadLocal<Kryo>()
-  {
-    @Override
-    public Kryo get()
-    {
-      return new Kryo();
-    }
-  };
+  /**
+   * The default GenericSerde use the default class to serde map
+   */
+  public static final GenericSerde DEFAULT = new GenericSerde();
+  private transient Kryo kryo = new Kryo();
 
   private final Class<? extends T> clazz;
 
+  @SuppressWarnings("rawtypes")
+  private Map<Class, Serde> typeToSerde = Maps.newHashMap();
+
+  public <C> void registerSerde(Class<C> type, Serde<C> serde)
+  {
+    typeToSerde.put(type, serde);
+  }
+
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public void registerDefaultSerdes()
+  {
+    registerSerde(String.class, new StringSerde());
+    registerSerde(Long.class, new LongSerde());
+    registerSerde(Integer.class, new IntSerde());
+    registerSerde(ImmutablePair.class, new ImmutablePairSerde());
+    registerSerde(Window.TimeWindow.class, new TimeWindowSerde());
+  }
+
   public GenericSerde()
   {
-    this.clazz = null;
+    this(null);
   }
 
   public GenericSerde(Class<? extends T> clazz)
   {
     this.clazz = clazz;
+    registerDefaultSerdes();
+  }
+
+  public Serde getDefaultSerde(Class type)
+  {
+    return typeToSerde.get(type);
   }
 
   @Override
   public void serialize(T object, Output output)
   {
-    Kryo kryo = kryos.get();
+    Class type = object.getClass();
+    Serde serde = null;
+    if (clazz == type) {
+      serde = getDefaultSerde(type);
+    }
+    if (serde != null) {
+      serde.serialize(object, output);
+      return;
+    }
+
+    //delegate to kryo
     if (clazz == null) {
       kryo.writeClassAndObject(output, object);
     } else {
@@ -71,8 +107,12 @@ public class GenericSerde<T> implements Serde<T>
   @Override
   public T deserialize(Input input)
   {
+    Serde serde = clazz == null ? null : getDefaultSerde(clazz);
+    if (serde != null) {
+      return (T)serde.deserialize(input);
+    }
+
     T object;
-    Kryo kryo = kryos.get();
     if (clazz == null) {
       object = (T)kryo.readClassAndObject(input);
     } else {

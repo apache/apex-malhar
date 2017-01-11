@@ -24,6 +24,8 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.window.Window;
+
 import com.esotericsoftware.kryo.io.Input;
 import com.google.common.collect.Lists;
 
@@ -70,6 +72,7 @@ public class GenericSerdeTest
     Assert.assertEquals(stringList, deserializedList);
   }
 
+
   @Test
   public void pojoTest()
   {
@@ -80,5 +83,19 @@ public class GenericSerdeTest
     Slice slice = buffer.toSlice();
     TestPojo deserializedPojo = serdePojo.deserialize(new Input(slice.buffer, slice.offset, slice.length));
     Assert.assertEquals(pojo, deserializedPojo);
+  }
+
+  @Test
+  public void timeWindowSerdeTest()
+  {
+    GenericSerde<Window.TimeWindow>[] serdes = new GenericSerde[] {new GenericSerde<>(Window.TimeWindow.class), GenericSerde.DEFAULT};
+    for (GenericSerde<Window.TimeWindow> serde : serdes) {
+      Window.TimeWindow pojo = new Window.TimeWindow(System.currentTimeMillis(), 1000);
+      SerializationBuffer buffer = new SerializationBuffer(new WindowedBlockStream());
+      serde.serialize(pojo, buffer);
+      Slice slice = buffer.toSlice();
+      Window.TimeWindow deserializedPojo = serde.deserialize(new Input(slice.buffer, slice.offset, slice.length));
+      Assert.assertEquals(pojo, deserializedPojo);
+    }
   }
 }
