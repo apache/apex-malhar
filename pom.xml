@@ -211,6 +211,7 @@
     <module>library</module>
     <module>contrib</module>
     <module>demos</module>
+    <module>sketches</module>
   </modules>
 
   <dependencies>
