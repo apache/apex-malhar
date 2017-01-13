@@ -26,7 +26,7 @@ import org.apache.apex.malhar.lib.window.Window;
  *
  * @since 3.6.0
  */
-public class WindowTimeExtractor implements TimeExtractor<Window>
+public class WindowTimeExtractor<T extends Window> implements TimeExtractor<T>
 {
   @Override
   public long getTime(Window window)

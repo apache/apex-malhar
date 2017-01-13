@@ -54,7 +54,7 @@ public class SpillableSessionWindowedStorage<K, V> extends SpillableWindowedKeye
     if (keyToWindowsMap == null) {
       // NOTE: this will pose difficulties when we try to assign the entries to a time bucket later on.
       // This is logged in APEXMALHAR-2271
-      keyToWindowsMap = scc.newSpillableSetMultimap(bucket, keySerde, (Serde<Window.SessionWindow<K>>)(Serde)windowSerde);
+      keyToWindowsMap = scc.newSpillableSetMultimap(keySerde, (Serde<Window.SessionWindow<K>>)(Serde)windowSerde, new WindowTimeExtractor<Window.SessionWindow<K>>());
     }
   }
 

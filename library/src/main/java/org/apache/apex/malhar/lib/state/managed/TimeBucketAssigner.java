@@ -136,6 +136,11 @@ public class TimeBucketAssigner implements ManagedStateComponent
 
   }
 
+  public boolean isInSameBucket(long a, long b)
+  {
+    return getTimeBucketAndAdjustBoundaries(a) == getTimeBucketAndAdjustBoundaries(b);
+  }
+
   /**
    * Sets the purge listener.
    * @param purgeListener purge listener

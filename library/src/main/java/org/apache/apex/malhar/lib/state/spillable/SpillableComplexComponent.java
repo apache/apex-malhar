@@ -158,6 +158,19 @@ public interface SpillableComplexComponent extends Component<OperatorContext>, S
       Serde<V> serdeValue, TimeExtractor<K> timeExtractor);
 
   /**
+   * This is a method for creating a {@link SpillableSetMultimap}.
+   * @param <K> The type of the keys.
+   * @param <V> The type of the values in the map's lists.
+   * @param serdeKey The Serializer/Deserializer to use for the map's keys.
+   * @param serdeValue The Serializer/Deserializer to use for the values in the map's lists.
+   * @param timeExtractorFromValue a util object to extract time from value.
+   * @return A {@link SpillableSetMultimap}.
+   */
+  <K, V> SpillableSetMultimap<K, V> newSpillableSetMultimap(Serde<K> serdeKey,
+      Serde<V> serdeValue, TimeExtractor<V> timeExtractorFromValue);
+
+
+  /**
    * This is a method for creating a {@link SpillableMultiset}. This method
    * auto-generates an identifier for the data structure.
    * @param <T> The type of the elements.
