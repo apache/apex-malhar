@@ -19,9 +19,14 @@
 package org.apache.apex.malhar.lib.join;
 
 import java.lang.reflect.Array;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.state.managed.KeyBucketExtractor;
+import org.apache.apex.malhar.lib.state.managed.TimeExtractor;
+import org.apache.apex.malhar.lib.utils.serde.GenericSerde;
+import org.apache.apex.malhar.lib.utils.serde.Serde;
 import org.apache.commons.lang3.ClassUtils;
 
 import com.datatorrent.api.Context;
@@ -44,10 +49,8 @@ import com.datatorrent.lib.util.PojoUtils;
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public class POJOInnerJoinOperator extends AbstractManagedStateInnerJoinOperator<Object,Object> implements Operator.ActivationListener<Context>
 {
-  private transient long timeIncrement;
   private transient FieldObjectMap[] inputFieldObjects = (FieldObjectMap[])Array.newInstance(FieldObjectMap.class, 2);
   protected transient Class<?> outputClass;
-  private long time = System.currentTimeMillis();
 
   @OutputPortFieldAnnotation(schemaRequired = true)
   public final transient DefaultOutputPort<Object> outputPort = new DefaultOutputPort<Object>()
@@ -106,25 +109,10 @@ public class POJOInnerJoinOperator extends AbstractManagedStateInnerJoinOperator
   @Override
   public void setup(Context.OperatorContext context)
   {
-    timeIncrement = context.getValue(Context.OperatorContext.APPLICATION_WINDOW_COUNT) *
-      context.getValue(Context.DAGContext.STREAMING_WINDOW_SIZE_MILLIS);
     super.setup(context);
     for (int i = 0; i < 2; i++) {
       inputFieldObjects[i] = new FieldObjectMap();
     }
-  }
-
-  /**
-   * Extract the time value from the given tuple
-   * @param tuple given tuple
-   * @param isStream1Data Specifies whether the given tuple belongs to stream1 or not.
-   * @return the time in milliseconds
-   */
-  @Override
-  public long extractTime(Object tuple, boolean isStream1Data)
-  {
-    return timeFields == null ? time : (long)(isStream1Data ? inputFieldObjects[0].timeFieldGet.get(tuple) :
-          inputFieldObjects[1].timeFieldGet.get(tuple));
   }
 
   /**
@@ -161,6 +149,7 @@ public class POJOInnerJoinOperator extends AbstractManagedStateInnerJoinOperator
    * @param isStream1Data Specifies whether the given tuple belongs to stream1 or not.
    * @return the key object
    */
+  @SuppressWarnings("unchecked")
   @Override
   public Object extractKey(Object tuple, boolean isStream1Data)
   {
@@ -174,6 +163,7 @@ public class POJOInnerJoinOperator extends AbstractManagedStateInnerJoinOperator
    * @param tuple2 tuple belongs to stream1
    * @return the merged output object
    */
+  @SuppressWarnings("unchecked")
   @Override
   public Object mergeTuples(Object tuple1, Object tuple2)
   {
@@ -217,7 +207,50 @@ public class POJOInnerJoinOperator extends AbstractManagedStateInnerJoinOperator
   public void endWindow()
   {
     super.endWindow();
-    time += timeIncrement;
+  }
+
+  @Override
+  public Serde<Object> getKeySerde()
+  {
+    return new GenericSerde<>();
+  }
+
+  @Override
+  public Serde<Object> getValueSerde()
+  {
+    return new GenericSerde<>();
+  }
+
+  /**
+   * Create an instance of POJOTimeExtractor
+   * @param isStream1 Specifies whether the timeExtractor is for stream1 or not.
+   * @return the POJOTimeExtractor
+   */
+  @Override
+  public TimeExtractor getTimeExtractor(boolean isStream1)
+  {
+    if (isStream1) {
+      if (timeFields == null || timeFields.get(0) == null) {
+        return null;
+      }
+      return new POJOTimeExtractor(timeFields.get(0));
+    } else {
+      if (timeFields == null || timeFields.get(1) == null) {
+        return null;
+      }
+      return new POJOTimeExtractor(timeFields.get(1));
+    }
+  }
+
+  /**
+   * Create an instance of POJOKeyBucketExtractor
+   * @param isStream1 Specifies whether the KeyBucketExtractor is for stream1 or not.
+   * @return POJOKeyBucketExtractor
+   */
+  @Override
+  public KeyBucketExtractor getKeyBucketExtractor(boolean isStream1)
+  {
+    return new POJOKeyBucketExtractor();
   }
 
   /**
@@ -243,6 +276,42 @@ public class POJOInnerJoinOperator extends AbstractManagedStateInnerJoinOperator
     public FieldObjectMap()
     {
       fieldMap = new HashMap<>();
+    }
+  }
+
+  /**
+   * POJOKeyBucketExtractor specifies the key bucket as (o.hashCode() % # of buckets)
+   */
+  public class POJOKeyBucketExtractor implements KeyBucketExtractor<Object>
+  {
+    @Override
+    public long getBucket(Object o)
+    {
+      return o.hashCode() % getNoOfBuckets();
+    }
+  }
+
+  /**
+   * Extract the time value from Object
+   */
+  public class POJOTimeExtractor implements TimeExtractor<Object>
+  {
+    String timeFieldExpr;
+    PojoUtils.Getter<Object, Date> timeFieldGet;
+
+    public POJOTimeExtractor(String timeFieldExpr)
+    {
+      this.timeFieldExpr = timeFieldExpr;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public long getTime(Object o)
+    {
+      if (timeFieldGet == null) {
+        timeFieldGet = PojoUtils.createGetter(o.getClass(), timeFieldExpr, Date.class);
+      }
+      return timeFieldGet.get(o).getTime();
     }
   }
 }
