@@ -36,6 +36,7 @@ import org.junit.runners.Parameterized;
 
 import org.apache.apex.malhar.lib.state.spillable.SpillableComplexComponentImpl;
 import org.apache.apex.malhar.lib.state.spillable.SpillableTestUtils;
+import org.apache.apex.malhar.lib.window.impl.FixedDiffEventTimeWatermarkGen;
 import org.apache.apex.malhar.lib.window.impl.InMemorySessionWindowedStorage;
 import org.apache.apex.malhar.lib.window.impl.InMemoryWindowedKeyedStorage;
 import org.apache.apex.malhar.lib.window.impl.InMemoryWindowedStorage;
@@ -216,6 +217,39 @@ public class WindowedOperatorTest
     Assert.assertEquals("The window should be dropped because it's too late", 0, windowStateStorage.size());
     windowedOperator.endWindow();
     windowedOperator.teardown();
+  }
+
+  @Test
+  public void testImplicitWatermarks()
+  {
+    WindowedOperatorImpl<Long, MutableLong, Long> windowedOperator = createDefaultWindowedOperator();
+    CollectorTestSink controlSink = new CollectorTestSink();
+
+    windowedOperator.controlOutput.setSink(controlSink);
+
+    windowedOperator.setWindowOption(new WindowOption.TimeWindows(Duration.millis(1000)));
+    windowedOperator.setAllowedLateness(Duration.millis(1000));
+    windowedOperator.setImplicitWatermarkGenerator(new FixedDiffEventTimeWatermarkGen(100));
+
+    windowedOperator.setup(testMeta.operatorContext);
+
+    windowedOperator.beginWindow(1);
+    windowedOperator.endWindow();
+    Assert.assertEquals("We should get no watermark tuple", 0, controlSink.getCount(false));
+
+    windowedOperator.beginWindow(2);
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 100L, 2L));
+    windowedOperator.endWindow();
+    Assert.assertEquals("We should get one watermark tuple", 1, controlSink.getCount(false));
+    Assert.assertEquals("Check Watermark value",
+        ((ControlTuple.Watermark)controlSink.collectedTuples.get(0)).getTimestamp(), BASE);
+
+    windowedOperator.beginWindow(3);
+    windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 900L, 4L));
+    windowedOperator.endWindow();
+    Assert.assertEquals("We should get two watermark tuples", 2, controlSink.getCount(false));
+    Assert.assertEquals("Check Watermark value",
+        ((ControlTuple.Watermark)controlSink.collectedTuples.get(1)).getTimestamp(), BASE + 800);
   }
 
   private void testTrigger(TriggerOption.AccumulationMode accumulationMode)
