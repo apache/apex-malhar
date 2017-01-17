@@ -3,6 +3,8 @@ site_favicon: favicon.ico
 theme: readthedocs
 pages:
 - Apache Apex Malhar: index.md
+- APIs:
+    - SQL: apis/calcite.md
 - Operators:
     - Block Reader: operators/block_reader.md
     - CSV Formatter: operators/csvformatter.md
@@ -21,3 +23,7 @@ pages:
     - Transformer: operators/transform.md
     - Windowed Operator: operators/windowedOperator.md
     - XML Parser: operators/xmlParserOperator.md
+    - Json Parser: operators/jsonParser.md
+    - Json Formatter: operators/jsonFormatter.md
+    - Transform Operator: operators/transform.md
+    - Csv Formatter: operators/csvformatter.md
