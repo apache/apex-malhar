@@ -168,7 +168,6 @@
       <modules>
         <module>distributedistinct</module>
         <module>highlevelapi</module>
-        <module>sql</module>
       </modules>
     </profile>
   </profiles>
@@ -187,7 +186,6 @@
     <module>r</module>
     <module>echoserver</module>
     <module>iteration</module>
-    <module>sql</module>
   </modules>
 
   <dependencies>

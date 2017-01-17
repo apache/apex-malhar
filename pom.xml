@@ -202,7 +202,6 @@
         <module>benchmark</module>
         <module>apps</module>
         <module>samples</module>
-        <module>sql</module>
       </modules>
     </profile>
   </profiles>
