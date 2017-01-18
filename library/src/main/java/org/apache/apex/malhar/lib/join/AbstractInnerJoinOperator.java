@@ -184,14 +184,6 @@ public abstract class AbstractInnerJoinOperator<K,T> extends BaseOperator
   public abstract K extractKey(T tuple, boolean isStream1Data);
 
   /**
-   * Extract the time from the given tuple
-   * @param tuple given tuple
-   * @param isStream1Data Specifies whether the given tuple belongs to stream1 or not.
-   * @return the time
-   */
-  public abstract long extractTime(T tuple, boolean isStream1Data);
-
-  /**
    * Merge the given tuples
    * @param tuple1 tuple belongs to stream1
    * @param tuple2 tuple belongs to stream1

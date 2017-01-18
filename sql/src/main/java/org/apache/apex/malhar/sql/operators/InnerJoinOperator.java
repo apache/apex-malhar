@@ -19,6 +19,7 @@
 package org.apache.apex.malhar.sql.operators;
 
 import org.apache.apex.malhar.lib.join.POJOInnerJoinOperator;
+import org.apache.apex.malhar.lib.state.managed.TimeExtractor;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.api.Context;
@@ -43,12 +44,27 @@ public class InnerJoinOperator extends POJOInnerJoinOperator
     super.setup(context);
   }
 
-  @Override
   public long extractTime(Object tuple, boolean isStream1Data)
   {
     /**
      * Return extract time which is always more than time when the operator is started.
      */
     return time + 3600000L;
+  }
+
+  @Override
+  public TimeExtractor getTimeExtractor(boolean isStream1)
+  {
+    return new FixedTimeExtractor();
+  }
+
+  public class FixedTimeExtractor implements TimeExtractor
+  {
+    @Override
+    public long getTime(Object o)
+    {
+      //Return extract time which is always more than time when the operator is started.
+      return time + 3600000L;
+    }
   }
 }
