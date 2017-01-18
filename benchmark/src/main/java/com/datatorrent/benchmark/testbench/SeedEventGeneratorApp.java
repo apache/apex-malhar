@@ -18,6 +18,10 @@
  */
 package com.datatorrent.benchmark.testbench;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
@@ -26,9 +30,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.stream.DevNull;
 import com.datatorrent.lib.testbench.SeedEventGenerator;
 import com.datatorrent.lib.util.KeyValPair;
-import java.util.ArrayList;
-import java.util.HashMap;
-import org.apache.hadoop.conf.Configuration;
+
 
 /**
  * Benchmark App for SeedEventGenerator Operator.
@@ -55,10 +57,12 @@ public class SeedEventGeneratorApp implements StreamingApplication
     DevNull<HashMap<String, String>> devVal = dag.addOperator("devVal", new DevNull<HashMap<String, String>>());
     DevNull<HashMap<String, ArrayList<Integer>>> devList = dag.addOperator("devList", new DevNull());
 
-    dag.getMeta(seedEvent).getMeta(seedEvent.string_data).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
+    dag.getMeta(seedEvent).getMeta(seedEvent.string_data)
+        .getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
     dag.addStream("SeedEventGeneratorString", seedEvent.string_data, devString.data).setLocality(locality);
 
-    dag.getMeta(seedEvent).getMeta(seedEvent.keyvalpair_list).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
+    dag.getMeta(seedEvent).getMeta(seedEvent.keyvalpair_list).getAttributes()
+        .put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
     dag.addStream("SeedEventGeneratorKeyVal", seedEvent.keyvalpair_list, devKeyVal.data).setLocality(locality);
 
     dag.getMeta(seedEvent).getMeta(seedEvent.val_data).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);

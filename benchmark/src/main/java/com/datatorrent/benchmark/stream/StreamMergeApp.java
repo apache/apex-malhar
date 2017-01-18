@@ -18,6 +18,8 @@
  */
 package com.datatorrent.benchmark.stream;
 
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
@@ -25,7 +27,6 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.benchmark.WordCountOperator;
 import com.datatorrent.lib.stream.StreamMerger;
-import org.apache.hadoop.conf.Configuration;
 
 /**
  * Benchmark App for StreamMerge Operator.
@@ -46,7 +47,7 @@ public class StreamMergeApp implements StreamingApplication
     StreamMerger stream = dag.addOperator("stream", new StreamMerger());
     dag.getMeta(stream).getMeta(stream.data1).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
     dag.getMeta(stream).getMeta(stream.data2).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
-    dag.addStream("streammerge1", intInput.integer_data, stream.data1,stream.data2).setLocality(locality);
+    dag.addStream("streammerge1", intInput.integer_data, stream.data1, stream.data2).setLocality(locality);
 
     WordCountOperator<Integer> counter = dag.addOperator("counter", new WordCountOperator<Integer>());
     dag.getMeta(counter).getMeta(counter.input).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);

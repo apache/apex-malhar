@@ -18,13 +18,14 @@
  */
 package com.datatorrent.benchmark.stream;
 
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.stream.DevNullCounter;
-import org.apache.hadoop.conf.Configuration;
 
 /**
  *
@@ -56,11 +57,11 @@ public class DevNullCounterBenchmark implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-   // RandomEventGenerator rand = dag.addOperator("rand", new RandomEventGenerator());
-   // rand.setMinvalue(0);
-   // rand.setMaxvalue(999999);
-   // rand.setTuplesBlastIntervalMillis(50);
-   // dag.getMeta(rand).getMeta(rand.integer_data).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
+    // RandomEventGenerator rand = dag.addOperator("rand", new RandomEventGenerator());
+    // rand.setMinvalue(0);
+    // rand.setMaxvalue(999999);
+    // rand.setTuplesBlastIntervalMillis(50);
+    // dag.getMeta(rand).getMeta(rand.integer_data).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
     IntegerOperator intInput = dag.addOperator("intInput", new IntegerOperator());
     DevNullCounter oper = dag.addOperator("oper", new DevNullCounter());
     dag.getMeta(oper).getMeta(oper.data).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);

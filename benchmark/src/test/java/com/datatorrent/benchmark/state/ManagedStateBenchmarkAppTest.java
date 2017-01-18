@@ -34,7 +34,6 @@ import com.datatorrent.benchmark.state.StoreOperator.ExecMode;
 /**
  * This is not a really unit test, but in fact a benchmark runner.
  * Provides this class to give developers the convenience to run in local IDE environment.
- *
  */
 public class ManagedStateBenchmarkAppTest extends ManagedStateBenchmarkApp
 {
@@ -90,8 +89,6 @@ public class ManagedStateBenchmarkAppTest extends ManagedStateBenchmarkApp
 
     lc.shutdown();
   }
-
-
 
   @Override
   public String getStoreBasePath(Configuration conf)

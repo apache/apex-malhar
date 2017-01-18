@@ -69,7 +69,8 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
   private ExecMode execMode = ExecMode.INSERT;
   private int timeRange = 1000 * 60;
 
-  public final transient DefaultInputPort<KeyValPair<byte[], byte[]>> input = new DefaultInputPort<KeyValPair<byte[], byte[]>>()
+  public final transient DefaultInputPort<KeyValPair<byte[], byte[]>> input =
+      new DefaultInputPort<KeyValPair<byte[], byte[]>>()
   {
     @Override
     public void process(KeyValPair<byte[], byte[]> tuple)
@@ -172,7 +173,8 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
   private final int taskBarrier = 100000;
 
   /**
-   * This method first send request of get to the state manager, then handle all the task(get) which already done and update the value.
+   * This method first send request of get to the state manager,
+   * then handle all the task(get) which already done and update the value.
    * @param tuple
    */
   private void updateAsync(KeyValPair<byte[], byte[]> tuple)
@@ -251,7 +253,8 @@ public class StoreOperator extends BaseOperator implements Operator.CheckpointNo
     long spentTime = now - statisticsBeginTime;
     long totalSpentTime = now - applicationBeginTime;
     totalTupleCount += tupleCount;
-    logger.info("Windows: {}; Time Spent: {}, Processed tuples: {}, rate per second: {}; total rate: {}", windowCountPerStatistics, spentTime, tupleCount, tupleCount * 1000 / spentTime,
+    logger.info("Windows: {}; Time Spent: {}, Processed tuples: {}, rate per second: {}; total rate: {}",
+        windowCountPerStatistics, spentTime, tupleCount, tupleCount * 1000 / spentTime,
         totalTupleCount * 1000 / totalSpentTime);
 
     statisticsBeginTime = System.currentTimeMillis();

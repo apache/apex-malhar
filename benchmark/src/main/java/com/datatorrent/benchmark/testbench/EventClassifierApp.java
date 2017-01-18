@@ -18,6 +18,11 @@
  */
 package com.datatorrent.benchmark.testbench;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
@@ -25,9 +30,6 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.stream.DevNull;
 import com.datatorrent.lib.testbench.EventClassifier;
-import java.util.ArrayList;
-import java.util.HashMap;
-import org.apache.hadoop.conf.Configuration;
 
 /**
  * Benchmark App for EventClassifier Operator.
@@ -75,7 +77,8 @@ public class EventClassifierApp implements StreamingApplication
     eventClassifier.setKeyMap(keymap);
     eventClassifier.setOperationReplace();
     eventClassifier.setKeyWeights(wmap);
-    dag.getMeta(eventClassifier).getMeta(eventClassifier.data).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
+    dag.getMeta(eventClassifier).getMeta(eventClassifier.data).getAttributes()
+        .put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
     dag.addStream("eventtest1", hmapOper.hmap_data, eventClassifier.event).setLocality(locality);
     DevNull<HashMap<String, Double>> dev = dag.addOperator("dev", new DevNull());
     dag.addStream("eventtest2", eventClassifier.data, dev.data).setLocality(locality);

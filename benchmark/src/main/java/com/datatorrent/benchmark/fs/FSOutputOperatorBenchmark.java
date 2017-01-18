@@ -18,17 +18,20 @@
  */
 package com.datatorrent.benchmark.fs;
 
-import com.datatorrent.lib.testbench.RandomWordGenerator;
+import org.apache.commons.lang.mutable.MutableLong;
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
-import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
+
+import com.datatorrent.api.StreamingApplication;
+
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+
 import com.datatorrent.lib.counters.BasicCounters;
-import org.apache.commons.lang.mutable.MutableLong;
 
-
-import org.apache.hadoop.conf.Configuration;
+import com.datatorrent.lib.testbench.RandomWordGenerator;
 
 /**
  * Application used to benchmark HDFS output operator
@@ -38,25 +41,28 @@ import org.apache.hadoop.conf.Configuration;
  * @since 0.9.4
  */
 
-@ApplicationAnnotation(name="HDFSOutputOperatorBenchmarkingApp")
+@ApplicationAnnotation(name = "HDFSOutputOperatorBenchmarkingApp")
 public class FSOutputOperatorBenchmark implements StreamingApplication
 {
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
     String filePath = "HDFSOutputOperatorBenchmarkingApp/"
-            + System.currentTimeMillis();
+        + System.currentTimeMillis();
 
     dag.setAttribute(DAG.STREAMING_WINDOW_SIZE_MILLIS, 1000);
 
     RandomWordGenerator wordGenerator = dag.addOperator("wordGenerator", RandomWordGenerator.class);
 
-    dag.getOperatorMeta("wordGenerator").getMeta(wordGenerator.output).getAttributes().put(PortContext.QUEUE_CAPACITY, 10000);
-    dag.getOperatorMeta("wordGenerator").getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 1);
+    dag.getOperatorMeta("wordGenerator").getMeta(wordGenerator.output)
+        .getAttributes().put(PortContext.QUEUE_CAPACITY, 10000);
+    dag.getOperatorMeta("wordGenerator").getAttributes()
+        .put(OperatorContext.APPLICATION_WINDOW_COUNT, 1);
 
     FSByteOutputOperator hdfsOutputOperator = dag.addOperator("hdfsOutputOperator", new FSByteOutputOperator());
     hdfsOutputOperator.setFilePath(filePath);
-    dag.getOperatorMeta("hdfsOutputOperator").getAttributes().put(OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator<MutableLong>());
+    dag.getOperatorMeta("hdfsOutputOperator").getAttributes()
+        .put(OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator<MutableLong>());
 
     dag.addStream("Generator2HDFSOutput", wordGenerator.output, hdfsOutputOperator.input);
   }

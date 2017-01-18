@@ -35,7 +35,6 @@ import org.apache.apex.malhar.lib.utils.serde.StringSerde;
 
 import com.datatorrent.lib.fileaccess.TFileImpl;
 
-
 public class SpillableDSBenchmarkTest
 {
   private static final Logger logger = LoggerFactory.getLogger(SpillableDSBenchmarkTest.class);
@@ -56,7 +55,6 @@ public class SpillableDSBenchmarkTest
 
   @Rule
   public SpillableTestUtils.TestMeta testMeta = new SpillableTestUtils.TestMeta();
-
 
   @Before
   public void setup()
@@ -116,7 +114,8 @@ public class SpillableDSBenchmarkTest
       long spentTime = System.currentTimeMillis() - startTime;
       if (spentTime > outputTimes * 5000) {
         ++outputTimes;
-        logger.info("Total Statistics: Spent {} mills for {} operation. average/second: {}", spentTime, i, i * 1000 / spentTime);
+        logger.info("Total Statistics: Spent {} mills for {} operation. average/second: {}",
+            spentTime, i, i * 1000 / spentTime);
         checkEnvironment();
       }
     }
@@ -125,7 +124,6 @@ public class SpillableDSBenchmarkTest
     logger.info("Spent {} mills for {} operation. average: {}", spentTime, loopCount,
         loopCount / spentTime);
   }
-
 
   public void putEntry(SpillableMapImpl<String, String> map)
   {

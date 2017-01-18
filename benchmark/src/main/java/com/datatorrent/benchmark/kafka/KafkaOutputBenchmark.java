@@ -29,7 +29,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
  *
  * @since 0.9.3
  */
-@ApplicationAnnotation(name="KafkaOutputBenchmark")
+@ApplicationAnnotation(name = "KafkaOutputBenchmark")
 public class KafkaOutputBenchmark implements StreamingApplication
 {
 
@@ -37,7 +37,8 @@ public class KafkaOutputBenchmark implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     dag.setAttribute(DAG.APPLICATION_NAME, "KafkaOutputBenchmark");
-    BenchmarkPartitionableKafkaOutputOperator bpkoo = dag.addOperator("KafkaBenchmarkProducer", BenchmarkPartitionableKafkaOutputOperator.class);
+    BenchmarkPartitionableKafkaOutputOperator bpkoo = dag.addOperator(
+        "KafkaBenchmarkProducer", BenchmarkPartitionableKafkaOutputOperator.class);
     bpkoo.setBrokerList(conf.get("kafka.brokerlist"));
     bpkoo.setPartitionCount(2);
   }

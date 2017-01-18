@@ -43,8 +43,7 @@ public class KafkaInputBenchmarkTest
       lma.prepareDAG(new KafkaInputBenchmark(), conf);
       LocalMode.Controller lc = lma.getController();
       lc.run(30000);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
   }

@@ -24,22 +24,22 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.lib.testbench.RandomEventGenerator;
-
-import com.datatorrent.contrib.hive.*;
-
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-
 import com.datatorrent.benchmark.RandomMapOutput;
+
+import com.datatorrent.contrib.hive.AbstractFSRollingOutputOperator;
+import com.datatorrent.contrib.hive.HiveOperator;
+import com.datatorrent.contrib.hive.HiveStore;
+import com.datatorrent.lib.testbench.RandomEventGenerator;
+
 
 /**
  * Application used to benchmark HIVE Map Insert operator
@@ -61,12 +61,13 @@ public class HiveMapInsertBenchmarkingApp implements StreamingApplication
   {
     HiveStore store = new HiveStore();
     store.setDatabaseUrl(conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl"));
-    store.setConnectionProperties(conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties"));
+    store.setConnectionProperties(conf.get(
+        "dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties"));
     store.setFilepath(conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.filepath"));
     try {
-      hiveInitializeMapDatabase(store, conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.tablename"), ":");
-    }
-    catch (SQLException ex) {
+      hiveInitializeMapDatabase(store, conf.get(
+          "dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.tablename"), ":");
+    } catch (SQLException ex) {
       LOG.debug(ex.getMessage());
     }
     dag.setAttribute(DAG.STREAMING_WINDOW_SIZE_MILLIS, 1000);
@@ -90,13 +91,15 @@ public class HiveMapInsertBenchmarkingApp implements StreamingApplication
   /*
    * User can create table and specify data columns and partition columns in this function.
    */
-  public static void hiveInitializeMapDatabase(HiveStore hiveStore, String tablename, String delimiterMap) throws SQLException
+  public static void hiveInitializeMapDatabase(
+      HiveStore hiveStore, String tablename, String delimiterMap) throws SQLException
   {
     hiveStore.connect();
     Statement stmt = hiveStore.getConnection().createStatement();
-    stmt.execute("CREATE TABLE IF NOT EXISTS " + tablename + " (col1 map<string,int>) PARTITIONED BY(dt STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\n'  \n"
-            + "MAP KEYS TERMINATED BY '" + delimiterMap + "' \n"
-            + "STORED AS TEXTFILE ");
+    stmt.execute("CREATE TABLE IF NOT EXISTS " + tablename
+        + " (col1 map<string,int>) PARTITIONED BY(dt STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\n'  \n"
+        + "MAP KEYS TERMINATED BY '" + delimiterMap + "' \n"
+        + "STORED AS TEXTFILE ");
     hiveStore.disconnect();
   }
 

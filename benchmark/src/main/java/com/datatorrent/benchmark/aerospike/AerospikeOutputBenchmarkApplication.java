@@ -18,15 +18,16 @@
  */
 package com.datatorrent.benchmark.aerospike;
 
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.aerospike.AerospikeTransactionalStore;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
-import org.apache.hadoop.conf.Configuration;
+
 /**
- *
  * Application to benchmark the performance of aerospike output operator.
  * The operator was tested on DT cluster and the number of tuples processed
  * by the operator per second were around 12,000
@@ -34,16 +35,18 @@ import org.apache.hadoop.conf.Configuration;
  * @since 1.0.4
  */
 
-
-@ApplicationAnnotation(name="AerospikeOutputOperatorBenchmark")
-public class AerospikeOutputBenchmarkApplication implements StreamingApplication {
+@ApplicationAnnotation(name = "AerospikeOutputOperatorBenchmark")
+public class AerospikeOutputBenchmarkApplication implements StreamingApplication
+{
 
   private final String NODE = "127.0.0.1";
   private final int PORT = 3000;
   private final String NAMESPACE = "test";
   private final Locality locality = null;
+
   @Override
-  public void populateDAG(DAG dag, Configuration conf) {
+  public void populateDAG(DAG dag, Configuration conf)
+  {
 
     RandomEventGenerator rand = dag.addOperator("rand", new RandomEventGenerator());
     rand.setMaxvalue(3000);

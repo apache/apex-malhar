@@ -50,7 +50,8 @@ import com.datatorrent.benchmark.window.WindowedOperatorBenchmarkApp.WindowedGen
 import com.datatorrent.lib.fileaccess.TFileImpl;
 import com.datatorrent.lib.stream.DevNull;
 
-public abstract class AbstractWindowedOperatorBenchmarkApp<G extends Operator, O extends AbstractWindowedOperator> implements StreamingApplication
+public abstract class AbstractWindowedOperatorBenchmarkApp<G extends Operator, O extends AbstractWindowedOperator>
+    implements StreamingApplication
 {
   protected static final String PROP_STORE_PATH = "dt.application.WindowedOperatorBenchmark.storeBasePath";
   protected static final String DEFAULT_BASE_PATH = "WindowedOperatorBenchmark/Store";
@@ -80,7 +81,8 @@ public abstract class AbstractWindowedOperatorBenchmarkApp<G extends Operator, O
 
 //    WatermarkGenerator watermarkGenerator = new WatermarkGenerator();
 //    dag.addOperator("WatermarkGenerator", watermarkGenerator);
-//    dag.addStream("Control", watermarkGenerator.control, windowedOperator.controlInput).setLocality(Locality.CONTAINER_LOCAL);
+//    dag.addStream("Control", watermarkGenerator.control, windowedOperator.controlInput)
+//      .setLocality(Locality.CONTAINER_LOCAL);
 
     DevNull output = dag.addOperator("output", new DevNull());
     dag.addStream("output", windowedOperator.output, output.data).setLocality(Locality.CONTAINER_LOCAL);
@@ -112,7 +114,8 @@ public abstract class AbstractWindowedOperatorBenchmarkApp<G extends Operator, O
       windowedOperator.setAllowedLateness(Duration.millis(ALLOWED_LATENESS));
       windowedOperator.setWindowOption(new WindowOption.TimeWindows(Duration.standardMinutes(1)));
       //accumulating mode
-      windowedOperator.setTriggerOption(TriggerOption.AtWatermark().withEarlyFiringsAtEvery(Duration.standardSeconds(1)).accumulatingFiredPanes().firingOnlyUpdatedPanes());
+      windowedOperator.setTriggerOption(TriggerOption.AtWatermark()
+          .withEarlyFiringsAtEvery(Duration.standardSeconds(1)).accumulatingFiredPanes().firingOnlyUpdatedPanes());
       windowedOperator.setFixedWatermark(30000);
       //windowedOperator.setTriggerOption(TriggerOption.AtWatermark());
 
@@ -152,7 +155,6 @@ public abstract class AbstractWindowedOperatorBenchmarkApp<G extends Operator, O
     }
     return basePath;
   }
-
 
   public static class TestStatsListener implements StatsListener, Serializable
   {

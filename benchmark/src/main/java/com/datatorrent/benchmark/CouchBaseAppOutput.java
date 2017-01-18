@@ -18,12 +18,14 @@
  */
 package com.datatorrent.benchmark;
 
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.lib.testbench.RandomEventGenerator;
 import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
+
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 /**
  *

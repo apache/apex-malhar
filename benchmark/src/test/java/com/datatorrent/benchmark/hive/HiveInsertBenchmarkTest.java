@@ -18,17 +18,20 @@
  */
 package com.datatorrent.benchmark.hive;
 
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.netlet.util.DTThrowable;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.sql.SQLException;
-import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.conf.Configuration;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.netlet.util.DTThrowable;
 
 public class HiveInsertBenchmarkTest
 {
@@ -41,26 +44,30 @@ public class HiveInsertBenchmarkTest
     InputStream inputStream = null;
     try {
       inputStream = new FileInputStream("src/site/conf/dt-site-hive.xml");
-    }
-    catch (FileNotFoundException ex) {
-      LOG.debug("Exception caught",ex);
+    } catch (FileNotFoundException ex) {
+      LOG.debug("Exception caught", ex);
     }
     conf.addResource(inputStream);
 
-    LOG.debug("conf properties are {}" , conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties"));
-    LOG.debug("conf dburl is {}" , conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl"));
-    LOG.debug("conf filepath is {}" , conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.filepath"));
-    LOG.debug("maximum length is {}" , conf.get("dt.application.HiveInsertBenchmarkingApp.operator.RollingFsWriter.maxLength"));
-    LOG.debug("tablename is {}" , conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.tablename"));
-    LOG.debug("permission is {}",conf.get("dt.application.HiveInsertBenchmarkingApp.operator.RollingFsWriter.filePermission"));
+    LOG.debug("conf properties are {}",
+        conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties"));
+    LOG.debug("conf dburl is {}",
+        conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl"));
+    LOG.debug("conf filepath is {}",
+        conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.filepath"));
+    LOG.debug("maximum length is {}",
+        conf.get("dt.application.HiveInsertBenchmarkingApp.operator.RollingFsWriter.maxLength"));
+    LOG.debug("tablename is {}",
+        conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.tablename"));
+    LOG.debug("permission is {}",
+        conf.get("dt.application.HiveInsertBenchmarkingApp.operator.RollingFsWriter.filePermission"));
     HiveInsertBenchmarkingApp app = new HiveInsertBenchmarkingApp();
     LocalMode lm = LocalMode.newInstance();
     try {
       lm.prepareDAG(app, conf);
       LocalMode.Controller lc = lm.getController();
       lc.run(120000);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       DTThrowable.rethrow(ex);
     }
 

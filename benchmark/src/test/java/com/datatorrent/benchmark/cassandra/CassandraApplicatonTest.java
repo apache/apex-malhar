@@ -19,16 +19,18 @@
 package com.datatorrent.benchmark.cassandra;
 
 import org.junit.Test;
+
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.benchmark.cassandra.CassandraOutputBenchmarkApplication;
 
 /**
  * Test the DAG declaration in local mode.
  */
-public class CassandraApplicatonTest {
+public class CassandraApplicatonTest
+{
 
   @Test
-  public void test() throws Exception {
+  public void test() throws Exception
+  {
     LocalMode.runApp(new CassandraOutputBenchmarkApplication(), 10000);
   }
 

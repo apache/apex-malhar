@@ -169,7 +169,8 @@ public class SpillableTestOperator extends BaseOperator implements Operator.Chec
     long countInPeriod = totalCount - lastTotalCount;
     long timeInPeriod = System.currentTimeMillis() - lastLogTime;
     long totalTime = System.currentTimeMillis() - beginTime;
-    logger.info("Statistics: total count: {}; period count: {}; total rate (per second): {}; period rate (per second): {}",
+    logger.info(
+        "Statistics: total count: {}; period count: {}; total rate (per second): {}; period rate (per second): {}",
         totalCount, countInPeriod, totalCount * 1000 / totalTime, countInPeriod * 1000 / timeInPeriod);
   }
 

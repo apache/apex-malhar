@@ -18,11 +18,13 @@
  */
 package com.datatorrent.benchmark;
 
-import com.datatorrent.contrib.couchbase.AbstractCouchBaseInputOperator;
-import com.datatorrent.contrib.couchbase.CouchBaseWindowStore;
 import java.util.ArrayList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.contrib.couchbase.AbstractCouchBaseInputOperator;
+import com.datatorrent.contrib.couchbase.CouchBaseWindowStore;
 
 /**
  * <p>CouchBaseInputOperator class.</p>
@@ -32,14 +34,15 @@ import org.slf4j.LoggerFactory;
 public class CouchBaseInputOperator extends AbstractCouchBaseInputOperator<String>
 {
   private static final Logger logger = LoggerFactory.getLogger(CouchBaseWindowStore.class);
+
   @Override
   public String getTuple(Object object)
   {
-    if(object!=null)
-    return object.toString();
-    else{
-     logger.info("Object returned is null");
-     return "null";
+    if (object != null) {
+      return object.toString();
+    } else {
+      logger.info("Object returned is null");
+      return "null";
     }
   }
 

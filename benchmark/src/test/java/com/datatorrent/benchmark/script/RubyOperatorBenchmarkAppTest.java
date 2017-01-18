@@ -18,14 +18,17 @@
  */
 package com.datatorrent.benchmark.script;
 
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.LocalMode;
+
 /**
  * Benchmark Test for Ruby Operator in local mode.
  */
-public class RubyOperatorBenchmarkAppTest {
+public class RubyOperatorBenchmarkAppTest
+{
 
   @Test
   public void testApplication() throws Exception
