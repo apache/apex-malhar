@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.state.spillable.SpillableSetMultimapImpl;
 import org.apache.apex.malhar.lib.window.Accumulation;
 import org.apache.apex.malhar.lib.window.SessionWindowedStorage;
 import org.apache.apex.malhar.lib.window.TriggerOption;
@@ -33,6 +34,7 @@ import org.apache.apex.malhar.lib.window.WindowState;
 import org.apache.apex.malhar.lib.window.WindowedStorage;
 import org.apache.hadoop.classification.InterfaceStability;
 
+import com.datatorrent.api.Context;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
@@ -50,6 +52,18 @@ import com.datatorrent.lib.util.KeyValPair;
 public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
     extends AbstractWindowedOperator<KeyValPair<KeyT, InputValT>, KeyValPair<KeyT, OutputValT>, WindowedStorage.WindowedKeyedStorage<KeyT, AccumT>, WindowedStorage.WindowedKeyedStorage<KeyT, OutputValT>, Accumulation<? super InputValT, AccumT, OutputValT>>
 {
+  private SpillableSetMultimapImpl<Window, KeyT> updatedKeyStorage;
+
+  @Override
+  public void setup(Context.OperatorContext context)
+  {
+    if (useUpdatedKeyStorage()) {
+      updatedKeyStorage.getStore().setup(context);
+      updatedKeyStorage.setup(context);
+    }
+
+    super.setup(context);
+  }
 
   @Override
   protected <T> Collection<Window.SessionWindow> assignSessionWindows(long timestamp, Tuple<T> inputTuple)
@@ -135,6 +149,20 @@ public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
   }
 
   @Override
+  public void endWindow()
+  {
+    super.endWindow();
+    if (useUpdatedKeyStorage()) {
+      updatedKeyStorage.endWindow();
+    }
+  }
+
+  private boolean useUpdatedKeyStorage()
+  {
+    return updatedKeyStorage != null && isFiringOnlyUpdatedPanes();
+  }
+
+  @Override
   public void accumulateTuple(Tuple.WindowedTuple<KeyValPair<KeyT, InputValT>> tuple)
   {
     KeyValPair<KeyT, InputValT> kvData = tuple.getValue();
@@ -145,24 +173,43 @@ public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
       if (accum == null) {
         accum = accumulation.defaultAccumulatedValue();
       }
-      dataStorage.put(window, key, accumulation.accumulate(accum, kvData.getValue()));
+
+      InputValT inputValue = kvData.getValue();
+      AccumT newValue = accumulation.accumulate(accum, inputValue);
+      if ((earlyTriggerMillis > 0 || lateTriggerMillis > 0 || earlyTriggerCount > 0 || lateTriggerCount > 0) && useUpdatedKeyStorage()) {
+        updatedKeyStorage.put(window, key);
+      }
+
+      dataStorage.put(window, key, newValue);
     }
   }
 
   @Override
   public void fireNormalTrigger(Window window, boolean fireOnlyUpdatedPanes)
   {
-    for (Map.Entry<KeyT, AccumT> entry : dataStorage.entries(window)) {
-      OutputValT outputVal = accumulation.getOutput(entry.getValue());
-      if (fireOnlyUpdatedPanes && retractionStorage != null) {
-        OutputValT oldValue = retractionStorage.get(window, entry.getKey());
-        if (oldValue != null && oldValue.equals(outputVal)) {
-          continue;
+    if (useUpdatedKeyStorage()) {
+      for (KeyT key : updatedKeyStorage.get(window)) {
+        OutputValT outputVal = accumulation.getOutput(dataStorage.get(window, key));
+        if (retractionStorage != null) {
+          OutputValT oldValue = retractionStorage.get(window, key);
+          if (oldValue != null && oldValue.equals(outputVal)) {
+            continue;
+          }
+        }
+        output.emit(new Tuple.WindowedTuple<>(window, new KeyValPair<>(key, outputVal)));
+        if (retractionStorage != null) {
+          retractionStorage.put(window, key, outputVal);
         }
       }
-      output.emit(new Tuple.WindowedTuple<>(window, new KeyValPair<>(entry.getKey(), outputVal)));
-      if (retractionStorage != null) {
-        retractionStorage.put(window, entry.getKey(), outputVal);
+      updatedKeyStorage.removeAll(window);
+    } else {
+      for (Map.Entry<KeyT, AccumT> entry : dataStorage.entries(window)) {
+        OutputValT outputVal = accumulation.getOutput(entry.getValue());
+
+        output.emit(new Tuple.WindowedTuple<>(window, new KeyValPair<>(entry.getKey(), outputVal)));
+        if (retractionStorage != null) {
+          retractionStorage.put(window, entry.getKey(), outputVal);
+        }
       }
     }
   }
@@ -185,6 +232,16 @@ public class KeyedWindowedOperatorImpl<KeyT, InputValT, AccumT, OutputValT>
       }
       output.emit(new Tuple.WindowedTuple<>(window, new KeyValPair<>(entry.getKey(), accumulation.getRetraction(entry.getValue()))));
     }
+  }
+
+  public SpillableSetMultimapImpl<Window, KeyT> getUpdatedKeyStorage()
+  {
+    return updatedKeyStorage;
+  }
+
+  public void setUpdatedKeyStorage(SpillableSetMultimapImpl<Window, KeyT> updatedKeyStorage)
+  {
+    this.updatedKeyStorage = updatedKeyStorage;
   }
 
 }
