@@ -20,10 +20,12 @@
 package org.apache.apex.malhar.kafka;
 
 import java.util.Properties;
+
 import javax.validation.constraints.NotNull;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
+
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Operator;
 
@@ -99,7 +101,7 @@ public abstract class AbstractKafkaOutputOperator<K, V> implements Operator
    */
   public void setProperty(Object key, Object val)
   {
-    properties.put(key,val);
+    properties.put(key, val);
   }
 
   public String getTopic()

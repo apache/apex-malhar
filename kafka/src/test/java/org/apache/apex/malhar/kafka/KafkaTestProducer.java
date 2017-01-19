@@ -62,7 +62,8 @@ public class KafkaTestProducer implements Runnable
     this.sendCount = sendCount;
   }
 
-  public void setMessages(List<String> messages) {
+  public void setMessages(List<String> messages)
+  {
     this.messages = messages;
   }
 
@@ -72,8 +73,8 @@ public class KafkaTestProducer implements Runnable
     props.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
     props.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
     props.setProperty(ProducerConfig.PARTITIONER_CLASS_CONFIG, KafkaTestPartitioner.class.getName());
-    String brokerList = "localhost:"+KafkaOperatorTestBase.TEST_KAFKA_BROKER_PORT[cid][0];
-    brokerList += hasPartition ? (",localhost:" + KafkaOperatorTestBase.TEST_KAFKA_BROKER_PORT[cid][1]):"";
+    String brokerList = "localhost:" + KafkaOperatorTestBase.TEST_KAFKA_BROKER_PORT[cid][0];
+    brokerList += hasPartition ? (",localhost:" + KafkaOperatorTestBase.TEST_KAFKA_BROKER_PORT[cid][1]) : "";
     props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerList);
     props.setProperty(ProducerConfig.METADATA_MAX_AGE_CONFIG, "20000");
     props.setProperty(ProducerConfig.ACKS_CONFIG, getAckType());
@@ -94,14 +95,15 @@ public class KafkaTestProducer implements Runnable
     this.hasPartition = hasPartition;
     this.hasMultiCluster = hasMultiCluster;
     producer = new KafkaProducer<>(createProducerConfig(0));
-    if(hasMultiCluster){
+    if (hasMultiCluster) {
       producer1 = new KafkaProducer<>(createProducerConfig(1));
     } else {
       producer1 = null;
     }
   }
 
-  public KafkaTestProducer(String topic, boolean hasPartition) {
+  public KafkaTestProducer(String topic, boolean hasPartition)
+  {
     this(topic, hasPartition, false);
   }
 
@@ -115,7 +117,7 @@ public class KafkaTestProducer implements Runnable
       String messageStr = "_" + messageNo++;
       int k = rand.nextInt(100);
       sendTasks.add(producer.send(new ProducerRecord<>(topic, "" + k, "c1" + messageStr)));
-      if(hasMultiCluster && messageNo <= sendCount){
+      if (hasMultiCluster && messageNo <= sendCount) {
         messageStr = "_" + messageNo++;
         sendTasks.add(producer1.send(new ProducerRecord<>(topic, "" + k, "c2" + messageStr)));
       }
@@ -142,7 +144,7 @@ public class KafkaTestProducer implements Runnable
     }
 
     producer.flush();
-    if (producer1!=null) {
+    if (producer1 != null) {
       producer1.flush();
     }
 
@@ -160,7 +162,7 @@ public class KafkaTestProducer implements Runnable
   public void close()
   {
     producer.close();
-    if (producer1!=null) {
+    if (producer1 != null) {
       producer1.close();
     }
   }

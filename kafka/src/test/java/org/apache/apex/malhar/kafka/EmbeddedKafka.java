@@ -118,7 +118,7 @@ public class EmbeddedKafka
   {
     Properties producerProps = new Properties();
     producerProps.setProperty("bootstrap.servers", BROKERHOST + ":" + BROKERPORT);
-    producerProps.setProperty("key.serializer","org.apache.kafka.common.serialization.IntegerSerializer");
+    producerProps.setProperty("key.serializer", "org.apache.kafka.common.serialization.IntegerSerializer");
     producerProps.setProperty("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
 
     try (KafkaProducer<Integer, byte[]> producer = new KafkaProducer<>(producerProps)) {
@@ -144,9 +144,10 @@ public class EmbeddedKafka
     consumerProps.setProperty("bootstrap.servers", BROKERHOST + ":" + BROKERPORT);
     consumerProps.setProperty("group.id", "group0");
     consumerProps.setProperty("client.id", "consumer0");
-    consumerProps.setProperty("key.deserializer","org.apache.kafka.common.serialization.IntegerDeserializer");
+    consumerProps.setProperty("key.deserializer", "org.apache.kafka.common.serialization.IntegerDeserializer");
     consumerProps.setProperty("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
-    consumerProps.put("auto.offset.reset", earliest ? "earliest" : "latest");  // to make sure the consumer starts from the beginning of the topic
+    // to make sure the consumer starts from the beginning of the topic
+    consumerProps.put("auto.offset.reset", earliest ? "earliest" : "latest");
     KafkaConsumer<Integer, byte[]> consumer = new KafkaConsumer<>(consumerProps);
     consumer.subscribe(Arrays.asList(topic));
 

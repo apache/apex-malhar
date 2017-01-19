@@ -133,7 +133,8 @@ public class KafkaConsumerWrapper implements Closeable
           try {
             kc.position(tp);
           } catch (NoOffsetForPartitionException e) {
-            //the poll() method of a consumer will throw exception if any of subscribed consumers not initialized with position
+            //the poll() method of a consumer will throw exception
+            // if any of subscribed consumers not initialized with position
             handleNoOffsetForPartitionException(e, kc);
           }
           kc.pause(tp);
@@ -145,7 +146,7 @@ public class KafkaConsumerWrapper implements Closeable
       while (windowCount > 0) {
         try {
           ConsumerRecords<byte[], byte[]> records = kc.poll(ownerOperator.getConsumerTimeout());
-          for (Iterator<ConsumerRecord<byte[], byte[]>> cri = records.iterator(); cri.hasNext() && windowCount > 0;) {
+          for (Iterator<ConsumerRecord<byte[], byte[]>> cri = records.iterator(); cri.hasNext() && windowCount > 0; ) {
             ownerOperator.emitTuple(meta.getCluster(), cri.next());
             windowCount--;
           }
@@ -194,7 +195,6 @@ public class KafkaConsumerWrapper implements Closeable
     {
       try {
 
-
         while (wrapper.isAlive.get()) {
           if (wrapper.waitForReplay) {
             Thread.sleep(100);
@@ -229,7 +229,8 @@ public class KafkaConsumerWrapper implements Closeable
     }
   }
 
-  protected void handleNoOffsetForPartitionException(NoOffsetForPartitionException e, KafkaConsumer<byte[], byte[]> consumer)
+  protected void handleNoOffsetForPartitionException(NoOffsetForPartitionException e,
+      KafkaConsumer<byte[], byte[]> consumer)
   {
     // if initialOffset is set to EARLIST or LATEST
     // and the application is run as first time
@@ -260,7 +261,6 @@ public class KafkaConsumerWrapper implements Closeable
     }
   }
 
-
   /**
    * This method is called in the activate method of the operator
    */
@@ -288,7 +288,6 @@ public class KafkaConsumerWrapper implements Closeable
     }
 
     Map<AbstractKafkaPartitioner.PartitionMeta, Long> currentOffset = ownerOperator.getOffsetTrack();
-
 
     //  create one thread for each cluster
     // each thread use one KafkaConsumer to consume from 1+ partition(s) of 1+ topic(s)
@@ -334,7 +333,6 @@ public class KafkaConsumerWrapper implements Closeable
       kafkaConsumerExecutor.submit(new ConsumerThread(e.getKey(), kc, this));
     }
 
-
   }
 
   /**
@@ -374,7 +372,6 @@ public class KafkaConsumerWrapper implements Closeable
     // block from receiving more message
     holdingBuffer.put(msg);
   }
-
 
   @Override
   public void close() throws IOException

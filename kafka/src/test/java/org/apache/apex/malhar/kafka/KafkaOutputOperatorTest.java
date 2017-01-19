@@ -31,7 +31,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -145,7 +144,8 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     Assert.assertTrue("No failure", fromKafka.size() > toKafka.size());
   }
 
-  private void sendDataToKafka(boolean exactlyOnce, List<Person> toKafka, boolean hasFailure, boolean differentTuplesAfterRecovery) throws InterruptedException
+  private void sendDataToKafka(boolean exactlyOnce, List<Person> toKafka, boolean hasFailure,
+      boolean differentTuplesAfterRecovery) throws InterruptedException
   {
     Properties props = new Properties();
     props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, VALUE_SERIALIZER);
@@ -159,7 +159,8 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     attributeMap.put(Context.DAGContext.APPLICATION_NAME, "MyKafkaApp");
     attributeMap.put(DAG.APPLICATION_PATH, APPLICATION_PATH);
 
-    OperatorContextTestHelper.TestIdOperatorContext operatorContext = new OperatorContextTestHelper.TestIdOperatorContext(2, attributeMap);
+    OperatorContextTestHelper.TestIdOperatorContext operatorContext =
+        new OperatorContextTestHelper.TestIdOperatorContext(2, attributeMap);
 
     cleanUp(operatorContext);
 
@@ -167,11 +168,13 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     DefaultInputPort<Person> inputPort;
 
     if (exactlyOnce) {
-      KafkaSinglePortExactlyOnceOutputOperator<Person> kafkaOutputTemp = ResetKafkaOutput(testName, props, operatorContext);
+      KafkaSinglePortExactlyOnceOutputOperator<Person> kafkaOutputTemp =
+          ResetKafkaOutput(testName, props, operatorContext);
       inputPort = kafkaOutputTemp.inputPort;
       kafkaOutput = kafkaOutputTemp;
     } else {
-      KafkaSinglePortOutputOperator<String, Person> kafkaOutputTemp = ResetKafkaSimpleOutput(testName, props, operatorContext);
+      KafkaSinglePortOutputOperator<String, Person> kafkaOutputTemp =
+          ResetKafkaSimpleOutput(testName, props, operatorContext);
       inputPort = kafkaOutputTemp.inputPort;
       kafkaOutput = kafkaOutputTemp;
     }
@@ -192,11 +195,13 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
 
     if (hasFailure) {
       if (exactlyOnce) {
-        KafkaSinglePortExactlyOnceOutputOperator<Person> kafkaOutputTemp = ResetKafkaOutput(testName, props, operatorContext);
+        KafkaSinglePortExactlyOnceOutputOperator<Person> kafkaOutputTemp =
+            ResetKafkaOutput(testName, props, operatorContext);
         inputPort = kafkaOutputTemp.inputPort;
         kafkaOutput = kafkaOutputTemp;
       } else {
-        KafkaSinglePortOutputOperator<String,Person> kafkaOutputTemp = ResetKafkaSimpleOutput(testName, props, operatorContext);
+        KafkaSinglePortOutputOperator<String, Person> kafkaOutputTemp =
+            ResetKafkaSimpleOutput(testName, props, operatorContext);
         inputPort = kafkaOutputTemp.inputPort;
         kafkaOutput = kafkaOutputTemp;
       }
@@ -225,7 +230,8 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     cleanUp(operatorContext);
   }
 
-  private KafkaSinglePortExactlyOnceOutputOperator<Person> ResetKafkaOutput(String testName, Properties props, Context.OperatorContext operatorContext)
+  private KafkaSinglePortExactlyOnceOutputOperator<Person> ResetKafkaOutput(
+      String testName, Properties props, Context.OperatorContext operatorContext)
   {
     KafkaSinglePortExactlyOnceOutputOperator<Person> kafkaOutput = new KafkaSinglePortExactlyOnceOutputOperator<>();
     kafkaOutput.setTopic(testName);
@@ -235,9 +241,10 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     return kafkaOutput;
   }
 
-  private KafkaSinglePortOutputOperator<String, Person> ResetKafkaSimpleOutput(String testName, Properties props, Context.OperatorContext operatorContext)
+  private KafkaSinglePortOutputOperator<String, Person> ResetKafkaSimpleOutput(
+      String testName, Properties props, Context.OperatorContext operatorContext)
   {
-    KafkaSinglePortOutputOperator<String,Person> kafkaOutput = new KafkaSinglePortOutputOperator<>();
+    KafkaSinglePortOutputOperator<String, Person> kafkaOutput = new KafkaSinglePortOutputOperator<>();
     kafkaOutput.setTopic(testName);
     kafkaOutput.setProperties(props);
     kafkaOutput.setup(operatorContext);
@@ -263,7 +270,7 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     }
 
     for (int i = 0; i < fromKafka.size(); ++i) {
-      if ( !fromKafka.get(i).equals(toKafka.get(i))) {
+      if (!fromKafka.get(i).equals(toKafka.get(i))) {
         return false;
       }
     }
@@ -275,9 +282,9 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
   {
     String l = "localhost:";
     return l + TEST_KAFKA_BROKER_PORT[0][0] +
-        (hasMultiPartition ? "," + l + TEST_KAFKA_BROKER_PORT[0][1] : "") +
-        (hasMultiCluster ? ";" + l + TEST_KAFKA_BROKER_PORT[1][0] : "") +
-        (hasMultiCluster && hasMultiPartition ? "," + l  + TEST_KAFKA_BROKER_PORT[1][1] : "");
+      (hasMultiPartition ? "," + l + TEST_KAFKA_BROKER_PORT[0][1] : "") +
+      (hasMultiCluster ? ";" + l + TEST_KAFKA_BROKER_PORT[1][0] : "") +
+      (hasMultiCluster && hasMultiPartition ? "," + l + TEST_KAFKA_BROKER_PORT[1][1] : "");
   }
 
   private List<Person> GenerateList()

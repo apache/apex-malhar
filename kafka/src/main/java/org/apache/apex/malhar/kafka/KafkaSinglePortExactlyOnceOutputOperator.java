@@ -52,47 +52,47 @@ import static org.apache.kafka.clients.consumer.ConsumerConfig.VALUE_DESERIALIZE
 
 /**
  * Kafka output operator with exactly once processing semantics.
- *<br>
+ * <br>
  *
- *  <p>
+ * <p>
  * <b>Requirements</b>
  * <li>In the Kafka message, only Value will be available for users</li>
  * <li>Users need to provide Value deserializers for Kafka message as it is used during recovery</li>
- * <li>Value type should have well defined Equals & HashCodes, as during messages are stored in HashMaps for comparison.</li>
+ * <li>Value type should have well defined Equals & HashCodes,
+ * as during messages are stored in HashMaps for comparison.</li>
  * <p>
  * <b>Recovery handling</b>
  * <li> Offsets of the Kafka partitions are stored in the WindowDataManager at the endWindow</li>
  * <li> During recovery,
  * <ul>
- *    <li>Partially written Streaming Window before the crash is constructed. ( Explained below ) </li>
- *    <li>Tuples from the completed Streaming Window's are skipped </li>
- *    <li>Tuples coming for the partially written Streaming Window are skipped.
- *       (No assumption is made on the order and the uniqueness of the tuples) </li>
- *  </ul>
- *  </li>
- *</p>
+ * <li>Partially written Streaming Window before the crash is constructed. ( Explained below ) </li>
+ * <li>Tuples from the completed Streaming Window's are skipped </li>
+ * <li>Tuples coming for the partially written Streaming Window are skipped.
+ * (No assumption is made on the order and the uniqueness of the tuples) </li>
+ * </ul>
+ * </li>
+ * </p>
  *
  * <p>
  * <b>Partial Window Construction</b>
  * <li> Operator uses the Key in the Kafka message, which is not available for use by the operator users.</li>
  * <li> Key is used to uniquely identify the message written by the particular instance of this operator.</li>
- *    This allows multiple writers to same Kafka partitions. Format of the key is "APPLICATTION_ID#OPERATOR_ID".
+ * This allows multiple writers to same Kafka partitions. Format of the key is "APPLICATTION_ID#OPERATOR_ID".
  * <li>During recovery Kafka partitions are read between the latest offset and the last written offsets.</li>
- *<li>All the tuples written by the particular instance is kept in the Map</li>
- *</p>
+ * <li>All the tuples written by the particular instance is kept in the Map</li>
+ * </p>
  *
  * <p>
  * <b>Limitations</b>
  * <li> Key in the Kafka message is reserved for Operator's use </li>
- * <li> During recovery, operator needs to read tuples between 2 offsets, if there are lot of data to be read, Operator may
- *    appear to be blocked to the Stram and can kill the operator. </li>
- *</p>
+ * <li> During recovery, operator needs to read tuples between 2 offsets,
+ * if there are lot of data to be read, Operator may
+ * appear to be blocked to the Stram and can kill the operator. </li>
+ * </p>
  *
  * @displayName Kafka Single Port Exactly Once Output(0.9.0)
  * @category Messaging
  * @tags output operator
- *
- *
  * @since 3.5.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
@@ -128,7 +128,8 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
     setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KEY_SERIALIZER);
 
     if (getProperties().getProperty(VALUE_DESERIALIZER_CLASS_CONFIG) == null) {
-      throw new IllegalArgumentException("Value deserializer needs to be set for the operator, as it is used during recovery.");
+      throw new IllegalArgumentException(
+          "Value deserializer needs to be set for the operator, as it is used during recovery.");
     }
 
     super.setup(context);
@@ -242,19 +243,19 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
     return false;
   }
 
-  private Map<Integer,Long> getPartitionsAndOffsets(boolean latest) throws ExecutionException, InterruptedException
+  private Map<Integer, Long> getPartitionsAndOffsets(boolean latest) throws ExecutionException, InterruptedException
   {
     List<PartitionInfo> partitionInfoList = consumer.partitionsFor(getTopic());
     List<TopicPartition> topicPartitionList = new java.util.ArrayList<>();
 
-    for ( PartitionInfo partitionInfo: partitionInfoList) {
-      topicPartitionList.add(new TopicPartition(getTopic(), partitionInfo.partition()) );
+    for (PartitionInfo partitionInfo : partitionInfoList) {
+      topicPartitionList.add(new TopicPartition(getTopic(), partitionInfo.partition()));
     }
 
-    Map<Integer,Long> parttionsAndOffset = new HashMap<>();
+    Map<Integer, Long> parttionsAndOffset = new HashMap<>();
     consumer.assign(topicPartitionList);
 
-    for (PartitionInfo partitionInfo: partitionInfoList) {
+    for (PartitionInfo partitionInfo : partitionInfoList) {
       try {
         TopicPartition topicPartition = new TopicPartition(getTopic(), partitionInfo.partition());
         if (latest) {
@@ -275,11 +276,11 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
   {
     logger.info("Rebuild the partial window after " + windowDataManager.getLargestCompletedWindow());
 
-    Map<Integer,Long> storedOffsets;
-    Map<Integer,Long> currentOffsets;
+    Map<Integer, Long> storedOffsets;
+    Map<Integer, Long> currentOffsets;
 
     try {
-      storedOffsets = (Map<Integer,Long>)this.windowDataManager.retrieve(windowId);
+      storedOffsets = (Map<Integer, Long>)this.windowDataManager.retrieve(windowId);
       currentOffsets = getPartitionsAndOffsets(true);
     } catch (IOException | ExecutionException | InterruptedException e) {
       throw new RuntimeException(e);
@@ -303,13 +304,13 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
 
     List<TopicPartition> topicPartitions = new ArrayList<>();
 
-    for (Map.Entry<Integer,Long> entry: currentOffsets.entrySet()) {
+    for (Map.Entry<Integer, Long> entry : currentOffsets.entrySet()) {
       topicPartitions.add(new TopicPartition(getTopic(), entry.getKey()));
     }
 
     consumer.assign(topicPartitions);
 
-    for (Map.Entry<Integer,Long> entry: currentOffsets.entrySet()) {
+    for (Map.Entry<Integer, Long> entry : currentOffsets.entrySet()) {
       Long storedOffset = 0L;
       Integer currentPartition = entry.getKey();
       Long currentOffset = entry.getValue();
@@ -390,7 +391,7 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
       return;
     }
 
-    getProducer().send(new ProducerRecord<>(getTopic(), key, tuple),new Callback()
+    getProducer().send(new ProducerRecord<>(getTopic(), key, tuple), new Callback()
     {
       public void onCompletion(RecordMetadata metadata, Exception e)
       {

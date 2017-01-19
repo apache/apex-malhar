@@ -25,7 +25,8 @@ import java.util.Map;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
 
-public class KafkaHelper implements Serializer<KafkaOutputOperatorTest.Person>, Deserializer<KafkaOutputOperatorTest.Person>
+public class KafkaHelper implements Serializer<KafkaOutputOperatorTest.Person>,
+    Deserializer<KafkaOutputOperatorTest.Person>
 {
   @Override
   public KafkaOutputOperatorTest.Person deserialize(String s, byte[] bytes)

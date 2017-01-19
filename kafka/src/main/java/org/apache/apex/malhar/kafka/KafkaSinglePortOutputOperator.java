@@ -20,6 +20,7 @@
 package org.apache.apex.malhar.kafka;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
+
 import com.datatorrent.api.DefaultInputPort;
 
 /**
@@ -29,17 +30,17 @@ import com.datatorrent.api.DefaultInputPort;
  * @since 3.5.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-public class KafkaSinglePortOutputOperator<K,V> extends AbstractKafkaOutputOperator
+public class KafkaSinglePortOutputOperator<K, V> extends AbstractKafkaOutputOperator
 {
-    /**
-     * This input port receives tuples that will be written out to Kafka.
-     */
+  /**
+   * This input port receives tuples that will be written out to Kafka.
+   */
   public final transient DefaultInputPort<V> inputPort = new DefaultInputPort<V>()
   {
     @Override
     public void process(V tuple)
     {
-      getProducer().send(new ProducerRecord<K,V>(getTopic(),tuple));
+      getProducer().send(new ProducerRecord<K, V>(getTopic(), tuple));
     }
   };
 }

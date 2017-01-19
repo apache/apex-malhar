@@ -41,6 +41,7 @@ public class KafkaConsumerPropertiesTest
   public class Watcher extends TestWatcher
   {
     Context.OperatorContext context;
+
     @Override
     protected void starting(Description description)
     {
@@ -50,8 +51,8 @@ public class KafkaConsumerPropertiesTest
       kafkaInput.setTopics("apexTest");
       kafkaInput.setInitialOffset(AbstractKafkaInputOperator.InitialOffset.EARLIEST.name());
       Properties prop = new Properties();
-      prop.setProperty("security.protocol","SASL_PLAINTEXT");
-      prop.setProperty("sasl.kerberos.service.name","kafka");
+      prop.setProperty("security.protocol", "SASL_PLAINTEXT");
+      prop.setProperty("sasl.kerberos.service.name", "kafka");
       kafkaInput.setConsumerProps(prop);
     }
 
@@ -71,8 +72,9 @@ public class KafkaConsumerPropertiesTest
         kafkaInput.definePartitions(null, null);
       } catch (KafkaException e) {
         //Ensures the  properties of the consumer are set/not reset.
-        Assert.assertEquals("java.lang.IllegalArgumentException: You must pass java.security.auth.login.config in " +
-          "secure mode.", e.getCause().getMessage());
+        Assert.assertEquals(
+            "java.lang.IllegalArgumentException: You must pass java.security.auth.login.config in "
+            + "secure mode.", e.getCause().getMessage());
       }
     }
   }

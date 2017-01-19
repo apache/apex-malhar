@@ -50,7 +50,8 @@ public class OneToManyPartitioner extends AbstractKafkaPartitioner
     }
 
     int partitionCount = prototypeOperator.getInitialPartitionCount();
-    ArrayList<Set<PartitionMeta>> eachPartitionAssignment = new ArrayList<>(prototypeOperator.getInitialPartitionCount());
+    ArrayList<Set<PartitionMeta>> eachPartitionAssignment =
+        new ArrayList<>(prototypeOperator.getInitialPartitionCount());
     int i = 0;
     for (Map.Entry<String, Map<String, List<PartitionInfo>>> clusterMap : metadata.entrySet()) {
       for (Map.Entry<String, List<PartitionInfo>> topicPartition : clusterMap.getValue().entrySet()) {
@@ -59,7 +60,8 @@ public class OneToManyPartitioner extends AbstractKafkaPartitioner
           if (index >= eachPartitionAssignment.size()) {
             eachPartitionAssignment.add(new HashSet<PartitionMeta>());
           }
-          eachPartitionAssignment.get(index).add(new PartitionMeta(clusterMap.getKey(), topicPartition.getKey(), pif.partition()));
+          eachPartitionAssignment.get(index).add(new PartitionMeta(clusterMap.getKey(),
+              topicPartition.getKey(), pif.partition()));
         }
       }
     }

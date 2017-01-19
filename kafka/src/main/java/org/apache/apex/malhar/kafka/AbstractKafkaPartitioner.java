@@ -47,8 +47,6 @@ import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.lib.util.KryoCloneUtils;
 
-import kafka.common.AuthorizationException;
-
 /**
  * Abstract partitioner used to manage the partitions of kafka input operator.
  * It use a number of kafka consumers(one for each cluster) to get the latest partition metadata for topics that
@@ -74,8 +72,8 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
 
   private ArrayList<KafkaConsumer<byte[], byte[]>> metadataRefreshClients;
 
-
-  private final List<Set<AbstractKafkaPartitioner.PartitionMeta>> currentPartitions = new LinkedList<>(); // prevent null
+  // prevent null
+  private final List<Set<AbstractKafkaPartitioner.PartitionMeta>> currentPartitions = new LinkedList<>();
 
   public AbstractKafkaPartitioner(String[] clusters, String[] topics, AbstractKafkaInputOperator prototypeOperator)
   {
@@ -84,12 +82,11 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
     this.prototypeOperator = prototypeOperator;
   }
 
-  abstract List<Set<PartitionMeta>> assign(Map<String, Map<String,List<PartitionInfo>>> metadata);
-
-
+  abstract List<Set<PartitionMeta>> assign(Map<String, Map<String, List<PartitionInfo>>> metadata);
 
   @Override
-  public Collection<Partition<AbstractKafkaInputOperator>> definePartitions(Collection<Partition<AbstractKafkaInputOperator>> collection, PartitioningContext partitioningContext)
+  public Collection<Partition<AbstractKafkaInputOperator>> definePartitions(
+      Collection<Partition<AbstractKafkaInputOperator>> collection, PartitioningContext partitioningContext)
   {
     initMetadataClients();
 
@@ -127,7 +124,8 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
           } //end while
 
           if (tryTime == 0) {
-            throw new RuntimeException("Get partition info for topic completely failed. Please check the log file. topic name: " + topic);
+            throw new RuntimeException(
+                "Get partition info for topic completely failed. Please check the log file. topic name: " + topic);
           }
         }
       }
@@ -143,7 +141,6 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
       e.printStackTrace();
     }
 
-
     if (currentPartitions == parts || currentPartitions.equals(parts)) {
       logger.debug("No partition change found");
       return collection;
@@ -153,7 +150,7 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
       currentPartitions.addAll(parts);
       int i = 0;
       List<Partition<AbstractKafkaInputOperator>> result = new LinkedList<>();
-      for (Iterator<Partition<AbstractKafkaInputOperator>> iter = collection.iterator(); iter.hasNext();) {
+      for (Iterator<Partition<AbstractKafkaInputOperator>> iter = collection.iterator(); iter.hasNext(); ) {
         Partition<AbstractKafkaInputOperator> nextPartition = iter.next();
         if (parts.remove(nextPartition.getPartitionedInstance().assignment())) {
           if (logger.isInfoEnabled()) {
@@ -186,7 +183,6 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
     metadataRefreshClients = null;
   }
 
-
   @Override
   public void partitioned(Map<Integer, Partition<AbstractKafkaInputOperator>> map)
   {
@@ -201,12 +197,15 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
     return response;
   }
 
-  protected Partitioner.Partition<AbstractKafkaInputOperator> createPartition(Set<AbstractKafkaPartitioner.PartitionMeta> partitionAssignment)
+  protected Partitioner.Partition<AbstractKafkaInputOperator> createPartition(
+      Set<AbstractKafkaPartitioner.PartitionMeta> partitionAssignment)
   {
-    Partitioner.Partition<AbstractKafkaInputOperator> p = new DefaultPartition<AbstractKafkaInputOperator>(KryoCloneUtils.cloneObject(prototypeOperator));
+    Partitioner.Partition<AbstractKafkaInputOperator> p =
+        new DefaultPartition<AbstractKafkaInputOperator>(KryoCloneUtils.cloneObject(prototypeOperator));
     p.getPartitionedInstance().assign(partitionAssignment);
     return p;
   }
+
   /**
    *
    */
@@ -243,12 +242,13 @@ public abstract class AbstractKafkaPartitioner implements Partitioner<AbstractKa
    * @param prop
    * @return String
    */
-  private String getPropertyAsString(Properties prop) {
+  private String getPropertyAsString(Properties prop)
+  {
     StringWriter writer = new StringWriter();
     try {
       prop.store(writer, "");
     } catch (IOException e) {
-      logger.error("Cannot retrieve consumer properties for Logging : {}", e.getMessage() );
+      logger.error("Cannot retrieve consumer properties for Logging : {}", e.getMessage());
     }
     return writer.getBuffer().toString();
   }
