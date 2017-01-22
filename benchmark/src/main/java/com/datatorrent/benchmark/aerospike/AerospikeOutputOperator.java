@@ -23,25 +23,28 @@ import java.util.List;
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Bin;
 import com.aerospike.client.Key;
-import com.datatorrent.contrib.aerospike.AbstractAerospikeTransactionalPutOperator;
 
+import com.datatorrent.contrib.aerospike.AbstractAerospikeTransactionalPutOperator;
 
 /**
  * <p>AerospikeOutputOperator class.</p>
  *
  * @since 1.0.4
  */
-public class AerospikeOutputOperator extends AbstractAerospikeTransactionalPutOperator<Integer>{
+public class AerospikeOutputOperator extends AbstractAerospikeTransactionalPutOperator<Integer>
+{
 
   private final String KEYSPACE = "test";
   private final String SET_NAME = "Aerospike_Output";
   private int id = 0;
+
   @Override
   protected Key getUpdatedBins(Integer tuple, List<Bin> bins)
-      throws AerospikeException {
+    throws AerospikeException
+  {
 
-    Key key = new Key(KEYSPACE,SET_NAME,id++);
-    bins.add(new Bin("ID",tuple));
+    Key key = new Key(KEYSPACE, SET_NAME, id++);
+    bins.add(new Bin("ID", tuple));
     return key;
   }
 

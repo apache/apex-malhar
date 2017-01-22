@@ -52,10 +52,10 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
  * @since 0.9.0
  */
 
-@ApplicationAnnotation(name="PerformanceBenchmarkingApp")
+@ApplicationAnnotation(name = "PerformanceBenchmarkingApp")
 public abstract class Benchmark
 {
-  static abstract class AbstractApplication implements StreamingApplication
+  abstract static class AbstractApplication implements StreamingApplication
   {
     public static final int QUEUE_CAPACITY = 32 * 1024;
 
@@ -63,7 +63,8 @@ public abstract class Benchmark
     public void populateDAG(DAG dag, Configuration conf)
     {
       RandomWordInputModule wordGenerator = dag.addOperator("wordGenerator", RandomWordInputModule.class);
-      dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
+      dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getAttributes()
+          .put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
 
       WordCountOperator<byte[]> counter = dag.addOperator("counter", new WordCountOperator<byte[]>());
       dag.getMeta(counter).getMeta(counter.input).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
@@ -77,7 +78,7 @@ public abstract class Benchmark
   /**
    * Let the engine decide how to best place the 2 operators.
    */
-  @ApplicationAnnotation(name="PerformanceBenchmarkNoLocality")
+  @ApplicationAnnotation(name = "PerformanceBenchmarkNoLocality")
   public static class NoLocality extends AbstractApplication
   {
     @Override
@@ -92,7 +93,7 @@ public abstract class Benchmark
    * Place the 2 operators so that they are in the same Rack.
    * The operators are requested to be deployed on different machines.
    */
-  @ApplicationAnnotation(name="PerformanceBenchmarkRackLocal")
+  @ApplicationAnnotation(name = "PerformanceBenchmarkRackLocal")
   public static class RackLocal extends AbstractApplication
   {
     @Override
@@ -107,7 +108,7 @@ public abstract class Benchmark
    * Place the 2 operators so that they are in the same node.
    * The operators are requested to be deployed as different processes within the same machine.
    */
-  @ApplicationAnnotation(name="PerformanceBenchmarkNodeLocal")
+  @ApplicationAnnotation(name = "PerformanceBenchmarkNodeLocal")
   public static class NodeLocal extends AbstractApplication
   {
     @Override
@@ -122,7 +123,7 @@ public abstract class Benchmark
    * Place the 2 operators so that they are in the same container.
    * The operators are deployed as different threads in the same process.
    */
-  @ApplicationAnnotation(name="PerformanceBenchmarkContainerLocal")
+  @ApplicationAnnotation(name = "PerformanceBenchmarkContainerLocal")
   public static class ContainerLocal extends AbstractApplication
   {
     @Override
@@ -136,7 +137,7 @@ public abstract class Benchmark
   /**
    * Place the 2 operators so that they are in the same thread.
    */
-  @ApplicationAnnotation(name="PerformanceBenchmarkThreadLocal")
+  @ApplicationAnnotation(name = "PerformanceBenchmarkThreadLocal")
   public static class ThreadLocal extends AbstractApplication
   {
     @Override

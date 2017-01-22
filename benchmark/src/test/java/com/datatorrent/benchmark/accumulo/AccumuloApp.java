@@ -27,6 +27,7 @@ import com.datatorrent.contrib.accumulo.AbstractAccumuloOutputOperator;
 import com.datatorrent.contrib.accumulo.AccumuloRowTupleGenerator;
 import com.datatorrent.contrib.accumulo.AccumuloTestHelper;
 import com.datatorrent.contrib.accumulo.AccumuloTuple;
+
 /**
  * BenchMark Results
  * -----------------
@@ -39,14 +40,16 @@ import com.datatorrent.contrib.accumulo.AccumuloTuple;
  *
  * @since 1.0.4
  */
-public class AccumuloApp implements StreamingApplication {
+public class AccumuloApp implements StreamingApplication
+{
 
   @Override
-  public void populateDAG(DAG dag, Configuration conf) {
+  public void populateDAG(DAG dag, Configuration conf)
+  {
     AccumuloTestHelper.getConnector();
     AccumuloTestHelper.clearTable();
     dag.setAttribute(DAG.APPLICATION_NAME, "AccumuloOutputTest");
-    AccumuloRowTupleGenerator rtg = dag.addOperator("tuplegenerator",AccumuloRowTupleGenerator.class);
+    AccumuloRowTupleGenerator rtg = dag.addOperator("tuplegenerator", AccumuloRowTupleGenerator.class);
     TestAccumuloOutputOperator taop = dag.addOperator("testaccumulooperator", TestAccumuloOutputOperator.class);
     dag.addStream("ss", rtg.outputPort, taop.input);
     com.datatorrent.api.Attribute.AttributeMap attributes = dag.getAttributes();
@@ -58,12 +61,14 @@ public class AccumuloApp implements StreamingApplication {
 
   }
 
-  public static class TestAccumuloOutputOperator extends AbstractAccumuloOutputOperator<AccumuloTuple> {
+  public static class TestAccumuloOutputOperator extends AbstractAccumuloOutputOperator<AccumuloTuple>
+  {
 
     @Override
-    public Mutation operationMutation(AccumuloTuple t) {
+    public Mutation operationMutation(AccumuloTuple t)
+    {
       Mutation mutation = new Mutation(t.getRow().getBytes());
-      mutation.put(t.getColFamily().getBytes(),t.getColName().getBytes(),t.getColValue().getBytes());
+      mutation.put(t.getColFamily().getBytes(), t.getColName().getBytes(), t.getColValue().getBytes());
       return mutation;
     }
 

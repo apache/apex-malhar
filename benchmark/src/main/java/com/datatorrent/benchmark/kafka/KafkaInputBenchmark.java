@@ -18,23 +18,26 @@
  */
 package com.datatorrent.benchmark.kafka;
 
-import com.google.common.collect.Sets;
 import java.util.Properties;
+
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
+
+import com.datatorrent.api.DAG;
+
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.DefaultInputPort;
+
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.contrib.kafka.HighlevelKafkaConsumer;
 import com.datatorrent.contrib.kafka.KafkaConsumer;
 import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
-
 
 /**
  * The stream app to test the benckmark of kafka
@@ -43,13 +46,14 @@ import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
  *
  * @since 0.9.3
  */
-@ApplicationAnnotation(name="KafkaInputBenchmark")
+@ApplicationAnnotation(name = "KafkaInputBenchmark")
 public class KafkaInputBenchmark implements StreamingApplication
 {
 
   public static class CollectorModule extends BaseOperator
   {
-    public final transient DefaultInputPort<String> inputPort = new DefaultInputPort<String>() {
+    public final transient DefaultInputPort<String> inputPort = new DefaultInputPort<String>()
+    {
 
       @Override
       public void process(String arg0)
@@ -65,11 +69,9 @@ public class KafkaInputBenchmark implements StreamingApplication
     dag.setAttribute(DAG.APPLICATION_NAME, "KafkaInputOperatorPartitionDemo");
     BenchmarkKafkaInputOperator bpkio = new BenchmarkKafkaInputOperator();
 
-
     String type = conf.get("kafka.consumertype", "simple");
 
     KafkaConsumer consumer = null;
-
 
     if (type.equals("highlevel")) {
       // Create template high-level consumer
@@ -95,7 +97,6 @@ public class KafkaInputBenchmark implements StreamingApplication
     dag.setInputPortAttribute(cm.inputPort, PortContext.PARTITION_PARALLEL, true);
     dag.setAttribute(bpkio, OperatorContext.COUNTERS_AGGREGATOR, new KafkaConsumer.KafkaMeterStatsAggregator());
 //    dag.setAttribute(bpkio, OperatorContext.STATS_LISTENER, KafkaMeterStatsListener.class);
-
 
   }
 

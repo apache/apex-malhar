@@ -40,7 +40,6 @@ public class GenericSerdePerformanceTest
   private Random random = new Random();
   private int serdeDataSize = 1000000;
 
-
   @Test
   public void testCompareSerdeForString()
   {
@@ -74,7 +73,6 @@ public class GenericSerdePerformanceTest
     buffer.release();
   }
 
-
   @Test
   public void testCompareSerdeForRealCase()
   {
@@ -88,7 +86,6 @@ public class GenericSerdePerformanceTest
     long genericSerdeCost = System.currentTimeMillis() - beginTime;
     logger.info("Generic Serde cost for ImmutablePair: {}", genericSerdeCost);
 
-
     beginTime = System.currentTimeMillis();
     Kryo kryo = new Kryo();
     for (int i = 0; i < serdeDataSize; ++i) {
@@ -98,7 +95,6 @@ public class GenericSerdePerformanceTest
     buffer.release();
     long kryoSerdeCost = System.currentTimeMillis() - beginTime;
     logger.info("Kryo Serde cost for ImmutablePair without class info: {}", kryoSerdeCost);
-
 
     beginTime = System.currentTimeMillis();
     Kryo kryo1 = new Kryo();
@@ -113,6 +109,7 @@ public class GenericSerdePerformanceTest
 
   protected ImmutablePair generatePair(long now)
   {
-    return new ImmutablePair(new Window.TimeWindow(now + random.nextInt(100), random.nextInt(100)), "" + random.nextInt(1000));
+    return new ImmutablePair(new Window.TimeWindow(now + random.nextInt(100),
+        random.nextInt(100)), "" + random.nextInt(1000));
   }
 }

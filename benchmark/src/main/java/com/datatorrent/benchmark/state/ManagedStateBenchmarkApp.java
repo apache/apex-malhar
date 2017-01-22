@@ -98,7 +98,8 @@ public class ManagedStateBenchmarkApp implements StreamingApplication
 
   public static class TestGenerator extends BaseOperator implements InputOperator
   {
-    public final transient DefaultOutputPort<KeyValPair<byte[], byte[]>> data = new DefaultOutputPort<KeyValPair<byte[], byte[]>>();
+    public final transient DefaultOutputPort<KeyValPair<byte[], byte[]>> data =
+        new DefaultOutputPort<KeyValPair<byte[], byte[]>>();
     int emitBatchSize = 1000;
     byte[] val = ByteBuffer.allocate(1000).putLong(1234).array();
     int rate = 20000;

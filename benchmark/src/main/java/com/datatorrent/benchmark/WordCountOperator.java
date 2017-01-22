@@ -21,13 +21,16 @@ package com.datatorrent.benchmark;
 /*
  * To change this template, choose Tools | Templates and open the template in the editor.
  */
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.Operator;
-import com.datatorrent.api.Context.OperatorContext;
 
 import java.util.ArrayList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Context.OperatorContext;
+
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.Operator;
 
 /**
  * <p>WordCountOperator class.</p>
@@ -84,5 +87,6 @@ public class WordCountOperator<T> implements Operator
     counts = new ArrayList<Integer>();
     millis = new ArrayList<Integer>();
   }
+
   private static final Logger logger = LoggerFactory.getLogger(WordCountOperator.class);
 }

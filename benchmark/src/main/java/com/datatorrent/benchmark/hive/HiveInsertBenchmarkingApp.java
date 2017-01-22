@@ -30,16 +30,18 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.contrib.hive.AbstractFSRollingOutputOperator;
-import com.datatorrent.contrib.hive.HiveOperator;
-import com.datatorrent.contrib.hive.HiveStore;
-
 import com.datatorrent.api.Context.OperatorContext;
+
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+
 import com.datatorrent.api.StreamingApplication;
+
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.contrib.hive.AbstractFSRollingOutputOperator;
+import com.datatorrent.contrib.hive.HiveOperator;
+import com.datatorrent.contrib.hive.HiveStore;
 
 /**
  * Application used to benchmark HIVE Insert operator
@@ -79,13 +81,14 @@ public class HiveInsertBenchmarkingApp implements StreamingApplication
   {
     HiveStore store = new HiveStore();
     store.setDatabaseUrl(conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl"));
-    store.setConnectionProperties(conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties"));
+    store.setConnectionProperties(conf.get(
+        "dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties"));
     store.setFilepath(conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.filepath"));
 
     try {
-      hiveInitializeDatabase(store, conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.tablename"));
-    }
-    catch (SQLException ex) {
+      hiveInitializeDatabase(store, conf.get(
+          "dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.tablename"));
+    } catch (SQLException ex) {
       LOG.debug(ex.getMessage());
     }
 
@@ -109,8 +112,9 @@ public class HiveInsertBenchmarkingApp implements StreamingApplication
   {
     hiveStore.connect();
     Statement stmt = hiveStore.getConnection().createStatement();
-    stmt.execute("CREATE TABLE IF NOT EXISTS " + tablename + " (col1 string) PARTITIONED BY(dt STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\n'  \n"
-            + "STORED AS TEXTFILE ");
+    stmt.execute("CREATE TABLE IF NOT EXISTS " + tablename
+        + " (col1 string) PARTITIONED BY(dt STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\n'  \n"
+        + "STORED AS TEXTFILE ");
     hiveStore.disconnect();
   }
 
@@ -171,8 +175,8 @@ public class HiveInsertBenchmarkingApp implements StreamingApplication
     {
 
       for (;
-              tupleCounter < tuplesPerWindow;
-              tupleCounter++) {
+          tupleCounter < tuplesPerWindow;
+          tupleCounter++) {
         String output = "2014-12-1" + random.nextInt(10) + "";
         outputString.emit(output);
       }

@@ -18,9 +18,11 @@
  */
 package com.datatorrent.benchmark.fs;
 
-import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
 import java.util.Arrays;
+
 import javax.validation.constraints.Min;
+
+import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
 
 /**
  * This output operator receives
@@ -38,19 +40,20 @@ public class FSByteOutputOperator extends AbstractFileOutputOperator<byte[]>
   /**
    * The file a tuple is written out to is determined by modding the hashcode of the
    * tuple by the outputFileCount.
+   *
    * @param tuple The input tuple to write out.
    * @return The name of the file to write the tuple to.
    */
   @Override
   protected String getFileName(byte[] tuple)
   {
-    return ((Integer) (Arrays.hashCode(tuple) % outputFileCount)).toString();
+    return ((Integer)(Arrays.hashCode(tuple) % outputFileCount)).toString();
   }
 
   @Override
   protected byte[] getBytesForTuple(byte[] tuple)
   {
-    for(int counter = 0;
+    for (int counter = 0;
         counter < tuple.length;
         counter++) {
       tuple[counter] += 1;

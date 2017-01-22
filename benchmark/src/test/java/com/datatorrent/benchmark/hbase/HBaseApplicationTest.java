@@ -19,16 +19,19 @@
 package com.datatorrent.benchmark.hbase;
 
 import org.junit.Test;
+
 import com.datatorrent.api.LocalMode;
 
 /**
  * Test the DAG declaration in local mode.
  */
-public class HBaseApplicationTest {
+public class HBaseApplicationTest
+{
 
   @Test
-  public void test() throws Exception {
-     LocalMode.runApp(new HBaseCsvMappingApplication(), 20000);
+  public void test() throws Exception
+  {
+    LocalMode.runApp(new HBaseCsvMappingApplication(), 20000);
   }
 
 }

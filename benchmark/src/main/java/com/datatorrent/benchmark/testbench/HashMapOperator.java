@@ -18,14 +18,16 @@
  */
 package com.datatorrent.benchmark.testbench;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.lib.testbench.EventGenerator;
-import java.util.ArrayList;
-import java.util.HashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * HashMap Input Operator used as a helper in testbench benchmarking apps.
@@ -36,11 +38,15 @@ public class HashMapOperator implements InputOperator
 {
   private String keys = null;
   private static final Logger logger = LoggerFactory.getLogger(EventGenerator.class);
-  private String[] keysArray = {"a","b","c","d"};
-  public final transient DefaultOutputPort<HashMap<String, Double>> hmap_data = new DefaultOutputPort<HashMap<String, Double>>();
-  public final transient DefaultOutputPort<HashMap<String, ArrayList<Integer>>> hmapList_data = new DefaultOutputPort<HashMap<String, ArrayList<Integer>>>();
-  public final transient DefaultOutputPort<HashMap<String, HashMap<String, Integer>>> hmapMap_data = new DefaultOutputPort<HashMap<String, HashMap<String, Integer>>>();
-  public final transient DefaultOutputPort<HashMap<String, Integer>> hmapInt_data = new DefaultOutputPort<HashMap<String, Integer>>();
+  private String[] keysArray = {"a", "b", "c", "d"};
+  public final transient DefaultOutputPort<HashMap<String, Double>> hmap_data =
+      new DefaultOutputPort<HashMap<String, Double>>();
+  public final transient DefaultOutputPort<HashMap<String, ArrayList<Integer>>> hmapList_data =
+      new DefaultOutputPort<HashMap<String, ArrayList<Integer>>>();
+  public final transient DefaultOutputPort<HashMap<String, HashMap<String, Integer>>> hmapMap_data =
+      new DefaultOutputPort<HashMap<String, HashMap<String, Integer>>>();
+  public final transient DefaultOutputPort<HashMap<String, Integer>> hmapInt_data =
+      new DefaultOutputPort<HashMap<String, Integer>>();
   private int numTuples = 1000;
   private String seed = "a";
   private int numKeys = 2;
@@ -89,7 +95,7 @@ public class HashMapOperator implements InputOperator
         for (int j = 0; j < numKeys; j++) {
           hmapMapTemp.put(keysArray[j], 100 * j);
         }
-         for (int j = 0; j < numKeys; j++) {
+        for (int j = 0; j < numKeys; j++) {
           hmapMap.put(keysArray[j], hmapMapTemp);
         }
         hmapMap_data.emit(hmapMap);
@@ -107,7 +113,7 @@ public class HashMapOperator implements InputOperator
     }
 
     if (hmapInt_data.isConnected()) {
-        for (int i = 0; i < numTuples; i++) {
+      for (int i = 0; i < numTuples; i++) {
         HashMap<String, Integer> hmapMapTemp = new HashMap<String, Integer>();
         for (int j = 0; j < numKeys; j++) {
           hmapMapTemp.put(keysArray[j], 100 * j);
@@ -120,7 +126,8 @@ public class HashMapOperator implements InputOperator
   @Override
   public void beginWindow(long windowId)
   {
-    // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    // throw new UnsupportedOperationException("Not supported yet.");
+    // To change body of generated methods, choose Tools | Templates.
   }
 
   @Override
@@ -132,13 +139,15 @@ public class HashMapOperator implements InputOperator
   @Override
   public void setup(OperatorContext context)
   {
-    // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    // throw new UnsupportedOperationException("Not supported yet.");
+    // To change body of generated methods, choose Tools | Templates.
   }
 
   @Override
   public void teardown()
   {
-    // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    // throw new UnsupportedOperationException("Not supported yet.");
+    // To change body of generated methods, choose Tools | Templates.
   }
 
 }

@@ -41,7 +41,8 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.lib.fileaccess.TFileImpl;
 import com.datatorrent.lib.util.KeyValPair;
 
-public class KeyedWindowedOperatorBenchmarkApp extends AbstractWindowedOperatorBenchmarkApp<KeyedWindowedOperatorBenchmarkApp.KeyedWindowedGenerator, KeyedWindowedOperatorBenchmarkApp.MyKeyedWindowedOperator>
+public class KeyedWindowedOperatorBenchmarkApp extends AbstractWindowedOperatorBenchmarkApp<
+    KeyedWindowedOperatorBenchmarkApp.KeyedWindowedGenerator, KeyedWindowedOperatorBenchmarkApp.MyKeyedWindowedOperator>
 {
   public KeyedWindowedOperatorBenchmarkApp()
   {
@@ -58,7 +59,8 @@ public class KeyedWindowedOperatorBenchmarkApp extends AbstractWindowedOperatorB
   }
 
   @Override
-  protected void setUpdatedKeyStorage(MyKeyedWindowedOperator windowedOperator, Configuration conf, SpillableComplexComponentImpl sccImpl)
+  protected void setUpdatedKeyStorage(MyKeyedWindowedOperator windowedOperator,
+      Configuration conf, SpillableComplexComponentImpl sccImpl)
   {
     windowedOperator.setUpdatedKeyStorage(createUpdatedDataStorage(conf, sccImpl));
   }
@@ -107,7 +109,8 @@ public class KeyedWindowedOperatorBenchmarkApp extends AbstractWindowedOperatorB
     }
   }
 
-  protected static class KeyedWindowedGenerator extends AbstractGenerator<Tuple.TimestampedTuple<KeyValPair<String, Long>>>
+  protected static class KeyedWindowedGenerator extends
+      AbstractGenerator<Tuple.TimestampedTuple<KeyValPair<String, Long>>>
   {
     @Override
     protected TimestampedTuple<KeyValPair<String, Long>> generateNextTuple()

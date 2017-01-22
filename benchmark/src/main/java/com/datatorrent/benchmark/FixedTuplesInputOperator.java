@@ -18,14 +18,15 @@
  */
 package com.datatorrent.benchmark;
 
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.Context.OperatorContext;
+import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import com.datatorrent.api.Context.OperatorContext;
+
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
 
 /**
  * <p>FixedTuplesInputOperator class.</p>
@@ -44,7 +45,7 @@ public class FixedTuplesInputOperator implements InputOperator
   {
     if (firstTime) {
       long start = System.currentTimeMillis();
-      for (int i = count; i-- > 0;) {
+      for (int i = count; i-- > 0; ) {
         output.emit(new byte[64]);
       }
       firstTime = false;

@@ -35,7 +35,8 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 @ApplicationAnnotation(name = "WindowedOperatorBenchmark")
-public class WindowedOperatorBenchmarkApp extends AbstractWindowedOperatorBenchmarkApp<WindowedOperatorBenchmarkApp.WindowedGenerator, WindowedOperatorBenchmarkApp.MyWindowedOperator>
+public class WindowedOperatorBenchmarkApp extends AbstractWindowedOperatorBenchmarkApp<
+    WindowedOperatorBenchmarkApp.WindowedGenerator, WindowedOperatorBenchmarkApp.MyWindowedOperator>
 {
   public WindowedOperatorBenchmarkApp()
   {
@@ -49,7 +50,8 @@ public class WindowedOperatorBenchmarkApp extends AbstractWindowedOperatorBenchm
     @Override
     protected TimestampedTuple<Long> generateNextTuple()
     {
-      return new Tuple.TimestampedTuple<Long>(System.currentTimeMillis() - random.nextInt(120000), (long)random.nextInt(100));
+      return new Tuple.TimestampedTuple<Long>(System.currentTimeMillis() - random.nextInt(120000),
+          (long)random.nextInt(100));
     }
   }
 

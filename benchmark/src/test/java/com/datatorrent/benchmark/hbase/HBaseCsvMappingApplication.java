@@ -37,7 +37,7 @@ import com.datatorrent.contrib.hbase.HBaseRowStringGenerator;
  *
  * @since 1.0.4
  */
-@ApplicationAnnotation(name="HBaseBenchmarkApp")
+@ApplicationAnnotation(name = "HBaseBenchmarkApp")
 public class HBaseCsvMappingApplication implements StreamingApplication
 {
   private final Locality locality = null;
@@ -47,15 +47,12 @@ public class HBaseCsvMappingApplication implements StreamingApplication
   {
     HBaseRowStringGenerator row = dag.addOperator("rand", new HBaseRowStringGenerator());
 
-
     HBaseCsvMappingPutOperator csvMappingPutOperator = dag.addOperator("HBaseoper", new HBaseCsvMappingPutOperator());
     csvMappingPutOperator.getStore().setTableName("table1");
     csvMappingPutOperator.getStore().setZookeeperQuorum("127.0.0.1");
     csvMappingPutOperator.getStore().setZookeeperClientPort(2181);
     csvMappingPutOperator.setMappingString("colfam0.street,colfam0.city,colfam0.state,row");
-    dag.addStream("hbasestream",row.outputPort, csvMappingPutOperator.input).setLocality(locality);
+    dag.addStream("hbasestream", row.outputPort, csvMappingPutOperator.input).setLocality(locality);
   }
-
-
 
 }

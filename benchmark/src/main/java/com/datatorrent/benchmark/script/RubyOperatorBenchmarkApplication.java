@@ -18,17 +18,20 @@
  */
 package com.datatorrent.benchmark.script;
 
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.benchmark.RandomMapOutput;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.contrib.ruby.RubyOperator;
-import com.datatorrent.lib.testbench.RandomEventGenerator;
 
-import org.apache.hadoop.conf.Configuration;
+import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
+
+import com.datatorrent.benchmark.RandomMapOutput;
+import com.datatorrent.contrib.ruby.RubyOperator;
+
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 /**
  *

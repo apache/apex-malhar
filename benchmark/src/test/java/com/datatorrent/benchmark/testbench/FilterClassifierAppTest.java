@@ -19,6 +19,8 @@
 package com.datatorrent.benchmark.testbench;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.junit.Test;
@@ -28,8 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.LocalMode;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+
 /**
  * Benchmark Test for FilterClassifierApp Operator in local mode.
  */
@@ -49,9 +50,8 @@ public class FilterClassifierAppTest
       lm.prepareDAG(new FilterClassifierApp(), conf);
       LocalMode.Controller lc = lm.getController();
       lc.run(20000);
-    }
-    catch (Exception ex) {
-       logger.info(ex.getMessage());
+    } catch (Exception ex) {
+      logger.info(ex.getMessage());
     }
     is.close();
   }

@@ -22,9 +22,11 @@ import org.junit.Test;
 
 import com.datatorrent.api.LocalMode;
 
-public class AccumuloAppTest {
+public class AccumuloAppTest
+{
   @Test
-  public void testSomeMethod() throws Exception {
+  public void testSomeMethod() throws Exception
+  {
     LocalMode.runApp(new AccumuloApp(), 30000);
   }
 }

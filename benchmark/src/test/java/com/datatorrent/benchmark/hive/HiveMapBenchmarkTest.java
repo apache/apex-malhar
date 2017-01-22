@@ -18,6 +18,8 @@
  */
 package com.datatorrent.benchmark.hive;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.sql.SQLException;
 
@@ -28,16 +30,13 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 
-
 import com.datatorrent.api.LocalMode;
-
 import com.datatorrent.netlet.util.DTThrowable;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 
 public class HiveMapBenchmarkTest
 {
   private static final Logger LOG = LoggerFactory.getLogger(HiveMapBenchmarkTest.class);
+
   @Test
   public void testMethod() throws SQLException
   {
@@ -45,18 +44,24 @@ public class HiveMapBenchmarkTest
     InputStream inputStream = null;
     try {
       inputStream = new FileInputStream("src/site/conf/dt-site-hive.xml");
-    }
-    catch (FileNotFoundException ex) {
-      LOG.debug("Exception caught {}",ex);
+    } catch (FileNotFoundException ex) {
+      LOG.debug("Exception caught {}", ex);
     }
     conf.addResource(inputStream);
-    LOG.debug("conf properties are {}" , conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties"));
-    LOG.debug("conf dburl is {}" , conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl"));
-    LOG.debug("conf filepath is {}" , conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.filepath"));
-    LOG.debug("maximum length is {}" , conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.RollingFsMapWriter.maxLength"));
-    LOG.debug("tablename is {}" , conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.tablename"));
-    LOG.debug("permission is {}",conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.RollingFsMapWriter.filePermission"));
-    LOG.debug("delimiter is {}",conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.RollingFsMapWriter.delimiter"));
+    LOG.debug("conf properties are {}",
+        conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties"));
+    LOG.debug("conf dburl is {}",
+        conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl"));
+    LOG.debug("conf filepath is {}",
+        conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.filepath"));
+    LOG.debug("maximum length is {}",
+        conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.RollingFsMapWriter.maxLength"));
+    LOG.debug("tablename is {}",
+        conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.tablename"));
+    LOG.debug("permission is {}",
+        conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.RollingFsMapWriter.filePermission"));
+    LOG.debug("delimiter is {}",
+        conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.RollingFsMapWriter.delimiter"));
 
     HiveMapInsertBenchmarkingApp app = new HiveMapInsertBenchmarkingApp();
     LocalMode lm = LocalMode.newInstance();
@@ -64,14 +69,11 @@ public class HiveMapBenchmarkTest
       lm.prepareDAG(app, conf);
       LocalMode.Controller lc = lm.getController();
       lc.run(30000);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       DTThrowable.rethrow(ex);
     }
 
     IOUtils.closeQuietly(inputStream);
   }
-
-
 
 }

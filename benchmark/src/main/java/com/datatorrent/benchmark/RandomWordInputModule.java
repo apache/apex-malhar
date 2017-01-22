@@ -18,10 +18,12 @@
  */
 package com.datatorrent.benchmark;
 
+import javax.validation.constraints.Min;
+
+import com.datatorrent.api.Context.OperatorContext;
+
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.Context.OperatorContext;
-import javax.validation.constraints.Min;
 
 /**
  * <p>
@@ -87,7 +89,6 @@ public class RandomWordInputModule implements InputOperator
     return emitSameTuple;
   }
 
-
   /**
    * Emits byte array of specified size.
    * Emits either the same byte array or creates new byte array every time
@@ -103,11 +104,11 @@ public class RandomWordInputModule implements InputOperator
     final boolean EMIT_SAME_TUPLE_COPY = emitSameTuple;
     if (firstTime) {
       if (EMIT_SAME_TUPLE_COPY) {
-        for (int i = count--; i-- > 0;) {
+        for (int i = count--; i-- > 0; ) {
           output.emit(sameTupleArray);
         }
       } else {
-        for (int i = count--; i-- > 0;) {
+        for (int i = count--; i-- > 0; ) {
           output.emit(new byte[TUPLE_SIZE_COPY]);
         }
       }

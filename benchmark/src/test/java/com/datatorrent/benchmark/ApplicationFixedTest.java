@@ -18,15 +18,16 @@
  */
 package com.datatorrent.benchmark;
 
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.api.Context.PortContext;
-
 import java.io.IOException;
 
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
 import org.junit.Test;
+
+import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.Context.PortContext;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.LocalMode;
 
 /**
  * Test the DAG declaration in local mode.
@@ -40,8 +41,10 @@ public class ApplicationFixedTest
     new ApplicationFixed().populateDAG(lma.getDAG(), new Configuration(false));
 
     DAG dag = lma.cloneDAG();
-    FixedTuplesInputOperator wordGenerator = (FixedTuplesInputOperator)dag.getOperatorMeta("WordGenerator").getOperator();
-    Assert.assertEquals("Queue Capacity", ApplicationFixed.QUEUE_CAPACITY, (int)dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getValue(PortContext.QUEUE_CAPACITY));
+    FixedTuplesInputOperator wordGenerator = (FixedTuplesInputOperator)dag
+        .getOperatorMeta("WordGenerator").getOperator();
+    Assert.assertEquals("Queue Capacity", ApplicationFixed.QUEUE_CAPACITY, (int)dag.getMeta(wordGenerator)
+        .getMeta(wordGenerator.output).getValue(PortContext.QUEUE_CAPACITY));
 
     LocalMode.Controller lc = lma.getController();
     lc.run(60000);

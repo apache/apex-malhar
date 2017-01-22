@@ -18,13 +18,15 @@
  */
 package com.datatorrent.benchmark;
 
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.Context.PortContext;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.annotation.ApplicationAnnotation;
-
 import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.Context.PortContext;
+
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.StreamingApplication;
+
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 /**
  * Example of application configuration in Java.
@@ -34,7 +36,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="PerformanceBenchmarkForFixedNumberOfTuples")
+@ApplicationAnnotation(name = "PerformanceBenchmarkForFixedNumberOfTuples")
 public class ApplicationFixed implements StreamingApplication
 {
   private final Locality locality = null;
@@ -44,7 +46,8 @@ public class ApplicationFixed implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     FixedTuplesInputOperator wordGenerator = dag.addOperator("WordGenerator", FixedTuplesInputOperator.class);
-    dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
+    dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getAttributes()
+        .put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
     wordGenerator.setCount(500000);
 
     WordCountOperator<byte[]> counter = dag.addOperator("Counter", new WordCountOperator<byte[]>());
