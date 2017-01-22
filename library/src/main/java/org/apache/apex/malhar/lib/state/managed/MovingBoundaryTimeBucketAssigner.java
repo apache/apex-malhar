@@ -67,7 +67,7 @@ public class MovingBoundaryTimeBucketAssigner extends TimeBucketAssigner
   private int numBuckets;
   private transient long fixedStart;
   private transient boolean triggerPurge;
-  private transient long lowestPurgeableTimeBucket;
+  private transient long lowestPurgeableTimeBucket = -1;
 
 
   @Override
@@ -125,8 +125,9 @@ public class MovingBoundaryTimeBucketAssigner extends TimeBucketAssigner
       long move = (diffInBuckets + 1) * bucketSpanMillis;
       start += move;
       end += move;
-      triggerPurge = true;
       lowestPurgeableTimeBucket += diffInBuckets;
+      // trigger purge when lower bound changes
+      triggerPurge = (diffInBuckets > 0);
     }
     return key;
 

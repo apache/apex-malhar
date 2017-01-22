@@ -28,6 +28,8 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import org.apache.commons.lang3.mutable.MutableLong;
+
 import com.datatorrent.lib.util.KryoCloneUtils;
 
 public class MovingBoundaryTimeBucketAssignerTest
@@ -96,20 +98,43 @@ public class MovingBoundaryTimeBucketAssignerTest
   @Test
   public void testTimeBucketKeyExpiry()
   {
+    final MutableLong purgeLessThanEqualTo = new MutableLong(-2);
     testMeta.timeBucketAssigner.setExpireBefore(Duration.standardSeconds(1));
     testMeta.timeBucketAssigner.setBucketSpan(Duration.standardSeconds(1));
+    testMeta.timeBucketAssigner.setPurgeListener(new TimeBucketAssigner.PurgeListener()
+    {
+      @Override
+      public void purgeTimeBucketsLessThanEqualTo(long timeBucket)
+      {
+        purgeLessThanEqualTo.setValue(timeBucket);
+      }
+    });
 
     long referenceTime = testMeta.timeBucketAssigner.getReferenceInstant().getMillis();
     testMeta.timeBucketAssigner.setup(testMeta.mockManagedStateContext);
+    Assert.assertEquals("purgeLessThanEqualTo", -2L, purgeLessThanEqualTo.longValue());
+
+    long time0 = Duration.standardSeconds(0).getMillis() + referenceTime;
+    Assert.assertEquals("time bucket", 1, testMeta.timeBucketAssigner.getTimeBucket(time0) );
+    testMeta.timeBucketAssigner.endWindow();
+    Assert.assertEquals("purgeLessThanEqualTo", -2, purgeLessThanEqualTo.longValue());
 
     long time1 = Duration.standardSeconds(9).getMillis() + referenceTime;
     Assert.assertEquals("time bucket", 10, testMeta.timeBucketAssigner.getTimeBucket(time1) );
+    testMeta.timeBucketAssigner.endWindow();
+    Assert.assertEquals("purgeLessThanEqualTo", 7, purgeLessThanEqualTo.longValue());
+    purgeLessThanEqualTo.setValue(-2);
 
     long time2 = Duration.standardSeconds(10).getMillis()  + referenceTime;
     Assert.assertEquals("time bucket", 11, testMeta.timeBucketAssigner.getTimeBucket(time2) );
+    testMeta.timeBucketAssigner.endWindow();
+// TODO: why is purgeLessThanEqualTo not moving to 8 here?
+    Assert.assertEquals("purgeLessThanEqualTo", -2, purgeLessThanEqualTo.longValue());
 
     //Check for expiry of time1 now
     Assert.assertEquals("time bucket", -1, testMeta.timeBucketAssigner.getTimeBucket(time1) );
+    testMeta.timeBucketAssigner.endWindow();
+    Assert.assertEquals("purgeLessThanEqualTo", -2, purgeLessThanEqualTo.longValue());
 
     testMeta.timeBucketAssigner.teardown();
   }

@@ -220,6 +220,8 @@ public abstract class AbstractManagedStateImpl
               buckets.get(bucketIdx).recoveredData(stateEntry.getKey(), bucketEntry.getValue());
             }
           }
+          // Skip write to WAL during recovery during replay from WAL.
+          // Data only needs to be transferred to bucket data files.
           checkpointManager.save(state, stateEntry.getKey(), true /*skipWritingToWindowFile*/);
         }
       } catch (IOException e) {
@@ -369,6 +371,7 @@ public abstract class AbstractManagedStateImpl
     }
     if (!flashData.isEmpty()) {
       try {
+        // write incremental state to WAL (skipWrite=false) before the checkpoint
         checkpointManager.save(flashData, windowId, false);
       } catch (IOException e) {
         throw new RuntimeException(e);

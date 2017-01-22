@@ -111,6 +111,7 @@ public class IncrementalCheckpointManager extends FSWindowDataManager
           if (latestExpiredTimeBucket.get() > -1) {
             try {
               latestPurgedTimeBucket = latestExpiredTimeBucket.getAndSet(-1);
+              //LOG.debug("latestPurgedTimeBucket {}", latestPurgedTimeBucket);
               managedStateContext.getBucketsFileSystem().deleteTimeBucketsLessThanEqualTo(latestPurgedTimeBucket);
             } catch (IOException e) {
               throwable.set(e);
