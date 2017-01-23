@@ -4,19 +4,20 @@ theme: readthedocs
 pages:
 - Apache Apex Malhar: index.md
 - Operators:
-    - Kafka Input: operators/kafkaInputOperator.md
-    - JMS Input: operators/jmsInputOperator.md
-    - File Splitter: operators/file_splitter.md
     - Block Reader: operators/block_reader.md
-    - File Input: operators/fsInputOperator.md
-    - Csv Parser: operators/csvParserOperator.md
-    - File Output: operators/file_output.md
-    - Enricher: operators/enricher.md
-    - Filter: operators/filter.md
+    - CSV Formatter: operators/csvformatter.md
+    - CSV Parser: operators/csvParserOperator.md
     - Deduper: operators/deduper.md
+    - Enricher: operators/enricher.md
+    - File Input: operators/fsInputOperator.md
+    - File Output: operators/file_output.md
+    - File Splitter: operators/file_splitter.md
+    - Filter: operators/filter.md
+    - JDBC Poller Input: operators/jdbcPollInputOperator.md
+    - JMS Input: operators/jmsInputOperator.md
+    - JSON Formatter: operators/jsonFormatter.md
+    - JSON Parser: operators/jsonParser.md
+    - Kafka Input: operators/kafkaInputOperator.md
+    - Transformer: operators/transform.md
     - Windowed Operator: operators/windowedOperator.md
-    - Json Parser: operators/jsonParser.md
-    - Json Formatter: operators/jsonFormatter.md
-    - Transform Operator: operators/transform.md
-    - Xml Parser: operators/xmlParserOperator.md
-    - Csv Formatter: operators/csvformatter.md
+    - XML Parser: operators/xmlParserOperator.md
