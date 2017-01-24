@@ -781,6 +781,52 @@ public class AbstractFileOutputOperatorTest
   }
 
   @Test
+  public void testSingleRollingFileEmptyWindowsWrite()
+  {
+    SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
+
+    testSingleRollingFileEmptyWindowsWriteHelper(writer);
+
+    //Rolling file 0
+
+    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
+
+    int numberOfFiles = new File(testMeta.getDir()).listFiles().length;
+
+    Assert.assertEquals("More than one File in Directory", 1, numberOfFiles);
+
+    String correctContents = "0\n" + "1\n" + "2\n";
+    checkOutput(0, singleFileName, correctContents);
+  }
+
+  private void testSingleRollingFileEmptyWindowsWriteHelper(SingleHDFSExactlyOnceWriter writer)
+  {
+    writer.setFilePath(testMeta.getDir());
+    writer.setMaxLength(4);
+    writer.setRotationWindows(1);
+    writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
+    writer.setup(testMeta.testOperatorContext);
+
+    writer.beginWindow(0);
+    writer.input.put(0);
+    writer.input.put(1);
+    writer.input.put(2);
+    writer.endWindow();
+
+    writer.beginWindow(1);
+    writer.endWindow();
+
+    writer.beginWindow(2);
+    writer.endWindow();
+
+    writer.beforeCheckpoint(2);
+    writer.checkpointed(2);
+    writer.committed(2);
+
+    writer.teardown();
+  }
+
+  @Test
   public void testSingleRollingFileFailedWrite()
   {
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
