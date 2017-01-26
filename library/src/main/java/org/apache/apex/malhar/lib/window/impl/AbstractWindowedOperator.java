@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.apex.malhar.lib.state.spillable.WindowListener;
 import org.apache.apex.malhar.lib.window.Accumulation;
 import org.apache.apex.malhar.lib.window.ControlTuple;
+import org.apache.apex.malhar.lib.window.ImplicitWatermarkGenerator;
 import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.apex.malhar.lib.window.Window;
@@ -92,6 +93,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   protected long fixedWatermarkMillis = -1;
   private transient long streamingWindowId;
   private transient TreeMap<Long, Long> streamingWindowToLatenessHorizon = new TreeMap<>();
+  private ImplicitWatermarkGenerator implicitWatermarkGenerator;
 
   private Map<String, Component<Context.OperatorContext>> components = new HashMap<>();
 
@@ -148,6 +150,9 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
       // do the accumulation
       accumulateTuple(windowedTuple);
       processWindowState(windowedTuple);
+      if (implicitWatermarkGenerator != null) {
+        implicitWatermarkGenerator.processTupleForWatermark(windowedTuple, currentDerivedTimestamp);
+      }
     }
   }
 
@@ -264,6 +269,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
     this.nextWatermark = timestamp;
   }
 
+
   /**
    * Sets the fixed watermark with respect to the processing time derived from the Apex window ID. This is useful if we
    * don't have watermark tuples from upstream. However, using this means whether a tuple is considered late totally
@@ -274,6 +280,11 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
   public void setFixedWatermark(long millis)
   {
     this.fixedWatermarkMillis = millis;
+  }
+
+  public void setImplicitWatermarkGenerator(ImplicitWatermarkGenerator implicitWatermarkGenerator)
+  {
+    this.implicitWatermarkGenerator = implicitWatermarkGenerator;
   }
 
   public void validate() throws ValidationException
@@ -429,6 +440,9 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
     if (retractionStorage != null) {
       retractionStorage.setup(context);
     }
+    if (implicitWatermarkGenerator != null) {
+      implicitWatermarkGenerator.setup(context);
+    }
     for (Component component : components.values()) {
       component.setup(context);
     }
@@ -444,6 +458,9 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
     dataStorage.teardown();
     if (retractionStorage != null) {
       retractionStorage.teardown();
+    }
+    if (implicitWatermarkGenerator != null) {
+      implicitWatermarkGenerator.teardown();
     }
     for (Component component : components.values()) {
       component.teardown();
@@ -490,9 +507,15 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
 
   protected void processWatermarkAtEndWindow()
   {
-    if (fixedWatermarkMillis > 0) {
-      nextWatermark = currentDerivedTimestamp - fixedWatermarkMillis;
+    long implicitWatermark = -1;
+    if (implicitWatermarkGenerator != null) {
+      implicitWatermark = implicitWatermarkGenerator
+          .getWatermarkTuple(currentDerivedTimestamp).getTimestamp();
     }
+    if (implicitWatermark > nextWatermark) {
+      nextWatermark = implicitWatermark;
+    }
+
     if (nextWatermark > 0 && currentWatermark < nextWatermark) {
 
       long horizon = nextWatermark - allowedLatenessMillis;
