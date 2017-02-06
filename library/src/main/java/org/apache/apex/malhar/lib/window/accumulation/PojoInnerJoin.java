@@ -42,7 +42,7 @@ public class PojoInnerJoin<InputT1, InputT2>
 
   public PojoInnerJoin()
   {
-    throw new IllegalArgumentException("Please specify number of streams that are joining.");
+    // for kyro
   }
 
   public PojoInnerJoin(int num, String... keys)
