@@ -33,13 +33,17 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
+
+import com.datatorrent.api.Attribute;
+import com.datatorrent.api.Context;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
-
-import com.datatorrent.api.*;
-import com.datatorrent.api.DAG.Locality;
-
-import com.datatorrent.common.util.BaseOperator;
 
 public class KinesisInputOperatorTest extends KinesisOperatorTestBase
 {
@@ -89,6 +93,30 @@ public class KinesisInputOperatorTest extends KinesisOperatorTestBase
         collections.put(id, list = new ArrayList<T>());
       }
     }
+  }
+
+  @Test
+  public void testWindowDataManager() throws Exception
+  {
+    // Create DAG for testing.
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
+
+    KinesisStringInputOperator inputOperator = dag.addOperator("KinesisInput", new KinesisStringInputOperator()
+    {
+      @Override
+      public void deactivate()
+      {
+      }
+
+      @Override
+      public void teardown()
+      {
+      }
+    });
+    testMeta.operator = inputOperator;
+    Assert.assertTrue("Default behaviour of WindowDataManager changed",
+      (inputOperator.getWindowDataManager() instanceof WindowDataManager.NoopWindowDataManager));
   }
 
   /**

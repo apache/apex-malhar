@@ -36,7 +36,6 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.commons.lang3.StringUtils;
 
@@ -146,7 +145,11 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
 
   public AbstractKinesisInputOperator()
   {
-    windowDataManager = new FSWindowDataManager();
+    /*
+     * Application may override the windowDataManger behaviour but default
+     * would be NoopWindowDataManager.
+     */
+    windowDataManager = new WindowDataManager.NoopWindowDataManager();
     currentWindowRecoveryState = new HashMap<String, KinesisPair<String, Integer>>();
   }
   /**
