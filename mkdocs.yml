@@ -15,6 +15,7 @@ pages:
     - File Output: operators/file_output.md
     - File Splitter: operators/file_splitter.md
     - Filter: operators/filter.md
+    - Jdbc Output Operator: operators/AbstractJdbcTransactionableOutputOperator.md
     - JDBC Poller Input: operators/jdbcPollInputOperator.md
     - JMS Input: operators/jmsInputOperator.md
     - JSON Formatter: operators/jsonFormatter.md
