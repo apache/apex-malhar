@@ -105,6 +105,54 @@ public class PojoInnerJoinTest
     }
   }
 
+  public static class TestPojo3
+  {
+    private int uId;
+    private String dep;
+    private String uName;
+
+    public TestPojo3()
+    {
+
+    }
+
+    public TestPojo3(int id, String dep, String name)
+    {
+      this.uId = id;
+      this.dep = dep;
+      this.uName = name;
+    }
+
+    public int getuId()
+    {
+      return uId;
+    }
+
+    public void setuId(int uId)
+    {
+      this.uId = uId;
+    }
+
+    public String getDep()
+    {
+      return dep;
+    }
+
+    public void setDep(String dep)
+    {
+      this.dep = dep;
+    }
+    public String getuName()
+    {
+      return uName;
+    }
+
+    public void setuName(String uName)
+    {
+      this.uName = uName;
+    }
+  }
+
 
   @Test
   public void PojoInnerJoinTest()
@@ -125,6 +173,31 @@ public class PojoInnerJoinTest
     result.put("uId", 1);
     result.put("uName", "Josh");
     result.put("dep", "CS");
+
+    Assert.assertEquals(1, pij.getOutput(accu).size());
+    Assert.assertEquals(result, pij.getOutput(accu).get(0));
+  }
+  
+  @Test
+  public void TestSameFieldNames()
+  {
+    PojoInnerJoin<TestPojo1, TestPojo3> pij = new PojoInnerJoin<>(2, "uId", "uId");
+
+    List<List<Map<String, Object>>> accu = pij.defaultAccumulatedValue();
+
+    Assert.assertEquals(2, accu.size());
+
+    accu = pij.accumulate(accu, new TestPojo1(1, "Josh"));
+    accu = pij.accumulate(accu, new TestPojo1(2, "Bob"));
+
+    accu = pij.accumulate2(accu, new TestPojo3(1, "CS", "ComputerSci"));
+    accu = pij.accumulate2(accu, new TestPojo3(3, "ECE", "Electronics"));
+
+    Map<String, Object> result = new HashMap<>();
+    result.put("uId", 1);
+    result.put("uName", "Josh");
+    result.put("dep", "CS");
+    result.put("s2.uName", "ComputerSci");
 
     Assert.assertEquals(1, pij.getOutput(accu).size());
     Assert.assertEquals(result, pij.getOutput(accu).get(0));

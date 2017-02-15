@@ -174,6 +174,10 @@ public class PojoInnerJoin<InputT1, InputT2>
     } else {
       for (String field : map2.keySet()) {
         if (!field.equals(key2)) {
+          if(map1.containsKey(field)) {
+            map1.put("s2." + field, map2.get(field));
+            continue;
+          }
           map1.put(field, map2.get(field));
         }
       }
