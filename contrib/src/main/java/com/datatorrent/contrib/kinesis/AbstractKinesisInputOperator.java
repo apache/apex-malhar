@@ -56,6 +56,7 @@ import com.datatorrent.api.Operator.ActivationListener;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.Stats;
 import com.datatorrent.api.StatsListener;
+import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.Pair;
 import com.datatorrent.lib.util.KryoCloneUtils;
 
@@ -127,8 +128,6 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   private transient long lastCheckTime = 0L;
 
   private transient long lastRepartitionTime = 0L;
-
-  private transient boolean isReplayState = false;
 
   //No of shards per partition in dynamic MANY_TO_ONE strategy
   // If the value is more than 1, then it enables the dynamic partitioning
@@ -425,9 +424,6 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
     operatorId = context.getId();
     windowDataManager.setup(context);
     shardPosition.clear();
-    if (context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) < windowDataManager.getLargestCompletedWindow()) {
-      isReplayState = true;
-    }
   }
 
   /**
@@ -477,6 +473,18 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
           throw new RuntimeException(e);
         }
       }
+
+      /*
+       * Set the shard positions and start the consumer if last recovery windowid
+       * match with current completed windowid.
+       */
+      if (windowId == windowDataManager.getLargestCompletedWindow()) {
+        // Set the shard positions to the consumer
+        Map<String, String> statsData = new HashMap<String, String>(getConsumer().getShardPosition());
+        statsData.putAll(shardPosition);
+        getConsumer().resetShardPositions(statsData);
+        consumer.start();
+      }
     }
     catch (IOException e) {
       throw new RuntimeException("replay", e);
@@ -507,9 +515,9 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   @Override
   public void activate(OperatorContext ctx)
   {
-    if(isReplayState)
-    {
-      // If it is a replay state, don't start the consumer
+    // If it is a replay state, don't start the consumer
+    if (context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) != Stateless.WINDOW_ID &&
+      context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) < windowDataManager.getLargestCompletedWindow()) {
       return;
     }
     consumer.start();
@@ -572,15 +580,6 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
         currentWindowRecoveryState.put(data.getFirst(), new KinesisPair<String, Integer>(second.getFirst(), noOfRecords+1));
       }
       shardPosition.put(shardId, recordId);
-    }
-    if(isReplayState)
-    {
-      isReplayState = false;
-      // Set the shard positions to the consumer
-      Map<String, String> statsData = new HashMap<String, String>(getConsumer().getShardPosition());
-      statsData.putAll(shardPosition);
-      getConsumer().resetShardPositions(statsData);
-      consumer.start();
     }
     emitCount += count;
   }
