@@ -36,22 +36,25 @@ import com.google.common.base.Throwables;
  * @since 3.6.0
  */
 public class PojoInnerJoin<InputT1, InputT2>
-    implements MergeAccumulation<InputT1, InputT2, List<List<Map<String, Object>>>, List<Map<String, Object>>>
+    implements MergeAccumulation<InputT1, InputT2, List<List<Map<String, Object>>>, List<?>>
 {
-  protected String[] keys;
+  protected final String[] keys;
+  protected final Class<?> outClass;
 
   public PojoInnerJoin()
   {
-    // for kyro
+    keys = new String[]{};
+    outClass = null;
   }
 
-  public PojoInnerJoin(int num, String... keys)
+  public PojoInnerJoin(int num, Class<?> outClass, String... keys)
   {
     if (keys.length != 2) {
       throw new IllegalArgumentException("Wrong number of keys.");
     }
 
     this.keys = Arrays.copyOf(keys, keys.length);
+    this.outClass = outClass;
   }
 
   @Override
@@ -132,14 +135,36 @@ public class PojoInnerJoin<InputT1, InputT2>
   }
 
   @Override
-  public List<Map<String, Object>> getOutput(List<List<Map<String, Object>>> accumulatedValue)
+  public List<?> getOutput(List<List<Map<String, Object>>> accumulatedValue)
   {
     List<Map<String, Object>> result = new ArrayList<>();
 
     // TODO: May need to revisit (use state manager).
     result = getAllCombo(0, accumulatedValue, result, null);
 
-    return result;
+    List<Object> out = new ArrayList<>();
+    for (Map<String, Object> resultMap : result) {
+      Object o;
+      try {
+        o = outClass.newInstance();
+      } catch (Throwable e) {
+        throw Throwables.propagate(e);
+      }
+
+      for (Map.Entry<String, Object> entry : resultMap.entrySet()) {
+        Field f;
+        try {
+          f = outClass.getDeclaredField(entry.getKey());
+          f.setAccessible(true);
+          f.set(o, entry.getValue());
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+          throw Throwables.propagate(e);
+        }
+      }
+      out.add(o);
+    }
+
+    return out;
   }
 
 
@@ -182,7 +207,7 @@ public class PojoInnerJoin<InputT1, InputT2>
   }
 
   @Override
-  public List<Map<String, Object>> getRetraction(List<Map<String, Object>> value)
+  public List<?> getRetraction(List<?> value)
   {
     return null;
   }

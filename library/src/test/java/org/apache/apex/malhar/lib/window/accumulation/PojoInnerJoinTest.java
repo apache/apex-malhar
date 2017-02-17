@@ -105,11 +105,48 @@ public class PojoInnerJoinTest
     }
   }
 
+  public static class TestOutClass
+  {
+    private int uId;
+    private String uName;
+    private String dep;
+
+    public int getuId()
+    {
+      return uId;
+    }
+
+    public void setuId(int uId)
+    {
+      this.uId = uId;
+    }
+
+    public String getuName()
+    {
+      return uName;
+    }
+
+    public void setuName(String uName)
+    {
+      this.uName = uName;
+    }
+
+    public String getDep()
+    {
+      return dep;
+    }
+
+    public void setDep(String dep)
+    {
+      this.dep = dep;
+    }
+  }
+
 
   @Test
   public void PojoInnerJoinTest()
   {
-    PojoInnerJoin<TestPojo1, TestPojo2> pij = new PojoInnerJoin<>(2, "uId", "uId");
+    PojoInnerJoin<TestPojo1, TestPojo2> pij = new PojoInnerJoin<>(2, TestOutClass.class, "uId", "uId");
 
     List<List<Map<String, Object>>> accu = pij.defaultAccumulatedValue();
 
@@ -127,7 +164,12 @@ public class PojoInnerJoinTest
     result.put("dep", "CS");
 
     Assert.assertEquals(1, pij.getOutput(accu).size());
-    Assert.assertEquals(result, pij.getOutput(accu).get(0));
-  }
 
+    Object o = pij.getOutput(accu).get(0);
+    Assert.assertTrue(o instanceof TestOutClass);
+    TestOutClass testOutClass = (TestOutClass)o;
+    Assert.assertEquals(1, testOutClass.getuId());
+    Assert.assertEquals("Josh", testOutClass.getuName());
+    Assert.assertEquals("CS", testOutClass.getDep());
+  }
 }

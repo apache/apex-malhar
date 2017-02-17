@@ -375,7 +375,7 @@ public class PojoInnerJoinTestApplication implements StreamingApplication
     productGenerator.setSalesEvent(false);
     WindowedMergeOperatorImpl<POJOGenerator.SalesEvent, POJOGenerator.ProductEvent, List<Set<Object>>, List<List<Object>>> op
         = dag.addOperator("Merge", new WindowedMergeOperatorImpl<POJOGenerator.SalesEvent, POJOGenerator.ProductEvent, List<Set<Object>>, List<List<Object>>>());
-    op.setAccumulation(new PojoInnerJoin(2,"productId","productId"));
+    op.setAccumulation(new PojoInnerJoin(2, Object.class, "productId","productId"));
     op.setDataStorage(new InMemoryWindowedStorage<List<Set<Object>>>());
 
     WindowedStorage.WindowedPlainStorage<WindowState> windowStateMap = new InMemoryWindowedStorage<>();
