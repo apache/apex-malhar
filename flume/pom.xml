@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2016 DataTorrent, Inc. ALL Rights Reserved.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>dt-megh</artifactId>
+    <groupId>com.datatorrent</groupId>
+    <version>3.6.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>dt-flume</artifactId>
+  <packaging>jar</packaging>
+  <name>DataTorrent Flume Integration</name>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <properties>
+        <package.username>flume</package.username>
+        <rpm.skip>package</rpm.skip>
+        <rpm.phase>${rpm.skip}</rpm.phase>
+      </properties>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>rpm-maven-plugin</artifactId>
+            <version>2.1-alpha-4</version>
+            <executions>
+              <execution>
+                <phase>${rpm.phase}</phase>
+                <id>generate-sink-rpm</id>
+                <goals>
+                  <goal>attached-rpm</goal>
+                </goals>
+                <configuration>
+                  <license>Copyright &copy; 2014 DataTorrent, Inc.</license>
+                  <version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</version>
+                  <release>${parsedVersion.qualifier}${parsedVersion.buildNumber}</release>
+                  <workarea>target/sink-rpm</workarea>
+                  <classifier>sink</classifier>
+                  <name>datatorrent-flume-sink</name>
+                  <distribution>DataTorrent Enterprise ${project.version}</distribution>
+                  <group>Messaging Client Support</group>
+                  <icon>src/main/resources/logo.gif</icon>
+                  <packager>DataTorrent Build System</packager>
+                  <prefix>${package.prefix}</prefix>
+                  <changelogFile>src/changelog</changelogFile>
+                  <defineStatements>
+                    <defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
+                  </defineStatements>
+                  <mappings>
+                    <mapping>
+                      <directory>${package.prefix}/flume-${project.version}/lib</directory>
+                      <filemode>750</filemode>
+                      <username>${package.username}</username>
+                      <groupname>${package.groupname}</groupname>
+                      <artifact></artifact>
+                      <dependency>
+                        <includes>
+                          <include>org.apache.apex:apex-api:jar:${apex.core.version}</include>
+                          <include>com.datatorrent:dt-netlet:jar:1.2.0</include>
+                          <include>org.apache.apex:apex-common:jar:${apex.core.version}</include>
+                          <include>com.esotericsoftware.kryo:kryo:jar:2.24.0</include>
+                          <include>com.esotericsoftware.minlog:minlog:jar:1.2</include>
+                          <include>org.objenesis:objenesis:jar:2.1</include>
+                          <include>org.apache.curator:curator-client:jar:2.3.0</include>
+                          <include>org.apache.curator:curator-x-discovery:jar:2.3.0</include>
+                          <include>org.apache.curator:curator-framework:jar:2.3.0</include>
+                        </includes>
+                      </dependency>
+                    </mapping>
+                    <mapping>
+                      <directory>${package.prefix}/flume-${project.version}/conf</directory>
+                      <configuration>true</configuration>
+                      <filemode>640</filemode>
+                      <username>${package.username}</username>
+                      <groupname>${package.groupname}</groupname>
+                      <sources>
+                        <source>
+                          <location>src/main/resources/flume-conf</location>
+                        </source>
+                      </sources>
+                    </mapping>
+                  </mappings>
+                  <preinstallScriptlet>
+                    <script>groupadd -f ${package.groupname} &amp;&amp; id ${package.username} &gt;/dev/null 2&gt;&amp;1 &amp;&amp; usermod -aG ${package.groupname} ${package.username} || useradd -g ${package.groupname} ${package.username}</script>
+                  </preinstallScriptlet>
+                </configuration>
+              </execution>
+
+              <execution>
+                <phase>${rpm.phase}</phase>
+                <id>generate-operator-rpm</id>
+                <goals>
+                  <goal>attached-rpm</goal>
+                </goals>
+                <configuration>
+                  <version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</version>
+                  <license>Copyright &copy; 2014 DataTorrent, Inc.</license>
+                  <release>${parsedVersion.qualifier}${parsedVersion.buildNumber}</release>
+                  <workarea>target/operator-rpm</workarea>
+                  <classifier>operator</classifier>
+                  <name>datatorrent-flume-operator</name>
+                  <distribution>DataTorrent Enterprise ${project.version}</distribution>
+                  <group>Messaging Client Support</group>
+                  <icon>src/main/resources/logo.gif</icon>
+                  <packager>DataTorrent Build System</packager>
+                  <prefix>${package.prefix}</prefix>
+                  <changelogFile>src/changelog</changelogFile>
+                  <description>${rpm.release}</description>
+                  <defineStatements>
+                    <defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
+                  </defineStatements>
+                  <mappings>
+                    <mapping>
+                      <directory>${package.prefix}/flume-operator-${project.version}/lib</directory>
+                      <filemode>640</filemode>
+                      <username>${package.username}</username>
+                      <groupname>${package.groupname}</groupname>
+                      <artifact></artifact>
+                      <dependency>
+                        <includes>
+                          <include>org.apache.curator:curator-client:jar:2.3.0</include>
+                          <include>org.apache.curator:curator-x-discovery:jar:2.3.0</include>
+                          <include>org.apache.curator:curator-framework:jar:2.3.0</include>
+                          <include>org.apache.flume:flume-ng-sdk:jar:1.5.0</include>
+                          <include>org.apache.flume:flume-ng-core:jar:1.5.0</include>
+                          <include>org.apache.flume:flume-ng-configuration:jar:1.5.0</include>
+                        </includes>
+                      </dependency>
+                    </mapping>
+                  </mappings>
+                  <preinstallScriptlet>
+                    <script>groupadd -f ${package.groupname} &amp;&amp; id ${package.username} &gt;/dev/null 2&gt;&amp;1 &amp;&amp; usermod -aG ${package.groupname} ${package.username} || useradd -g ${package.groupname} ${package.username}</script>
+                  </preinstallScriptlet>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.16</version>
+        <configuration>
+          <argLine>-Xmx5000M</argLine>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.2</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>apex-common</artifactId>
+      <version>${apex.core.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.flume</groupId>
+      <artifactId>flume-ng-core</artifactId>
+      <version>1.5.0</version>
+      <exclusions>
+        <exclusion>
+          <!-- Curator requires later version of Guava -->
+          <artifactId>guava</artifactId>
+          <groupId>com.google.guava</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jackson-core-asl</artifactId>
+          <groupId>org.codehaus.jackson</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jackson-mapper-asl</artifactId>
+          <groupId>org.codehaus.jackson</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jetty</artifactId>
+          <groupId>org.mortbay.jetty</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jetty-util</artifactId>
+          <groupId>org.mortbay.jetty</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-codec</artifactId>
+          <groupId>commons-codec</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-io</artifactId>
+          <groupId>commons-io</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-lang</artifactId>
+          <groupId>commons-lang</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.apex</groupId>
+      <artifactId>apex-api</artifactId>
+      <version>${apex.core.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.datatorrent</groupId>
+      <artifactId>netlet</artifactId>
+      <version>1.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.curator</groupId>
+      <artifactId>curator-x-discovery</artifactId>
+      <version>2.3.0</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.codehaus.jackson</groupId>
+          <artifactId>jackson-core-asl</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.codehaus.jackson</groupId>
+          <artifactId>jackson-mapper-asl</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-mapper-asl</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-core-asl</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>11.0.2</version>
+    </dependency>
+  </dependencies>
+</project>
