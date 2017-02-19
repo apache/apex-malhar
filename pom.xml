@@ -202,6 +202,7 @@
         <module>apps</module>
         <module>samples</module>
         <module>sql</module>
+        <module>flume</module>
       </modules>
     </profile>
   </profiles>
