@@ -1,9 +1,11 @@
 /**
- * Copyright (c) 2016 DataTorrent, Inc. ALL Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -54,7 +56,6 @@ import com.datatorrent.netlet.util.Slice;
  * restore - This is used to restore the application from previous failure <br />
  * blockSize - The maximum size of the each file to created. <br />
  *
- * @author Gaurav Gupta <gaurav@datatorrent.com>
  * @since 0.9.3
  */
 public class HDFSStorage implements Storage, Configurable, Component<com.datatorrent.api.Context>
