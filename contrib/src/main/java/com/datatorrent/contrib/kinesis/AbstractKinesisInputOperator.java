@@ -158,6 +158,14 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
    */
   public abstract T getTuple(Record rc);
 
+  /**
+   * Any concrete class derived from AbstractKinesisInputOperator may implement this method to emit tuples to an output port.
+   */
+  public void emitTuple(Pair<String, Record> data)
+  {
+    outputPort.emit(getTuple(data.getSecond()));
+  }
+
   @Override
   public void partitioned(Map<Integer, Partition<AbstractKinesisInputOperator>> partitions)
   {
@@ -465,7 +473,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
           List<Record> records = KinesisUtil.getInstance().getRecords(consumer.streamName, rc.getValue().getSecond(),
               rc.getKey(), ShardIteratorType.AT_SEQUENCE_NUMBER, rc.getValue().getFirst());
           for (Record record : records) {
-            outputPort.emit(getTuple(record));
+            emitTuple(new Pair<String, Record>(rc.getKey(), record));
             shardPosition.put(rc.getKey(), record.getSequenceNumber());
           }
         } catch(Exception e)
@@ -569,8 +577,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
       Pair<String, Record> data = consumer.pollRecord();
       String shardId = data.getFirst();
       String recordId = data.getSecond().getSequenceNumber();
-      T tuple = getTuple(data.getSecond());
-      outputPort.emit(tuple);
+      emitTuple(data);
       if(!currentWindowRecoveryState.containsKey(shardId))
       {
         currentWindowRecoveryState.put(shardId, new KinesisPair<String, Integer>(recordId, 1));
