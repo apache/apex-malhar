@@ -47,22 +47,22 @@ public class PojoInnerJoinTest
       this.uName = name;
     }
 
-    public int getuId()
+    public int getUId()
     {
       return uId;
     }
 
-    public void setuId(int uId)
+    public void setUId(int uId)
     {
       this.uId = uId;
     }
 
-    public String getuName()
+    public String getUName()
     {
       return uName;
     }
 
-    public void setuName(String uName)
+    public void setUName(String uName)
     {
       this.uName = uName;
     }
@@ -84,12 +84,12 @@ public class PojoInnerJoinTest
       this.dep = dep;
     }
 
-    public int getuId()
+    public int getUId()
     {
       return uId;
     }
 
-    public void setuId(int uId)
+    public void setUId(int uId)
     {
       this.uId = uId;
     }
@@ -111,22 +111,22 @@ public class PojoInnerJoinTest
     private String uName;
     private String dep;
 
-    public int getuId()
+    public int getUId()
     {
       return uId;
     }
 
-    public void setuId(int uId)
+    public void setUId(int uId)
     {
       this.uId = uId;
     }
 
-    public String getuName()
+    public String getUName()
     {
       return uName;
     }
 
-    public void setuName(String uName)
+    public void setUName(String uName)
     {
       this.uName = uName;
     }
@@ -168,8 +168,8 @@ public class PojoInnerJoinTest
     Object o = pij.getOutput(accu).get(0);
     Assert.assertTrue(o instanceof TestOutClass);
     TestOutClass testOutClass = (TestOutClass)o;
-    Assert.assertEquals(1, testOutClass.getuId());
-    Assert.assertEquals("Josh", testOutClass.getuName());
+    Assert.assertEquals(1, testOutClass.getUId());
+    Assert.assertEquals("Josh", testOutClass.getUName());
     Assert.assertEquals("CS", testOutClass.getDep());
   }
 }
