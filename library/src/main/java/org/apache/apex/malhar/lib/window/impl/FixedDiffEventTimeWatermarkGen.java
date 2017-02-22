@@ -20,9 +20,9 @@ package org.apache.apex.malhar.lib.window.impl;
 
 import javax.annotation.Nonnegative;
 
-import org.apache.apex.malhar.lib.window.ControlTuple;
 import org.apache.apex.malhar.lib.window.ImplicitWatermarkGenerator;
 import org.apache.apex.malhar.lib.window.Tuple;
+import org.apache.apex.malhar.lib.window.WatermarkTuple;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.api.Context;
@@ -61,7 +61,7 @@ public class FixedDiffEventTimeWatermarkGen implements ImplicitWatermarkGenerato
    * {@inheritDoc}
    */
   @Override
-  public ControlTuple.Watermark getWatermarkTuple(long currentProcessingTime)
+  public WatermarkTuple getWatermarkTuple(long currentProcessingTime)
   {
     return new WatermarkImpl(maxEventTime - fixedDifference);
   }

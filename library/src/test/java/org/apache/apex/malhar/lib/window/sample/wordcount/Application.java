@@ -27,8 +27,8 @@ import java.util.Map;
 
 import org.joda.time.Duration;
 
+import org.apache.apex.api.ControlAwareDefaultOutputPort;
 import org.apache.apex.malhar.lib.window.Accumulation;
-import org.apache.apex.malhar.lib.window.ControlTuple;
 import org.apache.apex.malhar.lib.window.SumAccumulation;
 import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.Tuple;
@@ -47,7 +47,6 @@ import com.google.common.base.Throwables;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
@@ -62,8 +61,8 @@ public class Application implements StreamingApplication
 {
   public static class WordGenerator extends BaseOperator implements InputOperator
   {
-    public final transient DefaultOutputPort<Tuple<KeyValPair<String, Long>>> output = new DefaultOutputPort<>();
-    public final transient DefaultOutputPort<ControlTuple> controlOutput = new DefaultOutputPort<>();
+    public final transient ControlAwareDefaultOutputPort<Tuple<KeyValPair<String, Long>>> output = new ControlAwareDefaultOutputPort<>();
+//    public final transient DefaultOutputPort<WatermarkTuple> controlOutput = new DefaultOutputPort<>();
 
     private transient BufferedReader reader;
 
@@ -119,7 +118,7 @@ public class Application implements StreamingApplication
     @Override
     public void endWindow()
     {
-      this.controlOutput.emit(new WatermarkImpl(System.currentTimeMillis() - 15000));
+      this.output.emitControl(new WatermarkImpl(System.currentTimeMillis() - 15000));
     }
   }
 

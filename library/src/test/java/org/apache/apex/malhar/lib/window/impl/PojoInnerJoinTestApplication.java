@@ -17,6 +17,7 @@
  * under the License.
  */
 package org.apache.apex.malhar.lib.window.impl;
+
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -28,7 +29,7 @@ import org.joda.time.Duration;
 import org.junit.Assert;
 import org.junit.Test;
 
-import org.apache.apex.malhar.lib.window.ControlTuple;
+import org.apache.apex.api.ControlAwareDefaultOutputPort;
 import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.apex.malhar.lib.window.Window;
@@ -41,7 +42,6 @@ import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
@@ -76,11 +76,11 @@ public class PojoInnerJoinTestApplication implements StreamingApplication
     @Min(0)
     private long maxTuplesPerWindow = 100;
     private final Random random = new Random();
-    public final transient DefaultOutputPort<Tuple.WindowedTuple<SalesEvent>> outputsales = new DefaultOutputPort<>();
-    public final transient DefaultOutputPort<Tuple.WindowedTuple<ProductEvent>> outputproduct = new DefaultOutputPort<>();
+    public final transient ControlAwareDefaultOutputPort<Tuple.WindowedTuple<SalesEvent>> outputsales = new ControlAwareDefaultOutputPort<>();
+    public final transient ControlAwareDefaultOutputPort<Tuple.WindowedTuple<ProductEvent>> outputproduct = new ControlAwareDefaultOutputPort<>();
     private static final long windowDuration = 1000;
     private static WindowedStorage.WindowedPlainStorage<WindowState> windowStateMap = new InMemoryWindowedStorage<>();
-    public final transient DefaultOutputPort<ControlTuple> watermarkDefaultOutputPort = new DefaultOutputPort<>();
+//    public final transient DefaultOutputPort<WatermarkTuple> watermarkDefaultOutputPort = new DefaultOutputPort<>();
 
     private long watermarkTime;
     private long startingTime;
@@ -116,7 +116,11 @@ public class PojoInnerJoinTestApplication implements StreamingApplication
     public void endWindow()
     {
       if (tuplesCounter < totalTuples) {
-        watermarkDefaultOutputPort.emit(new WatermarkImpl(watermarkTime));
+        if (isSalesEvent()) {
+          outputsales.emitControl(new WatermarkImpl(watermarkTime));
+        } else {
+          outputproduct.emitControl(new WatermarkImpl(watermarkTime));
+        }
       }
       time += timeIncrement;
     }
@@ -461,8 +465,8 @@ public class PojoInnerJoinTestApplication implements StreamingApplication
     dag.addStream("ProductToJoin", productGenerator.outputproduct, op.input2);
 
     dag.addStream("results", op.output, results.input);
-    dag.addStream("wm1", salesGenerator.watermarkDefaultOutputPort,op.controlInput);
-    dag.addStream("wm2", productGenerator.watermarkDefaultOutputPort,op.controlInput2);
+//    dag.addStream("wm1", salesGenerator.watermarkDefaultOutputPort,op.controlInput);
+//    dag.addStream("wm2", productGenerator.watermarkDefaultOutputPort,op.controlInput2);
 
   }
 

@@ -45,5 +45,5 @@ public interface ImplicitWatermarkGenerator extends Component
    *                              (usually the system time generated based on the window id)
    * @return the latest watermark tuple created based on the implementation
    */
-  ControlTuple.Watermark getWatermarkTuple(long currentProcessingTime);
+  WatermarkTuple getWatermarkTuple(long currentProcessingTime);
 }

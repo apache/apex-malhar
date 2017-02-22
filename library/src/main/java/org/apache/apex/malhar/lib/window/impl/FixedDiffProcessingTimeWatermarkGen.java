@@ -18,9 +18,9 @@
  */
 package org.apache.apex.malhar.lib.window.impl;
 
-import org.apache.apex.malhar.lib.window.ControlTuple;
 import org.apache.apex.malhar.lib.window.ImplicitWatermarkGenerator;
 import org.apache.apex.malhar.lib.window.Tuple;
+import org.apache.apex.malhar.lib.window.WatermarkTuple;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.api.Context;
@@ -54,7 +54,7 @@ public class FixedDiffProcessingTimeWatermarkGen implements ImplicitWatermarkGen
    * {@inheritDoc}
    */
   @Override
-  public ControlTuple.Watermark getWatermarkTuple(long currentProcessingTime)
+  public WatermarkTuple getWatermarkTuple(long currentProcessingTime)
   {
     return new WatermarkImpl(currentProcessingTime - fixedWatermarkMillis);
   }

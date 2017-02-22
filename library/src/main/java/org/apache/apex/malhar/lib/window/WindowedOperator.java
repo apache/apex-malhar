@@ -108,7 +108,7 @@ public interface WindowedOperator<InputT>
    *
    * @param watermark the watermark tuple
    */
-  void processWatermark(ControlTuple.Watermark watermark);
+  void processWatermark(WatermarkTuple watermark);
 
   /**
    * This method fires the trigger for the given window, and possibly retraction trigger. The implementation should clear

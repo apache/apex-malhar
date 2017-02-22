@@ -18,14 +18,13 @@
  */
 package org.apache.apex.malhar.lib.window.impl;
 
-import org.apache.apex.malhar.lib.window.ControlTuple;
+import org.apache.apex.api.ControlAwareDefaultInputPort;
+import org.apache.apex.api.UserDefinedControlTuple;
 import org.apache.apex.malhar.lib.window.Tuple;
+import org.apache.apex.malhar.lib.window.WatermarkTuple;
 import org.apache.apex.malhar.lib.window.WindowedMergeOperator;
 
 import com.google.common.base.Function;
-
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 /**
  * Windowed Merge Operator to merge two streams together. It aggregates tuple from two
@@ -46,8 +45,17 @@ public class WindowedMergeOperatorImpl<InputT1, InputT2, AccumT, OutputT>
 
   private WindowedMergeOperatorFeatures.Plain joinFeatures = new WindowedMergeOperatorFeatures.Plain(this);
 
-  public final transient DefaultInputPort<Tuple<InputT2>> input2 = new DefaultInputPort<Tuple<InputT2>>()
+  public final transient ControlAwareDefaultInputPort<Tuple<InputT2>> input2 = new ControlAwareDefaultInputPort<Tuple<InputT2>>()
   {
+    @Override
+    public boolean processControl(UserDefinedControlTuple tuple)
+    {
+      if (tuple instanceof WatermarkTuple) {
+        processWatermark2((WatermarkTuple)tuple);
+      }
+      return false;
+    }
+
     @Override
     public void process(Tuple<InputT2> tuple)
     {
@@ -55,18 +63,18 @@ public class WindowedMergeOperatorImpl<InputT1, InputT2, AccumT, OutputT>
     }
   };
 
-  // TODO: This port should be removed when Apex Core has native support for custom control tuples
-  @InputPortFieldAnnotation(optional = true)
-  public final transient DefaultInputPort<ControlTuple> controlInput2 = new DefaultInputPort<ControlTuple>()
-  {
-    @Override
-    public void process(ControlTuple tuple)
-    {
-      if (tuple instanceof ControlTuple.Watermark) {
-        processWatermark2((ControlTuple.Watermark)tuple);
-      }
-    }
-  };
+//  // TODO: This port should be removed when Apex Core has native support for custom control tuples
+//  @InputPortFieldAnnotation(optional = true)
+//  public final transient DefaultInputPort<WatermarkTuple> controlInput2 = new DefaultInputPort<WatermarkTuple>()
+//  {
+//    @Override
+//    public void process(WatermarkTuple tuple)
+//    {
+//      if (tuple instanceof WatermarkTuple) {
+//        processWatermark2((WatermarkTuple)tuple);
+//      }
+//    }
+//  };
 
   public void setTimestampExtractor2(Function<InputT2, Long> timestampExtractor)
   {
@@ -99,13 +107,13 @@ public class WindowedMergeOperatorImpl<InputT1, InputT2, AccumT, OutputT>
   }
 
   @Override
-  public void processWatermark(ControlTuple.Watermark watermark)
+  public void processWatermark(WatermarkTuple watermark)
   {
     joinFeatures.processWatermark1(watermark);
   }
 
   @Override
-  public void processWatermark2(ControlTuple.Watermark watermark)
+  public void processWatermark2(WatermarkTuple watermark)
   {
     joinFeatures.processWatermark2(watermark);
   }
