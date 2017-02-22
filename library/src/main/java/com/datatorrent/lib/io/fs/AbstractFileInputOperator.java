@@ -44,8 +44,10 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.ControlAwareDefaultOutputPort;
 import org.apache.apex.malhar.lib.fs.LineByLineFileInputOperator;
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
+import org.apache.apex.malhar.lib.window.windowable.FileWatermark;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -58,13 +60,12 @@ import com.google.common.collect.Sets;
 
 import com.datatorrent.api.Context.CountersAggregator;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StatsListener;
-
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.util.KryoCloneUtils;
 
@@ -137,6 +138,13 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   protected transient long currentWindowId;
   protected final transient LinkedList<RecoveryEntry> currentWindowRecoveryState = Lists.newLinkedList();
   protected int operatorId; //needed in partitioning
+
+  protected String currentFileName;
+  protected int fileIndex = 1;
+  protected boolean waitTillNextWindow = false;
+  protected boolean scanned = false;
+  protected boolean shutDown = false;
+  protected boolean batchMode = true;
 
   /**
    * Class representing failed file, When read fails on a file in middle, then the file is
@@ -444,6 +452,8 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     return currentPartitions;
   }
 
+  public final transient ControlAwareDefaultOutputPort<T> output = new ControlAwareDefaultOutputPort<>();
+
   @Override
   public void setup(OperatorContext context)
   {
@@ -533,6 +543,10 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     currentWindowId = windowId;
     if (windowId <= windowDataManager.getLargestCompletedWindow()) {
       replay(windowId);
+    }
+    waitTillNextWindow = false;
+    if (shutDown) {
+      BaseOperator.shutdown();
     }
   }
 
@@ -637,6 +651,9 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   @Override
   public void emitTuples()
   {
+    if (waitTillNextWindow) {
+      return;
+    }
     if (currentWindowId <= windowDataManager.getLargestCompletedWindow()) {
       return;
     }
@@ -714,17 +731,24 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
    */
   protected void scanDirectory()
   {
-    if (System.currentTimeMillis() - scanIntervalMillis >= lastScanMillis) {
-      Set<Path> newPaths = scanner.scan(fs, filePath, processedFiles);
-
-      for (Path newPath : newPaths) {
-        String newPathString = newPath.toString();
-        pendingFiles.add(newPathString);
-        processedFiles.add(newPathString);
-        localProcessedFileCount.increment();
+    if (scanned) {
+      if (batchMode) {
+        shutDown = true;
       }
+    } else {
+      if (System.currentTimeMillis() - scanIntervalMillis >= lastScanMillis) {
+        Set<Path> newPaths = scanner.scan(fs, filePath, processedFiles);
 
-      lastScanMillis = System.currentTimeMillis();
+        for (Path newPath : newPaths) {
+          String newPathString = newPath.toString();
+          pendingFiles.add(newPathString);
+          processedFiles.add(newPathString);
+          localProcessedFileCount.increment();
+        }
+
+        lastScanMillis = System.currentTimeMillis();
+      }
+    scanned = true;
     }
   }
 
@@ -790,6 +814,9 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   protected InputStream openFile(Path path) throws IOException
   {
     currentFile = path.toString();
+    currentFileName = path.getName();
+    output.emitControl(new FileWatermark.BeginFileWatermark(fileIndex, currentFileName));
+
     offset = 0;
     retryCount = 0;
     skipCount = 0;
@@ -805,6 +832,9 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     if (is != null) {
       is.close();
     }
+
+    output.emitControl(new FileWatermark.EndFileWatermark(++fileIndex, currentFileName));
+    waitTillNextWindow = true;
 
     currentFile = null;
     inputStream = null;
@@ -1262,8 +1292,6 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
    */
   public static class FileLineInputOperator extends AbstractFileInputOperator<String>
   {
-    public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
-
     protected transient BufferedReader br;
 
     @Override

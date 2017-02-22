@@ -533,7 +533,7 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
         Map.Entry<Window, WindowState> entry = it.next();
         Window window = entry.getKey();
         WindowState windowState = entry.getValue();
-        if (window.getBeginTimestamp() + window.getDurationMillis() < nextWatermark) {
+        if ((window.getBeginTimestamp() + window.getDurationMillis()) - 1 < nextWatermark) {
           // watermark has not arrived for this window before, marking this window late
           if (windowState.watermarkArrivalTime == -1) {
             windowState.watermarkArrivalTime = currentDerivedTimestamp;
@@ -553,7 +553,8 @@ public abstract class AbstractWindowedOperator<InputT, OutputT, DataStorageT ext
         }
       }
       streamingWindowToLatenessHorizon.put(streamingWindowId, horizon);
-      controlOutput.emit(new WatermarkImpl(nextWatermark));
+      // Not needed anymore. Use control tuple support to automatically forward watermarks
+      // controlOutput.emit(new WatermarkImpl(nextWatermark));
       this.currentWatermark = nextWatermark;
     }
   }
