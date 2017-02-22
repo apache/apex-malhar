@@ -292,6 +292,76 @@ public class PojoInnerJoinTestApplication implements StreamingApplication
       }
     }
 
+    public static class OutputEvent
+    {
+      public int customerId;
+      public int productId;
+      public int productCategory;
+      public long timestamp;
+      public double amount;
+      public long timestamps;
+
+      public int getCustomerId()
+      {
+        return customerId;
+      }
+
+      public void setCustomerId(int customerId)
+      {
+        this.customerId = customerId;
+      }
+
+      public int getProductId()
+      {
+        return productId;
+      }
+
+      public void setProductId(int productId)
+      {
+        this.productId = productId;
+      }
+
+      public int getProductCategory()
+      {
+        return productCategory;
+      }
+
+      public void setProductCategory(int productCategory)
+      {
+        this.productCategory = productCategory;
+      }
+
+      public long getTimestamp()
+      {
+        return timestamp;
+      }
+
+      public void setTimestamp(long timestamp)
+      {
+        this.timestamp = timestamp;
+      }
+
+      public double getAmount()
+      {
+        return amount;
+      }
+
+      public void setAmount(double amount)
+      {
+        this.amount = amount;
+      }
+
+      public long getTimestamps()
+      {
+        return timestamps;
+      }
+
+      public void setTimestamps(long timestamp)
+      {
+        this.timestamps = timestamp;
+      }
+    }
+
     public int getMaxProductId()
     {
       return maxProductId;
@@ -375,7 +445,7 @@ public class PojoInnerJoinTestApplication implements StreamingApplication
     productGenerator.setSalesEvent(false);
     WindowedMergeOperatorImpl<POJOGenerator.SalesEvent, POJOGenerator.ProductEvent, List<Set<Object>>, List<List<Object>>> op
         = dag.addOperator("Merge", new WindowedMergeOperatorImpl<POJOGenerator.SalesEvent, POJOGenerator.ProductEvent, List<Set<Object>>, List<List<Object>>>());
-    op.setAccumulation(new PojoInnerJoin(2, Object.class, "productId","productId"));
+    op.setAccumulation(new PojoInnerJoin(2, POJOGenerator.OutputEvent.class, "productId","productId"));
     op.setDataStorage(new InMemoryWindowedStorage<List<Set<Object>>>());
 
     WindowedStorage.WindowedPlainStorage<WindowState> windowStateMap = new InMemoryWindowedStorage<>();

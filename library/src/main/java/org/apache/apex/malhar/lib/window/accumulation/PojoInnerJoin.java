@@ -27,8 +27,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.apex.malhar.lib.window.MergeAccumulation;
+import org.apache.commons.lang3.ClassUtils;
 
 import com.google.common.base.Throwables;
+
+import com.datatorrent.lib.util.KeyValPair;
+import com.datatorrent.lib.util.PojoUtils;
 
 /**
  * Inner join Accumulation for Pojo Streams.
@@ -40,6 +44,9 @@ public class PojoInnerJoin<InputT1, InputT2>
 {
   protected final String[] keys;
   protected final Class<?> outClass;
+  private transient List<KeyValPair<String,PojoUtils.Getter>>  gettersStream1;
+  private transient List<KeyValPair<String,PojoUtils.Getter>>  gettersStream2;
+  private transient List<KeyValPair<String,PojoUtils.Setter>>  setters;
 
   public PojoInnerJoin()
   {
@@ -57,9 +64,35 @@ public class PojoInnerJoin<InputT1, InputT2>
     this.outClass = outClass;
   }
 
+  private void createSetters()
+  {
+    Field[] fields = outClass.getDeclaredFields();
+    setters = new ArrayList<>();
+    for (Field field : fields) {
+      Class outputField = ClassUtils.primitiveToWrapper(field.getType());
+      String fieldName = field.getName();
+      setters.add(new KeyValPair<>(fieldName,PojoUtils.createSetter(outClass,fieldName,outputField)));
+    }
+  }
+
+  private List<KeyValPair<String,PojoUtils.Getter>> createGetters(Class<?> input)
+  {
+    Field[] fields = input.getDeclaredFields();
+    List<KeyValPair<String,PojoUtils.Getter>> getters = new ArrayList<>();
+    for (Field field : fields) {
+      Class inputField = ClassUtils.primitiveToWrapper(field.getType());
+      String fieldName = field.getName();
+      getters.add(new KeyValPair<>(fieldName,PojoUtils.createGetter(input, fieldName, inputField)));
+    }
+    return getters;
+  }
+
   @Override
   public List<List<Map<String, Object>>> accumulate(List<List<Map<String, Object>>> accumulatedValue, InputT1 input)
   {
+    if (gettersStream1 == null) {
+      gettersStream1 = createGetters(input.getClass());
+    }
     try {
       return accumulateWithIndex(0, accumulatedValue, input);
     } catch (NoSuchFieldException e) {
@@ -70,6 +103,9 @@ public class PojoInnerJoin<InputT1, InputT2>
   @Override
   public List<List<Map<String, Object>>> accumulate2(List<List<Map<String, Object>>> accumulatedValue, InputT2 input)
   {
+    if (gettersStream2 == null) {
+      gettersStream2 = createGetters(input.getClass());
+    }
     try {
       return accumulateWithIndex(1, accumulatedValue, input);
     } catch (NoSuchFieldException e) {
@@ -96,27 +132,23 @@ public class PojoInnerJoin<InputT1, InputT2>
     input.getClass().getDeclaredField(keys[index]);
 
     List<Map<String, Object>> curList = accu.get(index);
-    Map map = pojoToMap(input);
+    Map map = pojoToMap(input,index + 1);
     curList.add(map);
     accu.set(index, curList);
 
     return accu;
   }
 
-  private Map<String, Object> pojoToMap(Object input)
+  private Map<String, Object> pojoToMap(Object input, int streamIndex)
   {
     Map<String, Object> map = new HashMap<>();
+    List<KeyValPair<String,PojoUtils.Getter>> gettersStream = streamIndex == 1 ? gettersStream1 : gettersStream2;
 
-    Field[] fields = input.getClass().getDeclaredFields();
-
-    for (Field field : fields) {
-      String[] words = field.getName().split("\\.");
-      String fieldName = words[words.length - 1];
-      field.setAccessible(true);
+    for (KeyValPair<String,PojoUtils.Getter> getter : gettersStream) {
       try {
-        Object value = field.get(input);
-        map.put(fieldName, value);
-      } catch (IllegalAccessException e) {
+        Object value = getter.getValue().get(input);
+        map.put(getter.getKey(), value);
+      } catch (Exception e) {
         throw Throwables.propagate(e);
       }
     }
@@ -142,6 +174,10 @@ public class PojoInnerJoin<InputT1, InputT2>
     // TODO: May need to revisit (use state manager).
     result = getAllCombo(0, accumulatedValue, result, null);
 
+    if (setters == null) {
+      createSetters();
+    }
+
     List<Object> out = new ArrayList<>();
     for (Map<String, Object> resultMap : result) {
       Object o;
@@ -150,16 +186,8 @@ public class PojoInnerJoin<InputT1, InputT2>
       } catch (Throwable e) {
         throw Throwables.propagate(e);
       }
-
-      for (Map.Entry<String, Object> entry : resultMap.entrySet()) {
-        Field f;
-        try {
-          f = outClass.getDeclaredField(entry.getKey());
-          f.setAccessible(true);
-          f.set(o, entry.getValue());
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-          throw Throwables.propagate(e);
-        }
+      for (KeyValPair<String, PojoUtils.Setter> setter : setters) {
+        setter.getValue().set(o,resultMap.get(setter.getKey()));
       }
       out.add(o);
     }
