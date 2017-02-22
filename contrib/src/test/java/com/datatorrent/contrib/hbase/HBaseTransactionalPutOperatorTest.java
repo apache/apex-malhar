@@ -21,11 +21,12 @@ package com.datatorrent.contrib.hbase;
 import java.io.IOException;
 import java.util.Collection;
 
-import org.apache.hadoop.hbase.client.Put;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.hadoop.hbase.client.Put;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Attribute.AttributeMap;
@@ -74,6 +75,12 @@ public class HBaseTransactionalPutOperatorTest {
         public int getId() {
           // TODO Auto-generated method stub
           return 0;
+        }
+
+        @Override
+        public String getName()
+        {
+          return null;
         }
 
         @Override
@@ -144,6 +151,12 @@ public class HBaseTransactionalPutOperatorTest {
         public int getId() {
           // TODO Auto-generated method stub
           return 0;
+        }
+
+        @Override
+        public String getName()
+        {
+          return null;
         }
 
         @Override
@@ -218,6 +231,12 @@ public class HBaseTransactionalPutOperatorTest {
         public int getId() {
           // TODO Auto-generated method stub
           return 0;
+        }
+
+        @Override
+        public String getName()
+        {
+          return null;
         }
 
         @Override

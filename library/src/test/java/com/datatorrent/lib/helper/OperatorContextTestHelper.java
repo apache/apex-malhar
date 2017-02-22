@@ -72,6 +72,12 @@ public class OperatorContextTestHelper
     }
 
     @Override
+    public String getName()
+    {
+      return null;
+    }
+
+    @Override
     public void sendMetrics(Collection<String> metricNames)
     {
       throw new UnsupportedOperationException("not supported");
