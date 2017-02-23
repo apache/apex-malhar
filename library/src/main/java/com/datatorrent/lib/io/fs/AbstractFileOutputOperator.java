@@ -879,17 +879,19 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
    */
   protected void rotate(String fileName) throws IllegalArgumentException, IOException, ExecutionException
   {
-    requestFinalize(fileName);
-    counts.remove(fileName);
-    streamsCache.invalidate(fileName);
-    MutableInt mi = openPart.get(fileName);
-    LOG.debug("Part file rotated {} : {}", fileName, mi.getValue());
+    if (!this.getRotationState(fileName).rotated) {
+      requestFinalize(fileName);
+      counts.remove(fileName);
+      streamsCache.invalidate(fileName);
+      MutableInt mi = openPart.get(fileName);
+      LOG.debug("Part file rotated {} : {}", fileName, mi.getValue());
 
-    //TODO: remove this as rotateHook is deprecated.
-    String partFileName = getPartFileName(fileName, mi.getValue());
-    rotateHook(partFileName);
+      //TODO: remove this as rotateHook is deprecated.
+      String partFileName = getPartFileName(fileName, mi.getValue());
+      rotateHook(partFileName);
 
-    getRotationState(fileName).rotated = true;
+      getRotationState(fileName).rotated = true;
+    }
   }
 
   private RotationState getRotationState(String fileName)
