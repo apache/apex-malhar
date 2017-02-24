@@ -201,7 +201,9 @@ public class JdbcPOJOPollInputOperator extends AbstractJdbcPollInputOperator<Obj
       }
 
       for (FieldInfo fieldInfo : fieldInfos) {
-        columnDataTypes.add(nameToType.get(fieldInfo.getColumnName().toUpperCase()));
+        if (nameToType.containsKey(fieldInfo.getColumnName().toUpperCase())) {
+          columnDataTypes.add(nameToType.get(fieldInfo.getColumnName().toUpperCase()));
+        }
       }
     }
   }
@@ -219,7 +221,7 @@ public class JdbcPOJOPollInputOperator extends AbstractJdbcPollInputOperator<Obj
     }
 
     try {
-      for (int i = 0; i < fieldInfos.size(); i++) {
+      for (int i = 0; i < columnDataTypes.size(); i++) {
         int type = columnDataTypes.get(i);
         ActiveFieldInfo afi = columnFieldSetters.get(i);
         switch (type) {
