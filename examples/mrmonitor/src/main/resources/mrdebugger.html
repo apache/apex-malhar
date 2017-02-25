@@ -1,0 +1,237 @@
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<!doctype html>
+<html>
+<head>
+<title>Mobile Example</title>
+
+<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+<meta charset="utf-8">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+<!--script src="js/vendor/jquery/dist/jquery.js"></script-->
+<style>
+	body {
+        margin: 0;
+	}
+
+    .phone-input {
+        margin-left: 0.5em;
+        margin-right: 0.5em;
+    }
+</style>
+
+</head>
+
+
+<body>
+
+
+<script>
+
+
+
+var map;
+var markers = {};
+
+$(function() {
+
+    $("#query1AddButton").click(function() {
+    
+	    var app_id = $("input#app_id").val();
+	    var hostname = $("input#hostname").val();
+	    var job_id = $("input#job_id").val();
+	    var hadoop_version= $("input#hadoop_version").val();
+	    var api_version = $("input#api_version").val();
+	    var rm_port = $("input#rm_port").val();
+	    var hs_port = $("input#hs_port").val();
+	    
+	    var jsonData = {
+		command : 'add',
+		hostname:hostname,
+		app_id:app_id,
+		job_id:job_id,
+		hadoop_version:hadoop_version,
+		api_version:api_version,
+		rm_port:rm_port,
+		hs_port:hs_port
+	    };
+    
+	    sendQuery(jsonData, function() {
+	        $('#query1SubmitConfirm').html("<div id='message'></div>");
+	        $('#message').html("<h2>Add   submitted to application!</h2>")
+	        .append("<p>Result will appear on page shortly.</p>");
+            });
+	    
+	    return false;
+    });
+
+    $("#query1DeleteButton").click(function() {
+    
+	    var job_id = $("input#job_id").val();
+	    
+	    var jsonData = {
+		command : 'delete',
+	        query : job_id 
+	    };
+    
+	    sendQuery(jsonData, function() {
+	        $('#query1SubmitConfirm').html("<div id='message'></div>");
+	        $('#message').html("<h2>Add " + phone + " submitted to application!</h2>")
+	        .append("<p>Result will appear on page shortly.</p>");
+            });
+	    
+	    return false;
+    });
+
+    function sendQuery(jsonData, callback) {
+        var ws = new WebSocket('ws://'+window.location.host+'/pubsub');
+
+        ws.onopen = function () {
+          var topic = "contrib.summit.mrDebugger.mrDebuggerQuery";  
+          var msg = JSON.stringify({ "type" : "publish", "topic" : topic, "data" : jsonData });
+          ws.send(msg);
+          console.log("published to: " + topic + " data: " + msg);
+          ws.close();
+          if (callback) callback();
+        };
+
+        ws.onerror = function (error) {
+          console.log('WebSocket Error ' + error);
+        };
+
+        ws.onmessage = function (e) {
+          console.log('Server: ' + e.data);
+        };
+        ws.onclose = function (e) {
+            console.log('close: ' , e);
+        };
+
+    }
+
+    var ws = new WebSocket('ws://'+window.location.host+'/pubsub');
+    var topic = "contrib.summit.mrDebugger.jobResult";  
+
+    ws.onopen = function () {
+      var msg = JSON.stringify({ "type":"subscribe", "topic": topic});
+      console.log("sending: " + msg);
+      ws.send(msg);
+    };
+
+    ws.onerror = function (error) {
+      console.log('WebSocket Error ' + error);
+    };
+
+    ws.onmessage = function (e){ 
+
+	$('#jobQueryResult').append(e.data+"\n");	
+    };      
+    
+
+    var mapws = new WebSocket('ws://'+window.location.host+'/pubsub');
+    var maptopic = "contrib.summit.mrDebugger.mapResult";  
+
+    mapws.onopen = function () {
+      var msg = JSON.stringify({ "type":"subscribe", "topic": maptopic});
+      console.log("sending: " + msg);
+      mapws.send(msg);
+    };
+
+    mapws.onerror = function (error) {
+      console.log('WebSocket Error ' + error);
+    };
+
+    mapws.onmessage = function (e){ 
+
+	$('#jobMapQueryResult').append(e.data+"\n");	
+    };      
+
+
+    var reducews = new WebSocket('ws://'+window.location.host+'/pubsub');
+    var reducetopic = "contrib.summit.mrDebugger.reduceResult";  
+
+    reducews.onopen = function () {
+      var msg = JSON.stringify({ "type":"subscribe", "topic": reducetopic});
+      console.log("sending: " + msg);
+      reducews.send(msg);
+    };
+
+    reducews.onerror = function (error) {
+      console.log('WebSocket Error ' + error);
+    };
+
+    reducews.onmessage = function (e){ 
+
+	$('#jobReduceQueryResult').append(e.data+"\n");	
+    };      
+    
+  });
+
+
+</script>
+
+
+<div id="query1FormDiv">
+		  <form name="query1" action="">
+		    <p>
+		      <label for="phone" id="app_id_label">Application Id</label>
+		      <input type="text" name="app_id" id="app_id" size="30" value="" class="phone-input" />
+		    </p>
+		    <p>
+		      <label for="phone" id="job_id_label">Job Id</label>
+		      <input type="text" name="job_id" id="job_id" size="30" value="" class="phone-input" />
+		    </p>
+		    <p>
+		      <label for="phone" id="hostname_label">Hostname</label>
+		      <input type="text" name="hostname" id="hostname" size="30" value="" class="phone-input" />
+		    </p>
+		    <p>
+		      <label for="phone" id="rm_port_label">RM port</label>
+		      <input type="text" name="rm_port" id="rm_port" size="30" value="" class="phone-input" />
+		    </p>
+		    <p>
+		      <label for="phone" id="hs_port_label">History Server port</label>
+		      <input type="text" name="hs_port" id="hs_port" size="30" value="" class="phone-input" />
+		    </p>
+		    <p>
+		      <label for="phone" id="hadoop_version_label">Hadoop Version</label>
+		      <input type="text" name="hadoop_version" id="hadoop_version" size="30" value="" class="phone-input" />
+		    </p>
+		    <p>
+		      <label for="phone" id="api_version_label">API Version</label>
+		      <input type="text" name="api_version" id="api_version" size="30" value="" class="phone-input" />
+		    </p>
+            <p>
+		      <input type="submit" name="command" class="button" id="query1AddButton" value="Add" />
+		      <input type="submit" name="command" class="button" id="query1DeleteButton" value="Delete" />
+		      <input type="submit" name="command" class="button" id="query1ClearButton" value="Clear" />
+            </p>
+		  </form>
+		  <div id="query1SubmitConfirm"></div>
+		  <div>Job: <span id="jobQueryResult"></span></div>
+		  <div>Map Task: <span id="jobMapQueryResult"></span></div>
+		  <div>Reduce Job: <span id="jobReduceQueryResult"></span></div>
+		</div>
+
+</body>
+</html>
+

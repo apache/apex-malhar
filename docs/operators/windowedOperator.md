@@ -247,7 +247,7 @@ The `WindowedMergeOperator` has its own watermark. Its watermark timestamp is th
 
 ## Usage Examples
 
-For an example usage of the `WindowedOperator` via the High level API, click [here](https://github.com/apache/apex-malhar/blob/master/demos/highlevelapi/src/main/java/org/apache/apex/malhar/stream/sample/WindowedWordCount.java).
+For an example usage of the `WindowedOperator` via the High level API, click [here](https://github.com/apache/apex-malhar/blob/master/examples/highlevelapi/src/main/java/org/apache/apex/malhar/stream/sample/WindowedWordCount.java).
 
 For an example usage of the `WindowedOperator` via the DAG level API, click [here](https://github.com/apache/apex-malhar/blob/master/library/src/test/java/org/apache/apex/malhar/lib/window/sample/wordcount/Application.java).
 

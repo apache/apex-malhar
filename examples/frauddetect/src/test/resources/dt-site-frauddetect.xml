@@ -1,0 +1,173 @@
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<configuration>
+ <property>
+	<name>dt.application.FraudDetectExample.class</name>
+	<value>com.datatorrent.examples.frauddetect.Application</value>
+	<description>An alias for the application</description>
+</property>
+<property>
+	<name>dt.attr.STREAMING_WINDOW_SIZE_MILLIS</name>
+	<value>1000</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.ccUserAlertQueryOutput.topic</name>
+	<value>examples.app.frauddetect.fraudAlert</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.binUserAlertOutput.topic</name>
+	<value>examples.app.frauddetect.fraudAlert</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.avgUserAlertQueryOutput.topic</name>
+	<value>examples.app.frauddetect.fraudAlert</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.txSummaryWsOutput.topic</name>
+	<value>examples.app.frauddetect.txSummary</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.bankInfoFraudDetector.attr.APPLICATION_WINDOW_COUNT
+	</name>
+	<value>10</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.bankInfoFraudDetector.threshold
+	</name>
+	<value>20</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.rangePerMerchant.attr.APPLICATION_WINDOW_COUNT
+	</name>
+	<value>1</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.txReceiver.attr.APPLICATION_WINDOW_COUNT
+	</name>
+	<value>1</value>
+</property>
+<!-- property>
+	<name>dt.application.frauddetect.operator.smaPerMerchant.attr.APPLICATION_WINDOW_COUNT
+	</name>
+	<value>1</value>
+</property-->
+<property>
+	<name>dt.application.FraudDetectExample.operator.smaPerMerchant.windowSize
+	</name>
+	<value>30</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.movingSum.attr.APPLICATION_WINDOW_COUNT
+	</name>
+	<value>10</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.movingSum.windowSize
+	</name>
+	<value>3</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.avgAlerter.attr.APPLICATION_WINDOW_COUNT
+	</name>
+	<value>1</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.avgAlerter.threshold
+	</name>
+	<value>1200</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.amountFraudDetector.attr.APPLICATION_WINDOW_COUNT
+	</name>
+	<value>1</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.amountFraudDetector.threshold
+	</name>
+	<value>420</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.mongoTxStatsOutput.hostName</name>
+	<value>localhost</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.mongoTxStatsOutput.dataBase</name>
+	<value>frauddetect</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.mongoTxStatsOutput.collection</name>
+	<value>txStats</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.mongoBinAlertsOutput.hostName</name>
+	<value>localhost</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.mongoBinAlertsOutput.dataBase</name>
+	<value>frauddetect</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.mongoBinAlertsOutput.collection</name>
+	<value>binAlerts</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.mongoCcAlertsOutput.hostName</name>
+	<value>localhost</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.mongoCcAlertsOutput.dataBase</name>
+	<value>frauddetect</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.mongoCcAlertsOutput.collection</name>
+	<value>ccAlerts</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.mongoAvgAlertsOutput.hostName</name>
+	<value>localhost</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.mongoAvgAlertsOutput.dataBase</name>
+	<value>frauddetect</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.mongoAvgAlertsOutput.collection</name>
+	<value>avgAlerts</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectExample.operator.txStatsAggregator.attr.APPLICATION_WINDOW_COUNT
+	</name>
+	<value>1</value>
+</property>
+
+<property>
+     <name>dt.application.FraudDetectExample.port.*.attr.QUEUE_CAPACITY</name>
+     <value>32000</value>
+  </property>
+<property>
+        <name>dt.application.FraudDetectExampleq.operator.*.attr.MEMORY_MB</name>
+        <value>2048</value>
+</property>
+
+
+</configuration>
+
+

@@ -210,7 +210,7 @@
   <modules>
     <module>library</module>
     <module>contrib</module>
-    <module>demos</module>
+    <module>examples</module>
   </modules>
 
   <dependencies>

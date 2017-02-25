@@ -1,7 +1,7 @@
 Coding Conventions and Style
 ==============================
 
-Malhar GitHub repository contains operator library and demos built on top of the Apex platform. The code is open source, viewable and downloadable by all. Anyone can make code submissions to the repository to add new features or fix bugs. The process to do so is to first make a personal fork of the repository, make changes in the fork and then generate a pull request with the changes against the Malhar repository.
+Malhar GitHub repository contains operator library and examples built on top of the Apex platform. The code is open source, viewable and downloadable by all. Anyone can make code submissions to the repository to add new features or fix bugs. The process to do so is to first make a personal fork of the repository, make changes in the fork and then generate a pull request with the changes against the Malhar repository.
 
 Malhar administrators look at pull requests regularly and merge them into the repository. The pull requests have to follow certain guidelines in order to minimize the possibility of issues and problems arising from the merge, to keep the code maintainable going forward and to keep the licensing. The guidelines are as follows
 

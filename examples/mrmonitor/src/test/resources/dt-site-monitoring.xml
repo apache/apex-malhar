@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<configuration>
+  <property>
+    <name>dt.application.MRMonitoringExample.operator.JobMonitor.attr.INITIAL_PARTITION_COUNT</name>
+    <value>1</value>
+  </property>
+  <property>
+    <name>dt.application.MRMonitoringExample.operator.JobMonitor.attr.APPLICATION_WINDOW_COUNT</name>
+    <value>4</value>
+  </property>
+  <property>
+    <name>dt.application.MRMonitoringExample.operator.JobMonitor.prop.maxJobs</name>
+    <value>25</value>
+  </property>
+  <property>
+    <name>dt.application.MRMonitoringExample.operator.JobMonitor.prop.maxJobs</name>
+    <value>25</value>
+  </property>
+  <property>
+    <name>dt.application.MRMonitoringExample.operator.Query.prop.topic</name>
+    <value>contrib.summit.mrDebugger.mrDebuggerQuery</value>
+  </property>
+  <property>
+    <name>dt.application.MRMonitoringExample.operator.JobOutput.prop.topic</name>
+    <value>contrib.summit.mrDebugger.jobResult</value>
+  </property>
+  <property>
+    <name>dt.application.MRMonitoringExample.operator.MapJob.prop.topic</name>
+    <value>contrib.summit.mrDebugger.mapResult</value>
+  </property>
+  <property>
+    <name>dt.application.MRMonitoringExample.operator.ReduceJob.prop.topic</name>
+    <value>contrib.summit.mrDebugger.reduceResult</value>
+  </property>
+  <property>
+    <name>dt.application.MRMonitoringExample.operator.JobCounter.prop.topic</name>
+    <value>contrib.summit.mrDebugger.counterResult</value>
+  </property>
+  <property>
+    <name>dt.application.MRMonitoringExample.stream.QueryConversion.locality</name>
+    <value>CONTAINER_LOCAL</value>
+  </property>
+</configuration>
