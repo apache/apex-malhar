@@ -68,20 +68,22 @@ public class PojoInnerJoinTest
     }
   }
 
-  public static class TestPojo2
+  public static class TestPojo3
   {
     private int uId;
-    private String dep;
+    private String uNickName;
+    private int age;
 
-    public TestPojo2()
+    public TestPojo3()
     {
 
     }
 
-    public TestPojo2(int id, String dep)
+    public TestPojo3(int id, String name, int age)
     {
       this.uId = id;
-      this.dep = dep;
+      this.uNickName = name;
+      this.age = age;
     }
 
     public int getUId()
@@ -94,22 +96,34 @@ public class PojoInnerJoinTest
       this.uId = uId;
     }
 
-    public String getDep()
+    public String getUNickName()
     {
-      return dep;
+      return uNickName;
     }
 
-    public void setDep(String dep)
+    public void setUNickName(String uNickName)
     {
-      this.dep = dep;
+      this.uNickName = uNickName;
+    }
+
+    public int getAge()
+    {
+      return age;
+    }
+
+    public void setAge(int age)
+    {
+      this.age = age;
     }
   }
+
 
   public static class TestOutClass
   {
     private int uId;
     private String uName;
-    private String dep;
+    private String uNickName;
+    private int age;
 
     public int getUId()
     {
@@ -131,14 +145,61 @@ public class PojoInnerJoinTest
       this.uName = uName;
     }
 
-    public String getDep()
+    public String getUNickName()
     {
-      return dep;
+      return uNickName;
     }
 
-    public void setDep(String dep)
+    public void setUNickName(String uNickName)
     {
-      this.dep = dep;
+      this.uNickName = uNickName;
+    }
+
+    public int getAge()
+    {
+      return age;
+    }
+
+    public void setAge(int age)
+    {
+      this.age = age;
+    }
+  }
+
+  public static class TestOutMultipleKeysClass
+  {
+    private int uId;
+    private String uName;
+    private int age;
+
+    public int getUId()
+    {
+      return uId;
+    }
+
+    public void setUId(int uId)
+    {
+      this.uId = uId;
+    }
+
+    public String getUName()
+    {
+      return uName;
+    }
+
+    public void setUName(String uName)
+    {
+      this.uName = uName;
+    }
+
+    public int getAge()
+    {
+      return age;
+    }
+
+    public void setAge(int age)
+    {
+      this.age = age;
     }
   }
 
@@ -146,7 +207,7 @@ public class PojoInnerJoinTest
   @Test
   public void PojoInnerJoinTest()
   {
-    PojoInnerJoin<TestPojo1, TestPojo2> pij = new PojoInnerJoin<>(2, TestOutClass.class, "uId", "uId");
+    PojoInnerJoin<TestPojo1, TestPojo3> pij = new PojoInnerJoin<>(2, TestOutClass.class, "uId", "uId");
 
     List<List<Map<String, Object>>> accu = pij.defaultAccumulatedValue();
 
@@ -155,13 +216,14 @@ public class PojoInnerJoinTest
     accu = pij.accumulate(accu, new TestPojo1(1, "Josh"));
     accu = pij.accumulate(accu, new TestPojo1(2, "Bob"));
 
-    accu = pij.accumulate2(accu, new TestPojo2(1, "CS"));
-    accu = pij.accumulate2(accu, new TestPojo2(3, "ECE"));
+    accu = pij.accumulate2(accu, new TestPojo3(1, "NickJosh", 12));
+    accu = pij.accumulate2(accu, new TestPojo3(3, "NickBob", 13));
 
     Map<String, Object> result = new HashMap<>();
     result.put("uId", 1);
     result.put("uName", "Josh");
-    result.put("dep", "CS");
+    result.put("uNickName", "NickJosh");
+    result.put("age", 12);
 
     Assert.assertEquals(1, pij.getOutput(accu).size());
 
@@ -170,6 +232,31 @@ public class PojoInnerJoinTest
     TestOutClass testOutClass = (TestOutClass)o;
     Assert.assertEquals(1, testOutClass.getUId());
     Assert.assertEquals("Josh", testOutClass.getUName());
-    Assert.assertEquals("CS", testOutClass.getDep());
+    Assert.assertEquals(12, testOutClass.getAge());
+  }
+
+  @Test
+  public void PojoInnerJoinTestMultipleKeys()
+  {
+    PojoInnerJoin<TestPojo1, TestPojo3> pij = new PojoInnerJoin<>(2, TestOutMultipleKeysClass.class, "uId", "uId", "uName", "uNickName");
+
+    List<List<Map<String, Object>>> accu = pij.defaultAccumulatedValue();
+
+    Assert.assertEquals(2, accu.size());
+
+    accu = pij.accumulate(accu, new TestPojo1(1, "Josh"));
+    accu = pij.accumulate(accu, new TestPojo1(2, "Bob"));
+
+    accu = pij.accumulate2(accu, new TestPojo3(1, "Josh", 12));
+    accu = pij.accumulate2(accu, new TestPojo3(3, "ECE", 13));
+
+    Assert.assertEquals(1, pij.getOutput(accu).size());
+
+    Object o = pij.getOutput(accu).get(0);
+    Assert.assertTrue(o instanceof TestOutMultipleKeysClass);
+    TestOutMultipleKeysClass testOutClass = (TestOutMultipleKeysClass)o;
+    Assert.assertEquals(1, testOutClass.getUId());
+    Assert.assertEquals("Josh", testOutClass.getUName());
+    Assert.assertEquals(12, testOutClass.getAge());
   }
 }

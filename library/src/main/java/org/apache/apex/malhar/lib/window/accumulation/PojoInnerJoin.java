@@ -23,8 +23,10 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.apex.malhar.lib.window.MergeAccumulation;
 import org.apache.commons.lang3.ClassUtils;
@@ -47,6 +49,7 @@ public class PojoInnerJoin<InputT1, InputT2>
   private transient List<KeyValPair<String,PojoUtils.Getter>>  gettersStream1;
   private transient List<KeyValPair<String,PojoUtils.Getter>>  gettersStream2;
   private transient List<KeyValPair<String,PojoUtils.Setter>>  setters;
+  private transient Set<String> keySetStream2;
 
   public PojoInnerJoin()
   {
@@ -56,7 +59,7 @@ public class PojoInnerJoin<InputT1, InputT2>
 
   public PojoInnerJoin(int num, Class<?> outClass, String... keys)
   {
-    if (keys.length != 2) {
+    if (keys.length % 2 != 0) {
       throw new IllegalArgumentException("Wrong number of keys.");
     }
 
@@ -170,13 +173,16 @@ public class PojoInnerJoin<InputT1, InputT2>
   public List<?> getOutput(List<List<Map<String, Object>>> accumulatedValue)
   {
     List<Map<String, Object>> result = new ArrayList<>();
+    if (setters == null) {
+      createSetters();
+      keySetStream2 = new HashSet<>();
+      for (int i = 0; i < keys.length; i = i + 2) {
+        keySetStream2.add(keys[i + 1]);
+      }
+    }
 
     // TODO: May need to revisit (use state manager).
     result = getAllCombo(0, accumulatedValue, result, null);
-
-    if (setters == null) {
-      createSetters();
-    }
 
     List<Object> out = new ArrayList<>();
     for (Map<String, Object> resultMap : result) {
@@ -212,7 +218,7 @@ public class PojoInnerJoin<InputT1, InputT2>
           return result;
         } else {
           Map<String, Object> tempMap = new HashMap<>(curMap);
-          tempMap = joinTwoMapsWithKeys(tempMap, keys[0], map, keys[streamIndex]);
+          tempMap = joinTwoMapsWithKeys(tempMap, map);
           result = getAllCombo(streamIndex + 1, accu, result, tempMap);
         }
       }
@@ -220,18 +226,21 @@ public class PojoInnerJoin<InputT1, InputT2>
     }
   }
 
-  private Map<String, Object> joinTwoMapsWithKeys(Map<String, Object> map1, String key1, Map<String, Object> map2, String key2)
+  private Map<String, Object> joinTwoMapsWithKeys(Map<String, Object> map1, Map<String, Object> map2)
   {
-    if (!map1.get(key1).equals(map2.get(key2))) {
-      return null;
-    } else {
-      for (String field : map2.keySet()) {
-        if (!field.equals(key2)) {
-          map1.put(field, map2.get(field));
-        }
+    for (int i = 0; i < keys.length; i = i + 2) {
+      String key1 = keys[i];
+      String key2 = keys[i + 1];
+      if (!map1.get(key1).equals(map2.get(key2))) {
+        return null;
       }
-      return map1;
     }
+    for (String field : map2.keySet()) {
+      if (!keySetStream2.contains(field)) {
+        map1.put(field, map2.get(field));
+      }
+    }
+    return map1;
   }
 
   @Override
