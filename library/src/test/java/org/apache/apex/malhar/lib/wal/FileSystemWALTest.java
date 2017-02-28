@@ -18,8 +18,9 @@
  */
 package org.apache.apex.malhar.lib.wal;
 
-import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Random;
 
 import org.junit.Assert;
@@ -31,11 +32,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.apex.malhar.lib.utils.FileContextUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileContext;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import com.datatorrent.lib.util.KryoCloneUtils;
-import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.netlet.util.Slice;
 
 public class FileSystemWALTest
@@ -53,12 +55,21 @@ public class FileSystemWALTest
   {
     private String targetDir;
     FileSystemWAL fsWAL = new FileSystemWAL();
+    Configuration conf = new Configuration();
+    FileSystem fs;
 
     @Override
     protected void starting(Description description)
     {
-      TestUtils.deleteTargetTestClassFolder(description);
       targetDir = "target/" + description.getClassName() + "/" + description.getMethodName();
+
+      try {
+        fs = FileSystem.get(new URI(targetDir + "/WAL"), conf);
+        fs.delete(new Path(targetDir), true);
+      } catch (IOException | URISyntaxException e) {
+        throw new RuntimeException(e);
+      }
+
       fsWAL = new FileSystemWAL();
       fsWAL.setFilePath(targetDir + "/WAL");
     }
@@ -66,7 +77,11 @@ public class FileSystemWALTest
     @Override
     protected void finished(Description description)
     {
-      TestUtils.deleteTargetTestClassFolder(description);
+      try {
+        fs.delete(new Path(targetDir), true);
+      } catch (IOException e) {
+        throw  new RuntimeException(e);
+      }
     }
   }
 
@@ -100,8 +115,8 @@ public class FileSystemWALTest
     fsWALWriter.rotate(true);
     testMeta.fsWAL.beforeCheckpoint(0);
     testMeta.fsWAL.committed(0);
-    File walFile = new File(testMeta.fsWAL.getPartFilePath(0));
-    Assert.assertEquals("WAL file created ", true, walFile.exists());
+    Path walFile = new Path(testMeta.fsWAL.getPartFilePath(0));
+    Assert.assertEquals("WAL file created ", true, testMeta.fs.isFile(walFile));
 
     FileSystemWAL.FileSystemWALReader fsWALReader = testMeta.fsWAL.getReader();
     assertNumTuplesRead(fsWALReader, numTuples);
@@ -133,9 +148,6 @@ public class FileSystemWALTest
     fsWALWriter.rotate(true);
     testMeta.fsWAL.beforeCheckpoint(0);
     testMeta.fsWAL.committed(0);
-
-    File walFile = new File(testMeta.fsWAL.getPartFilePath(0));
-    Assert.assertEquals("WAL file size ", totalBytes, walFile.length());
 
     FileSystemWAL.FileSystemWALReader fsWALReader = testMeta.fsWAL.getReader();
 

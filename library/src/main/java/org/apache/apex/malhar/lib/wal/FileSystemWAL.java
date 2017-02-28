@@ -20,6 +20,7 @@ package org.apache.apex.malhar.lib.wal;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -426,6 +427,36 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
       readOrSkip(true);
     }
 
+    private static int readLen(final DataInputStream inputStream) throws IOException
+    {
+      if (inputStream == null) {
+        return -1;
+      }
+
+      int len = inputStream.read();
+
+      if (len < 0) {
+        return len;
+      }
+
+      len = len << 24;
+
+      for (int i = 2;i >= 0;--i) {
+        int ch = inputStream.read();
+        if (ch < 0) {
+          throw new EOFException();
+        }
+
+        len += (ch << 8 * i);
+      }
+
+      if (len < 0) {
+        throw new IOException("Negative length");
+      }
+
+      return len;
+    }
+
     private Slice readOrSkip(boolean skip) throws IOException
     {
       if (currentPointer == null) {
@@ -442,11 +473,9 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
           inputStream = getInputStream(currentPointer);
         }
 
-        if (inputStream != null && currentPointer.offset <
-            fileSystemWAL.fileContext.getFileStatus(currentOpenPath).getLen()) {
-          int len = inputStream.readInt();
-          Preconditions.checkState(len >= 0, "negative length");
+        int len = readLen(inputStream);
 
+        if (len != -1) {
           if (!skip) {
             byte[] data = new byte[len];
             inputStream.readFully(data);
