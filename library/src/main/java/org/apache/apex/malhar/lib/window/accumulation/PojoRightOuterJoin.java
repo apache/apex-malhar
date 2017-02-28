@@ -22,20 +22,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.hadoop.classification.InterfaceStability;
+
 /**
- * Inner join Accumulation for Pojo Streams.
+ * Right outer join Accumulation for Pojo Streams.
  *
- * @since 3.6.0
  */
-public class PojoInnerJoin<InputT1, InputT2>
+@InterfaceStability.Evolving
+public class PojoRightOuterJoin<InputT1, InputT2>
     extends AbstractPojoJoin<InputT1, InputT2>
 {
-  public PojoInnerJoin()
+  public PojoRightOuterJoin()
   {
    super();
   }
 
-  public PojoInnerJoin(int num, Class<?> outClass, String... keys)
+  public PojoRightOuterJoin(int num, Class<?> outClass, String... keys)
   {
     super(outClass,keys);
 
@@ -44,12 +46,18 @@ public class PojoInnerJoin<InputT1, InputT2>
   @Override
   public void addNonMatchingResult(List result, Map requiredMap, Set nullFields)
   {
-    return;
+    for (Object field : nullFields) {
+      if (!keySetStream1.contains(field)) {
+        requiredMap.put(field.toString(), null);
+      }
+    }
+    result.add(requiredMap);
   }
 
   @Override
   public int getLeftStreamIndex()
   {
-    return 0;
+    return 1;
   }
+
 }
