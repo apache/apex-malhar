@@ -19,9 +19,11 @@
 package com.datatorrent.lib.db.jdbc;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
@@ -151,9 +153,6 @@ public class JdbcOperatorTest
       Connection con = DriverManager.getConnection(URL);
       Statement stmt = con.createStatement();
 
-      String createMetaTable = "CREATE TABLE IF NOT EXISTS " + JdbcTransactionalStore.DEFAULT_META_TABLE + " ( " + JdbcTransactionalStore.DEFAULT_APP_ID_COL + " VARCHAR(100) NOT NULL, " + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT NOT NULL, " + JdbcTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT NOT NULL, " + "UNIQUE (" + JdbcTransactionalStore.DEFAULT_APP_ID_COL + ", " + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + ", " + JdbcTransactionalStore.DEFAULT_WINDOW_COL + ") " + ")";
-      stmt.executeUpdate(createMetaTable);
-
       String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (ID INTEGER)";
       stmt.executeUpdate(createTable);
       String createPOJOTable = "CREATE TABLE IF NOT EXISTS " + TABLE_POJO_NAME
@@ -180,7 +179,13 @@ public class JdbcOperatorTest
 
       cleanTable = "delete from " + TABLE_POJO_NAME;
       stmt.executeUpdate(cleanTable);
-
+      // Meta table is created only after the operator setup has been called.
+      DatabaseMetaData meta = con.getMetaData();
+      ResultSet rsColumns;
+      rsColumns = meta.getColumns(null, null, JdbcTransactionalStore.DEFAULT_META_TABLE.toUpperCase(), null);
+      if (!rsColumns.isBeforeFirst()) {
+        return;
+      }
       cleanTable = "delete from " + JdbcTransactionalStore.DEFAULT_META_TABLE;
       stmt.executeUpdate(cleanTable);
     } catch (SQLException e) {

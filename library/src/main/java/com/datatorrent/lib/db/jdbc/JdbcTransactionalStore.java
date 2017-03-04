@@ -18,16 +18,24 @@
  */
 package com.datatorrent.lib.db.jdbc;
 
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.validation.constraints.NotNull;
 
+import org.jooq.DSLContext;
+import org.jooq.conf.ParamType;
+import org.jooq.impl.DSL;
+import org.jooq.impl.SQLDataType;
+import org.jooq.tools.jdbc.JDBCUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.db.TransactionableStore;
+
+import static org.jooq.impl.DSL.constraint;
 
 /**
  * <p>JdbcTransactionalStore class.</p>
@@ -117,6 +125,33 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
   {
     super.connect();
     try {
+      DatabaseMetaData meta = getConnection().getMetaData();
+      ResultSet rsColumns;
+      rsColumns = meta.getColumns(null, null, JdbcTransactionalStore.DEFAULT_META_TABLE, null);
+      /**Identifiers (table names, column names etc.) may be stored internally in either uppercase or lowercase.**/
+      if (!rsColumns.isBeforeFirst()) {
+        rsColumns = meta.getColumns(null, null, JdbcTransactionalStore.DEFAULT_META_TABLE.toUpperCase(), null);
+        if (!rsColumns.isBeforeFirst()) {
+          rsColumns = meta.getColumns(null, null, JdbcTransactionalStore.DEFAULT_META_TABLE.toLowerCase(), null);
+          if (!rsColumns.isBeforeFirst()) {
+            //meta table does not exists hence need to create it
+            DSLContext create = DSL.using(getConnection(), JDBCUtils.dialect(getDatabaseUrl()));
+            String createMetaTable = create.createTable(DEFAULT_META_TABLE)
+                .column(DEFAULT_APP_ID_COL, SQLDataType.VARCHAR.length(100).nullable(false))
+                .column(DEFAULT_OPERATOR_ID_COL, SQLDataType.INTEGER.nullable(false))
+                .column(DEFAULT_WINDOW_COL, SQLDataType.BIGINT.nullable(false))
+                .getSQL(ParamType.INLINED);
+            createMetaTable = createMetaTable.replace('"',' ');
+            connection.prepareStatement(createMetaTable).executeUpdate();
+            createMetaTable = create.alterTable(DEFAULT_META_TABLE)
+              .add(constraint("Unique").unique(DEFAULT_APP_ID_COL,
+                DEFAULT_OPERATOR_ID_COL,
+                DEFAULT_WINDOW_COL)).getSQL(ParamType.INLINED);
+            createMetaTable = createMetaTable.replace('"',' ');
+            connection.prepareStatement(createMetaTable).executeUpdate();
+          }
+        }
+      }
       String command = "select " + metaTableWindowColumn + " from " + metaTable + " where " + metaTableAppIdColumn +
           " = ? and " + metaTableOperatorIdColumn + " = ?";
       logger.debug(command);
