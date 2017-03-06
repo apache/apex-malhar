@@ -206,7 +206,9 @@ public class PojoOuterJoinTest
   @Test
   public void PojoLeftOuterJoinTest()
   {
-    PojoLeftOuterJoin<TestPojo1, TestPojo3> pij = new PojoLeftOuterJoin<>(2, TestOutClass.class, "uId", "uId");
+    String[] leftKeys = {"uId"};
+    String[] rightKeys = {"uId"};
+    PojoLeftOuterJoin<TestPojo1, TestPojo3> pij = new PojoLeftOuterJoin<>(TestOutClass.class, leftKeys, rightKeys);
 
     List<List<Map<String, Object>>> accu = pij.defaultAccumulatedValue();
 
@@ -231,7 +233,10 @@ public class PojoOuterJoinTest
   @Test
   public void PojoRightOuterJoinTest()
   {
-    PojoRightOuterJoin<TestPojo1, TestPojo3> pij = new PojoRightOuterJoin<>(2, TestOutClass.class, "uId", "uId");
+    String[] leftKeys = {"uId"};
+    String[] rightKeys = {"uId"};
+    PojoRightOuterJoin<TestPojo1, TestPojo3> pij = new PojoRightOuterJoin<>(TestOutClass.class, leftKeys, rightKeys);
+
 
     List<List<Map<String, Object>>> accu = pij.defaultAccumulatedValue();
 
@@ -256,7 +261,10 @@ public class PojoOuterJoinTest
   @Test
   public void PojoFullOuterJoinTest()
   {
-    PojoFullOuterJoin<TestPojo1, TestPojo3> pij = new PojoFullOuterJoin<>(2, TestOutClass.class, "uId", "uId");
+    String[] leftKeys = {"uId"};
+    String[] rightKeys = {"uId"};
+    PojoFullOuterJoin<TestPojo1, TestPojo3> pij = new PojoFullOuterJoin<>(TestOutClass.class, leftKeys, rightKeys);
+
 
     List<List<Map<String, Object>>> accu = pij.defaultAccumulatedValue();
 

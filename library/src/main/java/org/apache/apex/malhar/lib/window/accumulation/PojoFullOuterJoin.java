@@ -39,10 +39,11 @@ public class PojoFullOuterJoin<InputT1, InputT2>
    super();
   }
 
-  public PojoFullOuterJoin(int num, Class<?> outClass, String... keys)
+  public PojoFullOuterJoin(Class<?> outClass, String[] leftKeys, String[] rightKeys)
   {
-    super(outClass,keys);
+    super(outClass,leftKeys,rightKeys);
   }
+
 
   @Override
   public void addNonMatchingResult(List result, Map requiredMap, Set nullFields)

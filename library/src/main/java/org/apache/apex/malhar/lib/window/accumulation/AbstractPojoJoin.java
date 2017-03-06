@@ -20,7 +20,6 @@ package org.apache.apex.malhar.lib.window.accumulation;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -43,29 +42,33 @@ import com.datatorrent.lib.util.PojoUtils;
 public abstract class AbstractPojoJoin<InputT1, InputT2>
     implements MergeAccumulation<InputT1, InputT2, List<List<Map<String, Object>>>, List<?>>
 {
-  protected final String[] keys;
-  protected final Class<?> outClass;
+  protected String[] keys;
+  protected Class<?> outClass;
   private transient Map<String,PojoUtils.Getter> gettersStream1;
   private transient Map<String,PojoUtils.Getter> gettersStream2;
   private transient Map<String,PojoUtils.Setter> setters;
   protected transient Set<String> keySetStream2;
   protected transient Set<String> keySetStream1;
+  protected transient String[] leftKeys;
+  protected transient String[] rightKeys;
 
   public AbstractPojoJoin()
   {
-    keys = new String[]{};
+    leftKeys = new String[]{};
+    rightKeys = new String[]{};
     outClass = null;
   }
 
-  public AbstractPojoJoin(Class<?> outClass, String... keys)
+  public AbstractPojoJoin(Class<?> outClass, String[] leftKeys, String[] rightKeys)
   {
-    if (keys.length % 2 != 0) {
-      throw new IllegalArgumentException("Wrong number of keys.");
+    if (leftKeys.length != rightKeys.length) {
+      throw new IllegalArgumentException("Number of keys in left stream should match in right stream");
     }
-
-    this.keys = Arrays.copyOf(keys, keys.length);
+    this.leftKeys = leftKeys;
+    this.rightKeys = rightKeys;
     this.outClass = outClass;
   }
+
 
   private void createSetters()
   {
@@ -174,9 +177,10 @@ public abstract class AbstractPojoJoin<InputT1, InputT2>
       createSetters();
       keySetStream2 = new HashSet<>();
       keySetStream1 = new HashSet<>();
-      for (int i = 0; i < keys.length; i = i + 2) {
-        keySetStream1.add(keys[i]);
-        keySetStream2.add(keys[i + 1]);
+      int lIndex = getLeftStreamIndex();
+      for (int i = 0; i < leftKeys.length; i++) {
+        keySetStream1.add(lIndex == 0 ? leftKeys[i] : rightKeys[i]);
+        keySetStream2.add(lIndex == 1 ? leftKeys[i] : rightKeys[i]);
       }
     }
 
@@ -232,9 +236,10 @@ public abstract class AbstractPojoJoin<InputT1, InputT2>
 
   public Map<String, Object> joinTwoMapsWithKeys(Map<String, Object> map1, Map<String, Object> map2)
   {
-    for (int i = 0; i < keys.length; i = i + 2) {
-      String key1 = keys[i];
-      String key2 = keys[i + 1];
+    int lIndex = getLeftStreamIndex();
+    for (int i = 0; i < leftKeys.length; i++) {
+      String key1 = lIndex == 0 ? leftKeys[i] : rightKeys[i];
+      String key2 = lIndex == 1 ? leftKeys[i] : rightKeys[i];
       if (!map1.get(key1).equals(map2.get(key2))) {
         return null;
       }

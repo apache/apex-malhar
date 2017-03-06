@@ -35,10 +35,24 @@ public class PojoInnerJoin<InputT1, InputT2>
    super();
   }
 
+  @Deprecated
   public PojoInnerJoin(int num, Class<?> outClass, String... keys)
   {
-    super(outClass,keys);
+    this.outClass = outClass;
+    if (keys.length % 2 != 0) {
+      throw new IllegalArgumentException("Wrong number of keys.");
+    }
+    this.leftKeys = new String[keys.length / 2];
+    this.rightKeys = new String[keys.length / 2];
+    for (int i = 0,j = 0; i < keys.length; i = i + 2, j++) {
+      this.leftKeys[j] = keys[i];
+      this.rightKeys[j] = keys[i + 1];
+    }
+  }
 
+  public PojoInnerJoin(Class<?> outClass, String[] leftKeys, String[] rightKeys)
+  {
+    super(outClass,leftKeys,rightKeys);
   }
 
   @Override

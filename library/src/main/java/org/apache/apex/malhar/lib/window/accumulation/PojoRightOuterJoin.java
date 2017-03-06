@@ -37,11 +37,11 @@ public class PojoRightOuterJoin<InputT1, InputT2>
    super();
   }
 
-  public PojoRightOuterJoin(int num, Class<?> outClass, String... keys)
+  public PojoRightOuterJoin(Class<?> outClass, String[] leftKeys, String[] rightKeys)
   {
-    super(outClass,keys);
-
+    super(outClass,leftKeys,rightKeys);
   }
+
 
   @Override
   public void addNonMatchingResult(List result, Map requiredMap, Set nullFields)

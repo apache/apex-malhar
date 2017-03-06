@@ -259,4 +259,31 @@ public class PojoInnerJoinTest
     Assert.assertEquals("Josh", testOutClass.getUName());
     Assert.assertEquals(12, testOutClass.getAge());
   }
+
+  @Test
+  public void PojoInnerJoinTestSeparateLeftAndRightKeys()
+  {
+    String[] leftKeys = {"uId", "uName"};
+    String[] rightKeys = {"uId", "uNickName"};
+    PojoInnerJoin<TestPojo1, TestPojo3> pij = new PojoInnerJoin<>(TestOutMultipleKeysClass.class, leftKeys, rightKeys);
+
+    List<List<Map<String, Object>>> accu = pij.defaultAccumulatedValue();
+
+    Assert.assertEquals(2, accu.size());
+
+    accu = pij.accumulate(accu, new TestPojo1(1, "Josh"));
+    accu = pij.accumulate(accu, new TestPojo1(2, "Bob"));
+
+    accu = pij.accumulate2(accu, new TestPojo3(1, "Josh", 12));
+    accu = pij.accumulate2(accu, new TestPojo3(3, "ECE", 13));
+
+    Assert.assertEquals(1, pij.getOutput(accu).size());
+
+    Object o = pij.getOutput(accu).get(0);
+    Assert.assertTrue(o instanceof TestOutMultipleKeysClass);
+    TestOutMultipleKeysClass testOutClass = (TestOutMultipleKeysClass)o;
+    Assert.assertEquals(1, testOutClass.getUId());
+    Assert.assertEquals("Josh", testOutClass.getUName());
+    Assert.assertEquals(12, testOutClass.getAge());
+  }
 }
