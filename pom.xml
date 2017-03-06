@@ -204,6 +204,7 @@
         <module>samples</module>
         <module>sql</module>
         <module>flume</module>
+        <module>solace</module>
       </modules>
     </profile>
   </profiles>

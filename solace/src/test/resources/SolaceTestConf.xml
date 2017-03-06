@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<configuration>
+  <property>
+    <name>dt.attr.MASTER_MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  <!--property>
+    <name>dt.operator.SolaceEcsInput.prop.endpointName</name>
+    <value>queue-name</value>
+  </property-->
+   <property>
+    <name>dt.operator.SolaceEcsInput.prop.unackedMessageLimit</name>
+    <value>100000</value>
+  </property>
+
+   <!--  Basic Solace properties --> 
+   <property>
+    <name>dt.solace.host</name>
+    <value>host1:55555,host2:55555</value>
+     <!--  
+    <value>host1</value>
+     -->
+  </property>
+  <property>
+    <name>dt.solace.username</name>
+    <value>username</value>
+  </property>
+  <property>
+    <name>dt.solace.password</name>
+    <value>password</value>
+  </property>
+  <property>
+    <name>dt.solace.vpn_name</name>
+    <value>vpn-name</value>
+  </property>
+  <property>
+    <name>dt.operator.SolaceEcsInput.prop.topicName</name>
+    <value>topic-name</value>
+  </property>
+  
+  <!-- Properties for DR and HA recover - these are Channel Properties -->
+ 
+   <property>
+    <name>dt.operator.SolaceEcsInput.prop.connectRetries</name>
+    <value>-1</value>
+  </property>
+  <property>
+    <name>dt.operator.SolaceEcsInput.prop.reconnectRetries</name>
+    <value>-1</value>
+  </property>
+
+  <property>
+    <name>dt.operator.SolaceEcsInput.attr.PARTITIONER</name>
+    <value>com.datatorrent.common.partitioner.StatelessPartitioner:4</value>
+  </property>
+   
+</configuration>
