@@ -5,6 +5,8 @@ pages:
 - Apache Apex Malhar: index.md
 - APIs:
     - SQL: apis/calcite.md
+- Python Support:
+    - Pyshell: python/main.md
 - Operators:
     - Block Reader: operators/block_reader.md
     - CSV Formatter: operators/csvformatter.md

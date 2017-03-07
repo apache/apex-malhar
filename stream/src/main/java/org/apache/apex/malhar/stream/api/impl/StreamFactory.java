@@ -18,6 +18,8 @@
  */
 package org.apache.apex.malhar.stream.api.impl;
 
+import java.util.List;
+
 import org.apache.apex.malhar.kafka.KafkaSinglePortInputOperator;
 import org.apache.apex.malhar.kafka.PartitionStrategy;
 import org.apache.apex.malhar.lib.fs.LineByLineFileInputOperator;
@@ -28,6 +30,7 @@ import org.apache.hadoop.classification.InterfaceStability;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator;
 import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
+import com.datatorrent.lib.io.fs.InMemoryDataInputOperator;
 
 import static org.apache.apex.malhar.stream.api.Option.Options.name;
 
@@ -51,6 +54,19 @@ public class StreamFactory
     fileLineInputOperator.setDirectory(folderName);
     ApexStreamImpl<String> newStream = new ApexStreamImpl<>();
     return newStream.addOperator(fileLineInputOperator, null, fileLineInputOperator.output, opts);
+  }
+
+ /**
+   * Allow you to provide data as in-memory list and various options to configure in-memory data input operator
+   * @param input
+   * @param opts
+   * @return
+   */
+  public static ApexStream<String> fromData(List<Object> input, Option... opts)
+  {
+    InMemoryDataInputOperator inMemoryDataInputOperator = new InMemoryDataInputOperator(input);
+    ApexStreamImpl<Object> newStream = new ApexStreamImpl<>();
+    return newStream.addOperator(inMemoryDataInputOperator, null, inMemoryDataInputOperator.outputPort, opts);
   }
 
   public static ApexStream<String> fromFolder(String folderName)
@@ -122,6 +138,5 @@ public class StreamFactory
     ApexStreamImpl<String> newStream = new ApexStreamImpl<>();
     return newStream.addOperator(kafkaInput, null, kafkaInput.outputPort, opts);
   }
-
 
 }

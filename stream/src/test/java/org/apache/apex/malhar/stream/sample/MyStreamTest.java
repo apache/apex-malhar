@@ -81,7 +81,7 @@ public class MyStreamTest
 
     TupleCollector<Tuple.WindowedTuple<KeyValPair<String, Long>>> collector = new TupleCollector<>();
     collector.id = testId;
-    new MyStream<>((ApexStreamImpl<String>)StreamFactory.fromFolder("./src/test/resources/data"))
+    new MyStream<String>((ApexStreamImpl<String>)StreamFactory.fromFolder("./src/test/resources/data"))
         .<String, MyStream<String>>flatMap(new Function.FlatMapFunction<String, String>()
         {
           @Override
@@ -130,7 +130,7 @@ public class MyStreamTest
 
     TupleCollector<Tuple.WindowedTuple<KeyValPair<String, Long>>> collector = new TupleCollector<>();
     collector.id = testId;
-    MyStream<String> mystream = new MyStream<>((ApexStreamImpl<String>)StreamFactory
+    MyStream<String> mystream = new MyStream<String>((ApexStreamImpl<String>)StreamFactory
         .fromFolder("./src/test/resources/data"))
         .flatMap(new Function.FlatMapFunction<String, String>()
         {

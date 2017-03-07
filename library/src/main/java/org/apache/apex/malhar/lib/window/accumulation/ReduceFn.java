@@ -18,7 +18,6 @@
  */
 package org.apache.apex.malhar.lib.window.accumulation;
 
-import org.apache.apex.malhar.lib.window.Accumulation;
 
 /**
  * An easy to use reduce Accumulation
@@ -26,7 +25,7 @@ import org.apache.apex.malhar.lib.window.Accumulation;
  *
  * @since 3.5.0
  */
-public abstract class ReduceFn<INPUT> implements Accumulation<INPUT, INPUT, INPUT>
+public abstract class ReduceFn<INPUT> implements Reduce<INPUT>
 {
   @Override
   public INPUT defaultAccumulatedValue()

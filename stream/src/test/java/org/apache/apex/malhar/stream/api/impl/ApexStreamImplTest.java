@@ -86,6 +86,7 @@ public class ApexStreamImplTest
         Assert.assertEquals("second", inputPortMeta.getOperatorMeta().getName());
       }
 
+
       // Assert the stream is thread local
       Assert.assertTrue(stream.getLocality() == DAG.Locality.THREAD_LOCAL);
     }
