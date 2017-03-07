@@ -27,3 +27,4 @@ pages:
     - Json Formatter: operators/jsonFormatter.md
     - Transform Operator: operators/transform.md
     - Csv Formatter: operators/csvformatter.md
+    - S3 Output Module: operators/s3outputmodule.md
