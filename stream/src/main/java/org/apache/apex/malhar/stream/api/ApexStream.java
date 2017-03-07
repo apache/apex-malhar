@@ -32,6 +32,7 @@ import com.datatorrent.api.Context.DAGContext;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator;
 
 /**
@@ -178,8 +179,7 @@ public interface ApexStream<T>
    * @param async true if run in Async mode
    *              false if run in sync mode
    */
-  void runEmbedded(boolean async, long duration, Callable<Boolean> exitCondition);
-
+  LocalMode.Controller runEmbedded(boolean async, long duration, Callable<Boolean> exitCondition);
 
   /**
    * Submit the application to cluster

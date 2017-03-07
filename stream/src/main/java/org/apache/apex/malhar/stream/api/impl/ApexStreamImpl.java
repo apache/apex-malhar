@@ -146,6 +146,10 @@ public class ApexStreamImpl<T> implements ApexStream<T>
     }
   }
 
+  public DagMeta getGraph()
+  {
+    return graph;
+  }
 
   /**
    * Graph behind the stream
@@ -247,7 +251,7 @@ public class ApexStreamImpl<T> implements ApexStream<T>
       newBrick.lastStream = Pair.<Operator.OutputPort, Operator.InputPort>of(lastBrick.lastOutput, inputPort);
     }
 
-    if (this.getClass() == ApexStreamImpl.class || this.getClass() == ApexWindowedStreamImpl.class) {
+    if (this instanceof ApexStream) {
       return (STREAM)newStream(this.graph, newBrick);
     } else {
       try {
@@ -422,7 +426,7 @@ public class ApexStreamImpl<T> implements ApexStream<T>
   }
 
   @Override
-  public void runEmbedded(boolean async, long duration, Callable<Boolean> exitCondition)
+  public LocalMode.Controller runEmbedded(boolean async, long duration, Callable<Boolean> exitCondition)
   {
     LocalMode lma = LocalMode.newInstance();
     populateDag(lma.getDAG());
@@ -440,6 +444,7 @@ public class ApexStreamImpl<T> implements ApexStream<T>
         lc.run();
       }
     }
+    return lc;
 
   }
 

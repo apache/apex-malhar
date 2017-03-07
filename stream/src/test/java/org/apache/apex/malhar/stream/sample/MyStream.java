@@ -19,7 +19,9 @@
 package org.apache.apex.malhar.stream.sample;
 
 import org.apache.apex.malhar.lib.function.Function;
+import org.apache.apex.malhar.stream.api.ApexStream;
 import org.apache.apex.malhar.stream.api.impl.ApexStreamImpl;
+import org.apache.apex.malhar.stream.api.impl.DagMeta;
 
 import com.datatorrent.api.DAG;
 
@@ -29,6 +31,11 @@ import com.datatorrent.api.DAG;
 public class MyStream<T> extends ApexStreamImpl<T>
 {
 
+  public MyStream()
+  {
+    super();
+  }
+
   public MyStream(ApexStreamImpl<T> apexStream)
   {
     super(apexStream);
@@ -37,6 +44,16 @@ public class MyStream<T> extends ApexStreamImpl<T>
   <O> MyStream<O> myFilterAndMap(Function.MapFunction<T, O> map, Function.FilterFunction<T> filterFunction)
   {
     return filter(filterFunction).map(map).with(DAG.Locality.THREAD_LOCAL);
+  }
+
+
+  @Override
+  protected <O> ApexStream<O> newStream(DagMeta graph, Brick<O> newBrick)
+  {
+    MyStream<O> newstream = new MyStream<>();
+    newstream.graph = graph;
+    newstream.lastBrick = newBrick;
+    return newstream;
   }
 
 }

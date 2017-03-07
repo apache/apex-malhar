@@ -12,3 +12,6 @@ nb-configuration.xml
 hadoop.log
 site/
 .checkstyle
+*.pyc
+*.out
+examples/python/output
