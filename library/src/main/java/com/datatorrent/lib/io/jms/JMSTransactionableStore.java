@@ -77,7 +77,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
       message.writeLong(windowId);
       producer.send(message);
       commitTransaction();
-      logger.info("OLI getQueueName: " + getQueueName(appId, operatorId));
+      logger.info("getQueueName: " + getQueueName(appId, operatorId));
       logger.debug("Retrieved windowId {}", windowId);
       return windowId;
     } catch (JMSException ex) {
@@ -178,7 +178,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
       }
 
       Queue queue = getBase().getSession().createQueue(queueName);
-      QueueBrowser browser = getBase().getSession().createBrowser(queue,"OPERATOR_ID=" + String.valueOf(getOperatorId()));
+      QueueBrowser browser = getBase().getSession().createBrowser(queue,"operatorId=" + String.valueOf(getOperatorId()));
       boolean hasStore;
 
       try {
@@ -189,7 +189,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
       }
 
       producer = getBase().getSession().createProducer(queue);
-      consumer = getBase().getSession().createConsumer(queue, "OPERATOR_ID=" + String.valueOf(getOperatorId()));
+      consumer = getBase().getSession().createConsumer(queue, "operatorId=" + String.valueOf(getOperatorId()));
 
       connected = true;
       logger.debug("Connected. is in transaction: {}", inTransaction);
