@@ -42,6 +42,7 @@ import com.datatorrent.api.Operator;
  * When the tuple is available in input ports it converts that to JMS message and send into
  * a message bus. The concrete class of this has to implement the abstract method
  * how to convert tuple into JMS message.
+ *
  * </p>
  * Ports:<br>
  * <b>Input</b>: Can have any number of input ports<br>

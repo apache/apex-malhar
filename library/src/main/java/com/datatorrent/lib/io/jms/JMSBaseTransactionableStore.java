@@ -47,6 +47,7 @@ public abstract class JMSBaseTransactionableStore implements TransactionableStor
 
   /**
    * This method sets the JMSBase to perform transactions over.
+   *
    * @param base The JMSBase to perform transactions over.
    */
   protected void setBase(JMSBase base)
@@ -56,6 +57,7 @@ public abstract class JMSBaseTransactionableStore implements TransactionableStor
 
   /**
    * This method gets the JMSBase to perform transactions over.
+   *
    * @return The JMSBase to perform transactions over.
    */
   protected JMSBase getBase()
@@ -65,6 +67,7 @@ public abstract class JMSBaseTransactionableStore implements TransactionableStor
 
   /**
    * True if this store actually keeps track of processed windows and performs jms transactions.
+   *
    * @return True if this store actually keeps track of processed windows and performs jms transactions.
    */
   protected boolean isTransactable()
@@ -74,6 +77,7 @@ public abstract class JMSBaseTransactionableStore implements TransactionableStor
 
   /**
    * True if this store supports the exactly once operation mode.
+   *
    * @return True if this store supports the exactly once operation mode.
    */
   protected boolean isExactlyOnce()
@@ -83,6 +87,7 @@ public abstract class JMSBaseTransactionableStore implements TransactionableStor
 
   /**
    * This method sets the application id of the parent operator.
+   *
    * @param appId The application id of the parent operator.
    */
   protected void setAppId(String appId)
@@ -92,6 +97,7 @@ public abstract class JMSBaseTransactionableStore implements TransactionableStor
 
   /**
    * This method gets the application id of the parent operator.
+   *
    * @return The application id of the parent operator.
    */
   protected String getAppId()
@@ -101,6 +107,7 @@ public abstract class JMSBaseTransactionableStore implements TransactionableStor
 
   /**
    * This method sets the operator id of the parent operator.
+   *
    * @param operatorId The operator id of the parent operator.
    */
   protected void setOperatorId(int operatorId)
@@ -110,6 +117,7 @@ public abstract class JMSBaseTransactionableStore implements TransactionableStor
 
   /**
    * This method gets the operator id of the parent operator.
+   *
    * @return The operator id of the parent operator.
    */
   protected int getOperatorId()
