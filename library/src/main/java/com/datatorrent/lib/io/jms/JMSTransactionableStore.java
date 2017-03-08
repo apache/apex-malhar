@@ -75,7 +75,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
       message.writeLong(windowId);
       producer.send(message);
       commitTransaction();
-
+      logger.info("OLI getQueueName: " + getQueueName(appId, operatorId));
       logger.debug("Retrieved windowId {}", windowId);
       return windowId;
     } catch (JMSException ex) {
@@ -229,6 +229,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
 
   private String getQueueName(String appId, int operatorId)
   {
-    return appId + "-" + operatorId;
+    return getSubject() + "." + "metadata";
+    //return appId + "-" + operatorId;
   }
 }
