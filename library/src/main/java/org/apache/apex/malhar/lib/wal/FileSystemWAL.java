@@ -287,6 +287,7 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
     private final int partNum;
     private long offset;
 
+    @SuppressWarnings("unused")
     private FileSystemWALPointer()
     {
       //for kryo
@@ -336,7 +337,6 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
     private transient FileSystemWALPointer currentPointer;
 
     private transient DataInputStream inputStream;
-    private transient Path currentOpenPath;
     private transient boolean isOpenPathTmp;
 
     private final FileSystemWAL fileSystemWAL;
@@ -409,7 +409,6 @@ public class FileSystemWAL implements WAL<FileSystemWAL.FileSystemWALReader, Fil
         if (walPointer.offset > 0) {
           stream.skip(walPointer.offset);
         }
-        currentOpenPath = pathToReadFrom;
         return stream;
       }
       return null;
