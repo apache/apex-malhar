@@ -107,6 +107,33 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
     outputOperator.setup(testOperatorContext);
   }
 
+  private JMSStringSinglePortOutputOperator createCustomOperator(TestIdOperatorContext testOpContext){
+
+    JMSStringSinglePortOutputOperator outputOperator = new JMSStringSinglePortOutputOperator();
+    JMSBaseTransactionableStore store2;
+    try {
+      store2 = storeClass.newInstance();
+    } catch (InstantiationException | IllegalAccessException ex) {
+      throw new RuntimeException(ex);
+    }
+
+    outputOperator.getConnectionFactoryProperties().put("userName", "");
+    outputOperator.getConnectionFactoryProperties().put("password", "");
+    outputOperator.getConnectionFactoryProperties().put("brokerURL", "tcp://localhost:61617");
+    outputOperator.setAckMode("CLIENT_ACKNOWLEDGE");
+    outputOperator.setClientId(CLIENT_ID);
+    outputOperator.setSubject("TEST.FOO");
+    outputOperator.setMessageSize(255);
+    outputOperator.setBatch(1);
+    outputOperator.setTopic(false);
+    outputOperator.setDurable(false);
+    outputOperator.setStore(store2);
+    outputOperator.setVerbose(true);
+    outputOperator.setup(testOpContext);
+
+    return outputOperator;
+  }
+
   /**
    * This is a helper method to teardown a test operator.
    */
@@ -153,6 +180,39 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
     Assert.assertEquals(0L, windowId);
 
     deleteOperator();
+  }
+
+  /**
+   * Creates two operators with different operatorId and same appId to test correct functionality of storing and
+   * retrieving windowId with message selector
+   */
+  //@Ignore
+  @Test
+  public void twoOperatorsStoreRetrieveWithMessageSelectorTransactionTest()
+  {
+    createOperator();
+
+    outputOperator.beginWindow(0L);
+    outputOperator.endWindow();
+
+    //Create fresh operator context
+    DefaultAttributeMap attributes = new DefaultAttributeMap();
+    attributes.put(DAG.APPLICATION_ID, APP_ID);
+    int operator2Id = 2;
+    TestIdOperatorContext testOpContext = new TestIdOperatorContext(operator2Id, attributes);
+
+    JMSStringSinglePortOutputOperator outputOperator2 = createCustomOperator(testOpContext);
+    outputOperator2.beginWindow(1L);
+    outputOperator2.endWindow();
+
+    long windowIdOp = outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID);
+    Assert.assertEquals(0L, windowIdOp);
+
+    long windowIdOp2 = outputOperator2.getStore().getCommittedWindowId(APP_ID, operator2Id);
+    Assert.assertEquals(1L, windowIdOp2);
+
+    deleteOperator();
+    outputOperator2.teardown();
   }
 
   ////@Ignore
