@@ -20,17 +20,18 @@ package org.apache.apex.malhar.lib.window.accumulation;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.apex.malhar.lib.window.MergeAccumulation;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 import com.datatorrent.lib.util.PojoUtils;
 
@@ -40,15 +41,13 @@ import com.datatorrent.lib.util.PojoUtils;
  */
 @InterfaceStability.Evolving
 public abstract class AbstractPojoJoin<InputT1, InputT2>
-    implements MergeAccumulation<InputT1, InputT2, List<List<Map<String, Object>>>, List<?>>
+    implements MergeAccumulation<InputT1, InputT2, List<Multimap<List<Object>, Object>>, List<?>>
 {
   protected String[] keys;
   protected Class<?> outClass;
   private transient Map<String,PojoUtils.Getter> gettersStream1;
   private transient Map<String,PojoUtils.Getter> gettersStream2;
   private transient Map<String,PojoUtils.Setter> setters;
-  protected transient Set<String> keySetStream2;
-  protected transient Set<String> keySetStream1;
   protected transient String[] leftKeys;
   protected transient String[] rightKeys;
 
@@ -94,7 +93,7 @@ public abstract class AbstractPojoJoin<InputT1, InputT2>
   }
 
   @Override
-  public List<List<Map<String, Object>>> accumulate(List<List<Map<String, Object>>> accumulatedValue, InputT1 input)
+  public List<Multimap<List<Object>, Object>> accumulate(List<Multimap<List<Object>, Object>> accumulatedValue, InputT1 input)
   {
     if (gettersStream1 == null) {
       gettersStream1 = createGetters(input.getClass());
@@ -107,7 +106,7 @@ public abstract class AbstractPojoJoin<InputT1, InputT2>
   }
 
   @Override
-  public List<List<Map<String, Object>>> accumulate2(List<List<Map<String, Object>>> accumulatedValue, InputT2 input)
+  public List<Multimap<List<Object>, Object>> accumulate2(List<Multimap<List<Object>, Object>> accumulatedValue, InputT2 input)
   {
     if (gettersStream2 == null) {
       gettersStream2 = createGetters(input.getClass());
@@ -121,136 +120,135 @@ public abstract class AbstractPojoJoin<InputT1, InputT2>
 
 
   @Override
-  public List<List<Map<String, Object>>> defaultAccumulatedValue()
+  public List<Multimap<List<Object>, Object>> defaultAccumulatedValue()
   {
-    List<List<Map<String, Object>>> accu = new ArrayList<>();
+    List<Multimap<List<Object>, Object>> accu = new ArrayList<>();
     for (int i = 0; i < 2; i++) {
-      accu.add(new ArrayList<Map<String, Object>>());
+      Multimap<List<Object>, Object> mMap = ArrayListMultimap.create();
+      accu.add(mMap);
     }
     return accu;
   }
 
-
-  private List<List<Map<String, Object>>> accumulateWithIndex(int index, List<List<Map<String, Object>>> accu, Object input) throws NoSuchFieldException
+  private List<Multimap<List<Object>, Object>>  accumulateWithIndex(int index,
+      List<Multimap<List<Object>, Object>> accu, Object input) throws NoSuchFieldException
   {
     // TODO: If a stream never sends out any tuple during one window, a wrong key would not be detected.
-
-    List<Map<String, Object>> curList = accu.get(index);
-    Map map = pojoToMap(input,index + 1);
-    curList.add(map);
-    accu.set(index, curList);
-
+    Multimap<List<Object>, Object> curMap = accu.get(index);
+    List<Object> key = getKeyForMultiMap(input,index);
+    curMap.put(key,input);
     return accu;
   }
 
-  private Map<String, Object> pojoToMap(Object input, int streamIndex)
+  private List<Object> getKeyForMultiMap(Object input, int index)
   {
-    Map<String, Object> map = new HashMap<>();
-    Map<String,PojoUtils.Getter> gettersStream = streamIndex == 1 ? gettersStream1 : gettersStream2;
-
-    for (Map.Entry<String, PojoUtils.Getter> getter : gettersStream.entrySet()) {
-      try {
-        Object value = getter.getValue().get(input);
-        map.put(getter.getKey(), value);
-      } catch (Exception e) {
-        throw Throwables.propagate(e);
-      }
+    List<Object> key = new ArrayList<>();
+    String[] reqKeys = index == 0 ? leftKeys : rightKeys;
+    Map<String,PojoUtils.Getter> gettersStream = index == 0 ? gettersStream1 : gettersStream2;
+    for (String lkey : reqKeys ) {
+      key.add(gettersStream.get(lkey).get(input));
     }
-    return map;
+    return key;
   }
 
   @Override
-  public List<List<Map<String, Object>>> merge(List<List<Map<String, Object>>> accumulatedValue1, List<List<Map<String, Object>>> accumulatedValue2)
+  public List<Multimap<List<Object>, Object>> merge(List<Multimap<List<Object>, Object>> accumulatedValue1, List<Multimap<List<Object>, Object>> accumulatedValue2)
   {
     for (int i = 0; i < 2; i++) {
-      List<Map<String, Object>> curList = accumulatedValue1.get(i);
-      curList.addAll(accumulatedValue2.get(i));
-      accumulatedValue1.set(i, curList);
+      Multimap<List<Object>, Object> mMap1 = accumulatedValue1.get(i);
+      Multimap<List<Object>, Object> mMap2 = accumulatedValue2.get(i);
+      for (Map.Entry<List<Object>, Object> entry : mMap2.entries()) {
+        mMap1.put(entry.getKey(),entry.getValue());
+      }
     }
     return accumulatedValue1;
   }
 
   @Override
-  public List<?> getOutput(List<List<Map<String, Object>>> accumulatedValue)
+  public List<?> getOutput(List<Multimap<List<Object>, Object>> accumulatedValue)
   {
     if (setters == null) {
       createSetters();
-      keySetStream2 = new HashSet<>();
-      keySetStream1 = new HashSet<>();
-      int lIndex = getLeftStreamIndex();
-      for (int i = 0; i < leftKeys.length; i++) {
-        keySetStream1.add(lIndex == 0 ? leftKeys[i] : rightKeys[i]);
-        keySetStream2.add(lIndex == 1 ? leftKeys[i] : rightKeys[i]);
-      }
     }
-
     // TODO: May need to revisit (use state manager).
-    List<Map<String, Object>> result = getAllCombo(0, accumulatedValue, null);
-
-    List<Object> out = new ArrayList<>();
-    for (Map<String, Object> resultMap : result) {
-      Object o;
-      try {
-        o = outClass.newInstance();
-      } catch (Throwable e) {
-        throw Throwables.propagate(e);
-      }
-      for (Map.Entry<String, PojoUtils.Setter> setter : setters.entrySet()) {
-        if (resultMap.get(setter.getKey()) != null) {
-          setter.getValue().set(o, resultMap.get(setter.getKey()));
-        }
-      }
-      out.add(o);
-    }
-
-    return out;
+    return getAllCombo(accumulatedValue);
   }
 
-
-  public List<Map<String, Object>> getAllCombo(int streamIndex, List<List<Map<String, Object>>> accu, Map<String, Object> curMap)
+  protected void setObjectForResult(Map<String,PojoUtils.Getter> stream, Object input, Object output)
   {
-    List<Map<String, Object>> result = new ArrayList<>();
-    int leftStreamIndex = getLeftStreamIndex();
-    List<Map<String, Object>> leftStream = accu.get(leftStreamIndex);
-    List<Map<String, Object>> rightStream = accu.get((leftStreamIndex + 1) % 2);
-    for (Map<String, Object> lMap : leftStream) {
-      boolean gotMatch = false;
-      for (Map<String, Object> rMap : rightStream) {
-        Map<String, Object> tempMap = joinTwoMapsWithKeys(lMap, rMap);
-        if (tempMap != null) {
-          result.add(tempMap);
-          gotMatch = true;
-        }
-      }
-      if (!gotMatch) {
-        addNonMatchingResult(result, lMap, rightStream.get(0).keySet());
+    for (Map.Entry<String, PojoUtils.Getter> getter : stream.entrySet()) {
+      if (setters.containsKey(getter.getKey())) {
+        setters.get(getter.getKey()).set(output, getter.getValue().get(input));
       }
     }
+
+  }
+
+  /**
+   * This function takes the required join on the 2 input streams for matching keys
+   * and allows the derived classes to implement the logic in case of non matching keys.
+   *
+   * It is designed such that for outer joins it will always assume that it is
+   * a left outer join and hence it considers right stream as left in case of
+   * right outer join keeping the code and logic the same.
+   *
+   * For each key in the left stream a corresponding key is searched in the right stream
+   * if a match is found then the all the objects with that key are added to Output list,
+   * also that key is removed from right stream as it will no longer be required in any join
+   * scenario.If a match is not found then it relies on derived class implementation to handle it.
+   *
+   * @param accu which is the main accumulation data structure
+   * @return List of objects got after joining the streams
+   */
+  private List<Object> getAllCombo(List<Multimap<List<Object>, Object>> accu)
+  {
+    List<Object> result = new ArrayList<>();
+    int leftStreamIndex = getLeftStreamIndex();
+    Multimap<List<Object>, Object> leftStream = accu.get(leftStreamIndex);
+    Multimap<List<Object>, Object> rightStream = ArrayListMultimap.create(accu.get((leftStreamIndex + 1) % 2));
+    Map<String,PojoUtils.Getter> leftGettersStream = leftStreamIndex == 0 ? gettersStream1 : gettersStream2;
+    Map<String,PojoUtils.Getter> rightGettersStream = leftStreamIndex == 1 ? gettersStream1 : gettersStream2;
+    for (List lMap : leftStream.keySet()) {
+      Collection<Object> left = leftStream.get(lMap);
+      if (rightStream.containsKey(lMap)) {
+        Collection<Object> right = rightStream.get(lMap);
+        Object o;
+        try {
+          o = outClass.newInstance();
+        } catch (Throwable e) {
+          throw Throwables.propagate(e);
+        }
+        for (Object lObj:left) {
+          for (Object rObj:right) {
+            setObjectForResult(leftGettersStream, lObj,o);
+            setObjectForResult(rightGettersStream, rObj,o);
+          }
+          result.add(o);
+        }
+        rightStream.removeAll(lMap);
+      } else {
+        addNonMatchingResult(left, leftGettersStream, result);
+      }
+    }
+    addNonMatchingRightStream(rightStream, rightGettersStream, result);
     return result;
   }
 
-  public abstract void addNonMatchingResult(List<Map<String, Object>> result, Map<String, Object> requiredMap, Set nullFields);
+  /**
+   * This function defines the strategy to be used when no matching key is found.
+   */
+  protected abstract void addNonMatchingResult(Collection<Object> left, Map<String,PojoUtils.Getter> leftGettersStream, List<Object> result);
 
-  public abstract int getLeftStreamIndex();
+  /**
+   * This function defines the strategy to be used when the join is interested to add POJO's
+   * from right stream when no matching key is found.
+   */
+  protected abstract void addNonMatchingRightStream(Multimap<List<Object>, Object> rightStream, Map<String,PojoUtils.Getter> rightGettersStream, List<Object> result);
 
-
-  public Map<String, Object> joinTwoMapsWithKeys(Map<String, Object> map1, Map<String, Object> map2)
-  {
-    int lIndex = getLeftStreamIndex();
-    for (int i = 0; i < leftKeys.length; i++) {
-      String key1 = lIndex == 0 ? leftKeys[i] : rightKeys[i];
-      String key2 = lIndex == 1 ? leftKeys[i] : rightKeys[i];
-      if (!map1.get(key1).equals(map2.get(key2))) {
-        return null;
-      }
-    }
-    for (String field : map2.keySet()) {
-      if (!keySetStream2.contains(field)) {
-        map1.put(field, map2.get(field));
-      }
-    }
-    return map1;
-  }
+  /**
+   * This function lets the join decide which is the left stream and which is the right stream.
+   */
+  protected abstract int getLeftStreamIndex();
 
   @Override
   public List<?> getRetraction(List<?> value)

@@ -18,13 +18,16 @@
  */
 package org.apache.apex.malhar.lib.window.accumulation;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.hadoop.classification.InterfaceStability;
+
+import com.google.common.base.Throwables;
+import com.google.common.collect.Multimap;
+
+import com.datatorrent.lib.util.PojoUtils;
 
 /**
  * Full outer join Accumulation for Pojo Streams.
@@ -44,61 +47,33 @@ public class PojoFullOuterJoin<InputT1, InputT2>
     super(outClass,leftKeys,rightKeys);
   }
 
+  @Override
+  public void addNonMatchingResult(Collection<Object> left, Map<String,PojoUtils.Getter> leftGettersStream, List<Object> result)
+  {
+    for (Object lObj:left) {
+      Object o;
+      try {
+        o = outClass.newInstance();
+      } catch (Throwable e) {
+        throw Throwables.propagate(e);
+      }
+      setObjectForResult(leftGettersStream, lObj, o);
+      result.add(o);
+    }
+  }
 
   @Override
-  public void addNonMatchingResult(List result, Map requiredMap, Set nullFields)
+  public void addNonMatchingRightStream(Multimap<List<Object>, Object> rightStream,
+      Map<String,PojoUtils.Getter> rightGettersStream, List<Object> result)
   {
-    for (Object field : nullFields) {
-      if (!keySetStream2.contains(field)) {
-        requiredMap.put(field.toString(), null);
-      }
+    for (Object key : rightStream.keySet()) {
+      addNonMatchingResult(rightStream.get((List)key), rightGettersStream, result);
     }
-    result.add(requiredMap);
   }
 
   @Override
   public int getLeftStreamIndex()
   {
-    return 0;
-  }
-
-  @Override
-  public List<Map<String, Object>> getAllCombo(int streamIndex, List accu, Map curMap)
-  {
-    List<Map<String, Object>> result = new ArrayList<>();
-    int leftStreamIndex = getLeftStreamIndex();
-    List<Map<String, Object>> leftStream = (List<Map<String, Object>>)accu.get(leftStreamIndex);
-    List<Map<String, Object>> rightStream = (List<Map<String, Object>>)accu.get((leftStreamIndex + 1) % 2);
-    Set<Map<String,Object>> unMatchedRightStream = new HashSet<>();
-
-    for (Map<String, Object> rMap : rightStream) {
-      unMatchedRightStream.add(rMap);
-    }
-    for (Map<String, Object> lMap : leftStream) {
-      boolean gotMatch = false;
-      for (Map<String, Object> rMap : rightStream) {
-        Map<String, Object> tempMap = joinTwoMapsWithKeys(lMap, rMap);
-        if (tempMap != null) {
-          result.add(tempMap);
-          gotMatch = true;
-          if (unMatchedRightStream.contains(rMap)) {
-            unMatchedRightStream.remove(rMap);
-          }
-        }
-      }
-      if (!gotMatch) {
-        addNonMatchingResult(result, lMap, rightStream.get(0).keySet());
-      }
-    }
-
-    for (Map<String, Object> rMap : unMatchedRightStream) {
-      for (Object field : leftStream.get(0).keySet()) {
-        if (!keySetStream1.contains(field)) {
-          rMap.put(field.toString(), null);
-        }
-      }
-      result.add(rMap);
-    }
-    return result;
+    return 1;
   }
 }
