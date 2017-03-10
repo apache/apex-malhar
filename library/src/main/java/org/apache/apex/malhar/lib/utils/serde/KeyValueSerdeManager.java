@@ -28,6 +28,7 @@ import com.datatorrent.netlet.util.Slice;
  */
 public class KeyValueSerdeManager<K, V>
 {
+  public static final long INVALID_BUCKET_ID = -1;
   protected Serde<K> keySerde;
   protected Serde<V> valueSerde;
 
@@ -36,6 +37,8 @@ public class KeyValueSerdeManager<K, V>
 
   protected SerializationBuffer valueBuffer;
 
+  private long lastBucketId = INVALID_BUCKET_ID;
+  private transient BucketProvider bucketProvider;
 
   protected KeyValueSerdeManager()
   {
@@ -50,12 +53,27 @@ public class KeyValueSerdeManager<K, V>
 
   public void setup(BucketProvider bp, long bucketId)
   {
-    //the bucket will not change for this class. so get streams from setup, else, need to set stream before serialize
-    Bucket bucketInst = bp.ensureBucket(bucketId);
-    this.valueBuffer = new SerializationBuffer(bucketInst.getValueStream());
-
-    keyBufferForWrite = new SerializationBuffer(bucketInst.getKeyStream());
+    bucketProvider = bp;
+    updateBuffersForBucketChange(bucketId);
   }
+
+  /**
+   * The bucket can be changed. The write buffer should also be changed if bucket changed.
+   * @param bucketId
+   */
+  public void updateBuffersForBucketChange(long bucketId)
+  {
+    if (lastBucketId == bucketId) {
+      return;
+    }
+
+    Bucket bucketInst = bucketProvider.ensureBucket(bucketId);
+    this.valueBuffer = new SerializationBuffer(bucketInst.getValueStream());
+    keyBufferForWrite = new SerializationBuffer(bucketInst.getKeyStream());
+
+    lastBucketId = bucketId;
+  }
+
 
   public Slice serializeKey(K key, boolean write)
   {

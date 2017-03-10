@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.validation.constraints.NotNull;
 
 import org.apache.apex.malhar.lib.state.BucketedState;
+import org.apache.apex.malhar.lib.state.managed.ManagedTimeUnifiedStateImpl;
 import org.apache.apex.malhar.lib.state.managed.TimeExtractor;
 import org.apache.apex.malhar.lib.utils.serde.AffixKeyValueSerdeManager;
 import org.apache.apex.malhar.lib.utils.serde.BufferSlice;
@@ -150,7 +151,7 @@ public class SpillableMapImpl<K, V> implements Spillable.SpillableMap<K, V>, Spi
       return val;
     }
 
-    Slice valSlice = store.getSync(getBucket(key), keyValueSerdeManager.serializeDataKey(key, false));
+    Slice valSlice = store.getSync(getBucketTimeOrId(key), keyValueSerdeManager.serializeDataKey(key, false));
 
     if (valSlice == null || valSlice == BucketedState.EXPIRED || valSlice.length == 0) {
       return null;
@@ -236,13 +237,29 @@ public class SpillableMapImpl<K, V> implements Spillable.SpillableMap<K, V>, Spi
   @Override
   public void endWindow()
   {
+    boolean isTimeUnifiedStore = (store instanceof ManagedTimeUnifiedStateImpl);
     for (K key: cache.getChangedKeys()) {
-      store.put(getBucket(key), keyValueSerdeManager.serializeDataKey(key, true),
+      //the getBucket() returned in fact is time, the bucket assign then assigned the bucketId
+      long timeOrBucketId = bucket;
+      long bucketId = timeOrBucketId;
+      if (isTimeUnifiedStore) {
+        timeOrBucketId = getBucketTimeOrId(key);
+        bucketId = ((ManagedTimeUnifiedStateImpl)store).getTimeBucketAssigner().getTimeBucket(timeOrBucketId);
+      }
+      keyValueSerdeManager.updateBuffersForBucketChange(bucketId);
+      store.put(timeOrBucketId, keyValueSerdeManager.serializeDataKey(key, true),
           keyValueSerdeManager.serializeValue(cache.get(key)));
     }
 
     for (K key: cache.getRemovedKeys()) {
-      store.put(getBucket(key), keyValueSerdeManager.serializeDataKey(key, true), BufferSlice.EMPTY_SLICE);
+      long timeOrBucketId = bucket;
+      long bucketId = timeOrBucketId;
+      if (isTimeUnifiedStore) {
+        timeOrBucketId = getBucketTimeOrId(key);
+        bucketId = ((ManagedTimeUnifiedStateImpl)store).getTimeBucketAssigner().getTimeBucket(timeOrBucketId);
+      }
+      keyValueSerdeManager.updateBuffersForBucketChange(bucketId);
+      store.put(timeOrBucketId, keyValueSerdeManager.serializeDataKey(key, true), BufferSlice.EMPTY_SLICE);
     }
     cache.endWindow();
     keyValueSerdeManager.resetReadBuffer();
@@ -253,7 +270,12 @@ public class SpillableMapImpl<K, V> implements Spillable.SpillableMap<K, V>, Spi
   {
   }
 
-  private long getBucket(K key)
+  /**
+   *
+   * @param key
+   * @return The bucket time for time unified store or bucket id for store with fixed bucket
+   */
+  private long getBucketTimeOrId(K key)
   {
     return timeExtractor != null ? timeExtractor.getTime(key) : bucket;
   }
