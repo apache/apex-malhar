@@ -18,7 +18,7 @@
  */
 package org.apache.apex.malhar.lib.window.impl;
 
-import org.apache.apex.malhar.lib.window.ControlTuple;
+import org.apache.apex.malhar.lib.window.WatermarkTuple;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
@@ -27,7 +27,7 @@ import org.apache.hadoop.classification.InterfaceStability;
  * @since 3.5.0
  */
 @InterfaceStability.Evolving
-public class WatermarkImpl implements ControlTuple.Watermark
+public class WatermarkImpl implements WatermarkTuple
 {
   private long timestamp;
 
@@ -51,5 +51,11 @@ public class WatermarkImpl implements ControlTuple.Watermark
   public String toString()
   {
     return "[Watermark " + getTimestamp() + "]";
+  }
+
+  @Override
+  public DeliveryType getDeliveryType()
+  {
+    return DeliveryType.END_WINDOW;
   }
 }

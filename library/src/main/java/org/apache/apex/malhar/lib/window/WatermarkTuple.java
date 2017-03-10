@@ -18,6 +18,7 @@
  */
 package org.apache.apex.malhar.lib.window;
 
+import org.apache.apex.api.UserDefinedControlTuple;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
@@ -27,18 +28,12 @@ import org.apache.hadoop.classification.InterfaceStability;
  * @since 3.5.0
  */
 @InterfaceStability.Evolving
-public interface ControlTuple
+public interface WatermarkTuple extends UserDefinedControlTuple
 {
   /**
-   * Watermark control tuple
+   * Gets the timestamp associated with this watermark
+   *
+   * @return the timestamp
    */
-  interface Watermark extends ControlTuple
-  {
-    /**
-     * Gets the timestamp associated with this watermark
-     *
-     * @return the timestamp
-     */
-    long getTimestamp();
-  }
+  long getTimestamp();
 }

@@ -25,8 +25,6 @@ import java.io.InputStreamReader;
 
 import org.apache.hadoop.fs.Path;
 
-import com.datatorrent.api.DefaultOutputPort;
-
 import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
 
 /**
@@ -43,8 +41,6 @@ import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
  */
 public class LineByLineFileInputOperator extends AbstractFileInputOperator<String>
 {
-  public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
-
   protected transient BufferedReader br;
 
   @Override

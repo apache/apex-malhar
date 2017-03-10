@@ -18,9 +18,9 @@
  */
 package org.apache.apex.malhar.lib.window.impl;
 
-import org.apache.apex.malhar.lib.window.ControlTuple;
 import org.apache.apex.malhar.lib.window.MergeAccumulation;
 import org.apache.apex.malhar.lib.window.Tuple;
+import org.apache.apex.malhar.lib.window.WatermarkTuple;
 import org.apache.apex.malhar.lib.window.Window;
 import org.apache.apex.malhar.lib.window.WindowedStorage;
 
@@ -56,7 +56,7 @@ abstract class WindowedMergeOperatorFeatures<InputT1, InputT2, AccumT, Accumulat
 
   abstract void accumulateTuple2(Tuple.WindowedTuple<InputT2> tuple);
 
-  void processWatermark1(ControlTuple.Watermark watermark)
+  void processWatermark1(WatermarkTuple watermark)
   {
     latestWatermark1 = watermark.getTimestamp();
     // Select the smallest timestamp of the latest watermarks as the watermark of the operator.
@@ -64,7 +64,7 @@ abstract class WindowedMergeOperatorFeatures<InputT1, InputT2, AccumT, Accumulat
     operator.setNextWatermark(minWatermark);
   }
 
-  void processWatermark2(ControlTuple.Watermark watermark)
+  void processWatermark2(WatermarkTuple watermark)
   {
     latestWatermark2 = watermark.getTimestamp();
     long minWatermark = Math.min(latestWatermark1, latestWatermark2);

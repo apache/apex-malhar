@@ -242,14 +242,14 @@ public class WindowedOperatorTest
     windowedOperator.endWindow();
     Assert.assertEquals("We should get one watermark tuple", 1, controlSink.getCount(false));
     Assert.assertEquals("Check Watermark value",
-        ((ControlTuple.Watermark)controlSink.collectedTuples.get(0)).getTimestamp(), BASE);
+        ((WatermarkTuple)controlSink.collectedTuples.get(0)).getTimestamp(), BASE);
 
     windowedOperator.beginWindow(3);
     windowedOperator.processTuple(new Tuple.TimestampedTuple<>(BASE + 900L, 4L));
     windowedOperator.endWindow();
     Assert.assertEquals("We should get two watermark tuples", 2, controlSink.getCount(false));
     Assert.assertEquals("Check Watermark value",
-        ((ControlTuple.Watermark)controlSink.collectedTuples.get(1)).getTimestamp(), BASE + 800);
+        ((WatermarkTuple)controlSink.collectedTuples.get(1)).getTimestamp(), BASE + 800);
   }
 
   private void testTrigger(TriggerOption.AccumulationMode accumulationMode)

@@ -36,6 +36,9 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.ControlAwareDefaultInputPort;
+import org.apache.apex.api.UserDefinedControlTuple;
+import org.apache.apex.malhar.lib.window.windowable.FileWatermark;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -64,7 +67,6 @@ import com.google.common.collect.Sets;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.OperatorAnnotation;
@@ -264,15 +266,35 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
 
   private transient boolean initializeContext;
 
+  protected String currentFileName;
+
   /**
    * This input port receives incoming tuples.
    */
-  public final transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>()
+  public final transient ControlAwareDefaultInputPort<INPUT> input = new ControlAwareDefaultInputPort<INPUT>()
   {
     @Override
     public void process(INPUT tuple)
     {
       processTuple(tuple);
+    }
+
+    @Override
+    public boolean processControl(UserDefinedControlTuple tuple)
+    {
+      if (tuple instanceof FileWatermark.BeginFileWatermark) {
+        currentFileName = ((FileWatermark.BeginFileWatermark)tuple).getFileName();
+        LOG.info("Received Begin File {}", currentFileName);
+      } else if (tuple instanceof FileWatermark.EndFileWatermark) {
+        LOG.info("Received Close File {}", currentFileName);
+        try {
+          finalizeFile(currentFileName);
+        } catch (IOException e) {
+          throw new RuntimeException("finalize " + e);
+        }
+        currentFileName = "";
+      }
+      return true;
     }
 
     @Override

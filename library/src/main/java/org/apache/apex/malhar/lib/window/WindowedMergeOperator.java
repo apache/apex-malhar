@@ -38,5 +38,5 @@ public interface WindowedMergeOperator<InputT1, InputT2>
    *
    * @param watermark the watermark tuple
    */
-  void processWatermark2(ControlTuple.Watermark watermark);
+  void processWatermark2(WatermarkTuple watermark);
 }

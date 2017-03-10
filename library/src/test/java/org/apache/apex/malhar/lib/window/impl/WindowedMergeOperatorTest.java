@@ -111,32 +111,32 @@ public class WindowedMergeOperatorTest
     op.controlOutput.setSink(sink);
 
     // No watermark is generated if the Merge operator haven't seen all watermarks from all input streams.
-    op.controlInput.process(new WatermarkImpl(1000000));
+    op.input.processControl(new WatermarkImpl(1000000));
     op.endWindow();
     Assert.assertEquals(-1, op.currentWatermark);
     Assert.assertEquals(0, sink.collectedTuples.size());
 
     // Once both input streams sent watermarks to Merge operator, it should generate a watermark and send to downstream.
-    op.controlInput2.process(new WatermarkImpl(200000));
+    op.input2.processControl(new WatermarkImpl(200000));
     op.endWindow();
     Assert.assertEquals(200000, op.currentWatermark);
     Assert.assertEquals(1, sink.collectedTuples.size());
 
     // If the minimum of the latest input watermarks changes, Merge operator should also generate a new watermark.
-    op.controlInput2.process(new WatermarkImpl(2100000));
+    op.input2.processControl(new WatermarkImpl(2100000));
     op.endWindow();
     Assert.assertEquals(1000000, op.currentWatermark);
     Assert.assertEquals(2, sink.collectedTuples.size());
 
     // Current watermark of Merge operator could only change during endWindow() event.
-    op.controlInput.process(new WatermarkImpl(1100000));
+    op.input.processControl(new WatermarkImpl(1100000));
     op.endWindow();
     Assert.assertEquals(1100000, op.currentWatermark);
     Assert.assertEquals(3, sink.collectedTuples.size());
 
     // If the upstreams sent a watermark but the minimum of the latest input watermarks doesn't change, the Merge
     // operator should not generate a new watermark, thus nothing will be sent to downstream.
-    op.controlInput.process(new WatermarkImpl(1100000));
+    op.input.processControl(new WatermarkImpl(1100000));
     op.endWindow();
     Assert.assertEquals(1100000, op.currentWatermark);
     Assert.assertEquals(3, sink.collectedTuples.size());
