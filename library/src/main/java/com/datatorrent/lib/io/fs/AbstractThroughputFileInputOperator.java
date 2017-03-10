@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang.mutable.MutableLong;
+import org.apache.hadoop.fs.Path;
 
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.lib.counters.BasicCounters;
@@ -122,8 +123,17 @@ public abstract class AbstractThroughputFileInputOperator<T> extends AbstractFil
   @Override
   public void emitTuples()
   {
-    scanDirectory();
-
+    while ((!fileQueue.isEmpty()) && (fileCount < getMaxFilesPerWindow())) {
+      Path newPath = fileQueue.peek();
+      String newPathString = newPath.toString();
+      pendingFiles.add(newPathString);
+      synchronized (processedFiles.getClass()) {
+        processedFiles.add(newPathString);
+      }
+      localProcessedFileCount.increment();
+      fileQueue.remove();
+      fileCount++;
+    }
     super.emitTuples();
   }
 

@@ -48,6 +48,8 @@ public class AbstractFileInputOperatorFailureHandlingTest
   @Rule
   public TestInfo testMeta = new TestInfo();
 
+  private static int MAX_TEST_TIME = 30 * 1000;
+
   public static class TestFileInputOperator extends AbstractFileInputOperator<String>
   {
     public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
@@ -124,13 +126,20 @@ public class AbstractFileInputOperatorFailureHandlingTest
     oper.setDirectory(testMeta.getDir());
     oper.getScanner().setFilePatternRegexp(".*file[\\d]");
 
-    oper.setup(
-        new OperatorContextTestHelper.TestIdOperatorContext(1, new Attribute.AttributeMap.DefaultAttributeMap()));
-    for (long wid = 0; wid < 1000; wid++) {
+    OperatorContextTestHelper.TestIdOperatorContext operContext =
+        new OperatorContextTestHelper.TestIdOperatorContext(1, new Attribute.AttributeMap.DefaultAttributeMap());
+    oper.setup(operContext);
+    oper.activate(operContext);
+
+    long wid = 0;
+    long startTime = System.currentTimeMillis();
+    while (System.currentTimeMillis() - startTime <= MAX_TEST_TIME && queryResults.collectedTuples.size() < 100) {
       oper.beginWindow(wid);
       oper.emitTuples();
       oper.endWindow();
+      wid++;
     }
+    oper.deactivate();
     oper.teardown();
 
     Assert.assertEquals("number tuples", 100, queryResults.collectedTuples.size());
