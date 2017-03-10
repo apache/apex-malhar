@@ -18,11 +18,16 @@
  */
 package org.apache.apex.malhar.lib.window.accumulation;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.hadoop.classification.InterfaceStability;
+
+import com.google.common.base.Throwables;
+import com.google.common.collect.Multimap;
+
+import com.datatorrent.lib.util.PojoUtils;
 
 /**
  * Right outer join Accumulation for Pojo Streams.
@@ -42,16 +47,26 @@ public class PojoRightOuterJoin<InputT1, InputT2>
     super(outClass,leftKeys,rightKeys);
   }
 
+  @Override
+  public void addNonMatchingResult(Collection<Object> left, Map<String,PojoUtils.Getter> leftGettersStream, List<Object> result)
+  {
+    for (Object lObj:left) {
+      Object o;
+      try {
+        o = outClass.newInstance();
+      } catch (Throwable e) {
+        throw Throwables.propagate(e);
+      }
+      setObjectForResult(leftGettersStream, lObj, o);
+      result.add(o);
+    }
+  }
 
   @Override
-  public void addNonMatchingResult(List result, Map requiredMap, Set nullFields)
+  public void addNonMatchingRightStream(Multimap<List<Object>, Object> rightStream,
+      Map<String,PojoUtils.Getter> rightGettersStream, List<Object> result)
   {
-    for (Object field : nullFields) {
-      if (!keySetStream1.contains(field)) {
-        requiredMap.put(field.toString(), null);
-      }
-    }
-    result.add(requiredMap);
+    return;
   }
 
   @Override
@@ -59,5 +74,4 @@ public class PojoRightOuterJoin<InputT1, InputT2>
   {
     return 1;
   }
-
 }

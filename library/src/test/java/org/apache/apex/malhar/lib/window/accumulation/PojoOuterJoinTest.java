@@ -18,11 +18,14 @@
  */
 package org.apache.apex.malhar.lib.window.accumulation;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.common.collect.Multimap;
 
 /**
  * Test for POJO outer join accumulations
@@ -209,25 +212,42 @@ public class PojoOuterJoinTest
     String[] leftKeys = {"uId"};
     String[] rightKeys = {"uId"};
     PojoLeftOuterJoin<TestPojo1, TestPojo3> pij = new PojoLeftOuterJoin<>(TestOutClass.class, leftKeys, rightKeys);
-
-    List<List<Map<String, Object>>> accu = pij.defaultAccumulatedValue();
-
+    List<Multimap<List<Object>, Object>> accu = pij.defaultAccumulatedValue();
     Assert.assertEquals(2, accu.size());
-
     accu = pij.accumulate(accu, new TestPojo1(1, "Josh"));
     accu = pij.accumulate(accu, new TestPojo1(2, "Bob"));
-
     accu = pij.accumulate2(accu, new TestPojo3(1, "NickJosh", 12));
     accu = pij.accumulate2(accu, new TestPojo3(3, "NickBob", 13));
 
-    Assert.assertEquals(2, pij.getOutput(accu).size());
-
-    Object o = pij.getOutput(accu).get(1);
+    List result = pij.getOutput(accu);
+    Assert.assertEquals(2, result.size());
+    Object o = result.get(0);
     Assert.assertTrue(o instanceof TestOutClass);
     TestOutClass testOutClass = (TestOutClass)o;
-    Assert.assertEquals(2, testOutClass.getUId());
-    Assert.assertEquals("Bob", testOutClass.getUName());
-    Assert.assertEquals(0, testOutClass.getAge());
+    int uId = testOutClass.getUId();
+    if (uId == 1) {
+      checkNameAge("Josh",12,testOutClass);
+      o = result.get(1);
+      Assert.assertTrue(o instanceof TestOutClass);
+      testOutClass = (TestOutClass)o;
+      uId = testOutClass.getUId();
+      Assert.assertEquals(2, testOutClass.getUId());
+      checkNameAge("Bob",0,testOutClass);
+    } else if (uId == 2) {
+      checkNameAge("Bob",0,testOutClass);
+      o = result.get(1);
+      Assert.assertTrue(o instanceof TestOutClass);
+      testOutClass = (TestOutClass)o;
+      uId = testOutClass.getUId();
+      Assert.assertEquals(1, testOutClass.getUId());
+      checkNameAge("Josh",12,testOutClass);
+    }
+  }
+
+  public void checkNameAge(String name, int age, TestOutClass testOutClass)
+  {
+    Assert.assertEquals(name, testOutClass.getUName());
+    Assert.assertEquals(age, testOutClass.getAge());
   }
 
   @Test
@@ -236,26 +256,36 @@ public class PojoOuterJoinTest
     String[] leftKeys = {"uId"};
     String[] rightKeys = {"uId"};
     PojoRightOuterJoin<TestPojo1, TestPojo3> pij = new PojoRightOuterJoin<>(TestOutClass.class, leftKeys, rightKeys);
-
-
-    List<List<Map<String, Object>>> accu = pij.defaultAccumulatedValue();
-
+    List<Multimap<List<Object>, Object>> accu = pij.defaultAccumulatedValue();
     Assert.assertEquals(2, accu.size());
-
     accu = pij.accumulate(accu, new TestPojo1(1, "Josh"));
     accu = pij.accumulate(accu, new TestPojo1(2, "Bob"));
-
     accu = pij.accumulate2(accu, new TestPojo3(1, "NickJosh", 12));
     accu = pij.accumulate2(accu, new TestPojo3(3, "NickBob", 13));
 
-    Assert.assertEquals(2, pij.getOutput(accu).size());
-
-    Object o = pij.getOutput(accu).get(1);
+    List result = pij.getOutput(accu);
+    Assert.assertEquals(2, result.size());
+    Object o = result.get(0);
     Assert.assertTrue(o instanceof TestOutClass);
     TestOutClass testOutClass = (TestOutClass)o;
-    Assert.assertEquals(3, testOutClass.getUId());
-    Assert.assertEquals(null, testOutClass.getUName());
-    Assert.assertEquals(13, testOutClass.getAge());
+    int uId = testOutClass.getUId();
+    if (uId == 1) {
+      checkNameAge("Josh",12,testOutClass);
+      o = result.get(1);
+      Assert.assertTrue(o instanceof TestOutClass);
+      testOutClass = (TestOutClass)o;
+      uId = testOutClass.getUId();
+      Assert.assertEquals(3, testOutClass.getUId());
+      checkNameAge(null,13,testOutClass);
+    } else if (uId == 3) {
+      checkNameAge(null,13,testOutClass);
+      o = result.get(1);
+      Assert.assertTrue(o instanceof TestOutClass);
+      testOutClass = (TestOutClass)o;
+      uId = testOutClass.getUId();
+      Assert.assertEquals(1, testOutClass.getUId());
+      checkNameAge("Josh",12,testOutClass);
+    }
   }
 
   @Test
@@ -264,25 +294,22 @@ public class PojoOuterJoinTest
     String[] leftKeys = {"uId"};
     String[] rightKeys = {"uId"};
     PojoFullOuterJoin<TestPojo1, TestPojo3> pij = new PojoFullOuterJoin<>(TestOutClass.class, leftKeys, rightKeys);
-
-
-    List<List<Map<String, Object>>> accu = pij.defaultAccumulatedValue();
-
+    List<Multimap<List<Object>, Object>> accu = pij.defaultAccumulatedValue();
     Assert.assertEquals(2, accu.size());
-
     accu = pij.accumulate(accu, new TestPojo1(1, "Josh"));
     accu = pij.accumulate(accu, new TestPojo1(2, "Bob"));
-
     accu = pij.accumulate2(accu, new TestPojo3(1, "NickJosh", 12));
     accu = pij.accumulate2(accu, new TestPojo3(3, "NickBob", 13));
 
     Assert.assertEquals(3, pij.getOutput(accu).size());
-
-    Object o = pij.getOutput(accu).get(1);
-    Assert.assertTrue(o instanceof TestOutClass);
-    TestOutClass testOutClass = (TestOutClass)o;
-    Assert.assertEquals(2, testOutClass.getUId());
-    Assert.assertEquals("Bob", testOutClass.getUName());
-    Assert.assertEquals(0, testOutClass.getAge());
+    Set<Integer> checkMap = new HashSet<>();
+    for ( int i = 0; i < 3; i++ ) {
+      Object o = pij.getOutput(accu).get(i);
+      Assert.assertTrue(o instanceof TestOutClass);
+      TestOutClass testOutClass = (TestOutClass)o;
+      int uId = testOutClass.getUId();
+      checkMap.add(uId);
+    }
+    Assert.assertEquals(3,checkMap.size());
   }
 }

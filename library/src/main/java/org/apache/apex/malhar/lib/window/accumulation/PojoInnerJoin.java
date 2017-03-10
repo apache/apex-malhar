@@ -18,9 +18,13 @@
  */
 package org.apache.apex.malhar.lib.window.accumulation;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
+import com.google.common.collect.Multimap;
+
+import com.datatorrent.lib.util.PojoUtils;
 
 /**
  * Inner join Accumulation for Pojo Streams.
@@ -56,7 +60,14 @@ public class PojoInnerJoin<InputT1, InputT2>
   }
 
   @Override
-  public void addNonMatchingResult(List result, Map requiredMap, Set nullFields)
+  public void addNonMatchingResult(Collection<Object> left, Map<String,PojoUtils.Getter> leftGettersStream, List<Object> result)
+  {
+    return;
+  }
+
+  @Override
+  public void addNonMatchingRightStream(Multimap<List<Object>, Object> rightStream,
+      Map<String,PojoUtils.Getter> rightGettersStream, List<Object> result)
   {
     return;
   }

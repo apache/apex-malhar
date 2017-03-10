@@ -25,6 +25,8 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.google.common.collect.Multimap;
+
 /**
  * Test for {@link PojoInnerJoin}.
  */
@@ -209,7 +211,7 @@ public class PojoInnerJoinTest
   {
     PojoInnerJoin<TestPojo1, TestPojo3> pij = new PojoInnerJoin<>(2, TestOutClass.class, "uId", "uId");
 
-    List<List<Map<String, Object>>> accu = pij.defaultAccumulatedValue();
+    List<Multimap<List<Object>, Object>> accu = pij.defaultAccumulatedValue();
 
     Assert.assertEquals(2, accu.size());
 
@@ -240,7 +242,7 @@ public class PojoInnerJoinTest
   {
     PojoInnerJoin<TestPojo1, TestPojo3> pij = new PojoInnerJoin<>(2, TestOutMultipleKeysClass.class, "uId", "uId", "uName", "uNickName");
 
-    List<List<Map<String, Object>>> accu = pij.defaultAccumulatedValue();
+    List<Multimap<List<Object>, Object>> accu = pij.defaultAccumulatedValue();
 
     Assert.assertEquals(2, accu.size());
 
@@ -267,7 +269,7 @@ public class PojoInnerJoinTest
     String[] rightKeys = {"uId", "uNickName"};
     PojoInnerJoin<TestPojo1, TestPojo3> pij = new PojoInnerJoin<>(TestOutMultipleKeysClass.class, leftKeys, rightKeys);
 
-    List<List<Map<String, Object>>> accu = pij.defaultAccumulatedValue();
+    List<Multimap<List<Object>, Object>> accu = pij.defaultAccumulatedValue();
 
     Assert.assertEquals(2, accu.size());
 
