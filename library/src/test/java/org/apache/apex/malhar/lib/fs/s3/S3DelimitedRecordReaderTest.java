@@ -107,7 +107,7 @@ public class S3DelimitedRecordReaderTest
       Attribute.AttributeMap.DefaultAttributeMap readerAttr = new Attribute.AttributeMap.DefaultAttributeMap();
       readerAttr.put(DAG.APPLICATION_ID, appId);
       readerAttr.put(Context.OperatorContext.SPIN_MILLIS, 10);
-      readerContext = new OperatorContextTestHelper.TestIdOperatorContext(1, readerAttr);
+      readerContext = OperatorContextTestHelper.MockOperatorContext.of(1, readerAttr);
 
       blockReader.setup(readerContext);
 

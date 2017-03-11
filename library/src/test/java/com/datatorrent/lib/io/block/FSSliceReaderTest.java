@@ -79,7 +79,7 @@ public class FSSliceReaderTest
       Attribute.AttributeMap.DefaultAttributeMap readerAttr = new Attribute.AttributeMap.DefaultAttributeMap();
       readerAttr.put(DAG.APPLICATION_ID, Long.toHexString(System.currentTimeMillis()));
       readerAttr.put(Context.OperatorContext.SPIN_MILLIS, 10);
-      readerContext = new OperatorContextTestHelper.TestIdOperatorContext(1, readerAttr);
+      readerContext = OperatorContextTestHelper.MockOperatorContext.of(1, readerAttr);
 
       blockReader.setup(readerContext);
 
@@ -172,7 +172,7 @@ public class FSSliceReaderTest
 
     FSTestReader reader = new FSTestReader();
     reader.setBasePath(testMeta.output);
-    reader.setup(new OperatorContextTestHelper.TestIdOperatorContext(1, readerAttr));
+    reader.setup(OperatorContextTestHelper.MockOperatorContext.of(1, readerAttr));
     Assert.assertEquals("Block Size", blockSize, (long)((ReaderContext.FixedBytesReaderContext)reader.getReaderContext()).getLength());
   }
 }

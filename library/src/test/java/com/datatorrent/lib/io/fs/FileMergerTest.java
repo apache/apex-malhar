@@ -97,7 +97,7 @@ public class FileMergerTest
       Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(DAG.DAGContext.APPLICATION_ID, description.getMethodName());
       attributes.put(DAGContext.APPLICATION_PATH, baseDir);
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+      context = OperatorContextTestHelper.MockOperatorContext.of(1, attributes);
 
       try {
         FileContext.getLocalFSFileContext().delete(new Path(new File(baseDir).getAbsolutePath()), true);

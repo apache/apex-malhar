@@ -86,7 +86,7 @@ public class FileSplitterBaseTest
       Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(Context.OperatorContext.SPIN_MILLIS, 500);
 
-      context = new OperatorContextTestHelper.TestIdOperatorContext(0, attributes);
+      context = OperatorContextTestHelper.MockOperatorContext.of(0, attributes);
 
       fileMetadataSink = new CollectorTestSink<>();
       TestUtils.setSink(fileSplitter.filesMetadataOutput, fileMetadataSink);

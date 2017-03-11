@@ -46,7 +46,7 @@ public class RedisInputOperatorTest
 
   public static class CollectorModule extends BaseOperator
   {
-    volatile static List<KeyValPair<String, String>> resultMap = new ArrayList<KeyValPair<String, String>>();
+    volatile static List<KeyValPair<String, String>> resultMap = new ArrayList<>();
     static long resultCount = 0;
 
     public final transient DefaultInputPort<KeyValPair<String, String>> inputPort = new DefaultInputPort<KeyValPair<String, String>>()
@@ -109,9 +109,9 @@ public class RedisInputOperatorTest
 
       lc.run();
 
-      Assert.assertTrue(CollectorModule.resultMap.contains(new KeyValPair<String, String>("test_abc", "789")));
-      Assert.assertTrue(CollectorModule.resultMap.contains(new KeyValPair<String, String>("test_def", "456")));
-      Assert.assertTrue(CollectorModule.resultMap.contains(new KeyValPair<String, String>("test_ghi", "123")));
+      Assert.assertTrue(CollectorModule.resultMap.contains(new KeyValPair<>("test_abc", "789")));
+      Assert.assertTrue(CollectorModule.resultMap.contains(new KeyValPair<>("test_def", "456")));
+      Assert.assertTrue(CollectorModule.resultMap.contains(new KeyValPair<>("test_ghi", "123")));
     } finally {
       for (KeyValPair<String, String> entry : CollectorModule.resultMap) {
         testStore.remove(entry.getKey());
@@ -140,10 +140,10 @@ public class RedisInputOperatorTest
     operator.setStore(operatorStore);
     operator.setScanCount(1);
     Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
-    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+    CollectorTestSink<Object> sink = new CollectorTestSink<>();
 
     operator.outputPort.setSink(sink);
-    OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+    OperatorContext context = OperatorContextTestHelper.MockOperatorContext.of(1, attributeMap);
 
     try {
       operator.setup(context);

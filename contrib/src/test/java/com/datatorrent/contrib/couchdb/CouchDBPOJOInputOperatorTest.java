@@ -70,12 +70,12 @@ public class CouchDBPOJOInputOperatorTest
     operatorTest.setOutputClass("com.datatorrent.contrib.couchdb.TestInputPOJO");
     operatorTest.setExpressionForDocId("id");
 
-    ArrayList<String> expressions = new ArrayList<String>();
+    ArrayList<String> expressions = new ArrayList<>();
     expressions.add("name");
     expressions.add("innerObj");
     expressions.add("age");
     operatorTest.setExpressions(expressions);
-    List<String> columns = new ArrayList<String>();
+    List<String> columns = new ArrayList<>();
     columns.add("name");
     columns.add("innerObj");
     columns.add("age");
@@ -86,7 +86,7 @@ public class CouchDBPOJOInputOperatorTest
     operatorTest.setViewName(CouchDBTestHelper.TEST_VIEW);
     operatorTest.setStartKey(testDocumentId1);
     operatorTest.outputPort.setSink(sink);
-    operatorTest.setup(new OperatorContextTestHelper.TestIdOperatorContext(2));
+    operatorTest.setup(OperatorContextTestHelper.MockOperatorContext.of(2));
 
     operatorTest.beginWindow(0);
     operatorTest.emitTuples();

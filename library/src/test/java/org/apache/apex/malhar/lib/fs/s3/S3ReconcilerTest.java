@@ -69,7 +69,7 @@ public class S3ReconcilerTest
       Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(DAG.DAGContext.APPLICATION_ID, description.getClassName());
       attributes.put(DAG.DAGContext.APPLICATION_PATH, outputPath);
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+      context = OperatorContextTestHelper.MockOperatorContext.of(1, attributes);
 
       underTest = new S3Reconciler();
       underTest.setAccessKey("");

@@ -87,7 +87,7 @@ public class AbstractFileOutputOperatorTest
   public static class FSTestWatcher extends TestInfo
   {
     public boolean writeToTmp = false;
-    public OperatorContextTestHelper.TestIdOperatorContext testOperatorContext;
+    public OperatorContextTestHelper.MockOperatorContext testOperatorContext;
 
     @Override
     protected void starting(Description description)
@@ -100,7 +100,7 @@ public class AbstractFileOutputOperatorTest
         attributeMap.put(Context.DAGContext.CHECKPOINT_WINDOW_COUNT, 60);
         attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
 
-        testOperatorContext = new OperatorContextTestHelper.TestIdOperatorContext(0, attributeMap);
+        testOperatorContext = OperatorContextTestHelper.MockOperatorContext.of(0, attributeMap);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -1495,7 +1495,7 @@ public class AbstractFileOutputOperatorTest
       writer.endWindow();
     }
     writer.committed(29);
-    Set<String> fileNames = new TreeSet<String>();
+    Set<String> fileNames = new TreeSet<>();
     fileNames.add(ODD_FILE + ".0");
     Collection<File> files = FileUtils.listFiles(dir, null, false);
     Assert.assertEquals("Number of part files", 1, files.size());
@@ -1594,8 +1594,8 @@ public class AbstractFileOutputOperatorTest
 
     // To get around the multi member gzip issue with openjdk
     // http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4691425
-    List<Long> evenOffsets = new ArrayList<Long>();
-    List<Long> oddOffsets = new ArrayList<Long>();
+    List<Long> evenOffsets = new ArrayList<>();
+    List<Long> oddOffsets = new ArrayList<>();
 
     writer.setFilePath(testMeta.getDir());
     writer.setAlwaysWriteToTmp(false);
@@ -1761,7 +1761,7 @@ public class AbstractFileOutputOperatorTest
     byte[] iv = "TestParam16bytes".getBytes();
     final IvParameterSpec ivps = new IvParameterSpec(iv);
     FilterStreamProvider.FilterChainStreamProvider<FilterOutputStream, OutputStream> chainStreamProvider
-        = new FilterStreamProvider.FilterChainStreamProvider<FilterOutputStream, OutputStream>();
+        = new FilterStreamProvider.FilterChainStreamProvider<>();
     chainStreamProvider.addStreamProvider(new FilterStreamCodec.GZipFilterStreamProvider());
 
     // The filter is to keep track of the offsets to handle multi member gzip issue with openjdk
@@ -1801,8 +1801,8 @@ public class AbstractFileOutputOperatorTest
     File evenFile = new File(testMeta.getDir(), EVEN_FILE);
     File oddFile = new File(testMeta.getDir(), ODD_FILE);
 
-    List<Long> evenOffsets = new ArrayList<Long>();
-    List<Long> oddOffsets = new ArrayList<Long>();
+    List<Long> evenOffsets = new ArrayList<>();
+    List<Long> oddOffsets = new ArrayList<>();
 
     writer.setFilePath(testMeta.getDir());
     writer.setAlwaysWriteToTmp(false);
@@ -1834,7 +1834,7 @@ public class AbstractFileOutputOperatorTest
 
   private Set<String> getFileNames(Collection<File> files)
   {
-    Set<String> filesNames = new TreeSet<String>();
+    Set<String> filesNames = new TreeSet<>();
     for (File file : files) {
       filesNames.add(file.getName());
     }

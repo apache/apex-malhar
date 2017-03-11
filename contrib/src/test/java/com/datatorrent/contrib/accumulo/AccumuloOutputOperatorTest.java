@@ -48,7 +48,7 @@ public class AccumuloOutputOperatorTest {
     atleastOper.getStore().setUserName("root");
     atleastOper.getStore().setPassword("pass");
 
-    atleastOper.setup(new OperatorContextTestHelper.TestIdOperatorContext(0));
+    atleastOper.setup(OperatorContextTestHelper.MockOperatorContext.of(0));
     atleastOper.beginWindow(0);
     AccumuloTuple a=new AccumuloTuple();
     a.setRow("john");a.setColFamily("colfam0");a.setColName("street");a.setColValue("patrick");

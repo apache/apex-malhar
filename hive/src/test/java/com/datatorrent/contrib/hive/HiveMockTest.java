@@ -204,7 +204,7 @@ public class HiveMockTest extends HiveTestService
   {
     HiveStore hiveStore = createStore(null);
     hiveStore.setFilepath(testdir);
-    ArrayList<String> hivePartitionColumns = new ArrayList<String>();
+    ArrayList<String> hivePartitionColumns = new ArrayList<>();
     hivePartitionColumns.add("dt");
     hiveInitializeDatabase(createStore(null));
     HiveOperator hiveOperator = new HiveOperator();
@@ -222,18 +222,18 @@ public class HiveMockTest extends HiveTestService
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
-        OPERATOR_ID, attributeMap);
+    OperatorContextTestHelper.MockOperatorContext context = OperatorContextTestHelper.MockOperatorContext
+        .of(OPERATOR_ID, attributeMap);
 
     fsRolling.setup(context);
     hiveOperator.setup(context);
     FilePartitionMapping mapping1 = new FilePartitionMapping();
     FilePartitionMapping mapping2 = new FilePartitionMapping();
     mapping1.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-10" + "/" + "0-transaction.out.part.0");
-    ArrayList<String> partitions1 = new ArrayList<String>();
+    ArrayList<String> partitions1 = new ArrayList<>();
     partitions1.add("2014-12-10");
     mapping1.setPartition(partitions1);
-    ArrayList<String> partitions2 = new ArrayList<String>();
+    ArrayList<String> partitions2 = new ArrayList<>();
     partitions2.add("2014-12-11");
     mapping2.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-11" + "/" + "0-transaction.out.part.0");
     mapping2.setPartition(partitions2);
@@ -289,9 +289,9 @@ public class HiveMockTest extends HiveTestService
   {
     HiveStore hiveStore = createStore(null);
     hiveStore.setFilepath(testdir);
-    ArrayList<String> hivePartitionColumns = new ArrayList<String>();
+    ArrayList<String> hivePartitionColumns = new ArrayList<>();
     hivePartitionColumns.add("dt");
-    ArrayList<String> hiveColumns = new ArrayList<String>();
+    ArrayList<String> hiveColumns = new ArrayList<>();
     hiveColumns.add("col1");
     hiveInitializePOJODatabase(createStore(null));
     HiveOperator hiveOperator = new HiveOperator();
@@ -302,8 +302,8 @@ public class HiveMockTest extends HiveTestService
     FSPojoToHiveOperator fsRolling = new FSPojoToHiveOperator();
     fsRolling.setFilePath(testdir);
     fsRolling.setHiveColumns(hiveColumns);
-    ArrayList<FIELD_TYPE> fieldtypes = new ArrayList<FIELD_TYPE>();
-    ArrayList<FIELD_TYPE> partitiontypes = new ArrayList<FIELD_TYPE>();
+    ArrayList<FIELD_TYPE> fieldtypes = new ArrayList<>();
+    ArrayList<FIELD_TYPE> partitiontypes = new ArrayList<>();
     fieldtypes.add(FIELD_TYPE.INTEGER);
     partitiontypes.add(FIELD_TYPE.STRING);
     fsRolling.setHiveColumnDataTypes(fieldtypes);
@@ -312,9 +312,9 @@ public class HiveMockTest extends HiveTestService
     //partitionColumnType.add(FIELD_TYPE.STRING);
     fsRolling.setHivePartitionColumns(hivePartitionColumns);
     // fsRolling.setHivePartitionColumnsDataTypes(partitionColumnType);
-    ArrayList<String> expressions = new ArrayList<String>();
+    ArrayList<String> expressions = new ArrayList<>();
     expressions.add("getId()");
-    ArrayList<String> expressionsPartitions = new ArrayList<String>();
+    ArrayList<String> expressionsPartitions = new ArrayList<>();
 
     expressionsPartitions.add("getDate()");
     short permission = 511;
@@ -327,18 +327,18 @@ public class HiveMockTest extends HiveTestService
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
-        OPERATOR_ID, attributeMap);
+    OperatorContextTestHelper.MockOperatorContext context = OperatorContextTestHelper.MockOperatorContext
+        .of(OPERATOR_ID, attributeMap);
 
     fsRolling.setup(context);
     hiveOperator.setup(context);
     FilePartitionMapping mapping1 = new FilePartitionMapping();
     FilePartitionMapping mapping2 = new FilePartitionMapping();
     mapping1.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-11" + "/" + "0-transaction.out.part.0");
-    ArrayList<String> partitions1 = new ArrayList<String>();
+    ArrayList<String> partitions1 = new ArrayList<>();
     partitions1.add("2014-12-11");
     mapping1.setPartition(partitions1);
-    ArrayList<String> partitions2 = new ArrayList<String>();
+    ArrayList<String> partitions2 = new ArrayList<>();
     partitions2.add("2014-12-12");
     mapping2.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-12" + "/" + "0-transaction.out.part.0");
     mapping2.setPartition(partitions2);
@@ -399,7 +399,7 @@ public class HiveMockTest extends HiveTestService
   {
     HiveStore hiveStore = createStore(null);
     hiveStore.setFilepath(testdir);
-    ArrayList<String> hivePartitionColumns = new ArrayList<String>();
+    ArrayList<String> hivePartitionColumns = new ArrayList<>();
     hivePartitionColumns.add("dt");
     hiveInitializeMapDatabase(createStore(null));
     HiveOperator hiveOperator = new HiveOperator();
@@ -417,19 +417,19 @@ public class HiveMockTest extends HiveTestService
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
-        OPERATOR_ID, attributeMap);
+    OperatorContextTestHelper.MockOperatorContext context = OperatorContextTestHelper.MockOperatorContext
+        .of(OPERATOR_ID, attributeMap);
 
     fsRolling.setup(context);
     hiveOperator.setup(context);
-    HashMap<String, Object> map = new HashMap<String, Object>();
+    HashMap<String, Object> map = new HashMap<>();
     FilePartitionMapping mapping1 = new FilePartitionMapping();
     FilePartitionMapping mapping2 = new FilePartitionMapping();
-    ArrayList<String> partitions1 = new ArrayList<String>();
+    ArrayList<String> partitions1 = new ArrayList<>();
     partitions1.add("2014-12-10");
     mapping1.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-10" + "/" + "0-transaction.out.part.0");
     mapping1.setPartition(partitions1);
-    ArrayList<String> partitions2 = new ArrayList<String>();
+    ArrayList<String> partitions2 = new ArrayList<>();
     partitions2.add("2014-12-11");
     mapping2.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-11" + "/" + "0-transaction.out.part.0");
     mapping2.setPartition(partitions2);
@@ -481,7 +481,7 @@ public class HiveMockTest extends HiveTestService
     HiveOperator outputOperator = new HiveOperator();
     HiveOperator newOp;
     outputOperator.setStore(hiveStore);
-    ArrayList<String> hivePartitionColumns = new ArrayList<String>();
+    ArrayList<String> hivePartitionColumns = new ArrayList<>();
     hivePartitionColumns.add("dt");
     FSRollingTestImpl fsRolling = new FSRollingTestImpl();
     hiveInitializeDatabase(createStore(null));
@@ -496,8 +496,8 @@ public class HiveMockTest extends HiveTestService
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
-        OPERATOR_ID, attributeMap);
+    OperatorContextTestHelper.MockOperatorContext context = OperatorContextTestHelper.MockOperatorContext
+        .of(OPERATOR_ID, attributeMap);
 
     fsRolling.setup(context);
 
@@ -506,14 +506,14 @@ public class HiveMockTest extends HiveTestService
     FilePartitionMapping mapping3 = new FilePartitionMapping();
     outputOperator.setup(context);
     mapping1.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-10" + "/" + "0-transaction.out.part.0");
-    ArrayList<String> partitions1 = new ArrayList<String>();
+    ArrayList<String> partitions1 = new ArrayList<>();
     partitions1.add("2014-12-10");
     mapping1.setPartition(partitions1);
     mapping2.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-11" + "/" + "0-transaction.out.part.0");
-    ArrayList<String> partitions2 = new ArrayList<String>();
+    ArrayList<String> partitions2 = new ArrayList<>();
     partitions2.add("2014-12-11");
     mapping2.setPartition(partitions2);
-    ArrayList<String> partitions3 = new ArrayList<String>();
+    ArrayList<String> partitions3 = new ArrayList<>();
     partitions3.add("2014-12-12");
     mapping3.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-12" + "/" + "0-transaction.out.part.0");
     mapping3.setPartition(partitions3);

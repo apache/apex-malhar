@@ -82,7 +82,7 @@ public class AbstractFileInputOperatorTest
       this.dir = "target/" + className + "/" + methodName;
       Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(Context.DAGContext.APPLICATION_PATH, dir);
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+      context = OperatorContextTestHelper.MockOperatorContext.of(1, attributes);
     }
 
     @Override
@@ -124,7 +124,7 @@ public class AbstractFileInputOperatorTest
 
     LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
 
-    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    CollectorTestSink<String> queryResults = new CollectorTestSink<>();
     @SuppressWarnings({"unchecked", "rawtypes"})
     CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
@@ -143,11 +143,11 @@ public class AbstractFileInputOperatorTest
 
     int expectedNumTuples = 4;
     if (!recursive) {
-      allLines = new HashSet<String>();
+      allLines = new HashSet<>();
       expectedNumTuples = 0;
     }
     Assert.assertEquals("number tuples", expectedNumTuples, queryResults.collectedTuples.size());
-    Assert.assertEquals("lines", allLines, new HashSet<String>(queryResults.collectedTuples));
+    Assert.assertEquals("lines", allLines, new HashSet<>(queryResults.collectedTuples));
 
   }
 
@@ -233,7 +233,7 @@ public class AbstractFileInputOperatorTest
       FileUtils.write(new File(testMeta.dir, "partition00" + file), "a\nb\nc\n");
     }
 
-    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    CollectorTestSink<String> queryResults = new CollectorTestSink<>();
     @SuppressWarnings({"unchecked", "rawtypes"})
     CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
@@ -337,7 +337,7 @@ public class AbstractFileInputOperatorTest
       FileUtils.write(new File(testMeta.dir, "partition00" + file), "a\nb\nc\n");
     }
 
-    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    CollectorTestSink<String> queryResults = new CollectorTestSink<>();
     @SuppressWarnings({"unchecked", "rawtypes"})
     CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
@@ -422,7 +422,7 @@ public class AbstractFileInputOperatorTest
       FileUtils.write(new File(testMeta.dir, "partition00" + file), "a\nb\nc\n");
     }
 
-    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    CollectorTestSink<String> queryResults = new CollectorTestSink<>();
     @SuppressWarnings({"unchecked", "rawtypes"})
     CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
@@ -500,7 +500,7 @@ public class AbstractFileInputOperatorTest
     oper.scanner = null;
     oper.failedFiles.add(new AbstractFileInputOperator.FailedFile(testFile.getAbsolutePath(), 1));
 
-    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    CollectorTestSink<String> queryResults = new CollectorTestSink<>();
     @SuppressWarnings({ "unchecked", "rawtypes" })
     CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
@@ -515,7 +515,7 @@ public class AbstractFileInputOperatorTest
     oper.teardown();
 
     Assert.assertEquals("number tuples", 4, queryResults.collectedTuples.size());
-    Assert.assertEquals("lines", allLines.subList(1, allLines.size()), new ArrayList<String>(queryResults.collectedTuples));
+    Assert.assertEquals("lines", allLines.subList(1, allLines.size()), new ArrayList<>(queryResults.collectedTuples));
   }
 
   @Test
@@ -535,7 +535,7 @@ public class AbstractFileInputOperatorTest
     oper.scanner = null;
     oper.unfinishedFiles.add(new AbstractFileInputOperator.FailedFile(testFile.getAbsolutePath(), 2));
 
-    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    CollectorTestSink<String> queryResults = new CollectorTestSink<>();
     @SuppressWarnings({"unchecked", "rawtypes"})
     CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
@@ -550,7 +550,7 @@ public class AbstractFileInputOperatorTest
     oper.teardown();
 
     Assert.assertEquals("number tuples", 3, queryResults.collectedTuples.size());
-    Assert.assertEquals("lines", allLines.subList(2, allLines.size()), new ArrayList<String>(queryResults.collectedTuples));
+    Assert.assertEquals("lines", allLines.subList(2, allLines.size()), new ArrayList<>(queryResults.collectedTuples));
   }
 
   @Test
@@ -570,7 +570,7 @@ public class AbstractFileInputOperatorTest
     oper.scanner = null;
     oper.pendingFiles.add(testFile.getAbsolutePath());
 
-    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    CollectorTestSink<String> queryResults = new CollectorTestSink<>();
     @SuppressWarnings({"unchecked", "rawtypes"})
     CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
@@ -585,7 +585,7 @@ public class AbstractFileInputOperatorTest
     oper.teardown();
 
     Assert.assertEquals("number tuples", 5, queryResults.collectedTuples.size());
-    Assert.assertEquals("lines", allLines, new ArrayList<String>(queryResults.collectedTuples));
+    Assert.assertEquals("lines", allLines, new ArrayList<>(queryResults.collectedTuples));
   }
 
   @Test
@@ -606,7 +606,7 @@ public class AbstractFileInputOperatorTest
     oper.currentFile = testFile.getAbsolutePath();
     oper.offset = 1;
 
-    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    CollectorTestSink<String> queryResults = new CollectorTestSink<>();
     @SuppressWarnings({"unchecked", "rawtypes"})
     CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
@@ -621,7 +621,7 @@ public class AbstractFileInputOperatorTest
     oper.teardown();
 
     Assert.assertEquals("number tuples", 4, queryResults.collectedTuples.size());
-    Assert.assertEquals("lines", allLines.subList(1, allLines.size()), new ArrayList<String>(queryResults.collectedTuples));
+    Assert.assertEquals("lines", allLines.subList(1, allLines.size()), new ArrayList<>(queryResults.collectedTuples));
   }
 
   @Test
@@ -645,7 +645,7 @@ public class AbstractFileInputOperatorTest
 
     oper.setWindowDataManager(manager);
 
-    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    CollectorTestSink<String> queryResults = new CollectorTestSink<>();
     TestUtils.setSink(oper.output, queryResults);
 
     oper.setDirectory(testMeta.dir);
@@ -694,7 +694,7 @@ public class AbstractFileInputOperatorTest
 
     oper.setWindowDataManager(manager);
 
-    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    CollectorTestSink<String> queryResults = new CollectorTestSink<>();
     TestUtils.setSink(oper.output, queryResults);
 
     oper.setDirectory(testMeta.dir);
@@ -738,7 +738,7 @@ public class AbstractFileInputOperatorTest
 
     oper.setWindowDataManager(manager);
 
-    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    CollectorTestSink<String> queryResults = new CollectorTestSink<>();
     @SuppressWarnings({"unchecked", "rawtypes"})
     CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
@@ -800,7 +800,7 @@ public class AbstractFileInputOperatorTest
 
     oper.setWindowDataManager(manager);
 
-    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    CollectorTestSink<String> queryResults = new CollectorTestSink<>();
     @SuppressWarnings({"unchecked", "rawtypes"})
     CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
@@ -897,7 +897,7 @@ public class AbstractFileInputOperatorTest
     LineByLineFileInputOperator checkPointOper = checkpoint(oper, bos);
 
     // start saving output
-    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    CollectorTestSink<String> queryResults = new CollectorTestSink<>();
     TestUtils.setSink(oper.output, queryResults);
 
     // emit f0l3, f0l4, and closeFile(f0) in the same window
@@ -1129,6 +1129,7 @@ public class AbstractFileInputOperatorTest
 
   private static class DirectoryScannerNew extends DirectoryScanner
   {
+    @Override
     public LinkedHashSet<Path> scan(FileSystem fs, Path filePath, Set<String> consumedFiles)
     {
       LinkedHashSet<Path> pathSet;

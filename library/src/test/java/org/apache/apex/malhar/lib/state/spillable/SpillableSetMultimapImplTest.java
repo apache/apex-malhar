@@ -261,7 +261,7 @@ public class SpillableSetMultimapImplTest
     attributes.put(DAG.APPLICATION_PATH, testMeta.applicationPath);
     attributes.put(Context.OperatorContext.ACTIVATION_WINDOW_ID, activationWindow);
     Context.OperatorContext context =
-        new OperatorContextTestHelper.TestIdOperatorContext(testMeta.operatorContext.getId(), attributes);
+        OperatorContextTestHelper.MockOperatorContext.of(testMeta.operatorContext.getId(), attributes);
 
     store.setup(context);
     map.setup(context);
@@ -298,7 +298,7 @@ public class SpillableSetMultimapImplTest
     Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_PATH, testMeta.applicationPath);
     Context.OperatorContext context =
-        new OperatorContextTestHelper.TestIdOperatorContext(testMeta.operatorContext.getId(), attributes);
+        OperatorContextTestHelper.MockOperatorContext.of(testMeta.operatorContext.getId(), attributes);
     store.setup(context);
     multimap.setup(context);
 

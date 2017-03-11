@@ -143,16 +143,16 @@ public class AerospikeTestUtils {
     return result;
   }
 
-  static OperatorContextTestHelper.TestIdOperatorContext getOperatorContext(final String app_id)
+  static OperatorContextTestHelper.MockOperatorContext getOperatorContext(final String app_id)
   {
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, app_id);
-    return new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    return OperatorContextTestHelper.MockOperatorContext.of(OPERATOR_ID, attributeMap);
   }
 
   static ArrayList<String> getExpressions()
   {
-    ArrayList<String> result = new ArrayList<String>();
+    ArrayList<String> result = new ArrayList<>();
     result.add("getKey()");
     result.add("getBins()");
     return result;
@@ -160,7 +160,7 @@ public class AerospikeTestUtils {
 
   static List<TestPOJO> getEvents()
   {
-    List<TestPOJO> result = new ArrayList<TestPOJO>();
+    List<TestPOJO> result = new ArrayList<>();
     for (int i = 0; i < NUM_TUPLES; i++) {
       result.add(new TestPOJO(i));
     }
@@ -215,7 +215,7 @@ public class AerospikeTestUtils {
     }
 
     public List<Bin> getBins() {
-      List<Bin> list = new ArrayList<Bin>();
+      List<Bin> list = new ArrayList<>();
       list.add(new Bin(ID, id));
       list.add(new Bin(VAL, value));
       return list;

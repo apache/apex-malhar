@@ -320,7 +320,7 @@ public class FSWindowDataManagerTest
   private Pair<Context.OperatorContext, FSWindowDataManager> createManagerAndContextFor(int operatorId)
   {
     FSWindowDataManager dataManager = new FSWindowDataManager();
-    Context.OperatorContext context =  new OperatorContextTestHelper.TestIdOperatorContext(operatorId,
+    Context.OperatorContext context =  OperatorContextTestHelper.MockOperatorContext.of(operatorId,
         testMeta.attributes);
 
     return new Pair<>(context, dataManager);

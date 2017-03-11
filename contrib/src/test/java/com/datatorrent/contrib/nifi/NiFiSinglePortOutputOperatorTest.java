@@ -64,7 +64,7 @@ public class NiFiSinglePortOutputOperatorTest
     Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_PATH, windowDataDir);
 
-    context = new OperatorContextTestHelper.TestIdOperatorContext(12345, attributeMap);
+    context = OperatorContextTestHelper.MockOperatorContext.of(12345, attributeMap);
 
     windowDataManager = new FSWindowDataManager();
 

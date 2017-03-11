@@ -111,7 +111,7 @@ public class FileSplitterInputTest
       attributes.put(Context.DAGContext.APPLICATION_PATH,
           "target/" + className + "/" + methodName + "/" + Long.toHexString(System.currentTimeMillis()));
 
-      context = new OperatorContextTestHelper.TestIdOperatorContext(0, attributes);
+      context = OperatorContextTestHelper.MockOperatorContext.of(0, attributes);
       fileMetadataSink = new CollectorTestSink<>();
       blockMetadataSink = new CollectorTestSink<>();
       resetSinks();
@@ -648,7 +648,7 @@ public class FileSplitterInputTest
     fout.close();
     String files = testMeta.scanner.getFiles();
     files = files.concat("," + subDir.getAbsolutePath());
-    List<String> expectedFiles = new ArrayList<String>();
+    List<String> expectedFiles = new ArrayList<>();
     expectedFiles.addAll(testMeta.filePaths);
     expectedFiles.add(subDir.getAbsolutePath());
     expectedFiles.add(file.getAbsolutePath());

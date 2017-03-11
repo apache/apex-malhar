@@ -93,7 +93,7 @@ public class CassandraLookupCacheBackedOperatorTest extends JDBCLookupCacheBacke
 
       lookupCacheBackedOperator.output.setSink(sink);
 
-      Context.OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(7);
+      Context.OperatorContext context = OperatorContextTestHelper.MockOperatorContext.of(7);
       lookupCacheBackedOperator.setup(context);
     }
     catch (Exception ex) {

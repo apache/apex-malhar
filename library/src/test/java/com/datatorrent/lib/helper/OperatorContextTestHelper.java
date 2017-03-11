@@ -23,8 +23,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 
-import javax.annotation.Nonnull;
-
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
@@ -44,22 +42,26 @@ public class OperatorContextTestHelper
 
   };
 
-  public static class TestIdOperatorContext extends TestContext implements OperatorContext
+  public abstract static class MockOperatorContext extends TestContext implements OperatorContext
   {
     int id;
     com.datatorrent.api.Attribute.AttributeMap attributes;
 
-    public TestIdOperatorContext(int id)
+    public static MockOperatorContext of(int id)
     {
-      this.id = id;
+      return of(id, null);
     }
 
-    public TestIdOperatorContext(int id, @Nonnull com.datatorrent.api.Attribute.AttributeMap map)
+    public static MockOperatorContext of(int id, com.datatorrent.api.Attribute.AttributeMap map)
     {
-      this.id = id;
-      this.attributes = map;
+      //MockOperatorContext context = Mockito.mock(MockOperatorContext.class, Mockito.CALLS_REAL_METHODS);
+      MockOperatorContext context = new MockOperatorContext() {};
+      context.id = id;
+      context.attributes = map;
+      return context;
     }
 
+    @Override
     public com.datatorrent.api.Attribute.AttributeMap getAttributes()
     {
       return attributes;
@@ -78,7 +80,6 @@ public class OperatorContextTestHelper
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T> T getValue(Attribute<T> key)
     {
       T value = attributes.get(key);

@@ -155,7 +155,7 @@ public class AbstractMemsqlInputOperatorTest
     inputOperator.setTablename(FQ_TABLE);
     inputOperator.setPrimaryKeyCol(INDEX_COLUMN);
     inputOperator.setTablename(FQ_TABLE);
-    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+    CollectorTestSink<Object> sink = new CollectorTestSink<>();
     inputOperator.outputPort.setSink(sink);
 
     inputOperator.setup(null);
@@ -181,23 +181,23 @@ public class AbstractMemsqlInputOperatorTest
     populateDatabase(createStore(null, true));
     Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContextTestHelper.MockOperatorContext context = OperatorContextTestHelper.MockOperatorContext.of(OPERATOR_ID, attributeMap);
     MemsqlPOJOInputOperator inputOperator = new MemsqlPOJOInputOperator();
     createStore((MemsqlStore)inputOperator.getStore(), true);
     inputOperator.setBatchSize(10);
     inputOperator.setTablename(FQ_TABLE);
     inputOperator.setPrimaryKeyColumn(INDEX_COLUMN);
-    ArrayList<String> expressions = new ArrayList<String>();
+    ArrayList<String> expressions = new ArrayList<>();
     expressions.add("id");
     expressions.add("name");
     inputOperator.setExpressions(expressions);
-    ArrayList<String> columns = new ArrayList<String>();
+    ArrayList<String> columns = new ArrayList<>();
     columns.add("data_index");
     columns.add("data2");
     inputOperator.setColumns(columns);
     inputOperator.setQuery("select * from " + FQ_TABLE +";");
     inputOperator.setOutputClass("com.datatorrent.contrib.memsql.TestInputPojo");
-    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+    CollectorTestSink<Object> sink = new CollectorTestSink<>();
     inputOperator.outputPort.setSink(sink);
 
     inputOperator.setup(context);

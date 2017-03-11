@@ -71,14 +71,14 @@ public class FileStitcherTest
       super.starting(description);
       outputPath = new File("target/" + description.getClassName() + "/" + description.getMethodName()).getPath();
 
-      oper = new FileStitcher<OutputFileMetadata>();
+      oper = new FileStitcher<>();
       oper.setFilePath(outputPath);
       String appDirectory = outputPath;
 
       Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(DAG.DAGContext.APPLICATION_ID, description.getClassName());
       attributes.put(DAG.DAGContext.APPLICATION_PATH, appDirectory);
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+      context = OperatorContextTestHelper.MockOperatorContext.of(1, attributes);
 
       oper.setup(context);
 

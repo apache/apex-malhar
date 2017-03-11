@@ -71,13 +71,13 @@ public class SplunkInputOperatorTest
 
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContextTestHelper.MockOperatorContext context = OperatorContextTestHelper.MockOperatorContext.of(OPERATOR_ID, attributeMap);
 
     TestInputOperator inputOperator = new TestInputOperator();
     inputOperator.setStore(store);
     inputOperator.setEarliestTime("-1000h");
     inputOperator.setLatestTime("now");
-    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+    CollectorTestSink<Object> sink = new CollectorTestSink<>();
     inputOperator.outputPort.setSink(sink);
 
     inputOperator.setup(context);

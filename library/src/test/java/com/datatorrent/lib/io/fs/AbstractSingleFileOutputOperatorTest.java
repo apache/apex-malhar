@@ -43,8 +43,8 @@ public class AbstractSingleFileOutputOperatorTest
   @Rule
   public TestInfo testMeta = new PrivateTestWatcher();
 
-  public static OperatorContextTestHelper.TestIdOperatorContext testOperatorContext =
-      new OperatorContextTestHelper.TestIdOperatorContext(0);
+  public static OperatorContextTestHelper.MockOperatorContext testOperatorContext =
+      OperatorContextTestHelper.MockOperatorContext.of(0);
 
   private static SimpleFileOutputOperator writer;
 

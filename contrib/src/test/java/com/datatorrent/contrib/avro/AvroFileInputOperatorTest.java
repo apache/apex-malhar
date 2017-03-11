@@ -76,11 +76,11 @@ public class AvroFileInputOperatorTest
   private static final String OTHER_FILE = "/tmp/simpleorder2.avro";
   private static final String ERROR_FILE = "/tmp/errorFile.avro";
 
-  CollectorTestSink<Object> output = new CollectorTestSink<Object>();
+  CollectorTestSink<Object> output = new CollectorTestSink<>();
 
-  CollectorTestSink<Object> completedFilesPort = new CollectorTestSink<Object>();
+  CollectorTestSink<Object> completedFilesPort = new CollectorTestSink<>();
 
-  CollectorTestSink<Object> errorRecordsPort = new CollectorTestSink<Object>();
+  CollectorTestSink<Object> errorRecordsPort = new CollectorTestSink<>();
 
   AvroFileInputOperator avroFileInput = new AvroFileInputOperator();
 
@@ -100,7 +100,7 @@ public class AvroFileInputOperatorTest
       this.dir = "target/" + className + "/" + methodName;
       Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(Context.DAGContext.APPLICATION_PATH, dir);
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+      context = OperatorContextTestHelper.MockOperatorContext.of(1, attributes);
       Attribute.AttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();
       portAttributes.put(Context.PortContext.TUPLE_CLASS, SimpleOrder.class);
       portContext = new TestPortContext(portAttributes);
@@ -237,10 +237,10 @@ public class AvroFileInputOperatorTest
   private void writeAvroFile(File outputFile) throws IOException
   {
 
-    DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<GenericRecord>(
+    DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(
         new Schema.Parser().parse(AVRO_SCHEMA));
 
-    DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<GenericRecord>(datumWriter);
+    DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter);
     dataFileWriter.create(new Schema.Parser().parse(AVRO_SCHEMA), outputFile);
 
     for (GenericRecord record : recordList) {

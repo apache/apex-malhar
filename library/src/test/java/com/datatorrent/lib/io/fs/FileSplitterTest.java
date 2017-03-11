@@ -114,7 +114,7 @@ public class FileSplitterTest
       Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(Context.DAGContext.APPLICATION_PATH, dataDirectory);
 
-      context = new OperatorContextTestHelper.TestIdOperatorContext(0, attributes);
+      context = OperatorContextTestHelper.MockOperatorContext.of(0, attributes);
       fileSplitter.setup(context);
 
       fileMetadataSink = new CollectorTestSink<>();

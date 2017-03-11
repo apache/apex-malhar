@@ -51,8 +51,8 @@ public class AbstractWindowFileOutputOperatorTest
 
   }
 
-  public static OperatorContextTestHelper.TestIdOperatorContext testOperatorContext =
-      new OperatorContextTestHelper.TestIdOperatorContext(0);
+  public static OperatorContextTestHelper.MockOperatorContext testOperatorContext =
+      OperatorContextTestHelper.MockOperatorContext.of(0);
 
   public static class WindowFileOutputOperatorString extends AbstractWindowFileOutputOperator<String>
   {

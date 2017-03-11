@@ -195,10 +195,10 @@ public class RabbitMQInputOperatorTest
     operator.setExchangeType("fanout");
 
     Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
-    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+    CollectorTestSink<Object> sink = new CollectorTestSink<>();
 
     operator.outputPort.setSink(sink);
-    OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+    OperatorContext context = OperatorContextTestHelper.MockOperatorContext.of(1, attributeMap);
 
     operator.setup(context);
     operator.activate(context);

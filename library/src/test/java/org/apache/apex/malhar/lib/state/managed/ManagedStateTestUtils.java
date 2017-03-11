@@ -116,13 +116,13 @@ public class ManagedStateTestUtils
   {
     Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
-    return new OperatorContextTestHelper.TestIdOperatorContext(operatorId, attributes);
+    return OperatorContextTestHelper.MockOperatorContext.of(operatorId, attributes);
   }
 
   public static Context.OperatorContext getOperatorContext(int operatorId)
   {
     Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
-    return new OperatorContextTestHelper.TestIdOperatorContext(operatorId, attributes);
+    return OperatorContextTestHelper.MockOperatorContext.of(operatorId, attributes);
   }
 
   private static final transient Logger LOG = LoggerFactory.getLogger(ManagedStateTestUtils.class);

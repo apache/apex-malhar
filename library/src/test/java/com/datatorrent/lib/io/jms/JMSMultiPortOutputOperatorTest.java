@@ -36,7 +36,7 @@ import org.apache.commons.io.FileUtils;
 import com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.helper.OperatorContextTestHelper.TestIdOperatorContext;
+import com.datatorrent.lib.helper.OperatorContextTestHelper.MockOperatorContext;
 import com.datatorrent.lib.util.ActiveMQMultiTypeMessageListener;
 
 /**
@@ -52,7 +52,7 @@ public class JMSMultiPortOutputOperatorTest extends JMSTestBase
   public static final String APP_ID = "appId";
   public static final int OPERATOR_ID = 1;
   public JMSMultiPortOutputOperator outputOperator;
-  public static  OperatorContextTestHelper.TestIdOperatorContext testOperatorContext;
+  public static  OperatorContextTestHelper.MockOperatorContext testOperatorContext;
   public static final int HALF_BATCH_SIZE = 5;
   public static final int BATCH_SIZE = HALF_BATCH_SIZE * 2;
   public  final Random random = new Random();
@@ -65,7 +65,7 @@ public class JMSMultiPortOutputOperatorTest extends JMSTestBase
       logger.debug("Starting test {}", description.getMethodName());
       DefaultAttributeMap attributes = new DefaultAttributeMap();
       attributes.put(DAG.APPLICATION_ID, APP_ID);
-      testOperatorContext = new TestIdOperatorContext(OPERATOR_ID, attributes);
+      testOperatorContext = MockOperatorContext.of(OPERATOR_ID, attributes);
 
       try {
         FileUtils.deleteDirectory(new File(FSPsuedoTransactionableStore.DEFAULT_RECOVERY_DIRECTORY));
@@ -128,7 +128,7 @@ public class JMSMultiPortOutputOperatorTest extends JMSTestBase
       String tuple = "testString " + (++i);
       node.inputStringTypePort.process(tuple);
       node.inputObjectPort.process(i);
-      Map<String,Integer> map = new HashMap<String, Integer>();
+      Map<String,Integer> map = new HashMap<>();
       map.put(tuple, i);
       node.inputMapPort.process(map);
       node.inputByteArrayPort.process(byteArray);
@@ -148,7 +148,7 @@ public class JMSMultiPortOutputOperatorTest extends JMSTestBase
     Assert.assertEquals("First tuple", "testString 1", listener.receivedData.get(1));
     Assert.assertEquals("Second Tuple",1, listener.receivedData.get(2));
     Map<String,Object> testmap = (HashMap<String,Object>)listener.receivedData.get(3);
-    Map<String,Integer> map = new HashMap<String, Integer>();
+    Map<String,Integer> map = new HashMap<>();
     map.put("testString 1", 1);
     Assert.assertEquals("Third Tuple",map,testmap);
     Assert.assertArrayEquals("Fourth tuple",byteArray, (byte[])listener.receivedData.get(4));

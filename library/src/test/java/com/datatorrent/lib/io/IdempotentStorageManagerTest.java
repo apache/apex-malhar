@@ -68,7 +68,7 @@ public class IdempotentStorageManagerTest
 
       Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(DAG.APPLICATION_PATH, applicationPath);
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+      context = OperatorContextTestHelper.MockOperatorContext.of(1, attributes);
 
       storageManager.setup(context);
     }

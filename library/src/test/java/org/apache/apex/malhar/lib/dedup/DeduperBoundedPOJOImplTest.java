@@ -64,15 +64,15 @@ public class DeduperBoundedPOJOImplTest
     attributes.put(DAG.APPLICATION_ID, APP_ID);
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
     attributes.put(DAG.InputPortMeta.TUPLE_CLASS, TestPojo.class);
-    OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributes);
+    OperatorContext context = OperatorContextTestHelper.MockOperatorContext.of(OPERATOR_ID, attributes);
     deduper.setup(context);
     deduper.input.setup(new PortContext(attributes, context));
     deduper.activate(context);
-    CollectorTestSink<TestPojo> uniqueSink = new CollectorTestSink<TestPojo>();
+    CollectorTestSink<TestPojo> uniqueSink = new CollectorTestSink<>();
     TestUtils.setSink(deduper.unique, uniqueSink);
-    CollectorTestSink<TestPojo> duplicateSink = new CollectorTestSink<TestPojo>();
+    CollectorTestSink<TestPojo> duplicateSink = new CollectorTestSink<>();
     TestUtils.setSink(deduper.duplicate, duplicateSink);
-    CollectorTestSink<TestPojo> expiredSink = new CollectorTestSink<TestPojo>();
+    CollectorTestSink<TestPojo> expiredSink = new CollectorTestSink<>();
     TestUtils.setSink(deduper.expired, expiredSink);
 
     deduper.beginWindow(0);

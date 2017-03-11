@@ -49,7 +49,7 @@ public class HBaseCsvMappingPutOperatorTest {
       String s1 = "gillett,santaclara,cali,milindas";
       String s2= "aventferry,raleigh,nc,milind";
       csvMappingPutOperator.setMappingString("colfam0.street,colfam0.city,colfam0.state,row");
-      csvMappingPutOperator.setup(new OperatorContextTestHelper.TestIdOperatorContext(0));
+      csvMappingPutOperator.setup(OperatorContextTestHelper.MockOperatorContext.of(0));
       csvMappingPutOperator.beginWindow(0);
       csvMappingPutOperator.input.process(s);
       csvMappingPutOperator.input.process(s1);

@@ -142,7 +142,7 @@ public class ManagedTimeStateImplTest
     Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_PATH, testMeta.applicationPath);
     attributes.put(Context.OperatorContext.ACTIVATION_WINDOW_ID, 0L);
-    Context.OperatorContext operatorContext = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+    Context.OperatorContext operatorContext = OperatorContextTestHelper.MockOperatorContext.of(1, attributes);
 
     testMeta.managedState.setup(operatorContext);
 

@@ -127,7 +127,7 @@ public class AerospikeOperatorTest {
   public void TestAerospikeOutputOperator() {
 
     AerospikeTransactionalStore transactionalStore = getTransactionalStore();
-    OperatorContextTestHelper.TestIdOperatorContext context = getOperatorContext(APP_ID);
+    OperatorContextTestHelper.MockOperatorContext context = getOperatorContext(APP_ID);
     TestOutputOperator outputOperator = new TestOutputOperator();
 
     outputOperator.setStore(transactionalStore);
@@ -151,7 +151,7 @@ public class AerospikeOperatorTest {
   public void TestAerospikeInputOperator() {
 
     AerospikeStore store = getStore();
-    OperatorContextTestHelper.TestIdOperatorContext context = getOperatorContext(APP_ID);
+    OperatorContextTestHelper.MockOperatorContext context = getOperatorContext(APP_ID);
     TestInputOperator inputOperator = new TestInputOperator();
 
     inputOperator.setStore(store);

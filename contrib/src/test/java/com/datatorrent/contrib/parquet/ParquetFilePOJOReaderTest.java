@@ -73,7 +73,7 @@ public class ParquetFilePOJOReaderTest
       + "required INT32 event_id;" + "required BINARY org_id (UTF8);" + "required INT64 long_id;"
       + "optional BOOLEAN css_file_loaded;" + "optional FLOAT float_val;" + "optional DOUBLE double_val;}";
 
-  CollectorTestSink<Object> outputSink = new CollectorTestSink<Object>();
+  CollectorTestSink<Object> outputSink = new CollectorTestSink<>();
   ParquetFilePOJOReader parquetFilePOJOReader = new ParquetFilePOJOReader();
 
   public static class TestMeta extends TestWatcher
@@ -92,7 +92,7 @@ public class ParquetFilePOJOReaderTest
       operAttributes.put(Context.DAGContext.APPLICATION_PATH, dir);
       Attribute.AttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();
       portAttributes.put(Context.PortContext.TUPLE_CLASS, EventRecord.class);
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, operAttributes);
+      context = OperatorContextTestHelper.MockOperatorContext.of(1, operAttributes);
       portContext = new TestPortContext(portAttributes);
     }
 
@@ -505,7 +505,7 @@ public class ParquetFilePOJOReaderTest
     public ParquetPOJOWriter(Path file, MessageType schema, Class klass, CompressionCodecName codecName,
         boolean enableDictionary) throws IOException
     {
-      super(file, (WriteSupport<Object>)new POJOWriteSupport(schema, klass), codecName, DEFAULT_BLOCK_SIZE,
+      super(file, new POJOWriteSupport(schema, klass), codecName, DEFAULT_BLOCK_SIZE,
           DEFAULT_PAGE_SIZE, enableDictionary, false);
     }
 
@@ -529,7 +529,7 @@ public class ParquetFilePOJOReaderTest
 
     private void init()
     {
-      keyMethodMap = new ArrayList<Getter>();
+      keyMethodMap = new ArrayList<>();
       for (int i = 0; i < cols.size(); i++) {
         try {
           keyMethodMap.add(generateGettersForField(klass, cols.get(i).getPath()[0]));

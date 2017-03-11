@@ -71,7 +71,7 @@ public class FTPStringInputOperatorTest
 
       ftpOperator.setDirectory(homeDirectory.getPath());
       ftpOperator.setup(
-          new OperatorContextTestHelper.TestIdOperatorContext(11, new Attribute.AttributeMap.DefaultAttributeMap()));
+          OperatorContextTestHelper.MockOperatorContext.of(11, new Attribute.AttributeMap.DefaultAttributeMap()));
 
       sink = new CollectorTestSink<>();
       ftpOperator.output.setSink(sink);

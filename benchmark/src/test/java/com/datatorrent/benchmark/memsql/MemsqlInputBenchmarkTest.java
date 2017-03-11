@@ -77,8 +77,8 @@ public class MemsqlInputBenchmarkTest
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context =
-        new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContextTestHelper.MockOperatorContext context =
+        OperatorContextTestHelper.MockOperatorContext.of(OPERATOR_ID, attributeMap);
 
     long seedSize = conf.getLong("dt.seedSize", SEED_SIZE);
 

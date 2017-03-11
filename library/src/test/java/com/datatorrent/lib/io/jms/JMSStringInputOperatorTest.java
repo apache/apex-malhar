@@ -73,7 +73,7 @@ public class JMSStringInputOperatorTest
       attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
       attributeMap.put(Context.DAGContext.APPLICATION_PATH, baseDir);
 
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+      context = OperatorContextTestHelper.MockOperatorContext.of(1, attributeMap);
       operator = new JMSStringInputOperator();
       operator.setSubject("TEST.FOO");
       operator.getConnectionFactoryProperties().put(JMSTestBase.AMQ_BROKER_URL, "vm://localhost");
