@@ -50,7 +50,7 @@ public class AbstractFileInputOperatorFailureHandlingTest
 
   public static class TestFileInputOperator extends AbstractFileInputOperator<String>
   {
-    public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
+    public final transient DefaultOutputPort<String> output = new DefaultOutputPort<>();
     private transient BufferedReader br = null;
     int count = 0;
 
@@ -116,7 +116,7 @@ public class AbstractFileInputOperatorFailureHandlingTest
 
     TestFileInputOperator oper = new TestFileInputOperator();
 
-    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    CollectorTestSink<String> queryResults = new CollectorTestSink<>();
     @SuppressWarnings({"unchecked", "rawtypes"})
     CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
     oper.output.setSink(sink);
@@ -125,7 +125,7 @@ public class AbstractFileInputOperatorFailureHandlingTest
     oper.getScanner().setFilePatternRegexp(".*file[\\d]");
 
     oper.setup(
-        new OperatorContextTestHelper.TestIdOperatorContext(1, new Attribute.AttributeMap.DefaultAttributeMap()));
+        OperatorContextTestHelper.MockOperatorContext.of(1, new Attribute.AttributeMap.DefaultAttributeMap()));
     for (long wid = 0; wid < 1000; wid++) {
       oper.beginWindow(wid);
       oper.emitTuples();
@@ -134,7 +134,7 @@ public class AbstractFileInputOperatorFailureHandlingTest
     oper.teardown();
 
     Assert.assertEquals("number tuples", 100, queryResults.collectedTuples.size());
-    Assert.assertEquals("lines", allLines, new HashSet<String>(queryResults.collectedTuples));
+    Assert.assertEquals("lines", allLines, new HashSet<>(queryResults.collectedTuples));
     TestUtils.deleteTargetTestClassFolder(testMeta.desc);
 
   }

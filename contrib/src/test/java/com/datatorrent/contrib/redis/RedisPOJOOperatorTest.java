@@ -93,7 +93,7 @@ public class RedisPOJOOperatorTest
 
     RedisPOJOOutputOperator outputOperator = new RedisPOJOOutputOperator();
 
-    ArrayList<FieldInfo> fields = new ArrayList<FieldInfo>();
+    ArrayList<FieldInfo> fields = new ArrayList<>();
 
     fields.add(new FieldInfo("column1", "intValue", SupportType.INTEGER));
     fields.add(new FieldInfo("column2", "getStringValue()", SupportType.STRING));
@@ -105,7 +105,7 @@ public class RedisPOJOOperatorTest
       attributes.put(DAG.APPLICATION_ID, appId);
 
       outputOperator.setStore(operatorStore);
-      outputOperator.setup(new OperatorContextTestHelper.TestIdOperatorContext(operatorId, attributes));
+      outputOperator.setup(OperatorContextTestHelper.MockOperatorContext.of(operatorId, attributes));
       outputOperator.beginWindow(101);
 
       KeyValPair<String, Object> keyVal = new KeyValPair<String, Object>("test_abc1", new TestClass(1, "abc"));
@@ -129,7 +129,7 @@ public class RedisPOJOOperatorTest
 
   public static class ObjectCollectorModule extends BaseOperator
   {
-    volatile static Map<String, Object> resultMap = new HashMap<String, Object>();
+    volatile static Map<String, Object> resultMap = new HashMap<>();
     static long resultCount = 0;
 
     public final transient DefaultInputPort<KeyValPair<String, Object>> inputPort = new DefaultInputPort<KeyValPair<String, Object>>()
@@ -156,15 +156,15 @@ public class RedisPOJOOperatorTest
     ScanParams params = new ScanParams();
     params.count(100);
 
-    Map<String, String> value = new HashMap<String, String>();
+    Map<String, String> value = new HashMap<>();
     value.put("Column1", "abc");
     value.put("Column2", "1");
 
-    Map<String, String> value1 = new HashMap<String, String>();
+    Map<String, String> value1 = new HashMap<>();
     value1.put("Column1", "def");
     value1.put("Column2", "2");
 
-    Map<String, String> value2 = new HashMap<String, String>();
+    Map<String, String> value2 = new HashMap<>();
     value2.put("Column1", "ghi");
     value2.put("Column2", "3");
 
@@ -179,7 +179,7 @@ public class RedisPOJOOperatorTest
       RedisPOJOInputOperator inputOperator = dag.addOperator("input", new RedisPOJOInputOperator());
       final ObjectCollectorModule collector = dag.addOperator("collector", new ObjectCollectorModule());
 
-      ArrayList<FieldInfo> fields = new ArrayList<FieldInfo>();
+      ArrayList<FieldInfo> fields = new ArrayList<>();
 
       fields.add(new FieldInfo("Column1", "stringValue", SupportType.STRING));
       fields.add(new FieldInfo("Column2", "intValue", SupportType.INTEGER));

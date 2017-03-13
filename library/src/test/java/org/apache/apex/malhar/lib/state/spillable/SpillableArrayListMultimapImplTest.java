@@ -65,7 +65,7 @@ public class SpillableArrayListMultimapImplTest
   public void simpleMultiKeyTestHelper(SpillableStateStore store)
   {
     SpillableArrayListMultimapImpl<String, String> map =
-        new SpillableArrayListMultimapImpl<String, String>(store, ID1, 0L, new StringSerde(),
+        new SpillableArrayListMultimapImpl<>(store, ID1, 0L, new StringSerde(),
         new StringSerde());
 
     store.setup(testMeta.operatorContext);
@@ -317,7 +317,7 @@ public class SpillableArrayListMultimapImplTest
     attributes.put(DAG.APPLICATION_PATH, testMeta.applicationPath);
     attributes.put(Context.OperatorContext.ACTIVATION_WINDOW_ID, activationWindow);
     Context.OperatorContext context =
-        new OperatorContextTestHelper.TestIdOperatorContext(testMeta.operatorContext.getId(), attributes);
+        OperatorContextTestHelper.MockOperatorContext.of(testMeta.operatorContext.getId(), attributes);
 
     store.setup(context);
     map.setup(context);
@@ -359,7 +359,7 @@ public class SpillableArrayListMultimapImplTest
     Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_PATH, testMeta.applicationPath);
     Context.OperatorContext context =
-        new OperatorContextTestHelper.TestIdOperatorContext(testMeta.operatorContext.getId(), attributes);
+        OperatorContextTestHelper.MockOperatorContext.of(testMeta.operatorContext.getId(), attributes);
     store.setup(context);
     multimap.setup(context);
 

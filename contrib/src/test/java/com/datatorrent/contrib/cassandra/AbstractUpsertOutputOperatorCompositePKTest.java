@@ -43,7 +43,7 @@ public class AbstractUpsertOutputOperatorCompositePKTest
   public static final int OPERATOR_ID_FOR_COMPOSITE_PRIMARY_KEYS = 2;
 
   CompositePrimaryKeyUpdateOperator compositePrimaryKeysOperator = null;
-  OperatorContextTestHelper.TestIdOperatorContext contextForCompositePrimaryKeysOperator;
+  OperatorContextTestHelper.MockOperatorContext contextForCompositePrimaryKeysOperator;
   TestPortContext testPortContextForCompositePrimaryKeys;
 
   @Before
@@ -52,7 +52,7 @@ public class AbstractUpsertOutputOperatorCompositePKTest
     Attribute.AttributeMap.DefaultAttributeMap attributeMapForCompositePrimaryKey =
         new Attribute.AttributeMap.DefaultAttributeMap();
     attributeMapForCompositePrimaryKey.put(DAG.APPLICATION_ID, APP_ID);
-    contextForCompositePrimaryKeysOperator = new OperatorContextTestHelper.TestIdOperatorContext(
+    contextForCompositePrimaryKeysOperator = OperatorContextTestHelper.MockOperatorContext.of(
                 OPERATOR_ID_FOR_COMPOSITE_PRIMARY_KEYS,
                 attributeMapForCompositePrimaryKey);
 

@@ -67,7 +67,7 @@ public class CouchDBInputOperatorTest
 
     CollectorTestSink sink = new CollectorTestSink();
     operatorTest.outputPort.setSink(sink);
-    operatorTest.setup(new OperatorContextTestHelper.TestIdOperatorContext(2));
+    operatorTest.setup(OperatorContextTestHelper.MockOperatorContext.of(2));
 
     operatorTest.beginWindow(0);
     operatorTest.emitTuples();

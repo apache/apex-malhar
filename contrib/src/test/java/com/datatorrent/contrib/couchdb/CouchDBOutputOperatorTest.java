@@ -52,7 +52,7 @@ public class CouchDBOutputOperatorTest
     store.setDbName(CouchDBTestHelper.TEST_DB);
     dbOutputOper.setStore(store);
 
-    dbOutputOper.setup(new OperatorContextTestHelper.TestIdOperatorContext(1));
+    dbOutputOper.setup(OperatorContextTestHelper.MockOperatorContext.of(1));
     dbOutputOper.beginWindow(0);
     dbOutputOper.input.process(tuple);
     dbOutputOper.endWindow();
@@ -93,7 +93,7 @@ public class CouchDBOutputOperatorTest
     dbOutputOper.setStore(store);
     String expression = "getId()";
     dbOutputOper.setExpressionForDocId(expression);
-    dbOutputOper.setup(new OperatorContextTestHelper.TestIdOperatorContext(1));
+    dbOutputOper.setup(OperatorContextTestHelper.MockOperatorContext.of(1));
     dbOutputOper.beginWindow(0);
     dbOutputOper.input.process(tuple);
     dbOutputOper.endWindow();

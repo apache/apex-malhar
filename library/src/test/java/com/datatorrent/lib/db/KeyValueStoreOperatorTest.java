@@ -47,7 +47,7 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
 
   public static class CollectorModule<T> extends BaseOperator
   {
-    static Map<String, String> resultMap = new HashMap<String, String>();
+    static Map<String, String> resultMap = new HashMap<>();
     static long resultCount = 0;
     public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()
     {
@@ -96,7 +96,7 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
       DAG dag = lma.getDAG();
       @SuppressWarnings("unchecked")
       InputOperator<S> inputOperator = dag.addOperator("input", new InputOperator<S>());
-      CollectorModule<Object> collector = dag.addOperator("collector", new CollectorModule<Object>());
+      CollectorModule<Object> collector = dag.addOperator("collector", new CollectorModule<>());
       inputOperator.addKey("test_abc");
       inputOperator.addKey("test_def");
       inputOperator.addKey("test_ghi");
@@ -119,18 +119,18 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
 
   public void testOutputOperator() throws IOException
   {
-    OutputOperator<S> outputOperator = new OutputOperator<S>();
+    OutputOperator<S> outputOperator = new OutputOperator<>();
     try {
       com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributes = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(DAG.APPLICATION_ID, "test_appid");
       outputOperator.setStore(operatorStore);
-      outputOperator.setup(new OperatorContextTestHelper.TestIdOperatorContext(0, attributes));
+      outputOperator.setup(OperatorContextTestHelper.MockOperatorContext.of(0, attributes));
       outputOperator.beginWindow(100);
-      Map<String, String> m = new HashMap<String, String>();
+      Map<String, String> m = new HashMap<>();
       m.put("test_abc", "123");
       m.put("test_def", "456");
       outputOperator.input.process(m);
-      m = new HashMap<String, String>();
+      m = new HashMap<>();
       m.put("test_ghi", "789");
       outputOperator.input.process(m);
       outputOperator.endWindow();

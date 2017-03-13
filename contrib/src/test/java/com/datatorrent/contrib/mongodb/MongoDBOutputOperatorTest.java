@@ -66,7 +66,7 @@ public class MongoDBOutputOperatorTest
 
   public HashMap<String, Object> generateHashMapData(int j, MongoDBHashMapOutputOperator oper)
   {
-    HashMap<String, Object> hm = new HashMap<String, Object>();
+    HashMap<String, Object> hm = new HashMap<>();
     for (int i = 0; i < columnNum; i++) {
       String[] tokens = hashMapping1[i].split("[:]");
       String[] subtok = tokens[1].split("[.]");
@@ -89,7 +89,7 @@ public class MongoDBOutputOperatorTest
 
   public ArrayList<Object> generateArrayListData(int j, MongoDBArrayListOutputOperator oper)
   {
-    ArrayList<Object> al = new ArrayList<Object>();
+    ArrayList<Object> al = new ArrayList<>();
     for (int i = 0; i < columnNum; i++) {
       String[] tokens = arrayMapping1[i].split("[:]");
       String[] subtok = tokens[0].split("[.]");
@@ -126,7 +126,7 @@ public class MongoDBOutputOperatorTest
   {
     buildDataset();
 
-    MongoDBHashMapOutputOperator<Object> oper = new MongoDBHashMapOutputOperator<Object>();
+    MongoDBHashMapOutputOperator<Object> oper = new MongoDBHashMapOutputOperator<>();
 
     oper.setBatchSize(3);
     oper.setHostName("localhost");
@@ -139,7 +139,7 @@ public class MongoDBOutputOperatorTest
     oper.setQueryFunction(1);
     oper.setColumnMapping(hashMapping1);
 
-    oper.setup(new OperatorContextTestHelper.TestIdOperatorContext(1));
+    oper.setup(OperatorContextTestHelper.MockOperatorContext.of(1));
 
     for (Object o: oper.getTableList()) {
       String table = (String)o;
@@ -178,7 +178,7 @@ public class MongoDBOutputOperatorTest
     oper.setQueryFunction(1);
     oper.setColumnMapping(arrayMapping1);
 
-    oper.setup(new OperatorContextTestHelper.TestIdOperatorContext(2));
+    oper.setup(OperatorContextTestHelper.MockOperatorContext.of(2));
     for (Object o: oper.getTableList()) {
       String table = (String)o;
       oper.db.getCollection(table).drop();
@@ -213,7 +213,7 @@ public class MongoDBOutputOperatorTest
     oper.setOperatorIdColumnName("operatorid");
     oper.setMaxWindowTable("maxWindowTable");
     oper.setQueryFunction(1);
-    ArrayList<String> tablenames = new ArrayList<String>();
+    ArrayList<String> tablenames = new ArrayList<>();
     for (int i = 0; i < inputCount; i++) {
       tablenames.add("t1");
     }
@@ -221,7 +221,7 @@ public class MongoDBOutputOperatorTest
     oper.tableList.add("t1");
 
     oper.setTablenames(tablenames);
-    ArrayList<String> fieldTypes = new ArrayList<String>();
+    ArrayList<String> fieldTypes = new ArrayList<>();
     fieldTypes.add("java.lang.String");
     fieldTypes.add("java.lang.String");
     fieldTypes.add("java.lang.Integer");
@@ -229,7 +229,7 @@ public class MongoDBOutputOperatorTest
     fieldTypes.add("java.lang.String");
     fieldTypes.add("int");
     oper.setFieldTypes(fieldTypes);
-    ArrayList<String> keys = new ArrayList<String>();
+    ArrayList<String> keys = new ArrayList<>();
     keys.add("id");
     keys.add("name");
     keys.add("age");
@@ -238,7 +238,7 @@ public class MongoDBOutputOperatorTest
     keys.add("address.housenumber");
     oper.setKeys(keys);
 
-    ArrayList<String> expressions = new ArrayList<String>();
+    ArrayList<String> expressions = new ArrayList<>();
     expressions.add("getId()");
     expressions.add("getName()");
     expressions.add("getAge()");
@@ -246,7 +246,7 @@ public class MongoDBOutputOperatorTest
     expressions.add("getAddress().getCity()");
     expressions.add("getAddress().getHousenumber()");
     oper.setExpressions(expressions);
-    oper.setup(new OperatorContextTestHelper.TestIdOperatorContext(2));
+    oper.setup(OperatorContextTestHelper.MockOperatorContext.of(2));
     for (String table: oper.getTableList()) {
       logger.debug("table in test is {}", table);
       oper.db.getCollection(table).drop();
@@ -267,7 +267,7 @@ public class MongoDBOutputOperatorTest
       TestPOJO.Address address = new TestPOJO.Address();
       address.setCity("testcity" + i);
       address.setHousenumber(i + 10);
-      HashMap<String, Object> hmap = new HashMap<String, Object>();
+      HashMap<String, Object> hmap = new HashMap<>();
       hmap.put("key" + i, i);
       al.setMapping(hmap);
       al.setAddress(address);

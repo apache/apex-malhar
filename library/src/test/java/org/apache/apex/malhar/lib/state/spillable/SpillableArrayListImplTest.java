@@ -559,7 +559,7 @@ public class SpillableArrayListImplTest
     attributes.put(DAG.APPLICATION_PATH, testMeta.applicationPath);
     attributes.put(Context.OperatorContext.ACTIVATION_WINDOW_ID, activationWindow);
     Context.OperatorContext context =
-        new OperatorContextTestHelper.TestIdOperatorContext(testMeta.operatorContext.getId(), attributes);
+        OperatorContextTestHelper.MockOperatorContext.of(testMeta.operatorContext.getId(), attributes);
 
     list = clonedList;
     store = clonedList.getStore();

@@ -46,7 +46,7 @@ import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Partitioner;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.helper.OperatorContextTestHelper.MockOperatorContext;
 import com.datatorrent.lib.helper.TestPortContext;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.FieldInfo;
@@ -119,8 +119,7 @@ public class JdbcPojoPollableOpeartorTest extends JdbcOperatorTest
       partitionAttributeMap.put(DAG.APPLICATION_ID, APP_ID);
       partitionAttributeMap.put(Context.DAGContext.APPLICATION_PATH, dir);
 
-      OperatorContextTestHelper.TestIdOperatorContext partitioningContext = new OperatorContextTestHelper.TestIdOperatorContext(
-          operatorId++, partitionAttributeMap);
+      MockOperatorContext partitioningContext = MockOperatorContext.of(operatorId++, partitionAttributeMap);
 
       JdbcPOJOPollInputOperator parition = (JdbcPOJOPollInputOperator)partition.getPartitionedInstance();
       parition.outputPort.setup(tpc);
@@ -179,7 +178,7 @@ public class JdbcPojoPollableOpeartorTest extends JdbcOperatorTest
   {
     int operatorId = 1;
     when(windowDataManagerMock.getLargestCompletedWindow()).thenReturn(1L);
-    when(windowDataManagerMock.retrieve(1)).thenReturn(new MutablePair<Integer, Integer>(0, 4));
+    when(windowDataManagerMock.retrieve(1)).thenReturn(new MutablePair<>(0, 4));
 
     insertEvents(10, true, 0);
 
@@ -197,8 +196,7 @@ public class JdbcPojoPollableOpeartorTest extends JdbcOperatorTest
     partitionAttributeMap.put(DAG.APPLICATION_ID, APP_ID);
     partitionAttributeMap.put(Context.DAGContext.APPLICATION_PATH, dir);
 
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
-        operatorId, partitionAttributeMap);
+    MockOperatorContext context = MockOperatorContext.of(operatorId, partitionAttributeMap);
 
     JdbcPOJOPollInputOperator inputOperator = new JdbcPOJOPollInputOperator();
     inputOperator.setStore(store);
@@ -208,7 +206,7 @@ public class JdbcPojoPollableOpeartorTest extends JdbcOperatorTest
     inputOperator.setFetchSize(100);
     inputOperator.setBatchSize(100);
     inputOperator.lastEmittedRow = 0; //setting as not calling partition logic
-    inputOperator.rangeQueryPair = new KeyValPair<Integer, Integer>(0, 8);
+    inputOperator.rangeQueryPair = new KeyValPair<>(0, 8);
 
     inputOperator.outputPort.setup(tpc);
     inputOperator.setScheduledExecutorService(mockscheduler);
@@ -262,8 +260,7 @@ public class JdbcPojoPollableOpeartorTest extends JdbcOperatorTest
       partitionAttributeMap.put(DAG.APPLICATION_ID, APP_ID);
       partitionAttributeMap.put(Context.DAGContext.APPLICATION_PATH, dir);
 
-      OperatorContextTestHelper.TestIdOperatorContext partitioningContext = new OperatorContextTestHelper.TestIdOperatorContext(
-          operatorId++, partitionAttributeMap);
+      MockOperatorContext partitioningContext = MockOperatorContext.of(operatorId++, partitionAttributeMap);
 
       JdbcPOJOPollInputOperator parition = (JdbcPOJOPollInputOperator)partition.getPartitionedInstance();
       parition.outputPort.setup(tpc);

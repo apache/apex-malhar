@@ -52,7 +52,7 @@ public class TransactionableKeyValueStoreOperatorTest<S extends TransactionableK
 
   public void testTransactionOutputOperator() throws IOException
   {
-    TransactionableKeyValueStoreOperatorTest.TransactionOutputOperator<S> outputOperator = new TransactionableKeyValueStoreOperatorTest.TransactionOutputOperator<S>();
+    TransactionableKeyValueStoreOperatorTest.TransactionOutputOperator<S> outputOperator = new TransactionableKeyValueStoreOperatorTest.TransactionOutputOperator<>();
     String appId = "test_appid";
     int operatorId = 0;
     operatorStore.removeCommittedWindowId(appId, operatorId);
@@ -63,15 +63,15 @@ public class TransactionableKeyValueStoreOperatorTest<S extends TransactionableK
     try {
       testStore.connect();
       outputOperator.setStore(operatorStore);
-      outputOperator.setup(new OperatorContextTestHelper.TestIdOperatorContext(operatorId, attributes));
+      outputOperator.setup(OperatorContextTestHelper.MockOperatorContext.of(operatorId, attributes));
       outputOperator.beginWindow(100);
-      Map<String, String> m = new HashMap<String, String>();
+      Map<String, String> m = new HashMap<>();
       m.put("test_abc", "123");
       m.put("test_def", "456");
       outputOperator.input.process(m);
       Assert.assertNull(testStore.get("test_abc"));
       Assert.assertNull(testStore.get("test_def"));
-      m = new HashMap<String, String>();
+      m = new HashMap<>();
       m.put("test_ghi", "789");
       outputOperator.input.process(m);
       Assert.assertNull(testStore.get("test_ghi"));

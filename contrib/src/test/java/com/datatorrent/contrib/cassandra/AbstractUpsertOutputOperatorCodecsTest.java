@@ -94,7 +94,7 @@ public class AbstractUpsertOutputOperatorCodecsTest
 
 
   UserUpsertOperator userUpsertOperator = null;
-  OperatorContextTestHelper.TestIdOperatorContext contextForUserUpsertOperator;
+  OperatorContextTestHelper.MockOperatorContext contextForUserUpsertOperator;
   TestPortContext testPortContextForUserUpserts;
 
 
@@ -103,7 +103,7 @@ public class AbstractUpsertOutputOperatorCodecsTest
   {
     Attribute.AttributeMap.DefaultAttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    contextForUserUpsertOperator = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID_FOR_USER_UPSERTS,
+    contextForUserUpsertOperator = OperatorContextTestHelper.MockOperatorContext.of(OPERATOR_ID_FOR_USER_UPSERTS,
             attributeMap);
     userUpsertOperator = new UserUpsertOperator();
 

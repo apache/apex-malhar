@@ -41,7 +41,7 @@ public class MapTimeBasedJoinOperator
   @Rule
   public final TestUtils.TestInfo testInfo = new TestUtils.TestInfo();
   private static Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
-  public static final Context.OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+  public static final Context.OperatorContext context = OperatorContextTestHelper.MockOperatorContext.of(1, attributes);
 
   @Test
   public void testJoinOperator() throws IOException, InterruptedException
@@ -55,7 +55,7 @@ public class MapTimeBasedJoinOperator
 
     oper.setup(context);
 
-    CollectorTestSink<List<Map<String, Object>>> sink = new CollectorTestSink<List<Map<String, Object>>>();
+    CollectorTestSink<List<Map<String, Object>>> sink = new CollectorTestSink<>();
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     CollectorTestSink<Object> tmp = (CollectorTestSink)sink;

@@ -172,7 +172,7 @@ public class BandwidthManagerTest
       applicationPath = "target/" + description.getClassName() + "/" + description.getMethodName();
       Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(DAG.APPLICATION_PATH, applicationPath);
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+      context = OperatorContextTestHelper.MockOperatorContext.of(1, attributes);
       underTest.setup(context);
     }
 

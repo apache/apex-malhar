@@ -48,7 +48,7 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 public class KinesisInputOperatorTest extends KinesisOperatorTestBase
 {
   static final org.slf4j.Logger logger = LoggerFactory.getLogger(KinesisInputOperatorTest.class);
-  static HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
+  static HashMap<String, List<?>> collections = new HashMap<>();
   static AtomicInteger tupleCount = new AtomicInteger();
   static CountDownLatch latch;
 
@@ -59,7 +59,7 @@ public class KinesisInputOperatorTest extends KinesisOperatorTestBase
    */
   public static class CollectorModule<T> extends BaseOperator
   {
-    public final transient CollectorInputPort<T> inputPort = new CollectorInputPort<T>("myInput");
+    public final transient CollectorInputPort<T> inputPort = new CollectorInputPort<>("myInput");
   }
 
   public static class CollectorInputPort<T> extends DefaultInputPort<T>
@@ -90,7 +90,7 @@ public class KinesisInputOperatorTest extends KinesisOperatorTestBase
     public void setConnected(boolean flag)
     {
       if (flag) {
-        collections.put(id, list = new ArrayList<T>());
+        collections.put(id, list = new ArrayList<>());
       }
     }
   }
@@ -233,7 +233,7 @@ public class KinesisInputOperatorTest extends KinesisOperatorTestBase
     attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
     attributeMap.put(Context.DAGContext.APPLICATION_PATH, testMeta.baseDir);
 
-    testMeta.context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+    testMeta.context = OperatorContextTestHelper.MockOperatorContext.of(1, attributeMap);
     testMeta.operator = new KinesisStringInputOperator();
 
     KinesisUtil.getInstance().setClient(client);
@@ -243,7 +243,7 @@ public class KinesisInputOperatorTest extends KinesisOperatorTestBase
     consumer.setInitialOffset("earliest");
     testMeta.operator.setConsumer(consumer);
 
-    testMeta.sink = new CollectorTestSink<Object>();
+    testMeta.sink = new CollectorTestSink<>();
     testMeta.operator.outputPort.setSink(testMeta.sink);
     latch.await(4000, TimeUnit.MILLISECONDS);
     testMeta.operator.setup(testMeta.context);

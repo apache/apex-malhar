@@ -55,7 +55,7 @@ public class CouchBasePOJOTest
   {
     CouchBaseWindowStore store = new CouchBaseWindowStore();
     System.setProperty("viewmode", "development");
-    keyList = new ArrayList<String>();
+    keyList = new ArrayList<>();
     store.setBucket(bucket);
     store.setPassword(password);
     store.setUriString(uri);
@@ -69,7 +69,7 @@ public class CouchBasePOJOTest
 
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContextTestHelper.MockOperatorContext context = OperatorContextTestHelper.MockOperatorContext.of(OPERATOR_ID, attributeMap);
     TestInputOperator inputOperator = new TestInputOperator();
     inputOperator.setStore(store);
     inputOperator.setOutputClass("com.datatorrent.contrib.couchbase.TestComplexPojoInput");
@@ -88,7 +88,7 @@ public class CouchBasePOJOTest
     catch (InterruptedException ex) {
       throw new RuntimeException(ex);
     }
-    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+    CollectorTestSink<Object> sink = new CollectorTestSink<>();
     inputOperator.outputPort.setSink(sink);
 
     inputOperator.setup(context);

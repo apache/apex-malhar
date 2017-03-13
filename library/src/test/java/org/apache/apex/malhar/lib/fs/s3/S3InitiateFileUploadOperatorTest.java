@@ -76,7 +76,7 @@ public class S3InitiateFileUploadOperatorTest
     applicationPath =  OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
     attributes = new Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
-    context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+    context = OperatorContextTestHelper.MockOperatorContext.of(1, attributes);
   }
 
   @After

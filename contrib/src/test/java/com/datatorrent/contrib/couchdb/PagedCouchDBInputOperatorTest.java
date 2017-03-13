@@ -88,7 +88,7 @@ public class PagedCouchDBInputOperatorTest
     CollectorTestSink sink = new CollectorTestSink();
     operatorTest.outputPort.setSink(sink);
     operatorTest.setPageSize(5);
-    operatorTest.setup(new OperatorContextTestHelper.TestIdOperatorContext(3));
+    operatorTest.setup(OperatorContextTestHelper.MockOperatorContext.of(3));
 
     int totalDocsInDb = CouchDBTestHelper.getTotalDocuments();
     int rounds = (totalDocsInDb % 5 == 0 ? 0 : 1) + (totalDocsInDb / 5);

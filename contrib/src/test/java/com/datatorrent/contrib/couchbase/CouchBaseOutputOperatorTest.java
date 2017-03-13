@@ -48,7 +48,7 @@ public class CouchBaseOutputOperatorTest
   private static final String APP_ID = "CouchBaseOutputOperatorTest";
   private static final String password = "";
   private static final int OPERATOR_ID = 0;
-  protected static ArrayList<URI> nodes = new ArrayList<URI>();
+  protected static ArrayList<URI> nodes = new ArrayList<>();
   protected static ArrayList<String> keyList;
   private final int numNodes = 2;
   private final int numReplicas = 3;
@@ -63,7 +63,7 @@ public class CouchBaseOutputOperatorTest
     bucketConfiguration.type = BucketType.COUCHBASE;
     bucketConfiguration.password = password;
     bucketConfiguration.hostname = "localhost";
-    ArrayList<BucketConfiguration> configList = new ArrayList<BucketConfiguration>();
+    ArrayList<BucketConfiguration> configList = new ArrayList<>();
     configList.add(bucketConfiguration);
     CouchbaseMock mockCouchbase = new CouchbaseMock(0, configList);
     return mockCouchbase;
@@ -145,7 +145,7 @@ public class CouchBaseOutputOperatorTest
     mockCouchbase1.start();
     mockCouchbase1.waitForStartup();
 
-    List<URI> uriList = new ArrayList<URI>();
+    List<URI> uriList = new ArrayList<>();
     int port1 = mockCouchbase1.getHttpPort();
     logger.debug("port is {}", port1);
     uriList.add(new URI("http", null, "localhost", port1, "/pools", "", ""));
@@ -167,12 +167,12 @@ public class CouchBaseOutputOperatorTest
     CouchbasePOJOSetOperator outputOperator = new CouchbasePOJOSetOperator();
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContextTestHelper.MockOperatorContext context = OperatorContextTestHelper.MockOperatorContext.of(OPERATOR_ID, attributeMap);
 
     outputOperator.setStore(store);
 
     outputOperator.setup(context);
-    ArrayList<String> expressions = new ArrayList<String>();
+    ArrayList<String> expressions = new ArrayList<>();
     expressions.add("getKey()");
     expressions.add("getTest()");
     outputOperator.setExpressions(expressions);
@@ -181,7 +181,7 @@ public class CouchBaseOutputOperatorTest
     TestPojo obj = new TestPojo();
     obj.setName("test");
     obj.setPhone(123344555);
-    HashMap<String, Integer> map = new HashMap<String, Integer>();
+    HashMap<String, Integer> map = new HashMap<>();
     map.put("test", 12345);
     obj.setMap(map);
     TestEvent1 testEvent = new TestEvent1();
@@ -209,7 +209,7 @@ public class CouchBaseOutputOperatorTest
     outputOperator.setStore(store);
 
     outputOperator.setup(context);
-    expressions = new ArrayList<String>();
+    expressions = new ArrayList<>();
     expressions.add("getKey()");
     expressions.add("getNum()");
     outputOperator.setExpressions(expressions);

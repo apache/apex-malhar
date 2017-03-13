@@ -71,7 +71,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
    */
   public static class CollectorModule<T> extends BaseOperator
   {
-    public final transient CollectorInputPort<T> inputPort = new CollectorInputPort<T>("myInput", this);
+    public final transient CollectorInputPort<T> inputPort = new CollectorInputPort<>("myInput", this);
   }
 
   public static class CollectorInputPort<T> extends DefaultInputPort<T>
@@ -381,7 +381,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     attributeMap.put(Context.DAGContext.APPLICATION_PATH, testMeta.baseDir);
 
 
-    testMeta.context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+    testMeta.context = OperatorContextTestHelper.MockOperatorContext.of(1, attributeMap);
     testMeta.operator = new KafkaSinglePortStringInputOperator();
 
     KafkaConsumer consumer = new SimpleKafkaConsumer();
@@ -398,14 +398,14 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     testMeta.operator.setZookeeper("localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT[0]);
     testMeta.operator.setMaxTuplesPerWindow(500);
 
-    List<Partitioner.Partition<AbstractKafkaInputOperator<KafkaConsumer>>> partitions = new LinkedList<Partitioner.Partition<AbstractKafkaInputOperator<KafkaConsumer>>>();
+    List<Partitioner.Partition<AbstractKafkaInputOperator<KafkaConsumer>>> partitions = new LinkedList<>();
 
     Collection<Partitioner.Partition<AbstractKafkaInputOperator<KafkaConsumer>>> newPartitions = testMeta.operator.definePartitions(partitions, new StatelessPartitionerTest.PartitioningContextImpl(null, 0));
     Assert.assertEquals(1, newPartitions.size());
 
     KafkaSinglePortStringInputOperator operator = (KafkaSinglePortStringInputOperator)newPartitions.iterator().next().getPartitionedInstance();
 
-    testMeta.sink = new CollectorTestSink<Object>();
+    testMeta.sink = new CollectorTestSink<>();
     testMeta.operator.outputPort.setSink(testMeta.sink);
     operator.outputPort.setSink(testMeta.sink);
     return operator;
@@ -438,7 +438,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(Context.DAGContext.APPLICATION_PATH, testMeta.baseDir);
 
-    Context.OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+    Context.OperatorContext context = OperatorContextTestHelper.MockOperatorContext.of(1, attributeMap);
     KafkaSinglePortStringInputOperator operator = new KafkaSinglePortStringInputOperator();
 
     KafkaConsumer consumer = new SimpleKafkaConsumer();
@@ -449,14 +449,14 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     operator.setZookeeper("localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT[0]);
     operator.setMaxTotalMsgSizePerWindow(maxTotalSize);
 
-    List<Partitioner.Partition<AbstractKafkaInputOperator<KafkaConsumer>>> partitions = new LinkedList<Partitioner.Partition<AbstractKafkaInputOperator<KafkaConsumer>>>();
+    List<Partitioner.Partition<AbstractKafkaInputOperator<KafkaConsumer>>> partitions = new LinkedList<>();
 
     Collection<Partitioner.Partition<AbstractKafkaInputOperator<KafkaConsumer>>> newPartitions = operator.definePartitions(partitions, new StatelessPartitionerTest.PartitioningContextImpl(null, 0));
     Assert.assertEquals(1, newPartitions.size());
 
     operator = (KafkaSinglePortStringInputOperator)newPartitions.iterator().next().getPartitionedInstance();
 
-    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+    CollectorTestSink<Object> sink = new CollectorTestSink<>();
     operator.outputPort.setSink(sink);
     operator.setup(context);
     operator.activate(context);

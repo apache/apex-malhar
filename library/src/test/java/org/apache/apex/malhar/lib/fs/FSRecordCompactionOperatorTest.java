@@ -55,9 +55,9 @@ public class FSRecordCompactionOperatorTest
       Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(DAG.DAGContext.APPLICATION_ID, description.getClassName());
       attributes.put(DAG.DAGContext.APPLICATION_PATH, outputPath);
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+      context = OperatorContextTestHelper.MockOperatorContext.of(1, attributes);
 
-      underTest = new FSRecordCompactionOperator<byte[]>();
+      underTest = new FSRecordCompactionOperator<>();
       underTest.setConverter(new GenericFileOutputOperator.NoOpConverter());
       underTest.setup(context);
       underTest.setMaxIdleWindows(10);
@@ -81,7 +81,7 @@ public class FSRecordCompactionOperatorTest
   @Test
   public void testRotate() throws Exception
   {
-    CollectorTestSink<FSRecordCompactionOperator.OutputMetaData> sink = new CollectorTestSink<FSRecordCompactionOperator.OutputMetaData>();
+    CollectorTestSink<FSRecordCompactionOperator.OutputMetaData> sink = new CollectorTestSink<>();
     testMeta.underTest.output.setSink((CollectorTestSink)sink);
 
     for (int i = 0; i < 60; i++) {

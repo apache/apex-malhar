@@ -168,7 +168,7 @@ public class HBasePOJOPutOperatorTest
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
 
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
+    OperatorContextTestHelper.MockOperatorContext context = OperatorContextTestHelper.MockOperatorContext.of(
         OPERATOR_ID, attributeMap);
 
     operator.setup(context);
@@ -176,11 +176,11 @@ public class HBasePOJOPutOperatorTest
 
   protected void configure(HBasePOJOPutOperator operator)
   {
-    TableInfo<HBaseFieldInfo> tableInfo = new TableInfo<HBaseFieldInfo>();
+    TableInfo<HBaseFieldInfo> tableInfo = new TableInfo<>();
 
     tableInfo.setRowOrIdExpression("row");
 
-    List<HBaseFieldInfo> fieldsInfo = new ArrayList<HBaseFieldInfo>();
+    List<HBaseFieldInfo> fieldsInfo = new ArrayList<>();
     fieldsInfo.add( new HBaseFieldInfo( "name", "name", SupportType.STRING, "f0") );
     fieldsInfo.add( new HBaseFieldInfo( "age", "age", SupportType.INTEGER, "f1") );
     fieldsInfo.add( new HBaseFieldInfo( "address", "address", SupportType.STRING, "f1") );
@@ -202,7 +202,7 @@ public class HBasePOJOPutOperatorTest
   protected Object getNextTuple()
   {
     if( tupleGenerator == null )
-      tupleGenerator = new TupleGenerator<TestPOJO>( TestPOJO.class );
+      tupleGenerator = new TupleGenerator<>( TestPOJO.class );
 
     return tupleGenerator.getNextTuple();
   }
@@ -210,7 +210,7 @@ public class HBasePOJOPutOperatorTest
   protected void resetTupleGenerator()
   {
     if( tupleGenerator == null )
-      tupleGenerator = new TupleGenerator<TestPOJO>( TestPOJO.class );
+      tupleGenerator = new TupleGenerator<>( TestPOJO.class );
     else
       tupleGenerator.reset();
   }
@@ -240,7 +240,7 @@ public class HBasePOJOPutOperatorTest
 
         List<Cell> cells = result.listCells();
 
-        Map<String, byte[]> map = new HashMap<String,byte[]>();
+        Map<String, byte[]> map = new HashMap<>();
         for( Cell cell : cells )
         {
           String columnName = Bytes.toString( CellUtil.cloneQualifier(cell) );

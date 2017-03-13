@@ -131,11 +131,11 @@ public class AbstractMemsqlOutputOperatorTest
     outputOperator.setStore(memsqlStore);
     outputOperator.setBatchSize(BATCH_SIZE);
     outputOperator.setTablename(FQ_TABLE);
-    ArrayList<String> columns = new ArrayList<String>();
+    ArrayList<String> columns = new ArrayList<>();
     columns.add(DATA_COLUMN1);
     columns.add(DATA_COLUMN2);
     outputOperator.setDataColumns(columns);
-    ArrayList<String> expressions = new ArrayList<String>();
+    ArrayList<String> expressions = new ArrayList<>();
     expressions.add("getIntVal()");
     expressions.add("getStringVal()");
     outputOperator.setExpression(expressions);
@@ -143,7 +143,7 @@ public class AbstractMemsqlOutputOperatorTest
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContextTestHelper.MockOperatorContext context = OperatorContextTestHelper.MockOperatorContext.of(OPERATOR_ID, attributeMap);
 
     outputOperator.setup(context);
 

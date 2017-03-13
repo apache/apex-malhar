@@ -440,7 +440,7 @@ public class SpillableMapImplTest
     attributes.put(DAG.APPLICATION_PATH, testMeta.applicationPath);
     attributes.put(Context.OperatorContext.ACTIVATION_WINDOW_ID, 1L);
     Context.OperatorContext context =
-        new OperatorContextTestHelper.TestIdOperatorContext(testMeta.operatorContext.getId(), attributes);
+        OperatorContextTestHelper.MockOperatorContext.of(testMeta.operatorContext.getId(), attributes);
 
     map1 = clonedMap1;
     map1.getStore().setup(context);

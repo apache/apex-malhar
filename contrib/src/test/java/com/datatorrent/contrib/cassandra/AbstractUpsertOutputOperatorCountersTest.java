@@ -42,7 +42,7 @@ public class AbstractUpsertOutputOperatorCountersTest
   public static final int OPERATOR_ID_FOR_COUNTER_COLUMNS = 1;
 
   CounterColumnUpdatesOperator counterUpdatesOperator = null;
-  OperatorContextTestHelper.TestIdOperatorContext contextForCountersOperator;
+  OperatorContextTestHelper.MockOperatorContext contextForCountersOperator;
   TestPortContext testPortContextForCounters;
 
   @Before
@@ -51,7 +51,7 @@ public class AbstractUpsertOutputOperatorCountersTest
     Attribute.AttributeMap.DefaultAttributeMap attributeMapForCounters =
         new Attribute.AttributeMap.DefaultAttributeMap();
     attributeMapForCounters.put(DAG.APPLICATION_ID, APP_ID);
-    contextForCountersOperator = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID_FOR_COUNTER_COLUMNS,
+    contextForCountersOperator = OperatorContextTestHelper.MockOperatorContext.of(OPERATOR_ID_FOR_COUNTER_COLUMNS,
                 attributeMapForCounters);
 
     Attribute.AttributeMap.DefaultAttributeMap portAttributesForCounters =

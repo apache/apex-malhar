@@ -50,7 +50,7 @@ public class HBaseNameValueCsvPutOperatorTest
       String s = "name=milind,st=patrick,ct=fremont,sa=cali";
       String s1 = "st=tasman,ct=sancla,name=milinda,sa=cali";
       propPutOperator.setMapping("name=row,st=colfam0.street,ct=colfam0.city,sa=colfam0.state");
-      propPutOperator.setup(new OperatorContextTestHelper.TestIdOperatorContext(0));
+      propPutOperator.setup(OperatorContextTestHelper.MockOperatorContext.of(0));
       propPutOperator.beginWindow(0);
       propPutOperator.input.process(s);
       propPutOperator.input.process(s1);

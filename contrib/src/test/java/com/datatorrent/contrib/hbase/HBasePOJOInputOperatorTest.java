@@ -176,11 +176,11 @@ public class HBasePOJOInputOperatorTest
 
   protected void setupOperators()
   {
-    TableInfo<HBaseFieldInfo> tableInfo = new TableInfo<HBaseFieldInfo>();
+    TableInfo<HBaseFieldInfo> tableInfo = new TableInfo<>();
 
     tableInfo.setRowOrIdExpression("row");
 
-    List<HBaseFieldInfo> fieldsInfo = new ArrayList<HBaseFieldInfo>();
+    List<HBaseFieldInfo> fieldsInfo = new ArrayList<>();
     fieldsInfo.add( new HBaseFieldInfo( "name", "name", SupportType.STRING, "f0") );
     fieldsInfo.add( new HBaseFieldInfo( "age", "age", SupportType.INTEGER, "f1") );
     fieldsInfo.add( new HBaseFieldInfo( "address", "address", SupportType.STRING, "f1") );
@@ -198,7 +198,7 @@ public class HBasePOJOInputOperatorTest
     hbaseInputOperator.setStore(store);
     hbaseOutputOperator.setStore(store);
 
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
+    OperatorContextTestHelper.MockOperatorContext context = OperatorContextTestHelper.MockOperatorContext.of(
         OPERATOR_ID, new AttributeMap.DefaultAttributeMap());
     hbaseInputOperator.setup(context);
     hbaseOutputOperator.setup(context);

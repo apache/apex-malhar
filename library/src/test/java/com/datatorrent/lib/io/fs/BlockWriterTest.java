@@ -79,7 +79,7 @@ public class BlockWriterTest
       Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(DAG.DAGContext.APPLICATION_ID, "PartitionWriterTest");
       attributes.put(DAG.DAGContext.APPLICATION_PATH, appDirectory);
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+      context = OperatorContextTestHelper.MockOperatorContext.of(1, attributes);
 
       underTest.setup(context);
 
@@ -101,7 +101,7 @@ public class BlockWriterTest
               blockContents = FILE_CONTENTS[i].substring(offset);
             }
 
-            ReaderRecord<Slice> readerRecord = new ReaderRecord<Slice>(blockID, new Slice(blockContents.getBytes()));
+            ReaderRecord<Slice> readerRecord = new ReaderRecord<>(blockID, new Slice(blockContents.getBytes()));
             blockIdToExpectedContent.put(blockID, blockContents);
             blockDataList.add(readerRecord);
           }

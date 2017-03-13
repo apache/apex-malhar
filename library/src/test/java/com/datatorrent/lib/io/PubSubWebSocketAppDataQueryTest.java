@@ -38,10 +38,10 @@ public class PubSubWebSocketAppDataQueryTest extends PubSubWebSocketAppDataOpera
   {
     Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(Context.DAGContext.GATEWAY_CONNECT_ADDRESS, GATEWAY_CONNECT_ADDRESS_STRING);
-    context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+    context = OperatorContextTestHelper.MockOperatorContext.of(1, attributes);
 
     attributes = new Attribute.AttributeMap.DefaultAttributeMap();
-    emptyContext = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+    emptyContext = OperatorContextTestHelper.MockOperatorContext.of(1, attributes);
   }
 
   @Override

@@ -40,7 +40,7 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Operator.ProcessingMode;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.helper.OperatorContextTestHelper.TestIdOperatorContext;
+import com.datatorrent.lib.helper.OperatorContextTestHelper.MockOperatorContext;
 import com.datatorrent.lib.util.ActiveMQMultiTypeMessageListener;
 
 /**
@@ -56,8 +56,8 @@ public class JMSOutputOperatorTest extends JMSTestBase
   public static final String APP_ID = "appId";
   public static final int OPERATOR_ID = 1;
   public static JMSStringSinglePortOutputOperator outputOperator;
-  public static OperatorContextTestHelper.TestIdOperatorContext testOperatorContext;
-  public static OperatorContextTestHelper.TestIdOperatorContext testOperatorContextAMO;
+  public static OperatorContextTestHelper.MockOperatorContext testOperatorContext;
+  public static OperatorContextTestHelper.MockOperatorContext testOperatorContextAMO;
   public static final int HALF_BATCH_SIZE = 5;
   public static final int BATCH_SIZE = HALF_BATCH_SIZE * 2;
   public static final Random random = new Random();
@@ -70,11 +70,11 @@ public class JMSOutputOperatorTest extends JMSTestBase
       logger.debug("Starting test {}", description.getMethodName());
       DefaultAttributeMap attributes = new DefaultAttributeMap();
       attributes.put(DAG.APPLICATION_ID, APP_ID);
-      testOperatorContext = new TestIdOperatorContext(OPERATOR_ID, attributes);
+      testOperatorContext = MockOperatorContext.of(OPERATOR_ID, attributes);
 
       attributes = new DefaultAttributeMap();
       attributes.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_MOST_ONCE);
-      testOperatorContextAMO = new TestIdOperatorContext(OPERATOR_ID, attributes);
+      testOperatorContextAMO = MockOperatorContext.of(OPERATOR_ID, attributes);
 
       try {
         FileUtils.deleteDirectory(new File(FSPsuedoTransactionableStore.DEFAULT_RECOVERY_DIRECTORY));

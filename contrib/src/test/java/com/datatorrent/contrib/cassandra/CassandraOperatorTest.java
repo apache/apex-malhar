@@ -71,7 +71,7 @@ public class CassandraOperatorTest
   private static final int OPERATOR_ID = 0;
   private static Cluster cluster = null;
   private static Session session = null;
-  private OperatorContextTestHelper.TestIdOperatorContext context;
+  private OperatorContextTestHelper.MockOperatorContext context;
   private TestPortContext tpc;
 
   @SuppressWarnings("unused")
@@ -131,7 +131,7 @@ public class CassandraOperatorTest
   {
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    context = OperatorContextTestHelper.MockOperatorContext.of(OPERATOR_ID, attributeMap);
 
     Attribute.AttributeMap.DefaultAttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();
     portAttributes.put(Context.PortContext.TUPLE_CLASS, TestPojo.class);
@@ -171,9 +171,9 @@ public class CassandraOperatorTest
         Assert.assertNotEquals("check date", new Date(System.currentTimeMillis()), row.getDate("last_visited"));
         if (age == 2) {
           Assert.assertEquals("check float", 2.0, row.getFloat("floatValue"), 2);
-          Set<Integer> set = new HashSet<Integer>();
-          List<Integer> list = new ArrayList<Integer>();
-          Map<String, Integer> map = new HashMap<String, Integer>();
+          Set<Integer> set = new HashSet<>();
+          List<Integer> list = new ArrayList<>();
+          Map<String, Integer> map = new HashMap<>();
           set.add(2);
           list.add(2);
           map.put("key2", 2);
@@ -184,9 +184,9 @@ public class CassandraOperatorTest
         }
         if (age == 0) {
           Assert.assertEquals("check float", 0.0, row.getFloat("floatValue"), 2);
-          Set<Integer> set = new HashSet<Integer>();
-          List<Integer> list = new ArrayList<Integer>();
-          Map<String, Integer> map = new HashMap<String, Integer>();
+          Set<Integer> set = new HashSet<>();
+          List<Integer> list = new ArrayList<>();
+          Map<String, Integer> map = new HashMap<>();
           set.add(0);
           list.add(0);
           map.put("key0", 0);
@@ -196,9 +196,9 @@ public class CassandraOperatorTest
         }
         if (age == 1) {
           Assert.assertEquals("check float", 1.0, row.getFloat("floatValue"), 2);
-          Set<Integer> set = new HashSet<Integer>();
-          List<Integer> list = new ArrayList<Integer>();
-          Map<String, Integer> map = new HashMap<String, Integer>();
+          Set<Integer> set = new HashSet<>();
+          List<Integer> list = new ArrayList<>();
+          Map<String, Integer> map = new HashMap<>();
           set.add(1);
           list.add(1);
           map.put("key1", 1);
@@ -212,9 +212,9 @@ public class CassandraOperatorTest
 
   private static class TestInputOperator extends CassandraPOJOInputOperator
   {
-    private final ArrayList<Integer> ids = new ArrayList<Integer>();
-    private final HashMap<Integer, String> mapNames = new HashMap<Integer, String>();
-    private final HashMap<Integer, Integer> mapAge = new HashMap<Integer, Integer>();
+    private final ArrayList<Integer> ids = new ArrayList<>();
+    private final HashMap<Integer, String> mapNames = new HashMap<>();
+    private final HashMap<Integer, Integer> mapAge = new HashMap<>();
 
     public void insertEventsInTable(int numEvents)
     {
@@ -291,11 +291,11 @@ public class CassandraOperatorTest
 
     List<TestPojo> events = Lists.newArrayList();
     for (int i = 0; i < 3; i++) {
-      Set<Integer> set = new HashSet<Integer>();
+      Set<Integer> set = new HashSet<>();
       set.add(i);
-      List<Integer> list = new ArrayList<Integer>();
+      List<Integer> list = new ArrayList<>();
       list.add(i);
-      Map<String, Integer> map = new HashMap<String, Integer>();
+      Map<String, Integer> map = new HashMap<>();
       map.put("key" + i, i);
       events.add(new TestPojo(UUID.randomUUID(), i, "abclast", true, i, 2.0, set, list, map, new Date(System.currentTimeMillis())));
     }
@@ -320,11 +320,11 @@ public class CassandraOperatorTest
 
     List<TestPojo> events = Lists.newArrayList();
     for (int i = 0; i < 3; i++) {
-      Set<Integer> set = new HashSet<Integer>();
+      Set<Integer> set = new HashSet<>();
       set.add(i);
-      List<Integer> list = new ArrayList<Integer>();
+      List<Integer> list = new ArrayList<>();
       list.add(i);
-      Map<String, Integer> map = new HashMap<String, Integer>();
+      Map<String, Integer> map = new HashMap<>();
       map.put("key" + i, i);
       events.add(new TestPojo(UUID.randomUUID(), i, "abclast", true, i, 2.0, set, list, map, new Date(System.currentTimeMillis())));
     }
@@ -403,7 +403,7 @@ public class CassandraOperatorTest
 
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContextTestHelper.MockOperatorContext context = OperatorContextTestHelper.MockOperatorContext.of(OPERATOR_ID, attributeMap);
 
     TestInputOperator inputOperator = new TestInputOperator();
     inputOperator.setStore(store);

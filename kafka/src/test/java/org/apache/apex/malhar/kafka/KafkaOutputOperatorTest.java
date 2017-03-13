@@ -159,8 +159,8 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     attributeMap.put(Context.DAGContext.APPLICATION_NAME, "MyKafkaApp");
     attributeMap.put(DAG.APPLICATION_PATH, APPLICATION_PATH);
 
-    OperatorContextTestHelper.TestIdOperatorContext operatorContext =
-        new OperatorContextTestHelper.TestIdOperatorContext(2, attributeMap);
+    OperatorContextTestHelper.MockOperatorContext operatorContext =
+        OperatorContextTestHelper.MockOperatorContext.of(2, attributeMap);
 
     cleanUp(operatorContext);
 

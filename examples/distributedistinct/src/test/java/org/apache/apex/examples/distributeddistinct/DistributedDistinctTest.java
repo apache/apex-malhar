@@ -39,7 +39,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.algo.UniqueValueCount.InternalCountOutput;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.helper.OperatorContextTestHelper.TestIdOperatorContext;
+import com.datatorrent.lib.helper.OperatorContextTestHelper.MockOperatorContext;
 
 /**
  * Test for {@link IntegerUniqueValueCountAppender} and {@link UniqueValueCountAppender}
@@ -65,14 +65,14 @@ public class DistributedDistinctTest
     Statement stmt = valueCounter.getStore().getConnection().createStatement();
 
     ResultSet resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 1");
-    ArrayList<Integer> answersOne = new ArrayList<Integer>();
+    ArrayList<Integer> answersOne = new ArrayList<>();
     for (int i = 1; i < 16; i++) {
       answersOne.add(i);
     }
     Assert.assertEquals(answersOne, processResult(resultSet));
 
     resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 2");
-    ArrayList<Integer> answersTwo = new ArrayList<Integer>();
+    ArrayList<Integer> answersTwo = new ArrayList<>();
     answersTwo.add(3);
     answersTwo.add(6);
     answersTwo.add(9);
@@ -82,7 +82,7 @@ public class DistributedDistinctTest
     Assert.assertEquals(answersTwo, processResult(resultSet));
 
     resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 3");
-    ArrayList<Integer> answersThree = new ArrayList<Integer>();
+    ArrayList<Integer> answersThree = new ArrayList<>();
     answersThree.add(2);
     answersThree.add(4);
     answersThree.add(6);
@@ -123,7 +123,7 @@ public class DistributedDistinctTest
 
   public static ArrayList<Integer> processResult(ResultSet resultSet)
   {
-    ArrayList<Integer> tempList = new ArrayList<Integer>();
+    ArrayList<Integer> tempList = new ArrayList<>();
     try {
       while (resultSet.next()) {
         tempList.add(resultSet.getInt(1));
@@ -138,12 +138,12 @@ public class DistributedDistinctTest
   public static void emitKeyVals(int key, int start, int end, int increment)
   {
     int count = 0;
-    Set<Object> valSet = new HashSet<Object>();
+    Set<Object> valSet = new HashSet<>();
     for (int i = start; i <= end; i += increment) {
       count++;
       valSet.add(i);
     }
-    valueCounter.processTuple(new InternalCountOutput<Integer>(key, count, valSet));
+    valueCounter.processTuple(new InternalCountOutput<>(key, count, valSet));
   }
 
   @Test
@@ -156,17 +156,17 @@ public class DistributedDistinctTest
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
     attributes.put(OperatorContext.ACTIVATION_WINDOW_ID, 2L);
 
-    valueCounter.setup(new OperatorContextTestHelper.TestIdOperatorContext(0, attributes));
+    valueCounter.setup(OperatorContextTestHelper.MockOperatorContext.of(0, attributes));
 
     ResultSet resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 2");
-    ArrayList<Integer> answersAfterClear = new ArrayList<Integer>();
+    ArrayList<Integer> answersAfterClear = new ArrayList<>();
     for (int i = 3; i < 16; i += 3) {
       answersAfterClear.add(i);
     }
     Assert.assertEquals(answersAfterClear, processResult(resultSet));
 
     resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 3");
-    ArrayList<Integer> answersThree = new ArrayList<Integer>();
+    ArrayList<Integer> answersThree = new ArrayList<>();
     answersThree.add(2);
     answersThree.add(4);
     answersThree.add(6);
@@ -194,7 +194,7 @@ public class DistributedDistinctTest
     valueCounter.setTableName(TABLE_NAME);
     valueCounter.getStore().setDatabaseDriver(INMEM_DB_DRIVER);
     valueCounter.getStore().setDatabaseUrl(INMEM_DB_URL);
-    TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributes);
+    MockOperatorContext context = OperatorContextTestHelper.MockOperatorContext.of(OPERATOR_ID, attributes);
     valueCounter.setup(context);
   }
 }
