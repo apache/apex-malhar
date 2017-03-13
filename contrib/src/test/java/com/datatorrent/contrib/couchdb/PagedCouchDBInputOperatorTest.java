@@ -31,8 +31,9 @@ import org.junit.Test;
 
 import com.google.common.collect.Maps;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Test for {@link PagedCouchDBInputOperatorTest}
@@ -88,7 +89,7 @@ public class PagedCouchDBInputOperatorTest
     CollectorTestSink sink = new CollectorTestSink();
     operatorTest.outputPort.setSink(sink);
     operatorTest.setPageSize(5);
-    operatorTest.setup(new OperatorContextTestHelper.TestIdOperatorContext(3));
+    operatorTest.setup(mockOperatorContext(3));
 
     int totalDocsInDb = CouchDBTestHelper.getTotalDocuments();
     int rounds = (totalDocsInDb % 5 == 0 ? 0 : 1) + (totalDocsInDb / 5);

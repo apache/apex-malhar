@@ -22,10 +22,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.Description;
 
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.Stateless;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest.FSTestWatcher;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Functional Test for {@link AbstractWindowFileOutputOperator}
@@ -51,8 +53,7 @@ public class AbstractWindowFileOutputOperatorTest
 
   }
 
-  public static OperatorContextTestHelper.TestIdOperatorContext testOperatorContext =
-      new OperatorContextTestHelper.TestIdOperatorContext(0);
+  public static OperatorContext testOperatorContext = mockOperatorContext(0);
 
   public static class WindowFileOutputOperatorString extends AbstractWindowFileOutputOperator<String>
   {

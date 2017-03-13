@@ -24,13 +24,14 @@ import com.aerospike.client.Bin;
 import com.aerospike.client.Key;
 import com.aerospike.client.Record;
 import com.aerospike.client.query.Statement;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.datatorrent.api.Context.OperatorContext;
 
 import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.NAMESPACE;
 import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.NODE;
@@ -127,7 +128,7 @@ public class AerospikeOperatorTest {
   public void TestAerospikeOutputOperator() {
 
     AerospikeTransactionalStore transactionalStore = getTransactionalStore();
-    OperatorContextTestHelper.TestIdOperatorContext context = getOperatorContext(APP_ID);
+    OperatorContext context = getOperatorContext(APP_ID);
     TestOutputOperator outputOperator = new TestOutputOperator();
 
     outputOperator.setStore(transactionalStore);
@@ -151,7 +152,7 @@ public class AerospikeOperatorTest {
   public void TestAerospikeInputOperator() {
 
     AerospikeStore store = getStore();
-    OperatorContextTestHelper.TestIdOperatorContext context = getOperatorContext(APP_ID);
+    OperatorContext context = getOperatorContext(APP_ID);
     TestInputOperator inputOperator = new TestInputOperator();
 
     inputOperator.setStore(store);

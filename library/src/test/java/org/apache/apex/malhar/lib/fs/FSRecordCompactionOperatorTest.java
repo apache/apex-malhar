@@ -34,8 +34,9 @@ import org.apache.hadoop.fs.Path;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class FSRecordCompactionOperatorTest
 {
@@ -55,7 +56,7 @@ public class FSRecordCompactionOperatorTest
       Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(DAG.DAGContext.APPLICATION_ID, description.getClassName());
       attributes.put(DAG.DAGContext.APPLICATION_PATH, outputPath);
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+      context = mockOperatorContext(1, attributes);
 
       underTest = new FSRecordCompactionOperator<byte[]>();
       underTest.setConverter(new GenericFileOutputOperator.NoOpConverter());

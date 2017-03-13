@@ -29,9 +29,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-
 import com.datatorrent.api.Attribute.AttributeMap;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 
 import com.datatorrent.netlet.util.DTThrowable;
@@ -40,6 +39,8 @@ import java.util.List;
 import org.couchbase.mock.Bucket.BucketType;
 import org.couchbase.mock.BucketConfiguration;
 import org.couchbase.mock.CouchbaseMock;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class CouchBaseOutputOperatorTest
 {
@@ -167,7 +168,7 @@ public class CouchBaseOutputOperatorTest
     CouchbasePOJOSetOperator outputOperator = new CouchbasePOJOSetOperator();
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContext context = mockOperatorContext(OPERATOR_ID, attributeMap);
 
     outputOperator.setStore(store);
 

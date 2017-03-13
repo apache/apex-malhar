@@ -37,13 +37,14 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.GROUP_ID_CONFIG;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG;
@@ -159,8 +160,7 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     attributeMap.put(Context.DAGContext.APPLICATION_NAME, "MyKafkaApp");
     attributeMap.put(DAG.APPLICATION_PATH, APPLICATION_PATH);
 
-    OperatorContextTestHelper.TestIdOperatorContext operatorContext =
-        new OperatorContextTestHelper.TestIdOperatorContext(2, attributeMap);
+    OperatorContext operatorContext = mockOperatorContext(2, attributeMap);
 
     cleanUp(operatorContext);
 

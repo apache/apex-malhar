@@ -19,6 +19,7 @@
 package com.datatorrent.contrib.hbase;
 
 import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.OPERATOR_ID;
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +42,6 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.contrib.util.TestPOJO;
 import com.datatorrent.contrib.util.TupleCacheOutputOperator;
 import com.datatorrent.contrib.util.TupleGenerateCacheOperator;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.util.FieldInfo.SupportType;
 import com.datatorrent.lib.util.TableInfo;
 
@@ -198,8 +198,7 @@ public class HBasePOJOInputOperatorTest
     hbaseInputOperator.setStore(store);
     hbaseOutputOperator.setStore(store);
 
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
-        OPERATOR_ID, new AttributeMap.DefaultAttributeMap());
+    OperatorContext context = mockOperatorContext(OPERATOR_ID, new AttributeMap.DefaultAttributeMap());
     hbaseInputOperator.setup(context);
     hbaseOutputOperator.setup(context);
   }

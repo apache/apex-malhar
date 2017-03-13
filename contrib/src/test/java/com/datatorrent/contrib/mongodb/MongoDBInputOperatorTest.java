@@ -23,9 +23,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.mongodb.DBCursor;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  *
@@ -63,7 +64,7 @@ public class MongoDBInputOperatorTest
 
 //    AttributeMap<DAGContext> attrmap = new DefaultAttributeMap<DAGContext>();
 //    attrmap.attr(DAG.STRAM_APP_ID).set("myMongoDBInputOperatorAppId");
-    oper.setup(new OperatorContextTestHelper.TestIdOperatorContext(1));
+    oper.setup(mockOperatorContext(1));
 
     oper.beginWindow(0);
 

@@ -38,6 +38,8 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.stram.engine.PortContext;
 
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+
 @Ignore
 public class POJOInnerJoinOperatorTest
 {
@@ -129,7 +131,7 @@ public class POJOInnerJoinOperatorTest
     applicationPath =  OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
     attributes = new Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
-    context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+    context = mockOperatorContext(1, attributes);
   }
 
   @After

@@ -36,12 +36,13 @@ import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 
 import com.datatorrent.api.Attribute;
-import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.fileaccess.FileAccess;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.util.comparator.SliceComparator;
 import com.datatorrent.netlet.util.Slice;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class ManagedStateTestUtils
 {
@@ -112,17 +113,17 @@ public class ManagedStateTestUtils
     return bucketData;
   }
 
-  public static Context.OperatorContext getOperatorContext(int operatorId, String applicationPath)
+  public static OperatorContext getOperatorContext(int operatorId, String applicationPath)
   {
     Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
-    return new OperatorContextTestHelper.TestIdOperatorContext(operatorId, attributes);
+    return mockOperatorContext(operatorId, attributes);
   }
 
-  public static Context.OperatorContext getOperatorContext(int operatorId)
+  public static OperatorContext getOperatorContext(int operatorId)
   {
     Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
-    return new OperatorContextTestHelper.TestIdOperatorContext(operatorId, attributes);
+    return mockOperatorContext(operatorId, attributes);
   }
 
   private static final transient Logger LOG = LoggerFactory.getLogger(ManagedStateTestUtils.class);

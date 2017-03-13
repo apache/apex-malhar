@@ -42,9 +42,10 @@ import com.datatorrent.api.Attribute;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.netlet.util.DTThrowable;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  *
@@ -198,7 +199,7 @@ public class RabbitMQInputOperatorTest
     CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
 
     operator.outputPort.setSink(sink);
-    OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+    OperatorContext context = mockOperatorContext(1, attributeMap);
 
     operator.setup(context);
     operator.activate(context);

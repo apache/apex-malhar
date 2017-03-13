@@ -19,11 +19,9 @@
 package com.datatorrent.contrib.memsql;
 
 import com.datatorrent.api.Attribute;
-import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context;
-import com.datatorrent.api.DAG;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.db.jdbc.JdbcTransactionalStore;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -33,6 +31,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class AbstractMemsqlInputOperatorTest
 {
@@ -181,7 +181,7 @@ public class AbstractMemsqlInputOperatorTest
     populateDatabase(createStore(null, true));
     Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContext context = mockOperatorContext(OPERATOR_ID, attributeMap);
     MemsqlPOJOInputOperator inputOperator = new MemsqlPOJOInputOperator();
     createStore((MemsqlStore)inputOperator.getStore(), true);
     inputOperator.setBatchSize(10);

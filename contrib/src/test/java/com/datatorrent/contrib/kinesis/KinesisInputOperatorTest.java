@@ -42,8 +42,9 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class KinesisInputOperatorTest extends KinesisOperatorTestBase
 {
@@ -233,7 +234,7 @@ public class KinesisInputOperatorTest extends KinesisOperatorTestBase
     attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
     attributeMap.put(Context.DAGContext.APPLICATION_PATH, testMeta.baseDir);
 
-    testMeta.context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+    testMeta.context = mockOperatorContext(1, attributeMap);
     testMeta.operator = new KinesisStringInputOperator();
 
     KinesisUtil.getInstance().setClient(client);

@@ -26,10 +26,11 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.helper.TestPortContext;
 
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -43,7 +44,7 @@ public class AbstractUpsertOutputOperatorCompositePKTest
   public static final int OPERATOR_ID_FOR_COMPOSITE_PRIMARY_KEYS = 2;
 
   CompositePrimaryKeyUpdateOperator compositePrimaryKeysOperator = null;
-  OperatorContextTestHelper.TestIdOperatorContext contextForCompositePrimaryKeysOperator;
+  OperatorContext contextForCompositePrimaryKeysOperator;
   TestPortContext testPortContextForCompositePrimaryKeys;
 
   @Before
@@ -52,8 +53,7 @@ public class AbstractUpsertOutputOperatorCompositePKTest
     Attribute.AttributeMap.DefaultAttributeMap attributeMapForCompositePrimaryKey =
         new Attribute.AttributeMap.DefaultAttributeMap();
     attributeMapForCompositePrimaryKey.put(DAG.APPLICATION_ID, APP_ID);
-    contextForCompositePrimaryKeysOperator = new OperatorContextTestHelper.TestIdOperatorContext(
-                OPERATOR_ID_FOR_COMPOSITE_PRIMARY_KEYS,
+    contextForCompositePrimaryKeysOperator = mockOperatorContext(OPERATOR_ID_FOR_COMPOSITE_PRIMARY_KEYS,
                 attributeMapForCompositePrimaryKey);
 
     Attribute.AttributeMap.DefaultAttributeMap portAttributesForCompositePrimaryKeys =

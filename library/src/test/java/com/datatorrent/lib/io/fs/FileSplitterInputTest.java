@@ -45,11 +45,12 @@ import org.apache.hadoop.fs.Path;
 import com.google.common.collect.Sets;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.block.BlockMetadata;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KryoCloneUtils;
 import com.datatorrent.lib.util.TestUtils;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Tests for {@link FileSplitterInput}
@@ -111,7 +112,7 @@ public class FileSplitterInputTest
       attributes.put(Context.DAGContext.APPLICATION_PATH,
           "target/" + className + "/" + methodName + "/" + Long.toHexString(System.currentTimeMillis()));
 
-      context = new OperatorContextTestHelper.TestIdOperatorContext(0, attributes);
+      context = mockOperatorContext(0, attributes);
       fileMetadataSink = new CollectorTestSink<>();
       blockMetadataSink = new CollectorTestSink<>();
       resetSinks();

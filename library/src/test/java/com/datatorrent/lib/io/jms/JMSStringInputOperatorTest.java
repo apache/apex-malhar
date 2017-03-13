@@ -40,8 +40,9 @@ import org.apache.commons.io.FileUtils;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Tests for {@link JMSStringInputOperator}
@@ -73,7 +74,7 @@ public class JMSStringInputOperatorTest
       attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
       attributeMap.put(Context.DAGContext.APPLICATION_PATH, baseDir);
 
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+      context = mockOperatorContext(1, attributeMap);
       operator = new JMSStringInputOperator();
       operator.setSubject("TEST.FOO");
       operator.getConnectionFactoryProperties().put(JMSTestBase.AMQ_BROKER_URL, "vm://localhost");

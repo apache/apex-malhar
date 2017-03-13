@@ -36,9 +36,11 @@ import com.google.common.collect.Sets;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.util.KryoCloneUtils;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class SpillableSetMultimapImplTest
 {
@@ -260,8 +262,7 @@ public class SpillableSetMultimapImplTest
     Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_PATH, testMeta.applicationPath);
     attributes.put(Context.OperatorContext.ACTIVATION_WINDOW_ID, activationWindow);
-    Context.OperatorContext context =
-        new OperatorContextTestHelper.TestIdOperatorContext(testMeta.operatorContext.getId(), attributes);
+    OperatorContext context = mockOperatorContext(testMeta.operatorContext.getId(), attributes);
 
     store.setup(context);
     map.setup(context);
@@ -297,8 +298,7 @@ public class SpillableSetMultimapImplTest
 
     Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_PATH, testMeta.applicationPath);
-    Context.OperatorContext context =
-        new OperatorContextTestHelper.TestIdOperatorContext(testMeta.operatorContext.getId(), attributes);
+    OperatorContext context = mockOperatorContext(testMeta.operatorContext.getId(), attributes);
     store.setup(context);
     multimap.setup(context);
 

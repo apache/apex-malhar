@@ -32,9 +32,11 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.netlet.util.DTThrowable;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Test for {@link AbstractJdbcNonTransactionableOutputOperator Operator}
@@ -138,8 +140,7 @@ public class JdbcNonTransactionalOutputOperatorTest
 
     com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
-        OPERATOR_ID, attributeMap);
+    OperatorContext context = mockOperatorContext(OPERATOR_ID, attributeMap);
     outputOperator.setStore(store);
 
     outputOperator.setup(context);

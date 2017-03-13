@@ -44,14 +44,15 @@ import com.google.common.collect.Lists;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Partitioner;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.helper.TestPortContext;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.lib.util.KeyValPair;
 
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.times;
@@ -119,8 +120,7 @@ public class JdbcPojoPollableOpeartorTest extends JdbcOperatorTest
       partitionAttributeMap.put(DAG.APPLICATION_ID, APP_ID);
       partitionAttributeMap.put(Context.DAGContext.APPLICATION_PATH, dir);
 
-      OperatorContextTestHelper.TestIdOperatorContext partitioningContext = new OperatorContextTestHelper.TestIdOperatorContext(
-          operatorId++, partitionAttributeMap);
+      OperatorContext partitioningContext = mockOperatorContext(operatorId++, partitionAttributeMap);
 
       JdbcPOJOPollInputOperator parition = (JdbcPOJOPollInputOperator)partition.getPartitionedInstance();
       parition.outputPort.setup(tpc);
@@ -197,8 +197,7 @@ public class JdbcPojoPollableOpeartorTest extends JdbcOperatorTest
     partitionAttributeMap.put(DAG.APPLICATION_ID, APP_ID);
     partitionAttributeMap.put(Context.DAGContext.APPLICATION_PATH, dir);
 
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
-        operatorId, partitionAttributeMap);
+    OperatorContext context = mockOperatorContext(operatorId, partitionAttributeMap);
 
     JdbcPOJOPollInputOperator inputOperator = new JdbcPOJOPollInputOperator();
     inputOperator.setStore(store);
@@ -262,8 +261,7 @@ public class JdbcPojoPollableOpeartorTest extends JdbcOperatorTest
       partitionAttributeMap.put(DAG.APPLICATION_ID, APP_ID);
       partitionAttributeMap.put(Context.DAGContext.APPLICATION_PATH, dir);
 
-      OperatorContextTestHelper.TestIdOperatorContext partitioningContext = new OperatorContextTestHelper.TestIdOperatorContext(
-          operatorId++, partitionAttributeMap);
+      OperatorContext partitioningContext = mockOperatorContext(operatorId++, partitionAttributeMap);
 
       JdbcPOJOPollInputOperator parition = (JdbcPOJOPollInputOperator)partition.getPartitionedInstance();
       parition.outputPort.setup(tpc);

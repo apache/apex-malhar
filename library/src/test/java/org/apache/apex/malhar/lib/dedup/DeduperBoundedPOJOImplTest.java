@@ -38,6 +38,8 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.stram.engine.PortContext;
 
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+
 public class DeduperBoundedPOJOImplTest
 {
   private static String applicationPath;
@@ -64,7 +66,7 @@ public class DeduperBoundedPOJOImplTest
     attributes.put(DAG.APPLICATION_ID, APP_ID);
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
     attributes.put(DAG.InputPortMeta.TUPLE_CLASS, TestPojo.class);
-    OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributes);
+    OperatorContext context = mockOperatorContext(OPERATOR_ID, attributes);
     deduper.setup(context);
     deduper.input.setup(new PortContext(attributes, context));
     deduper.activate(context);

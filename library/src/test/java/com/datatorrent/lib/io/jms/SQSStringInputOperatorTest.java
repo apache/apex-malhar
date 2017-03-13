@@ -39,8 +39,9 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Tests for {@link JMSStringInputOperator} for AMZ SQS.
@@ -98,7 +99,7 @@ public class SQSStringInputOperatorTest
       attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
       attributeMap.put(Context.DAGContext.APPLICATION_PATH, baseDir);
 
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+      context = mockOperatorContext(1, attributeMap);
       operator = new JMSStringInputOperator();
       operator.setConnectionFactoryBuilder(new JMSBase.ConnectionFactoryBuilder()
       {

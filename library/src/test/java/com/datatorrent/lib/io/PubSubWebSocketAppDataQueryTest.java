@@ -26,7 +26,8 @@ import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.common.experimental.AppData.ConnectionInfoProvider;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class PubSubWebSocketAppDataQueryTest extends PubSubWebSocketAppDataOperatorTest
 {
@@ -38,10 +39,10 @@ public class PubSubWebSocketAppDataQueryTest extends PubSubWebSocketAppDataOpera
   {
     Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(Context.DAGContext.GATEWAY_CONNECT_ADDRESS, GATEWAY_CONNECT_ADDRESS_STRING);
-    context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+    context = mockOperatorContext(1, attributes);
 
     attributes = new Attribute.AttributeMap.DefaultAttributeMap();
-    emptyContext = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+    emptyContext = mockOperatorContext(1, attributes);
   }
 
   @Override

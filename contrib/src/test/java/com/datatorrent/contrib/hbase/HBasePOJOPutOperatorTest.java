@@ -33,7 +33,6 @@ import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.util.FieldInfo.SupportType;
 import com.datatorrent.lib.util.TableInfo;
 import com.datatorrent.contrib.util.TestPOJO;
@@ -45,6 +44,7 @@ import com.datatorrent.api.Operator.ProcessingMode;
 
 import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.APP_ID;
 import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.OPERATOR_ID;
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 
 public class HBasePOJOPutOperatorTest
@@ -168,8 +168,7 @@ public class HBasePOJOPutOperatorTest
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
 
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
-        OPERATOR_ID, attributeMap);
+    OperatorContext context = mockOperatorContext(OPERATOR_ID, attributeMap);
 
     operator.setup(context);
   }

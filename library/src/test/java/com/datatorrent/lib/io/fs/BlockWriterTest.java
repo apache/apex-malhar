@@ -38,10 +38,11 @@ import com.google.common.collect.Maps;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.block.AbstractBlockReader.ReaderRecord;
 import com.datatorrent.lib.io.block.BlockWriter;
 import com.datatorrent.netlet.util.Slice;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Unit tests for {@link BlockWriter}
@@ -79,7 +80,7 @@ public class BlockWriterTest
       Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(DAG.DAGContext.APPLICATION_ID, "PartitionWriterTest");
       attributes.put(DAG.DAGContext.APPLICATION_PATH, appDirectory);
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+      context = mockOperatorContext(1, attributes);
 
       underTest.setup(context);
 

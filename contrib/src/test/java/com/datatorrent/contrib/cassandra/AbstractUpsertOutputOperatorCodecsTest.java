@@ -31,10 +31,11 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.helper.TestPortContext;
 
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -94,7 +95,7 @@ public class AbstractUpsertOutputOperatorCodecsTest
 
 
   UserUpsertOperator userUpsertOperator = null;
-  OperatorContextTestHelper.TestIdOperatorContext contextForUserUpsertOperator;
+  OperatorContext contextForUserUpsertOperator;
   TestPortContext testPortContextForUserUpserts;
 
 
@@ -103,8 +104,7 @@ public class AbstractUpsertOutputOperatorCodecsTest
   {
     Attribute.AttributeMap.DefaultAttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    contextForUserUpsertOperator = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID_FOR_USER_UPSERTS,
-            attributeMap);
+    contextForUserUpsertOperator = mockOperatorContext(OPERATOR_ID_FOR_USER_UPSERTS, attributeMap);
     userUpsertOperator = new UserUpsertOperator();
 
     Attribute.AttributeMap.DefaultAttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();

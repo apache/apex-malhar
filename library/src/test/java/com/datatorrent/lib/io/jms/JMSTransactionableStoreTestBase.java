@@ -30,10 +30,12 @@ import org.junit.rules.TestWatcher;
 import org.apache.commons.io.FileUtils;
 
 import com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper.TestIdOperatorContext;
 import com.datatorrent.lib.io.jms.JMSOutputOperatorTest.JMSStringSinglePortOutputOperator;
 import com.datatorrent.lib.util.ActiveMQMultiTypeMessageListener;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Base testing class for testing transactionable store implementations.
@@ -48,7 +50,7 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
   public static JMSStringSinglePortOutputOperator outputOperator;
   public static Class<? extends JMSBaseTransactionableStore> storeClass;
 
-  public static TestIdOperatorContext testOperatorContext;
+  public static OperatorContext testOperatorContext;
 
   public static class TestMeta extends TestWatcher
   {
@@ -58,7 +60,7 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
       //Create fresh operator context
       DefaultAttributeMap attributes = new DefaultAttributeMap();
       attributes.put(DAG.APPLICATION_ID, APP_ID);
-      testOperatorContext = new TestIdOperatorContext(OPERATOR_ID, attributes);
+      testOperatorContext = mockOperatorContext(OPERATOR_ID, attributes);
       FileUtils.deleteQuietly(new File(FSPsuedoTransactionableStore.DEFAULT_RECOVERY_DIRECTORY));
     }
 

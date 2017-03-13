@@ -31,17 +31,18 @@ import org.junit.Test;
 import com.google.common.collect.Maps;
 
 import com.datatorrent.api.Attribute;
-import com.datatorrent.api.Context;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class MapTimeBasedJoinOperator
 {
   @Rule
   public final TestUtils.TestInfo testInfo = new TestUtils.TestInfo();
   private static Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
-  public static final Context.OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+  public static final OperatorContext context = mockOperatorContext(1, attributes);
 
   @Test
   public void testJoinOperator() throws IOException, InterruptedException

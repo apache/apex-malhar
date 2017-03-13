@@ -23,9 +23,12 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 
-import javax.annotation.Nonnull;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import com.datatorrent.api.Attribute;
+import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 
@@ -44,67 +47,41 @@ public class OperatorContextTestHelper
 
   };
 
-  public static class TestIdOperatorContext extends TestContext implements OperatorContext
+  public static OperatorContext mockOperatorContext(int id)
   {
-    int id;
-    com.datatorrent.api.Attribute.AttributeMap attributes;
+    return mockOperatorContext(id, null);
+  }
 
-    public TestIdOperatorContext(int id)
-    {
-      this.id = id;
-    }
 
-    public TestIdOperatorContext(int id, @Nonnull com.datatorrent.api.Attribute.AttributeMap map)
+  public static OperatorContext mockOperatorContext(int id, final AttributeMap map)
+  {
+    OperatorContext context = Mockito.mock(OperatorContext.class);
+    Mockito.when(context.getId()).thenReturn(id);
+    Mockito.when(context.getAttributes()).thenReturn(map);
+    Mockito.doThrow(new UnsupportedOperationException("not supported")).when(context).sendMetrics(Mockito.<Collection<String>>any());
+    Mockito.doThrow(new UnsupportedOperationException("not supported")).when(context).setCounters(Mockito.any());
+    Mockito.when(context.getValue(Mockito.<Attribute>any())).thenAnswer(new Answer<Object>()
     {
-      this.id = id;
-      this.attributes = map;
-    }
-
-    public com.datatorrent.api.Attribute.AttributeMap getAttributes()
-    {
-      return attributes;
-    }
-
-    @Override
-    public int getId()
-    {
-      return id;
-    }
-
-    @Override
-    public void sendMetrics(Collection<String> metricNames)
-    {
-      throw new UnsupportedOperationException("not supported");
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T> T getValue(Attribute<T> key)
-    {
-      T value = attributes.get(key);
-      if (value != null) {
-        return value;
+      @Override
+      public Object answer(InvocationOnMock invocation) throws Throwable
+      {
+        final Attribute key = (Attribute)invocation.getArguments()[0];
+        Object value = map.get(key);
+        if (value != null) {
+          return value;
+        }
+        return key.defaultValue;
       }
-      return super.getValue(key);
-    }
-
-    @Override
-    public void setCounters(Object counters)
-    {
-      /* intentionally no-op */
-    }
-
-    @Override
-    public int getWindowsFromCheckpoint()
-    {
-      return 0;
-    }
+    });
+    Mockito.doNothing().when(context).setCounters(Mockito.any());
+    Mockito.when(context.getWindowsFromCheckpoint()).thenReturn(0);
+    return context;
   }
 
   private static class TestContext implements Context
   {
     @Override
-    public com.datatorrent.api.Attribute.AttributeMap getAttributes()
+    public Attribute.AttributeMap getAttributes()
     {
       return null;
     }

@@ -63,15 +63,17 @@ import com.google.common.io.LimitInputStream;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.Stateless;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.RandomWordGenerator;
 import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 import com.datatorrent.netlet.util.DTThrowable;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class AbstractFileOutputOperatorTest
 {
@@ -87,7 +89,7 @@ public class AbstractFileOutputOperatorTest
   public static class FSTestWatcher extends TestInfo
   {
     public boolean writeToTmp = false;
-    public OperatorContextTestHelper.TestIdOperatorContext testOperatorContext;
+    public OperatorContext testOperatorContext;
 
     @Override
     protected void starting(Description description)
@@ -100,7 +102,7 @@ public class AbstractFileOutputOperatorTest
         attributeMap.put(Context.DAGContext.CHECKPOINT_WINDOW_COUNT, 60);
         attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
 
-        testOperatorContext = new OperatorContextTestHelper.TestIdOperatorContext(0, attributeMap);
+        testOperatorContext = mockOperatorContext(0, attributeMap);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }

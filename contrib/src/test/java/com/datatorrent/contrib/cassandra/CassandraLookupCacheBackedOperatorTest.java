@@ -30,10 +30,11 @@ import java.util.TimeZone;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
 
 import com.datatorrent.lib.db.jdbc.JDBCLookupCacheBackedOperatorTest;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Tests for Cassandra backed lookup cache.
@@ -93,7 +94,7 @@ public class CassandraLookupCacheBackedOperatorTest extends JDBCLookupCacheBacke
 
       lookupCacheBackedOperator.output.setSink(sink);
 
-      Context.OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(7);
+      OperatorContext context = mockOperatorContext(7);
       lookupCacheBackedOperator.setup(context);
     }
     catch (Exception ex) {

@@ -60,11 +60,12 @@ import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner.Partition;
 import com.datatorrent.api.StatsListener;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.fs.AbstractFileInputOperator.DirectoryScanner;
 import com.datatorrent.lib.partitioner.StatelessPartitionerTest.PartitioningContextImpl;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class AbstractFileInputOperatorTest
 {
@@ -82,7 +83,7 @@ public class AbstractFileInputOperatorTest
       this.dir = "target/" + className + "/" + methodName;
       Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(Context.DAGContext.APPLICATION_PATH, dir);
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+      context = mockOperatorContext(1, attributes);
     }
 
     @Override

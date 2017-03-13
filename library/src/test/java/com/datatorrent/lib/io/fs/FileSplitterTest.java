@@ -45,10 +45,11 @@ import com.google.common.collect.Sets;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.block.BlockMetadata;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class FileSplitterTest
 {
@@ -114,7 +115,7 @@ public class FileSplitterTest
       Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(Context.DAGContext.APPLICATION_PATH, dataDirectory);
 
-      context = new OperatorContextTestHelper.TestIdOperatorContext(0, attributes);
+      context = mockOperatorContext(0, attributes);
       fileSplitter.setup(context);
 
       fileMetadataSink = new CollectorTestSink<>();

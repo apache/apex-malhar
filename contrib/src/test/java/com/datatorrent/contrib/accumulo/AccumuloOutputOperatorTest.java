@@ -25,11 +25,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.Attribute;
-import com.datatorrent.api.Attribute.AttributeMap;
-import com.datatorrent.api.Context.OperatorContext;
-
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class AccumuloOutputOperatorTest {
   private static final Logger logger = LoggerFactory
@@ -48,7 +44,7 @@ public class AccumuloOutputOperatorTest {
     atleastOper.getStore().setUserName("root");
     atleastOper.getStore().setPassword("pass");
 
-    atleastOper.setup(new OperatorContextTestHelper.TestIdOperatorContext(0));
+    atleastOper.setup(mockOperatorContext(0));
     atleastOper.beginWindow(0);
     AccumuloTuple a=new AccumuloTuple();
     a.setRow("john");a.setColFamily("colfam0");a.setColName("street");a.setColValue("patrick");

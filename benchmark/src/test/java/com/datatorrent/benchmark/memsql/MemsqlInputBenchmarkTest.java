@@ -38,12 +38,12 @@ import com.datatorrent.api.Operator.ProcessingMode;
 import com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest;
 import com.datatorrent.contrib.memsql.MemsqlPOJOOutputOperator;
 import com.datatorrent.contrib.memsql.MemsqlStore;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.netlet.util.DTThrowable;
 
 import static com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest.BATCH_SIZE;
 import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.APP_ID;
 import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.OPERATOR_ID;
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class MemsqlInputBenchmarkTest
 {
@@ -77,8 +77,7 @@ public class MemsqlInputBenchmarkTest
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context =
-        new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContext context = mockOperatorContext(OPERATOR_ID, attributeMap);
 
     long seedSize = conf.getLong("dt.seedSize", SEED_SIZE);
 

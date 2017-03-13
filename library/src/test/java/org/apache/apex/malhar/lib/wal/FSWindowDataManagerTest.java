@@ -34,11 +34,13 @@ import com.google.common.collect.Sets;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.Pair;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.util.TestUtils;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Tests for {@link WindowDataManager}
@@ -320,8 +322,7 @@ public class FSWindowDataManagerTest
   private Pair<Context.OperatorContext, FSWindowDataManager> createManagerAndContextFor(int operatorId)
   {
     FSWindowDataManager dataManager = new FSWindowDataManager();
-    Context.OperatorContext context =  new OperatorContextTestHelper.TestIdOperatorContext(operatorId,
-        testMeta.attributes);
+    OperatorContext context =  mockOperatorContext(operatorId, testMeta.attributes);
 
     return new Pair<>(context, dataManager);
   }

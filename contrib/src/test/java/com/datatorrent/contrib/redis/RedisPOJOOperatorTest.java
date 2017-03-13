@@ -33,10 +33,11 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.contrib.redis.RedisInputOperatorTest.CollectorModule;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.lib.util.FieldInfo.SupportType;
 import com.datatorrent.lib.util.KeyValPair;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class RedisPOJOOperatorTest
 {
@@ -105,7 +106,7 @@ public class RedisPOJOOperatorTest
       attributes.put(DAG.APPLICATION_ID, appId);
 
       outputOperator.setStore(operatorStore);
-      outputOperator.setup(new OperatorContextTestHelper.TestIdOperatorContext(operatorId, attributes));
+      outputOperator.setup(mockOperatorContext(operatorId, attributes));
       outputOperator.beginWindow(101);
 
       KeyValPair<String, Object> keyVal = new KeyValPair<String, Object>("test_abc1", new TestClass(1, "abc"));

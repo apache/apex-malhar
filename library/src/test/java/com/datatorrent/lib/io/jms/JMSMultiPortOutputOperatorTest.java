@@ -34,10 +34,11 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.io.FileUtils;
 
 import com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.helper.OperatorContextTestHelper.TestIdOperatorContext;
 import com.datatorrent.lib.util.ActiveMQMultiTypeMessageListener;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Test to verify JMS output operator adapter.
@@ -52,7 +53,7 @@ public class JMSMultiPortOutputOperatorTest extends JMSTestBase
   public static final String APP_ID = "appId";
   public static final int OPERATOR_ID = 1;
   public JMSMultiPortOutputOperator outputOperator;
-  public static  OperatorContextTestHelper.TestIdOperatorContext testOperatorContext;
+  public static OperatorContext testOperatorContext;
   public static final int HALF_BATCH_SIZE = 5;
   public static final int BATCH_SIZE = HALF_BATCH_SIZE * 2;
   public  final Random random = new Random();
@@ -65,7 +66,7 @@ public class JMSMultiPortOutputOperatorTest extends JMSTestBase
       logger.debug("Starting test {}", description.getMethodName());
       DefaultAttributeMap attributes = new DefaultAttributeMap();
       attributes.put(DAG.APPLICATION_ID, APP_ID);
-      testOperatorContext = new TestIdOperatorContext(OPERATOR_ID, attributes);
+      testOperatorContext = mockOperatorContext(OPERATOR_ID, attributes);
 
       try {
         FileUtils.deleteDirectory(new File(FSPsuedoTransactionableStore.DEFAULT_RECOVERY_DIRECTORY));
@@ -73,6 +74,8 @@ public class JMSMultiPortOutputOperatorTest extends JMSTestBase
         throw new RuntimeException(ex);
       }
     }
+
+
 
     @Override
     protected void finished(org.junit.runner.Description description)

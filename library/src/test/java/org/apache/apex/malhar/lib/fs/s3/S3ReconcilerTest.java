@@ -41,8 +41,8 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -69,7 +69,7 @@ public class S3ReconcilerTest
       Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(DAG.DAGContext.APPLICATION_ID, description.getClassName());
       attributes.put(DAG.DAGContext.APPLICATION_PATH, outputPath);
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+      context = mockOperatorContext(1, attributes);
 
       underTest = new S3Reconciler();
       underTest.setAccessKey("");

@@ -50,11 +50,12 @@ import com.google.common.collect.Lists;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.block.AbstractFSBlockReader;
 import com.datatorrent.lib.io.block.BlockMetadata;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.netlet.util.Slice;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 @Ignore
 public class S3FixedWidthRecordReaderTest
@@ -107,7 +108,7 @@ public class S3FixedWidthRecordReaderTest
       Attribute.AttributeMap.DefaultAttributeMap readerAttr = new Attribute.AttributeMap.DefaultAttributeMap();
       readerAttr.put(DAG.APPLICATION_ID, appId);
       readerAttr.put(Context.OperatorContext.SPIN_MILLIS, 10);
-      readerContext = new OperatorContextTestHelper.TestIdOperatorContext(1, readerAttr);
+      readerContext = mockOperatorContext(1, readerAttr);
 
       blockReader.setup(readerContext);
 

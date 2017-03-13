@@ -28,7 +28,8 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * @param <S>
@@ -124,7 +125,7 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
       com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributes = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(DAG.APPLICATION_ID, "test_appid");
       outputOperator.setStore(operatorStore);
-      outputOperator.setup(new OperatorContextTestHelper.TestIdOperatorContext(0, attributes));
+      outputOperator.setup(mockOperatorContext(0, attributes));
       outputOperator.beginWindow(100);
       Map<String, String> m = new HashMap<String, String>();
       m.put("test_abc", "123");

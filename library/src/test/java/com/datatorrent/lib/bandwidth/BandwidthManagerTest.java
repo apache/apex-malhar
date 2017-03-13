@@ -41,7 +41,8 @@ import org.apache.commons.io.FileUtils;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class BandwidthManagerTest
 {
@@ -172,7 +173,7 @@ public class BandwidthManagerTest
       applicationPath = "target/" + description.getClassName() + "/" + description.getMethodName();
       Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(DAG.APPLICATION_PATH, applicationPath);
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+      context = mockOperatorContext(1, attributes);
       underTest.setup(context);
     }
 

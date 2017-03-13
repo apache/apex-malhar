@@ -42,6 +42,7 @@ import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.fs.AbstractFileSplitter;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
@@ -76,7 +77,7 @@ public class S3InitiateFileUploadOperatorTest
     applicationPath =  OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
     attributes = new Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
-    context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+    context = mockOperatorContext(1, attributes);
   }
 
   @After

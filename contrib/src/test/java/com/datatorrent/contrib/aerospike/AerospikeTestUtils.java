@@ -29,11 +29,13 @@ import com.aerospike.client.Record;
 import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.Statement;
 import com.datatorrent.api.Attribute.AttributeMap;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Utility class encapsulating code used by several tests
@@ -143,11 +145,11 @@ public class AerospikeTestUtils {
     return result;
   }
 
-  static OperatorContextTestHelper.TestIdOperatorContext getOperatorContext(final String app_id)
+  static OperatorContext getOperatorContext(final String app_id)
   {
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, app_id);
-    return new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    return mockOperatorContext(OPERATOR_ID, attributeMap);
   }
 
   static ArrayList<String> getExpressions()

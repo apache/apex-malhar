@@ -39,10 +39,10 @@ import org.apache.hadoop.fs.Path;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.netlet.util.Slice;
 
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 import static org.mockito.Mockito.when;
 
 /**
@@ -79,7 +79,7 @@ public class FSSliceReaderTest
       Attribute.AttributeMap.DefaultAttributeMap readerAttr = new Attribute.AttributeMap.DefaultAttributeMap();
       readerAttr.put(DAG.APPLICATION_ID, Long.toHexString(System.currentTimeMillis()));
       readerAttr.put(Context.OperatorContext.SPIN_MILLIS, 10);
-      readerContext = new OperatorContextTestHelper.TestIdOperatorContext(1, readerAttr);
+      readerContext = mockOperatorContext(1, readerAttr);
 
       blockReader.setup(readerContext);
 
@@ -172,7 +172,7 @@ public class FSSliceReaderTest
 
     FSTestReader reader = new FSTestReader();
     reader.setBasePath(testMeta.output);
-    reader.setup(new OperatorContextTestHelper.TestIdOperatorContext(1, readerAttr));
+    reader.setup(mockOperatorContext(1, readerAttr));
     Assert.assertEquals("Block Size", blockSize, (long)((ReaderContext.FixedBytesReaderContext)reader.getReaderContext()).getLength());
   }
 }

@@ -34,12 +34,14 @@ import com.google.common.base.Preconditions;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.util.KryoCloneUtils;
 
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 @RunWith(JUnitParamsRunner.class)
 public class SpillableMapImplTest
@@ -439,8 +441,7 @@ public class SpillableMapImplTest
     Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_PATH, testMeta.applicationPath);
     attributes.put(Context.OperatorContext.ACTIVATION_WINDOW_ID, 1L);
-    Context.OperatorContext context =
-        new OperatorContextTestHelper.TestIdOperatorContext(testMeta.operatorContext.getId(), attributes);
+    OperatorContext context = mockOperatorContext(testMeta.operatorContext.getId(), attributes);
 
     map1 = clonedMap1;
     map1.getStore().setup(context);

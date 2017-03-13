@@ -32,9 +32,11 @@ import org.apache.hadoop.fs.FileSystem;
 
 import com.google.common.collect.Maps;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest.FSTestWatcher;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class AbstractSingleFileOutputOperatorTest
 {
@@ -43,8 +45,7 @@ public class AbstractSingleFileOutputOperatorTest
   @Rule
   public TestInfo testMeta = new PrivateTestWatcher();
 
-  public static OperatorContextTestHelper.TestIdOperatorContext testOperatorContext =
-      new OperatorContextTestHelper.TestIdOperatorContext(0);
+  public static OperatorContext testOperatorContext = mockOperatorContext(0);
 
   private static SimpleFileOutputOperator writer;
 

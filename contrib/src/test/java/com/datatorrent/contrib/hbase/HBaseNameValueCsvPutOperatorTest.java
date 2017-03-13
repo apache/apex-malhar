@@ -26,11 +26,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.Attribute;
-import com.datatorrent.api.Attribute.AttributeMap;
-import com.datatorrent.api.Context.OperatorContext;
-
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class HBaseNameValueCsvPutOperatorTest
 {
@@ -50,7 +46,7 @@ public class HBaseNameValueCsvPutOperatorTest
       String s = "name=milind,st=patrick,ct=fremont,sa=cali";
       String s1 = "st=tasman,ct=sancla,name=milinda,sa=cali";
       propPutOperator.setMapping("name=row,st=colfam0.street,ct=colfam0.city,sa=colfam0.state");
-      propPutOperator.setup(new OperatorContextTestHelper.TestIdOperatorContext(0));
+      propPutOperator.setup(mockOperatorContext(0));
       propPutOperator.beginWindow(0);
       propPutOperator.input.process(s);
       propPutOperator.input.process(s1);

@@ -38,8 +38,8 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.algo.UniqueValueCount.InternalCountOutput;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.helper.OperatorContextTestHelper.TestIdOperatorContext;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Test for {@link IntegerUniqueValueCountAppender} and {@link UniqueValueCountAppender}
@@ -156,7 +156,7 @@ public class DistributedDistinctTest
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
     attributes.put(OperatorContext.ACTIVATION_WINDOW_ID, 2L);
 
-    valueCounter.setup(new OperatorContextTestHelper.TestIdOperatorContext(0, attributes));
+    valueCounter.setup(mockOperatorContext(0, attributes));
 
     ResultSet resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 2");
     ArrayList<Integer> answersAfterClear = new ArrayList<Integer>();
@@ -194,7 +194,7 @@ public class DistributedDistinctTest
     valueCounter.setTableName(TABLE_NAME);
     valueCounter.getStore().setDatabaseDriver(INMEM_DB_DRIVER);
     valueCounter.getStore().setDatabaseUrl(INMEM_DB_URL);
-    TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributes);
+    OperatorContext context = mockOperatorContext(OPERATOR_ID, attributes);
     valueCounter.setup(context);
   }
 }

@@ -32,9 +32,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-
 import com.datatorrent.api.DAG;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class MongoDBOutputOperatorTest
 {
@@ -139,7 +139,7 @@ public class MongoDBOutputOperatorTest
     oper.setQueryFunction(1);
     oper.setColumnMapping(hashMapping1);
 
-    oper.setup(new OperatorContextTestHelper.TestIdOperatorContext(1));
+    oper.setup(mockOperatorContext(1));
 
     for (Object o: oper.getTableList()) {
       String table = (String)o;
@@ -178,7 +178,7 @@ public class MongoDBOutputOperatorTest
     oper.setQueryFunction(1);
     oper.setColumnMapping(arrayMapping1);
 
-    oper.setup(new OperatorContextTestHelper.TestIdOperatorContext(2));
+    oper.setup(mockOperatorContext(2));
     for (Object o: oper.getTableList()) {
       String table = (String)o;
       oper.db.getCollection(table).drop();
@@ -246,7 +246,7 @@ public class MongoDBOutputOperatorTest
     expressions.add("getAddress().getCity()");
     expressions.add("getAddress().getHousenumber()");
     oper.setExpressions(expressions);
-    oper.setup(new OperatorContextTestHelper.TestIdOperatorContext(2));
+    oper.setup(mockOperatorContext(2));
     for (String table: oper.getTableList()) {
       logger.debug("table in test is {}", table);
       oper.db.getCollection(table).drop();

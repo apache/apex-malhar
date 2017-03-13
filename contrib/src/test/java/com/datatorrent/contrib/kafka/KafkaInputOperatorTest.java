@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.DefaultInputPort;
@@ -50,10 +51,11 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.common.util.FSStorageAgent;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.partitioner.StatelessPartitionerTest;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.stram.StramLocalCluster;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 
 public class KafkaInputOperatorTest extends KafkaOperatorTestBase
@@ -381,7 +383,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     attributeMap.put(Context.DAGContext.APPLICATION_PATH, testMeta.baseDir);
 
 
-    testMeta.context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+    testMeta.context = mockOperatorContext(1, attributeMap);
     testMeta.operator = new KafkaSinglePortStringInputOperator();
 
     KafkaConsumer consumer = new SimpleKafkaConsumer();
@@ -438,7 +440,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(Context.DAGContext.APPLICATION_PATH, testMeta.baseDir);
 
-    Context.OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+    OperatorContext context = mockOperatorContext(1, attributeMap);
     KafkaSinglePortStringInputOperator operator = new KafkaSinglePortStringInputOperator();
 
     KafkaConsumer consumer = new SimpleKafkaConsumer();

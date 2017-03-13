@@ -44,8 +44,9 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.contrib.nifi.mock.MockDataPacket;
 import com.datatorrent.contrib.nifi.mock.MockSiteToSiteClient;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class NiFiSinglePortInputOperatorTest
 {
@@ -68,7 +69,7 @@ public class NiFiSinglePortInputOperatorTest
     Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_PATH, windowDataDir);
 
-    context = new OperatorContextTestHelper.TestIdOperatorContext(12345, attributeMap);
+    context = mockOperatorContext(12345, attributeMap);
 
     sink = new CollectorTestSink<>();
     builder = new MockSiteToSiteClient.Builder();

@@ -26,7 +26,8 @@ import org.junit.Test;
 import com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap;
 import com.datatorrent.api.Context.DAGContext;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.helper.OperatorContextTestHelper.TestIdOperatorContext;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class WindowUtilsTest
 {
@@ -108,6 +109,6 @@ public class WindowUtilsTest
     attributeMap.put(DAGContext.STREAMING_WINDOW_SIZE_MILLIS, streamingWindowMillis);
     attributeMap.put(OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCount);
 
-    return new TestIdOperatorContext(1, attributeMap);
+    return mockOperatorContext(1, attributeMap);
   }
 }

@@ -48,14 +48,17 @@ import com.google.common.collect.Sets;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.helper.TestPortContext;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * <p>
@@ -89,8 +92,8 @@ public class AvroFileInputOperatorTest
   public static class TestMeta extends TestWatcher
   {
     public String dir = null;
-    Context.OperatorContext context;
-    Context.PortContext portContext;
+    OperatorContext context;
+    PortContext portContext;
 
     @Override
     protected void starting(org.junit.runner.Description description)
@@ -100,7 +103,7 @@ public class AvroFileInputOperatorTest
       this.dir = "target/" + className + "/" + methodName;
       Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(Context.DAGContext.APPLICATION_PATH, dir);
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+      context = mockOperatorContext(1, attributes);
       Attribute.AttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();
       portAttributes.put(Context.PortContext.TUPLE_CLASS, SimpleOrder.class);
       portContext = new TestPortContext(portAttributes);
