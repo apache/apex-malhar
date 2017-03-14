@@ -18,14 +18,18 @@
  */
 package org.apache.apex.malhar.lib.window.accumulation;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.collect.Multimap;
+
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Test for POJO outer join accumulations
@@ -300,6 +304,128 @@ public class PojoOuterJoinTest
     accu = pij.accumulate(accu, new TestPojo1(2, "Bob"));
     accu = pij.accumulate2(accu, new TestPojo3(1, "NickJosh", 12));
     accu = pij.accumulate2(accu, new TestPojo3(3, "NickBob", 13));
+
+    Assert.assertEquals(3, pij.getOutput(accu).size());
+    Set<Integer> checkMap = new HashSet<>();
+    for ( int i = 0; i < 3; i++ ) {
+      Object o = pij.getOutput(accu).get(i);
+      Assert.assertTrue(o instanceof TestOutClass);
+      TestOutClass testOutClass = (TestOutClass)o;
+      int uId = testOutClass.getUId();
+      checkMap.add(uId);
+    }
+    Assert.assertEquals(3,checkMap.size());
+  }
+
+  @Test
+  public void PojoLeftOuterJoinTestWithMap()
+  {
+    String[] leftKeys = {"uId", "uName"};
+    String[] rightKeys = {"uId", "uNickName"};
+    Map<String,KeyValPair<AbstractPojoJoin.STREAM, String>> outputInputMap = new HashMap<>();
+    outputInputMap.put("uId",new KeyValPair<>(AbstractPojoJoin.STREAM.LEFT,"uId"));
+    outputInputMap.put("age",new KeyValPair<>(AbstractPojoJoin.STREAM.RIGHT,"age"));
+    PojoLeftOuterJoin<TestPojo1, TestPojo3> pij = new PojoLeftOuterJoin<>(TestOutClass.class, leftKeys, rightKeys, outputInputMap);
+
+    List<Multimap<List<Object>, Object>> accu = pij.defaultAccumulatedValue();
+
+    Assert.assertEquals(2, accu.size());
+
+    accu = pij.accumulate(accu, new TestPojo1(1, "Josh"));
+    accu = pij.accumulate(accu, new TestPojo1(2, "Bob"));
+
+    accu = pij.accumulate2(accu, new TestPojo3(1, "Josh", 12));
+    accu = pij.accumulate2(accu, new TestPojo3(3, "ECE", 13));
+
+    List result = pij.getOutput(accu);
+    Assert.assertEquals(2, result.size());
+    Object o = result.get(0);
+    Assert.assertTrue(o instanceof TestOutClass);
+    TestOutClass testOutClass = (TestOutClass)o;
+    int uId = testOutClass.getUId();
+    if (uId == 1) {
+      checkNameAge(null,12,testOutClass);
+      o = result.get(1);
+      Assert.assertTrue(o instanceof TestOutClass);
+      testOutClass = (TestOutClass)o;
+      uId = testOutClass.getUId();
+      Assert.assertEquals(2, uId);
+      checkNameAge(null,0,testOutClass);
+    } else if (uId == 2) {
+      checkNameAge(null,0,testOutClass);
+      o = result.get(1);
+      Assert.assertTrue(o instanceof TestOutClass);
+      testOutClass = (TestOutClass)o;
+      uId = testOutClass.getUId();
+      Assert.assertEquals(1, uId);
+      checkNameAge(null,12,testOutClass);
+    }
+  }
+
+  @Test
+  public void PojoRightOuterJoinTestWithMap()
+  {
+    String[] leftKeys = {"uId", "uName"};
+    String[] rightKeys = {"uId", "uNickName"};
+    Map<String,KeyValPair<AbstractPojoJoin.STREAM, String>> outputInputMap = new HashMap<>();
+    outputInputMap.put("uId",new KeyValPair<>(AbstractPojoJoin.STREAM.LEFT,"uId"));
+    outputInputMap.put("age",new KeyValPair<>(AbstractPojoJoin.STREAM.RIGHT,"age"));
+    PojoRightOuterJoin<TestPojo1, TestPojo3> pij = new PojoRightOuterJoin<>(TestOutClass.class, leftKeys, rightKeys, outputInputMap);
+
+    List<Multimap<List<Object>, Object>> accu = pij.defaultAccumulatedValue();
+
+    Assert.assertEquals(2, accu.size());
+
+    accu = pij.accumulate(accu, new TestPojo1(1, "Josh"));
+    accu = pij.accumulate(accu, new TestPojo1(2, "Bob"));
+
+    accu = pij.accumulate2(accu, new TestPojo3(1, "Josh", 12));
+    accu = pij.accumulate2(accu, new TestPojo3(3, "Bob", 13));
+
+    List result = pij.getOutput(accu);
+    Assert.assertEquals(2, result.size());
+    Object o = result.get(0);
+    Assert.assertTrue(o instanceof TestOutClass);
+    TestOutClass testOutClass = (TestOutClass)o;
+    int uId = testOutClass.getUId();
+    if (uId == 1) {
+      checkNameAge(null,12,testOutClass);
+      o = result.get(1);
+      Assert.assertTrue(o instanceof TestOutClass);
+      testOutClass = (TestOutClass)o;
+      uId = testOutClass.getUId();
+      Assert.assertEquals(0, uId);
+      checkNameAge(null,13,testOutClass);
+    } else if (uId == 0) {
+      checkNameAge(null,13,testOutClass);
+      o = result.get(1);
+      Assert.assertTrue(o instanceof TestOutClass);
+      testOutClass = (TestOutClass)o;
+      uId = testOutClass.getUId();
+      Assert.assertEquals(1, uId);
+      checkNameAge(null,12,testOutClass);
+    }
+  }
+
+  @Test
+  public void PojoFullOuterJoinTestWithMap()
+  {
+    String[] leftKeys = {"uId", "uName"};
+    String[] rightKeys = {"uId", "uNickName"};
+    Map<String,KeyValPair<AbstractPojoJoin.STREAM, String>> outputInputMap = new HashMap<>();
+    outputInputMap.put("uId",new KeyValPair<>(AbstractPojoJoin.STREAM.LEFT,"uId"));
+    outputInputMap.put("age",new KeyValPair<>(AbstractPojoJoin.STREAM.RIGHT,"age"));
+    PojoFullOuterJoin<TestPojo1, TestPojo3> pij = new PojoFullOuterJoin<>(TestOutClass.class, leftKeys, rightKeys, outputInputMap);
+
+    List<Multimap<List<Object>, Object>> accu = pij.defaultAccumulatedValue();
+
+    Assert.assertEquals(2, accu.size());
+
+    accu = pij.accumulate(accu, new TestPojo1(1, "Josh"));
+    accu = pij.accumulate(accu, new TestPojo1(2, "Bob"));
+
+    accu = pij.accumulate2(accu, new TestPojo3(1, "Josh", 12));
+    accu = pij.accumulate2(accu, new TestPojo3(3, "Bob", 13));
 
     Assert.assertEquals(3, pij.getOutput(accu).size());
     Set<Integer> checkMap = new HashSet<>();

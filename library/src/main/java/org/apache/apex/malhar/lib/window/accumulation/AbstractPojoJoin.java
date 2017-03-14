@@ -33,7 +33,10 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.PojoUtils;
+
+import static org.apache.apex.malhar.lib.window.accumulation.AbstractPojoJoin.STREAM.LEFT;
 
 /**
  * Join Accumulation for Pojo Streams.
@@ -47,9 +50,14 @@ public abstract class AbstractPojoJoin<InputT1, InputT2>
   protected Class<?> outClass;
   private transient Map<String,PojoUtils.Getter> gettersStream1;
   private transient Map<String,PojoUtils.Getter> gettersStream2;
-  private transient Map<String,PojoUtils.Setter> setters;
+  protected transient Map<String,PojoUtils.Setter> setters;
+  protected transient Map<String, KeyValPair<STREAM, String>> outputToInputMap;
   protected transient String[] leftKeys;
   protected transient String[] rightKeys;
+  public enum STREAM
+  {
+    LEFT, RIGHT
+  }
 
   public AbstractPojoJoin()
   {
@@ -58,6 +66,10 @@ public abstract class AbstractPojoJoin<InputT1, InputT2>
     outClass = null;
   }
 
+  /**
+   * This constructor will be used when the user wants to include all the fields of Output POJO
+   * and the field names of output POJO match the field names of POJO coming on input streams.
+   */
   public AbstractPojoJoin(Class<?> outClass, String[] leftKeys, String[] rightKeys)
   {
     if (leftKeys.length != rightKeys.length) {
@@ -68,6 +80,16 @@ public abstract class AbstractPojoJoin<InputT1, InputT2>
     this.outClass = outClass;
   }
 
+  /**
+   * This constructor will be used when the user wants to include some specific
+   * fields of the output POJO and/or wants to have a mapping of the fields of output
+   * POJO to POJO coming on input streams.
+   */
+  public AbstractPojoJoin(Class<?> outClass, String[] leftKeys, String[] rightKeys, Map<String, KeyValPair<STREAM, String>> outputToInputMap)
+  {
+    this(outClass,leftKeys,rightKeys);
+    this.outputToInputMap = outputToInputMap;
+  }
 
   private void createSetters()
   {
@@ -220,8 +242,24 @@ public abstract class AbstractPojoJoin<InputT1, InputT2>
         }
         for (Object lObj:left) {
           for (Object rObj:right) {
-            setObjectForResult(leftGettersStream, lObj,o);
-            setObjectForResult(rightGettersStream, rObj,o);
+            if (outputToInputMap != null) {
+              for (Map.Entry<String, KeyValPair<STREAM,String>> entry : outputToInputMap.entrySet()) {
+                KeyValPair<STREAM,String> kv = entry.getValue();
+                Object reqObject;
+                Map<String,PojoUtils.Getter> reqStream;
+                if (kv.getKey() == LEFT) {
+                  reqObject = leftStreamIndex == 0 ? lObj : rObj;
+                  reqStream = leftStreamIndex == 0 ? leftGettersStream : rightGettersStream;
+                } else {
+                  reqObject = leftStreamIndex == 0 ? rObj : lObj;
+                  reqStream = leftStreamIndex == 0 ? rightGettersStream : leftGettersStream;
+                }
+                setters.get(entry.getKey()).set(o,reqStream.get(entry.getValue().getValue()).get(reqObject));
+              }
+            } else {
+              setObjectForResult(leftGettersStream, lObj, o);
+              setObjectForResult(rightGettersStream, rObj, o);
+            }
           }
           result.add(o);
         }

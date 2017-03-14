@@ -24,6 +24,7 @@ import java.util.Map;
 
 import com.google.common.collect.Multimap;
 
+import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.PojoUtils;
 
 /**
@@ -57,6 +58,11 @@ public class PojoInnerJoin<InputT1, InputT2>
   public PojoInnerJoin(Class<?> outClass, String[] leftKeys, String[] rightKeys)
   {
     super(outClass,leftKeys,rightKeys);
+  }
+
+  public PojoInnerJoin(Class<?> outClass, String[] leftKeys, String[] rightKeys, Map<String, KeyValPair<STREAM, String>> outputToInputMap)
+  {
+    super(outClass,leftKeys,rightKeys, outputToInputMap);
   }
 
   @Override

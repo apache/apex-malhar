@@ -27,6 +27,8 @@ import org.junit.Test;
 
 import com.google.common.collect.Multimap;
 
+import com.datatorrent.lib.util.KeyValPair;
+
 /**
  * Test for {@link PojoInnerJoin}.
  */
@@ -286,6 +288,36 @@ public class PojoInnerJoinTest
     TestOutMultipleKeysClass testOutClass = (TestOutMultipleKeysClass)o;
     Assert.assertEquals(1, testOutClass.getUId());
     Assert.assertEquals("Josh", testOutClass.getUName());
+    Assert.assertEquals(12, testOutClass.getAge());
+  }
+
+  @Test
+  public void PojoInnerJoinTestWithMap()
+  {
+    String[] leftKeys = {"uId", "uName"};
+    String[] rightKeys = {"uId", "uNickName"};
+    Map<String,KeyValPair<AbstractPojoJoin.STREAM, String>> outputInputMap = new HashMap<>();
+    outputInputMap.put("uId",new KeyValPair<>(AbstractPojoJoin.STREAM.LEFT,"uId"));
+    outputInputMap.put("age",new KeyValPair<>(AbstractPojoJoin.STREAM.RIGHT,"age"));
+    PojoInnerJoin<TestPojo1, TestPojo3> pij = new PojoInnerJoin<>(TestOutMultipleKeysClass.class, leftKeys, rightKeys, outputInputMap);
+
+    List<Multimap<List<Object>, Object>> accu = pij.defaultAccumulatedValue();
+
+    Assert.assertEquals(2, accu.size());
+
+    accu = pij.accumulate(accu, new TestPojo1(1, "Josh"));
+    accu = pij.accumulate(accu, new TestPojo1(2, "Bob"));
+
+    accu = pij.accumulate2(accu, new TestPojo3(1, "Josh", 12));
+    accu = pij.accumulate2(accu, new TestPojo3(3, "ECE", 13));
+
+    Assert.assertEquals(1, pij.getOutput(accu).size());
+
+    Object o = pij.getOutput(accu).get(0);
+    Assert.assertTrue(o instanceof TestOutMultipleKeysClass);
+    TestOutMultipleKeysClass testOutClass = (TestOutMultipleKeysClass)o;
+    Assert.assertEquals(1, testOutClass.getUId());
+    Assert.assertEquals(null, testOutClass.getUName());
     Assert.assertEquals(12, testOutClass.getAge());
   }
 }

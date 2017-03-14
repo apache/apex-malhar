@@ -27,6 +27,7 @@ import org.apache.hadoop.classification.InterfaceStability;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Multimap;
 
+import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.PojoUtils;
 
 /**
@@ -47,6 +48,11 @@ public class PojoLeftOuterJoin<InputT1, InputT2>
     super(outClass,leftKeys,rightKeys);
   }
 
+  public PojoLeftOuterJoin(Class<?> outClass, String[] leftKeys, String[] rightKeys, Map<String, KeyValPair<STREAM, String>> outputToInputMap)
+  {
+    super(outClass,leftKeys,rightKeys, outputToInputMap);
+  }
+
   @Override
   public void addNonMatchingResult(Collection<Object> left, Map<String,PojoUtils.Getter> leftGettersStream, List<Object> result)
   {
@@ -57,7 +63,15 @@ public class PojoLeftOuterJoin<InputT1, InputT2>
       } catch (Throwable e) {
         throw Throwables.propagate(e);
       }
-      setObjectForResult(leftGettersStream, lObj, o);
+      if (outputToInputMap != null) {
+        for (Map.Entry<String, KeyValPair<STREAM,String>> entry : outputToInputMap.entrySet()) {
+          if (entry.getValue().getKey() == STREAM.LEFT) {
+            setters.get(entry.getKey()).set(o, leftGettersStream.get(entry.getValue().getValue()).get(lObj));
+          }
+        }
+      } else {
+        setObjectForResult(leftGettersStream, lObj, o);
+      }
       result.add(o);
     }
   }

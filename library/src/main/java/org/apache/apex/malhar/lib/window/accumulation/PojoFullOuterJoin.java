@@ -27,6 +27,7 @@ import org.apache.hadoop.classification.InterfaceStability;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Multimap;
 
+import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.PojoUtils;
 
 /**
@@ -47,6 +48,11 @@ public class PojoFullOuterJoin<InputT1, InputT2>
     super(outClass,leftKeys,rightKeys);
   }
 
+  public PojoFullOuterJoin(Class<?> outClass, String[] leftKeys, String[] rightKeys, Map<String, KeyValPair<STREAM, String>> outputToInputMap)
+  {
+    super(outClass,leftKeys,rightKeys, outputToInputMap);
+  }
+
   @Override
   public void addNonMatchingResult(Collection<Object> left, Map<String,PojoUtils.Getter> leftGettersStream, List<Object> result)
   {
@@ -57,7 +63,15 @@ public class PojoFullOuterJoin<InputT1, InputT2>
       } catch (Throwable e) {
         throw Throwables.propagate(e);
       }
-      setObjectForResult(leftGettersStream, lObj, o);
+      if (outputToInputMap != null) {
+        for (Map.Entry<String, KeyValPair<STREAM,String>> entry : outputToInputMap.entrySet()) {
+          if (entry.getValue().getKey() == STREAM.LEFT) {
+            setters.get(entry.getKey()).set(o, leftGettersStream.get(entry.getValue().getValue()).get(lObj));
+          }
+        }
+      } else {
+        setObjectForResult(leftGettersStream, lObj, o);
+      }
       result.add(o);
     }
   }
@@ -67,13 +81,30 @@ public class PojoFullOuterJoin<InputT1, InputT2>
       Map<String,PojoUtils.Getter> rightGettersStream, List<Object> result)
   {
     for (Object key : rightStream.keySet()) {
-      addNonMatchingResult(rightStream.get((List)key), rightGettersStream, result);
+      if (outputToInputMap == null) {
+        addNonMatchingResult(rightStream.get((List)key), rightGettersStream, result);
+      } else {
+        for (Object obj:  rightStream.get((List)key)) {
+          Object o;
+          try {
+            o = outClass.newInstance();
+          } catch (Throwable e) {
+            throw Throwables.propagate(e);
+          }
+          for (Map.Entry<String, KeyValPair<STREAM,String>> entry : outputToInputMap.entrySet()) {
+            if (entry.getValue().getKey() == STREAM.RIGHT) {
+              setters.get(entry.getKey()).set(o, rightGettersStream.get(entry.getValue().getValue()).get(obj));
+            }
+          }
+          result.add(o);
+        }
+      }
     }
   }
 
   @Override
   public int getLeftStreamIndex()
   {
-    return 1;
+    return 0;
   }
 }
