@@ -93,6 +93,7 @@ public abstract class AbstractJMSOutputOperator extends JMSBase implements Opera
     store.setBase(this);
     store.setAppId(appId);
     store.setOperatorId(operatorId);
+    store.setSubject(getSubject());
     transacted = store.isTransactable();
 
     try {

@@ -44,6 +44,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
 
   private transient MessageProducer producer;
   private transient MessageConsumer consumer;
+  private static String OPERATOR_ID = "operatorId";
 
   /**
    * Indicates whether the store is connected or not.
@@ -68,14 +69,15 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
 
       beginTransaction();
       BytesMessage message = (BytesMessage)consumer.receive();
-      logger.debug("Retrieved committed window message id {}", message.getJMSMessageID());
+      logger.debug("Retrieved committed window message id {} messageOperatorIdProp {}", message.getJMSMessageID(), message.getIntProperty(OPERATOR_ID));
       long windowId = message.readLong();
 
       message = getBase().getSession().createBytesMessage();
+      message.setIntProperty(OPERATOR_ID, operatorId);
       message.writeLong(windowId);
       producer.send(message);
       commitTransaction();
-
+      logger.info("getQueueName: " + getQueueName(appId, operatorId));
       logger.debug("Retrieved windowId {}", windowId);
       return windowId;
     } catch (JMSException ex) {
@@ -95,6 +97,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
     try {
       removeCommittedWindowId(appId, operatorId);
       BytesMessage bytesMessage = this.getBase().getSession().createBytesMessage();
+      bytesMessage.setIntProperty(OPERATOR_ID, operatorId);
       bytesMessage.writeLong(windowId);
       producer.send(bytesMessage);
       logger.debug("Retrieved committed window message id {}", bytesMessage.getJMSMessageID());
@@ -175,7 +178,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
       }
 
       Queue queue = getBase().getSession().createQueue(queueName);
-      QueueBrowser browser = getBase().getSession().createBrowser(queue);
+      QueueBrowser browser = getBase().getSession().createBrowser(queue,"operatorId=" + String.valueOf(getOperatorId()));
       boolean hasStore;
 
       try {
@@ -186,7 +189,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
       }
 
       producer = getBase().getSession().createProducer(queue);
-      consumer = getBase().getSession().createConsumer(queue);
+      consumer = getBase().getSession().createConsumer(queue, "operatorId=" + String.valueOf(getOperatorId()));
 
       connected = true;
       logger.debug("Connected. is in transaction: {}", inTransaction);
@@ -194,6 +197,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
       if (!hasStore) {
         beginTransaction();
         BytesMessage message = getBase().getSession().createBytesMessage();
+        message.setIntProperty(OPERATOR_ID, getOperatorId());
         message.writeLong(-1L);
         producer.send(message);
         commitTransaction();
@@ -229,6 +233,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
 
   private String getQueueName(String appId, int operatorId)
   {
-    return appId + "-" + operatorId;
+    return getSubject() + "." + "metadata";
+    //return appId + "-" + operatorId;
   }
 }
