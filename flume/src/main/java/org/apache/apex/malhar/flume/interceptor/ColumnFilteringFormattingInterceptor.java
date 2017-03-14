@@ -212,7 +212,7 @@ public class ColumnFilteringFormattingInterceptor implements Interceptor
           dstSeparators[i] = emptyStringBytes;
         }
       }
-      srcSeparator = context.getInteger(ColumnFilteringInterceptor.Constants.SRC_SEPARATOR, (int) ColumnFilteringInterceptor.Constants.SRC_SEPARATOR_DFLT).byteValue();
+      srcSeparator = context.getInteger(ColumnFilteringInterceptor.Constants.SRC_SEPARATOR, (int)ColumnFilteringInterceptor.Constants.SRC_SEPARATOR_DFLT).byteValue();
       this.prefix = lPrefix.getBytes();
     }
   }

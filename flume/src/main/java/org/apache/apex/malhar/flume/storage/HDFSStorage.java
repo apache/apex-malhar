@@ -32,6 +32,8 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.flume.sink.Server;
+
 import org.apache.flume.Context;
 import org.apache.flume.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
@@ -45,7 +47,6 @@ import com.google.common.primitives.Longs;
 
 import com.datatorrent.api.Component;
 import com.datatorrent.common.util.NameableThreadFactory;
-import org.apache.apex.malhar.flume.sink.Server;
 import com.datatorrent.netlet.util.Slice;
 
 /**

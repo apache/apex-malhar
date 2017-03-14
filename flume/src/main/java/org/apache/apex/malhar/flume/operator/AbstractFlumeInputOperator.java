@@ -33,11 +33,12 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-
-import org.apache.apex.malhar.flume.discovery.Discovery;
-import org.apache.apex.malhar.flume.sink.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.flume.discovery.Discovery;
+import org.apache.apex.malhar.flume.discovery.ZKAssistedDiscovery;
+import org.apache.apex.malhar.flume.sink.Server;
 
 import org.apache.flume.Event;
 
@@ -50,7 +51,6 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.StreamCodec;
-import org.apache.apex.malhar.flume.discovery.ZKAssistedDiscovery;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
 import com.datatorrent.netlet.util.Slice;
@@ -715,7 +715,7 @@ public abstract class AbstractFlumeInputOperator<T>
     }
 
   };
-  private static final transient ThreadLocal<Collection<Discovery.Service<byte[]>>> discoveredFlumeSinks =
+  protected static final transient ThreadLocal<Collection<Discovery.Service<byte[]>>> discoveredFlumeSinks =
       new ThreadLocal<Collection<Discovery.Service<byte[]>>>();
 
   @Override

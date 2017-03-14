@@ -25,11 +25,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.ServiceConfigurationError;
 
-import org.apache.apex.malhar.flume.discovery.Discovery;
-import org.apache.apex.malhar.flume.storage.EventCodec;
-import org.apache.apex.malhar.flume.storage.Storage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.flume.discovery.Discovery;
+import org.apache.apex.malhar.flume.sink.Server.Client;
+import org.apache.apex.malhar.flume.sink.Server.Request;
+import org.apache.apex.malhar.flume.storage.EventCodec;
+import org.apache.apex.malhar.flume.storage.Storage;
 
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -40,8 +43,7 @@ import org.apache.flume.sink.AbstractSink;
 
 import com.datatorrent.api.Component;
 import com.datatorrent.api.StreamCodec;
-import org.apache.apex.malhar.flume.sink.Server.Client;
-import org.apache.apex.malhar.flume.sink.Server.Request;
+
 import com.datatorrent.netlet.DefaultEventLoop;
 import com.datatorrent.netlet.NetletThrowable;
 import com.datatorrent.netlet.NetletThrowable.NetletRuntimeException;

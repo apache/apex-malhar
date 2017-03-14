@@ -29,9 +29,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.flume.discovery.Discovery;
+
 import org.apache.flume.channel.MemoryChannel;
 
-import com.datatorrent.flume.discovery.Discovery;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
 import com.datatorrent.netlet.util.Slice;
