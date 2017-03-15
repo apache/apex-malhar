@@ -182,7 +182,11 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
   @Override
   public void endWindow()
   {
-    if (!partialWindowTuples.isEmpty() && windowId > windowDataManager.getLargestCompletedWindow()) {
+    if (windowId <= windowDataManager.getLargestCompletedWindow()) {
+      return;
+    }
+
+    if (!partialWindowTuples.isEmpty()) {
       throw new RuntimeException("Violates Exactly once. Not all the tuples received after operator reset.");
     }
 
