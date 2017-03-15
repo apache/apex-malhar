@@ -52,6 +52,7 @@ import com.datatorrent.lib.partitioner.StatelessThroughputBasedPartitioner;
 public abstract class S3TupleOutputModule<INPUT> implements Module
 {
   public final transient ProxyInputPort<INPUT> input = new ProxyInputPort<INPUT>();
+  public final transient ProxyOutputPort<FSRecordCompactionOperator.OutputMetaData> output = new ProxyOutputPort<>();
 
   /**
    * AWS access key
@@ -65,9 +66,9 @@ public abstract class S3TupleOutputModule<INPUT> implements Module
   private String secretAccessKey;
 
   /**
-   * S3 End point
+   * S3 Region
    */
-  private String endPoint;
+  private String region;
   /**
    * Name of the bucket in which to upload the files
    */
@@ -144,7 +145,9 @@ public abstract class S3TupleOutputModule<INPUT> implements Module
     s3Reconciler.setAccessKey(accessKey);
     s3Reconciler.setSecretKey(secretAccessKey);
     s3Reconciler.setBucketName(bucketName);
-    s3Reconciler.setEndPoint(endPoint);
+    if (region != null) {
+      s3Reconciler.setRegion(region);
+    }
     s3Reconciler.setDirectoryName(outputDirectoryPath);
 
     S3ReconcilerQueuePartitioner<S3Reconciler> reconcilerPartitioner = new S3ReconcilerQueuePartitioner<S3Reconciler>();
@@ -157,11 +160,9 @@ public abstract class S3TupleOutputModule<INPUT> implements Module
         Arrays.asList(new StatsListener[] {reconcilerPartitioner}));
     dag.setAttribute(s3Reconciler, OperatorContext.PARTITIONER, reconcilerPartitioner);
 
-    if (endPoint != null) {
-      s3Reconciler.setEndPoint(endPoint);
-    }
     dag.addStream("write-to-s3", s3compaction.output, s3Reconciler.input);
     input.set(s3compaction.input);
+    output.set(s3Reconciler.outputPort);
   }
 
   /**
@@ -228,24 +229,21 @@ public abstract class S3TupleOutputModule<INPUT> implements Module
   }
 
   /**
-   * Return the S3 End point
-   *
-   * @return S3 End point
+   * Get the S3 Region
+   * @return region
    */
-  public String getEndPoint()
+  public String getRegion()
   {
-    return endPoint;
+    return region;
   }
 
   /**
-   * Set the S3 End point
-   *
-   * @param endPoint
-   *          S3 end point
+   * Set the AWS S3 region
+   * @param region region
    */
-  public void setEndPoint(String endPoint)
+  public void setRegion(String region)
   {
-    this.endPoint = Preconditions.checkNotNull(endPoint);
+    this.region = region;
   }
 
   /**

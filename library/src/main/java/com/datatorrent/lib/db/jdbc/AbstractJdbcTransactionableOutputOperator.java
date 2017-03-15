@@ -68,9 +68,9 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T>
 
   @Min(1)
   private int batchSize;
-  private final List<T> tuples;
+  protected final List<T> tuples;
 
-  private transient int batchStartIdx;
+  protected transient int batchStartIdx;
   private transient PreparedStatement updateCommand;
 
   @OutputPortFieldAnnotation(optional = true)
@@ -139,7 +139,7 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T>
     }
   }
 
-  private void processBatch()
+  protected void processBatch()
   {
     logger.debug("start {} end {}", batchStartIdx, tuples.size());
     try {
@@ -165,7 +165,7 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T>
    * @param updateCounts
    * @param commandsInBatch
    */
-  private void processUpdateCounts(int[] updateCounts, int commandsInBatch)
+  protected void processUpdateCounts(int[] updateCounts, int commandsInBatch)
   {
     if (updateCounts.length < commandsInBatch) {
       // Driver chose not to continue processing after failure.

@@ -35,15 +35,19 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.lib.io.fs.AbstractReconciler;
 
 /**
@@ -74,9 +78,9 @@ public class S3Reconciler extends AbstractReconciler<FSRecordCompactionOperator.
   private String bucketName;
 
   /**
-   * S3 End point
+   * S3 Region
    */
-  private String endPoint;
+  private String region;
 
   /**
    * Directory name under S3 bucket
@@ -98,10 +102,15 @@ public class S3Reconciler extends AbstractReconciler<FSRecordCompactionOperator.
 
   private static final String TMP_EXTENSION = ".tmp";
 
+  public final transient DefaultOutputPort<FSRecordCompactionOperator.OutputMetaData> outputPort = new DefaultOutputPort<>();
+
   @Override
   public void setup(Context.OperatorContext context)
   {
     s3client = new AmazonS3Client(new BasicAWSCredentials(accessKey, secretKey));
+    if (region != null) {
+      s3client.setRegion(Region.getRegion(Regions.fromName(region)));
+    }
     filePath = context.getValue(DAG.APPLICATION_PATH);
     try {
       fs = FileSystem.newInstance(new Path(filePath).toUri(), new Configuration());
@@ -144,9 +153,8 @@ public class S3Reconciler extends AbstractReconciler<FSRecordCompactionOperator.
         throw new RuntimeException("PutRequestSize greater than Integer.MAX_VALUE");
       }
       if (fs.exists(path)) {
-        logger.debug("Trying to upload : {}", path);
-        s3client.putObject(request);
-        logger.debug("Uploading : {}", keyName);
+        PutObjectResult result = s3client.putObject(request);
+        logger.debug("File {} Uploaded at {}", keyName, result.getETag());
       }
     } catch (FileNotFoundException e) {
       logger.debug("Ignoring non-existent path assuming replay : {}", outputMetaData.getPath());
@@ -161,36 +169,48 @@ public class S3Reconciler extends AbstractReconciler<FSRecordCompactionOperator.
   @Override
   public void endWindow()
   {
-    logger.info("in endWindow()");
     while (doneTuples.peek() != null) {
       FSRecordCompactionOperator.OutputMetaData metaData = doneTuples.poll();
-      logger.debug("found metaData = {}", metaData);
-      committedTuples.remove(metaData);
-      try {
-        Path dest = new Path(metaData.getPath());
-        //Deleting the intermediate files and when writing to tmp files
-        // there can be vagrant tmp files which we have to clean
-        FileStatus[] statuses = fs.listStatus(dest.getParent());
+      removeIntermediateFiles(metaData);
+      /*if (outputPort.isConnected()) {
+        // Emit the meta data with S3 path
+        metaData.setPath(getDirectoryName() + Path.SEPARATOR + metaData.getFileName());
+        outputPort.emit(metaData);
+      }*/
+    }
+  }
 
-        for (FileStatus status : statuses) {
-          String statusName = status.getPath().getName();
-          if (statusName.endsWith(TMP_EXTENSION) && statusName.startsWith(metaData.getFileName())) {
-            //a tmp file has tmp extension always preceded by timestamp
-            String actualFileName = statusName.substring(0,
-                statusName.lastIndexOf('.', statusName.lastIndexOf('.') - 1));
-            logger.debug("actualFileName = {}", actualFileName);
-            if (metaData.getFileName().equals(actualFileName)) {
-              logger.debug("deleting stray file {}", statusName);
-              fs.delete(status.getPath(), true);
-            }
-          } else if (statusName.equals(metaData.getFileName())) {
-            logger.info("deleting s3-compaction file {}", statusName);
+  /**
+   * Remove intermediate files
+   */
+  protected void removeIntermediateFiles(FSRecordCompactionOperator.OutputMetaData metaData)
+  {
+    logger.debug("found metaData = {}", metaData);
+    committedTuples.remove(metaData);
+    try {
+      Path dest = new Path(metaData.getPath());
+      //Deleting the intermediate files and when writing to tmp files
+      // there can be vagrant tmp files which we have to clean
+      FileStatus[] statuses = fs.listStatus(dest.getParent());
+
+      for (FileStatus status : statuses) {
+        String statusName = status.getPath().getName();
+        if (statusName.endsWith(TMP_EXTENSION) && statusName.startsWith(metaData.getFileName())) {
+          //a tmp file has tmp extension always preceded by timestamp
+          String actualFileName = statusName.substring(0,
+              statusName.lastIndexOf('.', statusName.lastIndexOf('.') - 1));
+          logger.debug("actualFileName = {}", actualFileName);
+          if (metaData.getFileName().equals(actualFileName)) {
+            logger.debug("deleting stray file {}", statusName);
             fs.delete(status.getPath(), true);
           }
+        } else if (statusName.equals(metaData.getFileName())) {
+          logger.info("deleting s3-compaction file {}", statusName);
+          fs.delete(status.getPath(), true);
         }
-      } catch (IOException e) {
-        logger.error("Unable to Delete a file: {}", metaData.getFileName());
       }
+    } catch (IOException e) {
+      logger.error("Unable to Delete a file: {}", metaData.getFileName());
     }
   }
 
@@ -279,24 +299,21 @@ public class S3Reconciler extends AbstractReconciler<FSRecordCompactionOperator.
   }
 
   /**
-   * Return the S3 End point
-   *
-   * @return S3 End point
+   * Get the AWS S3 Region
+   * @return region
    */
-  public String getEndPoint()
+  public String getRegion()
   {
-    return endPoint;
+    return region;
   }
 
   /**
-   * Set the S3 End point
-   *
-   * @param endPoint
-   *          S3 end point
+   * Set the AWS S3 Region
+   * @param region region
    */
-  public void setEndPoint(String endPoint)
+  public void setRegion(String region)
   {
-    this.endPoint = endPoint;
+    this.region = region;
   }
 
   /**

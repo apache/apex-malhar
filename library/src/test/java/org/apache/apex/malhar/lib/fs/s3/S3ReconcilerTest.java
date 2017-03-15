@@ -37,6 +37,7 @@ import org.apache.hadoop.fs.Path;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
@@ -78,7 +79,9 @@ public class S3ReconcilerTest
       underTest.setup(context);
 
       MockitoAnnotations.initMocks(this);
-      when(s3clientMock.putObject((PutObjectRequest)any())).thenReturn(null);
+      PutObjectResult result = new PutObjectResult();
+      result.setETag(outputPath);
+      when(s3clientMock.putObject((PutObjectRequest)any())).thenReturn(result);
       underTest.setS3client(s3clientMock);
     }
 
