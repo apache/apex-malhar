@@ -20,7 +20,6 @@ package com.datatorrent.lib.io.fs;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -59,7 +58,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner.Partition;
 import com.datatorrent.api.StatsListener;
-
 import com.datatorrent.lib.io.fs.AbstractFileInputOperator.DirectoryScanner;
 import com.datatorrent.lib.partitioner.StatelessPartitionerTest.PartitioningContextImpl;
 import com.datatorrent.lib.testbench.CollectorTestSink;
@@ -152,6 +150,71 @@ public class AbstractFileInputOperatorTest
 
   }
 
+  public static class LineOperator extends LineByLineFileInputOperator
+  {
+    Set<String> dirPaths = Sets.newHashSet();
+
+    @Override
+    protected void visitDirectory(Path filePath)
+    {
+      dirPaths.add(Path.getPathWithoutSchemeAndAuthority(filePath).toString());
+    }
+  }
+
+  @Test
+  public void testEmptyDirectory() throws Exception
+  {
+    FileContext.getLocalFSFileContext().delete(new Path(new File(testMeta.dir).getAbsolutePath()), true);
+    Set<String> dPaths = Sets.newHashSet();
+    dPaths.add(new File(testMeta.dir).getCanonicalPath());
+
+    String subdir01 = "/a";
+    dPaths.add(new File(testMeta.dir + subdir01).getCanonicalPath());
+    FileUtils.forceMkdir((new File(testMeta.dir + subdir01)));
+
+    String subdir02 = "/b";
+    dPaths.add(new File(testMeta.dir + subdir02).getCanonicalPath());
+    FileUtils.forceMkdir(new File(testMeta.dir + subdir02));
+
+    String subdir03 = subdir02 + "/c";
+    dPaths.add(new File(testMeta.dir + subdir03).getCanonicalPath());
+    FileUtils.forceMkdir(new File(testMeta.dir + subdir03));
+
+    String subdir04 = "/d";
+    List<String> allLines = Lists.newArrayList();
+    HashSet<String> lines = Sets.newHashSet();
+    for (int line = 0; line < 5; line++) {
+      lines.add("f0" + "l" + line);
+    }
+    allLines.addAll(lines);
+    File testFile = new File(testMeta.dir + subdir04, "file0");
+    dPaths.add(new File(testMeta.dir + subdir04).getCanonicalPath());
+    FileUtils.write(testFile, StringUtils.join(lines, '\n'));
+
+    LineOperator oper = new LineOperator();
+    oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
+    oper.setScanIntervalMillis(0);
+
+    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    CollectorTestSink<Object> sink = (CollectorTestSink)queryResults;
+    oper.output.setSink(sink);
+
+    int wid = 0;
+
+    // Read all records to populate processedList in operator.
+    oper.setup(testMeta.context);
+    for (int i = 0; i < 3; i++) {
+      oper.beginWindow(wid);
+      oper.emitTuples();
+      oper.endWindow();
+      wid++;
+    }
+
+    Assert.assertEquals("Size", 5, oper.dirPaths.size());
+    Assert.assertTrue("Checking Sets", dPaths.equals(oper.dirPaths));
+  }
+
   @Test
   public void testScannerPartitioning() throws Exception
   {
@@ -169,10 +232,10 @@ public class AbstractFileInputOperatorTest
     Set<Path> allFiles = Sets.newHashSet();
     for (DirectoryScanner partition : partitions) {
       Set<Path> files = partition.scan(fs, path, Sets.<String>newHashSet());
-      Assert.assertEquals("", 2, files.size());
+      Assert.assertEquals("", 3, files.size());
       allFiles.addAll(files);
     }
-    Assert.assertEquals("Found all files " + allFiles, 4, allFiles.size());
+    Assert.assertEquals("Found all files " + allFiles, 5, allFiles.size());
 
   }
 
@@ -201,7 +264,7 @@ public class AbstractFileInputOperatorTest
       Assert.assertNotSame(oper.getScanner(), p.getPartitionedInstance().getScanner());
       Set<String> consumed = Sets.newHashSet();
       LinkedHashSet<Path> files = p.getPartitionedInstance().getScanner().scan(FileSystem.getLocal(new Configuration(false)), path, consumed);
-      Assert.assertEquals("partition " + files, 2, files.size());
+      Assert.assertEquals("partition " + files, 3, files.size());
     }
   }
 
@@ -1109,7 +1172,7 @@ public class AbstractFileInputOperatorTest
       Assert.assertNotSame(oper.getScanner(), p.getPartitionedInstance().getScanner());
       Set<String> consumed = Sets.newHashSet();
       LinkedHashSet<Path> files = p.getPartitionedInstance().getScanner().scan(FileSystem.getLocal(new Configuration(false)), path, consumed);
-      Assert.assertEquals("partition " + files, 5, files.size());
+      Assert.assertEquals("partition " + files, 6, files.size());
     }
   }
 

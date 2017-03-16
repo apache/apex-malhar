@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -710,6 +711,23 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   }
 
   /**
+   * Notifies that the directory is being scanned.<br>
+   * Override this method to custom handling. Will be called once
+   */
+  protected void visitDirectory(Path filePath)
+  {
+  }
+
+  private void checkVisitedDirectory(Path path)
+  {
+    String pathString = path.toString();
+    if (!processedFiles.contains(pathString)) {
+      visitDirectory(path);
+      processedFiles.add(pathString);
+    }
+  }
+
+  /**
    * Scans the directory for new files.
    */
   protected void scanDirectory()
@@ -718,10 +736,19 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
       Set<Path> newPaths = scanner.scan(fs, filePath, processedFiles);
 
       for (Path newPath : newPaths) {
-        String newPathString = newPath.toString();
-        pendingFiles.add(newPathString);
-        processedFiles.add(newPathString);
-        localProcessedFileCount.increment();
+        try {
+          FileStatus fileStatus = fs.getFileStatus(newPath);
+          if (fileStatus.isDirectory())  {
+            checkVisitedDirectory(newPath);
+          } else {
+            String newPathString = newPath.toString();
+            pendingFiles.add(newPathString);
+            processedFiles.add(newPathString);
+            localProcessedFileCount.increment();
+          }
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
       }
 
       lastScanMillis = System.currentTimeMillis();
@@ -1059,6 +1086,11 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
       LinkedHashSet<Path> pathSet = Sets.newLinkedHashSet();
       try {
         LOG.debug("Scanning {} with pattern {}", filePath, this.filePatternRegexp);
+        if (!consumedFiles.contains(filePath.toString())) {
+          if (fs.isDirectory(filePath)) {
+            pathSet.add(filePath);
+          }
+        }
         FileStatus[] files = fs.listStatus(filePath);
         for (FileStatus status : files) {
           Path path = status.getPath();
