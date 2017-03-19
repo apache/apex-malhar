@@ -98,7 +98,7 @@ public class DefaultBucketTest
     Slice one = ManagedStateTestUtils.getSliceFor("1");
 
     Map<Slice, Bucket.BucketedValue> unsavedBucket0 = ManagedStateTestUtils.getTestBucketData(0, 100);
-    testMeta.managedStateContext.getBucketsFileSystem().writeBucketData(1, 1, unsavedBucket0);
+    testMeta.managedStateContext.getBucketsFileSystem().writeBucketData(1, 1, unsavedBucket0, -1);
 
     ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedStateContext.getFileAccess(), 1, unsavedBucket0, 1);
 
@@ -115,7 +115,7 @@ public class DefaultBucketTest
     Slice one = ManagedStateTestUtils.getSliceFor("1");
 
     Map<Slice, Bucket.BucketedValue> unsavedBucket0 = ManagedStateTestUtils.getTestBucketData(0, 100);
-    testMeta.managedStateContext.getBucketsFileSystem().writeBucketData(1, 1, unsavedBucket0);
+    testMeta.managedStateContext.getBucketsFileSystem().writeBucketData(1, 1, unsavedBucket0, -1);
 
     ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedStateContext.getFileAccess(), 1, unsavedBucket0, 1);
 

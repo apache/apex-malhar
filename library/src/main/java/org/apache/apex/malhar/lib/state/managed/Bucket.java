@@ -354,13 +354,19 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
     }
 
     /**
-     * Returns the value for the key from a time-bucket reader
+     * Returns the value for the key from a valid time-bucket reader. Here, valid means the time bucket which is not purgeable.
+     * If the timebucketAssigner is of type MovingBoundaryTimeBucketAssigner and the time bucket is purgeable, then return null.
      * @param key        key
      * @param timeBucket time bucket
-     * @return value if key is found in the time bucket; false otherwise
+     * @return value if key is found in the time bucket; null otherwise
      */
     private BucketedValue getValueFromTimeBucketReader(Slice key, long timeBucket)
     {
+
+      if (managedStateContext.getTimeBucketAssigner() instanceof MovingBoundaryTimeBucketAssigner &&
+          timeBucket <= ((MovingBoundaryTimeBucketAssigner)managedStateContext.getTimeBucketAssigner()).getLowestPurgeableTimeBucket()) {
+        return null;
+      }
       FileAccess.FileReader fileReader = readers.get(timeBucket);
       if (fileReader != null) {
         return readValue(fileReader, key, timeBucket);
@@ -469,7 +475,6 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
           }
         }
       }
-
       sizeInBytes.getAndAdd(-memoryFreed);
 
       //add the windowId to the queue to let operator thread release memory from keyStream and valueStream

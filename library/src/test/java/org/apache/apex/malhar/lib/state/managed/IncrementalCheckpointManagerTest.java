@@ -20,6 +20,7 @@
 package org.apache.apex.malhar.lib.state.managed;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
@@ -40,6 +41,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.lib.fileaccess.FileAccessFSImpl;
@@ -133,6 +135,43 @@ public class IncrementalCheckpointManagerTest
   }
 
   @Test
+  public void testTransferWindowFilesExcludeExpiredBuckets() throws IOException, InterruptedException
+  {
+    testMeta.checkpointManager.setup(testMeta.managedStateContext);
+
+    int startKeyBucket = 200;
+    Map<Long, Map<Slice, Bucket.BucketedValue>> buckets = ManagedStateTestUtils.getTestData(startKeyBucket, startKeyBucket + 10, 0);
+    long latestExpiredTimeBucket = 102;
+    testMeta.checkpointManager.setLatestExpiredTimeBucket(latestExpiredTimeBucket);
+    testMeta.checkpointManager.save(buckets, 10, false);
+    //Need to synchronously call transfer window files so shutting down the other thread.
+    testMeta.checkpointManager.teardown();
+    Thread.sleep(500);
+
+    testMeta.checkpointManager.committed(10);
+    testMeta.checkpointManager.transferWindowFiles();
+
+    // Retrieve the data which is not expired
+    Map<Long, Map<Slice, Bucket.BucketedValue>> bucketsValidData = new HashMap<>();
+    for (int i = 0; i < 5; i++) {
+      Map<Slice, Bucket.BucketedValue> data = buckets.get((long)startKeyBucket + i);
+      Map<Slice, Bucket.BucketedValue> bucketData = Maps.newHashMap();
+      for (Map.Entry<Slice,Bucket.BucketedValue> e: data.entrySet()) {
+        if (e.getValue().getTimeBucket() <= latestExpiredTimeBucket) {
+          continue;
+        }
+        bucketData.put(e.getKey(), e.getValue());
+      }
+      bucketsValidData.put((long)startKeyBucket + i, bucketData);
+    }
+
+    for (int i = 0; i < 5; i++) {
+      ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedStateContext.getFileAccess(), startKeyBucket + i,
+          bucketsValidData.get((long)startKeyBucket + i), 1);
+    }
+  }
+
+  @Test
   public void testCommitted() throws IOException, InterruptedException
   {
     CountDownLatch latch = new CountDownLatch(5);
@@ -186,9 +225,9 @@ public class IncrementalCheckpointManagerTest
 
     @Override
     protected void writeBucketData(long windowId, long bucketId, Map<Slice,
-        Bucket.BucketedValue> data) throws IOException
+        Bucket.BucketedValue> data, long latestPurgedTimeBucket) throws IOException
     {
-      super.writeBucketData(windowId, bucketId, data);
+      super.writeBucketData(windowId, bucketId, data, latestPurgedTimeBucket);
       if (windowId == 10) {
         latch.countDown();
       }

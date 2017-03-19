@@ -107,7 +107,20 @@ public class MovingBoundaryTimeBucketAssigner extends TimeBucketAssigner
   }
 
   /**
-   * Get the bucket key for the long value and adjust boundaries if necessary.
+   * Get the bucket key for the long value and adjust boundaries if necessary. If boundaries adjusted then verify
+   * the triggerPurge is enabled or not. triggerPurge is enabled only when the lower bound changes.
+   *
+   * For example,
+   * ExpiryDuration = 1000 milliseconds, BucketSpan = 2000 milliseconds
+   * Times with 0,...999 belongs to time bucket id 0, times with 1000,...1999 belongs to bucket id 1,...so on.
+   * Initially start = 0, end = 2000, fixedStart = 0
+   * (1) If the input with time 50 milliseconds then this belongs to bucket id 0.
+   *
+   * (2) If the input with time 2100 milliseconds then boundary has to be adjusted.
+   *    Values after tuple is processed, diffInBuckets = 0, move = 1000, start = 1000, end = 3000,triggerPurge = true, lowestPurgeableTimeBucket = -1
+   *
+   * (3) If the input with time 3200 milliseconds then boundary has to be adjusted.
+   *    Values after tuple is processed, diffInBuckets = 0, move = 1000, start = 2000, end = 4000,triggerPurge = true, lowestPurgeableTimeBucket = 0
    *
    * @param time value from which bucket key is derived.
    * @return -1 if value is already expired; bucket key otherwise.
@@ -125,9 +138,11 @@ public class MovingBoundaryTimeBucketAssigner extends TimeBucketAssigner
       long move = (diffInBuckets + 1) * bucketSpanMillis;
       start += move;
       end += move;
-      lowestPurgeableTimeBucket += diffInBuckets;
       // trigger purge when lower bound changes
-      triggerPurge = (diffInBuckets > 0);
+      triggerPurge = (move > 0);
+      if (triggerPurge) {
+        lowestPurgeableTimeBucket = ((start - fixedStart) / bucketSpanMillis) - 2;
+      }
     }
     return key;
 
@@ -178,4 +193,8 @@ public class MovingBoundaryTimeBucketAssigner extends TimeBucketAssigner
     this.expireBefore = expireBefore;
   }
 
+  public long getLowestPurgeableTimeBucket()
+  {
+    return lowestPurgeableTimeBucket;
+  }
 }

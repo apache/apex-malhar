@@ -139,13 +139,16 @@ public class BucketsFileSystem implements ManagedStateComponent
    * @param data            data of all time-buckets
    * @throws IOException
    */
-  protected void writeBucketData(long windowId, long bucketId, Map<Slice, Bucket.BucketedValue> data) throws IOException
+  protected void writeBucketData(long windowId, long bucketId, Map<Slice, Bucket.BucketedValue> data,  long latestPurgedTimeBucket) throws IOException
   {
     Table<Long, Slice, Bucket.BucketedValue> timeBucketedKeys = TreeBasedTable.create(Ordering.<Long>natural(),
         managedStateContext.getKeyComparator());
 
     for (Map.Entry<Slice, Bucket.BucketedValue> entry : data.entrySet()) {
       long timeBucketId = entry.getValue().getTimeBucket();
+      if (timeBucketId <= latestPurgedTimeBucket) {
+        continue;
+      }
       timeBucketedKeys.put(timeBucketId, entry.getKey(), entry.getValue());
     }
 
@@ -273,17 +276,11 @@ public class BucketsFileSystem implements ManagedStateComponent
    */
   private MutableTimeBucketMeta timeBucketMetaHelper(long bucketId, long timeBucketId) throws IOException
   {
-    MutableTimeBucketMeta tbm = timeBucketsMeta.get(bucketId, timeBucketId);
-    if (tbm != null) {
-      return tbm;
-    }
-    if (exists(bucketId, META_FILE_NAME)) {
+    if (!timeBucketsMeta.containsRow(bucketId) && exists(bucketId, META_FILE_NAME)) {
       try (DataInputStream dis = getInputStream(bucketId, META_FILE_NAME)) {
         //Load meta info of all the time buckets of the bucket identified by bucketId.
         loadBucketMetaFile(bucketId, dis);
       }
-    } else {
-      return null;
     }
     return timeBucketsMeta.get(bucketId, timeBucketId);
   }

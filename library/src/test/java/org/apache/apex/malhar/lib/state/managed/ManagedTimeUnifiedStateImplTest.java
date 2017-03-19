@@ -125,7 +125,7 @@ public class ManagedTimeUnifiedStateImplTest
     Map<Slice, Bucket.BucketedValue> unsavedBucket0 = ManagedStateTestUtils.getTestBucketData(0, timeBucket);
 
     //write data to disk explicitly
-    testMeta.managedState.bucketsFileSystem.writeBucketData(time, 0, unsavedBucket0);
+    testMeta.managedState.bucketsFileSystem.writeBucketData(time, 0, unsavedBucket0, -1);
     ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedState.getFileAccess(),
         testMeta.operatorContext.getId(), unsavedBucket0, 1);
 
@@ -147,7 +147,7 @@ public class ManagedTimeUnifiedStateImplTest
     Map<Slice, Bucket.BucketedValue> unsavedBucket0 = ManagedStateTestUtils.getTestBucketData(0, timeBucket);
 
     //write data to disk explicitly
-    testMeta.managedState.bucketsFileSystem.writeBucketData(time, 0, unsavedBucket0);
+    testMeta.managedState.bucketsFileSystem.writeBucketData(time, 0, unsavedBucket0, -1);
     ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedState.getFileAccess(),
         testMeta.operatorContext.getId(), unsavedBucket0, 1);
 
