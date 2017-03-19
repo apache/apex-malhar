@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.stream.api.operator;
+package org.apache.apex.malhar.lib.function;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,9 +26,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.utils.ByteArrayClassLoader;
+import org.apache.apex.malhar.lib.utils.TupleUtil;
 import org.apache.apex.malhar.lib.window.Tuple;
-import org.apache.apex.malhar.stream.api.function.Function;
-import org.apache.apex.malhar.stream.api.util.TupleUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.classification.InterfaceStability;
 

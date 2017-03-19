@@ -16,10 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.stream.api.function;
+package org.apache.apex.malhar.lib.function;
 
 import org.apache.apex.malhar.lib.window.Tuple;
-import org.apache.apex.malhar.stream.api.operator.FunctionOperator;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.lib.util.KeyValPair;

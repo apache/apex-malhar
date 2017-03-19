@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.joda.time.Duration;
 
+import org.apache.apex.malhar.lib.function.Function;
 import org.apache.apex.malhar.lib.window.Accumulation;
 import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.Tuple;
@@ -29,7 +30,6 @@ import org.apache.apex.malhar.lib.window.accumulation.FoldFn;
 import org.apache.apex.malhar.lib.window.accumulation.ReduceFn;
 import org.apache.apex.malhar.lib.window.impl.KeyedWindowedOperatorImpl;
 import org.apache.apex.malhar.lib.window.impl.WindowedOperatorImpl;
-import org.apache.apex.malhar.stream.api.function.Function;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.lib.util.KeyValPair;
@@ -79,7 +79,6 @@ public interface WindowedStream<T> extends ApexStream<T>
 
   /**
    * Count tuples by the key<br>
-   * @param name name of the operator
    * @param convertToKeyValue The function convert plain tuple to k,v pair
    * @return new stream of Key Value Pair
    */
@@ -88,7 +87,6 @@ public interface WindowedStream<T> extends ApexStream<T>
   /**
    * Return top N tuples by the selected key
    * @param N how many tuples you want to keep
-   * @param name name of the operator
    * @param convertToKeyVal The function convert plain tuple to k,v pair
    * @return new stream of Key and top N tuple of the key
    */
@@ -97,7 +95,6 @@ public interface WindowedStream<T> extends ApexStream<T>
   /**
    * Return top N tuples of all tuples in the window
    * @param N
-   * @param name name of the operator
    * @return new stream of topN
    */
   <STREAM extends WindowedStream<Tuple.WindowedTuple<List<T>>>> STREAM top(int N, Option... opts);
