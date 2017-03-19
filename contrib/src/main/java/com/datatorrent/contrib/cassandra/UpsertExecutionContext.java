@@ -21,20 +21,20 @@ package com.datatorrent.contrib.cassandra;
 import com.datastax.driver.core.ConsistencyLevel;
 
 /**
- * Each mutation in the cassandra table is decided by a context which can be passed to the Operator at runtime.
+ * <p>Each mutation in the cassandra table is decided by a context which can be passed to the Operator at runtime.
  * This class represents such a context. The context is to be set by the upstream operator and is used to
  * define how to mutate a row by passing it as a tuple to the {@link AbstractUpsertOutputOperator}
- * The row to be mutated is represented by the payload represented by the template parameter T
- * The following aspects of the mutation can be controlled by the context tuple.
- *  1. Collection Mutation Style
- *  2. List Placement style
- *  3. Null Handling styles for partial mutations of a given row
- *  4. Update only if a Primary Key exists
- *  5. Override the TTL that is set at the default connection config.
- *  See {@link ConnectionStateManager.ConnectionBuilder} to set the default TTL for all payload executions
- *  6. Override the default Consistency level to be used for the current mutation
- *  See {@link ConnectionStateManager.ConnectionBuilder} for setting default consistency.
- *
+ * The row to be mutated is represented by the payload represented by the template parameter T</p>
+ * <p>The following aspects of the mutation can be controlled by the context tuple.<il>
+ *  <li>Collection Mutation Style</li>
+ *  <li>List Placement style</li>
+ *  <li>Null Handling styles for partial mutations of a given row</li>
+ *  <li>Update only if a Primary Key exists</li>
+ *  <li>Override the TTL that is set at the default connection config.
+ *  See {@link ConnectionStateManager.ConnectionBuilder} to set the default TTL for all payload executions</li>
+ *  <li>Override the default Consistency level to be used for the current mutation
+ *  See {@link ConnectionStateManager.ConnectionBuilder} for setting default consistency.</li>
+ * </il></p>
  * @since 3.6.0
  */
 public class UpsertExecutionContext<T>

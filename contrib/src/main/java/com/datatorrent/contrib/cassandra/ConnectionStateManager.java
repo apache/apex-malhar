@@ -49,31 +49,37 @@ import com.datastax.driver.core.policies.TokenAwarePolicy;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * This is used to specify the connection parameters that is used to process mutations for the
+ * <p>This is used to specify the connection parameters that is used to process mutations for the
  * {@link AbstractUpsertOutputOperator}.
- * The Connection can only be set for one table in a given space and as such is used to define the following
- * - Connection Parameters
- * - Defaults to be used in case the execution context tuple {@link UpsertExecutionContext} does not want to
- * set one explicitly.
+ * The Connection can only be set for one table in a given keyspace and as such is used to define the following
+ * <ul>
+ * <li>Connection Parameters</li>
+ * <li>Defaults to be used in case the execution context tuple {@link UpsertExecutionContext} does not want to
+ * set one explicitly.</li>
+ * </ul></p>
+ * <p>
  * Note that the {@link ConnectionBuilder} is used to build an instance of the ConnectionStateManager.
  * An instance of this class is typically instantiated by implementing the following inside
  * {@link AbstractUpsertOutputOperator} withConnectionBuilder() method.
- * {@code
-      @Override
-      public ConnectionStateManager.ConnectionBuilder withConnectionBuilder()
-      {
-        return ConnectionStateManager.withNewBuilder()
-        .withSeedNodes("localhost") // format of host1:port;host2:port;host3:port
-        .withClusterNameAs("Test Cluster") // mandatory param
-        .withDCNameAs("datacenter1") // mandatory param
-        .withTableNameAs("users") // mandatory param
-        .withKeySpaceNameAs("unittests") // mandatory param
-        .withdefaultConsistencyLevel(ConsistencyLevel.LOCAL_ONE); // Set if required. Default of LOCAL_QUORUM
-        // Rest of the configs are initialized to sane defaults
-      }
- * }
- * Please refer {@link ConnectionBuilder} for details about parameters that can be used to define the connection
- * and its default behaviour
+ * </p>
+ * <p> A typical implementation of the ConnectionBuilder would like this:
+ * <pre>
+ *     
+ *     public ConnectionStateManager.ConnectionBuilder withConnectionBuilder()
+ *     {
+ *       return ConnectionStateManager.withNewBuilder()
+ *       .withSeedNodes("localhost") // format of host1:port;host2:port;host3:port
+ *       .withClusterNameAs("Test Cluster") // mandatory param
+ *       .withDCNameAs("datacenter1") // mandatory param
+ *      .withTableNameAs("users") // mandatory param
+ *       .withKeySpaceNameAs("unittests") // mandatory param
+ *       .withdefaultConsistencyLevel(ConsistencyLevel.LOCAL_ONE); // Set if required. Default of LOCAL_QUORUM
+ *       // Rest of the configs are initialized to sane defaults
+ *     }
+ * </pre>
+ * </p>
+ * <p>Please refer {@link ConnectionBuilder} for details about parameters that can be used to define the connection
+ * and its default behaviour </p>
  *
  * @since 3.6.0
  */
