@@ -28,14 +28,19 @@ import com.datatorrent.lib.util.BaseUniqueKeyCounter;
 import com.datatorrent.lib.util.UnifierHashMapSumKeys;
 
 /**
- * This operator counts the number of times a tuple exists in a window.&nbsp;A map from tuples to counts is emitted at the end of each window.
+ * This operator counts the number of times a tuple is received and emits
+ * modified counts (if any) at the end of the streaming window.
  * <p>
- * Counts the number of times a key exists or is added in that given window; Count is emitted for the modified or added keys at end of window in a single HashMap.
+ * Counts for modified keys are emitted at end of window in a single HashMap. If
+ * no keys were received in a window, then nothing will be emitted. By default
+ * the state is cleared at the end of the window. Cumulative counting can be
+ * configured through the {@link UniqueCounter#setCumulative} property.
  * </p>
  * <p>
  * This is an end of window operator<br>
  * <br>
- * <b>StateFull : yes, </b> Tuples are aggregated over application window(s). <br>
+ * <b>StateFull : yes, </b> Tuples are aggregated over application window(s).
+ * <br>
  * <b>Partitions : Yes, </b> Unique count is unified at output port. <br>
  * <br>
  * <b>Ports</b>:<br>
@@ -98,7 +103,9 @@ public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
     for (K key: inputSet) {
       tuple.put(key, map.get(key).toInteger());
     }
-    count.emit(tuple);
+    if (!tuple.isEmpty()) {
+      count.emit(tuple);
+    }
     if (!cumulative) {
       map.clear();
     }
