@@ -20,7 +20,7 @@
   <property>
     <name>dt.application.CustomOutputFormatter.operator.jsonParser.port.out.attr.TUPLE_CLASS
     </name>
-    <value>com.demo.myapexapp.PojoEvent</value>
+    <value>org.apache.apex.examples.csvformatter.PojoEvent</value>
   </property>
 
 

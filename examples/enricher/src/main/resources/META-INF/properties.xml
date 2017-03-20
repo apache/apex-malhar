@@ -3,17 +3,17 @@
   <!-- Parser -->
   <property>
     <name>dt.application.EnricherAppWithJSONFile.operator.Parser.port.out.attr.TUPLE_CLASS</name>
-    <value>com.example.myapexapp.POJO</value>
+    <value>org.apache.apex.examples.enricher.POJO</value>
   </property>
 
   <!-- Enrich -->
   <property>
     <name>dt.application.EnricherAppWithJSONFile.operator.Enrich.port.input.attr.TUPLE_CLASS</name>
-    <value>com.example.myapexapp.POJO</value>
+    <value>org.apache.apex.examples.enricher.POJO</value>
   </property>
   <property>
     <name>dt.application.EnricherAppWithJSONFile.operator.Enrich.port.output.attr.TUPLE_CLASS</name>
-    <value>com.example.myapexapp.POJOEnriched</value>
+    <value>org.apache.apex.examples.enricher.POJOEnriched</value>
   </property>
   <property>
     <name>dt.application.EnricherAppWithJSONFile.operator.Enrich.prop.store.fileName</name>

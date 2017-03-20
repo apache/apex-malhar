@@ -129,11 +129,11 @@
   </property>
   <property>
     <name>dt.application.RecordReaderExample.operator.csvParser.port.out.attr.TUPLE_CLASS</name>
-    <value>com.example.recordReader.TransactionsSchema</value>
+    <value>org.apache.apex.examples.recordReader.TransactionsSchema</value>
   </property>
   <property>
     <name>dt.application.RecordReaderExample.operator.formatter.port.in.attr.TUPLE_CLASS</name>
-    <value>com.example.recordReader.TransactionsSchema</value>
+    <value>org.apache.apex.examples.recordReader.TransactionsSchema</value>
   </property>
   <property>
     <name>dt.application.RecordReaderExample.operator.fileOutput.prop.filePath</name>

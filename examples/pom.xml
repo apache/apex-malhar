@@ -187,6 +187,16 @@
     <module>r</module>
     <module>echoserver</module>
     <module>iteration</module>
+    <module>csvformatter</module>
+    <module>dedup</module>
+    <module>dynamic-partition</module>
+    <module>enricher</module>
+    <module>filter</module>
+    <module>innerjoin</module>
+    <module>partition</module>
+    <module>recordReader</module>
+    <module>throttle</module>
+    <module>transform</module>
   </modules>
 
   <dependencies>

@@ -15,12 +15,12 @@
 	<property>
 		<name>dt.application.JsonProcessor.operator.JsonParser.port.out.attr.TUPLE_CLASS
 		</name>
-		<value>com.datatorrent.tutorial.jsonparser.Campaign</value>
+		<value>org.apache.apex.examples.parser.jsonparser.Campaign</value>
 	</property>
 	<property>
 		<name>dt.application.JsonProcessor.operator.JsonFormatter.port.in.attr.TUPLE_CLASS
 		</name>
-		<value>com.datatorrent.tutorial.jsonparser.Campaign</value>
+		<value>org.apache.apex.examples.parser.jsonparser.Campaign</value>
 	</property>
 	<property>
 		<name>dt.application.JsonProcessor.operator.JsonString.prop.stringFormat
