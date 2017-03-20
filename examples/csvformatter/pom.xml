@@ -32,7 +32,7 @@
     <packaging>jar</packaging>
 
     <!-- change these to the appropriate values -->
-    <name>Formatter Apps</name>
+    <name>Apache Apex Malhar CSV Formatter Example</name>
     <description>Applications to showcase different formatters</description>
 
     <dependencies>

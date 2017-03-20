@@ -5,7 +5,7 @@ This app showcases **Json Parser**. Data generator sends Json data to the Json P
 
 * **Csv Parser App**
 
-This application showcases how to use [CsvParser](https://datatorrent.com/docs/apidocs/com/datatorrent/contrib/parser/CsvParser.html) from [Apex Malhar](https://github.com/apache/apex-malhar) library. The CsvParser converts your delimited data to a key-value pair map or concrete java class also know as [POJO](https://en.wikipedia.org/wiki/Plain_Old_Java_Object). The parser emits key-value pair map on *parsedOutput* port. It emits POJO on *out* and error records on *err* port.
+This application showcases how to use CsvParser from [Apex Malhar](https://github.com/apache/apex-malhar) library. The CsvParser converts your delimited data to a key-value pair map or concrete java class also know as [POJO](https://en.wikipedia.org/wiki/Plain_Old_Java_Object). The parser emits key-value pair map on *parsedOutput* port. It emits POJO on *out* and error records on *err* port.
 
 Follow these steps to run this application:
 
@@ -21,8 +21,7 @@ that the output by checking hdfs file path configured in properties-csvParseAppl
 
 * **Xml Parser App**
 
-This application showcases how to use [XmlParser](https://datatorrent.com/docs/apidocs/com/datatorrent/lib/parser/XmlParser.html)
-from [Apex Malhar](https://github.com/apache/apex-malhar) library. The XmlParser Operator converts XML string to POJO.
+This application showcases how to use XmlParser from [Apex Malhar](https://github.com/apache/apex-malhar) library. The XmlParser Operator converts XML string to POJO.
 The parser emits dom based Document on *parsedOutput* port. It emits POJO on *out* and error records on *err* port.
 Follow these steps to run this application:
 

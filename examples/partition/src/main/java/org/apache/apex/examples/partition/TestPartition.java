@@ -1,3 +1,22 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.apache.apex.examples.partition;
 
 import java.util.ArrayList;
@@ -30,10 +49,12 @@ public class TestPartition extends BaseOperator implements Partitioner<TestParti
   private transient long curWindowId;   // current window id
   private transient long cnt;           // per-window tuple count
 
-  @Min(1) @Max(20)
+  @Min(1)
+  @Max(20)
   private int nPartitions = 3;
 
-  public final transient DefaultInputPort<Integer> in = new DefaultInputPort<Integer>() {
+  public final transient DefaultInputPort<Integer> in = new DefaultInputPort<Integer>()
+  {
     @Override
     public void process(Integer tuple)
     {
@@ -75,9 +96,7 @@ public class TestPartition extends BaseOperator implements Partitioner<TestParti
   }
 
   @Override
-  public Collection<Partition<TestPartition>> definePartitions(
-    Collection<Partition<TestPartition>> partitions,
-    PartitioningContext context)
+  public Collection<Partition<TestPartition>> definePartitions(Collection<Partition<TestPartition>> partitions, PartitioningContext context)
   {
     int oldSize = partitions.size();
     LOG.debug("partitionCount: current = {} requested = {}", oldSize, nPartitions);
@@ -85,7 +104,9 @@ public class TestPartition extends BaseOperator implements Partitioner<TestParti
     // each partition i in 0...nPartitions receives tuples divisible by i but not by any other
     // j in that range; all other tuples ignored
     //
-    if (3 != nPartitions) return getPartitions(partitions, context);
+    if (3 != nPartitions) {
+      return getPartitions(partitions, context);
+    }
 
     // special case of 3 partitions: All odd numbers to partition 0; even numbers divisible
     // by 4 to partition 1, those divisible by 2 but not 4 to partition 2.
@@ -117,13 +138,10 @@ public class TestPartition extends BaseOperator implements Partitioner<TestParti
     return new ArrayList<Partition<TestPartition>>(Arrays.asList(newPartitions));
   }  // definePartitions
 
-  private Collection<Partition<TestPartition>> getPartitions(
-    Collection<Partition<TestPartition>> partitions,
-    PartitioningContext context)
+  private Collection<Partition<TestPartition>> getPartitions(Collection<Partition<TestPartition>> partitions, PartitioningContext context)
   {
     // create array of partitions to return
-    Collection<Partition<TestPartition>> result
-      = new ArrayList<Partition<TestPartition>>(nPartitions);
+    Collection<Partition<TestPartition>> result = new ArrayList<Partition<TestPartition>>(nPartitions);
 
     int mask = getMask(nPartitions);
     for (int i = 0; i < nPartitions; ++i) {
@@ -138,12 +156,20 @@ public class TestPartition extends BaseOperator implements Partitioner<TestParti
   }  // getPartitions
 
   // return mask with bits 0..N set where N is the highest set bit of argument
-  private int getMask(final int n) {
+  private int getMask(final int n)
+  {
     return -1 >>> Integer.numberOfLeadingZeros(n);
   }  // getMask
 
   // accessors
-  public int getNPartitions() { return nPartitions; }
-  public void setNPartitions(int v) { nPartitions = v; }
+  public int getNPartitions()
+  {
+    return nPartitions;
+  }
+
+  public void setNPartitions(int v)
+  {
+    nPartitions = v;
+  }
 }
 
