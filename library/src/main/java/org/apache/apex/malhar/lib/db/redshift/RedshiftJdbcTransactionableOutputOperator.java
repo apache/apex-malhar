@@ -33,7 +33,6 @@ import org.apache.apex.malhar.lib.fs.FSRecordCompactionOperator;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.google.common.base.Preconditions;
-import com.sun.tools.javac.util.Assert;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.annotation.OperatorAnnotation;
@@ -74,9 +73,9 @@ public class RedshiftJdbcTransactionableOutputOperator extends AbstractJdbcTrans
   public void setup(Context.OperatorContext context)
   {
     if (readerMode == RedshiftOutputModule.READER_MODE.READ_FROM_S3) {
-      Assert.checkNonNull(bucketName);
+      Preconditions.checkNotNull(bucketName);
     } else {
-      Assert.checkNonNull(emrClusterId);
+      Preconditions.checkNotNull(emrClusterId);
     }
     super.setup(context);
     try {
