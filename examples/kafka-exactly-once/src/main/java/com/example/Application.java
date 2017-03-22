@@ -18,13 +18,10 @@
  */
 package com.example;
 
-import java.util.Properties;
-
 import org.apache.apex.malhar.kafka.KafkaSinglePortExactlyOnceOutputOperator;
 import org.apache.apex.malhar.kafka.KafkaSinglePortInputOperator;
 import org.apache.apex.malhar.kafka.KafkaSinglePortOutputOperator;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.kafka.clients.producer.ProducerConfig;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
@@ -83,10 +80,10 @@ public class Application implements StreamingApplication
         kafkaExactlyOnceOutputOperator.inputPort);
 
     KafkaSinglePortInputOperator kafkaInputTopicExactly = dag.addOperator("kafkaTopicExactly", KafkaSinglePortInputOperator.class);
-    kafkaInputTopicExactly.setInitialOffset(KafkaTopicMessageInputOperator.InitialOffset.EARLIEST.name());
+    kafkaInputTopicExactly.setInitialOffset(KafkaSinglePortInputOperator.InitialOffset.EARLIEST.name());
 
     KafkaSinglePortInputOperator kafkaInputTopicAtLeast = dag.addOperator("kafkaTopicAtLeast", KafkaSinglePortInputOperator.class);
-    kafkaInputTopicAtLeast.setInitialOffset(KafkaTopicMessageInputOperator.InitialOffset.EARLIEST.name());
+    kafkaInputTopicAtLeast.setInitialOffset(KafkaSinglePortInputOperator.InitialOffset.EARLIEST.name());
 
     ValidationToFile validationToFile = dag.addOperator("validationToFile", ValidationToFile.class);
 
