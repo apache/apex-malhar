@@ -25,9 +25,13 @@ import java.io.IOException;
 
 import javax.validation.ConstraintViolationException;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -37,6 +41,8 @@ import com.datatorrent.api.LocalMode;
 
 import info.batey.kafka.unit.KafkaUnit;
 import info.batey.kafka.unit.KafkaUnitRule;
+
+import static org.junit.Assert.fail;
 
 /**
  * Test the DAG declaration in local mode.
@@ -49,15 +55,24 @@ public class ApplicationTest
   private static final int zkPort = 2181;
   private static final int brokerPort = 9092;
 
+  private static final Logger logger = LoggerFactory.getLogger(ApplicationTest.class);
+
   // broker port must match properties.xml
   @Rule
   public KafkaUnitRule kafkaUnitRule = new KafkaUnitRule(zkPort, brokerPort);
+
+  //remove '@After' to keep validation output file
+  @Before
+  @After
+  public void cleanup()
+  {
+    FileUtils.deleteQuietly(new File(directory));
+  }
 
   @Test
   public void testApplication() throws IOException, Exception
   {
     try {
-      cleanup();
       createTopics();
 
       // run app asynchronously; terminate after results are checked
@@ -69,25 +84,21 @@ public class ApplicationTest
       lc.runAsync();
 
       // get messages from Kafka topic and compare with input
-      while(!validationToFile.validationDone)
-      {
-        System.out.println("Sleeping ....");
+      int count = 1;
+      int maxSleepRounds = 300;
+      while (!validationToFile.validationDone) {
+        logger.info("Sleeping ....");
         Thread.sleep(500);
+        if(count > maxSleepRounds){
+          fail("validationDone flag did not get set to true in ValidationToFile operator");
+        }
+        count++;
       }
       lc.shutdown();
       Thread.sleep(1000);
       checkOutput();
     } catch (ConstraintViolationException e) {
-      Assert.fail("constraint violations: " + e.getConstraintViolations());
-    }
-  }
-
-  private void cleanup()
-  {
-    try {
-      FileUtils.deleteDirectory(new File(directory));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+      fail("constraint violations: " + e.getConstraintViolations());
     }
   }
 
@@ -124,15 +135,10 @@ public class ApplicationTest
         return false;
       }
     };
-
     File validationFile = folder.listFiles(filenameFilter)[0];
-
-    FileInputStream inputStream = new FileInputStream(validationFile);
-    try {
+    try (FileInputStream inputStream = new FileInputStream(validationFile)) {
       validationOutput = IOUtils.toString(inputStream);
-      System.out.println("Validation output: " + validationOutput);
-    } finally {
-      inputStream.close();
+      logger.info("Validation output: {}", validationOutput);
     }
 
     Assert.assertTrue(validationOutput.contains("exactly-once: 0"));

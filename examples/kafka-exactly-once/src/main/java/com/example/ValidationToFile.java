@@ -28,6 +28,7 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
@@ -48,6 +49,14 @@ public class ValidationToFile extends AbstractSingleFileOutputOperator<byte[]>
   List<String> exactlyList;
   List<String> atLeastList;
 
+  @Override
+  public void setup(Context.OperatorContext context)
+  {
+    super.setup(context);
+    exactlyList = new ArrayList<>();
+    atLeastList = new ArrayList<>();
+  }
+
   @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<byte[]> input = new DefaultInputPort<byte[]>()
   {
@@ -62,11 +71,7 @@ public class ValidationToFile extends AbstractSingleFileOutputOperator<byte[]>
     {
       String message = new String(tuple);
       latestExactlyValue = message;
-      if (exactlyList == null) {
-        exactlyList = new ArrayList<>();
-      }
       exactlyList.add(message);
-
       processTuple(tuple);
     }
 
@@ -88,22 +93,8 @@ public class ValidationToFile extends AbstractSingleFileOutputOperator<byte[]>
     {
       String message = new String(tuple);
       latestAtLeastValue = message;
-      if (atLeastList == null) {
-        atLeastList = new ArrayList<>();
-      }
       atLeastList.add(message);
-
       processTuple(tuple);
-    }
-
-    @Override
-    public StreamCodec<byte[]> getStreamCodec()
-    {
-      if (ValidationToFile.this.streamCodec == null) {
-        return super.getStreamCodec();
-      } else {
-        return streamCodec;
-      }
     }
   };
 
