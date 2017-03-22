@@ -118,22 +118,23 @@ e.g.
 ## Partitioning
 CSV Parser is both statically and dynamically partitionable.
 ### Static Partitioning
-This can be achieved in 2 ways
+This can be achieved in 2 ways as shown below.
 
-1. Specifying the partitioner and number of partitions in the populateDAG() method
-  ```java
-  CsvParser csvParser = dag.addOperator("csvParser", CsvParser.class);
-  StatelessPartitioner<CsvParser> partitioner1 = new StatelessPartitioner<CsvParser>(2);
-  dag.setAttribute(csvParser, Context.OperatorContext.PARTITIONER, partitioner1);
-  ```
+Specifying the partitioner and number of partitions in the populateDAG() method
 
-2. Specifying the partitioner in properties file.
-  ```xml
+```java
+    CsvParser csvParser = dag.addOperator("csvParser", CsvParser.class);
+    StatelessPartitioner<CsvParser> partitioner1 = new StatelessPartitioner<CsvParser>(2);
+    dag.setAttribute(csvParser, Context.OperatorContext.PARTITIONER, partitioner1);
+```
+
+Specifying the partitioner in properties file.
+```xml
    <property>
      <name>dt.operator.{OperatorName}.attr.PARTITIONER</name>
      <value>com.datatorrent.common.partitioner.StatelessPartitioner:2</value>
    </property>
-  ```
+```
 
 where {OperatorName} is the name of the CsvParser operator.
  Above lines will partition CsvParser statically 2 times. Above value can be changed accordingly to change the number of static partitions.
