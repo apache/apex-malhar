@@ -15,17 +15,13 @@ pages:
     - File Output: operators/file_output.md
     - File Splitter: operators/file_splitter.md
     - Filter: operators/filter.md
-    - Jdbc Output Operator: operators/AbstractJdbcTransactionableOutputOperator.md
+    - JDBC Output Operator: operators/AbstractJdbcTransactionableOutputOperator.md
     - JDBC Poller Input: operators/jdbcPollInputOperator.md
     - JMS Input: operators/jmsInputOperator.md
     - JSON Formatter: operators/jsonFormatter.md
     - JSON Parser: operators/jsonParser.md
     - Kafka Input: operators/kafkaInputOperator.md
+    - S3 Output Module: operators/s3outputmodule.md
     - Transformer: operators/transform.md
     - Windowed Operator: operators/windowedOperator.md
     - XML Parser: operators/xmlParserOperator.md
-    - Json Parser: operators/jsonParser.md
-    - Json Formatter: operators/jsonFormatter.md
-    - Transform Operator: operators/transform.md
-    - Csv Formatter: operators/csvformatter.md
-    - S3 Output Module: operators/s3outputmodule.md
