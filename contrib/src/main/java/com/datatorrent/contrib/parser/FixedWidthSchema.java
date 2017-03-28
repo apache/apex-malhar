@@ -47,6 +47,8 @@ import org.slf4j.LoggerFactory;
  * "Double", "length": 5}, { "name": "startDate", "type": "Date", "length": 10,
  * "format":"dd/MM/yyyy" }, { "name": "securityCode", "type": "Long","length": 10 },
  * { "name": "active", "type":"Boolean","length": 2} ] }}
+ *
+ * @since 3.7.0
  */
 public class FixedWidthSchema extends Schema
 {

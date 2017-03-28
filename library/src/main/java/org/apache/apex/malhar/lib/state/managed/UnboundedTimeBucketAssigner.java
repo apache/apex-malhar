@@ -29,6 +29,8 @@ import com.google.common.base.Preconditions;
  * All times 1001, 1002 ... 1999 will be assigned to time bucket 1000 <br>
  *
  *
+ *
+ * @since 3.7.0
  */
 public class UnboundedTimeBucketAssigner extends TimeBucketAssigner
 {

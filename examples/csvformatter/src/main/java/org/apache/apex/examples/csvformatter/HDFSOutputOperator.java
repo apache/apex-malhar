@@ -28,6 +28,8 @@ import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
  * HDFSoutput operator with implementation to write Objects to HDFS
  *
  * @param <T>
+ *
+ * @since 3.7.0
  */
 public class HDFSOutputOperator<T> extends AbstractFileOutputOperator<T>
 {

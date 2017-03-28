@@ -28,6 +28,9 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.stream.DevNull;
 
 @ApplicationAnnotation(name = "Dyn")
+/**
+ * @since 3.7.0
+ */
 public class App implements StreamingApplication
 {
 

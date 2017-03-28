@@ -29,6 +29,9 @@ import com.datatorrent.contrib.formatter.CsvFormatter;
 import com.datatorrent.contrib.parser.CsvParser;
 
 @ApplicationAnnotation(name = "RecordReaderExample")
+/**
+ * @since 3.7.0
+ */
 public class Application implements StreamingApplication
 {
 

@@ -32,6 +32,8 @@ import com.datatorrent.api.Context;
 
 /**
  * Abstract class to extract a bucket for a given time
+ *
+ * @since 3.7.0
  */
 public abstract class TimeBucketAssigner implements ManagedStateComponent, WindowListener
 {

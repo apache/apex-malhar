@@ -32,6 +32,9 @@ import com.datatorrent.contrib.parser.JsonParser;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 @ApplicationAnnotation(name = "EnricherAppWithJSONFile")
+/**
+ * @since 3.7.0
+ */
 public class EnricherAppWithJSONFile implements StreamingApplication
 {
   @Override

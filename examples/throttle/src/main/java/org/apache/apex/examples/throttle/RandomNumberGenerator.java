@@ -28,6 +28,8 @@ import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This is a simple operator that emits random number.
+ *
+ * @since 3.7.0
  */
 public class RandomNumberGenerator extends BaseOperator implements InputOperator
 {

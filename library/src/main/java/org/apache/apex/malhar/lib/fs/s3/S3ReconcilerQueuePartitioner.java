@@ -34,6 +34,8 @@ import com.datatorrent.lib.partitioner.StatsAwareStatelessPartitioner;
  * This partitioner looks at Reconciler queue size to decide no. of partitions.
  * This partitioner is used for S3Reconciler Operator.
  * @param <T>
+ *
+ * @since 3.7.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public class S3ReconcilerQueuePartitioner<T extends Operator> extends StatsAwareStatelessPartitioner<T>

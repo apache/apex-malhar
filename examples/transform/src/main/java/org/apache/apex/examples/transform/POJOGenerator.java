@@ -32,6 +32,8 @@ import com.datatorrent.api.InputOperator;
 
 /**
  * Generates and emits the CustomerEvent
+ *
+ * @since 3.7.0
  */
 public class POJOGenerator implements InputOperator
 {

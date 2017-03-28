@@ -30,6 +30,8 @@ import com.datatorrent.api.Context;
  * based on processing time.
  *
  * Generates a watermark tuple with a fixed difference from the current processing time.
+ *
+ * @since 3.7.0
  */
 @InterfaceStability.Evolving
 public class FixedDiffProcessingTimeWatermarkGen implements ImplicitWatermarkGenerator

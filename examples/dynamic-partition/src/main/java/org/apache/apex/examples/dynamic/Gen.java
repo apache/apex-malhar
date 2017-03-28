@@ -45,6 +45,8 @@ import com.datatorrent.common.util.BaseOperator;
 
 /**
  * Operator that dynamically partitions itself after 500 tuples have been emitted
+ *
+ * @since 3.7.0
  */
 public class Gen extends BaseOperator implements InputOperator, Partitioner<Gen>, StatsListener
 {

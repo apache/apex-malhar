@@ -26,6 +26,8 @@ import com.datatorrent.api.Component;
  * Interface for generators for implicit watermarks.
  * An operator which does not want to rely on explicit watermarks (generated from upstream),
  * can use implementations of this interface to get implicit watermarks.
+ *
+ * @since 3.7.0
  */
 @InterfaceStability.Evolving
 public interface ImplicitWatermarkGenerator extends Component

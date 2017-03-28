@@ -35,6 +35,9 @@ import com.datatorrent.lib.partitioner.StatelessThroughputBasedPartitioner;
 import com.datatorrent.lib.transform.TransformOperator;
 
 @ApplicationAnnotation(name = "DynamicTransformApp")
+/**
+ * @since 3.7.0
+ */
 public class DynamicTransformApplication implements StreamingApplication
 {
   private static String COOL_DOWN_MILLIS = "dt.cooldown";

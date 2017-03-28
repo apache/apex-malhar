@@ -30,6 +30,9 @@ import com.datatorrent.lib.formatter.JsonFormatter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 @ApplicationAnnotation(name = "JsonProcessor")
+/**
+ * @since 3.7.0
+ */
 public class Application implements StreamingApplication
 {
 

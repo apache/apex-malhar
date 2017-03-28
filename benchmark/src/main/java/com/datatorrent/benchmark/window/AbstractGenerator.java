@@ -25,6 +25,9 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.common.util.BaseOperator;
 
+/**
+ * @since 3.7.0
+ */
 public abstract class AbstractGenerator<T> extends BaseOperator implements InputOperator
 {
   public final transient DefaultOutputPort<T> data = new DefaultOutputPort<T>();

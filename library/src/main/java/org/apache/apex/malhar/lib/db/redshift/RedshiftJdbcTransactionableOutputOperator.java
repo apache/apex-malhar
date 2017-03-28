@@ -47,6 +47,8 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
  * @displayName Redshift Output Operator
  * @category Output
  * @tags database, jdbc, redshift
+ *
+ * @since 3.7.0
  */
 @InterfaceStability.Evolving
 @OperatorAnnotation(partitionable = false)

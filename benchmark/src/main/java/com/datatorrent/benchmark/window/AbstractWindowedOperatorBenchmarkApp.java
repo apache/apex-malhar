@@ -51,6 +51,9 @@ import com.datatorrent.benchmark.window.WindowedOperatorBenchmarkApp.WindowedGen
 import com.datatorrent.lib.fileaccess.TFileImpl;
 import com.datatorrent.lib.stream.DevNull;
 
+/**
+ * @since 3.7.0
+ */
 public abstract class AbstractWindowedOperatorBenchmarkApp<G extends Operator, O extends AbstractWindowedOperator>
     implements StreamingApplication
 {

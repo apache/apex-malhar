@@ -41,6 +41,8 @@ import static org.apache.apex.malhar.lib.window.accumulation.AbstractPojoJoin.ST
 /**
  * Join Accumulation for Pojo Streams.
  *
+ *
+ * @since 3.7.0
  */
 @InterfaceStability.Evolving
 public abstract class AbstractPojoJoin<InputT1, InputT2>

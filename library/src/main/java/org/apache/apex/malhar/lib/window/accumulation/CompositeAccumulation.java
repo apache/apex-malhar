@@ -28,6 +28,8 @@ import com.google.common.collect.Lists;
 /**
  * The CompositeAccumulation is an Accumulation which delegate task to sub accumulations.
  *
+ *
+ * @since 3.7.0
  */
 @SuppressWarnings("rawtypes")
 @Evolving

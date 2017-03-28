@@ -35,6 +35,9 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 @ApplicationAnnotation(name = "WindowedOperatorBenchmark")
+/**
+ * @since 3.7.0
+ */
 public class WindowedOperatorBenchmarkApp extends AbstractWindowedOperatorBenchmarkApp<
     WindowedOperatorBenchmarkApp.WindowedGenerator, WindowedOperatorBenchmarkApp.MyWindowedOperator>
 {

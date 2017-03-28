@@ -48,6 +48,8 @@ import com.datatorrent.lib.io.fs.AbstractFileSplitter;
  * This is an S3 Initiate file upload operator which can be used to initiate file upload and emits the upload id.
  * Initiate the given file for upload only if the file contains more than one block.
  * This operator is useful in context of S3 Output Module.
+ *
+ * @since 3.7.0
  */
 @InterfaceStability.Evolving
 public class S3InitiateFileUploadOperator implements Operator, Operator.CheckpointNotificationListener

@@ -1,6 +1,90 @@
 Apex Malhar Changelog
 ========================================================================================================================
 
+Version 3.7.0 - 2017-03-31
+------------------------------------------------------------------------------------------------------------------------
+
+### Sub-task
+* [APEXMALHAR-2001] - Fix all the checkstyle violations in kafka module
+* [APEXMALHAR-2221] - Fix checkstyle violations in benchmark module
+* [APEXMALHAR-2298] - Kafka ExactlyOnce (0.9) output operator fixes
+* [APEXMALHAR-2301] - Implement another TimeBucketAssigner to work with any time
+* [APEXMALHAR-2345] - Purge the time buckets from managed state for all time buckets that fall beyond the lateness horizon
+* [APEXMALHAR-2389] - Add User Documentation for Calcite Integration
+* [APEXMALHAR-2407] - Time buckets are not purging after expiry
+* [APEXMALHAR-2408] - Issues in correctness of get() for key search in ManagedTimeStateImpl
+* [APEXMALHAR-2409] - Improve PojoInnerJoin accumulation to emit a POJO instead of Map
+* [APEXMALHAR-2414] - Improve performance of PojoInnerJoin accum by using PojoUtils
+* [APEXMALHAR-2415] - Enable PojoInnerJoin accum to allow multiple keys for join purpose
+* [APEXMALHAR-2439] - In apex-malhar, renaming "demos" to "examples"
+* [APEXMALHAR-2440] - Identify and group examples based on type
+* [APEXMALHAR-2441] - Move Non-Ingestion Examples from [datatorrent/examples] to [apex-malhar/examples]
+
+### Bug
+* [APEXMALHAR-2303] - S3 Line By Line Module
+* [APEXMALHAR-2306] - Tests should allow for additions to OperatorContext interface
+* [APEXMALHAR-2316] - Cannot register tuple class in XmlParser Operator
+* [APEXMALHAR-2330] - JdbcPOJOPollInputOperator fails with NullPointerException when PostgreSQL driver
+* [APEXMALHAR-2343] - Count Accumulation should only increase one for each tuple
+* [APEXMALHAR-2346] - DocumentBuilder.parse() should take InputSource as an argument instead of String
+* [APEXMALHAR-2350] - The key and value stream should match with the bucket
+* [APEXMALHAR-2357] - JdbcPojoOperatorApplicationTest failing intermittently 
+* [APEXMALHAR-2368] - JDBCPollInput operator reads extra records when 1.5M records are added to a blank input table
+* [APEXMALHAR-2371] - Importing 'Apache Apex Malhar Iteration Demo' throws error for 'property' tag in properties.xml
+* [APEXMALHAR-2379] - AbstractFileInputOperator bug fixes for regex, negative values
+* [APEXMALHAR-2399] - In PojoInnerJoin accumulation default constructor is directly throwing an exception which messes up in default serialization.
+* [APEXMALHAR-2400] - In PojoInnerJoin accumulation same field names are emitted as single field 
+* [APEXMALHAR-2406] - ManagedState incorrect results for get()
+* [APEXMALHAR-2418] - Update the twitter library to 4.0.6 
+* [APEXMALHAR-2419] - KafkaSinglePortExactlyOnceOutputOperator fails on recovery
+* [APEXMALHAR-2422] - WindowDataManager not recovering as expected on HDFS
+* [APEXMALHAR-2424] - NullPointerException in JDBCPojoPollInputOperator with additional columns
+* [APEXMALHAR-2450] - UniqueCounter emits empty maps even when there is no input
+* [APEXMALHAR-2454] - CsvParser documentation xml formatting and rendering issue.
+
+### Dependency upgrade
+* [APEXMALHAR-2398] - commons-beanutils upgrade
+
+### Documentation
+* [APEXMALHAR-2183] - Add user document for CsvFormatter operator
+* [APEXMALHAR-2364] - Add user documentation for S3OutputModule
+* [APEXMALHAR-2370] - Add user documenation for Xml Parser
+* [APEXMALHAR-2390] - Operator list in doc is not sorted
+* [APEXMALHAR-2391] - JDBC Poller Input Operator exist but not listed 
+* [APEXMALHAR-2432] - javadoc for cassandra operator is improperly formatted
+* [APEXMALHAR-2433] - Add readme for Windowing Benchmark
+
+### Improvement
+* [APEXMALHAR-2220] - Move the FunctionOperator to Malhar library
+* [APEXMALHAR-2344] - Initialize the list of FieldInfo in JDBCPollInput operator from properties.xml
+* [APEXMALHAR-2354] - Add support for heuristic watermarks in WindowedOperator
+* [APEXMALHAR-2358] - Optimise GenericSerde to use specific serde to improve the performance
+* [APEXMALHAR-2359] - Optimise fire trigger to avoid go through all data
+* [APEXMALHAR-2365] - LogParser - Operator to parse byte array using log format and emit a POJO
+* [APEXMALHAR-2372] - Change the order of checks of table name in populateColumnDataTypes
+* [APEXMALHAR-2374] - Recursive support for AbstractFileInputOperator
+* [APEXMALHAR-2376] - Add Common Log support in LogParser operator
+* [APEXMALHAR-2377] - Move LogParser operator to org.apache.apex.malhar.contrib.parser
+* [APEXMALHAR-2380] - Add MutablePair for Kinensis Operator for Recovery State
+* [APEXMALHAR-2381] - Change FSWindowManager for performance issues in Kinesis Input Operator
+* [APEXMALHAR-2394] - AbstractFileOutputOperator.rotate(...) does not check if file has already been rotated before computing next rotation
+* [APEXMALHAR-2411] - Avoid isreplaystate variable, incorporate logic in activate() and replay() for Kinesis Input Operator
+* [APEXMALHAR-2412] - Provide emitTuple overriding functionality for user in kinesis Input operator
+* [APEXMALHAR-2413] - Improve PojoInnerJoin Accumulation
+* [APEXMALHAR-2429] - Ambiguity in passing "key" parameter to Join accumulation
+* [APEXMALHAR-2430] - Optimize Join accumulation by changing the data structure in accumulation method
+* [APEXMALHAR-2445] - KafkaExactlyOnce should not write to WAL during recovery
+
+### New Feature
+* [APEXMALHAR-2022] - S3 Output Module for file copy
+* [APEXMALHAR-2130] - Scalable windowed storage
+* [APEXMALHAR-2218] - RegexParser- Operator to parse byte stream using Regex pattern and emit a POJO
+* [APEXMALHAR-2259] - Create Fixed Length Parser Operator
+* [APEXMALHAR-2369] - S3 output module for tuple based output
+* [APEXMALHAR-2416] - Development of Redshift Output Module
+* [APEXMALHAR-2417] - Add PojoOuterJoin (left, right and full) accumulation
+* [APEXMALHAR-2428] - CompositeAccumulation for windowed operator
+
 Version 3.6.0 - 2016-11-30
 ------------------------------------------------------------------------------------------------------------------------
 

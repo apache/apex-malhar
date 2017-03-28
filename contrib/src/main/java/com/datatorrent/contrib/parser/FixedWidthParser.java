@@ -72,6 +72,8 @@ import com.datatorrent.lib.util.PojoUtils;
  * @displayName FixedWidthParser
  * @category Parsers
  * @tags fixedwidth pojo parser
+ *
+ * @since 3.7.0
  */
 public class FixedWidthParser extends Parser<byte[], KeyValPair<String, String>> implements Operator.ActivationListener<Context>
 {

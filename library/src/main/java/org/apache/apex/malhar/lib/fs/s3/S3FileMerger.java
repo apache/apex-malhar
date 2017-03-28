@@ -50,6 +50,8 @@ import com.datatorrent.api.Operator;
  * This operator can be used to merge the S3 blocks into a file. This operator will request for
  * S3 CompleteMultipartUploadRequest once all the blocks are uploaded using multi-part feature.
  * This operator is useful in context of S3 Output Module.
+ *
+ * @since 3.7.0
  */
 
 @InterfaceStability.Evolving

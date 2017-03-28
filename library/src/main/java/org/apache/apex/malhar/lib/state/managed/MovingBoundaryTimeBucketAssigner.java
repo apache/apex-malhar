@@ -48,6 +48,8 @@ import com.esotericsoftware.kryo.serializers.JavaSerializer;
  * argument to this method can be ahead of <code>end</code>. This means that the corresponding event is a future event
  * (wrt TimeBucketAssigner) and cannot be ignored. Therefore it is accounted by sliding boundaries further.
  *
+ *
+ * @since 3.7.0
  */
 public class MovingBoundaryTimeBucketAssigner extends TimeBucketAssigner
 {

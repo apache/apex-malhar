@@ -21,6 +21,9 @@ package org.apache.apex.examples.transform;
 
 import java.util.Date;
 
+/**
+ * @since 3.7.0
+ */
 public class CustomerEvent
 {
   private int customerId;

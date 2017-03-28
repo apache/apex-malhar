@@ -61,6 +61,8 @@ import com.datatorrent.lib.io.fs.S3BlockReader;
  * partitioning<br/>
  * different file. <br/>
  * 12. s3EndPoint: Optional parameter used to specify S3 endpoint to use
+ *
+ * @since 3.7.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public class S3RecordReaderModule extends FSRecordReaderModule

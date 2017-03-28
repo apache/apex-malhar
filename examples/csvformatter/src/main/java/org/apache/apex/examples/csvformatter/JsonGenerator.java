@@ -32,6 +32,9 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.common.util.BaseOperator;
 
+/**
+ * @since 3.7.0
+ */
 public class JsonGenerator extends BaseOperator implements InputOperator
 {
 

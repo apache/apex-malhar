@@ -46,6 +46,8 @@ import com.datatorrent.lib.io.block.ReaderContext;
  *
  * Typically, this operator will be connected to output of FileSplitterInput to
  * read records in parallel.
+ *
+ * @since 3.7.0
  */
 @Evolving
 public class S3RecordReader extends FSRecordReader
