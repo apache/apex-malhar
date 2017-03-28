@@ -20,6 +20,9 @@
 
 package org.apache.apex.examples.filter;
 
+/**
+ * @since 3.7.0
+ */
 public class TransactionPOJO
 {
 

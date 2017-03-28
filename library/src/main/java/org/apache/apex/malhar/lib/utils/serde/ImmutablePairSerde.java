@@ -27,6 +27,8 @@ import com.esotericsoftware.kryo.io.Output;
 /**
  * An implementation of {@link Serde} which serializes and deserializes {@link ImmtablePair}s.
  *
+ *
+ * @since 3.7.0
  */
 @InterfaceStability.Evolving
 public class ImmutablePairSerde<L, R> implements Serde<ImmutablePair<L, R>>

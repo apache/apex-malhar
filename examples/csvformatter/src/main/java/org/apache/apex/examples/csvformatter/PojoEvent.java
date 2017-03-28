@@ -21,6 +21,9 @@ package org.apache.apex.examples.csvformatter;
 
 import java.util.Date;
 
+/**
+ * @since 3.7.0
+ */
 public class PojoEvent
 {
 

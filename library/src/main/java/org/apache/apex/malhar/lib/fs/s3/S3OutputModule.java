@@ -59,6 +59,8 @@ import static com.datatorrent.api.Context.OperatorContext.TIMEOUT_WINDOW_COUNT;
  *
  *  @displayName S3 Output Module
  *  @tags S3, Output
+ *
+ * @since 3.7.0
  */
 @InterfaceStability.Evolving
 public class S3OutputModule implements Module

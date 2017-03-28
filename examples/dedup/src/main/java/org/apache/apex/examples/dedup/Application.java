@@ -34,6 +34,9 @@ import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 @ApplicationAnnotation(name = "DedupExample")
+/**
+ * @since 3.7.0
+ */
 public class Application implements StreamingApplication
 {
 

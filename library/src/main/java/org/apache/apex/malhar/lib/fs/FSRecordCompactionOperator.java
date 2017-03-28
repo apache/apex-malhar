@@ -41,6 +41,8 @@ import com.datatorrent.api.DefaultOutputPort;
  *          Type for incoming tuples. Converter needs to be defined which
  *          converts these tuples to byte[]. Default converters for String,
  *          byte[] tuples are provided in S3TupleOutputModule.
+ *
+ * @since 3.7.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public class FSRecordCompactionOperator<INPUT> extends GenericFileOutputOperator<INPUT>

@@ -29,6 +29,8 @@ import java.util.List;
  * The operators use this information to validate the incoming tuples.
  * Information from JSON schema is saved in this object and is used by the
  * operators
+ *
+ * @since 3.7.0
  */
 public class Schema
 {

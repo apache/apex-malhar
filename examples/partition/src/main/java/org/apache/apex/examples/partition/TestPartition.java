@@ -40,6 +40,8 @@ import com.datatorrent.common.util.BaseOperator;
 
 /**
  * Simple operator to test partitioning
+ *
+ * @since 3.7.0
  */
 public class TestPartition extends BaseOperator implements Partitioner<TestPartition>
 {

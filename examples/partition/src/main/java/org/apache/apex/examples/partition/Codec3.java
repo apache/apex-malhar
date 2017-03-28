@@ -21,6 +21,9 @@ package org.apache.apex.examples.partition;
 
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 
+/**
+ * @since 3.7.0
+ */
 public class Codec3 extends KryoSerializableStreamCodec<Integer>
 {
   @Override

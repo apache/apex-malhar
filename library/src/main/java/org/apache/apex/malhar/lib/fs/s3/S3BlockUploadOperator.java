@@ -59,6 +59,8 @@ import com.datatorrent.netlet.util.Slice;
  * This operator can be used to upload the block into S3 bucket using multi-part feature or putObject API.
  * Upload the block into S3 using multi-part feature only if the number of blocks of a file is > 1.
  * This operator is useful in context of S3 Output Module.
+ *
+ * @since 3.7.0
  */
 
 @InterfaceStability.Evolving

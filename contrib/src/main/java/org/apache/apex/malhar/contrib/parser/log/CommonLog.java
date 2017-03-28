@@ -24,6 +24,8 @@ import org.apache.hadoop.classification.InterfaceStability;
 /**
  * This is default log format parser for <a href="https://en.wikipedia.org/wiki/Common_Log_Format">Common log </a>
  * To use this format with {@link LogParser} operator just mention the property "logFileFormat" as "COMMON"
+ *
+ * @since 3.7.0
  */
 @InterfaceStability.Evolving
 public class CommonLog

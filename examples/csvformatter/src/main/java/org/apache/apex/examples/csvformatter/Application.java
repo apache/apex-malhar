@@ -30,6 +30,9 @@ import com.datatorrent.contrib.parser.JsonParser;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 
 @ApplicationAnnotation(name = "CustomOutputFormatter")
+/**
+ * @since 3.7.0
+ */
 public class Application implements StreamingApplication
 {
   //Set the delimiters and schema structure  for the custom output in schema.json

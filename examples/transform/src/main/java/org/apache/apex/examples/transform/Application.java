@@ -33,6 +33,9 @@ import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.transform.TransformOperator;
 
 @ApplicationAnnotation(name = "TransformExample")
+/**
+ * @since 3.7.0
+ */
 public class Application implements StreamingApplication
 {
   @Override

@@ -24,6 +24,9 @@ import org.apache.apex.malhar.lib.window.Window.TimeWindow;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
+/**
+ * @since 3.7.0
+ */
 public class TimeWindowSerde implements Serde<Window.TimeWindow>
 {
   @Override

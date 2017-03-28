@@ -33,6 +33,8 @@ import com.datatorrent.lib.filter.FilterOperator;
 
 /**
  * Simple application illustrating filter operator
+ *
+ * @since 3.7.0
  */
 @ApplicationAnnotation(name = "FilterExample")
 public class Application implements StreamingApplication

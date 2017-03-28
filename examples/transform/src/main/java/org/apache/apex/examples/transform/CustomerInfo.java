@@ -19,6 +19,9 @@
 
 package org.apache.apex.examples.transform;
 
+/**
+ * @since 3.7.0
+ */
 public class CustomerInfo
 {
   private int customerId;

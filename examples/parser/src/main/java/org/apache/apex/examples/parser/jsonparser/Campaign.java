@@ -24,6 +24,9 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * @since 3.7.0
+ */
 public class Campaign
 {
   private int adId;

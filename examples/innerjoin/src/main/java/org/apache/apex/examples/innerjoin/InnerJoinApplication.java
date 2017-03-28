@@ -29,6 +29,9 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 @ApplicationAnnotation(name = "InnerJoinExample")
+/**
+ * @since 3.7.0
+ */
 public class InnerJoinApplication implements StreamingApplication
 {
   @Override

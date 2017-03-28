@@ -27,6 +27,9 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 @ApplicationAnnotation(name = "TestStuff")
+/**
+ * @since 3.7.0
+ */
 public class Application implements StreamingApplication
 {
 

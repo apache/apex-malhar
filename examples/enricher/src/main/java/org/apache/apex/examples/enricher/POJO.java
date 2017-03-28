@@ -19,6 +19,9 @@
 
 package org.apache.apex.examples.enricher;
 
+/**
+ * @since 3.7.0
+ */
 public class POJO
 {
   private String phone;

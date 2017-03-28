@@ -40,6 +40,8 @@ import com.datatorrent.api.Context;
  * <b>err</b>:tuples that do not confine to log format are emitted on this port as
  * KeyValPair<String,String><br>
  * Key being the tuple and Val being the reason.
+ *
+ * @since 3.7.0
  */
 @InterfaceStability.Evolving
 public class CommonLogParser extends LogParser

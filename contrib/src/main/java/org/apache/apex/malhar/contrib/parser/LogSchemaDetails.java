@@ -45,6 +45,8 @@ import java.util.regex.Pattern;
  * {"field": "request","regex": "\"((?:[^\"]|\")+)\""},
  * {"field": "statusCode","regex": "(\\d{3})"},
  * {"field": "bytes","regex": "(\\d+|-)"}]}
+ *
+ * @since 3.7.0
  */
 public class LogSchemaDetails
 {

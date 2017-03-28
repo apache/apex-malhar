@@ -29,6 +29,8 @@ import com.datatorrent.api.InputOperator;
 
 /**
  * Generates and emits the SalesEvent/ProductEvent based on isSalesEvent.
+ *
+ * @since 3.7.0
  */
 public class POJOGenerator implements InputOperator
 {

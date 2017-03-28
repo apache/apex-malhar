@@ -55,6 +55,8 @@ import com.datatorrent.lib.io.fs.AbstractReconciler;
  * frozen by the committed callback.
  *
  * S3TupleOutputModule uses this operator in conjunction with S3CompactionOperator
+ *
+ * @since 3.7.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public class S3Reconciler extends AbstractReconciler<FSRecordCompactionOperator.OutputMetaData, FSRecordCompactionOperator.OutputMetaData>

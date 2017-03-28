@@ -33,6 +33,8 @@ import com.datatorrent.lib.util.PojoUtils;
 /**
  * Right outer join Accumulation for Pojo Streams.
  *
+ *
+ * @since 3.7.0
  */
 @InterfaceStability.Evolving
 public class PojoRightOuterJoin<InputT1, InputT2>

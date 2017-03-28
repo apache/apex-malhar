@@ -41,6 +41,8 @@ import static org.apache.apex.malhar.lib.db.redshift.RedshiftOutputModule.READER
  * rolling files will load into Redshift table using copy command.
  * By default, it load files from S3 into Redshfit table. If the file is located in EMR, then specify "readFromS3" parameter to false.
  *
+ *
+ * @since 3.7.0
  */
 @InterfaceStability.Evolving
 public class RedshiftOutputModule implements Module

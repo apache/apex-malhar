@@ -32,6 +32,8 @@ import com.datatorrent.api.Context;
  * based on event time.
  *
  * Generates a watermark tuple with a fixed difference from the latest event time.
+ *
+ * @since 3.7.0
  */
 @InterfaceStability.Evolving
 public class FixedDiffEventTimeWatermarkGen implements ImplicitWatermarkGenerator

@@ -47,6 +47,8 @@ import com.datatorrent.lib.partitioner.StatelessThroughputBasedPartitioner;
  *
  * @displayName S3 Tuple Output Module
  * @tags S3, Output
+ *
+ * @since 3.7.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class S3TupleOutputModule<INPUT> implements Module
