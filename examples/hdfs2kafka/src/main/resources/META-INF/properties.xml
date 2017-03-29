@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<configuration>
+  <property>
+    <name>dt.operator.kafkaOutput.prop.topic</name>
+    <value>hdfs2kafka</value>
+  </property>
+  <property>
+    <name>dt.operator.lines.prop.directory</name>
+    <value>/tmp/hdfs2kafka</value>
+  </property>
+  <property>
+    <name>dt.operator.kafkaOutput.prop.producerProperties</name>
+    <value>serializer.class=kafka.serializer.StringEncoder,producer.type=async,metadata.broker.list=localhost:9092</value>
+  </property>
+</configuration>
+

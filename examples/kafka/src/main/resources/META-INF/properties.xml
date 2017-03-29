@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<configuration>
+  <!-- 
+  <property>
+    <name>dt.application.{appName}.operator.{opName}.prop.{propName}</name>
+    <value>some-default-value (if value is not specified, it is required from the user or custom config when launching)</value>
+  </property>
+  -->
+  <!-- memory assigned to app master
+  <property>
+    <name>dt.attr.MASTER_MEMORY_MB</name>
+    <value>2048</value>
+  </property>
+  -->
+
+  <!-- kafka input operator (0.9) -->
+  <property>
+    <name>dt.application.Kafka2HDFS.operator.kafkaIn.prop.initialPartitionCount</name>
+    <value>1</value>
+  </property>
+  <property>
+    <name>dt.application.Kafka2HDFS.operator.kafkaIn.prop.topics</name>
+    <value>kafka2hdfs</value>
+  </property>
+  <property>
+    <name>dt.application.Kafka2HDFS.operator.kafkaIn.prop.clusters</name>
+    <value>localhost:9092</value>  <!-- broker (NOT zookeeper) address -->
+  </property>
+
+  <!-- file output operator -->
+  <property>
+    <name>dt.application.Kafka2HDFS.operator.fileOut.prop.filePath</name>
+    <value>/tmp/FromKafka</value>
+  </property>
+  <property>
+    <name>dt.application.Kafka2HDFS.operator.fileOut.prop.baseName</name>
+    <value>test</value>
+  </property>
+  <property>
+    <name>dt.application.Kafka2HDFS.operator.fileOut.prop.maxLength</name>
+    <value>1024</value>
+  </property>
+  <property>
+    <name>dt.application.Kafka2HDFS.operator.fileOut.prop.rotationWindows</name>
+    <value>4</value>
+  </property>
+</configuration>
+
