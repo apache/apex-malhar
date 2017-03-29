@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.apex.examples.kafka.hdfs2kafka;
 
 import java.io.File;
@@ -26,20 +44,20 @@ import static org.junit.Assert.assertTrue;
 /**
  * Test the DAG declaration in local mode.
  */
-public class ApplicationTest {
+public class ApplicationTest
+{
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationTest.class);
   private static final String TOPIC = "hdfs2kafka";
   private static final String directory = "target/hdfs2kafka";
   private static final String FILE_NAME = "messages.txt";
 
   private static final int zkPort = 2181;
-  private static final int  brokerPort = 9092;
+  private static final int brokerPort = 9092;
   private static final String BROKER = "localhost:" + brokerPort;
   //private static final String FILE_PATH = FILE_DIR + "/" + FILE_NAME + ".0";     // first part
 
   // test messages
-  private static String[] lines =
-  {
+  private static String[] lines = {
     "1st line",
     "2nd line",
     "3rd line",
@@ -51,9 +69,9 @@ public class ApplicationTest {
   @Rule
   public KafkaUnitRule kafkaUnitRule = new KafkaUnitRule(zkPort, brokerPort);
 
-
   @Test
-  public void testApplication() throws IOException, Exception {
+  public void testApplication() throws IOException, Exception
+  {
     try {
       // create file in monitored HDFS directory
       createFile();
@@ -71,7 +89,8 @@ public class ApplicationTest {
   }
 
   // create a file with content from 'lines'
-  private void createFile() throws IOException {
+  private void createFile() throws IOException
+  {
     // remove old file and create new one
     File file = new File(directory, FILE_NAME);
     FileUtils.deleteQuietly(file);
@@ -82,11 +101,11 @@ public class ApplicationTest {
       LOG.error("Error: Failed to create file {} in {}", FILE_NAME, directory);
       e.printStackTrace();
     }
-    LOG.debug("Created file {} with {} lines in {}",
-              FILE_NAME, lines.length, directory);
+    LOG.debug("Created file {} with {} lines in {}", FILE_NAME, lines.length, directory);
   }
 
-  private LocalMode.Controller asyncRun() throws Exception {
+  private LocalMode.Controller asyncRun() throws Exception
+  {
     Configuration conf = getConfig();
     LocalMode lma = LocalMode.newInstance();
     lma.prepareDAG(new Application(), conf);
@@ -95,14 +114,16 @@ public class ApplicationTest {
     return lc;
   }
 
-  private Configuration getConfig() {
-      Configuration conf = new Configuration(false);
-      conf.addResource(this.getClass().getResourceAsStream("/META-INF/properties-hdfs2kafka.xml"));
-      conf.set("dt.operator.lines.prop.directory", directory);
-      return conf;
+  private Configuration getConfig()
+  {
+    Configuration conf = new Configuration(false);
+    conf.addResource(this.getClass().getResourceAsStream("/META-INF/properties-hdfs2kafka.xml"));
+    conf.set("dt.operator.lines.prop.directory", directory);
+    return conf;
   }
 
-  private void chkOutput() throws Exception {
+  private void chkOutput() throws Exception
+  {
     KafkaUnit ku = kafkaUnitRule.getKafkaUnit();
     List<String> messages = null;
 

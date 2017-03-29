@@ -1,5 +1,20 @@
 /**
- * Put your copyright and license info here.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.apex.examples.kafka.kafka2hdfs;
 
@@ -30,20 +45,20 @@ import static org.junit.Assert.assertTrue;
 /**
  * Test the DAG declaration in local mode.
  */
-public class ApplicationTest {
+public class ApplicationTest
+{
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationTest.class);
   private static final String TOPIC = "kafka2hdfs";
 
   private static final int zkPort = 2181;
-  private static final int  brokerPort = 9092;
+  private static final int brokerPort = 9092;
   private static final String BROKER = "localhost:" + brokerPort;
   private static final String FILE_NAME = "test";
-  private static final String FILE_DIR  = "/tmp/FromKafka";
+  private static final String FILE_DIR = "/tmp/FromKafka";
   private static final String FILE_PATH = FILE_DIR + "/" + FILE_NAME + ".0";     // first part
 
   // test messages
-  private static String[] lines =
-  {
+  private static String[] lines = {
     "1st line",
     "2nd line",
     "3rd line",
@@ -56,7 +71,8 @@ public class ApplicationTest {
   public KafkaUnitRule kafkaUnitRule = new KafkaUnitRule(zkPort, brokerPort);
 
   @Test
-  public void testApplication() throws Exception {
+  public void testApplication() throws Exception
+  {
     try {
       // delete output file if it exists
       File file = new File(FILE_PATH);
@@ -80,7 +96,8 @@ public class ApplicationTest {
     }
   }
 
-  private void writeToTopic() {
+  private void writeToTopic()
+  {
     KafkaUnit ku = kafkaUnitRule.getKafkaUnit();
     ku.createTopic(TOPIC);
     for (String line : lines) {
@@ -90,25 +107,26 @@ public class ApplicationTest {
     LOG.debug("Sent messages to topic {}", TOPIC);
   }
 
-  private Configuration getConfig() {
-      Configuration conf = new Configuration(false);
-      String pre = "dt.operator.kafkaIn.prop.";
-      conf.setEnum(pre + "initialOffset",
-                   AbstractKafkaInputOperator.InitialOffset.EARLIEST);
-      conf.setInt(pre + "initialPartitionCount", 1);
-      conf.set(   pre + "topics",                TOPIC);
-      conf.set(   pre + "clusters",              BROKER);
+  private Configuration getConfig()
+  {
+    Configuration conf = new Configuration(false);
+    String pre = "dt.operator.kafkaIn.prop.";
+    conf.setEnum(pre + "initialOffset", AbstractKafkaInputOperator.InitialOffset.EARLIEST);
+    conf.setInt(pre + "initialPartitionCount", 1);
+    conf.set(pre + "topics", TOPIC);
+    conf.set(pre + "clusters", BROKER);
 
-      pre = "dt.operator.fileOut.prop.";
-      conf.set(   pre + "filePath",        FILE_DIR);
-      conf.set(   pre + "baseName",        FILE_NAME);
-      conf.setInt(pre + "maxLength",       40);
-      conf.setInt(pre + "rotationWindows", 3);
+    pre = "dt.operator.fileOut.prop.";
+    conf.set(pre + "filePath", FILE_DIR);
+    conf.set(pre + "baseName", FILE_NAME);
+    conf.setInt(pre + "maxLength", 40);
+    conf.setInt(pre + "rotationWindows", 3);
 
-      return conf;
+    return conf;
   }
 
-  private LocalMode.Controller asyncRun() throws Exception {
+  private LocalMode.Controller asyncRun() throws Exception
+  {
     Configuration conf = getConfig();
     LocalMode lma = LocalMode.newInstance();
     lma.prepareDAG(new KafkaApp(), conf);
@@ -117,20 +135,22 @@ public class ApplicationTest {
     return lc;
   }
 
-  private static void chkOutput() throws Exception {
+  private static void chkOutput() throws Exception
+  {
     File file = new File(FILE_PATH);
     final int MAX = 60;
-    for (int i = 0; i < MAX && (! file.exists()); ++i ) {
+    for (int i = 0; i < MAX && (!file.exists()); ++i) {
       LOG.debug("Sleeping, i = {}", i);
       Thread.sleep(1000);
     }
-    if (! file.exists()) {
+    if (!file.exists()) {
       String msg = String.format("Error: %s not found after %d seconds%n", FILE_PATH, MAX);
       throw new RuntimeException(msg);
     }
   }
 
-  private static void compare() throws Exception {
+  private static void compare() throws Exception
+  {
     // read output file
     File file = new File(FILE_PATH);
     BufferedReader br = new BufferedReader(new FileReader(file));
