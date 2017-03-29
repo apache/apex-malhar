@@ -1,4 +1,4 @@
-package com.example.myapexapp;
+package org.apache.apex.examples.kafka.kafka2hdfs;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;

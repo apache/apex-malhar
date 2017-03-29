@@ -196,7 +196,6 @@
     <profile>
       <id>all-modules</id>
       <modules>
-        <module>kafka</module>
         <module>hive</module>
         <module>stream</module>
         <module>benchmark</module>
@@ -210,6 +209,7 @@
   <modules>
     <module>library</module>
     <module>contrib</module>
+    <module>kafka</module>
     <module>examples</module>
   </modules>
 

@@ -1,4 +1,4 @@
-package com.example.myapexapp;
+package org.apache.apex.examples.kafka.kafka2hdfs;
 
 import org.apache.apex.malhar.kafka.AbstractKafkaInputOperator;
 import org.apache.apex.malhar.kafka.KafkaSinglePortInputOperator;

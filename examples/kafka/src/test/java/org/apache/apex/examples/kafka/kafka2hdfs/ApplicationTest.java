@@ -1,18 +1,14 @@
 /**
  * Put your copyright and license info here.
  */
-package com.example.myapexapp;
+package org.apache.apex.examples.kafka.kafka2hdfs;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-
 import java.util.ArrayList;
 
 import javax.validation.ConstraintViolationException;
-
-import org.apache.apex.malhar.kafka.AbstractKafkaInputOperator;
-import org.apache.hadoop.conf.Configuration;
 
 import org.junit.Assert;
 import org.junit.Rule;
@@ -20,12 +16,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import info.batey.kafka.unit.KafkaUnitRule;
-import info.batey.kafka.unit.KafkaUnit;
-
-import kafka.producer.KeyedMessage;
+import org.apache.apex.malhar.kafka.AbstractKafkaInputOperator;
+import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.LocalMode;
+
+import info.batey.kafka.unit.KafkaUnit;
+import info.batey.kafka.unit.KafkaUnitRule;
+import kafka.producer.KeyedMessage;
 
 import static org.junit.Assert.assertTrue;
 

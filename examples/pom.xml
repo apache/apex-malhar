@@ -197,6 +197,7 @@
     <module>recordReader</module>
     <module>throttle</module>
     <module>transform</module>
+    <module>kafka</module>
   </modules>
 
   <dependencies>

@@ -1,10 +1,8 @@
-package com.example.myapexapp;
+package org.apache.apex.examples.kafka.hdfs2kafka;
 
 import java.io.File;
 import java.io.IOException;
-
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 import javax.validation.ConstraintViolationException;
 
@@ -18,15 +16,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 
-import org.junit.Test;
-
-import info.batey.kafka.unit.KafkaUnitRule;
-import info.batey.kafka.unit.KafkaUnit;
-
-import kafka.producer.KeyedMessage;
-
 import com.datatorrent.api.LocalMode;
-import com.example.myapexapp.Application;
+
+import info.batey.kafka.unit.KafkaUnit;
+import info.batey.kafka.unit.KafkaUnitRule;
 
 import static org.junit.Assert.assertTrue;
 
@@ -104,7 +97,7 @@ public class ApplicationTest {
 
   private Configuration getConfig() {
       Configuration conf = new Configuration(false);
-      conf.addResource(this.getClass().getResourceAsStream("/META-INF/properties.xml"));
+      conf.addResource(this.getClass().getResourceAsStream("/META-INF/properties-hdfs2kafka.xml"));
       conf.set("dt.operator.lines.prop.directory", directory);
       return conf;
   }

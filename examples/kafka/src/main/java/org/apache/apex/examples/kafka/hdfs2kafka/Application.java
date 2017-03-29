@@ -1,4 +1,4 @@
-package com.example.myapexapp;
+package org.apache.apex.examples.kafka.hdfs2kafka;
 
 import org.apache.hadoop.conf.Configuration;
 
