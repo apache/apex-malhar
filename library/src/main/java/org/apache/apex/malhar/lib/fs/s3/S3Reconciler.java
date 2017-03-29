@@ -174,11 +174,11 @@ public class S3Reconciler extends AbstractReconciler<FSRecordCompactionOperator.
     while (doneTuples.peek() != null) {
       FSRecordCompactionOperator.OutputMetaData metaData = doneTuples.poll();
       removeIntermediateFiles(metaData);
-      /*if (outputPort.isConnected()) {
+      if (outputPort.isConnected()) {
         // Emit the meta data with S3 path
         metaData.setPath(getDirectoryName() + Path.SEPARATOR + metaData.getFileName());
         outputPort.emit(metaData);
-      }*/
+      }
     }
   }
 

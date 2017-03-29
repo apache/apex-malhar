@@ -42,6 +42,7 @@ import com.amazonaws.services.s3.model.PutObjectResult;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 import static org.mockito.Matchers.any;
@@ -54,6 +55,7 @@ public class S3ReconcilerTest
   {
     S3Reconciler underTest;
     Context.OperatorContext context;
+    CollectorTestSink<Object> sink;
 
     @Mock
     AmazonS3 s3clientMock;
@@ -100,6 +102,53 @@ public class S3ReconcilerTest
 
   @Rule
   public TestMeta testMeta = new TestMeta();
+
+  @Test
+  public void verifyS3ReconclierOutputTuple() throws Exception
+  {
+    String fileName = "s3-compaction_1.0";
+    String path = testMeta.outputPath + Path.SEPARATOR + fileName;
+    long size = 80;
+
+    File file = new File(path);
+    File tmpFile = new File(path + "." + System.currentTimeMillis() + ".tmp");
+    StringBuffer sb = new StringBuffer();
+    for (int i = 0; i < 10; i++) {
+      sb.append("Record" + i + "\n");
+      if (i == 5) {
+        FileUtils.write(tmpFile, sb.toString());
+      }
+    }
+    FileUtils.write(file, sb.toString());
+
+    // Set test sink and later on collect the emitted tuples in this sink.
+    testMeta.sink = new CollectorTestSink<Object>();
+    testMeta.underTest.outputPort.setSink(testMeta.sink);
+
+    // Create meta information to be emitted as tuple.
+    FSRecordCompactionOperator.OutputMetaData outputMetaData = new FSRecordCompactionOperator.OutputMetaData(path, fileName, size);
+    testMeta.underTest.beginWindow(0);
+    testMeta.underTest.input.process(outputMetaData);
+    testMeta.underTest.endWindow();
+
+    for (int i = 1; i < 60; i++) {
+      testMeta.underTest.beginWindow(i);
+      testMeta.underTest.endWindow();
+    }
+    testMeta.underTest.committed(59);
+
+    // retrieve the result count from output port.
+    testMeta.sink.waitForResultCount(1, 12000);
+
+    for (int i = 60; i < 70; i++) {
+      testMeta.underTest.beginWindow(i);
+      Thread.sleep(10);
+      testMeta.underTest.endWindow();
+    }
+
+    // verify the number of tuples emitted.
+    Assert.assertEquals(1, testMeta.sink.getCount(false));
+  }
 
   @Test
   public void testFileClearing() throws Exception
