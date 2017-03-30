@@ -198,6 +198,7 @@
     <module>throttle</module>
     <module>transform</module>
     <module>kafka</module>
+    <module>ftp</module>
   </modules>
 
   <dependencies>

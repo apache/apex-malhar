@@ -16,6 +16,7 @@ pages:
     - File Splitter: operators/file_splitter.md
     - Filter: operators/filter.md
     - Fixed Width Parser: operators/fixedWidthParserOperator.md
+    - FTP Input Operator: operators/ftpInputOperator.md
     - Jdbc Output Operator: operators/AbstractJdbcTransactionableOutputOperator.md
     - JDBC Poller Input: operators/jdbcPollInputOperator.md
     - JMS Input: operators/jmsInputOperator.md
