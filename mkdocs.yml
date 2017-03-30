@@ -22,6 +22,7 @@ pages:
     - JSON Formatter: operators/jsonFormatter.md
     - JSON Parser: operators/jsonParser.md
     - Kafka Input: operators/kafkaInputOperator.md
+    - Regex Parser: operators/regexparser.md
     - S3 Output Module: operators/s3outputmodule.md
     - Transformer: operators/transform.md
     - Windowed Operator: operators/windowedOperator.md
