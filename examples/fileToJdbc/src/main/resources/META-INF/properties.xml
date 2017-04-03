@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<configuration>
+  <property>
+    <name>dt.operator.JdbcOutput.prop.store.databaseDriver</name>
+    <value>com.mysql.jdbc.Driver</value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcOutput.prop.store.databaseUrl</name>
+    <value>jdbc:mysql://hostName:portNumber/dbName</value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcOutput.prop.store.userName</name>
+    <value>root</value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcOutput.prop.store.password</name>
+    <value>password</value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcOutput.prop.batchSize</name>
+    <value>5</value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcOutput.prop.tablename</name>
+    <value>table_name</value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcOutput.port.input.attr.TUPLE_CLASS</name>
+    <value>com.example.FileToJdbcApp.PojoEvent</value>
+  </property>
+
+  <property>
+    <name>dt.operator.FileReader.prop.directory</name>
+    <value>input_directory</value>
+  </property>
+
+  <property>
+    <name>dt.loggers.level</name>
+    <value>com.datatorrent.*:INFO,org.apache.*:INFO</value>
+  </property>
+</configuration>
+

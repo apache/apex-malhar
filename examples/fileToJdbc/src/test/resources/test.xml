@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<configuration>
+  <property>
+    <name>dt.operator.JdbcOutput.prop.store.databaseDriver</name>
+    <value>org.hsqldb.jdbcDriver</value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcOutput.prop.store.databaseUrl</name>
+    <value>jdbc:hsqldb:mem:test;sql.syntax_mys=true</value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcOutput.prop.store.userName</name>
+    <value>sa</value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcOutput.prop.store.password</name>
+    <value></value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcOutput.prop.batchSize</name>
+    <value>5</value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcOutput.prop.tablename</name>
+    <value>test_jdbc_table</value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcOutput.port.input.attr.TUPLE_CLASS</name>
+    <value>com.example.FileToJdbcApp.PojoEvent</value>
+  </property>
+
+  <property>
+    <name>dt.operator.FileReader.prop.directory</name>
+    <value>src/test/resources/test-input</value>
+  </property>
+
+  <property>
+    <name>dt.loggers.level</name>
+    <value>com.datatorrent.*:INFO,org.apache.*:INFO</value>
+  </property>
+
+  <property>
+    <name>dt.application.FileToJdbcCsvParser.operator.CsvParser.port.out.attr.TUPLE_CLASS</name>
+    <value>com.example.FileToJdbcApp.PojoEvent</value>
+  </property>
+
+  <property>
+    <name>dt.application.FileToJdbcCustomParser.operator.CustomParser.prop.regexStr</name>
+    <value>,</value>
+  </property>
+</configuration>
+
