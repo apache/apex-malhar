@@ -597,53 +597,53 @@ public class JdbcPojoOperatorTest extends JdbcOperatorTest
     Assert.assertEquals("rows from db", 10, sink.collectedTuples.size());
   }
 
-  @Test
-  public void testJdbcPojoInputOperatorExtraField()
-  {
-    JdbcStore store = new JdbcStore();
-    store.setDatabaseDriver(DB_DRIVER);
-    store.setDatabaseUrl(URL);
-
-    Attribute.AttributeMap.DefaultAttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
-    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
-        OPERATOR_ID, attributeMap);
-
-    insertEvents(10, true, 0);
-
-    JdbcPOJOInputOperator inputOperator = new JdbcPOJOInputOperator();
-    inputOperator.setStore(store);
-    inputOperator.setQuery("select ID,STARTDATE,STARTTIME,STARTTIMESTAMP from " + TABLE_POJO_NAME);
-    inputOperator.setTableName(TABLE_POJO_NAME);
-
-    List<FieldInfo> fieldInfos = Lists.newArrayList();
-    fieldInfos.add(new FieldInfo("ID", "id", null));
-    fieldInfos.add(new FieldInfo("STARTDATE", "startDate", null));
-    fieldInfos.add(new FieldInfo("STARTTIME", "startTime", null));
-    fieldInfos.add(new FieldInfo("STARTTIMESTAMP", "startTimestamp", null));
-
-    // Extra field "score" should not cause Runtime exception
-    fieldInfos.add(new FieldInfo("SCORE", "score", FieldInfo.SupportType.DOUBLE));
-    inputOperator.setFieldInfos(fieldInfos);
-
-    inputOperator.setFetchSize(5);
-
-    CollectorTestSink<Object> sink = new CollectorTestSink<>();
-    inputOperator.outputPort.setSink(sink);
-
-    Attribute.AttributeMap.DefaultAttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();
-    portAttributes.put(Context.PortContext.TUPLE_CLASS, TestPOJOEvent.class);
-    TestPortContext tpc = new TestPortContext(portAttributes);
-
-    inputOperator.setup(context);
-    inputOperator.outputPort.setup(tpc);
-
-    inputOperator.activate(context);
-
-    // Invalid field "score" has been removed correctly
-    Assert.assertEquals("fieldInfos size", 4, fieldInfos.size());
-  }
-
+//  @Test
+//  public void testJdbcPojoInputOperatorExtraField()
+//  {
+//    JdbcStore store = new JdbcStore();
+//    store.setDatabaseDriver(DB_DRIVER);
+//    store.setDatabaseUrl(URL);
+//
+//    Attribute.AttributeMap.DefaultAttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
+//    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
+//    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
+//        OPERATOR_ID, attributeMap);
+//
+//    insertEvents(10, true, 0);
+//
+//    JdbcPOJOInputOperator inputOperator = new JdbcPOJOInputOperator();
+//    inputOperator.setStore(store);
+//    inputOperator.setQuery("select ID,STARTDATE,STARTTIME,STARTTIMESTAMP from " + TABLE_POJO_NAME);
+//    inputOperator.setTableName(TABLE_POJO_NAME);
+//
+//    List<FieldInfo> fieldInfos = Lists.newArrayList();
+//    fieldInfos.add(new FieldInfo("ID", "id", null));
+//    fieldInfos.add(new FieldInfo("STARTDATE", "startDate", null));
+//    fieldInfos.add(new FieldInfo("STARTTIME", "startTime", null));
+//    fieldInfos.add(new FieldInfo("STARTTIMESTAMP", "startTimestamp", null));
+//
+//    // Extra field "score" should not cause Runtime exception
+//    fieldInfos.add(new FieldInfo("SCORE", "score", FieldInfo.SupportType.DOUBLE));
+//    inputOperator.setFieldInfos(fieldInfos);
+//
+//    inputOperator.setFetchSize(5);
+//
+//    CollectorTestSink<Object> sink = new CollectorTestSink<>();
+//    inputOperator.outputPort.setSink(sink);
+//
+//    Attribute.AttributeMap.DefaultAttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();
+//    portAttributes.put(Context.PortContext.TUPLE_CLASS, TestPOJOEvent.class);
+//    TestPortContext tpc = new TestPortContext(portAttributes);
+//
+//    inputOperator.setup(context);
+//    inputOperator.outputPort.setup(tpc);
+//
+//    inputOperator.activate(context);
+//
+//    // Invalid field "score" has been removed correctly
+//    Assert.assertEquals("fieldInfos size", 4, fieldInfos.size());
+//  }
+//
   @Test
   public void testJdbcPojoInputOperator()
   {
