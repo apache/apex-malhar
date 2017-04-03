@@ -414,7 +414,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   }
 
   /**
-   * Returns the max file per window
+   * Returns the maximum number of files to read per window
    *
    * @return queueCapacity
    */
@@ -424,7 +424,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   }
 
   /**
-   * Sets the max file per window
+   * Sets the maximum number of files to read per window
    *
    * @param maxFilesPerWindow
    */
@@ -744,15 +744,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
         } else if (!failedFiles.isEmpty()) {
           retryFailedFile(failedFiles.poll());
         } else {
-          while ((!fileQueue.isEmpty()) && (fileCount < getMaxFilesPerWindow())) {
-            Path newPath = fileQueue.peek();
-            String newPathString = newPath.toString();
-            pendingFiles.add(newPathString);
-            processedFiles.add(newPathString);
-            localProcessedFileCount.increment();
-            fileQueue.remove();
-            fileCount++;
-          }
+          getFilesFromQueue();
         }
       } catch (IOException ex) {
         failureHandling(ex);
@@ -792,6 +784,19 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
       if (offset >= startOffset) {
         currentWindowRecoveryState.add(new RecoveryEntry(file, startOffset, offset, fileClosed));
       }
+    }
+  }
+
+  protected void getFilesFromQueue()
+  {
+    while ((!fileQueue.isEmpty()) && (fileCount < getMaxFilesPerWindow())) {
+      Path newPath = fileQueue.peek();
+      String newPathString = newPath.toString();
+      pendingFiles.add(newPathString);
+      processedFiles.add(newPathString);
+      localProcessedFileCount.increment();
+      fileQueue.remove();
+      fileCount++;
     }
   }
 
@@ -940,7 +945,6 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
 
       // Do state transfer for processed files.
       oper.processedFiles.addAll(totalProcessedFiles);
-
       oper.globalNumberOfFailures = tempGlobalNumberOfRetries;
       oper.localNumberOfFailures.setValue(0);
       oper.globalNumberOfRetries = tempGlobalNumberOfFailures;
