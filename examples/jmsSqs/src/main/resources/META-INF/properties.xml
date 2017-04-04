@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<configuration>
+  <!-- 
+  <property>
+    <name>dt.application.{appName}.operator.{opName}.prop.{propName}</name>
+    <value>some-default-value (if value is not specified, it is required from the user or custom config when launching)</value>
+  </property>
+  -->
+  <!-- memory assigned to app master
+  <property>
+    <name>dt.attr.MASTER_MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  -->
+  <property>
+    <name>dt.operator.fileOut.prop.filePath</name>
+    <value>/tmp</value>
+  </property>
+  <property>
+    <name>dt.operator.fileOut.prop.baseName</name>
+    <value>test</value>
+  </property>
+  <property>
+    <name>dt.operator.fileOut.prop.maxLength</name>
+    <value>50</value>
+  </property>
+  <property>
+    <name>dt.operator.fileOut.prop.rotationWindows</name>
+    <value>10</value>
+  </property>
+  <property>
+    <name>dt.operator.sqsIn.prop.ackMode</name>
+    <value>AUTO_ACKNOWLEDGE</value>
+  </property>
+  <property>
+    <name>dt.operator.sqsIn.prop.transacted</name>
+    <value>false</value>
+  </property>
+  <property>
+    <name>dt.operator.sqsIn.prop.subject</name>
+    <value>DtQueue</value>
+  </property>
+    <property>
+    <name>dt.operator.sqsIn.prop.aws.key.id</name>
+    <value>awsKeyId</value>
+  </property>
+  <property>
+    <name>dt.operator.sqsIn.prop.aws.key.secret</name>
+    <value>awsKeySecret</value>
+  </property>
+  <property>
+    <name>dt.operator.sqsIn.prop.aws.region</name>
+    <value>us-east-1</value>
+  </property>
+</configuration>
