@@ -84,12 +84,6 @@
       <groupId>org.apache.apex</groupId>
       <artifactId>malhar-kafka</artifactId>
       <version>${project.parent.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.calcite</groupId>
