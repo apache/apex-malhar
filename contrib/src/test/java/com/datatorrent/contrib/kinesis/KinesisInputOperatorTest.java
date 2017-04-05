@@ -182,6 +182,55 @@ public class KinesisInputOperatorTest extends KinesisOperatorTestBase
     lc.shutdown();
   }
 
+  @Test
+  public void testKinesisByteArrayInputOperator() throws Exception
+  {
+    int totalCount = 10;
+    // initial the latch for this test
+    latch = new CountDownLatch(1);
+
+    // Start producer
+    KinesisTestProducer p = new KinesisTestProducer(streamName);
+    p.setSendCount(totalCount);
+    p.setBatchSize(9);
+    new Thread(p).start();
+
+    // Create DAG for testing.
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
+
+    // Create KinesisByteArrayInputOperator and set some properties with respect to consumer.
+    KinesisByteArrayInputOperator node = dag.addOperator("Kinesis message consumer", KinesisByteArrayInputOperator.class);
+    node.setAccessKey(credentials.getCredentials().getAWSSecretKey());
+    node.setSecretKey(credentials.getCredentials().getAWSAccessKeyId());
+    KinesisConsumer consumer = new KinesisConsumer();
+    consumer.setStreamName(streamName);
+    consumer.setRecordsLimit(totalCount);
+    node.setConsumer(consumer);
+
+    // Create Test tuple collector
+    CollectorModule<byte[]> collector = dag.addOperator("TestMessageCollector", new CollectorModule<byte[]>());
+
+    // Connect ports
+    dag.addStream("Kinesis message", node.outputPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
+
+    // Create local cluster
+    final LocalMode.Controller lc = lma.getController();
+    lc.setHeartbeatMonitoringEnabled(false);
+
+    lc.runAsync();
+
+    // Wait 45s for consumer finish consuming all the messages
+    latch.await(45000, TimeUnit.MILLISECONDS);
+
+    // Check results
+    Assert.assertEquals("Collections size", 1, collections.size());
+    Assert.assertEquals("Tuple count", totalCount, collections.get(collector.inputPort.id).size());
+    logger.debug(String.format("Number of emitted tuples: %d", collections.get(collector.inputPort.id).size()));
+
+    lc.shutdown();
+  }
+
   @Override
   @After
   public void afterTest()
