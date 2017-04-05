@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<configuration>
+  <!-- 
+  <property>
+    <name>dt.application.{appName}.operator.{opName}.prop.{propName}</name>
+    <value>some-default-value (if value is not specified, it is required from the user or custom config when launching)</value>
+  </property>
+  -->
+  <!-- memory assigned to app master
+  <property>
+    <name>dt.attr.MASTER_MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  -->
+  <property>
+    <name>dt.application.FileIO.operator.read.prop.directory</name>
+    <value>/tmp/fileIO/input-dir</value>
+  </property>
+  <property>
+    <name>dt.application.FileIO.operator.write.prop.filePath</name>
+    <value>/tmp/fileIO/output-dir</value>
+  </property>
+  <property>
+    <name>dt.application.FileIO.operator.read.prop.partitionCount</name>
+    <value>5</value>
+  </property>
+  <property>
+    <name>dt.loggers.level</name>
+    <value>com.datatorrent.*:INFO,org.apache.*:INFO</value>
+  </property>
+</configuration>
+

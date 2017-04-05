@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<configuration>
+  <!-- 
+  <property>
+    <name>dt.application.{appName}.operator.{opName}.prop.{propName}</name>
+    <value>some-default-value (if value is not specified, it is required from the user or custom config when launching)</value>
+  </property>
+  -->
+  <!-- memory assigned to app master
+  <property>
+    <name>dt.attr.MASTER_MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  -->
+
+  <!-- unused but necessary -->
+  <property>
+    <name>dt.operator.read.prop.directory</name>
+    <value>/tmp/fileIO/input-dir</value>
+  </property>
+
+  <property>
+    <name>dt.operator.read.prop.pendingFilesPerOperator</name>
+    <value>2</value>
+  </property>
+  
+  <property>
+    <name>dt.operator.read.prop.partitionCount</name>
+    <value>2</value>
+  </property>
+  
+   <property>
+    <name>dt.operator.read.prop.blockSize</name>
+    <value>128</value>
+  </property>
+  
+   <property>
+    <name>dt.operator.read.prop.repartitionInterval</name>
+    <value>30000</value>
+  </property>
+  
+
+  <property>
+    <name>dt.operator.read.prop.blockThreshold</name>
+    <value>2</value>
+  </property>
+  
+  <property>
+    <name>dt.operator.read.prop.emitBatchSize</name>
+    <value>2</value>
+  </property>
+
+  <property>
+   <name>dt.operator.read.attr.MEMORY_MB</name>
+   <value>1024</value>
+  </property>
+
+  <property>
+   <name>dt.operator.write.attr.MEMORY_MB</name>
+   <value>1024</value>
+  </property>
+
+  <property>
+    <name>dt.operator.*.port.*.attr.BUFFER_MEMORY_MB</name>
+    <value>128</value>
+  </property>
+
+  <property>
+    <name>dt.operator.write.prop.filePath</name>
+    <value>/tmp/fileIO/output-dir</value>
+  </property>
+  
+  <property>
+    <name>dt.operator.write.prop.rotationWindows</name>
+    <value>60</value>
+  </property>
+
+  <property>
+    <name>dt.loggers.level</name>
+    <value>com.datatorrent.*:DEBUG,org.apache.*:INFO</value>
+  </property>
+</configuration>
+

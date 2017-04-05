@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<configuration>
+  <!-- 
+  <property>
+    <name>dt.application.{appName}.operator.{opName}.prop.{propName}</name>
+    <value>some-default-value (if value is not specified, it is required from the user or custom config when launching)</value>
+  </property>
+  -->
+  <!-- memory assigned to app master
+  <property>
+    <name>dt.attr.MASTER_MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  -->
+
+  <!-- these values override those set in populateDAG -->
+  <property>
+    <name>dt.application.SimpleFileIO.operator.input.prop.directory</name>
+    <value>/tmp/SimpleFileIO/input-dir</value>
+  </property>
+  <property>
+    <name>dt.application.SimpleFileIO.operator.output.prop.filePath</name>
+    <value>/tmp/SimpleFileIO/output-dir</value>
+  </property>
+  <property>
+    <name>dt.application.SimpleFileIO.operator.output.prop.fileName</name>
+    <value>myfile</value>
+  </property>
+  <property>
+    <name>dt.application.SimpleFileIO.operator.output.prop.maxLength</name>
+    <value>1000000</value>
+  </property>
+</configuration>
+
