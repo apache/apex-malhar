@@ -200,6 +200,7 @@
     <module>kafka</module>
     <module>ftp</module>
     <module>s3</module>
+    <module>fileIO</module>
   </modules>
 
   <dependencies>
