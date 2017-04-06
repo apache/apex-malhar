@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.AutoMetric;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.lib.converter.Converter;
 import com.datatorrent.lib.io.fs.AbstractSingleFileOutputOperator;
@@ -120,6 +121,13 @@ public class GenericFileOutputOperator<INPUT> extends AbstractSingleFileOutputOp
     setTupleSeparator(System.getProperty("line.separator"));
     setExpireStreamAfterAccessMillis(DEFAULT_STREAM_EXPIRY_ACCESS_MILL);
     setRotationWindows(DEFAULT_ROTATION_WINDOWS);
+  }
+
+  @Override
+  public void setup(OperatorContext context)
+  {
+    super.setup(context);
+    this.tupleSeparatorBytes = tupleSeparator.getBytes();
   }
 
   /**

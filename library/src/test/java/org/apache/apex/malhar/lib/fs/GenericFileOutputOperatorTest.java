@@ -29,7 +29,11 @@ import org.junit.Test;
 import org.apache.apex.malhar.lib.fs.GenericFileOutputOperator.BytesFileOutputOperator;
 import org.apache.apex.malhar.lib.fs.GenericFileOutputOperator.StringFileOutputOperator;
 import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest;
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -125,6 +129,50 @@ public class GenericFileOutputOperatorTest extends AbstractFileOutputOperatorTes
     for (int i = 0; i < expected.length; i++) {
       checkOutput(i, testMeta.getDir() + "/output.txt_0", expected[i], true);
     }
+  }
+
+  public static class TestApplication implements StreamingApplication
+  {
+
+    @Override
+    public void populateDAG(DAG dag, Configuration conf)
+    {
+      LineByLineFileInputOperator input = dag.addOperator("input", new LineByLineFileInputOperator());
+      StringFileOutputOperator output = dag.addOperator("output", new StringFileOutputOperator());
+      dag.addStream("data", input.output, output.input);
+    }
+  }
+
+  @Test
+  public void runTestApplication() throws Exception
+  {
+    FileUtils.write(new File(testMeta.getDir(), "input.txt"), "a\nb\nc\nd\n");
+
+    Configuration conf = new Configuration(false);
+    conf.set("dt.operator.input.prop.directory", testMeta.getDir() + "/input.txt");
+    conf.set("dt.operator.output.prop.filePath", testMeta.getDir());
+    conf.set("dt.operator.output.prop.outputFileName", "output.txt");
+    conf.set("dt.operator.output.prop.tupleSeparator", "-");
+    conf.set("dt.operator.output.prop.maxIdleWindows", "2");
+    conf.set("dt.attr.CHECKPOINT_WINDOW_COUNT", "2");
+
+    LocalMode lma = LocalMode.newInstance();
+    lma.prepareDAG(new TestApplication(), conf);
+    LocalMode.Controller lc = lma.getController();
+    lc.runAsync();
+
+    File outputFile = new File(testMeta.getDir(), "output.txt_2.0");
+    final int MAX = 60;
+    for (int i = 0; i < MAX && (!outputFile.exists()); ++i) {
+      Thread.sleep(1000);
+    }
+    if (!outputFile.exists()) {
+      String msg = String.format("Error: output file not found after %d seconds%n", MAX);
+      throw new RuntimeException(msg);
+    }
+
+    String output = FileUtils.readFileToString(outputFile);
+    Assert.assertEquals("a-b-c-d-", output);
   }
 
   @Test
