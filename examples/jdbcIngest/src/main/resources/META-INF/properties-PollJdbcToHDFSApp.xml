@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<configuration>
+    <!-- Static partitioning, specify the partition count, this decides how 
+        many ranges would be initiated -->
+    <property>
+        <name>dt.application.PollJdbcToHDFSApp.operator.JdbcPoller.prop.partitionCount</name>
+        <value>2</value>
+    </property>
+
+    <property>
+        <name>dt.application.PollJdbcToHDFSApp.operator.JdbcPoller.prop.store.databaseDriver</name>
+        <value>com.mysql.jdbc.Driver</value>
+    </property>
+
+    <property>
+        <name>dt.application.PollJdbcToHDFSApp.operator.JdbcPoller.prop.store.databaseUrl</name>
+        <value>jdbc:mysql://localhost:3306/testDev</value>
+    </property>
+
+    <property>
+        <name>dt.application.PollJdbcToHDFSApp.operator.JdbcPoller.prop.store.userName</name>
+        <value>root</value>
+    </property>
+    
+    <property>
+        <name>dt.application.PollJdbcToHDFSApp.operator.JdbcPoller.prop.store.password</name>
+        <value>mysql</value>
+    </property>
+
+    <!-- Batch size for poller -->
+    <property>
+        <name>dt.application.PollJdbcToHDFSApp.operator.JdbcPoller.prop.batchSize</name>
+        <value>300</value>
+    </property>
+
+    <!-- look-up key for forming range queries, this would be the column name 
+        on which the table is sorted -->
+    <property>
+        <name>dt.application.PollJdbcToHDFSApp.operator.JdbcPoller.prop.key</name>
+        <value>ACCOUNT_NO</value>
+    </property>
+
+    <property>
+        <name>dt.application.PollJdbcToHDFSApp.operator.JdbcPoller.prop.columnsExpression</name>
+        <value>ACCOUNT_NO,NAME,AMOUNT</value>
+    </property>
+    <property>
+      <name>dt.application.PollJdbcToHDFSApp.operator.JdbcPoller.port.outputPort.attr.TUPLE_CLASS</name>
+      <value>com.example.mydtapp.PojoEvent</value>
+    </property>
+
+    <!-- Table name -->
+    <property>
+        <name>dt.application.PollJdbcToHDFSApp.operator.JdbcPoller.prop.tableName</name>
+        <value>test_event_table</value>
+    </property>
+
+    <property>
+        <name>dt.application.PollJdbcToHDFSApp.operator.JdbcPoller.prop.pollInterval</name>
+        <value>1000</value>
+    </property>
+
+    <!-- Output folder for HDFS output operator -->
+    <property>
+        <name>dt.application.PollJdbcToHDFSApp.operator.Writer.filePath</name>
+        <value>/tmp/test/output</value>
+    </property>
+
+  <property>
+    <name>dt.loggers.level</name>
+    <value>com.datatorrent.*:DEBUG,org.apache.*:INFO</value>
+  </property>
+</configuration>

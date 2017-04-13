@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<configuration>
+  <!-- <property> <name>dt.application.{appName}.operator.{opName}.prop.{propName}</name> 
+    <value>some-default-value (if value is not specified, it is required from 
+    the user or custom config when launching)</value> </property> -->
+  <!-- memory assigned to app master <property> <name>dt.attr.MASTER_MEMORY_MB</name> 
+    <value>1024</value> </property> -->
+
+  <!-- JDBC driver in use -->
+  <property>
+    <name>dt.application.JdbcToJdbcApp.operator.JdbcInput.prop.store.databaseDriver
+    </name>
+    <value>org.hsqldb.jdbcDriver</value>
+  </property>
+
+  <!-- URL to connect to the DB master -->
+  <property>
+    <name>dt.application.JdbcToJdbcApp.operator.JdbcInput.prop.store.databaseUrl
+    </name>
+    <value>jdbc:hsqldb:mem:test</value>
+  </property>
+
+  <!-- # rows that the operator can retrieve in a window -->
+  <property>
+    <name>dt.application.JdbcToJdbcApp.operator.JdbcInput.prop.fetchSize
+    </name>
+    <value>120</value>
+  </property>
+
+  <!-- POJO class -->
+  <property>
+    <name>dt.application.JdbcToJdbcApp.operator.JdbcInput.port.outputPort.attr.TUPLE_CLASS
+    </name>
+    <value>com.example.mydtapp.PojoEvent</value>
+  </property>
+
+  <!-- Query to fetch data -->
+  <property>
+    <name>dt.application.JdbcToJdbcApp.operator.JdbcInput.prop.query
+    </name>
+    <value>select * from test_event_table
+    </value>
+  </property>
+
+  <!-- Input Table name -->
+  <property>
+    <name>dt.application.JdbcToJdbcApp.operator.JdbcInput.prop.tableName
+    </name>
+    <value>test_event_table</value>
+  </property>
+
+  <!-- JDBC driver in use -->
+  <property>
+    <name>dt.application.JdbcToJdbcApp.operator.JdbcOutput.prop.store.databaseDriver
+    </name>
+    <value>org.hsqldb.jdbcDriver</value>
+  </property>
+
+  <!-- URL to connect to the DB master -->
+  <property>
+    <name>dt.application.JdbcToJdbcApp.operator.JdbcOutput.prop.store.databaseUrl
+    </name>
+    <value>jdbc:hsqldb:mem:test</value>
+  </property>
+
+  <!-- # rows that the operator can retrieve in a window -->
+  <property>
+    <name>dt.application.JdbcToJdbcApp.operator.JdbcOutput.prop.batchSize
+    </name>
+    <value>5</value>
+  </property>
+
+  <!-- Output Table name -->
+  <property>
+    <name>dt.application.JdbcToJdbcApp.operator.JdbcOutput.prop.tablename
+    </name>
+    <value>test_output_event_table</value>
+  </property>
+  
+  <!-- POJO class -->
+  <property>
+    <name>dt.application.JdbcToJdbcApp.operator.JdbcOutput.port.input.attr.TUPLE_CLASS
+    </name>
+    <value>com.example.mydtapp.PojoEvent</value>
+  </property>
+
+</configuration>
+
