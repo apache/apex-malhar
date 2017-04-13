@@ -1,5 +1,20 @@
 /**
- * Put your copyright and license info here.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.apex.examples.jmsSqs;
 
@@ -29,12 +44,13 @@ import com.datatorrent.api.LocalMode;
 /**
  * Test the DAG declaration in local mode.
  */
-public class ApplicationTest {
+public class ApplicationTest
+{
 
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationTest.class);
 
   private static final String FILE_NAME = "test";
-  private static final String FILE_DIR  = "target/jmsSQS";
+  private static final String FILE_DIR = "target/jmsSQS";
   private static final String FILE_PATH = FILE_DIR + "/" + FILE_NAME + ".0";     // first part
 
   private static final String QUEUE_NAME_PREFIX = "jms4Sqs";
@@ -48,17 +64,16 @@ public class ApplicationTest {
   private SQSRestServer mockServer;
 
   // test messages
-  private static String[] lines =
-  {
+  private static String[] lines = {
     "1st line",
     "2nd line",
     "3rd line",
     "4th line",
-    "5th line",
-  };
+    "5th line",};
 
   @Test
-  public void testApplication() throws Exception {
+  public void testApplication() throws Exception
+  {
     try {
       // delete output file if it exists
       File file = new File(FILE_PATH);
@@ -117,12 +132,14 @@ public class ApplicationTest {
     }
   }
 
-  private void writeToQueue() {
+  private void writeToQueue()
+  {
     writeMsg(lines);
     LOG.debug("Sent messages to topic {}", QUEUE_NAME_PREFIX);
   }
 
-  private Configuration getConfig() {
+  private Configuration getConfig()
+  {
     Configuration conf = new Configuration(false);
 
     // read config values from the properties-jmsSqs.xml file
@@ -141,20 +158,22 @@ public class ApplicationTest {
     return conf;
   }
 
-  private static void chkOutput() throws Exception {
+  private static void chkOutput() throws Exception
+  {
     File file = new File(FILE_PATH);
     final int MAX = 60;
-    for (int i = 0; i < MAX && (! file.exists()); ++i ) {
+    for (int i = 0; i < MAX && (!file.exists()); ++i) {
       LOG.debug("Sleeping, i = {}", i);
       Thread.sleep(1000);
     }
-    if (! file.exists()) {
+    if (!file.exists()) {
       String msg = String.format("Error: %s not found after %d seconds%n", FILE_PATH, MAX);
       throw new RuntimeException(msg);
     }
   }
 
-  private void compare() throws Exception {
+  private void compare() throws Exception
+  {
     // read output file
     File file = new File(FILE_PATH);
     BufferedReader br = new BufferedReader(new FileReader(file));
@@ -167,7 +186,7 @@ public class ApplicationTest {
     br.close();
 
     // now delete the file, we don't need it anymore
-    Assert.assertTrue("Deleting "+file, file.delete());
+    Assert.assertTrue("Deleting " + file, file.delete());
 
     // delete the current queue, since the Queue's job is done
     sqs.deleteQueue(currentQueueUrl);
@@ -175,11 +194,12 @@ public class ApplicationTest {
     // compare
     Assert.assertEquals("number of lines", lines.length, set.size());
     for (int i = 0; i < lines.length; ++i) {
-      Assert.assertTrue("set contains "+lines[i], set.remove(lines[i]));
+      Assert.assertTrue("set contains " + lines[i], set.remove(lines[i]));
     }
   }
 
-  private LocalMode.Controller asyncRun() throws Exception {
+  private LocalMode.Controller asyncRun() throws Exception
+  {
     Configuration conf = getConfig();
     LocalMode lma = LocalMode.newInstance();
     lma.prepareDAG(new SqsApplication(), conf);
@@ -187,6 +207,5 @@ public class ApplicationTest {
     lc.runAsync();
     return lc;
   }
-
 
 }
