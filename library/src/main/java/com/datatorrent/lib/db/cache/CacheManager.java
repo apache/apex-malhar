@@ -21,6 +21,7 @@ package com.datatorrent.lib.db.cache;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,12 +32,16 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
+import com.datatorrent.api.Attribute;
+import com.datatorrent.api.Component;
+import com.datatorrent.api.Context;
 import com.datatorrent.lib.db.KeyValueStore;
 
 /**
@@ -56,11 +61,15 @@ import com.datatorrent.lib.db.KeyValueStore;
 public class CacheManager implements Closeable
 {
   @NotNull
-  protected Primary primary;
+  protected transient Primary primary;
   @NotNull
-  protected Backup backup;
+  protected transient Backup backup;
   protected String refreshTime;
   private transient Timer refresher;
+
+  private transient Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
+  private boolean readOnlyData = false;
+  private int numInitCachedLines = -1;
 
   public CacheManager()
   {
@@ -69,6 +78,33 @@ public class CacheManager implements Closeable
 
   public void initialize() throws IOException
   {
+    Class[] parameters = new Class[1];
+    parameters[0] = CacheContext.class;
+
+    attributeMap.put(CacheContext.READ_ONLY_ATTR, readOnlyData);
+    attributeMap.put(CacheContext.NUM_INIT_CACHED_LINES_ATTR, numInitCachedLines);
+    CacheContext cacheContext = new CacheContext(attributeMap);
+
+    if (primary instanceof Component) {
+      try {
+        //check Component for method of type setup(CacheManager.CacheContext context)
+        primary.getClass().getMethod("setup", parameters);
+        ((Component)primary).setup(cacheContext);
+      } catch (NoSuchMethodException e) {
+        //Store implements Component, but not Component<CacheManager.CacheContext>
+      }
+    }
+
+    if (backup instanceof Component) {
+      try {
+        //check Component for method of type setup(CacheManager.CacheContext context)
+        backup.getClass().getMethod("setup", parameters);
+        ((Component)backup).setup(cacheContext);
+      } catch (NoSuchMethodException e) {
+        //Store implements Component, but not Component<CacheManager.CacheContext>
+      }
+    }
+
     primary.connect();
     backup.connect();
     Map<Object, Object> initialEntries = backup.loadInitialData();
@@ -76,7 +112,7 @@ public class CacheManager implements Closeable
       primary.putAll(initialEntries);
     }
 
-    if (!Strings.isNullOrEmpty(refreshTime)) {
+    if (!readOnlyData && !Strings.isNullOrEmpty(refreshTime)) {
 
       String[] parts = refreshTime.split("[:\\s]");
 
@@ -151,6 +187,7 @@ public class CacheManager implements Closeable
     this.primary = primary;
   }
 
+  @JsonIgnore
   public Primary getPrimary()
   {
     return primary;
@@ -161,6 +198,7 @@ public class CacheManager implements Closeable
     this.backup = backup;
   }
 
+  @JsonIgnore
   public Backup getBackup()
   {
     return backup;
@@ -182,6 +220,32 @@ public class CacheManager implements Closeable
     return refreshTime;
   }
 
+  public int getNumInitCachedLines()
+  {
+    return numInitCachedLines;
+  }
+
+  /**
+   * The cache store can be refreshed every day at a specific time. This sets
+   * the time. If the time is not set, cache is not refreshed.
+   *
+   * @param numInitCachedLines number of lines to initially from
+   */
+  public void setNumInitCachedLines(int numInitCachedLines)
+  {
+    this.numInitCachedLines = numInitCachedLines;
+  }
+
+  public boolean getReadOnlyData()
+  {
+    return readOnlyData;
+  }
+
+  public void setReadOnlyData(boolean isReadOnly)
+  {
+    readOnlyData = isReadOnly;
+  }
+
   /**
    * A primary store should also provide setting the value for a key.
    */
@@ -193,6 +257,7 @@ public class CacheManager implements Closeable
      *
      * @return all present keys.
      */
+    @JsonIgnore
     Set<Object> getKeys();
   }
 
@@ -208,6 +273,54 @@ public class CacheManager implements Closeable
      * @return map of key/value to initialize {@link CacheManager}
      */
     Map<Object, Object> loadInitialData();
+  }
+
+
+  /**
+   * Used by {@link CacheManager} to pass properties to its stores which implement {@link Component}.
+   */
+  public static class CacheContext implements Context
+  {
+    public static final transient Attribute<Boolean> READ_ONLY_ATTR = new Attribute<>((false));
+    public static final transient Attribute<Integer> NUM_INIT_CACHED_LINES_ATTR = new Attribute<>((-1));
+
+
+    static {
+      Attribute.AttributeMap.AttributeInitializer.initialize(CacheContext.class);
+    }
+
+    Attribute.AttributeMap attributeMap;
+
+    public CacheContext(Attribute.AttributeMap attributeMap)
+    {
+      this.attributeMap = (Attribute.AttributeMap)(attributeMap == null ?
+          new Attribute.AttributeMap.DefaultAttributeMap() : attributeMap);
+    }
+
+    @Override
+    public Attribute.AttributeMap getAttributes()
+    {
+      return attributeMap;
+    }
+
+    @Override
+    public <T> T getValue(Attribute<T> key)
+    {
+      T attr = attributeMap.get(key);
+      return attr != null ? attr : key.defaultValue;
+    }
+
+    @Override
+    public void setCounters(Object counters)
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void sendMetrics(Collection<String> metricNames)
+    {
+      throw new UnsupportedOperationException();
+    }
   }
 
   @SuppressWarnings("unused")

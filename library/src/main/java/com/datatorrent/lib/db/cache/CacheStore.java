@@ -29,9 +29,14 @@ import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
+
+import com.datatorrent.api.Component;
 
 /**
  * A {@link CacheManager.Primary} which keeps key/value pairs in memory.<br/>
@@ -46,7 +51,7 @@ import com.google.common.collect.Lists;
  *
  * @since 0.9.2
  */
-public class CacheStore implements CacheManager.Primary
+public class CacheStore implements CacheManager.Primary, Component<CacheManager.CacheContext>
 {
 
   @Min(0)
@@ -65,6 +70,9 @@ public class CacheStore implements CacheManager.Primary
   private transient Cache<Object, Object> cache;
   private transient boolean open;
 
+  private transient int numInitCacheLines = -1;
+
+  private static final Logger logger = LoggerFactory.getLogger(CacheStore.class);
 
   @Override
   public void put(Object key, Object value)
@@ -111,14 +119,26 @@ public class CacheStore implements CacheManager.Primary
   {
     open = true;
 
+    if (numInitCacheLines > maxCacheSize) {
+      logger.warn("numInitCacheLines = {} is greater than maxCacheSize = {}, maxCacheSize was set to {}", numInitCacheLines,
+          maxCacheSize, numInitCacheLines);
+      maxCacheSize = numInitCacheLines;
+    }
+
     CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
     cacheBuilder.maximumSize(maxCacheSize);
+
     if (entryExpiryStrategy == ExpiryType.EXPIRE_AFTER_ACCESS) {
       cacheBuilder.expireAfterAccess(entryExpiryDurationInMillis, TimeUnit.MILLISECONDS);
     } else if (entryExpiryStrategy == ExpiryType.EXPIRE_AFTER_WRITE) {
       cacheBuilder.expireAfterWrite(entryExpiryDurationInMillis, TimeUnit.MILLISECONDS);
     }
     cache = cacheBuilder.build();
+
+    if (entryExpiryStrategy == ExpiryType.NO_EVICTION) {
+      return;
+    }
+
     this.cleanupScheduler = Executors.newScheduledThreadPool(1);
     cleanupScheduler.scheduleAtFixedRate(new Runnable()
     {
@@ -140,7 +160,9 @@ public class CacheStore implements CacheManager.Primary
   public void disconnect() throws IOException
   {
     open = false;
-    cleanupScheduler.shutdown();
+    if (cleanupScheduler != null) {
+      cleanupScheduler.shutdown();
+    }
   }
 
   /**
@@ -184,6 +206,29 @@ public class CacheStore implements CacheManager.Primary
   }
 
   /**
+   * Callback to give the component a chance to perform tasks required as part of setting itself up.
+   * This callback is made exactly once during the operator lifetime.
+   *
+   * @param context - CacheContext with AttributeMap passed by CacheManager
+   */
+  @Override
+  public void setup(CacheManager.CacheContext context)
+  {
+    if (context != null) {
+      numInitCacheLines = context.getValue(CacheManager.CacheContext.NUM_INIT_CACHED_LINES_ATTR);
+      if (context.getValue(CacheManager.CacheContext.READ_ONLY_ATTR)) {
+        entryExpiryStrategy = ExpiryType.NO_EVICTION;
+      }
+    }
+  }
+
+  @Override
+  public void teardown()
+  {
+
+  }
+
+  /**
    * Strategies for time-based expiration of entries.
    */
   public enum ExpiryType
@@ -197,6 +242,11 @@ public class CacheStore implements CacheManager.Primary
      * Expire the entries after the specified duration has passed since the entry was created, or the most recent
      * replacement of the value.
      */
-    EXPIRE_AFTER_WRITE
+    EXPIRE_AFTER_WRITE,
+
+    /**
+     * Entries never expire. No eviction will be set in cache builder and no cache cleaning will be scheduled.
+     */
+    NO_EVICTION
   }
 }

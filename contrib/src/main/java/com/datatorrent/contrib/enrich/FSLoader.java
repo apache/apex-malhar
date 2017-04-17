@@ -28,7 +28,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -37,6 +36,8 @@ import org.apache.hadoop.fs.Path;
 
 import com.esotericsoftware.kryo.NotNull;
 import com.google.common.collect.Maps;
+
+import com.datatorrent.api.Component;
 import com.datatorrent.lib.db.cache.CacheManager;
 import com.datatorrent.lib.util.FieldInfo;
 
@@ -51,7 +52,7 @@ import com.datatorrent.lib.util.FieldInfo;
  * @since 3.4.0
  */
 @InterfaceStability.Evolving
-public abstract class FSLoader extends ReadOnlyBackup
+public abstract class FSLoader extends ReadOnlyBackup implements Component<CacheManager.CacheContext>
 {
   @NotNull
   private String fileName;
@@ -59,6 +60,7 @@ public abstract class FSLoader extends ReadOnlyBackup
   private transient Path filePath;
   private transient FileSystem fs;
   private transient boolean connected;
+  private transient int numInitCachedLines = -1;
 
   private static final Logger logger = LoggerFactory.getLogger(FSLoader.class);
 
@@ -75,40 +77,29 @@ public abstract class FSLoader extends ReadOnlyBackup
   @Override
   public Map<Object, Object> loadInitialData()
   {
-    Map<Object, Object> result = null;
-    FSDataInputStream in = null;
-    BufferedReader bin = null;
-    try {
+    Map<Object, Object> result;
+    try (
+      FSDataInputStream in = fs.open(filePath);
+      BufferedReader bin = new BufferedReader(new InputStreamReader(in));
+    ) {
       result = Maps.newHashMap();
-      in = fs.open(filePath);
-      bin = new BufferedReader(new InputStreamReader(in));
       String line;
-      while ((line = bin.readLine()) != null) {
+      int linesCount = 0;
+      while ((line = bin.readLine()) != null && (numInitCachedLines < 0 || linesCount < numInitCachedLines)) {
         try {
           Map<String, Object> tuple = extractFields(line);
           if (tuple != null && !tuple.isEmpty()) {
             result.put(getKey(tuple), getValue(tuple));
           }
         } catch (Exception parseExp) {
-          logger.info("Unable to parse line {}", line);
+          throw new RuntimeException(parseExp);
         }
+        ++linesCount;
       }
     } catch (IOException e) {
       throw new RuntimeException(e);
-    } finally {
-      if (bin != null) {
-        IOUtils.closeQuietly(bin);
-      }
-      if (in != null) {
-        IOUtils.closeQuietly(in);
-      }
-      try {
-        fs.close();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
     }
-    logger.debug("loading initial data {}", result.size());
+    logger.debug("loading initial data, size: {}", result.size());
     return result;
   }
 
@@ -145,7 +136,42 @@ public abstract class FSLoader extends ReadOnlyBackup
   @Override
   public Object get(Object key)
   {
+    try (
+      FSDataInputStream in = openWithRetryFsInputStream(filePath);
+      BufferedReader bin = new BufferedReader(new InputStreamReader(in));
+      ) {
+      String line;
+      while ((line = bin.readLine()) != null) {
+        try {
+          Map<String, Object> tuple = extractFields(line);
+          if (tuple != null && !tuple.isEmpty() && getKey(tuple).equals(key)) {
+            logger.debug("Found line in FS {}", getValue(tuple));
+            return getValue(tuple);
+          }
+        } catch (Exception parseExp) {
+          throw new RuntimeException(parseExp);
+        }
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
     return null;
+  }
+
+  private FSDataInputStream openWithRetryFsInputStream(Path filePath)
+  {
+    FSDataInputStream in;
+    try {
+      in = fs.open(filePath);
+    } catch (IOException e) {
+      try {
+        this.connect();
+        in = fs.open(filePath);
+      } catch (IOException ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+    return in;
   }
 
   @Override
@@ -178,5 +204,25 @@ public abstract class FSLoader extends ReadOnlyBackup
   public boolean isConnected()
   {
     return connected;
+  }
+
+  /**
+   * Callback to give the component a chance to perform tasks required as part of setting itself up.
+   * This callback is made exactly once during the operator lifetime.
+   *
+   * @param context - CacheContext with AttributeMap passed by CacheManager
+   */
+  @Override
+  public void setup(CacheManager.CacheContext context)
+  {
+    if (context != null) {
+      numInitCachedLines = context.getValue(CacheManager.CacheContext.NUM_INIT_CACHED_LINES_ATTR);
+    }
+  }
+
+  @Override
+  public void teardown()
+  {
+
   }
 }

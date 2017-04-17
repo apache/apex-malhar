@@ -73,9 +73,10 @@ public abstract class AbstractEnricher<INPUT, OUTPUT> extends BaseOperator imple
   /**
    * Helper variables.
    */
-  private transient CacheManager cacheManager;
   protected transient List<FieldInfo> lookupFieldInfo = new ArrayList<>();
   protected transient List<FieldInfo> includeFieldInfo = new ArrayList<>();
+
+  private CacheManager cacheManager = new NullValuesCacheManager();
 
   /**
    * This method needs to be called by implementing class for processing a tuple for enrichment.
@@ -154,7 +155,6 @@ public abstract class AbstractEnricher<INPUT, OUTPUT> extends BaseOperator imple
   {
     super.setup(context);
 
-    cacheManager = new NullValuesCacheManager();
     CacheStore primaryCache = new CacheStore();
 
     // set expiration to one day.
@@ -185,13 +185,18 @@ public abstract class AbstractEnricher<INPUT, OUTPUT> extends BaseOperator imple
     try {
       cacheManager.initialize();
     } catch (IOException e) {
-      throw new RuntimeException("Unable to initialize primary cache", e);
+      throw new RuntimeException("Unable to initialize cache manager", e);
     }
   }
 
   @Override
   public void deactivate()
   {
+    try {
+      cacheManager.close();
+    } catch (IOException e) {
+      throw new RuntimeException("Unable to close cache manager", e);
+    }
   }
 
   /**
@@ -319,5 +324,15 @@ public abstract class AbstractEnricher<INPUT, OUTPUT> extends BaseOperator imple
   public void setCacheSize(int cacheSize)
   {
     this.cacheSize = cacheSize;
+  }
+
+  public CacheManager getCacheManager()
+  {
+    return cacheManager;
+  }
+
+  public void setCacheManager(CacheManager cacheManager)
+  {
+    this.cacheManager = cacheManager;
   }
 }

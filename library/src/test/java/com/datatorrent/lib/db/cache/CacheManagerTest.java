@@ -19,6 +19,7 @@
 package com.datatorrent.lib.db.cache;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +31,8 @@ import org.junit.Test;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import com.datatorrent.api.Component;
 
 /**
  * Tests for {@link CacheManager}
@@ -118,6 +121,40 @@ public class CacheManagerTest
     }
   }
 
+  private static class DummyComponentBackupStore extends DummyBackupStore implements Component<CacheManager.CacheContext>
+  {
+    CacheManager.CacheContext cacheContext;
+
+    @Override
+    public Map<Object, Object> loadInitialData()
+    {
+      Map<Object, Object> result = new HashMap();
+      int linesToCache = cacheContext.getValue(CacheManager.CacheContext.NUM_INIT_CACHED_LINES_ATTR);
+      int lineCount = 0;
+
+      for (Map.Entry entry : DummyBackupStore.backupMap.entrySet()) {
+        if (linesToCache > 0 && lineCount >= linesToCache) {
+          break;
+        }
+
+        result.put(entry.getKey(), DummyBackupStore.backupMap.get(entry.getKey()));
+        lineCount++;
+      }
+      return result;
+    }
+
+    @Override
+    public void setup(CacheManager.CacheContext context)
+    {
+      this.cacheContext = context;
+    }
+
+    @Override
+    public void teardown()
+    {
+    }
+  }
+
   @Test
   public void testCacheManager() throws IOException
   {
@@ -130,5 +167,24 @@ public class CacheManagerTest
 
     Assert.assertEquals("backup hit", "six", manager.get(6));
     Assert.assertEquals("primary updated- total", 6, manager.primary.getKeys().size());
+  }
+
+  @Test
+  public void testCacheContextAttrInCacheManager() throws IOException, InterruptedException
+  {
+    CacheStore primaryCache = new CacheStore();
+    primaryCache.setEntryExpiryStrategy(CacheStore.ExpiryType.EXPIRE_AFTER_WRITE);
+    primaryCache.setEntryExpiryDurationInMillis(10);
+    primaryCache.setCacheCleanupInMillis(20);
+    CacheManager manager = new CacheManager();
+    manager.setBackup(new DummyComponentBackupStore());
+    manager.setNumInitCachedLines(3);
+    manager.setReadOnlyData(true);
+    manager.setPrimary(primaryCache);
+    manager.initialize();
+
+    Assert.assertEquals("initial number of cached lines", 3, manager.primary.getKeys().size());
+    Thread.sleep(30);
+    Assert.assertEquals("not evicted number of cached lines", 3, manager.primary.getKeys().size());
   }
 }
