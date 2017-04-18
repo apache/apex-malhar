@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<configuration>
+  <property>
+    <name>dt.operator.JdbcOutput.prop.store.databaseDriver</name>
+    <!-- replace value with your jbdc driver -->
+    <value>org.hsqldb.jdbcDriver</value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcOutput.prop.store.databaseUrl</name>
+    <!-- replace value with your jbdc  url -->
+    <value>jdbc:hsqldb:mem:test</value>
+  </property>
+
+  <!--property>
+    <name>dt.operator.JdbcOutput.prop.store.userName</name>
+    <value>username</value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcOutput.prop.store.password</name>
+    <value>password</value>
+  </property-->
+
+  <property>
+    <name>dt.operator.JdbcOutput.prop.batchSize</name>
+    <value>5</value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcOutput.prop.tablename</name>
+    <value>table_name</value>
+  </property>
+
+  <property>
+    <name>dt.operator.JdbcOutput.port.input.attr.TUPLE_CLASS</name>
+    <value>org.apache.apex.examples.FileToJdbcApp.PojoEvent</value>
+  </property>
+  
+  <property>
+    <name>dt.operator.CsvParser.port.out.attr.TUPLE_CLASS</name>
+    <value>org.apache.apex.examples.FileToJdbcApp.PojoEvent</value>
+  </property>
+  
+  <property>
+    <name>dt.operator.CustomParser.prop.regexStr</name>
+    <value>,</value>
+  </property>
+
+  <property>
+    <name>dt.operator.FileReader.prop.directory</name>
+    <value>input_directory</value>
+  </property>
+  
+</configuration>
+
