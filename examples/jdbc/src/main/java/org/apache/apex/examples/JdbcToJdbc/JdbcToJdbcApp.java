@@ -84,7 +84,7 @@ public class JdbcToJdbcApp implements StreamingApplication
     fieldInfos.add(new com.datatorrent.lib.db.jdbc.JdbcFieldInfo("AMOUNT", "amount", SupportType.INTEGER,0));
     return fieldInfos;
   }
-  
+
   /**
    * This method can be modified to have field mappings based on used defined
    * class

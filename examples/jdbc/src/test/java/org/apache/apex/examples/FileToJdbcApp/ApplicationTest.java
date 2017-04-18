@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.apex.examples.FileToJdbcApp;
 
 import java.io.File;
@@ -25,13 +43,15 @@ import com.datatorrent.netlet.util.DTThrowable;
  * The assumption to run this test case is that test_jdbc_table
  * and meta-table are created already.
  */
-public class ApplicationTest {
+public class ApplicationTest
+{
   private static final String DB_DRIVER = "org.hsqldb.jdbcDriver";
   private static final String DB_URL = "jdbc:hsqldb:mem:test;sql.syntax_mys=true";
   private static final String TABLE_NAME = "test_jdbc_table";
 
   @BeforeClass
-  public static void setup() {
+  public static void setup()
+  {
     try {
       Class.forName(DB_DRIVER).newInstance();
 
@@ -39,16 +59,16 @@ public class ApplicationTest {
       Statement stmt = con.createStatement();
 
       String createMetaTable = "CREATE TABLE IF NOT EXISTS " + JdbcTransactionalStore.DEFAULT_META_TABLE + " ( "
-              + JdbcTransactionalStore.DEFAULT_APP_ID_COL + " VARCHAR(100) NOT NULL, "
-              + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT NOT NULL, "
-              + JdbcTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT NOT NULL, "
-              + "UNIQUE (" + JdbcTransactionalStore.DEFAULT_APP_ID_COL + ", "
-              + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + ", " + JdbcTransactionalStore.DEFAULT_WINDOW_COL + ") "
-              + ")";
+          + JdbcTransactionalStore.DEFAULT_APP_ID_COL + " VARCHAR(100) NOT NULL, "
+          + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT NOT NULL, "
+          + JdbcTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT NOT NULL, "
+          + "UNIQUE (" + JdbcTransactionalStore.DEFAULT_APP_ID_COL + ", "
+          + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + ", " + JdbcTransactionalStore.DEFAULT_WINDOW_COL + ") "
+          + ")";
       stmt.executeUpdate(createMetaTable);
 
       String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME
-              + " (ACCOUNT_NO INTEGER, NAME VARCHAR(255),AMOUNT INTEGER)";
+          + " (ACCOUNT_NO INTEGER, NAME VARCHAR(255),AMOUNT INTEGER)";
       stmt.executeUpdate(createTable);
 
     } catch (Throwable e) {
@@ -85,7 +105,8 @@ public class ApplicationTest {
   }
 
   @Test
-  public void testCsvParserApp() throws IOException, Exception {
+  public void testCsvParserApp() throws IOException, Exception
+  {
     try {
       LocalMode lma = LocalMode.newInstance();
       Configuration conf = new Configuration(false);
@@ -107,7 +128,8 @@ public class ApplicationTest {
   }
 
   @Test
-  public void testCustomParserApp() throws IOException, Exception {
+  public void testCustomParserApp() throws IOException, Exception
+  {
     try {
       LocalMode lma = LocalMode.newInstance();
       Configuration conf = new Configuration(false);

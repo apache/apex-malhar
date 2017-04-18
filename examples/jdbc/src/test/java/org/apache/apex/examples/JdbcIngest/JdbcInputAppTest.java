@@ -123,10 +123,10 @@ public class JdbcInputAppTest
       LocalMode.Controller lc = lma.getController();
       lc.runAsync();
 
-      // wait for output files to roll      
+      // wait for output files to roll
       Thread.sleep(5000);
 
-      String[] extensions = { "dat.0", "tmp" };
+      String[] extensions = {"dat.0","tmp"};
       Collection<File> list = FileUtils.listFiles(new File(FILE_NAME), extensions, false);
       Assert.assertEquals("Records in file", 10, FileUtils.readLines(list.iterator().next()).size());
 

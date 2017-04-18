@@ -18,15 +18,14 @@
  */
 package org.apache.apex.examples.FileToJdbcApp;
 
+import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.regex.Pattern;
 
 // parse input line into pojo event
 public class CustomParser extends BaseOperator
@@ -42,12 +41,11 @@ public class CustomParser extends BaseOperator
   @OutputPortFieldAnnotation(optional = false)
   public final transient DefaultOutputPort<PojoEvent> output = new DefaultOutputPort<>();
 
-  public final transient DefaultInputPort<String>
-    input = new DefaultInputPort<String>() {
-
-      @Override
-      public void process(String line)
-      {
+  public final transient DefaultInputPort<String> input = new DefaultInputPort<String>()
+  {
+    @Override
+    public void process(String line)
+    {
       // use custom regex to split line into words
       final String[] words = regexPattern.split(line);
 
@@ -70,14 +68,16 @@ public class CustomParser extends BaseOperator
         pojo.setAmount(0);
       }
       output.emit(pojo);
-      }
+    }
   };
 
-  public String getRegexStr() {
+  public String getRegexStr()
+  {
     return this.regexStr;
   }
 
-  public void setRegexStr(String regex) {
+  public void setRegexStr(String regex)
+  {
     this.regexStr = regex;
   }
 

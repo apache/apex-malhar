@@ -58,7 +58,7 @@ public class JdbcOperatorTest
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    
+
     try {
       Class.forName(DB_DRIVER).newInstance();
 
@@ -71,8 +71,7 @@ public class JdbcOperatorTest
           + JdbcTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT NOT NULL, " + "UNIQUE ("
           + JdbcTransactionalStore.DEFAULT_APP_ID_COL + ", " + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + ", "
           + JdbcTransactionalStore.DEFAULT_WINDOW_COL + ") " + ")";
-      
-      System.out.println(createMetaTable);
+
       stmt.executeUpdate(createMetaTable);
 
       String createTable = "CREATE TABLE " + TABLE_NAME
@@ -147,7 +146,7 @@ public class JdbcOperatorTest
       LocalMode.Controller lc = lma.getController();
       lc.runAsync();
 
-      // wait for records to be added to table    
+      // wait for records to be added to table
       Thread.sleep(5000);
 
       Assert.assertEquals("Events in store", 10, getNumOfEventsInStore());
