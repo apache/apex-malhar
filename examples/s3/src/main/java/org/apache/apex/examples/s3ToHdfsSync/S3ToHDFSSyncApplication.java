@@ -1,4 +1,4 @@
-package com.datatorrent.tutorial.s3input;
+package org.apache.apex.examples.s3ToHdfsSync;
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -10,7 +10,7 @@ import com.datatorrent.lib.io.fs.HDFSFileCopyModule;
 import com.datatorrent.lib.io.fs.S3InputModule;
 
 /**
- * Simple application illustrating file copy from S3
+ * Simple application illustrating file copy from S3. S3 Input
  */
 @ApplicationAnnotation(name="S3-to-HDFS-Sync")
 public class S3ToHDFSSyncApplication implements StreamingApplication

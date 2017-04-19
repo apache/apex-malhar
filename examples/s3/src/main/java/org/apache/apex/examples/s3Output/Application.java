@@ -1,4 +1,4 @@
-package com.example.s3output;
+package org.apache.apex.examples.s3Output;
 
 import org.apache.apex.malhar.lib.fs.s3.S3OutputModule;
 import org.apache.hadoop.conf.Configuration;

@@ -199,6 +199,7 @@
     <module>transform</module>
     <module>kafka</module>
     <module>ftp</module>
+    <module>s3</module>
   </modules>
 
   <dependencies>
