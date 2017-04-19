@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<configuration>
+  <property>
+    <name>dt.operator.HDFSInputModule.prop.files</name>
+    <value>hdfs://source-namenode-service/user/dtuser/path-to-input-directory</value>
+  </property>
+  <property>
+    <name>dt.operator.HDFSInputModule.prop.maxReaders</name>
+    <value>6</value>
+  </property>
+  <property>
+    <name>dt.operator.HDFSInputModule.prop.minReaders</name>
+    <value>6</value>
+  </property>
+  <property>
+    <name>dt.operator.HDFSInputModule.prop.blocksThreshold</name>
+    <value>2</value>
+  </property>
+  <property>
+    <name>dt.operator.S3OutputModule.prop.accessKey</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.operator.S3OutputModule.prop.secretAccessKey</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.operator.S3OutputModule.prop.bucketName</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.operator.S3OutputModule.prop.outputDirectoryPath</name>
+    <value></value>
+  </property>
+</configuration>
