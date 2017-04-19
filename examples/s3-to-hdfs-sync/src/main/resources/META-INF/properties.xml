@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<configuration>
+  <property>
+    <name>dt.operator.S3InputModule.prop.files</name>
+     <value>s3n://ACCESS_KEY_ID:SECRET_KEY@BUCKET_NAME/DIRECTORY</value>
+  </property>
+  <property>
+    <name>dt.operator.HDFSFileCopyModule.prop.outputDirectoryPath</name>
+    <value>hdfs://destination-namenode-service:port/path-to-output-directory</value>
+  </property>
+</configuration>
+
