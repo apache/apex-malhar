@@ -1,3 +1,22 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.apache.apex.examples.fileIOMultiDir;
 
 import java.io.File;
@@ -21,7 +40,8 @@ import com.datatorrent.api.LocalMode;
 /**
  * Test application in local mode.
  */
-public class ApplicationTest {
+public class ApplicationTest
+{
 
   private static final String baseDirName   = "target/fileIO";
   private static final String inputDirName1 = baseDirName + "/in1";
@@ -36,14 +56,17 @@ public class ApplicationTest {
   private static final int numPartitions = 3;     // number of partitions of input operator
 
   // create nFiles files with nLines lines in each
-  private void createFiles() throws IOException {
-    
-    String[] lines1 = {"line-1", "line-2"}, lines2 = {"line-3", "line-4"};
+  private void createFiles() throws IOException
+  {
+
+    String[] lines1 = {"line-1", "line-2"};
+    String[] lines2 = {"line-3", "line-4"};
+
     try {
       FileUtils.write(new File(inputDirFile1, "file1.txt"),
-                      StringUtils.join(lines1, "\n"));
+          StringUtils.join(lines1, "\n"));
       FileUtils.write(new File(inputDirFile2, "file2.txt"),
-                      StringUtils.join(lines2, "\n"));
+          StringUtils.join(lines2, "\n"));
     } catch (IOException e) {
       System.out.format("Error: Failed to create file %s%n");
       e.printStackTrace();
@@ -67,9 +90,10 @@ public class ApplicationTest {
   {
     String[] ext = {"txt"};
     Collection<File> list = FileUtils.listFiles(outputDirFile, ext, false);
-    
-    if (list.size() < 2)
+
+    if (list.size() < 2) {
       return false;
+    }
 
     // we have 2 files; check that the rename from .tmp to .txt has happened
     int found = 0;
@@ -89,14 +113,15 @@ public class ApplicationTest {
     //conf.addResource(this.getClass().getResourceAsStream("/META-INF/properties-fileIOMultiDir.xml"));
     result.set("dt.application.FileIO.operator.read.prop.directory", "dummy");
     result.set("dt.application.FileIO.operator.read.prop.directories",
-               "\"target/fileIO/in1\",\"target/fileIO/in2\"");
+        "\"target/fileIO/in1\",\"target/fileIO/in2\"");
     result.set("dt.application.FileIO.operator.read.prop.partitionCounts", "2,3");
     result.set("dt.application.FileIO.operator.write.prop.filePath", outputDirName);
     return result;
   }
 
   @Before
-  public void beforeTest() throws Exception {
+  public void beforeTest() throws Exception
+  {
     cleanup();
     FileUtils.forceMkdir(inputDirFile1);
     FileUtils.forceMkdir(inputDirFile2);
@@ -107,12 +132,14 @@ public class ApplicationTest {
   }
 
   @After
-  public void afterTest() {
+  public void afterTest()
+  {
     cleanup();
   }
 
   @Test
-  public void testApplication() throws Exception {
+  public void testApplication() throws Exception
+  {
     try {
       LocalMode lma = LocalMode.newInstance();
       lma.prepareDAG(new Application(), getConfig());
@@ -120,8 +147,7 @@ public class ApplicationTest {
       lc.runAsync();
 
       // wait for output files to show up
-      while ( ! check(numFiles) ) {
-        System.out.println("Sleeping ....");
+      while (!check(numFiles)) {
         Thread.sleep(1000);
       }
     } catch (ConstraintViolationException e) {

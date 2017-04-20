@@ -1,3 +1,22 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.apache.apex.examples.fileIOMultiDir;
 
 import java.util.ArrayList;
@@ -16,7 +35,8 @@ public class FileWriter extends AbstractFileOutputOperator<String>
   private static final Logger LOG = LoggerFactory.getLogger(FileWriter.class);
   private static final String CHARSET_NAME = "UTF-8";
   private static final String NL = System.lineSeparator();
-  private static final char START_FILE = FileReader.START_FILE, FINISH_FILE = FileReader.FINISH_FILE;
+  private static final char START_FILE = FileReader.START_FILE;
+  private static final char FINISH_FILE = FileReader.FINISH_FILE;
 
   private String fileName;    // current file name
 
@@ -50,7 +70,7 @@ public class FileWriter extends AbstractFileOutputOperator<String>
       fileName = tuple.substring(1);
 
       // if we have saved lines, process them
-      if ( ! savedLines.isEmpty() ) {
+      if (!savedLines.isEmpty()) {
         LOG.debug("Processing {} saved lines", savedLines.size());
         for (String line : savedLines) {
           processTuple(line);
@@ -67,7 +87,7 @@ public class FileWriter extends AbstractFileOutputOperator<String>
       String name = tuple.substring(0, last);
 
       // sanity check : should match what we got with start control tuple
-      if (null == fileName || ! fileName.equals(name)) {
+      if (null == fileName || !fileName.equals(name)) {
         throw new RuntimeException(String.format("Error: fileName = %s != %s = tuple", fileName, tuple));
       }
 
@@ -93,7 +113,7 @@ public class FileWriter extends AbstractFileOutputOperator<String>
   @Override
   public void endWindow()
   {
-    if ( ! eof ) {
+    if (!eof) {
       return;
     }
 
@@ -121,7 +141,7 @@ public class FileWriter extends AbstractFileOutputOperator<String>
   {
     LOG.debug("getBytesForTuple: line.length = {}", line.length());
 
-    byte result[] = null;
+    byte[] result = null;
     try {
       result = (line + NL).getBytes(CHARSET_NAME);
     } catch (Exception e) {

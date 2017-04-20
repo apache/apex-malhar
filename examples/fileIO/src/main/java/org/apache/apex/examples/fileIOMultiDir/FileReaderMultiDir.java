@@ -1,8 +1,22 @@
 /**
- * Copyright (c) 2016 DataTorrent, Inc.
- * All rights reserved.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-//package com.datatorrent.lib.io.fs;
+
 package org.apache.apex.examples.fileIOMultiDir;
 
 import java.io.ByteArrayOutputStream;
@@ -103,11 +117,12 @@ public abstract class FileReaderMultiDir extends AbstractFileInputOperator<Strin
     }
 
     // compute first and last indices of partitions for each directory
-    final int numDirs = directories.length, numParCounts = partitionCounts.length;
+    final int numDirs = directories.length;
+    final int numParCounts = partitionCounts.length;
     final int[] sliceFirstIndex = new int[numDirs];
 
     LOG.info("definePartitions: prevCount = {}, directories.length = {}, " +
-             "partitionCounts.length = {}", prevCount, numDirs, numParCounts);
+        "partitionCounts.length = {}", prevCount, numDirs, numParCounts);
 
     int nPartitions = 0;        // desired number of partitions
 
@@ -143,21 +158,21 @@ public abstract class FileReaderMultiDir extends AbstractFileInputOperator<Strin
 
     SlicedDirectoryScanner sds = (SlicedDirectoryScanner)scanner;
     List<SlicedDirectoryScanner> scanners = sds.partition(nPartitions, directories,
-                                                          partitionCounts);
+        partitionCounts);
 
     // return value: new list of partitions (includes old list)
     List<Partition<AbstractFileInputOperator<String>>> newPartitions
       // = Lists.newArrayListWithExpectedSize(totalCount);
-      = new ArrayList(nPartitions);
+        = new ArrayList(nPartitions);
 
     // parallel list of storage managers
     Collection<WindowDataManager> newManagers
       //  = Lists.newArrayListWithExpectedSize(totalCount);
-      = new ArrayList(nPartitions);
+        = new ArrayList(nPartitions);
 
     // setup new partitions
     LOG.info("definePartitions: setting up {} new partitoins with {} monitored directories",
-             nPartitions, numDirs);
+        nPartitions, numDirs);
 
     final WindowDataManager ism = getWindowDataManager();
 
@@ -171,8 +186,7 @@ public abstract class FileReaderMultiDir extends AbstractFileInputOperator<Strin
       for (int i = first; i < last; ++i) {
         AbstractFileInputOperator<String> oper = cloneObject(kryo, this);
         oper.setDirectory(dir);
-        //oper.setpIndex(i);
-        SlicedDirectoryScanner scn = (SlicedDirectoryScanner) scanners.get(i);
+        SlicedDirectoryScanner scn = (SlicedDirectoryScanner)scanners.get(i);
         scn.setStartIndex(first);
         scn.setEndIndex(last);
         scn.setDirectory(dir);
@@ -200,7 +214,9 @@ public abstract class FileReaderMultiDir extends AbstractFileInputOperator<Strin
     //   DirectoryScanner since it is private and has no accessors defined; we also use
     //   it differently here.
     //
-    int startIndex, endIndex, pIndex;
+    int startIndex;
+    int endIndex;
+    int pIndex;
 
     // the monitored directory
     String directory;
@@ -210,9 +226,8 @@ public abstract class FileReaderMultiDir extends AbstractFileInputOperator<Strin
     // dirs -- list of monitored directories, one per slice
     // pCounts -- number of partitions in each slice
     //
-    private List<SlicedDirectoryScanner> partition(int total,
-                                                   String[] dirs,
-                                                   int[] pCounts) {
+    private List<SlicedDirectoryScanner> partition(int total, String[] dirs, int[] pCounts)
+    {
       ArrayList<SlicedDirectoryScanner> partitions = new ArrayList(total);
       for (int i = 0; i < total; i++) {
         final SlicedDirectoryScanner that = new SlicedDirectoryScanner();
@@ -240,8 +255,8 @@ public abstract class FileReaderMultiDir extends AbstractFileInputOperator<Strin
           mod += sliceSize;
         }
         LOG.debug("partitionIndex = {}, startIndex = {}, endIndex = {}, sliceSize = {}, " +
-                  "filePathStr = {}, hashcode = {}, mod = {}",
-                  pIndex, startIndex, endIndex, sliceSize, filePathStr, i, mod);
+            "filePathStr = {}, hashcode = {}, mod = {}",
+            pIndex, startIndex, endIndex, sliceSize, filePathStr, i, mod);
 
         if ((startIndex + mod) != pIndex) {
           return false;
@@ -260,14 +275,45 @@ public abstract class FileReaderMultiDir extends AbstractFileInputOperator<Strin
     }  // acceptFile
 
     // getters and setters
-    public String getDirectory() { return directory; }
-    public void setDirectory(String v) { directory = v; }
-    public int getStartIndex() { return startIndex; }
-    public void setStartIndex(int v) { startIndex = v; }
-    public int getEndIndex() { return endIndex; }
-    public void setEndIndex(int v) { endIndex = v; }
-    public int getpIndex() { return pIndex; }
-    public void setpIndex(int v) { pIndex = v; }
+    public String getDirectory()
+    {
+      return directory;
+    }
+
+    public void setDirectory(String v)
+    {
+      directory = v;
+    }
+
+    public int getStartIndex()
+    {
+      return startIndex;
+    }
+
+    public void setStartIndex(int v)
+    {
+      startIndex = v;
+    }
+
+    public int getEndIndex()
+    {
+      return endIndex;
+    }
+
+    public void setEndIndex(int v)
+    {
+      endIndex = v;
+    }
+
+    public int getpIndex()
+    {
+      return pIndex;
+    }
+
+    public void setpIndex(int v)
+    {
+      pIndex = v;
+    }
 
   }    // SlicedDirectoryScanner
 

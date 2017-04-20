@@ -1,3 +1,22 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.apache.apex.examples.fileOutput;
 
 import java.io.File;
@@ -20,7 +39,8 @@ import com.datatorrent.api.LocalMode;
 /**
  * Test application in local mode.
  */
-public class ApplicationTest {
+public class ApplicationTest
+{
 
   private static final String baseDirName   = "target/fileOutput";
   private static final String outputDirName = baseDirName + "/output-dir";
@@ -42,7 +62,7 @@ public class ApplicationTest {
     String[] ext = {"0","1","2","3","4","5","6","7","8","9"};
     Collection<File> list = FileUtils.listFiles(outputDirFile, ext, false);
 
-    return ! list.isEmpty();
+    return !list.isEmpty();
   }
 
   // return Configuration with suitable properties set
@@ -56,18 +76,21 @@ public class ApplicationTest {
   }
 
   @Before
-  public void beforeTest() throws Exception {
+  public void beforeTest() throws Exception
+  {
     cleanup();
     FileUtils.forceMkdir(outputDirFile);
   }
 
   @After
-  public void afterTest() {
+  public void afterTest()
+  {
     cleanup();
   }
 
   @Test
-  public void testApplication() throws Exception {
+  public void testApplication() throws Exception
+  {
     try {
       LocalMode lma = LocalMode.newInstance();
       lma.prepareDAG(new Application(), getConfig());
@@ -75,8 +98,7 @@ public class ApplicationTest {
       lc.runAsync();
 
       // wait for output files to show up
-      while ( ! check() ) {
-        System.out.println("Sleeping ....");
+      while (!check()) {
         Thread.sleep(1000);
       }
     } catch (ConstraintViolationException e) {

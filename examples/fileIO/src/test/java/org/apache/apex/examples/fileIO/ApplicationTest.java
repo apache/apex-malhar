@@ -1,3 +1,22 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.apache.apex.examples.fileIO;
 
 import java.io.File;
@@ -21,7 +40,8 @@ import com.datatorrent.api.LocalMode;
 /**
  * Test application in local mode.
  */
-public class ApplicationTest {
+public class ApplicationTest
+{
 
   private static final String baseDirName   = "target/fileIO";
   private static final String inputDirName  = baseDirName + "input-dir";
@@ -34,7 +54,8 @@ public class ApplicationTest {
   private static final int numPartitions = 3;     // number of partitions of input operator
 
   // create nFiles files with nLines lines in each
-  private void createFiles(final int nFiles, final int nLines) throws IOException {
+  private void createFiles(final int nFiles, final int nLines) throws IOException
+  {
     for (int file = 0; file < nFiles; file++) {
       ArrayList<String> lines = new ArrayList<>();
       for (int line = 0; line < nLines; line++) {
@@ -78,7 +99,8 @@ public class ApplicationTest {
   }
 
   @Before
-  public void beforeTest() throws Exception {
+  public void beforeTest() throws Exception
+  {
     cleanup();
     FileUtils.forceMkdir(inputDirFile);
     FileUtils.forceMkdir(outputDirFile);
@@ -88,12 +110,14 @@ public class ApplicationTest {
   }
 
   @After
-  public void afterTest() {
+  public void afterTest()
+  {
     cleanup();
   }
 
   @Test
-  public void testApplication() throws Exception {
+  public void testApplication() throws Exception
+  {
     try {
       LocalMode lma = LocalMode.newInstance();
       lma.prepareDAG(new Application(), getConfig());
@@ -101,8 +125,7 @@ public class ApplicationTest {
       lc.runAsync();
 
       // wait for output files to show up
-      while ( ! check(numFiles) ) {
-        System.out.println("Sleeping ....");
+      while (!check(numFiles) ) {
         Thread.sleep(1000);
       }
     } catch (ConstraintViolationException e) {
