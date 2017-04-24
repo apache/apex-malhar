@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<configuration>
+
+  <property>
+    <name>dt.operator.*.attr.MEMORY_MB</name>
+    <value>512</value>
+  </property>
+
+  <!-- set maxTuplesTotal for both BatchSequenceGenerator and ValidationToFile -->
+  <property>
+    <name>dt.operator.(sequenceGenerator)|(validationToFile).prop.maxTuplesTotal</name>
+    <value>20</value>
+  </property>
+  <!-- max tuples per window -->
+  <property>
+    <name>dt.operator.sequenceGenerator.prop.maxTuples</name>
+    <value>5</value>
+  </property>
+  <property>
+    <name>dt.operator.passthrough.prop.directoryPath</name>
+    <value>/tmp/kafka_exactly</value>
+  </property>
+  <property>
+    <name>dt.operator.passthrough.prop.tuplesUntilKill</name>
+    <value>5</value>
+  </property>
+
+  <!-- Do not change any topics for this application-->
+  <!-- KafkaExactlyOnceOutputOperator -->
+  <property>
+    <name>dt.operator.kafkaExactlyOnceOutputOperator.prop.topic</name>
+    <value>exactly-once</value>
+  </property>
+  <property>
+    <name>dt.operator.kafkaExactlyOnceOutputOperator.prop.properties(bootstrap.servers)</name>
+    <value>localhost:9092</value>
+  </property>
+  <property>
+    <name>dt.operator.kafkaExactlyOnceOutputOperator.prop.properties(value.serializer)</name>
+    <value>org.apache.kafka.common.serialization.StringSerializer</value>
+  </property>
+  <property>
+    <name>dt.operator.kafkaExactlyOnceOutputOperator.prop.properties(value.deserializer)</name>
+    <value>org.apache.kafka.common.serialization.StringDeserializer</value>
+  </property>
+
+  <!-- KafkaOutputOperator -->
+  <property>
+    <name>dt.operator.kafkaOutputOperator.prop.topic</name>
+    <value>at-least-once</value>
+  </property>
+  <property>
+    <name>dt.operator.kafkaOutputOperator.prop.properties(bootstrap.servers)</name>
+    <value>localhost:9092</value>
+  </property>
+  <property>
+    <name>dt.operator.kafkaOutputOperator.prop.properties(key.serializer)</name>
+    <value>org.apache.kafka.common.serialization.StringSerializer</value>
+  </property>
+  <property>
+    <name>dt.operator.kafkaOutputOperator.prop.properties(value.serializer)</name>
+    <value>org.apache.kafka.common.serialization.StringSerializer</value>
+  </property>
+
+  <!-- Validation: kafka input operator (0.9) -->
+  <property>
+    <name>dt.operator.kafkaTopicExactly.prop.topics</name>
+    <value>exactly-once</value>
+  </property>
+  <property>
+  <name>dt.operator.kafkaTopicExactly.prop.clusters</name>
+  <value>localhost:9092</value>  <!-- broker (NOT zookeeper) address -->
+</property>
+
+  <property>
+    <name>dt.operator.kafkaTopicAtLeast.prop.topics</name>
+    <value>at-least-once</value>
+  </property>
+  <property>
+    <name>dt.operator.kafkaTopicAtLeast.prop.clusters</name>
+    <value>localhost:9092</value>  <!-- broker (NOT zookeeper) address -->
+  </property>
+
+  <!-- ValidationToFile -->
+  <property>
+    <name>dt.operator.validationToFile.prop.outputFileName</name>
+    <value>validation.txt</value>
+  </property>
+  <property>
+    <name>dt.operator.validationToFile.prop.filePath</name>
+    <value>/tmp/exactlyonceoutput</value>
+  </property>
+</configuration>
+

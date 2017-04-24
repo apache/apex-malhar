@@ -36,6 +36,7 @@
     kafka2hdfs is a example show how to read lines from a Kafka topic using the new (0.9)
     Kafka input operator and write them out to HDFS. 
     hdfs2kafka is a simple application to transfer data from HDFS to Kafka
+    KafkaExactlyOnceOutput example demonstrates exactly once behavior using KafkaSinglePortExactlyOnceOutputOperator (0.9)
   </description>
   
   <dependencies>
