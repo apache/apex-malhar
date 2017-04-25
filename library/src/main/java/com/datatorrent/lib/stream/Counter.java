@@ -50,7 +50,7 @@ public class Counter implements Operator, Unifier<Integer>
     @Override
     public void process(Object tuple)
     {
-      count++;
+      Counter.this.count++;
     }
 
   };

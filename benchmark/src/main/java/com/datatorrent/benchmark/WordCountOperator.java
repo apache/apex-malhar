@@ -44,7 +44,7 @@ public class WordCountOperator<T> implements Operator
     @Override
     public void process(T tuple)
     {
-      count++;
+      WordCountOperator.this.count++;
     }
 
   };

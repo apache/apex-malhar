@@ -130,7 +130,7 @@ public class DeduperOrderingTest
         if (pojo.getSequence() < prevSequence) {
           testFailed = true;
         }
-        count++;
+        Verifier.this.count++;
         prevSequence = pojo.sequence;
       }
     };
@@ -144,7 +144,7 @@ public class DeduperOrderingTest
         if (pojo.getSequence() < prevSequence) {
           testFailed = true;
         }
-        count++;
+        Verifier.this.count++;
         prevSequence = pojo.sequence;
       }
     };
@@ -158,7 +158,7 @@ public class DeduperOrderingTest
         if (pojo.getSequence() < prevSequence) {
           testFailed = true;
         }
-        count++;
+        Verifier.this.count++;
         prevSequence = pojo.sequence;
       }
     };

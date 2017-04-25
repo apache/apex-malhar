@@ -220,7 +220,6 @@ public class FileSplitterBaseTest
     @Override
     public void populateDAG(DAG dag, Configuration configuration)
     {
-      dag.setAttribute(DAG.APPLICATION_PATH, baseTestMeta.dataDirectory);
       MockFileInput fileInput = dag.addOperator("Input", new MockFileInput());
       fileInput.filePaths = baseTestMeta.filePaths;
 
@@ -246,8 +245,8 @@ public class FileSplitterBaseTest
       @Override
       public void process(FileSplitterInput.FileMetadata fileMetadata)
       {
-        count++;
-        LOG.debug("count {}", count);
+        MockReceiver.this.count++;
+        LOG.debug("count {}", MockReceiver.this.count);
       }
     };
 

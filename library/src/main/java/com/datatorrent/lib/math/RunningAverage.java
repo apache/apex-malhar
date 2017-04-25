@@ -64,9 +64,9 @@ public class RunningAverage extends BaseOperator
     @Override
     public void process(Number tuple)
     {
-      double sum = (count * average) + tuple.doubleValue();
-      count++;
-      average = sum / count;
+      double sum = (RunningAverage.this.count * average) + tuple.doubleValue();
+      RunningAverage.this.count++;
+      average = sum / RunningAverage.this.count;
     }
   };
 

@@ -19,19 +19,19 @@
 package com.datatorrent.contrib.hbase;
 
 import java.io.IOException;
-import java.util.Collection;
 
-import org.apache.hadoop.hbase.client.Put;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.Attribute;
+import org.apache.hadoop.hbase.client.Put;
+
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.ProcessingMode;
 
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 /**
  *
  */
@@ -55,44 +55,9 @@ public class HBaseTransactionalPutOperatorTest {
       t1.setColFamily("colfam0");t1.setColName("street");t1.setRow("row1");t1.setColValue("ts");
       HBaseTuple t2=new HBaseTuple();
       t2.setColFamily("colfam0");t2.setColName("city");t2.setRow("row2");t2.setColValue("tc");
-      thop.setup(new OperatorContext() {
-
-        @Override
-        public <T> T getValue(Attribute<T> key) {
-          if(key.equals(PROCESSING_MODE)){
-            return (T) ProcessingMode.AT_LEAST_ONCE;
-          }
-          return key.defaultValue;
-        }
-
-        @Override
-        public AttributeMap getAttributes() {
-          return null;
-        }
-
-        @Override
-        public int getId() {
-          // TODO Auto-generated method stub
-          return 0;
-        }
-
-        @Override
-        public void setCounters(Object counters) {
-          // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void sendMetrics(Collection<String> collection)
-        {
-        }
-
-        @Override
-        public int getWindowsFromCheckpoint()
-        {
-          return 0;
-        }
-      });
+      AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
+      attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
+      thop.setup(mockOperatorContext(0, attributeMap));
       thop.beginWindow(0);
       thop.input.process(t1);
       thop.input.process(t2);
@@ -125,44 +90,9 @@ public class HBaseTransactionalPutOperatorTest {
       t1.setColFamily("colfam0");t1.setColName("street");t1.setRow("row1");t1.setColValue("ts");
       HBaseTuple t2=new HBaseTuple();
       t2.setColFamily("colfam0");t2.setColName("city");t2.setRow("row2");t2.setColValue("tc");
-      thop.setup(new OperatorContext() {
-
-        @Override
-        public <T> T getValue(Attribute<T> key) {
-          if(key.equals(PROCESSING_MODE)){
-            return (T) ProcessingMode.AT_MOST_ONCE;
-          }
-          return key.defaultValue;
-        }
-
-        @Override
-        public AttributeMap getAttributes() {
-          return null;
-        }
-
-        @Override
-        public int getId() {
-          // TODO Auto-generated method stub
-          return 0;
-        }
-
-        @Override
-        public void setCounters(Object counters) {
-          // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void sendMetrics(Collection<String> collection)
-        {
-        }
-
-        @Override
-        public int getWindowsFromCheckpoint()
-        {
-          return 0;
-        }
-      });
+      AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
+      attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_MOST_ONCE);
+      thop.setup(mockOperatorContext(0, attributeMap));
       thop.beginWindow(0);
       thop.input.process(t1);
       thop.input.process(t2);
@@ -199,46 +129,9 @@ public class HBaseTransactionalPutOperatorTest {
       t2.setColFamily("colfam0");t2.setColName("city");t2.setRow("row2");t2.setColValue("tc");
       thop.beginWindow(0);
       thop.input.process(t1);
-      thop.setup(new OperatorContext() {
-
-        @Override
-        public <T> T getValue(Attribute<T> key) {
-          if(key.equals(PROCESSING_MODE)){
-            return (T) ProcessingMode.AT_MOST_ONCE;
-          }
-          return key.defaultValue;
-        }
-
-        @Override
-        public AttributeMap getAttributes() {
-          return null;
-        }
-
-        @Override
-        public int getId() {
-          // TODO Auto-generated method stub
-          return 0;
-        }
-
-        @Override
-        public void setCounters(Object counters) {
-          // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void sendMetrics(Collection<String> collection)
-        {
-        }
-
-        @Override
-        public int getWindowsFromCheckpoint()
-        {
-          return 0;
-        }
-      });
-
-
+      AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
+      attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_MOST_ONCE);
+      thop.setup(mockOperatorContext(0, attributeMap));
 
       thop.input.process(t2);
       thop.endWindow();
