@@ -23,7 +23,6 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.FilterOutputStream;
@@ -60,7 +59,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.CompressionInputStream;
-import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.hadoop.io.compress.SnappyCodec;
 import org.apache.hadoop.util.ReflectionUtils;
 
@@ -1688,7 +1686,7 @@ public class AbstractFileOutputOperatorTest
 
     BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(snappyFile));
     Configuration conf = new Configuration();
-    CompressionCodec codec = (CompressionCodec) ReflectionUtils.newInstance(SnappyCodec.class, conf);
+    CompressionCodec codec = (CompressionCodec)ReflectionUtils.newInstance(SnappyCodec.class, conf);
     FilterStreamCodec.SnappyFilterStream filterStream = new FilterStreamCodec.SnappyFilterStream(
         codec.createOutputStream(os));
 
@@ -1845,7 +1843,7 @@ public class AbstractFileOutputOperatorTest
     FileInputStream fis;
     InputStream gss = null;
     Configuration conf = new Configuration();
-    CompressionCodec codec = (CompressionCodec) ReflectionUtils.newInstance(SnappyCodec.class, conf);
+    CompressionCodec codec = (CompressionCodec)ReflectionUtils.newInstance(SnappyCodec.class, conf);
     CompressionInputStream snappyIs = null;
 
     BufferedReader br = null;
