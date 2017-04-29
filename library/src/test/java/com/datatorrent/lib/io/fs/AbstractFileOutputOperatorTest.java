@@ -1641,6 +1641,10 @@ public class AbstractFileOutputOperatorTest
   @Test
   public void testSnappyStreamProvider() throws IOException
   {
+    if (checkNativeSnappy()) {
+      return;
+    }
+
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     writer.setFilterStreamProvider(new FilterStreamCodec.SnappyFilterStreamProvider());
 
@@ -1658,20 +1662,29 @@ public class AbstractFileOutputOperatorTest
     checkSnappyFile(oddFile, oddOffsets, 1, 5, 1000);
   }
 
-  @Test
-  public void testSnappyCompressionSimple() throws IOException
+  private boolean checkNativeSnappy()
   {
-    File snappyFile = new File(testMeta.getDir(), "snappyTestFile.snappy");
-
     try {
       SnappyCodec.checkNativeCodeLoaded();
     } catch (UnsatisfiedLinkError u) {
-      System.out.println("WARNING: Skipping Snappy compression test since native libraries were not found.");
-      return;
+      LOG.error("WARNING: Skipping Snappy compression test since native libraries were not found.");
+      return true;
     } catch (RuntimeException e) {
-      System.out.println("WARNING: Skipping Snappy compression test since native libraries were not found.");
+      LOG.error("WARNING: Skipping Snappy compression test since native libraries were not found.");
+      return true;
+    }
+    return false;
+  }
+
+
+  @Test
+  public void testSnappyCompressionSimple() throws IOException
+  {
+    if (checkNativeSnappy()) {
       return;
     }
+
+    File snappyFile = new File(testMeta.getDir(), "snappyTestFile.snappy");
 
     BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(snappyFile));
     Configuration conf = new Configuration();
