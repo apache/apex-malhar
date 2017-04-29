@@ -35,9 +35,10 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class RedisInputOperatorTest
 {
@@ -136,14 +137,14 @@ public class RedisInputOperatorTest
 
     RedisKeyValueInputOperator operator = new RedisKeyValueInputOperator();
     operator.setWindowDataManager(new FSWindowDataManager());
-    
+
     operator.setStore(operatorStore);
     operator.setScanCount(1);
     Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
     CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
 
     operator.outputPort.setSink(sink);
-    OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+    OperatorContext context = mockOperatorContext(1, attributeMap);
 
     try {
       operator.setup(context);
@@ -169,7 +170,7 @@ public class RedisInputOperatorTest
       operator.outputPort.setSink(sink);
       operator.setup(context);
 
-      Assert.assertEquals("largest recovery window", 2, operator.getWindowDataManager().getLargestRecoveryWindow());
+      Assert.assertEquals("largest recovery window", 2, operator.getWindowDataManager().getLargestCompletedWindow());
 
       operator.beginWindow(1);
       operator.emitTuples();
@@ -189,7 +190,7 @@ public class RedisInputOperatorTest
         testStore.remove(entry.getKey());
       }
       sink.collectedTuples.clear();
-      operator.getWindowDataManager().deleteUpTo(context.getId(), 5);
+      operator.getWindowDataManager().committed(5);
       operator.teardown();
     }
   }

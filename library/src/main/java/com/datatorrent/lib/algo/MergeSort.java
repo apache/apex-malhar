@@ -57,7 +57,9 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
  * </p>
  *
  * @since 0.3.3
+ * @deprecated
  */
+@Deprecated
 @OperatorAnnotation(partitionable = true)
 public abstract class MergeSort<K>  implements Operator, Unifier<ArrayList<K>>
 {

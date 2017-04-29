@@ -40,15 +40,15 @@ public class TestPOJO implements Serializable
     fieldsInfo.add( new FieldInfo( "name", "name", SupportType.STRING ) );
     fieldsInfo.add( new FieldInfo( "age", "age", SupportType.INTEGER ) );
     fieldsInfo.add( new FieldInfo( "address", "address", SupportType.STRING ) );
-    
+
     return fieldsInfo;
   }
-  
+
   public static String getRowExpression()
   {
     return "row";
   }
-  
+
   public static TestPOJO from( Map<String,byte[]> map )
   {
     TestPOJO testPOJO = new TestPOJO();
@@ -58,14 +58,14 @@ public class TestPOJO implements Serializable
     }
     return testPOJO;
   }
-  
+
   private Long rowId = null;
   private String name;
   private int age;
   private String address;
 
   public TestPOJO(){}
-  
+
   public TestPOJO(long rowId)
   {
     this(rowId, "name" + rowId, (int) rowId, "address" + rowId);
@@ -78,7 +78,7 @@ public class TestPOJO implements Serializable
     setAge(age);
     setAddress(address);
   }
-  
+
   public void setValue( String fieldName, byte[] value )
   {
     if( "row".equalsIgnoreCase(fieldName) )
@@ -148,7 +148,7 @@ public class TestPOJO implements Serializable
   {
     this.address = address;
   }
-  
+
   @Override
   public boolean equals( Object obj )
   {
@@ -156,7 +156,7 @@ public class TestPOJO implements Serializable
       return false;
     if( !( obj instanceof TestPOJO ) )
       return false;
-    
+
     return completeEquals( (TestPOJO)obj );
   }
 
@@ -172,7 +172,7 @@ public class TestPOJO implements Serializable
       return false;
     return true;
   }
-  
+
   public boolean completeEquals( TestPOJO other )
   {
     if( other == null )
@@ -183,7 +183,7 @@ public class TestPOJO implements Serializable
       return false;
     return true;
   }
-  
+
   public <T> boolean fieldEquals( T v1, T v2 )
   {
     if( v1 == null && v2 == null )
@@ -192,7 +192,7 @@ public class TestPOJO implements Serializable
       return false;
     return v1.equals( v2 );
   }
-  
+
   @Override
   public String toString()
   {

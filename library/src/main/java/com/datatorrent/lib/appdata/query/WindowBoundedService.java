@@ -104,7 +104,7 @@ public class WindowBoundedService implements Component<OperatorContext>
     mutex.release();
 
     executorThread.shutdown();
-    
+
     try {
       executorThread.awaitTermination(10000L + executeIntervalMillis, TimeUnit.MILLISECONDS);
     } catch (InterruptedException ex) {

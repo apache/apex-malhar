@@ -30,10 +30,11 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- *
+ * @deprecated
  * Functional tests for {@link com.datatorrent.lib.algo.TopNUnique}<p>
- *
+ * (Deprecating inclass) Comment: TopNUnique is deprecated.
  */
+@Deprecated
 public class TopNUniqueTest
 {
   private static Logger log = LoggerFactory.getLogger(TopNUniqueTest.class);

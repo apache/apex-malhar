@@ -24,7 +24,7 @@ import com.datatorrent.lib.db.KeyValueStore;
 
 /**
  * Interface for KeyValue store
- * 
+ *
  *
  * @since 3.4.0
  */
@@ -33,7 +33,7 @@ public interface StorageAgentKeyValueStore extends KeyValueStore
 
    /**
    * Get all the keys associated with key
-   * 
+   *
    * @param key
    * @return the list of all associated keys
    */
@@ -41,10 +41,10 @@ public interface StorageAgentKeyValueStore extends KeyValueStore
 
   /**
    * Set table/region name of store
-   * 
+   *
    * @param tableName
    */
   public void setTableName(String tableName);
-  
-  
+
+
 }

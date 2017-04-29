@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.testbench.EventGenerator;
 
 /**
- * 
+ *
  * Functional tests for {@link com.datatorrent.lib.testbench.DevNullCounter}.
  * <p>
  * <br>
@@ -35,7 +35,7 @@ import com.datatorrent.lib.testbench.EventGenerator;
  * Benchmarks:<br>
  * Object payload benchmarked at over 125 Million/sec <br>
  * DRC checks are validated<br>
- * 
+ *
  */
 public class DevNullCounterTest
 {

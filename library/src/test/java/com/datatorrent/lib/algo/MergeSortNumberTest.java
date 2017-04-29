@@ -29,9 +29,11 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 import static org.junit.Assert.assertTrue;
 
 /**
- *
+ * @deprecated
  * Functional tests for {@link com.datatorrent.lib.algo.MergeSort}<p>
+ *   (Deprecating inclass) Comment: MergeSortNumber is deprecated.
  */
+@Deprecated
 public class MergeSortNumberTest
 {
   /**

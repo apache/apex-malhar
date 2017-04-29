@@ -23,26 +23,14 @@
 <configuration>
   <property>
     <name>dt.operator.HDFSInputModule.prop.files</name>
-    <value>hdfs://localhost:54310/user/dtadmin/input</value>
-  </property>
-  <property>
-    <name>dt.operator.HDFSInputModule.prop.blockSize</name>
-    <value>128000000</value>
-  </property>
-  <property>
-    <name>dt.operator.HDFSInputModule.prop.scanIntervalMillis</name>
-    <value>10000</value>
-  </property>
-  <property>
-    <name>dt.operator.HDFSInputModule.prop.dedup</name>
-    <value>true</value>
+    <value>hdfs://localhost:54310/user/appuser/input</value>
   </property>
   <property>
     <name>dt.operator.HDFSFileCopyModule.prop.outputDirectoryPath</name>
-    <value>hdfs://localhost:54310/user/dtadmin/output</value>
+    <value>hdfs://localhost:54310/user/appuser/output</value>
   </property>
   <property>
-    <name>dt.loggers.level</name>
-    <value>com.datatorrent.*:DEBUG,org.apache.*:INFO</value>
-</property>
+    <name>dt.operator.HDFSInputModule.prop.blocksThreshold</name>
+    <value>1</value>
+  </property>
 </configuration>

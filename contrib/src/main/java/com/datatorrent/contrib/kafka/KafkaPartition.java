@@ -26,7 +26,7 @@ import java.io.Serializable;
 public class KafkaPartition implements Serializable
 {
   protected static final String DEFAULT_CLUSTERID = "com.datatorrent.contrib.kafka.defaultcluster";
-  
+
   @SuppressWarnings("unused")
   private KafkaPartition()
   {
@@ -46,15 +46,15 @@ public class KafkaPartition implements Serializable
   }
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = 7556802229202221546L;
-  
+
 
   private String clusterId;
-  
+
   private int partitionId;
-  
+
   private String topic;
 
   public String getClusterId()
@@ -128,7 +128,7 @@ public class KafkaPartition implements Serializable
   {
     return "KafkaPartition [clusterId=" + clusterId + ", partitionId=" + partitionId + ", topic=" + topic + "]";
   }
-  
-  
-  
+
+
+
 }

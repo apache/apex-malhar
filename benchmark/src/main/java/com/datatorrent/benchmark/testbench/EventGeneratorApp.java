@@ -18,6 +18,10 @@
  */
 package com.datatorrent.benchmark.testbench;
 
+import java.util.HashMap;
+
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
@@ -25,8 +29,6 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.stream.DevNull;
 import com.datatorrent.lib.testbench.EventGenerator;
-import java.util.HashMap;
-import org.apache.hadoop.conf.Configuration;
 
 /**
  * Benchmark App for EventGenerator Operator.
@@ -44,7 +46,8 @@ public class EventGeneratorApp implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     EventGenerator eventGenerator = dag.addOperator("eventGenerator", new EventGenerator());
-    dag.getMeta(eventGenerator).getMeta(eventGenerator.count).getAttributes().put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
+    dag.getMeta(eventGenerator).getMeta(eventGenerator.count).getAttributes()
+        .put(PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
 
     DevNull<String> devString = dag.addOperator("devString", new DevNull());
     DevNull<HashMap<String, Double>> devMap = dag.addOperator("devMap", new DevNull());

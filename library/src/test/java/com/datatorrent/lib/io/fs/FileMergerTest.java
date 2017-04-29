@@ -43,7 +43,6 @@ import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context.DAGContext;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.block.BlockMetadata.FileBlockMetadata;
 import com.datatorrent.lib.io.block.BlockWriter;
 import com.datatorrent.lib.io.fs.FileStitcher.BlockNotFoundException;
@@ -51,6 +50,7 @@ import com.datatorrent.lib.io.fs.Synchronizer.OutputFileMetadata;
 import com.datatorrent.lib.io.fs.Synchronizer.StitchBlock;
 import com.datatorrent.lib.io.fs.Synchronizer.StitchBlockMetaData;
 
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
@@ -97,7 +97,7 @@ public class FileMergerTest
       Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(DAG.DAGContext.APPLICATION_ID, description.getMethodName());
       attributes.put(DAGContext.APPLICATION_PATH, baseDir);
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+      context = mockOperatorContext(1, attributes);
 
       try {
         FileContext.getLocalFSFileContext().delete(new Path(new File(baseDir).getAbsolutePath()), true);

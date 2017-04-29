@@ -26,7 +26,7 @@ import com.datatorrent.common.util.BaseOperator;
 /**
  * Multiplies input tuple (Number) by the value of property "multiplier" and emits the result on respective ports.
  * <p>
- * This operator emits the result as Long on port "longProduct", as Integer on port "integerProduct", as Double on port "doubleProduct", and as Float on port "floatProduct". 
+ * This operator emits the result as Long on port "longProduct", as Integer on port "integerProduct", as Double on port "doubleProduct", and as Float on port "floatProduct".
  * Output is computed in current window.No state dependency among input tuples
  * This is a pass through operator
  * <br>
@@ -79,22 +79,22 @@ public class MultiplyByConstant extends BaseOperator
     }
 
   };
-  
+
   /**
    * Long output port.
    */
   public final transient DefaultOutputPort<Long> longProduct = new DefaultOutputPort<Long>();
-  
+
   /**
    * Integer output port.
    */
   public final transient DefaultOutputPort<Integer> integerProduct = new DefaultOutputPort<Integer>();
-  
+
   /**
    * Double output port.
    */
   public final transient DefaultOutputPort<Double> doubleProduct = new DefaultOutputPort<Double>();
-  
+
   /**
    * Float output port.
    */

@@ -56,12 +56,12 @@ public class TransformOperator extends BaseOperator implements Operator.Activati
 {
   @NotNull
   private Map<String, String> expressionMap = new HashMap<>();
-  private List<String> expressionFunctions = new LinkedList<>();
+  protected List<String> expressionFunctions = new LinkedList<>();
   private boolean copyMatchingFields = true;
 
   private transient Map<PojoUtils.Setter, Expression> transformationMap = new HashMap<>();
-  private Class<?> inputClass;
-  private Class<?> outputClass;
+  protected Class<?> inputClass;
+  protected Class<?> outputClass;
 
   public TransformOperator()
   {

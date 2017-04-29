@@ -35,37 +35,42 @@ public class IntegerOperator implements InputOperator
    * Output port which emits integer.
    */
   public final transient DefaultOutputPort<Integer> integer_data = new DefaultOutputPort<Integer>();
+
   @Override
   public void emitTuples()
   {
     Integer i = 21;
-    for(int j=0;j<1000;j++){
-    integer_data.emit(i);
+    for (int j = 0; j < 1000; j++) {
+      integer_data.emit(i);
     }
   }
 
   @Override
   public void beginWindow(long windowId)
   {
-    //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    //throw new UnsupportedOperationException("Not supported yet.");
+    // To change body of generated methods, choose Tools | Templates.
   }
 
   @Override
   public void endWindow()
   {
-    //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    //throw new UnsupportedOperationException("Not supported yet.");
+    // To change body of generated methods, choose Tools | Templates.
   }
 
   @Override
   public void setup(OperatorContext context)
   {
-    //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    //throw new UnsupportedOperationException("Not supported yet.");
+    // To change body of generated methods, choose Tools | Templates.
   }
 
   @Override
   public void teardown()
   {
-    //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    //throw new UnsupportedOperationException("Not supported yet.");
+    // To change body of generated methods, choose Tools | Templates.
   }
 
 }

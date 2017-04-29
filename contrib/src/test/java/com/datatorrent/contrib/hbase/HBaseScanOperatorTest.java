@@ -57,9 +57,9 @@ public class HBaseScanOperatorTest
       HBaseTupleCollector tc = dag.addOperator("tuplecollector", HBaseTupleCollector.class);
       dag.addStream("ss", thop.outputPort, tc.inputPort);
 
-      thop.setTableName("table1");
-      thop.setZookeeperQuorum("127.0.0.1");
-      thop.setZookeeperClientPort(2181);
+      thop.getStore().setTableName("table1");
+      thop.getStore().setZookeeperQuorum("127.0.0.1");
+      thop.getStore().setZookeeperClientPort(2181);
 
       LocalMode.Controller lc = lma.getController();
       lc.setHeartbeatMonitoringEnabled(false);

@@ -28,7 +28,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * This is the an implementation of a Redis input operator for fetching
  * Key-Value pair stored in Redis. It takes in keys to fetch and emits
  * corresponding <Key, Value> Pair. Value data type is String in this case.
- * 
+ *
  * @displayName Redis Input Operator for Key Value pair
  * @category Store
  * @tags input operator, key value

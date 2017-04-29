@@ -112,6 +112,7 @@ public class CacheStore implements CacheManager.Primary
     open = true;
 
     CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
+    cacheBuilder.maximumSize(maxCacheSize);
     if (entryExpiryStrategy == ExpiryType.EXPIRE_AFTER_ACCESS) {
       cacheBuilder.expireAfterAccess(entryExpiryDurationInMillis, TimeUnit.MILLISECONDS);
     } else if (entryExpiryStrategy == ExpiryType.EXPIRE_AFTER_WRITE) {

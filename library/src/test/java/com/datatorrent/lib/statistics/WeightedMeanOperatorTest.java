@@ -45,7 +45,7 @@ public class WeightedMeanOperatorTest
     oper.data.process(2.0);
     oper.data.process(4.0);
     oper.endWindow();
-    
+
     Assert.assertEquals("Must be one tuple in sink", sink.collectedTuples.size(), 1);
     Assert.assertTrue("Expected mean value", sink.collectedTuples.get(0) == 3.0);
   }

@@ -34,7 +34,7 @@ public interface Schema
   public static final String FIELD_SCHEMA_KEYS = "schemaKeys";
   public static final String FIELD_SCHEMA = "schema";
   public static final String FIELD_SCHEMA_TAGS = "tags";
-  
+
   /**
    * The id of the schema. This is relevant for operators which support serving multiple schemas,
    * in which each schema will need a unique id.

@@ -35,7 +35,7 @@ public interface CompositeAggregatorFactory
    * @return
    */
   //public boolean isValidCompositeAggregatorName(String aggregatorName);
-  
+
   /**
    * get composite aggregator name based on composite aggregator information
    * @param aggregatorType
@@ -45,7 +45,7 @@ public interface CompositeAggregatorFactory
    */
   public String getCompositeAggregatorName(String aggregatorType, String embedAggregatorName,
       Map<String, Object> properties);
-  
+
   /**
    * create composite aggregator name based on composite aggregator information
    * @param aggregatorType

@@ -22,7 +22,7 @@ package org.apache.apex.malhar.lib.state.managed;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.TreeSet;
+import java.util.TreeMap;
 
 import org.junit.Assert;
 import org.junit.Rule;
@@ -72,9 +72,9 @@ public class BucketsFileSystemTest
   {
     testMeta.bucketsFileSystem.setup(testMeta.managedStateContext);
     Map<Slice, Bucket.BucketedValue> unsavedBucket0 = ManagedStateTestUtils.getTestBucketData(0, 100);
-    testMeta.bucketsFileSystem.writeBucketData(10, 0, unsavedBucket0);
+    testMeta.bucketsFileSystem.writeBucketData(10, 0, unsavedBucket0, -1);
 
-    ManagedStateTestUtils.transferBucketHelper(testMeta.managedStateContext.getFileAccess(), 0, unsavedBucket0, 1);
+    ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedStateContext.getFileAccess(), 0, unsavedBucket0, 1);
     testMeta.bucketsFileSystem.teardown();
   }
 
@@ -83,13 +83,13 @@ public class BucketsFileSystemTest
   {
     testMeta.bucketsFileSystem.setup(testMeta.managedStateContext);
     Map<Slice, Bucket.BucketedValue> unsavedBucket0 = ManagedStateTestUtils.getTestBucketData(0, 100);
-    testMeta.bucketsFileSystem.writeBucketData(10, 0, unsavedBucket0);
+    testMeta.bucketsFileSystem.writeBucketData(10, 0, unsavedBucket0, -1);
 
     Map<Slice, Bucket.BucketedValue> more = ManagedStateTestUtils.getTestBucketData(50, 100);
-    testMeta.bucketsFileSystem.writeBucketData(10, 0, more);
+    testMeta.bucketsFileSystem.writeBucketData(10, 0, more, -1);
 
     unsavedBucket0.putAll(more);
-    ManagedStateTestUtils.transferBucketHelper(testMeta.managedStateContext.getFileAccess(), 0, unsavedBucket0, 2);
+    ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedStateContext.getFileAccess(), 0, unsavedBucket0, 2);
     testMeta.bucketsFileSystem.teardown();
   }
 
@@ -138,13 +138,13 @@ public class BucketsFileSystemTest
     testMeta.bucketsFileSystem.updateTimeBuckets(tbm2);
 
     testMeta.bucketsFileSystem.updateBucketMetaFile(1);
-    TreeSet<BucketsFileSystem.TimeBucketMeta> timeBucketMetas =
+    TreeMap<Long, BucketsFileSystem.TimeBucketMeta> timeBucketMetas =
         testMeta.bucketsFileSystem.getAllTimeBuckets(1);
 
-    Iterator<BucketsFileSystem.TimeBucketMeta> iterator = timeBucketMetas.iterator();
+    Iterator<Map.Entry<Long, BucketsFileSystem.TimeBucketMeta>> iterator = timeBucketMetas.entrySet().iterator();
     int i = 2;
     while (iterator.hasNext()) {
-      BucketsFileSystem.TimeBucketMeta tbm = iterator.next();
+      BucketsFileSystem.TimeBucketMeta tbm = iterator.next().getValue();
       Assert.assertEquals("time bucket " + i, i, tbm.getTimeBucketId());
       i--;
     }
@@ -160,13 +160,30 @@ public class BucketsFileSystemTest
     BucketsFileSystem.TimeBucketMeta immutableTbm = testMeta.bucketsFileSystem.getTimeBucketMeta(1,1);
     Assert.assertNull("deleted tbm", immutableTbm);
 
-    TreeSet<BucketsFileSystem.TimeBucketMeta> timeBucketMetas =
+    TreeMap<Long, BucketsFileSystem.TimeBucketMeta> timeBucketMetas =
         testMeta.bucketsFileSystem.getAllTimeBuckets(1);
 
     Assert.assertEquals("only 1 tbm", 1, timeBucketMetas.size());
-    immutableTbm = timeBucketMetas.iterator().next();
+    immutableTbm = timeBucketMetas.entrySet().iterator().next().getValue();
 
     Assert.assertEquals("tbm 2", 2, immutableTbm.getTimeBucketId());
+    testMeta.bucketsFileSystem.teardown();
+  }
+
+  @Test
+  public void testFirstKeyAfterTransferBuckets() throws IOException
+  {
+    testMeta.bucketsFileSystem.setup(testMeta.managedStateContext);
+    Map<Slice, Bucket.BucketedValue> unsavedBucket0 = ManagedStateTestUtils.getTestBucketData(50, 100);
+    testMeta.bucketsFileSystem.writeBucketData(10, 0, unsavedBucket0, -1);
+
+    Map<Slice, Bucket.BucketedValue> unsavedBucket1 = ManagedStateTestUtils.getTestBucketData(24, 104);
+    testMeta.bucketsFileSystem.writeBucketData(20, 0, unsavedBucket1, -1);
+
+    BucketsFileSystem.TimeBucketMeta immutableTbm = testMeta.bucketsFileSystem.getTimeBucketMeta(0, 104);
+    Assert.assertNotNull(immutableTbm);
+    Assert.assertEquals("last transferred window", 20, immutableTbm.getLastTransferredWindowId());
+    Assert.assertEquals("first key", "24", immutableTbm.getFirstKey().stringValue());
     testMeta.bucketsFileSystem.teardown();
   }
 }

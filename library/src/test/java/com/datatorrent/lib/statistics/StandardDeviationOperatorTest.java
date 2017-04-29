@@ -36,7 +36,7 @@ public class StandardDeviationOperatorTest
     oper.variance.setSink(variance);
     CollectorTestSink<Object> deviation = new CollectorTestSink<Object>();
     oper.standardDeviation.setSink(deviation);
-    
+
     oper.setup(null);
     oper.beginWindow(0);
     oper.data.process(1.0);
@@ -44,7 +44,7 @@ public class StandardDeviationOperatorTest
     oper.data.process(3.0);
     oper.data.process(9.0);
     oper.endWindow();
-    
+
     Assert.assertEquals("Must be one tuple in sink", variance.collectedTuples.size(), 1);
     Assert.assertEquals("Must be one tuple in sink", deviation.collectedTuples.size(), 1);
   }

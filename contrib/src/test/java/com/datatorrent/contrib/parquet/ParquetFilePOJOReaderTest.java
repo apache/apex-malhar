@@ -49,7 +49,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.helper.TestPortContext;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.testbench.CollectorTestSink;
@@ -65,6 +64,8 @@ import parquet.io.api.Binary;
 import parquet.io.api.RecordConsumer;
 import parquet.schema.MessageType;
 import parquet.schema.MessageTypeParser;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class ParquetFilePOJOReaderTest
 {
@@ -92,7 +93,7 @@ public class ParquetFilePOJOReaderTest
       operAttributes.put(Context.DAGContext.APPLICATION_PATH, dir);
       Attribute.AttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();
       portAttributes.put(Context.PortContext.TUPLE_CLASS, EventRecord.class);
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, operAttributes);
+      context = mockOperatorContext(1, operAttributes);
       portContext = new TestPortContext(portAttributes);
     }
 

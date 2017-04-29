@@ -30,10 +30,10 @@ import org.apache.hadoop.io.file.tfile.DTFile.Writer;
 import org.junit.Assert;
 
 /**
- * 
+ *
  * Byte arrays test case class using GZ compression codec, base class of none
  * and LZO compression classes.
- * 
+ *
  */
 public class TestTFileComparators extends TestCase {
   private static String ROOT =

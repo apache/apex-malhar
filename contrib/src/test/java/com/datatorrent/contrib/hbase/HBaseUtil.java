@@ -29,13 +29,13 @@ import org.apache.hadoop.hbase.client.HBaseAdmin;
 
 public class HBaseUtil
 {
-  public static void createTable(Configuration configuration, String tableName ) throws MasterNotRunningException, ZooKeeperConnectionException, IOException 
+  public static void createTable(Configuration configuration, String tableName ) throws MasterNotRunningException, ZooKeeperConnectionException, IOException
   {
     HBaseAdmin admin = null;
     try
     {
       admin = new HBaseAdmin( configuration );
-      
+
       if (!admin.isTableAvailable(tableName) )
       {
         HTableDescriptor tableDescriptor = new HTableDescriptor(tableName);
@@ -54,14 +54,14 @@ public class HBaseUtil
       }
     }
   }
-  
+
   public static void deleteTable( Configuration configuration, String tableName ) throws MasterNotRunningException, ZooKeeperConnectionException, IOException
   {
     HBaseAdmin admin = null;
     try
     {
       admin = new HBaseAdmin( configuration );
-      
+
       if ( admin.isTableAvailable(tableName) )
       {
         admin.disableTable(tableName);

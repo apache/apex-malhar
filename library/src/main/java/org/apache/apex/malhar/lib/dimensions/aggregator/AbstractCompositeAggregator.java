@@ -44,9 +44,9 @@ public abstract class AbstractCompositeAggregator implements CompositeAggregator
   //protected int embedAggregatorID;
   protected Set<Integer> embedAggregatorDdIds = Sets.newHashSet();
   protected Set<String> fields = Sets.newHashSet();
-  
+
   protected DimensionsConversionContext dimensionsConversionContext;
-  
+
   public DimensionsConversionContext getDimensionsConversionContext()
   {
     return dimensionsConversionContext;
@@ -63,7 +63,7 @@ public abstract class AbstractCompositeAggregator implements CompositeAggregator
     this.setDimensionsConversionContext(dimensionsConversionContext);
     return this;
   }
-  
+
   public String getEmbedAggregatorName()
   {
     return embedAggregatorName;
@@ -96,7 +96,7 @@ public abstract class AbstractCompositeAggregator implements CompositeAggregator
   {
     this.dimensionDescriptorID = dimensionDescriptorID;
   }
-  
+
   @Override
   public int getAggregatorID()
   {
@@ -118,7 +118,7 @@ public abstract class AbstractCompositeAggregator implements CompositeAggregator
   {
     this.aggregateDescriptor = aggregateDescriptor;
   }
-  
+
   @Override
   public Set<String> getFields()
   {
@@ -155,7 +155,7 @@ public abstract class AbstractCompositeAggregator implements CompositeAggregator
   {
     embedAggregatorDdIds.addAll(ddids);
   }
-  
+
   /**
    * bright: TODO: check
    */
@@ -164,5 +164,5 @@ public abstract class AbstractCompositeAggregator implements CompositeAggregator
   {
     return null;
   }
-  
+
 }

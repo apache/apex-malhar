@@ -88,7 +88,7 @@ public class XmlFormatter extends Formatter<String>
    * Gets the alias This is an optional step. Without it XStream would work
    * fine, but the XML element names would contain the fully qualified name of
    * each class (including package) which would bulk up the XML a bit.
-   * 
+   *
    * @return alias.
    */
   public String getAlias()
@@ -100,7 +100,7 @@ public class XmlFormatter extends Formatter<String>
    * Sets the alias This is an optional step. Without it XStream would work
    * fine, but the XML element names would contain the fully qualified name of
    * each class (including package) which would bulk up the XML a bit.
-   * 
+   *
    * @param alias
    *          .
    */
@@ -112,7 +112,7 @@ public class XmlFormatter extends Formatter<String>
   /**
    * Gets the date format e.g dd/mm/yyyy - this will be how a date would be
    * formatted
-   * 
+   *
    * @return dateFormat.
    */
   public String getDateFormat()
@@ -123,7 +123,7 @@ public class XmlFormatter extends Formatter<String>
   /**
    * Sets the date format e.g dd/mm/yyyy - this will be how a date would be
    * formatted
-   * 
+   *
    * @param dateFormat
    *          .
    */
@@ -134,7 +134,7 @@ public class XmlFormatter extends Formatter<String>
 
   /**
    * Returns true if pretty print is enabled.
-   * 
+   *
    * @return prettyPrint
    */
   public boolean isPrettyPrint()
@@ -144,7 +144,7 @@ public class XmlFormatter extends Formatter<String>
 
   /**
    * Sets pretty print option.
-   * 
+   *
    * @param prettyPrint
    */
   public void setPrettyPrint(boolean prettyPrint)

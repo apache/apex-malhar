@@ -18,19 +18,22 @@
  */
 package com.datatorrent.benchmark.memsql;
 
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest;
-import com.datatorrent.contrib.memsql.MemsqlStore;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.sql.SQLException;
-import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.conf.Configuration;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest;
+import com.datatorrent.contrib.memsql.MemsqlStore;
+import com.datatorrent.netlet.util.DTThrowable;
 
 public class MemsqlOutputBenchmarkTest
 {
@@ -45,7 +48,8 @@ public class MemsqlOutputBenchmarkTest
 
     MemsqlStore memsqlStore = new MemsqlStore();
     memsqlStore.setDatabaseUrl(conf.get("dt.rootDbUrl"));
-    memsqlStore.setConnectionProperties(conf.get("dt.application.MemsqlOutputBenchmark.operator.memsqlOutputOperator.store.connectionProperties"));
+    memsqlStore.setConnectionProperties(
+        conf.get("dt.application.MemsqlOutputBenchmark.operator.memsqlOutputOperator.store.connectionProperties"));
 
     AbstractMemsqlOutputOperatorTest.memsqlInitializeDatabase(memsqlStore);
 
@@ -56,8 +60,7 @@ public class MemsqlOutputBenchmarkTest
       lm.prepareDAG(app, conf);
       LocalMode.Controller lc = lm.getController();
       lc.run(20000);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       DTThrowable.rethrow(ex);
     }
 

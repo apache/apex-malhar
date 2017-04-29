@@ -22,10 +22,12 @@ import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.ProcessingMode;
+
 import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.APP_ID;
 import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.OPERATOR_ID;
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+
 import com.datatorrent.lib.db.jdbc.JdbcTransactionalStore;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -143,7 +145,7 @@ public class AbstractMemsqlOutputOperatorTest
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContext context = mockOperatorContext(OPERATOR_ID, attributeMap);
 
     outputOperator.setup(context);
 

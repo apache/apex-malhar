@@ -32,13 +32,13 @@ public class BottomNUnifierTest
   @Test
   public void testUnifier()
   {
-    
+
     // Instantiate unifier
     BottomNUnifier<String, Integer> oper = new BottomNUnifier<>();
     oper.setN(2);
     CollectorTestSink sink = new CollectorTestSink();
     oper.mergedport.setSink(sink);
-    
+
     oper.beginWindow(1);
     ArrayList<Integer> values = new ArrayList<Integer>();
     values.add(5);
@@ -53,7 +53,7 @@ public class BottomNUnifierTest
     tuple.put("a", values);
     oper.process(tuple);
     oper.endWindow();
-    
+
     Assert.assertEquals("Tuples in sink", sink.collectedTuples.size(), 1);
     tuple = (HashMap<String, ArrayList<Integer>>)sink.collectedTuples.get(0);
     values = tuple.get("a");

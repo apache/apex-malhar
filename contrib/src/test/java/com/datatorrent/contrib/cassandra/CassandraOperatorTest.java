@@ -18,27 +18,46 @@
  */
 package com.datatorrent.contrib.cassandra;
 
-import com.datastax.driver.core.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.Configuration;
+import com.datastax.driver.core.PreparedStatement;
+import com.datastax.driver.core.ProtocolVersion;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
 import com.datastax.driver.core.exceptions.DriverException;
+import com.google.common.collect.Lists;
+
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.helper.TestPortContext;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.google.common.collect.Lists;
 
-import java.util.*;
-
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.AfterClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Tests for {@link AbstractCassandraTransactionableOutputOperator} and {@link AbstractCassandraInputOperator}
@@ -54,6 +73,8 @@ public class CassandraOperatorTest
   private static final int OPERATOR_ID = 0;
   private static Cluster cluster = null;
   private static Session session = null;
+  private OperatorContext context;
+  private TestPortContext tpc;
 
   @SuppressWarnings("unused")
   private static class TestEvent
@@ -105,6 +126,25 @@ public class CassandraOperatorTest
     if (cluster != null) {
       cluster.close();
     }
+  }
+
+  @Before
+  public void setupForTest()
+  {
+    AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
+    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
+    context = mockOperatorContext(OPERATOR_ID, attributeMap);
+
+    Attribute.AttributeMap.DefaultAttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();
+    portAttributes.put(Context.PortContext.TUPLE_CLASS, TestPojo.class);
+    tpc = new TestPortContext(portAttributes);
+  }
+
+  @After
+  public void afterTest()
+  {
+    session.execute("TRUNCATE " + CassandraTransactionalStore.DEFAULT_META_TABLE);
+    session.execute("TRUNCATE " + KEYSPACE + "." + TABLE_NAME);
   }
 
   private static class TestOutputOperator extends CassandraPOJOOutputOperator
@@ -220,43 +260,20 @@ public class CassandraOperatorTest
   @Test
   public void testCassandraProtocolVersion()
   {
-    CassandraTransactionalStore transactionalStore = new CassandraTransactionalStore();
-    transactionalStore.setNode(NODE);
-    transactionalStore.setKeyspace(KEYSPACE);
-    transactionalStore.setProtocolVersion("v2");
+    TestOutputOperator outputOperator = setupForOutputOperatorTest();
+    outputOperator.getStore().setProtocolVersion("v2");
 
-    AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
-    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
-
-    TestOutputOperator outputOperator = new TestOutputOperator();
-
-    outputOperator.setTablename(TABLE_NAME);
-    List<FieldInfo> fieldInfos = Lists.newArrayList();
-    fieldInfos.add(new FieldInfo("id", "id", null));
-
-    outputOperator.setStore(transactionalStore);
-    outputOperator.setFieldInfos(fieldInfos);
     outputOperator.setup(context);
 
     Configuration config = outputOperator.getStore().getCluster().getConfiguration();
-    Assert.assertEquals("Procotol version was not set to V2.", ProtocolVersion.V2, config.getProtocolOptions().getProtocolVersionEnum());
+    Assert.assertEquals("Procotol version was not set to V2.", ProtocolVersion.V2, config.getProtocolOptions().getProtocolVersion());
   }
 
   @Test
   public void testCassandraOutputOperator()
   {
-    CassandraTransactionalStore transactionalStore = new CassandraTransactionalStore();
-    transactionalStore.setNode(NODE);
-    transactionalStore.setKeyspace(KEYSPACE);
+    TestOutputOperator outputOperator = setupForOutputOperatorTest();
 
-    AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
-    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
-
-    TestOutputOperator outputOperator = new TestOutputOperator();
-
-    outputOperator.setTablename(TABLE_NAME);
     List<FieldInfo> fieldInfos = Lists.newArrayList();
     fieldInfos.add(new FieldInfo("id", "id", null));
     fieldInfos.add(new FieldInfo("age", "age", null));
@@ -269,14 +286,8 @@ public class CassandraOperatorTest
     fieldInfos.add(new FieldInfo("set1", "set1", null));
     fieldInfos.add(new FieldInfo("test", "test", null));
 
-    outputOperator.setStore(transactionalStore);
     outputOperator.setFieldInfos(fieldInfos);
     outputOperator.setup(context);
-
-    Attribute.AttributeMap.DefaultAttributeMap portAttributes = new Attribute.AttributeMap.DefaultAttributeMap();
-    portAttributes.put(Context.PortContext.TUPLE_CLASS, TestPojo.class);
-    TestPortContext tpc = new TestPortContext(portAttributes);
-
     outputOperator.input.setup(tpc);
     outputOperator.activate(context);
 
@@ -301,6 +312,86 @@ public class CassandraOperatorTest
     outputOperator.getEventsInStore();
   }
 
+  @Test
+  public void testPopulateFieldInfo()
+  {
+    TestOutputOperator outputOperator = setupForOutputOperatorTest();
+    outputOperator.setup(context);
+    outputOperator.input.setup(tpc);
+    outputOperator.activate(context);
+
+    List<TestPojo> events = Lists.newArrayList();
+    for (int i = 0; i < 3; i++) {
+      Set<Integer> set = new HashSet<Integer>();
+      set.add(i);
+      List<Integer> list = new ArrayList<Integer>();
+      list.add(i);
+      Map<String, Integer> map = new HashMap<String, Integer>();
+      map.put("key" + i, i);
+      events.add(new TestPojo(UUID.randomUUID(), i, "abclast", true, i, 2.0, set, list, map, new Date(System.currentTimeMillis())));
+    }
+
+    outputOperator.beginWindow(0);
+    for (TestPojo event : events) {
+      outputOperator.input.process(event);
+    }
+    outputOperator.endWindow();
+
+    Assert.assertEquals("rows in db", 3, outputOperator.getNumOfEventsInStore());
+    outputOperator.getEventsInStore();
+  }
+
+  @Test
+  public void testupdateQueryWithParameters() throws InterruptedException
+  {
+    UUID id = UUID.fromString("94ab597c-a5ff-4997-8343-68993d446b14");
+    TestPojo testPojo = new TestPojo(id, 20, "Laura", true, 10, 2.0, new HashSet<Integer>(), new ArrayList<Integer>(), null, new Date(System.currentTimeMillis()));
+    String insert = "INSERT INTO " + KEYSPACE + "." + TABLE_NAME + " (ID, age, lastname, test, floatValue, doubleValue)" + " VALUES (94ab597c-a5ff-4997-8343-68993d446b14, 20, 'Laura', true, 10, 2.0);";
+    session.execute(insert);
+    String recordsQuery = "SELECT * from " + TABLE_NAME + ";";
+    ResultSet resultSetRecords = session.execute(recordsQuery);
+    Row row = resultSetRecords.iterator().next();
+    Assert.assertEquals("Updated last name", "Laura", row.getString("lastname"));
+    Thread.sleep(1000); // wait till cassandra writes the record
+
+    // update record
+    String updateLastName = "Laurel";
+    String updateQuery = "update " + KEYSPACE + "." + TABLE_NAME + " set lastname='" + updateLastName + "' where id=?";
+    // set specific files required by update command in order as per query
+    List<FieldInfo> fieldInfos = Lists.newArrayList();
+    fieldInfos.add(new FieldInfo("id", "id", null));
+
+    // reset the operator to run new query
+    TestOutputOperator outputOperator = setupForOutputOperatorTest();
+    outputOperator.setQuery(updateQuery);
+    outputOperator.setFieldInfos(fieldInfos);
+    outputOperator.setup(context);
+    outputOperator.input.setup(tpc);
+    outputOperator.activate(context);
+
+    outputOperator.beginWindow(1);
+    outputOperator.input.process(testPojo);
+    outputOperator.endWindow();
+
+    recordsQuery = "SELECT * from " + TABLE_NAME + ";";
+    resultSetRecords = session.execute(recordsQuery);
+    row = resultSetRecords.iterator().next();
+    Assert.assertEquals("Updated last name", updateLastName, row.getString("lastname"));
+  }
+
+  private TestOutputOperator setupForOutputOperatorTest()
+  {
+    CassandraTransactionalStore transactionalStore = new CassandraTransactionalStore();
+    transactionalStore.setNode(NODE);
+    transactionalStore.setKeyspace(KEYSPACE);
+
+    TestOutputOperator operator = new TestOutputOperator();
+    operator = new TestOutputOperator();
+    operator.setTablename(TABLE_NAME);
+    operator.setStore(transactionalStore);
+    return operator;
+  }
+
   /*
    * This test can be run on cassandra server installed on node17.
    */
@@ -314,7 +405,7 @@ public class CassandraOperatorTest
 
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContext context = mockOperatorContext(OPERATOR_ID, attributeMap);
 
     TestInputOperator inputOperator = new TestInputOperator();
     inputOperator.setStore(store);

@@ -1,0 +1,139 @@
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<configuration>
+  <property>
+    <name>dt.attr.STREAMING_WINDOW_SIZE_MILLIS</name>
+    <value>1000</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.operator.Receiver.attr.APPLICATION_WINDOW_COUNT
+    </name>
+    <value>5</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.operator.Receiver.attr.PARTITIONER</name>
+    <value>com.datatorrent.common.partitioner.StatelessPartitioner:1</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.operator.DimensionsGenerator.attr.APPLICATION_WINDOW_COUNT
+    </name>
+    <value>5</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.stream.Events.locality
+    </name>
+    <value>CONTAINER_LOCAL</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.operator.DimensionsGenerator.inputport.inputPort.attr.PARTITION_PARALLEL
+    </name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.operator.Aggregator.inputport.inputPort.attr.PARTITION_PARALLEL
+    </name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.operator.Aggregator.attr.APPLICATION_WINDOW_COUNT
+    </name>
+    <value>5</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.operator.AverageCalculator.attr.APPLICATION_WINDOW_COUNT
+    </name>
+    <value>5</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.operator.Persister.inputport.input.attr.PARTITION_PARALLEL
+    </name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.operator.Persister.attr.APPLICATION_WINDOW_COUNT
+    </name>
+    <value>5</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.operator.Persister.store.dbIndex
+    </name>
+    <value>2</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.operator.Persister.store.host
+    </name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.operator.Persister.store.port
+    </name>
+    <value>6379</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.port.*.attr.QUEUE_CAPACITY</name>
+    <value>32000</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.operator.Alerter.from
+    </name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.operator.Alerter.subject
+    </name>
+    <value>Alert!!!</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.operator.Alerter.recipients.TO
+    </name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.operator.Alerter.content
+    </name>
+    <value>{}</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.operator.Alerter.smtpHost
+    </name>
+    <value>localhost</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.operator.Alerter.smtpPort
+    </name>
+    <value>25</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.operator.Alerter.useSsl
+    </name>
+    <value>false</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.operator.Aggregator.outputport.outputPort.attr.UNIFIER_LIMIT
+    </name>
+    <value>8</value>
+  </property>
+  <property>
+    <name>dt.application.MachineDataExample.stream.DimensionalData.locality
+    </name>
+    <value>THREAD_LOCAL</value>
+  </property>
+</configuration>

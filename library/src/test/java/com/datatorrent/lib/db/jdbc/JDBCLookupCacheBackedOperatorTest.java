@@ -40,9 +40,10 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
-import com.datatorrent.api.Context;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Test for {@link JDBCLookupCacheBackedOperator}
@@ -194,7 +195,7 @@ public class JDBCLookupCacheBackedOperatorTest
 
     lookupCacheBackedOperator.output.setSink(sink);
 
-    Context.OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(7);
+    OperatorContext context = mockOperatorContext(7);
     lookupCacheBackedOperator.setup(context);
   }
 

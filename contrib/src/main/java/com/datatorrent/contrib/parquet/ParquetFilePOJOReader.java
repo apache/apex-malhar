@@ -98,7 +98,7 @@ public class ParquetFilePOJOReader extends AbstractParquetFileReader<Object>
    * Converts a Parquet <b>Group</b>(parquet.example.data.Group) to a POJO.
    * Supported parquet primitive types are BOOLEAN, INT32, INT64, FLOAT, DOUBLE
    * and BINARY
-   * 
+   *
    * @throws ParquetEncodingException
    *           if group contains unsupported type
    */
@@ -167,7 +167,7 @@ public class ParquetFilePOJOReader extends AbstractParquetFileReader<Object>
   /**
    * Initializes {@link #activeFieldInfos} by adding fields represented by
    * fieldMapping
-   * 
+   *
    * @param fieldMapping
    *          String representing Parquet field name TO POJO field field name
    *          mapping
@@ -213,7 +213,7 @@ public class ParquetFilePOJOReader extends AbstractParquetFileReader<Object>
 
   /**
    * Returns String containing Parquet field name to POJO field name mapping
-   * 
+   *
    * @return parquetToPOJOFieldsMapping String representing Parquet field name
    *         TO POJO field name mapping
    */
@@ -230,7 +230,7 @@ public class ParquetFilePOJOReader extends AbstractParquetFileReader<Object>
    * long_id_v2:
    * LONG,css_file_loaded:css_file_loaded_v2:BOOLEAN,float_val:float_val_v2:
    * FLOAT,double_val:double_val_v2:DOUBLE
-   * 
+   *
    * @param parquetToPOJOFieldsMapping
    *          String representing Parquet field name TO POJO field name mapping
    */
@@ -261,7 +261,7 @@ public class ParquetFilePOJOReader extends AbstractParquetFileReader<Object>
   /**
    * Use reflection to generate field info values if the user has not provided
    * the inputs mapping.
-   * 
+   *
    * @return String representing the Parquet field name to POJO field name
    *         mapping
    */

@@ -32,9 +32,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 
+import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.Operator.CheckpointListener;
+import com.datatorrent.api.Operator.CheckpointNotificationListener;
 import com.datatorrent.api.Operator.IdleTimeHandler;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.common.util.NameableThreadFactory;
@@ -55,7 +56,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @since 2.0.0
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator implements CheckpointListener, IdleTimeHandler
+public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator implements CheckpointNotificationListener, IdleTimeHandler
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractReconciler.class);
   public transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>()
@@ -78,6 +79,10 @@ public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator
   private transient Queue<QUEUETUPLE> waitingTuples = Queues.newLinkedBlockingQueue();
   private transient volatile boolean execute;
   private transient AtomicReference<Throwable> cause;
+
+  @AutoMetric
+  private long queueLength;
+
 
   @Override
   public void setup(Context.OperatorContext context)
@@ -122,6 +127,11 @@ public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator
       DTThrowable.rethrow(cause.get());
     }
 
+  }
+
+  @Override
+  public void beforeCheckpoint(long l)
+  {
   }
 
   @Override
@@ -173,6 +183,7 @@ public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator
             }
             QUEUETUPLE output = waitingTuples.remove();
             processCommittedData(output);
+            --queueLength;
             doneTuples.add(output);
           }
         } catch (Throwable e) {
@@ -193,6 +204,7 @@ public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator
   protected void enqueueForProcessing(QUEUETUPLE queueTuple)
   {
     currentWindowTuples.get(currentWindowId).add(queueTuple);
+    ++queueLength;
   }
 
   /**

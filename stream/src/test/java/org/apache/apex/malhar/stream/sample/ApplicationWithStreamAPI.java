@@ -20,14 +20,22 @@ package org.apache.apex.malhar.stream.sample;
 
 import java.util.Arrays;
 
+import org.joda.time.Duration;
+
+import org.apache.apex.malhar.lib.function.Function;
+import org.apache.apex.malhar.lib.window.TriggerOption;
+import org.apache.apex.malhar.lib.window.Tuple;
+import org.apache.apex.malhar.lib.window.WindowOption;
 import org.apache.apex.malhar.stream.api.ApexStream;
-import org.apache.apex.malhar.stream.api.function.Function;
 import org.apache.apex.malhar.stream.api.impl.StreamFactory;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.lib.util.KeyValPair;
+
+import static org.apache.apex.malhar.stream.api.Option.Options.name;
 
 /**
  * An application example with stream api
@@ -40,18 +48,27 @@ public class ApplicationWithStreamAPI implements StreamingApplication
   public void populateDAG(DAG dag, Configuration configuration)
   {
     String localFolder = "./src/test/resources/data";
-    ApexStream stream = StreamFactory
+    ApexStream<String> stream = StreamFactory
         .fromFolder(localFolder)
         .flatMap(new Function.FlatMapFunction<String, String>()
         {
           @Override
           public Iterable<String> f(String input)
           {
-            return Arrays.asList(input.split(" "));
+            return Arrays.asList(input.split("[\\p{Punct}\\s]+"));
           }
         });
-    stream.print();
-    stream.countByKey().print();
+    stream.print(name("WordOutput"));
+    stream.window(new WindowOption.GlobalWindow(), new TriggerOption().withEarlyFiringsAtEvery(Duration
+        .millis(1000)).accumulatingFiredPanes()).countByKey(new Function.ToKeyValue<String, String, Long>()
+        {
+          @Override
+          public Tuple<KeyValPair<String, Long>> f(String input)
+          {
+            return new Tuple.PlainTuple(new KeyValPair<>(input, 1L));
+          }
+        }).print(name("WCOutput"));
     stream.populateDag(dag);
+
   }
 }

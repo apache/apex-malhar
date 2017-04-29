@@ -18,14 +18,12 @@
  */
 package com.datatorrent.samples.lib.algo;
 
-
+import org.apache.apex.malhar.contrib.misc.algo.AllAfterMatchMap;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
-
-import com.datatorrent.lib.algo.AllAfterMatchMap;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.samples.lib.math.RandomKeyValMap;
 

@@ -110,11 +110,13 @@ import com.datatorrent.lib.counters.BasicCounters;
  * @since 2.0.0
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
-public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator implements Operator.CheckpointListener
+public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator implements Operator.CheckpointListener, Operator.CheckpointNotificationListener
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFileOutputOperator.class);
 
   private static final String TMP_EXTENSION = ".tmp";
+
+  private static final String APPEND_TMP_FILE = "_APPENDING";
 
   private static final int MAX_NUMBER_FILES_IN_TEARDOWN_EXCEPTION = 25;
 
@@ -259,6 +261,8 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
    */
   private Long expireStreamAfterAccessMillis;
   private final Set<String> filesWithOpenStreams;
+
+  private transient boolean initializeContext;
 
   /**
    * This input port receives incoming tuples.
@@ -408,7 +412,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
               activePath = new Path(filePath + Path.SEPARATOR + seenPartFileName);
             }
 
-            if (activePath != null && fs.getFileStatus(activePath).getLen() > maxLength) {
+            if (activePath != null && fs.exists(activePath) && fs.getFileStatus(activePath).getLen() > maxLength) {
               //Handle the case when restoring to a checkpoint where the current rolling file
               //already has a length greater than max length.
               LOG.debug("rotating file at setup.");
@@ -636,12 +640,53 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   {
     FSDataOutputStream fsOutput;
     if (append) {
-      fsOutput = fs.append(filepath);
+      fsOutput = openStreamInAppendMode(filepath);
     } else {
       fsOutput = fs.create(filepath, (short)replication);
       fs.setPermission(filepath, FsPermission.createImmutable(filePermission));
     }
     return fsOutput;
+  }
+
+  /**
+   * Opens the stream for the given file path in append mode. Catch the exception if the FS doesnt support
+   * append operation and calls the openStreamForNonAppendFS().
+   * @param filepath given file path
+   * @return output stream
+   */
+  protected FSDataOutputStream openStreamInAppendMode(Path filepath)
+  {
+    FSDataOutputStream fsOutput = null;
+    try {
+      fsOutput = fs.append(filepath);
+    } catch (IOException e) {
+      if (e.getMessage().equals("Not supported")) {
+        fsOutput = openStreamForNonAppendFS(filepath);
+      }
+    }
+    return fsOutput;
+  }
+
+  /**
+   * Opens the stream for the given file path for the file systems which are not supported append operation.
+   * @param filepath given file path
+   * @return output stream
+   */
+  protected FSDataOutputStream openStreamForNonAppendFS(Path filepath)
+  {
+    try {
+      Path appendTmpFile = new Path(filepath + APPEND_TMP_FILE);
+      fs.rename(filepath, appendTmpFile);
+      FSDataInputStream fsIn = fs.open(appendTmpFile);
+      FSDataOutputStream fsOut = fs.create(filepath);
+      IOUtils.copy(fsIn, fsOut);
+      flush(fsOut);
+      fsIn.close();
+      fs.delete(appendTmpFile);
+      return fsOut;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
@@ -834,17 +879,19 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
    */
   protected void rotate(String fileName) throws IllegalArgumentException, IOException, ExecutionException
   {
-    requestFinalize(fileName);
-    counts.remove(fileName);
-    streamsCache.invalidate(fileName);
-    MutableInt mi = openPart.get(fileName);
-    LOG.debug("Part file rotated {} : {}", fileName, mi.getValue());
+    if (!this.getRotationState(fileName).rotated) {
+      requestFinalize(fileName);
+      counts.remove(fileName);
+      streamsCache.invalidate(fileName);
+      MutableInt mi = openPart.get(fileName);
+      LOG.debug("Part file rotated {} : {}", fileName, mi.getValue());
 
-    //TODO: remove this as rotateHook is deprecated.
-    String partFileName = getPartFileName(fileName, mi.getValue());
-    rotateHook(partFileName);
+      //TODO: remove this as rotateHook is deprecated.
+      String partFileName = getPartFileName(fileName, mi.getValue());
+      rotateHook(partFileName);
 
-    getRotationState(fileName).rotated = true;
+      getRotationState(fileName).rotated = true;
+    }
   }
 
   private RotationState getRotationState(String fileName)
@@ -923,13 +970,19 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   @Override
   public void beginWindow(long windowId)
   {
-    try {
-      Map<String, FSFilterStreamContext> openStreams = streamsCache.asMap();
-      for (FSFilterStreamContext streamContext : openStreams.values()) {
-        streamContext.initializeContext();
+    // All the filter state needs to be flushed to the disk. Not all filters allow a flush option, so the filters have
+    // to be closed and reopened. If no filter being is being used then it is a essentially a noop as the underlying
+    // FSDataOutputStream is not being closed in this operation.
+    if (initializeContext) {
+      try {
+        Map<String, FSFilterStreamContext> openStreams = streamsCache.asMap();
+        for (FSFilterStreamContext streamContext : openStreams.values()) {
+          streamContext.initializeContext();
+        }
+      } catch (IOException e) {
+        throw new RuntimeException(e);
       }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+      initializeContext = false;
     }
     currentWindow = windowId;
   }
@@ -937,18 +990,6 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   @Override
   public void endWindow()
   {
-    try {
-      Map<String, FSFilterStreamContext> openStreams = streamsCache.asMap();
-      for (FSFilterStreamContext streamContext: openStreams.values()) {
-        long start = System.currentTimeMillis();
-        streamContext.finalizeContext();
-        totalWritingTime += System.currentTimeMillis() - start;
-        //streamContext.resetFilter();
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-
     if (rotationWindows > 0) {
       if (++rotationCount == rotationWindows) {
         rotationCount = 0;
@@ -1192,6 +1233,23 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
     @Override
     public void close() throws IOException
     {
+    }
+  }
+
+  @Override
+  public void beforeCheckpoint(long l)
+  {
+    try {
+      Map<String, FSFilterStreamContext> openStreams = streamsCache.asMap();
+      for (FSFilterStreamContext streamContext: openStreams.values()) {
+        long start = System.currentTimeMillis();
+        streamContext.finalizeContext();
+        totalWritingTime += System.currentTimeMillis() - start;
+        // Re-initialize context when next window starts after checkpoint
+        initializeContext = true;
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 

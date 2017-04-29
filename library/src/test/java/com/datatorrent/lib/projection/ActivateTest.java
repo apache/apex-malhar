@@ -19,7 +19,9 @@
 
 package com.datatorrent.lib.projection;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -74,14 +76,13 @@ public class ActivateTest
   }
 
   private static ProjectionOperator projection;
-  private static DummyPOJO data;
 
   @Test
   public void testSelectDropFieldsNull()
   {
     logger.debug("start round 0");
-    projection.selectFields = null;
-    projection.dropFields = null;
+    projection.setSelectFields(null);
+    projection.setDropFields(null);
     projection.activate(null);
     Assert.assertEquals("projected fields", 3, projection.getProjectedFields().size());
     Assert.assertEquals("remainder fields", 0, projection.getRemainderFields().size());
@@ -93,8 +94,8 @@ public class ActivateTest
   public void testSelectDropFieldsEmpty()
   {
     logger.debug("start round 0");
-    projection.selectFields = "";
-    projection.dropFields = "";
+    projection.setSelectFields(new ArrayList<String>());
+    projection.setDropFields(new ArrayList<String>());
     projection.activate(null);
     Assert.assertEquals("projected fields", 3, projection.getProjectedFields().size());
     Assert.assertEquals("remainder fields", 0, projection.getRemainderFields().size());
@@ -106,8 +107,11 @@ public class ActivateTest
   public void testSelectFields()
   {
     logger.debug("start round 0");
-    projection.selectFields = "l,str";
-    projection.dropFields = "";
+    List<String> sFields = new ArrayList<>();
+    sFields.add("l");
+    sFields.add("str");
+    projection.setSelectFields(sFields);
+    projection.setDropFields(new ArrayList<String>());
     projection.activate(null);
     Assert.assertEquals("projected fields", 2, projection.getProjectedFields().size());
     Assert.assertEquals("remainder fields", 1, projection.getRemainderFields().size());
@@ -119,8 +123,11 @@ public class ActivateTest
   public void testDropFields()
   {
     logger.debug("start round 0");
-    projection.selectFields = "";
-    projection.dropFields = "str,date";
+    List<String> dFields = new ArrayList<>();
+    dFields.add("str");
+    dFields.add("date");
+    projection.setDropFields(new ArrayList<String>());
+    projection.setDropFields(dFields);
     projection.activate(null);
     Assert.assertEquals("projected fields", 1, projection.getProjectedFields().size());
     Assert.assertEquals("remainder fields", 2, projection.getRemainderFields().size());
@@ -132,9 +139,14 @@ public class ActivateTest
   public void testBothFieldsSpecified()
   {
     logger.debug("start round 0");
-    projection.selectFields = "";
-    projection.selectFields = "l,str";
-    projection.dropFields = "str,date";
+    List<String> sFields = new ArrayList<>();
+    sFields.add("l");
+    sFields.add("str");
+    List<String> dFields = new ArrayList<>();
+    dFields.add("str");
+    dFields.add("date");
+    projection.setSelectFields(sFields);
+    projection.setDropFields(dFields);
     projection.activate(null);
     Assert.assertEquals("projected fields", 2, projection.getProjectedFields().size());
     Assert.assertEquals("remainder fields", 1, projection.getRemainderFields().size());
@@ -145,7 +157,6 @@ public class ActivateTest
   @BeforeClass
   public static void setup()
   {
-    data = new DummyPOJO();
     projection = new ProjectionOperator();
     projection.inClazz = DummyPOJO.class;
     projection.projectedClazz = DummyPOJO.class;

@@ -38,7 +38,7 @@ import com.datatorrent.netlet.util.DTThrowable;
 public class RabbitMQOutputOperator extends AbstractSinglePortRabbitMQOutputOperator<byte[]>
 {
   private static final Logger logger = LoggerFactory.getLogger(RabbitMQOutputOperator.class);
-  
+
   @Override
   public void processTuple(byte[] tuple)
   {
@@ -46,6 +46,6 @@ public class RabbitMQOutputOperator extends AbstractSinglePortRabbitMQOutputOper
       channel.basicPublish(exchange, "", null, tuple);
     } catch (IOException e) {
       DTThrowable.rethrow(e);
-    }   
+    }
   }
 }

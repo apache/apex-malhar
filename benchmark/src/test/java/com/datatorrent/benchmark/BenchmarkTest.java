@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.benchmark.Benchmark;
 
 /**
  * Test the DAG declaration in local mode.
@@ -38,7 +37,7 @@ public class BenchmarkTest
   {
     for (final Locality l : Locality.values()) {
       logger.debug("Running the with {} locality", l);
-      LocalMode.runApp(new Benchmark.AbstractApplication ()
+      LocalMode.runApp(new Benchmark.AbstractApplication()
       {
         @Override
         public Locality getLocality()

@@ -97,12 +97,26 @@ public interface FileAccess extends Closeable
     void reset() throws IOException;
 
     /**
-     * Searches for a matching key, and positions the pointer before the start of the key.
+     * Searches for the minimum key that is greater than or equal to the given key, and positions the pointer before the start of
+     * that key.
+     *
      * @param key Byte array representing the key
      * @throws IOException
-     * @return true if a given key is found
+     * @return true if the pointer points to a key that equals the given key, false if the key is greater than the given key or if there is no key that is greater than or equal to the key
      */
     boolean seek(Slice key) throws IOException;
+
+    /**
+     * Reads the key/value pair starting at the current pointer position
+     * into Slice objects.  If pointer is at the end
+     * of the file, false is returned, and Slice objects remains unmodified.
+     *
+     * @param key Empty slice object
+     * @param value Empty slice object
+     * @return True if key/value were successfully read, false otherwise
+     * @throws IOException
+     */
+    boolean peek(Slice key, Slice value) throws IOException;
 
     /**
      * Reads next available key/value pair starting from the current pointer position
@@ -116,6 +130,14 @@ public interface FileAccess extends Closeable
      */
     boolean next(Slice key, Slice value) throws IOException;
 
+    /**
+     * Returns whether the pointer is at the end of the file
+     *
+     * @return True if the pointer is at the end of the file
+     * @throws IOException
+     */
+    boolean hasNext();
+
   }
 
   /**
@@ -125,11 +147,21 @@ public interface FileAccess extends Closeable
   {
     /**
      * Appends key/value pair to the underlying file.
+     * @deprecated use {@link FileWriter#append(Slice, Slice)} instead.
      * @param key
      * @param value
      * @throws IOException
      */
+    @Deprecated
     void append(byte[] key, byte[] value) throws IOException;
+
+    /**
+     * Appends key/value pair to the underlying file.
+     * @param key
+     * @param value
+     * @throws IOException
+     */
+    void append(Slice key, Slice value) throws IOException;
 
     /**
      * Returns number of bytes written to the underlying stream.

@@ -31,7 +31,7 @@ package com.datatorrent.contrib.zmq;
 public class ZeroMQInputOperator extends AbstractSinglePortZeroMQInputOperator<byte[]>
 {
   @Override
-  public byte[] getTuple(byte[] message) {  	
+  public byte[] getTuple(byte[] message) {
     return message;
   }
 }

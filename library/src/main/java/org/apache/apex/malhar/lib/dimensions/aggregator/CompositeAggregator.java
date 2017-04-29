@@ -37,13 +37,13 @@ public interface CompositeAggregator
   public int getDimensionDescriptorID();
 
   public int getAggregatorID();
-  
+
   public Set<Integer> getEmbedAggregatorDdIds();
-  
+
   public Set<String> getFields();
 
   public FieldsDescriptor getAggregateDescriptor();
-  
+
   public FieldsDescriptor getMetaDataDescriptor();
 
   /**
@@ -52,9 +52,9 @@ public interface CompositeAggregator
    * @return The output type of the {@link CompositeAggregator}.
    */
   public Type getOutputType();
-  
+
   /**
-   * 
+   *
    * @param resultAggregate the aggregate to put the result
    * @param inputEventKeys The input(incremental) event keys, used to locate the input aggregates
    * @param inputAggregatesRepo: the map of the EventKey to Aggregate keep the super set of aggregate required

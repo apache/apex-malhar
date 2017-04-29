@@ -40,7 +40,7 @@ public class KafkaTestProducer implements Runnable
   private boolean hasPartition = false;
   private boolean hasMultiCluster = false;
   private List<String> messages;
-  
+
   private String producerType = "async";
 
   public int getSendCount()
@@ -95,7 +95,7 @@ public class KafkaTestProducer implements Runnable
       producer1 = null;
     }
   }
-  
+
   public KafkaTestProducer(String topic, boolean hasPartition) {
     this(topic, hasPartition, false);
   }

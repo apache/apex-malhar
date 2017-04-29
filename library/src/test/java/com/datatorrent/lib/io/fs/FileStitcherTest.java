@@ -38,13 +38,14 @@ import com.google.common.collect.Lists;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.block.BlockMetadata.FileBlockMetadata;
 import com.datatorrent.lib.io.block.BlockWriter;
 import com.datatorrent.lib.io.fs.AbstractFileSplitter.FileMetadata;
 import com.datatorrent.lib.io.fs.Synchronizer.OutputFileMetadata;
 import com.datatorrent.lib.io.fs.Synchronizer.StitchBlock;
 import com.datatorrent.lib.io.fs.Synchronizer.StitchBlockMetaData;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Unit tests for {@link FileStitcher}
@@ -78,7 +79,7 @@ public class FileStitcherTest
       Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(DAG.DAGContext.APPLICATION_ID, description.getClassName());
       attributes.put(DAG.DAGContext.APPLICATION_PATH, appDirectory);
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+      context = mockOperatorContext(1, attributes);
 
       oper.setup(context);
 

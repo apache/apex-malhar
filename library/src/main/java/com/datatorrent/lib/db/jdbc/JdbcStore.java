@@ -91,6 +91,13 @@ public class JdbcStore implements Connectable
     connectionProperties = new Properties();
   }
 
+
+  /**
+   *  Function to get the connection.
+   *  Ignoring "connection" for serialization as it was being used even after
+   *  being closed while fetching/displaying the operator properties (refer APEXMALHAR-2351)
+   */
+  @JsonIgnore
   public Connection getConnection()
   {
     return connection;
@@ -176,10 +183,12 @@ public class JdbcStore implements Connectable
   @Override
   public void disconnect()
   {
-    try {
-      connection.close();
-    } catch (SQLException ex) {
-      throw new RuntimeException("closing database resource", ex);
+    if (connection != null) {
+      try {
+        connection.close();
+      } catch (SQLException ex) {
+        throw new RuntimeException("closing database resource", ex);
+      }
     }
   }
 
@@ -188,7 +197,7 @@ public class JdbcStore implements Connectable
   public boolean isConnected()
   {
     try {
-      return !connection.isClosed();
+      return connection != null ? !connection.isClosed() : false;
     } catch (SQLException e) {
       throw new RuntimeException("is isConnected", e);
     }

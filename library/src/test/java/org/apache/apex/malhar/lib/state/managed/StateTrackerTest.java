@@ -20,7 +20,7 @@
 package org.apache.apex.malhar.lib.state.managed;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import org.joda.time.Duration;
@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.lib.fileaccess.FileAccessFSImpl;
@@ -82,7 +82,7 @@ public class StateTrackerTest
 
     testMeta.managedState.latch.await();
     testMeta.managedState.teardown();
-    Assert.assertEquals("freed bucket", Lists.newArrayList(1L), testMeta.managedState.freedBuckets);
+    Assert.assertEquals("freed bucket", Sets.newHashSet(1L), testMeta.managedState.freedBuckets);
   }
 
   @Test
@@ -101,7 +101,7 @@ public class StateTrackerTest
 
     testMeta.managedState.latch.await();
     testMeta.managedState.teardown();
-    Assert.assertEquals("freed bucket", Lists.newArrayList(1L, 2L), testMeta.managedState.freedBuckets);
+    Assert.assertEquals("freed bucket", Sets.newHashSet(1L, 2L), testMeta.managedState.freedBuckets);
   }
 
   @Test
@@ -128,7 +128,7 @@ public class StateTrackerTest
   private static class MockManagedStateImpl extends ManagedStateImpl
   {
     CountDownLatch latch;
-    List<Long> freedBuckets = Lists.newArrayList();
+    Set<Long> freedBuckets = Sets.newHashSet();
 
     @Override
     protected Bucket newBucket(long bucketId)
@@ -149,8 +149,9 @@ public class StateTrackerTest
     public long freeMemory(long windowId) throws IOException
     {
       long freedBytes = super.freeMemory(windowId);
-      ((MockManagedStateImpl)managedStateContext).freedBuckets.add(getBucketId());
-      ((MockManagedStateImpl)managedStateContext).latch.countDown();
+      if (((MockManagedStateImpl)managedStateContext).freedBuckets.add(getBucketId())) {
+        ((MockManagedStateImpl)managedStateContext).latch.countDown();
+      }
       return freedBytes;
     }
 

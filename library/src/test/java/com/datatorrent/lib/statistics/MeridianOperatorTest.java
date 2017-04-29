@@ -43,7 +43,7 @@ public class MeridianOperatorTest
     oper.data.process(3.0);
     oper.data.process(9.0);
     oper.endWindow();
-    
+
     Assert.assertEquals("Must be one tuple in sink", sink.collectedTuples.size(), 1);
     Assert.assertTrue("Median value", sink.collectedTuples.get(0).doubleValue() == 5.0);
   }

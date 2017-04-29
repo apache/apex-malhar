@@ -174,7 +174,7 @@ public abstract class AbstractFTPInputOperator<T> extends AbstractFileInputOpera
 
   /**
    * An {@link AbstractFTPInputOperator} that splits file into lines and emits them.
-   * 
+   *
    * @displayName FTP String Input
    * @category Input
    * @tags ftp

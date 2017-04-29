@@ -28,7 +28,6 @@ import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.LocalMode;
 
-
 public class KafkaOutputBenchmarkTest
 {
   @Test
@@ -44,8 +43,7 @@ public class KafkaOutputBenchmarkTest
       lma.prepareDAG(new KafkaInputBenchmark(), conf);
       LocalMode.Controller lc = lma.getController();
       lc.run(30000);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
   }

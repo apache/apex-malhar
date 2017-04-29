@@ -30,7 +30,7 @@
 
   <groupId>org.apache.apex</groupId>
   <artifactId>malhar</artifactId>
-  <version>3.5.0-SNAPSHOT</version>
+  <version>3.8.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Apache Apex Malhar</name>
   <url>http://apex.apache.org</url>
@@ -81,7 +81,7 @@
         <configuration>
           <argLine>${surefire.args}</argLine>
         </configuration>
-      </plugin>      
+      </plugin>
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
@@ -110,13 +110,13 @@
         <plugin>
           <groupId>com.github.siom79.japicmp</groupId>
           <artifactId>japicmp-maven-plugin</artifactId>
-          <version>0.7.1</version>
+          <version>0.9.0</version>
           <configuration>
             <oldVersion>
               <dependency>
                 <groupId>org.apache.apex</groupId>
                 <artifactId>${project.artifactId}</artifactId>
-                <version>3.3.0-incubating</version>
+                <version>3.6.0</version>
               </dependency>
             </oldVersion>
             <newVersion>
@@ -134,11 +134,6 @@
               <excludes>
                 <exclude>@org.apache.hadoop.classification.InterfaceStability$Evolving</exclude>
                 <exclude>@org.apache.hadoop.classification.InterfaceStability$Unstable</exclude>
-                <exclude>com.datatorrent.lib.io.WebSocketInputOperator</exclude>
-                <exclude>com.datatorrent.lib.io.WebSocketOutputOperator</exclude>
-                <exclude>*#idempotentStorageManager</exclude>
-                <exclude>*#setIdempotentStorageManager(com.datatorrent.lib.io.IdempotentStorageManager)</exclude>
-                <exclude>*#getIdempotentStorageManager()</exclude>
               </excludes>
             </parameter>
             <skip>${semver.plugin.skip}</skip>
@@ -159,7 +154,7 @@
             <dependency>
               <groupId>org.apache.apex</groupId>
               <artifactId>apex-codestyle-config</artifactId>
-              <version>1.0.0-incubating</version>
+              <version>1.1.0</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -201,11 +196,12 @@
     <profile>
       <id>all-modules</id>
       <modules>
-        <module>kafka</module>
+        <module>hive</module>
         <module>stream</module>
         <module>benchmark</module>
         <module>apps</module>
         <module>samples</module>
+        <module>sql</module>
       </modules>
     </profile>
   </profiles>
@@ -213,7 +209,8 @@
   <modules>
     <module>library</module>
     <module>contrib</module>
-    <module>demos</module>
+    <module>kafka</module>
+    <module>examples</module>
   </modules>
 
   <dependencies>
@@ -222,6 +219,18 @@
       <artifactId>apex-engine</artifactId>
       <version>${apex.core.version}</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>1.8.5</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.hamcrest</groupId>
+          <artifactId>hamcrest-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 

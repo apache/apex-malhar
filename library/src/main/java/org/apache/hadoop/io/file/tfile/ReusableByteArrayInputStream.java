@@ -28,9 +28,9 @@ import java.io.ByteArrayInputStream;
  */
 public class ReusableByteArrayInputStream extends ByteArrayInputStream
 {
-  
+
   private final int initialOffset;
-  
+
   private final int initialLength;
 
   public ReusableByteArrayInputStream(byte[] buf, int offset, int length)
@@ -53,12 +53,12 @@ public class ReusableByteArrayInputStream extends ByteArrayInputStream
     count = initialLength;
     mark = 0;
   }
-  
+
   public int getPos()
   {
     return pos;
   }
-  
+
   public byte[] getBuf()
   {
     return buf;

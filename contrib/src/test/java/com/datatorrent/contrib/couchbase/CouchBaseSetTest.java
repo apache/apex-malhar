@@ -90,7 +90,7 @@ public class CouchBaseSetTest
       System.err.println("Error connecting to Couchbase: " + e.getMessage());
       System.exit(1);
     }
-    
+
     TestPojo obj = new TestPojo();
     obj.setName("test");
     obj.setPhone(123344555);

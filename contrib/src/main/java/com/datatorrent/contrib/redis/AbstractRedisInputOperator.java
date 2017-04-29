@@ -31,14 +31,14 @@ import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import redis.clients.jedis.ScanParams;
 import redis.clients.jedis.ScanResult;
 
-import com.datatorrent.api.Operator.CheckpointListener;
+import com.datatorrent.api.Operator.CheckpointNotificationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.netlet.util.DTThrowable;
 import com.datatorrent.lib.db.AbstractKeyValueStoreInputOperator;
 
 /**
  * This is the base implementation of a Redis input operator.
- * 
+ *
  * @displayName Abstract Redis Input
  * @category Input
  * @tags redis, key value
@@ -47,7 +47,7 @@ import com.datatorrent.lib.db.AbstractKeyValueStoreInputOperator;
  *          The tuple type.
  * @since 0.9.3
  */
-public abstract class AbstractRedisInputOperator<T> extends AbstractKeyValueStoreInputOperator<T, RedisStore> implements CheckpointListener
+public abstract class AbstractRedisInputOperator<T> extends AbstractKeyValueStoreInputOperator<T, RedisStore> implements CheckpointNotificationListener
 {
   protected transient List<String> keys = new ArrayList<String>();
   protected transient Integer scanOffset;
@@ -94,7 +94,7 @@ public abstract class AbstractRedisInputOperator<T> extends AbstractKeyValueStor
     currentWindowId = windowId;
     scanCallsInCurrentWindow = 0;
     replay = false;
-    if (currentWindowId <= getWindowDataManager().getLargestRecoveryWindow()) {
+    if (currentWindowId <= getWindowDataManager().getLargestCompletedWindow()) {
       replay(windowId);
     }
   }
@@ -107,11 +107,11 @@ public abstract class AbstractRedisInputOperator<T> extends AbstractKeyValueStor
       if (!skipOffsetRecovery) {
         // Begin offset for this window is recovery offset stored for the last
         // window
-        RecoveryState recoveryStateForLastWindow = (RecoveryState) getWindowDataManager().load(context.getId(), windowId - 1);
+        RecoveryState recoveryStateForLastWindow = (RecoveryState) getWindowDataManager().retrieve(windowId - 1);
         recoveryState.scanOffsetAtBeginWindow = recoveryStateForLastWindow.scanOffsetAtBeginWindow;
       }
       skipOffsetRecovery = false;
-      RecoveryState recoveryStateForCurrentWindow = (RecoveryState) getWindowDataManager().load(context.getId(), windowId);
+      RecoveryState recoveryStateForCurrentWindow = (RecoveryState) getWindowDataManager().retrieve(windowId);
       recoveryState.numberOfScanCallsInWindow = recoveryStateForCurrentWindow.numberOfScanCallsInWindow;
       if (recoveryState.scanOffsetAtBeginWindow != null) {
         scanOffset = recoveryState.scanOffsetAtBeginWindow;
@@ -161,7 +161,7 @@ public abstract class AbstractRedisInputOperator<T> extends AbstractKeyValueStor
     scanComplete = false;
     scanParameters = new ScanParams();
     scanParameters.count(scanCount);
-    
+
     // For the 1st window after checkpoint, windowID - 1 would not have recovery
     // offset stored in windowDataManager
     // But recoveryOffset is non-transient, so will be recovered with
@@ -183,9 +183,9 @@ public abstract class AbstractRedisInputOperator<T> extends AbstractKeyValueStor
     recoveryState.scanOffsetAtBeginWindow = scanOffset;
     recoveryState.numberOfScanCallsInWindow = scanCallsInCurrentWindow;
 
-    if (currentWindowId > getWindowDataManager().getLargestRecoveryWindow()) {
+    if (currentWindowId > getWindowDataManager().getLargestCompletedWindow()) {
       try {
-        getWindowDataManager().save(recoveryState, context.getId(), currentWindowId);
+        getWindowDataManager().save(recoveryState, currentWindowId);
       } catch (IOException e) {
         DTThrowable.rethrow(e);
       }
@@ -225,6 +225,11 @@ public abstract class AbstractRedisInputOperator<T> extends AbstractKeyValueStor
   abstract public void processTuples();
 
   @Override
+  public void beforeCheckpoint(long windowId)
+  {
+  }
+
+  @Override
   public void checkpointed(long windowId)
   {
   }
@@ -233,7 +238,7 @@ public abstract class AbstractRedisInputOperator<T> extends AbstractKeyValueStor
   public void committed(long windowId)
   {
     try {
-      getWindowDataManager().deleteUpTo(context.getId(), windowId);
+      getWindowDataManager().committed(windowId);
     } catch (IOException e) {
       throw new RuntimeException("committing", e);
     }

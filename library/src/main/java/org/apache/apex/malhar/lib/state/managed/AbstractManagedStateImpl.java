@@ -20,6 +20,7 @@ package org.apache.apex.malhar.lib.state.managed;
 
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -46,7 +47,6 @@ import com.google.common.collect.Multimaps;
 import com.google.common.util.concurrent.Futures;
 
 import com.datatorrent.api.Component;
-import com.datatorrent.api.Context.DAGContext;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.Stateless;
@@ -125,18 +125,18 @@ import com.datatorrent.netlet.util.Slice;
  */
 public abstract class AbstractManagedStateImpl
     implements ManagedState, Component<OperatorContext>, Operator.CheckpointNotificationListener, ManagedStateContext,
-    TimeBucketAssigner.PurgeListener
+    TimeBucketAssigner.PurgeListener, BucketProvider
 {
   private long maxMemorySize;
 
-  protected int numBuckets;
+  protected long numBuckets;
 
   @NotNull
   private FileAccess fileAccess = new TFileImpl.DTFileImpl();
   @NotNull
-  protected TimeBucketAssigner timeBucketAssigner = new TimeBucketAssigner();
+  protected TimeBucketAssigner timeBucketAssigner;
 
-  protected Bucket[] buckets;
+  protected Map<Long, Bucket> buckets;
 
   @Min(1)
   private int numReaders = 1;
@@ -144,7 +144,7 @@ public abstract class AbstractManagedStateImpl
   protected transient ExecutorService readerService;
 
   @NotNull
-  protected IncrementalCheckpointManager checkpointManager = new IncrementalCheckpointManager();
+  private IncrementalCheckpointManager checkpointManager = new IncrementalCheckpointManager();
 
   @NotNull
   protected BucketsFileSystem bucketsFileSystem = new BucketsFileSystem();
@@ -158,8 +158,7 @@ public abstract class AbstractManagedStateImpl
 
   @NotNull
   @FieldSerializer.Bind(JavaSerializer.class)
-  private Duration checkStateSizeInterval = Duration.millis(
-      DAGContext.STREAMING_WINDOW_SIZE_MILLIS.defaultValue * OperatorContext.APPLICATION_WINDOW_COUNT.defaultValue);
+  private Duration checkStateSizeInterval = Duration.millis(60000);
 
   @FieldSerializer.Bind(JavaSerializer.class)
   private Duration durationPreventingFreeingSpace;
@@ -178,6 +177,11 @@ public abstract class AbstractManagedStateImpl
     operatorContext = context;
     fileAccess.init();
 
+    if (timeBucketAssigner == null) {
+      // set default time bucket assigner
+      MovingBoundaryTimeBucketAssigner movingBoundaryTimeBucketAssigner = new MovingBoundaryTimeBucketAssigner();
+      setTimeBucketAssigner(movingBoundaryTimeBucketAssigner);
+    }
     timeBucketAssigner.setPurgeListener(this);
 
     //setup all the managed state components
@@ -186,11 +190,11 @@ public abstract class AbstractManagedStateImpl
     bucketsFileSystem.setup(this);
 
     if (buckets == null) {
-      //create buckets array only once at start when it is not created.
+      //create buckets map only once at start if it is not created.
       numBuckets = getNumBuckets();
-      buckets = new Bucket[numBuckets];
+      buckets = new HashMap<>();
     }
-    for (Bucket bucket : buckets) {
+    for (Bucket bucket : buckets.values()) {
       if (bucket != null) {
         bucket.setup(this);
       }
@@ -200,26 +204,25 @@ public abstract class AbstractManagedStateImpl
     long activationWindow = context.getValue(OperatorContext.ACTIVATION_WINDOW_ID);
 
     if (activationWindow != Stateless.WINDOW_ID) {
-      //delete all the wal files with windows > activationWindow.
       //All the wal files with windows <= activationWindow are loaded and kept separately as recovered data.
       try {
-        for (long recoveredWindow : checkpointManager.getWindowIds(operatorContext.getId())) {
-          if (recoveredWindow <= activationWindow) {
-            @SuppressWarnings("unchecked")
-            Map<Long, Map<Slice, Bucket.BucketedValue>> recoveredData = (Map<Long, Map<Slice, Bucket.BucketedValue>>)
-                checkpointManager.load(operatorContext.getId(), recoveredWindow);
-            if (recoveredData != null && !recoveredData.isEmpty()) {
-              for (Map.Entry<Long, Map<Slice, Bucket.BucketedValue>> entry : recoveredData.entrySet()) {
-                int bucketIdx = prepareBucket(entry.getKey());
-                buckets[bucketIdx].recoveredData(recoveredWindow, entry.getValue());
-              }
-            }
-            checkpointManager.save(recoveredData, operatorContext.getId(), recoveredWindow,
-                true /*skipWritingToWindowFile*/);
 
-          } else {
-            checkpointManager.delete(operatorContext.getId(), recoveredWindow);
+        Map<Long, Object> statePerWindow = checkpointManager.retrieveAllWindows();
+        for (Map.Entry<Long, Object> stateEntry : statePerWindow.entrySet()) {
+          Preconditions.checkArgument(stateEntry.getKey() <= activationWindow,
+              stateEntry.getKey() + " greater than " + activationWindow);
+          @SuppressWarnings("unchecked")
+          Map<Long, Map<Slice, Bucket.BucketedValue>> state = (Map<Long, Map<Slice, Bucket.BucketedValue>>)
+              stateEntry.getValue();
+          if (state != null && !state.isEmpty()) {
+            for (Map.Entry<Long, Map<Slice, Bucket.BucketedValue>> bucketEntry : state.entrySet()) {
+              long bucketIdx = prepareBucket(bucketEntry.getKey());
+              buckets.get(bucketIdx).recoveredData(stateEntry.getKey(), bucketEntry.getValue());
+            }
           }
+          // Skip write to WAL during recovery during replay from WAL.
+          // Data only needs to be transferred to bucket data files.
+          checkpointManager.save(state, stateEntry.getKey(), true /*skipWritingToWindowFile*/);
         }
       } catch (IOException e) {
         throw new RuntimeException("recovering", e);
@@ -236,14 +239,13 @@ public abstract class AbstractManagedStateImpl
    *
    * @return number of buckets.
    */
-  public abstract int getNumBuckets();
+  public abstract long getNumBuckets();
 
   public void beginWindow(long windowId)
   {
     if (throwable.get() != null) {
       Throwables.propagate(throwable.get());
     }
-    timeBucketAssigner.beginWindow(windowId);
   }
 
 
@@ -252,17 +254,17 @@ public abstract class AbstractManagedStateImpl
    * @param bucketId bucket key
    * @return bucket index
    */
-  protected int prepareBucket(long bucketId)
+  protected long prepareBucket(long bucketId)
   {
     stateTracker.bucketAccessed(bucketId);
-    int bucketIdx = getBucketIdx(bucketId);
+    long bucketIdx = getBucketIdx(bucketId);
 
-    Bucket bucket = buckets[bucketIdx];
+    Bucket bucket = buckets.get(bucketIdx);
     if (bucket == null) {
       //bucket is not in memory
       bucket = newBucket(bucketId);
       bucket.setup(this);
-      buckets[bucketIdx] = bucket;
+      buckets.put(bucketIdx, bucket);
     } else if (bucket.getBucketId() != bucketId) {
       handleBucketConflict(bucketIdx, bucketId);
     }
@@ -275,8 +277,13 @@ public abstract class AbstractManagedStateImpl
     Preconditions.checkNotNull(value, "value");
     if (timeBucket != -1) {
       //time bucket is invalid data is not stored
-      int bucketIdx = prepareBucket(bucketId);
-      buckets[bucketIdx].put(key, timeBucket, value);
+      long bucketIdx = prepareBucket(bucketId);
+      //synchronization on a bucket isn't required for put because the event is added to flash which is
+      //a concurrent map. The assumption here is that the calls to put & get(sync/async) are being made synchronously by
+      //a single thread (operator thread). The get(sync/async) always checks memory first synchronously.
+      //If the key is not in the memory, then the async get will uses other reader threads which will fetch it from
+      //the files.
+      buckets.get(bucketIdx).put(key, timeBucket, value);
     }
   }
 
@@ -284,8 +291,8 @@ public abstract class AbstractManagedStateImpl
   protected Slice getValueFromBucketSync(long bucketId, long timeBucket, @NotNull Slice key)
   {
     Preconditions.checkNotNull(key, "key");
-    int bucketIdx = prepareBucket(bucketId);
-    Bucket bucket = buckets[bucketIdx];
+    long bucketIdx = prepareBucket(bucketId);
+    Bucket bucket = buckets.get(bucketIdx);
     synchronized (bucket) {
       return bucket.get(key, timeBucket, Bucket.ReadSource.ALL);
     }
@@ -295,8 +302,8 @@ public abstract class AbstractManagedStateImpl
   protected Future<Slice> getValueFromBucketAsync(long bucketId, long timeBucket, @NotNull Slice key)
   {
     Preconditions.checkNotNull(key, "key");
-    int bucketIdx = prepareBucket(bucketId);
-    Bucket bucket = buckets[bucketIdx];
+    long bucketIdx = prepareBucket(bucketId);
+    Bucket bucket = buckets.get(bucketIdx);
     synchronized (bucket) {
       Slice cachedVal = bucket.get(key, timeBucket, Bucket.ReadSource.MEMORY);
       if (cachedVal != null) {
@@ -308,19 +315,32 @@ public abstract class AbstractManagedStateImpl
     }
   }
 
-  protected void handleBucketConflict(int bucketIdx, long newBucketId)
+  protected void handleBucketConflict(long bucketIdx, long newBucketId)
   {
-    throw new IllegalArgumentException("bucket conflict " + buckets[bucketIdx].getBucketId() + " " + newBucketId);
+    throw new IllegalArgumentException("bucket conflict " + buckets.get(bucketIdx).getBucketId() + " " + newBucketId);
   }
 
-  protected int getBucketIdx(long bucketId)
+  protected long getBucketIdx(long bucketId)
   {
-    return (int)(bucketId % numBuckets);
+    return Math.abs(bucketId % numBuckets);
   }
 
-  Bucket getBucket(long bucketId)
+  @Override
+  public Bucket getBucket(long bucketId)
   {
-    return buckets[getBucketIdx(bucketId)];
+    return buckets.get(getBucketIdx(bucketId));
+  }
+
+  @Override
+  public Bucket ensureBucket(long bucketId)
+  {
+    Bucket b = getBucket(bucketId);
+    if (b == null) {
+      b = newBucket(bucketId);
+      b.setup(this);
+      buckets.put(getBucketIdx(bucketId), b);
+    }
+    return b;
   }
 
   protected Bucket newBucket(long bucketId)
@@ -339,7 +359,7 @@ public abstract class AbstractManagedStateImpl
   {
     Map<Long, Map<Slice, Bucket.BucketedValue>> flashData = Maps.newHashMap();
 
-    for (Bucket bucket : buckets) {
+    for (Bucket bucket : buckets.values()) {
       if (bucket != null) {
         synchronized (bucket) {
           Map<Slice, Bucket.BucketedValue> flashDataForBucket = bucket.checkpoint(windowId);
@@ -351,7 +371,8 @@ public abstract class AbstractManagedStateImpl
     }
     if (!flashData.isEmpty()) {
       try {
-        checkpointManager.save(flashData, operatorContext.getId(), windowId, false);
+        // write incremental state to WAL (skipWrite=false) before the checkpoint
+        checkpointManager.save(flashData, windowId, false);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -369,18 +390,34 @@ public abstract class AbstractManagedStateImpl
   {
     synchronized (commitLock) {
       try {
-        for (Bucket bucket : buckets) {
+        for (Bucket bucket : buckets.values()) {
           if (bucket != null) {
             synchronized (bucket) {
               bucket.committed(windowId);
             }
           }
         }
-        checkpointManager.committed(operatorContext.getId(), windowId);
-      } catch (IOException | InterruptedException e) {
+        checkpointManager.committed(windowId);
+      } catch (IOException e) {
         throw new RuntimeException("committing " + windowId, e);
       }
     }
+  }
+
+  /**
+   * get the memory usage for each bucket
+   * @return The map of bucket id to memory size used by the bucket
+   */
+  public Map<Long, Long> getBucketMemoryUsage()
+  {
+    Map<Long, Long> bucketToSize = Maps.newHashMap();
+    for (Bucket bucket : buckets.values()) {
+      if (bucket == null) {
+        continue;
+      }
+      bucketToSize.put(bucket.getBucketId(), bucket.getKeyStream().size() + bucket.getValueStream().size());
+    }
+    return bucketToSize;
   }
 
   @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
@@ -391,7 +428,7 @@ public abstract class AbstractManagedStateImpl
     bucketsFileSystem.teardown();
     timeBucketAssigner.teardown();
     readerService.shutdownNow();
-    for (Bucket bucket : buckets) {
+    for (Bucket bucket : buckets.values()) {
       if (bucket != null) {
         synchronized (bucket) {
           bucket.teardown();
@@ -475,6 +512,7 @@ public abstract class AbstractManagedStateImpl
     this.keyComparator = Preconditions.checkNotNull(keyComparator);
   }
 
+  @Override
   public BucketsFileSystem getBucketsFileSystem()
   {
     return bucketsFileSystem;
@@ -534,6 +572,16 @@ public abstract class AbstractManagedStateImpl
   public void setDurationPreventingFreeingSpace(Duration durationPreventingFreeingSpace)
   {
     this.durationPreventingFreeingSpace = durationPreventingFreeingSpace;
+  }
+
+  public IncrementalCheckpointManager getCheckpointManager()
+  {
+    return checkpointManager;
+  }
+
+  public void setCheckpointManager(@NotNull IncrementalCheckpointManager checkpointManager)
+  {
+    this.checkpointManager = Preconditions.checkNotNull(checkpointManager);
   }
 
   static class ValueFetchTask implements Callable<Slice>

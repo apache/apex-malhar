@@ -24,7 +24,7 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
- * This operator sums the division of numerator and denominator value arriving at input ports. 
+ * This operator sums the division of numerator and denominator value arriving at input ports.
  * <p>
  * <br>
  * Margin Formula used by this operator: 1 - numerator/denominator.<br>

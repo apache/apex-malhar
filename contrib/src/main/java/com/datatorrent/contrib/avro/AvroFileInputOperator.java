@@ -50,7 +50,7 @@ import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
  * input file<br>
  * Users can add the {@link FSWindowDataManager}
  * to ensure exactly once semantics with a HDFS backed WAL.
- * 
+ *
  * @displayName AvroFileInputOperator
  * @category Input
  * @tags fs, file,avro, input operator
@@ -81,7 +81,7 @@ public class AvroFileInputOperator extends AbstractFileInputOperator<GenericReco
 
   /**
    * Returns a input stream given a file path
-   * 
+   *
    * @param path
    * @return InputStream
    * @throws IOException
@@ -101,7 +101,7 @@ public class AvroFileInputOperator extends AbstractFileInputOperator<GenericReco
   /**
    * Reads a GenericRecord from the given input stream<br>
    * Emits the FileName,Offset,Exception on the error port if its connected
-   * 
+   *
    * @return GenericRecord
    */
   @Override

@@ -29,7 +29,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Test for {@link MapBasedCouchDbOutputOperator}
@@ -52,7 +52,7 @@ public class CouchDBOutputOperatorTest
     store.setDbName(CouchDBTestHelper.TEST_DB);
     dbOutputOper.setStore(store);
 
-    dbOutputOper.setup(new OperatorContextTestHelper.TestIdOperatorContext(1));
+    dbOutputOper.setup(mockOperatorContext(1));
     dbOutputOper.beginWindow(0);
     dbOutputOper.input.process(tuple);
     dbOutputOper.endWindow();
@@ -93,7 +93,7 @@ public class CouchDBOutputOperatorTest
     dbOutputOper.setStore(store);
     String expression = "getId()";
     dbOutputOper.setExpressionForDocId(expression);
-    dbOutputOper.setup(new OperatorContextTestHelper.TestIdOperatorContext(1));
+    dbOutputOper.setup(mockOperatorContext(1));
     dbOutputOper.beginWindow(0);
     dbOutputOper.input.process(tuple);
     dbOutputOper.endWindow();

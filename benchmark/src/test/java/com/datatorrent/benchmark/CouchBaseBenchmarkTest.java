@@ -18,14 +18,17 @@
  */
 package com.datatorrent.benchmark;
 
-import com.datatorrent.api.LocalMode;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.junit.Test;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.log4j.Logger;
-import org.junit.Test;
+
+import com.datatorrent.api.LocalMode;
 
 public class CouchBaseBenchmarkTest
 {
@@ -52,8 +55,7 @@ public class CouchBaseBenchmarkTest
       LocalMode.Controller lc = lm.getController();
       //lc.setHeartbeatMonitoringEnabled(false);
       lc.run(20000);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       logger.info(ex.getCause());
     }
     is.close();
@@ -76,8 +78,7 @@ public class CouchBaseBenchmarkTest
       lm.prepareDAG(new CouchBaseAppInput(), conf);
       LocalMode.Controller lc = lm.getController();
       lc.run(20000);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       logger.info(ex.getCause());
     }
     is.close();

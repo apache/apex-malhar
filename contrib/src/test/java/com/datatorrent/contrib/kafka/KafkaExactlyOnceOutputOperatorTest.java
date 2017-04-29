@@ -45,7 +45,7 @@ public class KafkaExactlyOnceOutputOperatorTest extends KafkaOperatorTestBase
   private static final int maxTuple = 40;
   private static CountDownLatch latch;
   private static boolean isRestarted = false;
-  
+
    /**
    * Tuple generator for testing.
    */
@@ -68,7 +68,7 @@ public class KafkaExactlyOnceOutputOperatorTest extends KafkaOperatorTestBase
     @Override
     public void setup(OperatorContext context)
     {
-      
+
     }
 
     @Override
@@ -110,7 +110,7 @@ public class KafkaExactlyOnceOutputOperatorTest extends KafkaOperatorTestBase
       for (int i = stringBuffer.size(); i-- > 0;) {
         if (i == 20 && isRestarted == false) {
           isRestarted = true;
-          // fail the operator and when it gets back resend everything 
+          // fail the operator and when it gets back resend everything
           throw new RuntimeException();
         }
         outputPort.emit(stringBuffer.poll());
@@ -144,7 +144,7 @@ public class KafkaExactlyOnceOutputOperatorTest extends KafkaOperatorTestBase
 
     StringGeneratorInputOperator generator = dag.addOperator("TestStringGenerator", StringGeneratorInputOperator.class);
     final SimpleKafkaExactOnceOutputOperator node = dag.addOperator("Kafka message producer", SimpleKafkaExactOnceOutputOperator.class);
-    
+
     Properties props = new Properties();
     props.setProperty("serializer.class", "kafka.serializer.StringEncoder");
     props.put("metadata.broker.list", "localhost:9092");
@@ -152,7 +152,7 @@ public class KafkaExactlyOnceOutputOperatorTest extends KafkaOperatorTestBase
     props.setProperty("queue.buffering.max.ms", "200");
     props.setProperty("queue.buffering.max.messages", "10");
     props.setProperty("batch.num.messages", "5");
-    
+
     node.setConfigProperties(props);
     // Set configuration parameters for Kafka
     node.setTopic("topic1");
@@ -160,14 +160,14 @@ public class KafkaExactlyOnceOutputOperatorTest extends KafkaOperatorTestBase
     // Connect ports
     dag.addStream("Kafka message", generator.outputPort, node.inputPort).setLocality(Locality.CONTAINER_LOCAL);
 
-    
+
     // Create local cluster
     final LocalMode.Controller lc = lma.getController();
     lc.runAsync();
 
     Future f = Executors.newFixedThreadPool(1).submit(listener);
     f.get(30, TimeUnit.SECONDS);
-    
+
     lc.shutdown();
 
     // Check values send vs received
@@ -176,9 +176,9 @@ public class KafkaExactlyOnceOutputOperatorTest extends KafkaOperatorTestBase
     Assert.assertEquals("First tuple", "testString 1", listener.getMessage(listener.holdingBuffer.peek()));
 
     listener.close();
-    
+
   }
-  
+
   public static class SimpleKafkaExactOnceOutputOperator extends AbstractExactlyOnceKafkaOutputOperator<String, String, String>{
 
     @Override
@@ -192,7 +192,7 @@ public class KafkaExactlyOnceOutputOperatorTest extends KafkaOperatorTestBase
     {
       return new Pair<String, String>(tuple.split("###")[0], tuple.split("###")[1]);
     }
-    
+
   }
 
 

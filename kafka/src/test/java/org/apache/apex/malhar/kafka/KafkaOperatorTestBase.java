@@ -72,9 +72,9 @@ public class KafkaOperatorTestBase
     }
 
     TEST_ZOOKEEPER_PORT = new int[]{p[0], p[1]};
-    TEST_KAFKA_BROKER_PORT = new int[][] {
-      new int[] {p[2], p[3]},
-      new int[] {p[4], p[5]}
+    TEST_KAFKA_BROKER_PORT = new int[][]{
+      new int[]{p[2], p[3]},
+      new int[]{p[4], p[5]}
     };
   }
 
@@ -93,8 +93,10 @@ public class KafkaOperatorTestBase
 
   private static final String zkBaseDir = "zookeeper-server-data";
   private static final String kafkaBaseDir = "kafka-server-data";
-  private static final String[] zkdir = new String[] { "zookeeper-server-data/1", "zookeeper-server-data/2" };
-  private static final String[][] kafkadir = new String[][] { new String[] { "kafka-server-data/1/1", "kafka-server-data/1/2" }, new String[] { "kafka-server-data/2/1", "kafka-server-data/2/2" } };
+  private static final String[] zkdir = new String[]{"zookeeper-server-data/1", "zookeeper-server-data/2"};
+  private static final String[][] kafkadir = new String[][]{
+      new String[]{"kafka-server-data/1/1", "kafka-server-data/1/2"},
+      new String[]{"kafka-server-data/2/1", "kafka-server-data/2/2"}};
   protected boolean hasMultiPartition = false;
   protected boolean hasMultiCluster = false;
 
@@ -132,8 +134,8 @@ public class KafkaOperatorTestBase
         zkf.shutdown();
       }
     }
-    zkServer =  new ZooKeeperServer[2];
-    zkFactory =  new ServerCnxnFactory[2];
+    zkServer = new ZooKeeperServer[2];
+    zkFactory = new ServerCnxnFactory[2];
   }
 
   public static void startKafkaServer(int clusterid, int brokerid)
@@ -156,7 +158,8 @@ public class KafkaOperatorTestBase
   {
 
     FileUtils.deleteQuietly(new File(baseDir, kafkaBaseDir));
-    //boolean[][] startable = new boolean[][] { new boolean[] { true, hasMultiPartition }, new boolean[] { hasMultiCluster, hasMultiCluster && hasMultiPartition } };
+    //boolean[][] startable = new boolean[][] { new boolean[] { true, hasMultiPartition },
+    //  new boolean[] { hasMultiCluster, hasMultiCluster && hasMultiPartition } };
     startKafkaServer(0, 0);
     startKafkaServer(0, 1);
     startKafkaServer(1, 0);
@@ -261,13 +264,15 @@ public class KafkaOperatorTestBase
       // TODO Auto-generated constructor stub
     }
 
-    public TestZookeeperServer(FileTxnSnapLog txnLogFactory, int tickTime, DataTreeBuilder treeBuilder) throws IOException
+    public TestZookeeperServer(FileTxnSnapLog txnLogFactory, int tickTime, DataTreeBuilder treeBuilder)
+        throws IOException
     {
       super(txnLogFactory, tickTime, treeBuilder);
       // TODO Auto-generated constructor stub
     }
 
-    public TestZookeeperServer(FileTxnSnapLog txnLogFactory, int tickTime, int minSessionTimeout, int maxSessionTimeout, DataTreeBuilder treeBuilder, ZKDatabase zkDb)
+    public TestZookeeperServer(FileTxnSnapLog txnLogFactory, int tickTime, int minSessionTimeout,
+        int maxSessionTimeout, DataTreeBuilder treeBuilder, ZKDatabase zkDb)
     {
       super(txnLogFactory, tickTime, minSessionTimeout, maxSessionTimeout, treeBuilder, zkDb);
       // TODO Auto-generated constructor stub

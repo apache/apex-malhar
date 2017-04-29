@@ -180,6 +180,11 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
     // do nothing
   }
 
+  @Override public void onStallWarning(StallWarning stallWarning)
+  {
+    // do nothing
+  }
+
   @Override
   public void onException(Exception ex)
   {

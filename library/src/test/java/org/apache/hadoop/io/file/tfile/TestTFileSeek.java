@@ -47,7 +47,7 @@ import org.apache.hadoop.io.file.tfile.DTFile.Reader.Scanner;
  * test the performance for seek.
  *
  */
-public class TestTFileSeek extends TestCase { 
+public class TestTFileSeek extends TestCase {
   private MyOptions options;
   private Configuration conf;
   private Path path;
@@ -83,12 +83,12 @@ public class TestTFileSeek extends TestCase {
         new KVGenerator(rng, true, keyLenGen, valLenGen, wordLenGen,
             options.dictSize);
   }
-  
+
   @Override
   public void tearDown() throws IOException {
     fs.delete(path, true);
   }
-  
+
   private static FSDataOutputStream createFSOutput(Path name, FileSystem fs)
     throws IOException {
     if (fs.exists(name)) {
@@ -140,7 +140,7 @@ public class TestTFileSeek extends TestCase {
     System.out.printf("time: %s...file size: %.2fMB...disk thrpt: %.2fMB/s\n",
         timer.toString(), (double) fsize / 1024 / 1024, fsize / duration);
   }
-  
+
   public void seekTFile() throws IOException {
     int miss = 0;
     long totalBytes = 0;
@@ -176,7 +176,7 @@ public class TestTFileSeek extends TestCase {
         (double) totalBytes / 1024 / (options.seekCount - miss));
 
   }
-  
+
   public void testSeeks() throws IOException {
     String[] supported = TFile.getSupportedCompressionAlgorithms();
     boolean proceed = false;
@@ -200,7 +200,7 @@ public class TestTFileSeek extends TestCase {
       seekTFile();
     }
   }
-  
+
   private static class IntegerRange {
     private final int from, to;
 
@@ -241,7 +241,7 @@ public class TestTFileSeek extends TestCase {
     int fsOutputBufferSizeNone = 1;
     int fsOutputBufferSizeLzo = 1;
     int fsOutputBufferSizeGz = 1;
-   
+
     String rootDir =
         System.getProperty("test.build.data", "target/tfile-test");
     String file = "TestTFileSeek";
@@ -401,7 +401,7 @@ public class TestTFileSeek extends TestCase {
       if (line.hasOption('o')) {
         fsOutputBufferSize = Integer.parseInt(line.getOptionValue('o'));
       }
-      
+
       if (line.hasOption('n')) {
         seekCount = Integer.parseInt(line.getOptionValue('n'));
       }
@@ -425,7 +425,7 @@ public class TestTFileSeek extends TestCase {
       if (line.hasOption('r')) {
         rootDir = line.getOptionValue('r');
       }
-      
+
       if (line.hasOption('f')) {
         file = line.getOptionValue('f');
       }
@@ -488,11 +488,11 @@ public class TestTFileSeek extends TestCase {
       return (op & OP_READ) != 0;
     }
   }
-  
+
   public static void main(String[] argv) throws IOException {
     TestTFileSeek testCase = new TestTFileSeek();
     MyOptions options = new MyOptions(argv);
-    
+
     if (options.proceed == false) {
       return;
     }

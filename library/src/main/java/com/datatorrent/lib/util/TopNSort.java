@@ -136,7 +136,7 @@ public class TopNSort<E>
     if (list.isEmpty()) {
       return list;
     }
-  
+
     Collections.reverse(list);
     return list;
     //return ret;

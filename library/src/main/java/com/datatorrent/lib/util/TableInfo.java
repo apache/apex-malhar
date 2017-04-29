@@ -66,6 +66,6 @@ public class TableInfo<T extends FieldInfo>
   {
     this.fieldsInfo = fieldsInfo;
   }
-  
-  
+
+
 }

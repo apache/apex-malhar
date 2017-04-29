@@ -25,11 +25,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.Attribute;
-import com.datatorrent.api.Attribute.AttributeMap;
-import com.datatorrent.api.Context.OperatorContext;
-
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class HBaseCsvMappingPutOperatorTest {
   private static final Logger logger = LoggerFactory
@@ -49,7 +45,7 @@ public class HBaseCsvMappingPutOperatorTest {
       String s1 = "gillett,santaclara,cali,milindas";
       String s2= "aventferry,raleigh,nc,milind";
       csvMappingPutOperator.setMappingString("colfam0.street,colfam0.city,colfam0.state,row");
-      csvMappingPutOperator.setup(new OperatorContextTestHelper.TestIdOperatorContext(0));
+      csvMappingPutOperator.setup(mockOperatorContext(0));
       csvMappingPutOperator.beginWindow(0);
       csvMappingPutOperator.input.process(s);
       csvMappingPutOperator.input.process(s1);

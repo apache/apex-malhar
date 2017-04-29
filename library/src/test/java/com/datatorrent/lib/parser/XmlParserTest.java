@@ -93,6 +93,7 @@ public class XmlParserTest
         + "</com.datatorrent.contrib.schema.parser.XmlParserTest_-EmployeeBean>";
 
     operator.setup(null);
+    operator.activate(null);
     operator.in.process(tuple);
     Assert.assertEquals(1, validDataSink.collectedTuples.size());
     Assert.assertEquals(0, invalidDataSink.collectedTuples.size());
@@ -116,6 +117,7 @@ public class XmlParserTest
 
     operator.setClazz(EmployeeBeanOverride.class);
     operator.setup(null);
+    operator.activate(null);
     operator.in.process(tuple);
     Assert.assertEquals(1, validDataSink.collectedTuples.size());
     Assert.assertEquals(0, invalidDataSink.collectedTuples.size());
@@ -140,6 +142,7 @@ public class XmlParserTest
     String tuple = "<EmployeeBean>" + "<name>john</name>" + "<dept>cs</dept>" + "<eid>1</eid>"
         + "<dateOfJoining>2015-01-01</dateOfJoining>" + "</EmployeeBean>";
     operator.setup(null);
+    operator.activate(null);
     operator.in.process(tuple);
     Assert.assertEquals(0, validDataSink.collectedTuples.size());
     Assert.assertEquals(1, invalidDataSink.collectedTuples.size());
@@ -191,6 +194,7 @@ public class XmlParserTest
         + "<dateOfJoining>2015-01-01</dateOfJoining>" + "</EmployeeBean>";
 
     operator.setup(null);
+    operator.activate(null);
     operator.in.process(tuple);
     Assert.assertEquals(1, validDataSink.collectedTuples.size());
     Assert.assertEquals(0, invalidDataSink.collectedTuples.size());
@@ -209,11 +213,12 @@ public class XmlParserTest
   @Test
   public void testXmlToPojoIncorrectXML()
   {
-    String tuple = "<EmployeeBean>" + "<firstname>john</firstname>" //incorrect field name is ignored by JAXB 
+    String tuple = "<EmployeeBean>" + "<firstname>john</firstname>" //incorrect field name is ignored by JAXB
         + "<dept>cs</dept>" + "<eid>1</eid>" + "<dateOfJoining>2015-01-01 00:00:00.00 IST</dateOfJoining>";
     // + "</EmployeeBean>"; // Incorrect XML format
 
     operator.setup(null);
+    operator.activate(null);
     operator.in.process(tuple);
     Assert.assertEquals(0, validDataSink.collectedTuples.size());
     Assert.assertEquals(1, invalidDataSink.collectedTuples.size());
@@ -229,6 +234,7 @@ public class XmlParserTest
         + "</com.datatorrent.contrib.schema.parser.XmlParserTest_-EmployeeBean>";
 
     operator.setup(null);
+    operator.activate(null);
     operator.in.process(tuple);
     Assert.assertEquals(1, validDataSink.collectedTuples.size());
     Assert.assertEquals(0, invalidDataSink.collectedTuples.size());

@@ -37,9 +37,9 @@ import com.datatorrent.netlet.util.Slice;
  * copy files from any file system to HDFS. This module supports parallel write
  * to multiple blocks of the same file and then stitching those blocks in
  * original sequence.
- * 
+ *
  * Essential operators are wrapped into single component using Module API.
- * 
+ *
  *
  * @since 3.4.0
  */
@@ -108,7 +108,7 @@ public class HDFSFileCopyModule implements Module
   /**
    * Path of the output directory. Relative path of the files copied will be
    * maintained w.r.t. source directory and output directory
-   * 
+   *
    * @return output directory path
    */
   public String getOutputDirectoryPath()
@@ -119,7 +119,7 @@ public class HDFSFileCopyModule implements Module
   /**
    * Path of the output directory. Relative path of the files copied will be
    * maintained w.r.t. source directory and output directory
-   * 
+   *
    * @param outputDirectoryPath
    *          output directory path
    */
@@ -130,7 +130,7 @@ public class HDFSFileCopyModule implements Module
 
   /**
    * Flag to control if existing file with same name should be overwritten
-   * 
+   *
    * @return Flag to control if existing file with same name should be
    *         overwritten
    */
@@ -141,7 +141,7 @@ public class HDFSFileCopyModule implements Module
 
   /**
    * Flag to control if existing file with same name should be overwritten
-   * 
+   *
    * @param overwriteOnConflict
    *          Flag to control if existing file with same name should be
    *          overwritten

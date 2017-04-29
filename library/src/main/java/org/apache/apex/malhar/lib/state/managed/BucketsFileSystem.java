@@ -21,12 +21,10 @@ package org.apache.apex.malhar.lib.state.managed;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.annotation.Nullable;
@@ -39,8 +37,8 @@ import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.RemoteIterator;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
-import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 
@@ -141,13 +139,16 @@ public class BucketsFileSystem implements ManagedStateComponent
    * @param data            data of all time-buckets
    * @throws IOException
    */
-  protected void writeBucketData(long windowId, long bucketId, Map<Slice, Bucket.BucketedValue> data) throws IOException
+  protected void writeBucketData(long windowId, long bucketId, Map<Slice, Bucket.BucketedValue> data,  long latestPurgedTimeBucket) throws IOException
   {
     Table<Long, Slice, Bucket.BucketedValue> timeBucketedKeys = TreeBasedTable.create(Ordering.<Long>natural(),
         managedStateContext.getKeyComparator());
 
     for (Map.Entry<Slice, Bucket.BucketedValue> entry : data.entrySet()) {
       long timeBucketId = entry.getValue().getTimeBucket();
+      if (timeBucketId <= latestPurgedTimeBucket) {
+        continue;
+      }
       timeBucketedKeys.put(timeBucketId, entry.getKey(), entry.getValue());
     }
 
@@ -175,7 +176,7 @@ public class BucketsFileSystem implements ManagedStateComponent
           dataSize += key.length;
           dataSize += value.length;
 
-          fileWriter.append(key.toByteArray(), value.toByteArray());
+          fileWriter.append(key, value);
           if (firstKey == null) {
             firstKey = key;
           }
@@ -199,7 +200,7 @@ public class BucketsFileSystem implements ManagedStateComponent
           dataSize += key.length;
           dataSize += value.length;
 
-          fileWriter.append(key.toByteArray(), value.toByteArray());
+          fileWriter.append(key, value);
           if (firstKey == null) {
             firstKey = key;
           }
@@ -275,17 +276,11 @@ public class BucketsFileSystem implements ManagedStateComponent
    */
   private MutableTimeBucketMeta timeBucketMetaHelper(long bucketId, long timeBucketId) throws IOException
   {
-    MutableTimeBucketMeta tbm = timeBucketsMeta.get(bucketId, timeBucketId);
-    if (tbm != null) {
-      return tbm;
-    }
-    if (exists(bucketId, META_FILE_NAME)) {
+    if (!timeBucketsMeta.containsRow(bucketId) && exists(bucketId, META_FILE_NAME)) {
       try (DataInputStream dis = getInputStream(bucketId, META_FILE_NAME)) {
         //Load meta info of all the time buckets of the bucket identified by bucketId.
         loadBucketMetaFile(bucketId, dis);
       }
-    } else {
-      return null;
     }
     return timeBucketsMeta.get(bucketId, timeBucketId);
   }
@@ -296,15 +291,14 @@ public class BucketsFileSystem implements ManagedStateComponent
    * @param bucketId bucket id
    * @return all the time buckets in order - latest to oldest
    */
-  public TreeSet<TimeBucketMeta> getAllTimeBuckets(long bucketId) throws IOException
+  public TreeMap<Long, TimeBucketMeta> getAllTimeBuckets(long bucketId) throws IOException
   {
     synchronized (timeBucketsMeta) {
-      TreeSet<TimeBucketMeta> immutableTimeBucketMetas = Sets.newTreeSet(
-          Collections.<TimeBucketMeta>reverseOrder());
+      TreeMap<Long, TimeBucketMeta> immutableTimeBucketMetas = Maps.newTreeMap(Ordering.natural().<Long>reverse());
 
       if (timeBucketsMeta.containsRow(bucketId)) {
         for (Map.Entry<Long, MutableTimeBucketMeta> entry : timeBucketsMeta.row(bucketId).entrySet()) {
-          immutableTimeBucketMetas.add(entry.getValue().getImmutableTimeBucketMeta());
+          immutableTimeBucketMetas.put(entry.getKey(), entry.getValue().getImmutableTimeBucketMeta());
         }
         return immutableTimeBucketMetas;
       }
@@ -313,7 +307,7 @@ public class BucketsFileSystem implements ManagedStateComponent
           //Load meta info of all the time buckets of the bucket identified by bucket id
           loadBucketMetaFile(bucketId, dis);
           for (Map.Entry<Long, MutableTimeBucketMeta> entry : timeBucketsMeta.row(bucketId).entrySet()) {
-            immutableTimeBucketMetas.add(entry.getValue().getImmutableTimeBucketMeta());
+            immutableTimeBucketMetas.put(entry.getKey(), entry.getValue().getImmutableTimeBucketMeta());
           }
           return immutableTimeBucketMetas;
         }

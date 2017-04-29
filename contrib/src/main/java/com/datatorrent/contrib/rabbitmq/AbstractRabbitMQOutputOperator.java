@@ -74,7 +74,7 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
   transient Channel channel = null;
   transient String exchange = "testEx";
   transient String queueName="testQ";
-  
+
   private WindowDataManager windowDataManager;
   private transient long currentWindowId;
   private transient long largestRecoveryWindowId;
@@ -86,7 +86,7 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
   @Override
   public void setup(OperatorContext context)
   {
-    // Needed to setup idempotency storage manager in setter 
+    // Needed to setup idempotency storage manager in setter
     this.context = context;
     this.operatorContextId = context.getId();
 
@@ -104,12 +104,12 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
       DTThrowable.rethrow(ex);
     }
   }
-  
+
   @Override
   public void beginWindow(long windowId)
   {
-    currentWindowId = windowId;    
-    largestRecoveryWindowId = windowDataManager.getLargestRecoveryWindow();
+    currentWindowId = windowId;
+    largestRecoveryWindowId = windowDataManager.getLargestCompletedWindow();
     if (windowId <= largestRecoveryWindowId) {
       // Do not resend already sent tuples
       skipProcessingTuple = true;
@@ -119,7 +119,7 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
       skipProcessingTuple = false;
     }
   }
-  
+
   /**
    * {@inheritDoc}
    */
@@ -132,7 +132,7 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
       return;
     }
     try {
-      windowDataManager.save("processedWindow", operatorContextId, currentWindowId);
+      windowDataManager.save("processedWindow", currentWindowId);
     } catch (IOException e) {
       DTThrowable.rethrow(e);
     }
@@ -158,11 +158,11 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
       logger.debug(ex.toString());
     }
   }
-  
+
   public WindowDataManager getWindowDataManager() {
     return windowDataManager;
   }
-  
+
   public void setWindowDataManager(WindowDataManager windowDataManager) {
     this.windowDataManager = windowDataManager;
   }

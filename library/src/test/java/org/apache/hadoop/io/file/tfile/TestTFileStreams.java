@@ -36,10 +36,10 @@ import org.apache.hadoop.io.file.tfile.DTFile.Reader.Scanner;
 import org.junit.Assert;
 
 /**
- * 
+ *
  * Streaming interfaces test case class using GZ compression codec, base class
  * of none and LZO compression classes.
- * 
+ *
  */
 
 public class TestTFileStreams extends TestCase {
@@ -356,7 +356,7 @@ public class TestTFileStreams extends TestCase {
 
   /**
    * Verify that the compressed data size is less than raw data size.
-   * 
+   *
    * @throws IOException
    */
   public void testFailureCompressionNotWorking() throws IOException {

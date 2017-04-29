@@ -21,6 +21,8 @@ package com.datatorrent.lib.math;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.datatorrent.common.util.Pair;
+
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
@@ -96,7 +98,7 @@ public class AverageTest
 
     Assert.assertEquals("number emitted tuples", 1, averageSink.collectedTuples.size());
     for (Object o : averageSink.collectedTuples) { // count is 12
-      Integer val = ((Number)o).intValue();
+      Number val = ((Pair<? extends Number, Integer>)o).getFirst().intValue();
       Assert.assertEquals("emitted average value was was ", new Integer(1157 / 12), val);
     }
   }

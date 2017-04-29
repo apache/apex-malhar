@@ -63,11 +63,11 @@ public class UniqueValueCount<K> extends BaseOperator
   /**
    * The input port that receives key value pairs.
    */
-  public transient DefaultInputPort<KeyValPair<K, Object>> input = new DefaultInputPort<KeyValPair<K, Object>>()
+  public transient DefaultInputPort<KeyValPair<K, ? extends Object>> input = new DefaultInputPort<KeyValPair<K, ? extends Object>>()
   {
 
     @Override
-    public void process(KeyValPair<K, Object> pair)
+    public void process(KeyValPair<K, ? extends Object> pair)
     {
       Set<Object> values = interimUniqueValues.get(pair.getKey());
       if (values == null) {

@@ -59,9 +59,9 @@ import kafka.utils.ZkUtils;
  */
 public class KafkaMetadataUtil
 {
-  
+
   public static final String PRODUCER_PROP_PARTITIONER = "partitioner.class";
-  
+
   public static final String PRODUCER_PROP_BROKERLIST = "metadata.broker.list";
 
   private static Logger logger = LoggerFactory.getLogger(KafkaMetadataUtil.class);
@@ -88,7 +88,7 @@ public class KafkaMetadataUtil
     }
     return tmd.partitionsMetadata();
   }
-  
+
   /**
    * @param brokers in multiple clusters, keyed by cluster id
    * @param topic
@@ -104,14 +104,18 @@ public class KafkaMetadataUtil
         return getPartitionsForTopic(new HashSet<String>(bs), topic);
       }});
   }
-  
-  
+
+  /**
+   * There is always only one string in zkHost
+   * @param zkHost
+   * @return
+   */
   public static Set<String> getBrokers(Set<String> zkHost){
-    
-    ZkClient zkclient = new ZkClient(StringUtils.join(zkHost, ',') ,30000, 30000, ZKStringSerializer$.MODULE$);
+
+    ZkClient zkclient = new ZkClient(zkHost.iterator().next(), 30000, 30000, ZKStringSerializer$.MODULE$);
     Set<String> brokerHosts = new HashSet<String>();
     for (Broker b : JavaConversions.asJavaIterable(ZkUtils.getAllBrokersInCluster(zkclient))) {
-      brokerHosts.add(b.getConnectionString());
+      brokerHosts.add(b.connectionString());
     }
     zkclient.close();
     return brokerHosts;

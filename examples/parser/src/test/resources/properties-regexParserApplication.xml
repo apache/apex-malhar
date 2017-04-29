@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<configuration>
+
+  <property>
+    <name>dt.application.RegexParser.operator.regexParser.prop.schema</name>
+    <value>{
+      "fields": [
+      {
+      "name": "date",
+      "type": "Date",
+      "constraints": {
+      "format": "yyyy:MM:dd:hh:mm:ss"
+      }
+      },
+      {
+      "name": "id",
+      "type": "Integer"
+      },
+      {
+      "name": "signInId",
+      "type": "String"
+
+      },
+      {
+      "name": "ipAddress",
+      "type": "String"
+      },
+      {
+      "name": "serviceId",
+      "type": "String"
+      },
+      {
+      "name": "accountId",
+      "type": "String"
+      },
+      {
+      "name": "platform",
+      "type": "String"
+      }
+      ]
+      }
+    </value>
+  </property>
+  <property>
+    <name>dt.application.RegexParser.operator.regexParser.port.out.attr.TUPLE_CLASS</name>
+    <value>org.apache.apex.examples.parser.regexparser.ServerLog</value>
+  </property>
+
+  <property>
+    <name>dt.application.RegexParser.operator.regexParser.prop.splitRegexPattern</name>
+    <value>.+\[SEQ=\w+\]\s*(\d+:[\d\d:]+)\s(\d+)\s* sign-in_id=(\S+) .*ip_address=(\S+).* service_id=(\S+).*account_id=(\S+).*platform=(\S+)</value>
+  </property>
+
+  <property>
+    <name>dt.application.RegexParser.operator.*.prop.filePath</name>
+    <value>/tmp/application/parser/regexparser</value>
+  </property>
+
+  <property>
+    <name>dt.application.RegexParser.operator.regexErrorWriter.prop.outputFileName</name>
+    <value>errordata</value>
+  </property>
+
+  <property>
+    <name>dt.application.RegexParser.operator.regexWriter.prop.outputFileName</name>
+    <value>outputdata</value>
+  </property>
+</configuration>

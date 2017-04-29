@@ -115,7 +115,7 @@ public class Synchronizer extends BaseOperator
   /**
    * Checks if all blocks for given file are received. Sends triggger when all
    * blocks are received.
-   * 
+   *
    * @param fileMetadata
    * @param receivedBlocksMetadata
    */

@@ -20,6 +20,7 @@
 package org.apache.apex.malhar.lib.state.managed;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
@@ -40,6 +41,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.lib.fileaccess.FileAccessFSImpl;
@@ -98,14 +100,15 @@ public class IncrementalCheckpointManagerTest
   {
     testMeta.checkpointManager.setup(testMeta.managedStateContext);
     Map<Long, Map<Slice, Bucket.BucketedValue>> buckets5 = ManagedStateTestUtils.getTestData(0, 5, 0);
-    testMeta.checkpointManager.save(buckets5, testMeta.operatorId, 10, false);
+    testMeta.checkpointManager.save(buckets5, 10, false);
     testMeta.checkpointManager.teardown();
 
-    testMeta.checkpointManager = new IncrementalCheckpointManager();
+    KryoCloneUtils<IncrementalCheckpointManager> cloneUtils = KryoCloneUtils.createCloneUtils(testMeta.checkpointManager);
+    testMeta.checkpointManager = cloneUtils.getClone();
     testMeta.checkpointManager.setup(testMeta.managedStateContext);
     @SuppressWarnings("unchecked")
     Map<Long, Map<Slice, Bucket.BucketedValue>> buckets5After = (Map<Long, Map<Slice, Bucket.BucketedValue>>)
-        testMeta.checkpointManager.load(testMeta.operatorId, 10);
+        testMeta.checkpointManager.retrieve(10);
 
     Assert.assertEquals("saved", buckets5, buckets5After);
     testMeta.checkpointManager.teardown();
@@ -117,17 +120,54 @@ public class IncrementalCheckpointManagerTest
     testMeta.checkpointManager.setup(testMeta.managedStateContext);
 
     Map<Long, Map<Slice, Bucket.BucketedValue>> buckets5 = ManagedStateTestUtils.getTestData(0, 5, 0);
-    testMeta.checkpointManager.save(buckets5, testMeta.operatorId, 10, false);
+    testMeta.checkpointManager.save(buckets5, 10, false);
     //Need to synchronously call transfer window files so shutting down the other thread.
     testMeta.checkpointManager.teardown();
     Thread.sleep(500);
 
-    testMeta.checkpointManager.committed(testMeta.operatorId, 10);
+    testMeta.checkpointManager.committed(10);
     testMeta.checkpointManager.transferWindowFiles();
 
     for (int i = 0; i < 5; i++) {
-      ManagedStateTestUtils.transferBucketHelper(testMeta.managedStateContext.getFileAccess(), i,
+      ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedStateContext.getFileAccess(), i,
           buckets5.get((long)i), 1);
+    }
+  }
+
+  @Test
+  public void testTransferWindowFilesExcludeExpiredBuckets() throws IOException, InterruptedException
+  {
+    testMeta.checkpointManager.setup(testMeta.managedStateContext);
+
+    int startKeyBucket = 200;
+    Map<Long, Map<Slice, Bucket.BucketedValue>> buckets = ManagedStateTestUtils.getTestData(startKeyBucket, startKeyBucket + 10, 0);
+    long latestExpiredTimeBucket = 102;
+    testMeta.checkpointManager.setLatestExpiredTimeBucket(latestExpiredTimeBucket);
+    testMeta.checkpointManager.save(buckets, 10, false);
+    //Need to synchronously call transfer window files so shutting down the other thread.
+    testMeta.checkpointManager.teardown();
+    Thread.sleep(500);
+
+    testMeta.checkpointManager.committed(10);
+    testMeta.checkpointManager.transferWindowFiles();
+
+    // Retrieve the data which is not expired
+    Map<Long, Map<Slice, Bucket.BucketedValue>> bucketsValidData = new HashMap<>();
+    for (int i = 0; i < 5; i++) {
+      Map<Slice, Bucket.BucketedValue> data = buckets.get((long)startKeyBucket + i);
+      Map<Slice, Bucket.BucketedValue> bucketData = Maps.newHashMap();
+      for (Map.Entry<Slice,Bucket.BucketedValue> e: data.entrySet()) {
+        if (e.getValue().getTimeBucket() <= latestExpiredTimeBucket) {
+          continue;
+        }
+        bucketData.put(e.getKey(), e.getValue());
+      }
+      bucketsValidData.put((long)startKeyBucket + i, bucketData);
+    }
+
+    for (int i = 0; i < 5; i++) {
+      ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedStateContext.getFileAccess(), startKeyBucket + i,
+          bucketsValidData.get((long)startKeyBucket + i), 1);
     }
   }
 
@@ -143,14 +183,15 @@ public class IncrementalCheckpointManagerTest
     testMeta.checkpointManager.setup(testMeta.managedStateContext);
 
     Map<Long, Map<Slice, Bucket.BucketedValue>> data = ManagedStateTestUtils.getTestData(0, 5, 0);
-    testMeta.checkpointManager.save(data, testMeta.operatorId, 10, false);
-    testMeta.checkpointManager.committed(testMeta.operatorId, 10);
+    testMeta.checkpointManager.save(data, 10, false);
+    testMeta.checkpointManager.committed(10);
     latch.await();
     testMeta.checkpointManager.teardown();
     Thread.sleep(500);
 
     for (int i = 0; i < 5; i++) {
-      ManagedStateTestUtils.transferBucketHelper(testMeta.managedStateContext.getFileAccess(), i, data.get((long)i), 1);
+      ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedStateContext.getFileAccess(), i,
+          data.get((long)i), 1);
     }
   }
 
@@ -183,10 +224,10 @@ public class IncrementalCheckpointManagerTest
     }
 
     @Override
-    protected void writeBucketData(long windowId, long bucketId, Map<Slice, Bucket.BucketedValue> data)
-        throws IOException
+    protected void writeBucketData(long windowId, long bucketId, Map<Slice,
+        Bucket.BucketedValue> data, long latestPurgedTimeBucket) throws IOException
     {
-      super.writeBucketData(windowId, bucketId, data);
+      super.writeBucketData(windowId, bucketId, data, latestPurgedTimeBucket);
       if (windowId == 10) {
         latch.countDown();
       }

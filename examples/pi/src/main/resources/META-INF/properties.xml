@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<configuration>
+  <!-- Memory settings for all examples -->
+  <property>
+    <name>dt.attr.MASTER_MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  <property>
+    <name>dt.application.*.operator.*.attr.MEMORY_MB</name>
+    <value>256</value>
+  </property>
+  <property>
+    <name>dt.application.*.operator.*.attr.JVM_OPTIONS</name>
+    <value>-Xmx128M</value>
+  </property>
+  <property>
+    <name>dt.application.*.operator.*.port.*.attr.BUFFER_MEMORY_MB</name>
+    <value>128</value>
+  </property>
+
+  <!-- PiExample  -->
+  <property>
+    <name>dt.application.PiExample.operator.rand.minvalue</name>
+    <value>0</value>
+  </property>
+  <property>
+    <name>dt.application.PiExample.operator.rand.maxvalue</name>
+    <value>30000</value>
+  </property>
+  <property>
+    <name>dt.application.PiExample.operator.picalc.base</name>
+    <value>900000000</value>
+  </property>
+  <property>
+    <name>dt.application.PiExample.operator.adaptor.valueName</name>
+    <value>piValue</value>
+  </property>
+
+  <!-- PiExampleAppData  -->
+  <property>
+    <name>dt.application.PiExampleAppData.operator.rand.minvalue</name>
+    <value>0</value>
+  </property>
+  <property>
+    <name>dt.application.PiExampleAppData.operator.rand.maxvalue</name>
+    <value>30000</value>
+  </property>
+  <property>
+    <name>dt.application.PiExampleAppData.operator.picalc.base</name>
+    <value>900000000</value>
+  </property>
+  <property>
+    <name>dt.application.PiExampleAppData.operator.adaptor.valueName</name>
+    <value>piValue</value>
+  </property>
+  <property>
+    <name>dt.application.PiExampleAppData.operator.Query.topic</name>
+    <value>PiExampleQuery</value>
+  </property>
+  <property>
+    <name>dt.application.PiExampleAppData.operator.QueryResult.topic</name>
+    <value>PiExampleQueryResult</value>
+  </property>
+  <property>
+    <name>dt.application.PiExampleAppData.operator.SnapshotServer.embeddableQueryInfoProvider.topic</name>
+    <value>PiExampleQuery</value>
+  </property>
+
+  <!-- PiLibraryExample -->
+  <property>
+    <name>dt.application.PiLibraryExample.operator.GenerateX.minvalue</name>
+    <value>0</value>
+  </property>
+  <property>
+    <name>dt.application.PiLibraryExample.operator.GenerateX.maxvalue</name>
+    <value>30000</value>
+  </property>
+  <property>
+    <name>dt.application.PiLibraryExample.operator.PairXY.size</name>
+    <value>2</value>
+  </property>
+
+  <!-- PiJavaScriptExample -->
+  <property>
+    <name>dt.application.PiJavaScriptExample.operator.rand.tuplesBlast</name>
+    <value>9</value>
+  </property>
+
+</configuration>

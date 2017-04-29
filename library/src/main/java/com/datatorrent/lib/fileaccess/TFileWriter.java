@@ -25,6 +25,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.io.file.tfile.TFile.Writer;
 
+import com.datatorrent.netlet.util.Slice;
+
 /**
  * TFileWriter
  *
@@ -34,15 +36,15 @@ import org.apache.hadoop.io.file.tfile.TFile.Writer;
 public final class TFileWriter implements FileAccess.FileWriter
 {
   private Writer writer;
-  
+
   private FSDataOutputStream fsdos;
-  
+
   public TFileWriter(FSDataOutputStream stream, int minBlockSize, String compressName,
       String comparator, Configuration conf) throws IOException
   {
     this.fsdos = stream;
     writer = new Writer(stream, minBlockSize, compressName, comparator, conf);
-    
+
   }
 
   @Override
@@ -56,6 +58,12 @@ public final class TFileWriter implements FileAccess.FileWriter
   public void append(byte[] key, byte[] value) throws IOException
   {
     writer.append(key, value);
+  }
+
+  @Override
+  public void append(Slice key, Slice value) throws IOException
+  {
+    writer.append(key.buffer, key.offset, key.length, value.buffer, value.offset, value.length);
   }
 
   @Override

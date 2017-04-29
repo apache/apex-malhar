@@ -29,7 +29,7 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
 import com.datatorrent.lib.util.UnifierSumNumber;
 
 /**
- * This operator implements Unifier interface and emits the sum of values at the end of window. 
+ * This operator implements Unifier interface and emits the sum of values at the end of window.
  * <p>
  * This is an end of window operator. Application can turn this into accumulated
  * sum operator by setting cumulative flag to true. <br>

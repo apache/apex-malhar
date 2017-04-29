@@ -19,37 +19,61 @@
 package org.apache.apex.malhar.lib.wal;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.datatorrent.api.Component;
 import com.datatorrent.api.Context;
-import com.datatorrent.api.StorageAgent;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
 
 /**
- * An idempotent storage manager allows an operator to emit the same tuples in every replayed application window.
- * An idempotent agent cannot make any guarantees about the tuples emitted in the application window which fails.
+ * WindowDataManager manages the state of an operator every application window. It can be used to replay tuples in
+ * the input operator after re-deployment for a window which was not check-pointed but processing was completed before
+ * failure.<br/>
+ *
+ * However, it cannot make any guarantees about the tuples emitted in the application window during which the operator
+ * failed.<br/>
  *
  * The order of tuples is guaranteed for ordered input sources.
  *
- * <b>Important:</b> In order for an idempotent storage manager to function correctly it cannot allow
+ * <b>Important:</b> In order for an WindowDataManager to function correctly it cannot allow
  * checkpoints to occur within an application window and checkpoints must be aligned with
  * application window boundaries.
  *
  * @since 2.0.0
  */
-public interface WindowDataManager extends StorageAgent, Component<Context.OperatorContext>
+public interface WindowDataManager extends Component<Context.OperatorContext>
 {
   /**
-   * Gets the largest window for which there is recovery data.
-   * @return Returns the window id
+   * Save the state for a window id.
+   * @param object    state
+   * @param windowId  window id
+   * @throws IOException
    */
-  long getLargestRecoveryWindow();
+  void save(Object object, long windowId) throws IOException;
 
   /**
+   * Gets the object saved for the provided window id. <br/>
+   * Typically it is used to replay tuples of successive windows in input operators after failure.
+   *
+   * @param windowId window id
+   * @return saved state for the window id.
+   * @throws IOException
+   */
+  Object retrieve(long windowId) throws IOException;
+
+  /**
+   * Gets the largest window which was completed.
+   * @return Returns the window id
+   */
+  long getLargestCompletedWindow();
+
+  /**
+   * Fetches the state saved for a window id for all the partitions.
+   * <p/>
    * When an operator can partition itself dynamically then there is no guarantee that an input state which was being
    * handled by one instance previously will be handled by the same instance after partitioning. <br/>
    * For eg. An {@link AbstractFileInputOperator} instance which reads a File X till offset l (not check-pointed) may no
@@ -58,39 +82,27 @@ public interface WindowDataManager extends StorageAgent, Component<Context.Opera
    * The new instance wouldn't know from what point to read the File X unless it reads the idempotent storage of all the
    * operators for the window being replayed and fix it's state.
    *
-   * @param windowId window id.
-   * @return mapping of operator id to the corresponding state
+   * @param windowId window id
+   * @return saved state per operator partitions for the given window.
    * @throws IOException
    */
-  Map<Integer, Object> load(long windowId) throws IOException;
+  Map<Integer, Object> retrieveAllPartitions(long windowId) throws IOException;
 
   /**
-   * Delete the artifacts of the operator for windows <= windowId.
+   * Delete the artifacts for windows <= windowId.
    *
-   * @param operatorId operator id
    * @param windowId   window id
    * @throws IOException
    */
-  void deleteUpTo(int operatorId, long windowId) throws IOException;
+  void committed(long windowId) throws IOException;
 
   /**
-   * This informs the idempotent storage manager that operator is partitioned so that it can set properties and
-   * distribute state.
+   * Creates new window data managers during repartitioning.
    *
-   * @param newManagers        all the new idempotent storage managers.
+   * @param newCount count of new window data managers.
    * @param removedOperatorIds set of operator ids which were removed after partitioning.
    */
-  void partitioned(Collection<WindowDataManager> newManagers, Set<Integer> removedOperatorIds);
-
-  /**
-   * Returns an array of windowIds for which data was stored by atleast one partition. The array
-   * of winodwIds is sorted.
-   *
-   * @return An array of windowIds for which data was stored by atleast one partition. The array
-   * of winodwIds is sorted.
-   * @throws IOException
-   */
-  long[] getWindowIds() throws IOException;
+  List<WindowDataManager> partition(int newCount, Set<Integer> removedOperatorIds);
 
   /**
    * This {@link WindowDataManager} will never do recovery. This is a convenience class so that operators
@@ -98,21 +110,25 @@ public interface WindowDataManager extends StorageAgent, Component<Context.Opera
    */
   class NoopWindowDataManager implements WindowDataManager
   {
-    @Override
-    public long getLargestRecoveryWindow()
+    public long getLargestCompletedWindow()
     {
       return Stateless.WINDOW_ID;
     }
 
     @Override
-    public Map<Integer, Object> load(long windowId) throws IOException
+    public Map<Integer, Object> retrieveAllPartitions(long windowId) throws IOException
     {
       return null;
     }
 
     @Override
-    public void partitioned(Collection<WindowDataManager> newManagers, Set<Integer> removedOperatorIds)
+    public List<WindowDataManager> partition(int newCount, Set<Integer> removedOperatorIds)
     {
+      List<WindowDataManager> managers = new ArrayList<>();
+      for (int i = 0; i < newCount; i++) {
+        managers.add(new NoopWindowDataManager());
+      }
+      return managers;
     }
 
     @Override
@@ -126,36 +142,19 @@ public interface WindowDataManager extends StorageAgent, Component<Context.Opera
     }
 
     @Override
-    public void save(Object object, int operatorId, long windowId) throws IOException
+    public void save(Object object, long windowId) throws IOException
     {
     }
 
     @Override
-    public Object load(int operatorId, long windowId) throws IOException
+    public Object retrieve(long windowId) throws IOException
     {
       return null;
     }
 
     @Override
-    public void delete(int operatorId, long windowId) throws IOException
+    public void committed(long windowId) throws IOException
     {
-    }
-
-    @Override
-    public void deleteUpTo(int operatorId, long windowId) throws IOException
-    {
-    }
-
-    @Override
-    public long[] getWindowIds(int operatorId) throws IOException
-    {
-      return new long[0];
-    }
-
-    @Override
-    public long[] getWindowIds() throws IOException
-    {
-      return new long[0];
     }
   }
 }

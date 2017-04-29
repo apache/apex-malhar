@@ -21,12 +21,15 @@ package com.datatorrent.contrib.splunk;
 import com.datatorrent.api.Attribute.AttributeMap;
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+
 /**
- * 
+ *
  * Unit test for splunk input operator. The test, queries splunk server for 100 rows and checks
  * how many rows are returned.
  *
@@ -71,7 +74,7 @@ public class SplunkInputOperatorTest
 
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContext context = mockOperatorContext(OPERATOR_ID, attributeMap);
 
     TestInputOperator inputOperator = new TestInputOperator();
     inputOperator.setStore(store);

@@ -32,7 +32,6 @@ import org.junit.runner.Description;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.lib.fileaccess.FileAccessFSImpl;
-import com.datatorrent.lib.util.KryoCloneUtils;
 import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.netlet.util.Slice;
 
@@ -66,13 +65,6 @@ public class ManagedTimeUnifiedStateImplTest
   public TestMeta testMeta = new TestMeta();
 
   @Test
-  public void testSerde() throws IOException
-  {
-    ManagedTimeUnifiedStateImpl deserialized = KryoCloneUtils.cloneObject(testMeta.managedState);
-    Assert.assertEquals("num buckets", deserialized.getNumBuckets(), testMeta.managedState.getNumBuckets());
-  }
-
-  @Test
   public void testSimplePutGet()
   {
     Slice one = ManagedStateTestUtils.getSliceFor("1");
@@ -84,6 +76,25 @@ public class ManagedTimeUnifiedStateImplTest
     testMeta.managedState.endWindow();
 
     Assert.assertEquals("value of one", one, value);
+    testMeta.managedState.teardown();
+  }
+
+  @Test
+  public void testPutWithMultipleValuesForAKey()
+  {
+    Slice one = ManagedStateTestUtils.getSliceFor("1");
+
+    testMeta.managedState.setup(testMeta.operatorContext);
+    long time = System.currentTimeMillis();
+    testMeta.managedState.beginWindow(0);
+    testMeta.managedState.put(time, one, one);
+
+    Slice two = ManagedStateTestUtils.getSliceFor("2");
+    testMeta.managedState.put(time, one, two);
+    Slice value = testMeta.managedState.getSync(time, one);
+    testMeta.managedState.endWindow();
+
+    Assert.assertEquals("value overwritten", two, value);
     testMeta.managedState.teardown();
   }
 
@@ -110,13 +121,13 @@ public class ManagedTimeUnifiedStateImplTest
 
     testMeta.managedState.setup(testMeta.operatorContext);
 
-    long timeBucket = testMeta.managedState.getTimeBucketAssigner().getTimeBucketFor(time);
+    long timeBucket = testMeta.managedState.getTimeBucketAssigner().getTimeBucket(time);
     Map<Slice, Bucket.BucketedValue> unsavedBucket0 = ManagedStateTestUtils.getTestBucketData(0, timeBucket);
 
     //write data to disk explicitly
-    testMeta.managedState.bucketsFileSystem.writeBucketData(time, 0, unsavedBucket0);
-    ManagedStateTestUtils.transferBucketHelper(testMeta.managedState.getFileAccess(), testMeta.operatorContext.getId(),
-        unsavedBucket0, 1);
+    testMeta.managedState.bucketsFileSystem.writeBucketData(time, 0, unsavedBucket0, -1);
+    ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedState.getFileAccess(),
+        testMeta.operatorContext.getId(), unsavedBucket0, 1);
 
     Slice value = testMeta.managedState.getSync(time, zero);
 
@@ -132,13 +143,13 @@ public class ManagedTimeUnifiedStateImplTest
 
     testMeta.managedState.setup(testMeta.operatorContext);
 
-    long timeBucket = testMeta.managedState.getTimeBucketAssigner().getTimeBucketFor(time);
+    long timeBucket = testMeta.managedState.getTimeBucketAssigner().getTimeBucket(time);
     Map<Slice, Bucket.BucketedValue> unsavedBucket0 = ManagedStateTestUtils.getTestBucketData(0, timeBucket);
 
     //write data to disk explicitly
-    testMeta.managedState.bucketsFileSystem.writeBucketData(time, 0, unsavedBucket0);
-    ManagedStateTestUtils.transferBucketHelper(testMeta.managedState.getFileAccess(), testMeta.operatorContext.getId(),
-        unsavedBucket0, 1);
+    testMeta.managedState.bucketsFileSystem.writeBucketData(time, 0, unsavedBucket0, -1);
+    ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedState.getFileAccess(),
+        testMeta.operatorContext.getId(), unsavedBucket0, 1);
 
     Future<Slice> valFuture = testMeta.managedState.getAsync(time, zero);
 

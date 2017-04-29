@@ -100,7 +100,7 @@ public class DimensionalSchema implements Schema
       new Fields(Sets.newHashSet(FIELD_TIME_FROM, FIELD_TIME_TO)));
 
   public static final String FIELD_RESPONSE_DELAY_MILLS = "responseDelayMillis";
-  
+
   /**
    * The from value for the schema. Null if there is no from value.
    */
@@ -164,7 +164,7 @@ public class DimensionalSchema implements Schema
   private int schemaID = Schema.DEFAULT_SCHEMA_ID;
 
   protected long responseDelayMillis;
-  
+
   /**
    * Constructor for serialization
    */
@@ -249,7 +249,7 @@ public class DimensionalSchema implements Schema
       long responseDelayMillis)
   {
     this(schemaStub,
-        configurationSchema, 
+        configurationSchema,
         responseDelayMillis);
     this.schemaID = schemaID;
   }
@@ -391,7 +391,7 @@ public class DimensionalSchema implements Schema
 
     schema.put(SnapshotSchema.FIELD_SCHEMA_TYPE, DimensionalSchema.SCHEMA_TYPE);
     schema.put(SnapshotSchema.FIELD_SCHEMA_VERSION, DimensionalSchema.SCHEMA_VERSION);
-    
+
     //responseDelayMillis
     if (responseDelayMillis > 0) {
       schema.put(FIELD_RESPONSE_DELAY_MILLS, responseDelayMillis);
@@ -459,10 +459,10 @@ public class DimensionalSchema implements Schema
     for (int combinationID = 0;
         combinationID < configurationSchema.getDimensionsDescriptorIDToKeys().size();
         combinationID++) {
-      
+
       //TODO: the auto-generated combination for computation of composite aggregator will be added.
       //should remove it.
-      
+
       Fields fields = configurationSchema.getDimensionsDescriptorIDToKeys().get(combinationID);
       Map<String, Set<String>> fieldToAggregatorAdditionalValues =
           configurationSchema.getDimensionsDescriptorIDToFieldToAggregatorAdditionalValues().get(combinationID);
@@ -515,7 +515,7 @@ public class DimensionalSchema implements Schema
 
         combination.put(DimensionalConfigurationSchema.FIELD_DIMENSIONS_ADDITIONAL_VALUES, additionalValueArray);
       }
-      
+
       dimensions.put(combination);
     }
 

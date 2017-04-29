@@ -36,7 +36,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
  * This is the message generator outside of Malhar/Hadoop. This generates data
  * and send to ActiveMQ message bus so that Malhar input adapter for ActiveMQ
  * can receive it.
- * 
+ *
  */
 public class ActiveMQMessageGenerator
 {

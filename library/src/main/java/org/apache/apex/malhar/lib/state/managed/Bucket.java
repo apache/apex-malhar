@@ -23,7 +23,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.TreeMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -32,10 +33,15 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.utils.serde.KeyValueByteStreamProvider;
+import org.apache.apex.malhar.lib.utils.serde.SliceUtils;
+import org.apache.apex.malhar.lib.utils.serde.WindowedBlockStream;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.primitives.Longs;
 
 import com.datatorrent.lib.fileaccess.FileAccess;
 import com.datatorrent.netlet.util.Slice;
@@ -45,7 +51,7 @@ import com.datatorrent.netlet.util.Slice;
  *
  * @since 3.4.0
  */
-public interface Bucket extends ManagedStateComponent
+public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvider
 {
   /**
    * @return bucket id
@@ -151,6 +157,16 @@ public interface Bucket extends ManagedStateComponent
       this.value = value;
     }
 
+    public long getSize()
+    {
+      long size = 0;
+      if (value != null) {
+        size += value.length;
+      }
+      size += Longs.BYTES; //time-bucket
+      return size;
+    }
+
     @Override
     public boolean equals(Object o)
     {
@@ -205,7 +221,16 @@ public interface Bucket extends ManagedStateComponent
 
     private final transient Slice dummyGetKey = new Slice(null, 0, 0);
 
-    private transient TreeSet<BucketsFileSystem.TimeBucketMeta> cachedBucketMetas;
+    private transient TreeMap<Long, BucketsFileSystem.TimeBucketMeta> cachedBucketMetas;
+
+    /**
+     * By default, separate keys and values into two different streams.
+     * key stream and value stream should be created during construction instead of setup, as the reference of the streams will be passed to the serialize method
+     */
+    protected WindowedBlockStream keyStream = new WindowedBlockStream();
+    protected WindowedBlockStream valueStream = new WindowedBlockStream();
+
+    protected ConcurrentLinkedQueue<Long> windowsForFreeMemory = new ConcurrentLinkedQueue<>();
 
     private DefaultBucket()
     {
@@ -213,7 +238,7 @@ public interface Bucket extends ManagedStateComponent
       bucketId = -1;
     }
 
-    protected DefaultBucket(long bucketId)
+    public DefaultBucket(long bucketId)
     {
       this.bucketId = bucketId;
     }
@@ -275,34 +300,33 @@ public interface Bucket extends ManagedStateComponent
           cachedBucketMetas = managedStateContext.getBucketsFileSystem().getAllTimeBuckets(bucketId);
         }
         if (timeBucket != -1) {
-          Slice valSlice = getValueFromTimeBucketReader(key, timeBucket);
-          if (valSlice != null) {
-            if (timeBucket == cachedBucketMetas.first().getTimeBucketId()) {
+          BucketedValue bucketedValue = getValueFromTimeBucketReader(key, timeBucket);
+          if (bucketedValue != null) {
+            if (!cachedBucketMetas.isEmpty() && timeBucket == cachedBucketMetas.firstKey()) {
               //if the requested time bucket is the latest time bucket on file, the key/value is put in the file cache.
-              BucketedValue bucketedValue = new BucketedValue(timeBucket, valSlice);
+              //Since the size of the whole time-bucket is added to total size, there is no need to add the size of
+              //entries in file cache.
               fileCache.put(key, bucketedValue);
             }
+            return bucketedValue.value;
           }
-          return valSlice;
         } else {
           //search all the time buckets
-          for (BucketsFileSystem.TimeBucketMeta immutableTimeBucketMeta : cachedBucketMetas) {
+          for (BucketsFileSystem.TimeBucketMeta immutableTimeBucketMeta : cachedBucketMetas.values()) {
             if (managedStateContext.getKeyComparator().compare(key, immutableTimeBucketMeta.getFirstKey()) >= 0) {
               //keys in the time bucket files are sorted so if the first key in the file is greater than the key being
               //searched, the key will not be present in that file.
-              Slice valSlice = getValueFromTimeBucketReader(key, immutableTimeBucketMeta.getTimeBucketId());
-              if (valSlice != null) {
-                BucketedValue bucketedValue = new BucketedValue(immutableTimeBucketMeta.getTimeBucketId(), valSlice);
+              BucketedValue bucketedValue = getValueFromTimeBucketReader(key, immutableTimeBucketMeta.getTimeBucketId());
+              if (bucketedValue != null) {
                 //Only when the key is read from the latest time bucket on the file, the key/value is put in the file
                 // cache.
                 fileCache.put(key, bucketedValue);
-                return valSlice;
+                return bucketedValue.value;
               }
             }
           }
-          return null;
         }
-
+        return null;
       } catch (IOException e) {
         throw new RuntimeException("get time-buckets " + bucketId, e);
       }
@@ -311,6 +335,9 @@ public interface Bucket extends ManagedStateComponent
     @Override
     public Slice get(Slice key, long timeBucket, ReadSource readSource)
     {
+      // This call is lightweight
+      releaseMemory();
+      key = SliceUtils.toBufferSlice(key);
       switch (readSource) {
         case MEMORY:
           return getFromMemory(key);
@@ -327,13 +354,19 @@ public interface Bucket extends ManagedStateComponent
     }
 
     /**
-     * Returns the value for the key from a time-bucket reader
+     * Returns the value for the key from a valid time-bucket reader. Here, valid means the time bucket which is not purgeable.
+     * If the timebucketAssigner is of type MovingBoundaryTimeBucketAssigner and the time bucket is purgeable, then return null.
      * @param key        key
      * @param timeBucket time bucket
-     * @return value if key is found in the time bucket; false otherwise
+     * @return value if key is found in the time bucket; null otherwise
      */
-    private Slice getValueFromTimeBucketReader(Slice key, long timeBucket)
+    private BucketedValue getValueFromTimeBucketReader(Slice key, long timeBucket)
     {
+
+      if (managedStateContext.getTimeBucketAssigner() instanceof MovingBoundaryTimeBucketAssigner &&
+          timeBucket <= ((MovingBoundaryTimeBucketAssigner)managedStateContext.getTimeBucketAssigner()).getLowestPurgeableTimeBucket()) {
+        return null;
+      }
       FileAccess.FileReader fileReader = readers.get(timeBucket);
       if (fileReader != null) {
         return readValue(fileReader, key, timeBucket);
@@ -349,13 +382,13 @@ public interface Bucket extends ManagedStateComponent
       }
     }
 
-    private Slice readValue(FileAccess.FileReader fileReader, Slice key, long timeBucket)
+    private BucketedValue readValue(FileAccess.FileReader fileReader, Slice key, long timeBucket)
     {
       Slice valSlice = new Slice(null, 0, 0);
       try {
         if (fileReader.seek(key)) {
           fileReader.next(dummyGetKey, valSlice);
-          return valSlice;
+          return new BucketedValue(timeBucket, valSlice);
         } else {
           return null;
         }
@@ -382,56 +415,102 @@ public interface Bucket extends ManagedStateComponent
     @Override
     public void put(Slice key, long timeBucket, Slice value)
     {
+      // This call is lightweight
+      releaseMemory();
+      key = SliceUtils.toBufferSlice(key);
+      value = SliceUtils.toBufferSlice(value);
+
       BucketedValue bucketedValue = flash.get(key);
       if (bucketedValue == null) {
-        bucketedValue = new BucketedValue();
+        bucketedValue = new BucketedValue(timeBucket, value);
         flash.put(key, bucketedValue);
-        sizeInBytes.getAndAdd(key.length);
-        sizeInBytes.getAndAdd(Long.SIZE);
-      }
-      if (timeBucket > bucketedValue.getTimeBucket()) {
-
-        int inc = null == bucketedValue.getValue() ? value.length : value.length - bucketedValue.getValue().length;
-        sizeInBytes.getAndAdd(inc);
-        bucketedValue.setTimeBucket(timeBucket);
-        bucketedValue.setValue(value);
+        sizeInBytes.getAndAdd(key.length + value.length + Longs.BYTES);
+      } else {
+        if (timeBucket >= bucketedValue.getTimeBucket()) {
+          int inc = null == bucketedValue.getValue() ? value.length : value.length - bucketedValue.getValue().length;
+          sizeInBytes.getAndAdd(inc);
+          bucketedValue.setTimeBucket(timeBucket);
+          bucketedValue.setValue(value);
+        } else {
+          throw new AssertionError("newer entry exists for " + key);
+        }
       }
     }
 
+    /**
+     * Free memory up to the given windowId
+     * This method will be called by another thread. Adding concurrency control to Stream would impact the performance.
+     * This method only calculates the size of the memory that could be released and then sends free memory request to the operator thread
+     *
+     * We intend to manage memory by keyStream and valueStream. But the we can't avoid caller use other mechanism to manage memory.
+     * It is required to cleanup maps in this case.
+     */
     @Override
     public long freeMemory(long windowId) throws IOException
     {
       long memoryFreed = 0;
-      Long clearWindowId;
+      Iterator<Map.Entry<Long, Map<Slice, BucketedValue>>> entryIter = committedData.entrySet().iterator();
+      while (entryIter.hasNext()) {
+        Map.Entry<Long, Map<Slice, BucketedValue>> bucketEntry = entryIter.next();
+        if (bucketEntry.getKey() > windowId) {
+          break;
+        }
 
-      while ((clearWindowId = committedData.floorKey(windowId)) != null) {
-        Map<Slice, BucketedValue> windowData = committedData.remove(clearWindowId);
+        Map<Slice, BucketedValue> windowData = bucketEntry.getValue();
+        entryIter.remove();
 
-        for (Map.Entry<Slice, BucketedValue> entry: windowData.entrySet()) {
-          memoryFreed += entry.getKey().length + entry.getValue().getValue().length;
+        for (Map.Entry<Slice, BucketedValue> entry : windowData.entrySet()) {
+          memoryFreed += entry.getKey().length + entry.getValue().getSize();
         }
       }
 
       fileCache.clear();
       if (cachedBucketMetas != null) {
 
-        for (BucketsFileSystem.TimeBucketMeta tbm : cachedBucketMetas) {
+        for (BucketsFileSystem.TimeBucketMeta tbm : cachedBucketMetas.values()) {
           FileAccess.FileReader reader = readers.remove(tbm.getTimeBucketId());
           if (reader != null) {
             memoryFreed += tbm.getSizeInBytes();
             reader.close();
           }
         }
-
       }
       sizeInBytes.getAndAdd(-memoryFreed);
-      LOG.debug("space freed {} {}", bucketId, memoryFreed);
+
+      //add the windowId to the queue to let operator thread release memory from keyStream and valueStream
+      windowsForFreeMemory.add(windowId);
+
+      return memoryFreed;
+    }
+
+    /**
+     * Release the memory managed by keyStream and valueStream.
+     * This operation must be called from operator thread. It won't do anything if no memory to be freed
+     */
+    protected long releaseMemory()
+    {
+      long memoryFreed = 0;
+      while (!windowsForFreeMemory.isEmpty()) {
+        long windowId = windowsForFreeMemory.poll();
+        long originSize = keyStream.size() + valueStream.size();
+        keyStream.completeWindow(windowId);
+        valueStream.completeWindow(windowId);
+        memoryFreed += originSize - (keyStream.size() + valueStream.size());
+      }
+
+      if (memoryFreed > 0) {
+        //release the free memory immediately
+        keyStream.releaseAllFreeMemory();
+        valueStream.releaseAllFreeMemory();
+      }
+
       return memoryFreed;
     }
 
     @Override
     public Map<Slice, BucketedValue> checkpoint(long windowId)
     {
+      releaseMemory();
       try {
         //transferring the data from flash to check-pointed state in finally block and re-initializing the flash.
         return flash;
@@ -444,6 +523,7 @@ public interface Bucket extends ManagedStateComponent
     @Override
     public void committed(long committedWindowId)
     {
+      releaseMemory();
       Iterator<Map.Entry<Long, Map<Slice, BucketedValue>>> stateIterator = checkpointedData.entrySet().iterator();
 
       while (stateIterator.hasNext()) {
@@ -458,12 +538,18 @@ public interface Bucket extends ManagedStateComponent
             fileCache.remove(key);
           }
 
+          long memoryFreed = 0;
+
           for (BucketedValue bucketedValue : bucketData.values()) {
             FileAccess.FileReader reader = readers.get(bucketedValue.getTimeBucket());
             if (reader != null) {
               //closing the file reader for the time bucket if it is in memory because the time-bucket is modified
               //so it will be re-written by BucketsDataManager
               try {
+                BucketsFileSystem.TimeBucketMeta tbm = cachedBucketMetas.get(bucketedValue.getTimeBucket());
+                if (tbm != null) {
+                  memoryFreed += tbm.getSizeInBytes();
+                }
                 LOG.debug("closing reader {} {}", bucketId, bucketedValue.getTimeBucket());
                 reader.close();
               } catch (IOException e) {
@@ -475,8 +561,10 @@ public interface Bucket extends ManagedStateComponent
               break;
             }
           }
-
-          committedData.put(savedWindow, bucketData);
+          sizeInBytes.getAndAdd(-memoryFreed);
+          if (!bucketData.isEmpty()) {
+            committedData.put(savedWindow, bucketData);
+          }
           stateIterator.remove();
         } else {
           break;
@@ -532,6 +620,19 @@ public interface Bucket extends ManagedStateComponent
     ConcurrentSkipListMap<Long, Map<Slice, BucketedValue>> getCheckpointedData()
     {
       return checkpointedData;
+    }
+
+
+    @Override
+    public WindowedBlockStream getKeyStream()
+    {
+      return keyStream;
+    }
+
+    @Override
+    public WindowedBlockStream getValueStream()
+    {
+      return valueStream;
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultBucket.class);

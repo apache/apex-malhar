@@ -18,7 +18,9 @@
  */
 package com.datatorrent.contrib.formatter;
 
-import java.util.Date;
+import java.io.IOException;
+
+import javax.validation.ConstraintViolationException;
 
 import org.joda.time.DateTime;
 import org.junit.Assert;
@@ -27,13 +29,25 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-import com.datatorrent.contrib.formatter.CsvFormatter;
+import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.Context;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.contrib.parser.CsvPOJOParserTest.Ad;
+import com.datatorrent.lib.appdata.schemas.SchemaUtils;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 
 public class CsvFormatterTest
 {
 
+  private static final String filename = "schema.json";
   CsvFormatter operator;
   CollectorTestSink<Object> validDataSink;
   CollectorTestSink<String> invalidDataSink;
@@ -49,8 +63,8 @@ public class CsvFormatterTest
     {
       super.starting(description);
       operator = new CsvFormatter();
-      operator.setFieldInfo("name:string,dept:string,eid:integer,dateOfJoining:date");
-      operator.setLineDelimiter("\r\n");
+      operator.setClazz(Ad.class);
+      operator.setSchema(SchemaUtils.jarResourceFileToString(filename));
       validDataSink = new CollectorTestSink<Object>();
       invalidDataSink = new CollectorTestSink<String>();
       TestUtils.setSink(operator.out, validDataSink);
@@ -70,95 +84,97 @@ public class CsvFormatterTest
   public void testPojoReaderToCsv()
   {
     operator.setup(null);
-    EmployeeBean emp = new EmployeeBean();
-    emp.setName("john");
-    emp.setDept("cs");
-    emp.setEid(1);
-    emp.setDateOfJoining(new DateTime().withDate(2015, 1, 1).toDate());
-    operator.in.process(emp);
+    Ad ad = new Ad();
+    ad.setCampaignId(9823);
+    ad.setAdId(1234);
+    ad.setAdName("ad");
+    ad.setBidPrice(1.2);
+    ad.setStartDate(
+        new DateTime().withDate(2015, 1, 1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).toDate());
+    ad.setEndDate(new DateTime().withDate(2016, 1, 1).toDate());
+    ad.setSecurityCode(12345678);
+    ad.setParentCampaign("CAMP_AD");
+    ad.setActive(true);
+    ad.setWeatherTargeted('y');
+    ad.setValid("valid");
+    operator.in.process(ad);
     Assert.assertEquals(1, validDataSink.collectedTuples.size());
     Assert.assertEquals(0, invalidDataSink.collectedTuples.size());
     String csvOp = (String)validDataSink.collectedTuples.get(0);
     Assert.assertNotNull(csvOp);
-    Assert.assertEquals("john,cs,1,01/01/2015" + operator.getLineDelimiter(), csvOp);
+    Assert.assertEquals("1234,9823,ad,1.2,2015-01-01 00:00:00,01/01/2016,12345678,true,false,CAMP_AD,y,valid\r\n",
+        csvOp);
+    Assert.assertEquals(1, operator.getIncomingTuplesCount());
+    Assert.assertEquals(0, operator.getErrorTupleCount());
+    Assert.assertEquals(1, operator.getEmittedObjectCount());
   }
 
   @Test
-  public void testPojoReaderToCsvMultipleDate()
+  public void testPojoReaderToCsvNullInput()
   {
-    operator.setFieldInfo("name:string,dept:string,eid:integer,dateOfJoining:date,dateOfBirth:date|dd-MMM-yyyy");
     operator.setup(null);
-    EmployeeBean emp = new EmployeeBean();
-    emp.setName("john");
-    emp.setDept("cs");
-    emp.setEid(1);
-    emp.setDateOfJoining(new DateTime().withDate(2015, 1, 1).toDate());
-    emp.setDateOfBirth(new DateTime().withDate(2015, 1, 1).toDate());
-    operator.in.process(emp);
-    Assert.assertEquals(1, validDataSink.collectedTuples.size());
-    Assert.assertEquals(0, invalidDataSink.collectedTuples.size());
-    String csvOp = (String)validDataSink.collectedTuples.get(0);
-    Assert.assertNotNull(csvOp);
-    Assert.assertEquals("john,cs,1,01/01/2015,01-Jan-2015" + operator.getLineDelimiter(), csvOp);
+    operator.in.process(null);
+    Assert.assertEquals(0, validDataSink.collectedTuples.size());
+    Assert.assertEquals(1, invalidDataSink.collectedTuples.size());
+    Assert.assertEquals(1, operator.getIncomingTuplesCount());
+    Assert.assertEquals(1, operator.getErrorTupleCount());
+    Assert.assertEquals(0, operator.getEmittedObjectCount());
+
   }
 
-  public static class EmployeeBean
+  @Test
+  public void testApplication() throws IOException, Exception
   {
-
-    private String name;
-    private String dept;
-    private int eid;
-    private Date dateOfJoining;
-    private Date dateOfBirth;
-
-    public String getName()
-    {
-      return name;
+    try {
+      LocalMode lma = LocalMode.newInstance();
+      Configuration conf = new Configuration(false);
+      lma.prepareDAG(new CsvParserApplication(), conf);
+      LocalMode.Controller lc = lma.getController();
+      lc.run(5000);// runs for 5 seconds and quits
+    } catch (ConstraintViolationException e) {
+      Assert.fail("constraint violations: " + e.getConstraintViolations());
     }
+  }
 
-    public void setName(String name)
+  public static class CsvParserApplication implements StreamingApplication
+  {
+    @Override
+    public void populateDAG(DAG dag, Configuration conf)
     {
-      this.name = name;
+      PojoEmitter input = dag.addOperator("data", new PojoEmitter());
+      CsvFormatter formatter = dag.addOperator("formatter", new CsvFormatter());
+      dag.getMeta(formatter).getMeta(formatter.in).getAttributes().put(Context.PortContext.TUPLE_CLASS, Ad.class);
+      formatter.setSchema(SchemaUtils.jarResourceFileToString("schema.json"));
+      ConsoleOutputOperator output = dag.addOperator("output", new ConsoleOutputOperator());
+      ConsoleOutputOperator error = dag.addOperator("error", new ConsoleOutputOperator());
+      output.setDebug(true);
+      dag.addStream("input", input.output, formatter.in);
+      dag.addStream("output", formatter.out, output.input);
+      dag.addStream("err", formatter.err, error.input);
     }
+  }
 
-    public String getDept()
-    {
-      return dept;
-    }
+  public static class PojoEmitter extends BaseOperator implements InputOperator
+  {
+    public final transient DefaultOutputPort<Object> output = new DefaultOutputPort<Object>();
 
-    public void setDept(String dept)
+    @Override
+    public void emitTuples()
     {
-      this.dept = dept;
-    }
-
-    public int getEid()
-    {
-      return eid;
-    }
-
-    public void setEid(int eid)
-    {
-      this.eid = eid;
-    }
-
-    public Date getDateOfJoining()
-    {
-      return dateOfJoining;
-    }
-
-    public void setDateOfJoining(Date dateOfJoining)
-    {
-      this.dateOfJoining = dateOfJoining;
-    }
-
-    public Date getDateOfBirth()
-    {
-      return dateOfBirth;
-    }
-
-    public void setDateOfBirth(Date dateOfBirth)
-    {
-      this.dateOfBirth = dateOfBirth;
+      Ad ad = new Ad();
+      ad.setCampaignId(9823);
+      ad.setAdId(1234);
+      ad.setAdName("ad");
+      ad.setBidPrice(1.2);
+      ad.setStartDate(
+          new DateTime().withDate(2015, 1, 1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).toDate());
+      ad.setEndDate(new DateTime().withDate(2016, 1, 1).toDate());
+      ad.setSecurityCode(12345678);
+      ad.setParentCampaign("CAMP_AD");
+      ad.setActive(true);
+      ad.setWeatherTargeted('y');
+      ad.setValid("valid");
+      output.emit(ad);
     }
   }
 

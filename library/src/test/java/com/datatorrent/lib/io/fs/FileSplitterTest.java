@@ -45,10 +45,11 @@ import com.google.common.collect.Sets;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.block.BlockMetadata;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class FileSplitterTest
 {
@@ -114,7 +115,7 @@ public class FileSplitterTest
       Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(Context.DAGContext.APPLICATION_PATH, dataDirectory);
 
-      context = new OperatorContextTestHelper.TestIdOperatorContext(0, attributes);
+      context = mockOperatorContext(0, attributes);
       fileSplitter.setup(context);
 
       fileMetadataSink = new CollectorTestSink<>();
@@ -346,7 +347,7 @@ public class FileSplitterTest
   public void testRecoveryOfPartialFile() throws InterruptedException
   {
     FSWindowDataManager fsIdempotentStorageManager = new FSWindowDataManager();
-    fsIdempotentStorageManager.setRecoveryPath(testMeta.dataDirectory + '/' + "recovery");
+    fsIdempotentStorageManager.setStatePath(testMeta.dataDirectory + '/' + "recovery");
     testMeta.fileSplitter.setWindowDataManager(fsIdempotentStorageManager);
     testMeta.fileSplitter.setBlockSize(2L);
     testMeta.fileSplitter.setBlocksThreshold(2);
@@ -398,33 +399,6 @@ public class FileSplitterTest
         testMeta.blockMetadataSink.collectedTuples.get(0).getFilePath().endsWith(file1));
     Assert.assertTrue("Block file name 1",
         testMeta.blockMetadataSink.collectedTuples.get(1).getFilePath().endsWith(file2));
-  }
-
-  @Test
-  public void testRecursive() throws InterruptedException, IOException
-  {
-    testMeta.fileSplitter.scanner.regex = null;
-    testFileMetadata();
-    testMeta.fileMetadataSink.clear();
-    testMeta.blockMetadataSink.clear();
-
-    Thread.sleep(1000);
-    //added a new relativeFilePath
-    File f13 = new File(testMeta.dataDirectory + "/child", "file13" + ".txt");
-    HashSet<String> lines = Sets.newHashSet();
-    for (int line = 0; line < 2; line++) {
-      lines.add("f13" + "l" + line);
-    }
-    FileUtils.write(f13, StringUtils.join(lines, '\n'));
-
-    //window 2
-    testMeta.fileSplitter.beginWindow(2);
-    testMeta.exchanger.exchange(null);
-    testMeta.fileSplitter.emitTuples();
-    testMeta.fileSplitter.endWindow();
-
-    Assert.assertEquals("window 2: files", 2, testMeta.fileMetadataSink.collectedTuples.size());
-    Assert.assertEquals("window 2: blocks", 1, testMeta.blockMetadataSink.collectedTuples.size());
   }
 
   @Test

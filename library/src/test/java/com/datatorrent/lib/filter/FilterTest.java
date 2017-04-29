@@ -19,8 +19,10 @@
 
 package com.datatorrent.lib.filter;
 
+import java.util.Arrays;
+
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.datatorrent.api.Attribute;
@@ -174,8 +176,25 @@ public class FilterTest
     clearFilterOperator();
   }
 
-  @BeforeClass
-  public static void setup()
+  @Test
+  public void testOptionalExpressionFunctions()
+  {
+    filter.setAdditionalExpressionFunctions(Arrays.asList(new String[] {"org.apache.commons.lang3.BooleanUtils.*"}));
+    prepareFilterOperator(DummyPublicPOJO.class, "({$}.val == 1)");
+    Assert.assertEquals(6, filter.getExpressionFunctions().size());
+  }
+
+  @Test
+  public void testSetOptionalExpressionFunctionsItem()
+  {
+    filter.setOptionalExpressionFunctionsItem(10,"org.apache.commons.lang3.BooleanUtils.*");
+    prepareFilterOperator(DummyPublicPOJO.class, "({$}.val == 1)");
+    Assert.assertEquals(6, filter.getExpressionFunctions().size());
+  }
+
+
+  @Before
+  public void setup()
   {
     data = new DummyPrivatePOJO();
     pdata = new DummyPublicPOJO();

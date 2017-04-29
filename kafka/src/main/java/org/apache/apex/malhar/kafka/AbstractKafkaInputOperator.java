@@ -38,10 +38,13 @@ import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.classification.InterfaceStability;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.consumer.OffsetCommitCallback;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -62,7 +65,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  *
  * <ol>
  * <li>Out-of-box One-to-one and one-to-many partition strategy support plus customizable partition strategy
- *    refer to AbstractKafkaPartitioner </li>
+ * refer to AbstractKafkaPartitioner </li>
  * <li>Fault-tolerant when the input operator goes down, it redeploys on other node</li>
  * <li>At-least-once semantics for operator failure (no matter which operator fails)</li>
  * <li>At-least-once semantics for cold restart (no data loss even if you restart the application)</li>
@@ -74,16 +77,25 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @since 3.3.0
  */
 @InterfaceStability.Evolving
-public abstract class AbstractKafkaInputOperator implements InputOperator, Operator.ActivationListener<Context.OperatorContext>, Operator.CheckpointListener, Partitioner<AbstractKafkaInputOperator>, StatsListener, OffsetCommitCallback
+public abstract class AbstractKafkaInputOperator implements InputOperator,
+    Operator.ActivationListener<Context.OperatorContext>, Operator.CheckpointNotificationListener,
+    Partitioner<AbstractKafkaInputOperator>, StatsListener, OffsetCommitCallback
 {
 
   private static final Logger logger = LoggerFactory.getLogger(AbstractKafkaInputOperator.class);
+
+  static {
+    // We create new consumers periodically to pull metadata (Kafka consumer keeps metadata in cache)
+    // Skip log4j log for ConsumerConfig class to avoid too much noise in application
+    LogManager.getLogger(ConsumerConfig.class).setLevel(Level.WARN);
+  }
 
   public enum InitialOffset
   {
     EARLIEST, // consume from beginning of the partition every time when application restart
     LATEST, // consume from latest of the partition every time when application restart
-    APPLICATION_OR_EARLIEST, // consume from committed position from last run or earliest if there is no committed offset(s)
+    // consume from committed position from last run or earliest if there is no committed offset(s)
+    APPLICATION_OR_EARLIEST,
     APPLICATION_OR_LATEST // consume from committed position from last run or latest if there is no committed offset(s)
   }
 
@@ -94,7 +106,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   private String[] topics;
 
   /**
-   *  offset track for checkpoint
+   * offset track for checkpoint
    */
   private final Map<AbstractKafkaPartitioner.PartitionMeta, Long> offsetTrack = new HashMap<>();
 
@@ -122,7 +134,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
 
   private int holdingBufferSize = 1024;
 
-  private Properties consumerProps;
+  private Properties consumerProps = new Properties();
 
   /**
    * Assignment for each operator instance
@@ -139,6 +151,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
 
   /**
    * By default the strategy is one to one
+   *
    * @see PartitionStrategy
    */
   private PartitionStrategy strategy = PartitionStrategy.ONE_TO_ONE;
@@ -152,7 +165,8 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   /**
    * store offsets with window id, only keep offsets with windows that have not been committed
    */
-  private final transient List<Pair<Long, Map<AbstractKafkaPartitioner.PartitionMeta, Long>>> offsetHistory = new LinkedList<>();
+  private final transient List<Pair<Long, Map<AbstractKafkaPartitioner.PartitionMeta, Long>>> offsetHistory =
+      new LinkedList<>();
 
   /**
    * Application name is used as group.id for kafka consumer
@@ -191,13 +205,20 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   }
 
   @Override
+  public void beforeCheckpoint(long windowId)
+  {
+
+  }
+
+  @Override
   public void committed(long windowId)
   {
     if (initialOffset == InitialOffset.LATEST || initialOffset == InitialOffset.EARLIEST) {
       return;
     }
     //ask kafka consumer wrapper to store the committed offsets
-    for (Iterator<Pair<Long, Map<AbstractKafkaPartitioner.PartitionMeta, Long>>> iter = offsetHistory.iterator(); iter.hasNext(); ) {
+    for (Iterator<Pair<Long, Map<AbstractKafkaPartitioner.PartitionMeta, Long>>> iter =
+        offsetHistory.iterator(); iter.hasNext(); ) {
       Pair<Long, Map<AbstractKafkaPartitioner.PartitionMeta, Long>> item = iter.next();
       if (item.getLeft() <= windowId) {
         if (item.getLeft() == windowId) {
@@ -208,7 +229,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
     }
     if (isIdempotent()) {
       try {
-        windowDataManager.deleteUpTo(operatorId, windowId);
+        windowDataManager.committed(windowId);
       } catch (IOException e) {
         DTThrowable.rethrow(e);
       }
@@ -244,7 +265,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
     emitCount = 0;
     currentWindowId = wid;
     windowStartOffset.clear();
-    if (isIdempotent() && wid <= windowDataManager.getLargestRecoveryWindow()) {
+    if (isIdempotent() && wid <= windowDataManager.getLargestCompletedWindow()) {
       replay(wid);
     } else {
       consumerWrapper.afterReplay();
@@ -254,8 +275,9 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   private void replay(long windowId)
   {
     try {
+      @SuppressWarnings("unchecked")
       Map<AbstractKafkaPartitioner.PartitionMeta, Pair<Long, Long>> windowData =
-          (Map<AbstractKafkaPartitioner.PartitionMeta, Pair<Long, Long>>)windowDataManager.load(operatorId, windowId);
+          (Map<AbstractKafkaPartitioner.PartitionMeta, Pair<Long, Long>>)windowDataManager.retrieve(windowId);
       consumerWrapper.emitImmediately(windowData);
     } catch (IOException e) {
       DTThrowable.rethrow(e);
@@ -279,14 +301,12 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
         for (Map.Entry<AbstractKafkaPartitioner.PartitionMeta, Long> e : windowStartOffset.entrySet()) {
           windowData.put(e.getKey(), new MutablePair<>(e.getValue(), offsetTrack.get(e.getKey()) - e.getValue()));
         }
-        windowDataManager.save(windowData, operatorId, currentWindowId);
+        windowDataManager.save(windowData, currentWindowId);
       } catch (IOException e) {
         DTThrowable.rethrow(e);
       }
     }
   }
-
-
 
   @Override
   public void setup(Context.OperatorContext context)
@@ -297,7 +317,6 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
     windowDataManager.setup(context);
     operatorId = context.getId();
   }
-
 
   @Override
   public void teardown()
@@ -366,8 +385,8 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   }
 
   /**
-   *
    * A callback from consumer after it commits the offset
+   *
    * @param map
    * @param e
    */
@@ -419,9 +438,9 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   }
 
   /**
-   *  Same setting as bootstrap.servers property to KafkaConsumer
-   *  refer to http://kafka.apache.org/documentation.html#newconsumerconfigs
-   *  To support multi cluster, you can have multiple bootstrap.servers separated by ";"
+   * Same setting as bootstrap.servers property to KafkaConsumer
+   * refer to http://kafka.apache.org/documentation.html#newconsumerconfigs
+   * To support multi cluster, you can have multiple bootstrap.servers separated by ";"
    */
   public String getClusters()
   {
@@ -458,13 +477,13 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   }
 
   /**
-   *  Initial offset, it should be one of the following
-   *  <ul>
-   *    <li>earliest</li>
-   *    <li>latest</li>
-   *    <li>application_or_earliest</li>
-   *    <li>application_or_latest</li>
-   *  </ul>
+   * Initial offset, it should be one of the following
+   * <ul>
+   * <li>earliest</li>
+   * <li>latest</li>
+   * <li>application_or_earliest</li>
+   * <li>application_or_latest</li>
+   * </ul>
    */
   public String getInitialOffset()
   {
@@ -496,7 +515,6 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
    * <li>key.deserializer</li>
    * <li>value.deserializer</li>
    * </ul>
-   *
    */
   public Properties getConsumerProps()
   {
@@ -518,7 +536,7 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
 
   /**
    * @see <a href="http://kafka.apache.org/090/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html#poll(long)">
-   *   org.apache.kafka.clients.consumer.KafkaConsumer.poll</a>
+   * org.apache.kafka.clients.consumer.KafkaConsumer.poll</a>
    */
   public long getConsumerTimeout()
   {
@@ -594,8 +612,8 @@ public abstract class AbstractKafkaInputOperator implements InputOperator, Opera
   }
 
   /**
-   * @omitFromUI
    * @return current checkpointed offsets
+   * @omitFromUI
    */
   public Map<AbstractKafkaPartitioner.PartitionMeta, Long> getOffsetTrack()
   {

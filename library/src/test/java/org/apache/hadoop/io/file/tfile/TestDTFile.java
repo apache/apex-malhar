@@ -36,7 +36,7 @@ import junit.framework.TestCase;
 
 /**
  * test tfile features.
- * 
+ *
  */
 public class TestDTFile extends TestCase
 {
@@ -323,7 +323,7 @@ public class TestDTFile extends TestCase
     scanner.seekTo(new byte[0]);
     byte[] val2 = readValue(scanner);
     assertTrue(Arrays.equals(val1, val2));
-    
+
     // check for lowerBound
     scanner.lowerBound(getSomeKey(50));
     assertTrue("locaton lookup failed", scanner.currentLocation

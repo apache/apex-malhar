@@ -51,7 +51,7 @@ class ZeroMQMessageGenerator {
 
   public void send(Object message)
   {
-    String msg = message.toString();   
+    String msg = message.toString();
     publisher.send(msg.getBytes(), 0);
   }
 
@@ -72,8 +72,8 @@ class ZeroMQMessageGenerator {
       ArrayList<HashMap<String, Integer>>  dataMaps = MessageQueueTestHelper.getMessages();
       for(int j =0; j < dataMaps.size(); j++)
       {
-        send(dataMaps.get(j));  
-      }     
+        send(dataMaps.get(j));
+      }
     }
   }
 }

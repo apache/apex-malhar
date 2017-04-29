@@ -164,5 +164,5 @@ public final class AggregatorUtils
 
     return new FieldsDescriptor(fieldToType, fieldToSerde);
   }
-        
+
 }

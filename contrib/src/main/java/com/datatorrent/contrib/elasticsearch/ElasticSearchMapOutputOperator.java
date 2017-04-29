@@ -38,7 +38,7 @@ public class ElasticSearchMapOutputOperator<T extends Map<String, Object>> exten
   private String type;
 
   /**
-   * 
+   *
    */
   public ElasticSearchMapOutputOperator()
   {
@@ -48,7 +48,7 @@ public class ElasticSearchMapOutputOperator<T extends Map<String, Object>> exten
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * com.datatorrent.contrib.elasticsearch.AbstractElasticSearchOutputOperator#setSource(org.elasticsearch.action.index
    * .IndexRequestBuilder, java.lang.Object)
@@ -61,7 +61,7 @@ public class ElasticSearchMapOutputOperator<T extends Map<String, Object>> exten
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.datatorrent.contrib.elasticsearch.AbstractElasticSearchOutputOperator#getId(java.lang.Object)
    */
   @Override
@@ -103,7 +103,7 @@ public class ElasticSearchMapOutputOperator<T extends Map<String, Object>> exten
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.datatorrent.contrib.elasticsearch.AbstractElasticSearchOutputOperator#getIndexName(java.lang.Object)
    */
   @Override
@@ -128,5 +128,5 @@ public class ElasticSearchMapOutputOperator<T extends Map<String, Object>> exten
   protected String getType(T tuple)
   {
     return type;
-  }  
+  }
 }

@@ -1,0 +1,78 @@
+{
+    "padding": "_",
+    "alignment": "left",
+    "fields": [
+        {
+            "name": "adId",
+            "type": "Integer",
+            "length": "3",
+            "padding": "0"
+        },
+        {
+            "name": "campaignId",
+            "type": "Integer",
+            "length": "3",
+            "padding": " "
+
+        },
+        {
+            "name": "adName",
+            "type": "String",
+            "length": "10",
+            "alignment":"right"
+        },
+        {
+            "name": "bidPrice",
+            "type": "Double",
+            "length": "3"
+        },
+        {
+            "name": "startDate",
+            "type": "Date",
+            "format": "yyyy-MM-dd HH:mm:ss",
+            "length": "19"
+
+        },
+        {
+            "name": "endDate",
+            "type": "Date",
+            "format": "dd/MM/yyyy",
+            "length": "10"
+        },
+        {
+            "name": "securityCode",
+            "type": "Long",
+            "length": "5"
+        },
+        {
+            "name": "active",
+            "type": "Boolean",
+            "length": "1",
+            "trueValue": "y",
+            "falseValue": "n"
+        },
+        {
+            "name": "optimized",
+            "type": "Boolean",
+            "length": "1",
+            "trueValue": "y",
+            "falseValue": "n"
+        },
+        {
+            "name": "parentCampaign",
+            "type": "String",
+            "length": "10"
+        },
+        {
+            "name": "weatherTargeted",
+            "type": "Character",
+            "length": "1"
+        },
+        {
+            "name": "valid",
+            "type": "String",
+            "length": "10",
+            "padding":" "
+        }
+    ]
+}

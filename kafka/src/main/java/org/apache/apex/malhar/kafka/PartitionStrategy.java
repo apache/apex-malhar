@@ -31,7 +31,8 @@ public enum PartitionStrategy
    */
   ONE_TO_ONE,
   /**
-   * Each operator consumes from several kafka partitions with overall input rate under some certain hard limit in msgs/s or bytes/s
+   * Each operator consumes from several kafka partitions with overall input rate under
+   * some certain hard limit in msgs/s or bytes/s
    * For now it <b>only</b> support <b>simple kafka consumer</b>
    */
   ONE_TO_MANY,

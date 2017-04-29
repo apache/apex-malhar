@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<configuration>
+  <!-- Kafka Operator Properties -->
+  <property>
+    <name>dt.operator.KafkaInput.prop.topics</name>
+    <value>dataTopic</value>
+  </property>
+  <property>
+    <name>dt.operator.KafkaInput.prop.clusters</name>
+    <value>localhost:9092</value>  <!-- broker (NOT zookeeper) address -->
+  </property>
+
+  <!-- CSV Parser Properties -->
+  <property>
+    <name>dt.operator.CSVParser.prop.schema</name>
+    <value>{"separator":",","quoteChar":"\"","fields":[{"name":"RowTime","type":"Date","constraints":{"format":"dd/MM/yyyy hh:mm:ss Z"}},{"name":"id","type":"Integer"},{"name":"Product","type":"String"},{"name":"units","type":"Integer"}]}</value>
+  </property>
+
+  <!-- SQL Properties -->
+  <property>
+    <name>sqlSchemaInputName</name>
+    <value>FROMCSV</value>
+  </property>
+  <property>
+    <name>sqlSchemaOutputName</name>
+    <value>TOFILE</value>
+  </property>
+  <property>
+    <name>folderPath</name>
+    <value>/tmp/output</value>
+  </property>
+  <property>
+    <name>fileName</name>
+    <value>output.txt</value>
+  </property>
+  <property>
+    <name>sqlSchemaOutputDef</name>
+    <value>{"separator":",","quoteChar":"\"","fields":[{"name":"RowTime1","type":"Date","constraints":{"format":"dd/MM/yyyy hh:mm:ss Z"}},{"name":"RowTime2","type":"Date","constraints":{"format":"dd/MM/yyyy hh:mm:ss Z"}},{"name":"Product","type":"String"}]}</value>
+  </property>
+  <property>
+    <name>sql</name>
+    <value>INSERT INTO TOFILE SELECT STREAM ROWTIME, FLOOR(ROWTIME TO DAY), APEXCONCAT('OILPAINT', SUBSTRING(PRODUCT, 6, 7)) FROM FROMCSV WHERE ID > 3 AND PRODUCT LIKE 'paint%'</value>
+  </property>
+</configuration>
+

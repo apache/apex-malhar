@@ -59,7 +59,7 @@ public class GeodeCheckpointStoreTest
     store.setTableName(REGION_NAME);
     store.connect();
   }
-  
+
   @Test
   public void testSave() throws IOException
   {

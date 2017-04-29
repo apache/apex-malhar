@@ -33,11 +33,13 @@ import kafka.utils.VerifiableProperties;
  */
 public class KafkaTestPartitioner implements Partitioner
 {
-  public KafkaTestPartitioner(VerifiableProperties props) {
-    
+  public KafkaTestPartitioner(VerifiableProperties props)
+  {
+
   }
 
-  public KafkaTestPartitioner() {
+  public KafkaTestPartitioner()
+  {
 
   }
 
@@ -45,7 +47,7 @@ public class KafkaTestPartitioner implements Partitioner
   public int partition(String topic, Object key, byte[] bytes, Object o1, byte[] bytes1, Cluster cluster)
   {
     int num_partitions = cluster.partitionsForTopic(topic).size();
-    return Integer.parseInt((String)key)%num_partitions;
+    return Integer.parseInt((String)key) % num_partitions;
   }
 
   @Override

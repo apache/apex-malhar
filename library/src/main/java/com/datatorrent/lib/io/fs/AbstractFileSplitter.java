@@ -71,11 +71,6 @@ public abstract class AbstractFileSplitter extends BaseOperator
   public final transient DefaultOutputPort<BlockMetadata.FileBlockMetadata> blocksMetadataOutput =
       new DefaultOutputPort<>();
 
-  public AbstractFileSplitter()
-  {
-    blocksThreshold = Integer.MAX_VALUE;
-  }
-
   @Override
   public void setup(Context.OperatorContext context)
   {
@@ -183,7 +178,7 @@ public abstract class AbstractFileSplitter extends BaseOperator
    */
   protected BlockMetadata.FileBlockMetadata createBlockMetadata(FileMetadata fileMetadata)
   {
-    return new BlockMetadata.FileBlockMetadata(fileMetadata.getFilePath());
+    return new BlockMetadata.FileBlockMetadata(fileMetadata.getFilePath(), fileMetadata.getFileLength());
   }
 
   /**
@@ -197,7 +192,6 @@ public abstract class AbstractFileSplitter extends BaseOperator
   {
     LOG.debug("file {}", fileInfo.getFilePath());
     FileMetadata fileMetadata = createFileMetadata(fileInfo);
-    LOG.debug("fileMetadata {}", fileMetadata);
     Path path = new Path(fileInfo.getFilePath());
 
     fileMetadata.setFileName(path.getName());
@@ -280,11 +274,23 @@ public abstract class AbstractFileSplitter extends BaseOperator
     return blockSize;
   }
 
+  /**
+   * Sets number of blocks to be emitted per window.<br/>
+   * A lot of blocks emitted per window can overwhelm the downstream operators. Set this value considering blockSize and
+   * readersCount.
+   * @param threshold
+   */
   public void setBlocksThreshold(int threshold)
   {
     this.blocksThreshold = threshold;
   }
 
+  /**
+   * Gets number of blocks to be emitted per window.<br/>
+   * A lot of blocks emitted per window can overwhelm the downstream operators. Set this value considering blockSize and
+   * readersCount.
+   * @return
+   */
   public int getBlocksThreshold()
   {
     return blocksThreshold;
@@ -382,7 +388,7 @@ public abstract class AbstractFileSplitter extends BaseOperator
       this.filePath = filePath;
       discoverTime = System.currentTimeMillis();
     }
-    
+
     protected FileMetadata(FileMetadata fileMetadata)
     {
       this();

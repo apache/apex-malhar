@@ -33,10 +33,10 @@ public class TupleCacheOutputOperator<T>  extends BaseOperator
 {
   private static final long serialVersionUID = 3090932382383138500L;
   private static final Logger logger = LoggerFactory.getLogger( TupleCacheOutputOperator.class );
-  
-  //one instance of TupleCacheOutputOperator map to one 
+
+  //one instance of TupleCacheOutputOperator map to one
   private static Map< String, List<?> > receivedTuplesMap = new HashMap< String, List<?>>();
-  
+
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>() {
 
     @Override
@@ -45,14 +45,14 @@ public class TupleCacheOutputOperator<T>  extends BaseOperator
       processTuple( tuple );
     }
   };
-  
+
   private String uuid;
-  
+
   public TupleCacheOutputOperator()
   {
     uuid = java.util.UUID.randomUUID().toString();
   }
-  
+
   public String getUuid()
   {
     return uuid;
@@ -74,7 +74,7 @@ public class TupleCacheOutputOperator<T>  extends BaseOperator
   {
     return (List<T>)receivedTuplesMap.get(uuid);
   }
-  
+
   public static List<Object> getReceivedTuples( String uuid )
   {
     return (List<Object>)receivedTuplesMap.get(uuid);

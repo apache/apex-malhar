@@ -25,14 +25,14 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  * operator should be created from this skeleton implementation.
  * <p>
  * </p>
- * 
+ *
  * @displayName Abstract Geode Output
  * @category Output
  * @tags geode, key value
  *
  * @param <T>
  *          The tuple type.
- * 
+ *
  *
  * @since 3.4.0
  */

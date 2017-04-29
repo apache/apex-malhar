@@ -40,6 +40,7 @@ import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.Futures;
 
+import com.datatorrent.api.Context;
 import com.datatorrent.lib.fileaccess.FileAccess;
 import com.datatorrent.netlet.util.Slice;
 
@@ -59,7 +60,7 @@ public class ManagedTimeUnifiedStateImpl extends AbstractManagedStateImpl implem
   }
 
   @Override
-  public int getNumBuckets()
+  public long getNumBuckets()
   {
     return timeBucketAssigner.getNumBuckets();
   }
@@ -67,14 +68,14 @@ public class ManagedTimeUnifiedStateImpl extends AbstractManagedStateImpl implem
   @Override
   public void put(long time, @NotNull Slice key, @NotNull Slice value)
   {
-    long timeBucket = timeBucketAssigner.getTimeBucketFor(time);
+    long timeBucket = timeBucketAssigner.getTimeBucket(time);
     putInBucket(timeBucket, timeBucket, key, value);
   }
 
   @Override
   public Slice getSync(long time, @NotNull Slice key)
   {
-    long timeBucket = timeBucketAssigner.getTimeBucketFor(time);
+    long timeBucket = timeBucketAssigner.getTimeBucket(time);
     if (timeBucket == -1) {
       //time is expired so return expired slice.
       return BucketedState.EXPIRED;
@@ -85,7 +86,7 @@ public class ManagedTimeUnifiedStateImpl extends AbstractManagedStateImpl implem
   @Override
   public Future<Slice> getAsync(long time, @NotNull Slice key)
   {
-    long timeBucket = timeBucketAssigner.getTimeBucketFor(time);
+    long timeBucket = timeBucketAssigner.getTimeBucket(time);
     if (timeBucket == -1) {
       //time is expired so return expired slice.
       return Futures.immediateFuture(BucketedState.EXPIRED);
@@ -101,10 +102,10 @@ public class ManagedTimeUnifiedStateImpl extends AbstractManagedStateImpl implem
 
     //collect all the purged time buckets
     while (null != (purgedTimeBucket = purgedTimeBuckets.poll())) {
-      int purgedTimeBucketIdx = getBucketIdx(purgedTimeBucket);
-      if (buckets[purgedTimeBucketIdx] != null && buckets[purgedTimeBucketIdx].getBucketId() == purgedTimeBucket) {
-        bucketsForTeardown.add(buckets[purgedTimeBucketIdx]);
-        buckets[purgedTimeBucketIdx] = null;
+      long purgedTimeBucketIdx = getBucketIdx(purgedTimeBucket);
+      if (buckets.containsKey(purgedTimeBucketIdx) && buckets.get(purgedTimeBucketIdx).getBucketId() == purgedTimeBucket) {
+        bucketsForTeardown.add(buckets.get(purgedTimeBucketIdx));
+        buckets.remove(purgedTimeBucketIdx);
       }
     }
 
@@ -121,14 +122,14 @@ public class ManagedTimeUnifiedStateImpl extends AbstractManagedStateImpl implem
   }
 
   @Override
-  protected void handleBucketConflict(int bucketIdx, long newBucketId)
+  protected void handleBucketConflict(long bucketId, long newBucketId)
   {
-    Preconditions.checkArgument(buckets[bucketIdx].getBucketId() < newBucketId, "new time bucket should have a value"
+    Preconditions.checkArgument(buckets.get(bucketId).getBucketId() < newBucketId, "new time bucket should have a value"
         + " greater than the old time bucket");
     //Time buckets are purged periodically so here a bucket conflict is expected and so we just ignore conflicts.
-    bucketsForTeardown.add(buckets[bucketIdx]);
-    buckets[bucketIdx] = newBucket(newBucketId);
-    buckets[bucketIdx].setup(this);
+    bucketsForTeardown.add(buckets.get(bucketId));
+    buckets.put(bucketId, newBucket(newBucketId));
+    buckets.get(bucketId).setup(this);
   }
 
   @Override
@@ -136,6 +137,17 @@ public class ManagedTimeUnifiedStateImpl extends AbstractManagedStateImpl implem
   {
     purgedTimeBuckets.add(timeBucket);
     super.purgeTimeBucketsLessThanEqualTo(timeBucket);
+  }
+
+  @Override
+  public void setup(Context.OperatorContext context)
+  {
+    // set UnboundedTimeBucketAssigner to this managed state impl
+    if (timeBucketAssigner == null) {
+      UnboundedTimeBucketAssigner unboundedTimeBucketAssigner = new UnboundedTimeBucketAssigner();
+      setTimeBucketAssigner(unboundedTimeBucketAssigner);
+    }
+    super.setup(context);
   }
 
   /**
@@ -204,7 +216,7 @@ public class ManagedTimeUnifiedStateImpl extends AbstractManagedStateImpl implem
     @Override
     protected void addBucketName(long bucketId)
     {
-      long operatorId = (long)managedStateContext.getOperatorContext().getId();
+      long operatorId = managedStateContext.getOperatorContext().getId();
       if (!bucketNamesOnFS.contains(operatorId)) {
         bucketNamesOnFS.add(operatorId);
       }

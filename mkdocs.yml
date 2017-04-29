@@ -3,8 +3,27 @@ site_favicon: favicon.ico
 theme: readthedocs
 pages:
 - Apache Apex Malhar: index.md
+- APIs:
+    - SQL: apis/calcite.md
 - Operators:
-    - Kafka Input: operators/kafkaInputOperator.md
-    - File Splitter: operators/file_splitter.md
     - Block Reader: operators/block_reader.md
+    - CSV Formatter: operators/csvformatter.md
+    - CSV Parser: operators/csvParserOperator.md
+    - Deduper: operators/deduper.md
+    - Enricher: operators/enricher.md
+    - File Input: operators/fsInputOperator.md
     - File Output: operators/file_output.md
+    - File Splitter: operators/file_splitter.md
+    - Filter: operators/filter.md
+    - Fixed Width Parser: operators/fixedWidthParserOperator.md
+    - Jdbc Output Operator: operators/AbstractJdbcTransactionableOutputOperator.md
+    - JDBC Poller Input: operators/jdbcPollInputOperator.md
+    - JMS Input: operators/jmsInputOperator.md
+    - JSON Formatter: operators/jsonFormatter.md
+    - JSON Parser: operators/jsonParser.md
+    - Kafka Input: operators/kafkaInputOperator.md
+    - Regex Parser: operators/regexparser.md
+    - S3 Output Module: operators/s3outputmodule.md
+    - Transformer: operators/transform.md
+    - Windowed Operator: operators/windowedOperator.md
+    - XML Parser: operators/xmlParserOperator.md

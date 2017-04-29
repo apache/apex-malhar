@@ -48,7 +48,7 @@ import com.datatorrent.lib.appdata.schemas.CustomTimeBucket;
  * the sum aggregator. And the {DimensionsEventregate} event produced by the sum aggregator will contain two fields,
  * one for cost and one for revenue.
  * </p>
- * 
+ *
  *
  * @since 3.4.0
  */

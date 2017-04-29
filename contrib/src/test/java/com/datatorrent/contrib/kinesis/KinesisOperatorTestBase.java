@@ -44,7 +44,7 @@ public class KinesisOperatorTestBase
   protected transient AWSCredentialsProvider credentials = null;
 
   private static final Logger logger = LoggerFactory.getLogger(KinesisOperatorTestBase.class);
-  
+
   private void createClient()
   {
     credentials = new DefaultAWSCredentialsProviderChain();
@@ -56,27 +56,27 @@ public class KinesisOperatorTestBase
   {
     CreateStreamRequest streamRequest = null;
     createClient();
-    
+
     for( int i=0; i<100; ++i )
     {
-      try 
+      try
       {
         streamName = streamNamePrefix + i;
         streamRequest = new CreateStreamRequest();
         streamRequest.setStreamName(streamName);
         streamRequest.setShardCount(shardCount);
         client.createStream(streamRequest);
-  
+
         logger.info( "created stream {}.", streamName );
         Thread.sleep(30000);
-        
+
         break;
       }
       catch( ResourceInUseException riue )
       {
         logger.warn( "Resource is in use.", riue.getMessage() );
       }
-      catch (Exception e) 
+      catch (Exception e)
       {
         logger.error( "Got exception.", e );
         throw new RuntimeException(e);

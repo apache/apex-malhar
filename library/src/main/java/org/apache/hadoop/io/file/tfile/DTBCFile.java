@@ -47,18 +47,18 @@ import org.apache.hadoop.io.file.tfile.Compression.Algorithm;
 
 
 /**
- * 
+ *
  * <ul>
- * <li>The file format of DTFile is same as {@link TFile} with different reader implementation. 
+ * <li>The file format of DTFile is same as {@link TFile} with different reader implementation.
  * It reads data block by block and cache the binary block data into memory to speed up the random read.
- * 
- * <li>The public api of {@link Reader} is as same as it is in {@link TFile} {@link org.apache.hadoop.io.file.tfile.TFile.Reader} implementation. 
+ *
+ * <li>The public api of {@link Reader} is as same as it is in {@link TFile} {@link org.apache.hadoop.io.file.tfile.TFile.Reader} implementation.
  * Besides, it provides getBlockBuffer(), getKeyOffset(), getKeyLength(), getValueOffset(), getValueLength() method
  *  to expose raw block, key, value data to user to avoid unnecessary internal/external data copy
- *  
+ *
  * <li>In the performance test, It shows no difference in sequential reads and 20x faster in random reads(If most of them hit memory)
  * </ul>
- * 
+ *
  * Block Compressed file, the underlying physical storage layer for TFile.
  * BCFile provides the basic block level compression for the data block and meta
  * blocks. It is separated from TFile as it may be used for other
@@ -102,7 +102,7 @@ final class DTBCFile {
     private static interface BlockRegister {
       /**
        * Register a block that is fully closed.
-       * 
+       *
        * @param raw
        *          The size of block in terms of uncompressed bytes.
        * @param offsetStart
@@ -156,7 +156,7 @@ final class DTBCFile {
 
       /**
        * Get the output stream for BlockAppender's consumption.
-       * 
+       *
        * @return the output stream suitable for writing block data.
        */
       OutputStream getOutputStream() {
@@ -165,7 +165,7 @@ final class DTBCFile {
 
       /**
        * Get the current position in file.
-       * 
+       *
        * @return The current byte offset in underlying file.
        * @throws IOException
        */
@@ -179,7 +179,7 @@ final class DTBCFile {
 
       /**
        * Current size of compressed data.
-       * 
+       *
        * @return
        * @throws IOException
        */
@@ -206,7 +206,7 @@ final class DTBCFile {
 
     /**
      * Access point to stuff data into a block.
-     * 
+     *
      * TODO: Change DataOutputStream to something else that tracks the size as
      * long instead of int. Currently, we will wrap around if the row block size
      * is greater than 4GB.
@@ -219,7 +219,7 @@ final class DTBCFile {
 
       /**
        * Constructor
-       * 
+       *
        * @param register
        *          the block register, which is called when the block is closed.
        * @param wbs
@@ -233,7 +233,7 @@ final class DTBCFile {
 
       /**
        * Get the raw size of the block.
-       * 
+       *
        * @return the number of uncompressed bytes written through the
        *         BlockAppender so far.
        * @throws IOException
@@ -248,7 +248,7 @@ final class DTBCFile {
 
       /**
        * Get the compressed size of the block in progress.
-       * 
+       *
        * @return the number of compressed bytes written to the underlying FS
        *         file. The size may be smaller than actual need to compress the
        *         all data written due to internal buffering inside the
@@ -289,7 +289,7 @@ final class DTBCFile {
 
     /**
      * Constructor
-     * 
+     *
      * @param fout
      *          FS output stream.
      * @param compressionName
@@ -383,7 +383,7 @@ final class DTBCFile {
      * block. There can only be one BlockAppender stream active at any time.
      * Regular Blocks may not be created after the first Meta Blocks. The caller
      * must call BlockAppender.close() to conclude the block creation.
-     * 
+     *
      * @param name
      *          The name of the Meta Block. The name must not conflict with
      *          existing Meta Blocks.
@@ -407,7 +407,7 @@ final class DTBCFile {
      * active at any time. Regular Blocks may not be created after the first
      * Meta Blocks. The caller must call BlockAppender.close() to conclude the
      * block creation.
-     * 
+     *
      * @param name
      *          The name of the Meta Block. The name must not conflict with
      *          existing Meta Blocks.
@@ -426,7 +426,7 @@ final class DTBCFile {
      * block. There can only be one BlockAppender stream active at any time.
      * Data Blocks may not be created after the first Meta Blocks. The caller
      * must call BlockAppender.close() to conclude the block creation.
-     * 
+     *
      * @return The BlockAppender stream
      * @throws IOException
      */
@@ -474,7 +474,7 @@ final class DTBCFile {
     /**
      * Callback to make sure a data block is added to the internal list when
      * it's being closed.
-     * 
+     *
      */
     private class DataBlockRegister implements BlockRegister {
       DataBlockRegister() {
@@ -545,7 +545,7 @@ final class DTBCFile {
 
       /**
        * Get the output stream for BlockAppender's consumption.
-       * 
+       *
        * @return the output stream suitable for writing block data.
        */
       public ReusableByteArrayInputStream getInputStream() {
@@ -579,7 +579,7 @@ final class DTBCFile {
     public static class BlockReader extends DataInputStream {
       private final RBlockState rBlkState;
       private boolean closed = false;
-      
+
       private ReusableByteArrayInputStream wrappedInputStream = null;
 
       BlockReader(RBlockState rbs) {
@@ -607,7 +607,7 @@ final class DTBCFile {
 
       /**
        * Get the name of the compression algorithm used to compress the block.
-       * 
+       *
        * @return name of the compression algorithm.
        */
       public String getCompressionName() {
@@ -616,7 +616,7 @@ final class DTBCFile {
 
       /**
        * Get the uncompressed size of the block.
-       * 
+       *
        * @return uncompressed size of the block.
        */
       public long getRawSize() {
@@ -625,7 +625,7 @@ final class DTBCFile {
 
       /**
        * Get the compressed size of the block.
-       * 
+       *
        * @return compressed size of the block.
        */
       public long getCompressedSize() {
@@ -634,7 +634,7 @@ final class DTBCFile {
 
       /**
        * Get the starting position of the block in the file.
-       * 
+       *
        * @return the starting position of the block in the file.
        */
       public long getStartPos() {
@@ -646,7 +646,7 @@ final class DTBCFile {
         closed = false;
         rBlkState.renew();
       }
-      
+
       public ReusableByteArrayInputStream getBlockDataInputStream()
       {
         return wrappedInputStream;
@@ -655,7 +655,7 @@ final class DTBCFile {
 
     /**
      * Constructor
-     * 
+     *
      * @param fin
      *          FS input stream.
      * @param fileLength
@@ -696,7 +696,7 @@ final class DTBCFile {
 
     /**
      * Get the name of the default compression algorithm.
-     * 
+     *
      * @return the name of the default compression algorithm.
      */
     public String getDefaultCompressionName() {
@@ -705,7 +705,7 @@ final class DTBCFile {
 
     /**
      * Get version of BCFile file being read.
-     * 
+     *
      * @return version of BCFile file being read.
      */
     public Version getBCFileVersion() {
@@ -714,7 +714,7 @@ final class DTBCFile {
 
     /**
      * Get version of BCFile API.
-     * 
+     *
      * @return version of BCFile API.
      */
     public Version getAPIVersion() {
@@ -733,7 +733,7 @@ final class DTBCFile {
 
     /**
      * Get the number of data blocks.
-     * 
+     *
      * @return the number of data blocks.
      */
     public int getBlockCount() {
@@ -742,7 +742,7 @@ final class DTBCFile {
 
     /**
      * Stream access to a Meta Block.
-     * 
+     *
      * @param name
      *          meta block name
      * @return BlockReader input stream for reading the meta block.
@@ -763,7 +763,7 @@ final class DTBCFile {
 
     /**
      * Stream access to a Data Block.
-     * 
+     *
      * @param blockIndex
      *          0-based data block index.
      * @return BlockReader input stream for reading the data block.
@@ -797,7 +797,7 @@ final class DTBCFile {
     /**
      * Find the smallest Block index whose starting offset is greater than or
      * equal to the specified offset.
-     * 
+     *
      * @param offset
      *          User-specific offset.
      * @return the index to the data Block if such block exists; or -1

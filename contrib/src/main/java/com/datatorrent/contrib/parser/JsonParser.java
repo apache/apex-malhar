@@ -66,8 +66,8 @@ import com.datatorrent.netlet.util.DTThrowable;
  * <b>err</b>:tuples that do not confine to schema are emitted on this port as
  * KeyValPair<String,String><br>
  * Key being the tuple and Val being the reason.
- * 
- * 
+ *
+ *
  * @displayName JsonParser
  * @category Parsers
  * @tags json pojo parser
@@ -180,7 +180,7 @@ public class JsonParser extends Parser<byte[], KeyValPair<String, String>>
 
   /**
    * Get jsonSchema contents as a string to be used during validation
-   * 
+   *
    * @return jsonSchema
    */
   public String getJsonSchema()
@@ -190,7 +190,7 @@ public class JsonParser extends Parser<byte[], KeyValPair<String, String>>
 
   /**
    * Sets jsonSchema to be used during validation
-   * 
+   *
    * @param jsonSchema
    *          schema as a string
    */
@@ -201,7 +201,7 @@ public class JsonParser extends Parser<byte[], KeyValPair<String, String>>
 
   /**
    * Get errorTupleCount
-   * 
+   *
    * @return errorTupleCount
    */
   @VisibleForTesting
@@ -212,7 +212,7 @@ public class JsonParser extends Parser<byte[], KeyValPair<String, String>>
 
   /**
    * Get emittedObjectCount
-   * 
+   *
    * @return emittedObjectCount
    */
   @VisibleForTesting
@@ -223,7 +223,7 @@ public class JsonParser extends Parser<byte[], KeyValPair<String, String>>
 
   /**
    * Get incomingTuplesCount
-   * 
+   *
    * @return incomingTuplesCount
    */
   @VisibleForTesting
@@ -234,7 +234,7 @@ public class JsonParser extends Parser<byte[], KeyValPair<String, String>>
 
   /**
    * Set schema.
-   * 
+   *
    * @param schema
    */
   @VisibleForTesting

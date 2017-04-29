@@ -18,13 +18,16 @@
  */
 package com.datatorrent.benchmark.memsql;
 
-import com.datatorrent.api.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.memsql.MemsqlInputOperator;
 import com.datatorrent.lib.stream.DevNull;
-import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * BenchMark Results
@@ -39,7 +42,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 1.0.5
  */
-@ApplicationAnnotation(name="MemsqlInputBenchmark")
+@ApplicationAnnotation(name = "MemsqlInputBenchmark")
 public class MemsqlInputBenchmark implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(MemsqlInputBenchmark.class);
@@ -50,13 +53,13 @@ public class MemsqlInputBenchmark implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     MemsqlInputOperator memsqlInputOperator = dag.addOperator("memsqlInputOperator",
-                                                                new MemsqlInputOperator());
+        new MemsqlInputOperator());
 
     DevNull<Object> devNull = dag.addOperator("devnull",
-                                      new DevNull<Object>());
+        new DevNull<Object>());
 
     dag.addStream("memsqlconnector",
-                  memsqlInputOperator.outputPort,
-                  devNull.data);
+        memsqlInputOperator.outputPort,
+        devNull.data);
   }
 }

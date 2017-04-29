@@ -84,7 +84,7 @@ public class TestDTFileByteArrays
     this.records1stBlock = numRecords1stBlock;
     this.records2ndBlock = numRecords2ndBlock;
   }
-  
+
   public void init(String compression, String comparator)
   {
     this.compression = compression;
@@ -252,7 +252,7 @@ public class TestDTFileByteArrays
     }
     return scanner.endLocation;
   }
-  
+
   @Test
   public void testLocate() throws IOException
   {

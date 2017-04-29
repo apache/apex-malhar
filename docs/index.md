@@ -1,7 +1,7 @@
 Apache Apex Malhar
 ================================================================================
 
-Apache Apex Malhar is an open source operator and codec library that can be used with the [Apache Apex](http://apex.apache.org/) platform to build real-time streaming applications.  Enabling users to extract value quickly, Malhar operators help get data in, analyze it in real-time, and get data out of Hadoop.  In addition to the operators, the library contains a number of demos applications, demonstrating operator features and capabilities.
+Apache Apex Malhar is an open source operator and codec library that can be used with the [Apache Apex](http://apex.apache.org/) platform to build real-time streaming applications.  Enabling users to extract value quickly, Malhar operators help get data in, analyze it in real-time, and get data out of Hadoop.  In addition to the operators, the library contains a number of example applications, demonstrating operator features and capabilities.
 
 ![MalharDiagram](images/malhar-operators.png)
 

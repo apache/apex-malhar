@@ -32,6 +32,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +75,7 @@ public class KafkaConsumerWrapper implements Closeable
 
   private static final Logger logger = LoggerFactory.getLogger(KafkaConsumerWrapper.class);
 
-  private boolean isAlive = false;
+  private AtomicBoolean isAlive = new AtomicBoolean(false);
 
   private final Map<String, KafkaConsumer<byte[], byte[]>> consumers = new HashMap<>();
 
@@ -129,6 +130,13 @@ public class KafkaConsumerWrapper implements Closeable
         if (meta.getTopicPartition().equals(tp)) {
           kc.resume(tp);
         } else {
+          try {
+            kc.position(tp);
+          } catch (NoOffsetForPartitionException e) {
+            //the poll() method of a consumer will throw exception
+            // if any of subscribed consumers not initialized with position
+            handleNoOffsetForPartitionException(e, kc);
+          }
           kc.pause(tp);
         }
       }
@@ -138,7 +146,7 @@ public class KafkaConsumerWrapper implements Closeable
       while (windowCount > 0) {
         try {
           ConsumerRecords<byte[], byte[]> records = kc.poll(ownerOperator.getConsumerTimeout());
-          for (Iterator<ConsumerRecord<byte[], byte[]>> cri = records.iterator(); cri.hasNext() && windowCount > 0;) {
+          for (Iterator<ConsumerRecord<byte[], byte[]>> cri = records.iterator(); cri.hasNext() && windowCount > 0; ) {
             ownerOperator.emitTuple(meta.getCluster(), cri.next());
             windowCount--;
           }
@@ -187,8 +195,7 @@ public class KafkaConsumerWrapper implements Closeable
     {
       try {
 
-
-        while (wrapper.isAlive) {
+        while (wrapper.isAlive.get()) {
           if (wrapper.waitForReplay) {
             Thread.sleep(100);
             continue;
@@ -207,19 +214,7 @@ public class KafkaConsumerWrapper implements Closeable
               wrapper.putMessage(Pair.of(cluster, record));
             }
           } catch (NoOffsetForPartitionException e) {
-            // if initialOffset is set to EARLIST or LATEST
-            // and the application is run as first time
-            // then there is no existing committed offset and this error will be caught
-            // we need to seek to either beginning or end of the partition
-            // based on the initial offset setting
-            AbstractKafkaInputOperator.InitialOffset io =
-                AbstractKafkaInputOperator.InitialOffset.valueOf(wrapper.ownerOperator.getInitialOffset());
-            if (io == AbstractKafkaInputOperator.InitialOffset.APPLICATION_OR_EARLIEST
-                || io == AbstractKafkaInputOperator.InitialOffset.EARLIEST) {
-              consumer.seekToBeginning(e.partitions().toArray(new TopicPartition[0]));
-            } else {
-              consumer.seekToEnd(e.partitions().toArray(new TopicPartition[0]));
-            }
+            wrapper.handleNoOffsetForPartitionException(e, consumer);
           } catch (InterruptedException e) {
             throw new IllegalStateException("Consumer thread is interrupted unexpectedly", e);
           }
@@ -234,6 +229,24 @@ public class KafkaConsumerWrapper implements Closeable
     }
   }
 
+  protected void handleNoOffsetForPartitionException(NoOffsetForPartitionException e,
+      KafkaConsumer<byte[], byte[]> consumer)
+  {
+    // if initialOffset is set to EARLIST or LATEST
+    // and the application is run as first time
+    // then there is no existing committed offset and this error will be caught
+    // we need to seek to either beginning or end of the partition
+    // based on the initial offset setting
+    AbstractKafkaInputOperator.InitialOffset io =
+        AbstractKafkaInputOperator.InitialOffset.valueOf(ownerOperator.getInitialOffset());
+    if (io == AbstractKafkaInputOperator.InitialOffset.APPLICATION_OR_EARLIEST
+        || io == AbstractKafkaInputOperator.InitialOffset.EARLIEST) {
+      consumer.seekToBeginning(e.partitions().toArray(new TopicPartition[0]));
+    } else {
+      consumer.seekToEnd(e.partitions().toArray(new TopicPartition[0]));
+    }
+
+  }
 
   /**
    * This method is called in setup method of Abstract Kafka Input Operator
@@ -248,14 +261,13 @@ public class KafkaConsumerWrapper implements Closeable
     }
   }
 
-
   /**
    * This method is called in the activate method of the operator
    */
   public void start(boolean waitForReplay)
   {
     this.waitForReplay = waitForReplay;
-    isAlive = true;
+    isAlive.set(true);
 
     // thread to consume the kafka data
     // create thread pool for consumer threads
@@ -276,7 +288,6 @@ public class KafkaConsumerWrapper implements Closeable
     }
 
     Map<AbstractKafkaPartitioner.PartitionMeta, Long> currentOffset = ownerOperator.getOffsetTrack();
-
 
     //  create one thread for each cluster
     // each thread use one KafkaConsumer to consume from 1+ partition(s) of 1+ topic(s)
@@ -322,7 +333,6 @@ public class KafkaConsumerWrapper implements Closeable
       kafkaConsumerExecutor.submit(new ConsumerThread(e.getKey(), kc, this));
     }
 
-
   }
 
   /**
@@ -330,11 +340,11 @@ public class KafkaConsumerWrapper implements Closeable
    */
   public void stop()
   {
+    isAlive.set(false);
     for (KafkaConsumer<byte[], byte[]> c : consumers.values()) {
       c.wakeup();
     }
     kafkaConsumerExecutor.shutdownNow();
-    isAlive = false;
     holdingBuffer.clear();
     IOUtils.closeQuietly(this);
   }
@@ -345,16 +355,6 @@ public class KafkaConsumerWrapper implements Closeable
   public void teardown()
   {
     holdingBuffer.clear();
-  }
-
-  public boolean isAlive()
-  {
-    return isAlive;
-  }
-
-  public void setAlive(boolean isAlive)
-  {
-    this.isAlive = isAlive;
   }
 
   public Pair<String, ConsumerRecord<byte[], byte[]>> pollMessage()
@@ -372,7 +372,6 @@ public class KafkaConsumerWrapper implements Closeable
     // block from receiving more message
     holdingBuffer.put(msg);
   }
-
 
   @Override
   public void close() throws IOException

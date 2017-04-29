@@ -245,7 +245,7 @@ public class SnapshotSchema implements Schema
 
     schemaJSON = schema.toString();
   }
-  
+
   /**
    * This is a helper method which sets the JSON that represents this schema.
    * @param schemaJSON The JSON that represents this schema.

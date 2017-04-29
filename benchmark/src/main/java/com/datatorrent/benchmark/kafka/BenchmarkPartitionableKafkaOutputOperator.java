@@ -18,7 +18,6 @@
  */
 package com.datatorrent.benchmark.kafka;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -26,9 +25,6 @@ import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import kafka.javaapi.producer.Producer;
-import kafka.producer.KeyedMessage;
-import kafka.producer.ProducerConfig;
 
 import javax.validation.constraints.Min;
 
@@ -37,25 +33,31 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;
+
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator.ActivationListener;
 import com.datatorrent.api.Partitioner;
+
+import kafka.javaapi.producer.Producer;
+import kafka.producer.KeyedMessage;
+import kafka.producer.ProducerConfig;
 
 /**
  * This operator keep sending constant messages(1kb each) in {@link #threadNum} threads.&nbsp;
  * Messages are distributed evenly to partitions.
  * <p></p>
+ *
  * @displayName Benchmark Partitionable Kafka Output
  * @category Messaging
  * @tags output operator
- *
  * @since 0.9.3
  */
-public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<BenchmarkPartitionableKafkaOutputOperator>, InputOperator, ActivationListener<OperatorContext>
+public class BenchmarkPartitionableKafkaOutputOperator implements
+    Partitioner<BenchmarkPartitionableKafkaOutputOperator>, InputOperator, ActivationListener<OperatorContext>
 {
 
   private static final Logger logger = LoggerFactory.getLogger(BenchmarkPartitionableKafkaOutputOperator.class);
-  
+
   private String topic = "benchmark";
 
   @Min(1)
@@ -78,7 +80,8 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
 
   private int stickyKey = 0;
 
-  private transient Runnable r = new Runnable() {
+  private transient Runnable r = new Runnable()
+  {
 
     Producer<String, String> producer = null;
 
@@ -101,12 +104,12 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
       }
       long k = 0;
 
-      while (k<msgsSecThread || !controlThroughput) {
+      while (k < msgsSecThread || !controlThroughput) {
         long key = (stickyKey >= 0 ? stickyKey : k);
         k++;
         producer.send(new KeyedMessage<String, String>(topic, "" + key, new String(constantMsg)));
-        if(k==Long.MAX_VALUE){
-          k=0;
+        if (k == Long.MAX_VALUE) {
+          k = 0;
         }
       }
     }
@@ -152,10 +155,12 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
    * {@inheritDoc}
    */
   @Override
-  public Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> definePartitions(Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> partitions, PartitioningContext context)
+  public Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> definePartitions(
+      Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> partitions, PartitioningContext context)
   {
 
-    ArrayList<Partition<BenchmarkPartitionableKafkaOutputOperator>> newPartitions = new ArrayList<Partitioner.Partition<BenchmarkPartitionableKafkaOutputOperator>>(partitionCount);
+    ArrayList<Partition<BenchmarkPartitionableKafkaOutputOperator>> newPartitions =
+        new ArrayList<Partitioner.Partition<BenchmarkPartitionableKafkaOutputOperator>>(partitionCount);
 
     for (int i = 0; i < partitionCount; i++) {
       BenchmarkPartitionableKafkaOutputOperator bpkoo = new BenchmarkPartitionableKafkaOutputOperator();
@@ -163,7 +168,8 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
       bpkoo.setTopic(topic);
       bpkoo.setBrokerList(brokerList);
       bpkoo.setStickyKey(i);
-      Partition<BenchmarkPartitionableKafkaOutputOperator> p = new DefaultPartition<BenchmarkPartitionableKafkaOutputOperator>(bpkoo);
+      Partition<BenchmarkPartitionableKafkaOutputOperator> p =
+          new DefaultPartition<BenchmarkPartitionableKafkaOutputOperator>(bpkoo);
       newPartitions.add(p);
     }
     return newPartitions;
@@ -176,19 +182,16 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
     logger.info("Activate the benchmark kafka output operator .... ");
     constantMsg = new byte[msgSize];
     for (int i = 0; i < constantMsg.length; i++) {
-      constantMsg[i] = (byte) ('a' + i%26);
+      constantMsg[i] = (byte)('a' + i % 26);
     }
 
-
     for (int i = 0; i < threadNum; i++) {
-      if(controlThroughput){
+      if (controlThroughput) {
         ses.scheduleAtFixedRate(r, 0, 1, TimeUnit.SECONDS);
-      }
-      else {
+      } else {
         ses.submit(r);
       }
     }
-
 
   }
 
@@ -267,8 +270,5 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
   {
     this.stickyKey = stickyKey;
   }
-
-
-
 
 }

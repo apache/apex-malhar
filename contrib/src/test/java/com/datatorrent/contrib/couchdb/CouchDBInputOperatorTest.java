@@ -18,7 +18,6 @@
  */
 package com.datatorrent.contrib.couchdb;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 import com.google.common.collect.Maps;
@@ -32,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * @since 0.3.5
@@ -67,7 +68,7 @@ public class CouchDBInputOperatorTest
 
     CollectorTestSink sink = new CollectorTestSink();
     operatorTest.outputPort.setSink(sink);
-    operatorTest.setup(new OperatorContextTestHelper.TestIdOperatorContext(2));
+    operatorTest.setup(mockOperatorContext(2));
 
     operatorTest.beginWindow(0);
     operatorTest.emitTuples();

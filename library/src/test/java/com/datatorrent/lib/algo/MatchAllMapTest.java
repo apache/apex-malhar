@@ -26,10 +26,11 @@ import org.junit.Test;
 import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 /**
- *
+ * @deprecated
  * Functional tests for {@link com.datatorrent.lib.algo.MatchAllMap}<p>
- *
+ * (Deprecating inclass) Comment: MatchAllMap is deprecated.
  */
+@Deprecated
 public class MatchAllMapTest
 {
   /**

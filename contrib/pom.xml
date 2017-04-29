@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.apache.apex</groupId>
     <artifactId>malhar</artifactId>
-    <version>3.5.0-SNAPSHOT</version>
+    <version>3.8.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>malhar-contrib</artifactId>
@@ -221,7 +221,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
-          <maxAllowedViolations>2791</maxAllowedViolations>
+          <maxAllowedViolations>2709</maxAllowedViolations>
           <logViolationsToConsole>${checkstyle.console}</logViolationsToConsole>
         </configuration>
       </plugin>
@@ -244,7 +244,7 @@
     <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka_2.10</artifactId>
-      <version>0.8.1.1</version>
+      <version>0.8.2.1</version>
       <optional>true</optional>
       <exclusions>
         <exclusion>
@@ -474,26 +474,26 @@
       <!-- required by twitter -->
       <groupId>org.twitter4j</groupId>
       <artifactId>twitter4j-core</artifactId>
-      <version>2.2.6</version>
+      <version>4.0.4</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <!-- required by twitter -->
       <groupId>org.twitter4j</groupId>
       <artifactId>twitter4j-stream</artifactId>
-      <version>2.2.6</version>
+      <version>4.0.4</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.datastax.cassandra</groupId>
       <artifactId>cassandra-driver-core</artifactId>
-      <version>2.1.8</version>
+      <version>3.1.0</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>14.0.1</version>
+      <version>16.0.1</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
@@ -566,18 +566,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.apache.hive</groupId>
-      <artifactId>hive-service</artifactId>
-      <version>0.13.1</version>
-      <optional>true</optional>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>org.apache.solr</groupId>
       <artifactId>solr-solrj</artifactId>
       <version>4.10.1</version>
@@ -604,12 +592,6 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>io.teknek</groupId>
-      <artifactId>hiveunit</artifactId>
-      <version>0.0.3</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.rosuda</groupId>
       <artifactId>rengine</artifactId>
       <version>1.0</version>
@@ -622,10 +604,9 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <!-- Kinesis depends on HttpPatch which requires httpclient 4.3.5 -->
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
-      <version>4.3.5</version>
+      <version>4.3.6</version>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -639,12 +620,63 @@
       <artifactId>gemfire-core</artifactId>
       <version>1.0.0-incubating.M1</version>
       <optional>true</optional>
-    </dependency>  
+      <exclusions>
+         <exclusion>
+           <groupId>org.slf4j</groupId>
+           <artifactId>slf4j-log4j12</artifactId>
+         </exclusion>
+         <exclusion>
+           <groupId>org.slf4j</groupId>
+           <artifactId>slf4j-simple</artifactId>
+         </exclusion>
+         <exclusion>
+           <groupId>log4j</groupId>
+           <artifactId>log4j</artifactId>
+         </exclusion>
+         <exclusion>
+           <groupId>org.apache.logging.log4j</groupId>
+           <artifactId>*</artifactId>
+         </exclusion>
+       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode.json-simple</groupId>
+      <artifactId>json-simple</artifactId>
+      <version>1.1.1</version>
+      <optional>true</optional>
+    </dependency>
     <dependency>
       <groupId>com.github.fge</groupId>
       <artifactId>json-schema-validator</artifactId>
       <version>2.0.1</version>
       <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>1.8.0.7</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.univocity</groupId>
+      <artifactId>univocity-parsers</artifactId>
+      <version>2.0.0</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>2.7.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>2.7.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.7.0</version>
     </dependency>
   </dependencies>
 </project>

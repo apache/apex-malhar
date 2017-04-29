@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.testbench.EventGenerator;
 
 /**
- * Functional tests for {@link com.datatorrent.lib.testbench.DevNull}. 
+ * Functional tests for {@link com.datatorrent.lib.testbench.DevNull}.
  */
 public class DevNullTest
 {

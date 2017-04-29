@@ -37,7 +37,6 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.ProcessingMode;
 import com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.TestEvent;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.netlet.util.DTThrowable;
 
 import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.APP_ID;
@@ -45,6 +44,7 @@ import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest
 import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.TABLE_NAME;
 import static com.datatorrent.lib.db.jdbc.JdbcOperatorTest.DB_DRIVER;
 import static com.datatorrent.lib.db.jdbc.JdbcOperatorTest.URL;
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Test for {@link AbstractJdbcNonTransactionableBatchOutputOperator}
@@ -128,7 +128,7 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
     attributeMap.put(OperatorContext.PROCESSING_MODE, processingMode);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContext context = mockOperatorContext(OPERATOR_ID, attributeMap);
     outputOperator.setStore(store);
     outputOperator.setBatchSize(BATCH_SIZE);
 
@@ -222,7 +222,7 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, 0L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContext context = mockOperatorContext(OPERATOR_ID, attributeMap);
     outputOperator.setup(context);
 
     Assert.assertEquals("Commit window id ", 0, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));
@@ -292,8 +292,7 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, 0L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
-        OPERATOR_ID, attributeMap);
+    OperatorContext context = mockOperatorContext(OPERATOR_ID, attributeMap);
 
     outputOperator.setup(context);
 
@@ -363,7 +362,7 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_MOST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, 0L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContext context = mockOperatorContext(OPERATOR_ID, attributeMap);
     outputOperator.setup(context);
 
     outputOperator.beginWindow(2);
@@ -417,7 +416,7 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_MOST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, 0L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    OperatorContext context = mockOperatorContext(OPERATOR_ID, attributeMap);
     outputOperator.setup(context);
 
     Assert.assertEquals("Commit window id ", 0, outputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID));

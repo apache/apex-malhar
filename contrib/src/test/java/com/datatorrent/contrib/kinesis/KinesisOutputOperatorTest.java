@@ -52,7 +52,7 @@ public abstract class KinesisOutputOperatorTest< O extends AbstractKinesisOutput
     super.beforeTest();
   }
 
-  
+
   /**
    * Test AbstractKinesisOutputOperator (i.e. an output adapter for Kinesis, aka producer).
    * This module sends data into an ActiveMQ message bus.
@@ -94,7 +94,7 @@ public abstract class KinesisOutputOperatorTest< O extends AbstractKinesisOutput
 
     // Create ActiveMQStringSinglePortOutputOperator
     G generator = addGenerateOperator( dag );
-    
+
     O node = addTestingOperator( dag );
     configureTestingOperator( node );
 
@@ -119,13 +119,13 @@ public abstract class KinesisOutputOperatorTest< O extends AbstractKinesisOutput
       }
       catch( Exception e ){}
     }
-    
+
     if( listener != null )
       listener.setIsAlive(false);
-    
+
     if( listenerThread != null )
       listenerThread.join( 1000 );
-    
+
     lc.shutdown();
 
     // Check values send vs received
@@ -141,10 +141,10 @@ public abstract class KinesisOutputOperatorTest< O extends AbstractKinesisOutput
   protected KinesisTestConsumer createConsumerListener( String streamName )
   {
     KinesisTestConsumer listener = new KinesisTestConsumer(streamName);
-    
+
     return listener;
   }
-  
+
   protected void configureTestingOperator( O node )
   {
     node.setAccessKey(credentials.getCredentials().getAWSAccessKeyId());
@@ -152,7 +152,7 @@ public abstract class KinesisOutputOperatorTest< O extends AbstractKinesisOutput
     node.setBatchSize(500);
     node.setStreamName(streamName);
   }
-  
+
   protected abstract G addGenerateOperator( DAG dag );
   protected abstract DefaultOutputPort getOutputPortOfGenerator( G generator );
   protected abstract O addTestingOperator( DAG dag );

@@ -173,7 +173,7 @@ public class XmlFormatterTest
         + "</EmployeeBean>";
     Assert.assertEquals(expected, validDataSink.collectedTuples.get(0));
   }
-  
+
   public static class DateAdapter extends XmlAdapter<String, Date>
   {
 

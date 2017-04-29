@@ -26,19 +26,21 @@ import java.util.Date;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.Description;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.apache.commons.io.FileUtils;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 
 import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest.FSTestWatcher;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.KryoCloneUtils;
 import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 
@@ -99,73 +101,69 @@ public class JsonFormatterTest
   @Test
   public void testJSONToPOJO()
   {
-    Test1Pojo pojo = new Test1Pojo();
-    pojo.a = 123;
-    pojo.b = 234876274;
-    pojo.c = "HowAreYou?";
-    pojo.d = Lists.newArrayList("ABC", "PQR", "XYZ");
-
+    Ad pojo = new Ad();
+    pojo.adId = 123;
+    pojo.campaignId = 234876274;
+    pojo.description = "sports";
+    pojo.sizes = Lists.newArrayList("200x350", "600x800");
+    pojo.startDate = new DateTime().withDate(2016, 1, 1).withMillisOfDay(0).withZoneRetainFields(DateTimeZone.UTC)
+        .toDate();
+    pojo.endDate = new DateTime().withDate(2016, 2, 1).withMillisOfDay(0).withZoneRetainFields(DateTimeZone.UTC)
+        .toDate();
     operator.in.put(pojo);
     Assert.assertEquals(1, validDataSink.collectedTuples.size());
     Assert.assertEquals(0, invalidDataSink.collectedTuples.size());
-    String expectedJSONString = "{\"a\":123,\"b\":234876274,\"c\":\"HowAreYou?\",\"d\":[\"ABC\",\"PQR\",\"XYZ\"],\"date\":null}";
+    String expectedJSONString = "{\"adId\":123,\"campaignId\":234876274,\"sizes\":[\"200x350\",\"600x800\"],\"startDate\":\"Fri, 1 Jan 2016 00:00:00\",\"endDate\":\"01-Feb-2016\",\"desc\":\"sports\"}";
     Assert.assertEquals(expectedJSONString, validDataSink.collectedTuples.get(0));
-  }
-
-  @Test
-  public void testJSONToPOJODate()
-  {
-    Test1Pojo pojo = new Test1Pojo();
-    pojo.a = 123;
-    pojo.b = 234876274;
-    pojo.c = "HowAreYou?";
-    pojo.d = Lists.newArrayList("ABC", "PQR", "XYZ");
-    pojo.date = new DateTime().withYear(2015).withMonthOfYear(9).withDayOfMonth(15).toDate();
-    operator.setDateFormat("dd-MM-yyyy");
-    operator.setup(null);
-    operator.in.put(pojo);
-    Assert.assertEquals(1, validDataSink.collectedTuples.size());
-    Assert.assertEquals(0, invalidDataSink.collectedTuples.size());
-    String expectedJSONString = "{\"a\":123,\"b\":234876274,\"c\":\"HowAreYou?\",\"d\":[\"ABC\",\"PQR\",\"XYZ\"],\"date\":\"15-09-2015\"}";
-    Assert.assertEquals(expectedJSONString, validDataSink.collectedTuples.get(0));
+    Assert.assertEquals(1, operator.getIncomingTuplesCount());
+    Assert.assertEquals(1, operator.getEmittedObjectCount());
+    Assert.assertEquals(0, operator.getErrorTupleCount());
   }
 
   @Test
   public void testJSONToPOJONullFields()
   {
-    Test1Pojo pojo = new Test1Pojo();
-    pojo.a = 123;
-    pojo.b = 234876274;
-    pojo.c = "HowAreYou?";
-    pojo.d = null;
+    Ad pojo = new Ad();
+    pojo.adId = 123;
+    pojo.campaignId = 234876274;
+    pojo.description = "sports";
+    pojo.sizes = null;
+    pojo.startDate = null;
+    pojo.endDate = null;
 
     operator.in.put(pojo);
     Assert.assertEquals(1, validDataSink.collectedTuples.size());
     Assert.assertEquals(0, invalidDataSink.collectedTuples.size());
-    String expectedJSONString = "{\"a\":123,\"b\":234876274,\"c\":\"HowAreYou?\",\"d\":null,\"date\":null}";
+    String expectedJSONString = "{\"adId\":123,\"campaignId\":234876274,\"sizes\":null,\"startDate\":null,\"endDate\":null,\"desc\":\"sports\"}";
     Assert.assertEquals(expectedJSONString, validDataSink.collectedTuples.get(0));
+    Assert.assertEquals(1, operator.getIncomingTuplesCount());
+    Assert.assertEquals(1, operator.getEmittedObjectCount());
+    Assert.assertEquals(0, operator.getErrorTupleCount());
   }
 
   @Test
   public void testJSONToPOJOEmptyPOJO()
   {
-    Test1Pojo pojo = new Test1Pojo();
+    Ad pojo = new Ad();
     operator.in.put(pojo);
     Assert.assertEquals(1, validDataSink.collectedTuples.size());
     Assert.assertEquals(0, invalidDataSink.collectedTuples.size());
-    String expectedJSONString = "{\"a\":0,\"b\":0,\"c\":null,\"d\":null,\"date\":null}";
-    LOG.debug("{}", validDataSink.collectedTuples.get(0));
+    String expectedJSONString = "{\"adId\":0,\"campaignId\":0,\"sizes\":null,\"startDate\":null,\"endDate\":null,\"desc\":null}";
     Assert.assertEquals(expectedJSONString, validDataSink.collectedTuples.get(0));
+    Assert.assertEquals(1, operator.getIncomingTuplesCount());
+    Assert.assertEquals(1, operator.getEmittedObjectCount());
+    Assert.assertEquals(0, operator.getErrorTupleCount());
   }
 
   @Test
   public void testJSONToPOJONullPOJO()
   {
     operator.in.put(null);
-    Assert.assertEquals(1, validDataSink.collectedTuples.size());
-    Assert.assertEquals(0, invalidDataSink.collectedTuples.size());
-    String expectedJSONString = "null";
-    Assert.assertEquals(expectedJSONString, validDataSink.collectedTuples.get(0));
+    Assert.assertEquals(0, validDataSink.collectedTuples.size());
+    Assert.assertEquals(1, invalidDataSink.collectedTuples.size());
+    Assert.assertEquals(1, operator.getIncomingTuplesCount());
+    Assert.assertEquals(0, operator.getEmittedObjectCount());
+    Assert.assertEquals(1, operator.getErrorTupleCount());
   }
 
   @Test
@@ -173,36 +171,40 @@ public class JsonFormatterTest
   {
     operator.endWindow();
     operator.teardown();
-    operator.setClazz(Test2Pojo.class);
     operator.setup(null);
     operator.beginWindow(1);
 
-    Test2Pojo o = new Test2Pojo();
+    TestPojo o = new TestPojo();
     operator.in.put(o);
     Assert.assertEquals(0, validDataSink.collectedTuples.size());
     Assert.assertEquals(1, invalidDataSink.collectedTuples.size());
     Assert.assertEquals(o, invalidDataSink.collectedTuples.get(0));
+    Assert.assertEquals(1, operator.getIncomingTuplesCount());
+    Assert.assertEquals(0, operator.getEmittedObjectCount());
+    Assert.assertEquals(1, operator.getErrorTupleCount());
   }
 
-  public static class Test1Pojo
+  @Test
+  public void testOperatorSerialization()
   {
-    public int a;
-    public long b;
-    public String c;
-    public List<String> d;
-    public Date date;
-
-    @Override
-    public String toString()
-    {
-      return "Test1Pojo [a=" + a + ", b=" + b + ", c=" + c + ", d=" + d + ", date=" + date + "]";
-    }
+    Assert.assertNotNull("Serialization", KryoCloneUtils.cloneObject(this.operator));
   }
 
-  public static class Test2Pojo
+  public static class Ad
+  {
+    public int adId;
+    public long campaignId;
+    @JsonProperty("desc")
+    public String description;
+    public List<String> sizes;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "EEE, d MMM yyyy HH:mm:ss")
+    public Date startDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MMM-yyyy")
+    public Date endDate;
+  }
+
+  public static class TestPojo
   {
   }
-
-  private static final Logger LOG = LoggerFactory.getLogger(JsonFormatterTest.class);
 
 }

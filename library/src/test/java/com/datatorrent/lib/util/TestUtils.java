@@ -24,7 +24,10 @@ import java.util.List;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import org.apache.apex.malhar.lib.utils.serde.BufferSlice;
 import org.apache.commons.io.FileUtils;
+
+import com.google.common.base.Preconditions;
 
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Operator;
@@ -32,9 +35,32 @@ import com.datatorrent.api.Operator.OutputPort;
 import com.datatorrent.api.Sink;
 import com.datatorrent.api.Stats;
 import com.datatorrent.api.StatsListener;
+import com.datatorrent.netlet.util.Slice;
 
 public class TestUtils
 {
+  public static byte[] getByte(int val)
+  {
+    Preconditions.checkArgument(val <= Byte.MAX_VALUE);
+    return new byte[]{(byte)val};
+  }
+
+  public static byte[] getBytes(int val)
+  {
+    byte[] bytes = new byte[4];
+    bytes[0] = (byte)(val & 0xFF);
+    bytes[1] = (byte)((val >> 8) & 0xFF);
+    bytes[2] = (byte)((val >> 16) & 0xFF);
+    bytes[3] = (byte)((val >> 24) & 0xFF);
+
+    return bytes;
+  }
+
+  public static Slice getSlice(int val)
+  {
+    return new BufferSlice(getBytes(val));
+  }
+
   public static class TestInfo extends TestWatcher
   {
     public org.junit.runner.Description desc;
@@ -57,7 +83,7 @@ public class TestUtils
   {
     FileUtils.deleteQuietly(new File("target/" + description.getClassName()));
   }
-  
+
   @SuppressWarnings({"unchecked", "rawtypes"})
   public static <S extends Sink, T> S setSink(OutputPort<T> port, S sink)
   {

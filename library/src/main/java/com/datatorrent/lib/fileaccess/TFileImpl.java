@@ -32,8 +32,8 @@ import org.apache.hadoop.io.file.tfile.TFile.Writer;
 /**
  * A TFile wrapper with FileAccess API
  * <ul>
- * <li>{@link TFileImpl.DefaultTFileImpl} return default TFile {@link Reader} and {@link Writer} for IO operations</li> 
- * <li>{@link TFileImpl.DTFileImpl} return DTFile {@link org.apache.hadoop.io.file.tfile.DTFile.Reader}(which is faster than default TFile reader) and {@link Writer} for IO operations</li> 
+ * <li>{@link TFileImpl.DefaultTFileImpl} return default TFile {@link Reader} and {@link Writer} for IO operations</li>
+ * <li>{@link TFileImpl.DTFileImpl} return DTFile {@link org.apache.hadoop.io.file.tfile.DTFile.Reader}(which is faster than default TFile reader) and {@link Writer} for IO operations</li>
  * </ul>
  *
  * @since 2.0.0
@@ -44,16 +44,16 @@ public abstract class TFileImpl extends FileAccessFSImpl
   private int minBlockSize = 64 * 1024;
 
   private String compressName = TFile.COMPRESSION_NONE;
-  
+
   private String comparator = "memcmp";
-  
+
   private int chunkSize = 1024 * 1024;
-  
+
   private int inputBufferSize = 256 * 1024;
-  
+
   private int outputBufferSize = 256 * 1024;
 
-  
+
   private void setupConfig(Configuration conf)
   {
     conf.set("tfile.io.chunk.size", String.valueOf(chunkSize));
@@ -69,7 +69,7 @@ public abstract class TFileImpl extends FileAccessFSImpl
     setupConfig(fs.getConf());
     return new TFileWriter(fsdos, minBlockSize, compressName, comparator, fs.getConf());
   }
-  
+
   public int getMinBlockSize()
   {
     return minBlockSize;
@@ -140,13 +140,13 @@ public abstract class TFileImpl extends FileAccessFSImpl
   {
     this.outputBufferSize = outputBufferSize;
   }
-  
+
   /**
    * Return {@link TFile} {@link Reader}
    */
   public static class DefaultTFileImpl extends TFileImpl
   {
-    
+
     @Override
     public FileReader getReader(long bucketKey, String fileName) throws IOException
     {
@@ -155,15 +155,15 @@ public abstract class TFileImpl extends FileAccessFSImpl
       super.setupConfig(fs.getConf());
       return new TFileReader(fsdis, fileLength, fs.getConf());
     }
-    
+
   }
-  
+
   /**
    * Return {@link DTFile} {@link org.apache.hadoop.io.file.tfile.DTFile.Reader}
    */
   public static class DTFileImpl extends TFileImpl
   {
-    
+
     @Override
     public FileReader getReader(long bucketKey, String fileName) throws IOException
     {
@@ -172,7 +172,7 @@ public abstract class TFileImpl extends FileAccessFSImpl
       super.setupConfig(fs.getConf());
       return new DTFileReader(fsdis, fileLength, fs.getConf());
     }
-    
+
   }
 
 

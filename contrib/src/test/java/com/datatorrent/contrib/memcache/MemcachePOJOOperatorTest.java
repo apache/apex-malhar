@@ -34,16 +34,16 @@ import net.spy.memcached.AddrUtil;
 public class MemcachePOJOOperatorTest
 {
   public static final int TUPLE_SIZE = 1000;
-  
+
   private MemcacheStore store;
-  
+
   @Before
   public void setup()
   {
     store = new MemcacheStore();
     store.setServerAddresses(AddrUtil.getAddresses("localhost:11211") );
   }
-  
+
   public void cleanup()
   {
     if( store != null )
@@ -57,9 +57,9 @@ public class MemcachePOJOOperatorTest
         DTThrowable.rethrow(e);
       }
     }
-      
+
   }
-  
+
   @SuppressWarnings("unchecked")
   @Test
   public void testMemcacheOutputOperatorInternal() throws Exception
@@ -74,21 +74,21 @@ public class MemcachePOJOOperatorTest
     operator.setTableInfo( tableInfo );
 
     operator.setup(null);
-    
+
     TupleGenerator<TestPOJO> generator = new TupleGenerator<TestPOJO>( TestPOJO.class );
-    
+
     for( int i=0; i<TUPLE_SIZE; ++i )
     {
       operator.processTuple( generator.getNextTuple() );
     }
-    
+
     readDataAndVerify( operator.getStore(), generator );
   }
-  
+
   public void readDataAndVerify( MemcacheStore store, TupleGenerator<TestPOJO> generator )
   {
     generator.reset();
-    
+
     for( int i=0; i<TUPLE_SIZE; ++i )
     {
       TestPOJO expected = generator.getNextTuple();

@@ -48,16 +48,16 @@ import com.datatorrent.netlet.util.DTThrowable;
  * 5. set the type of arguments being passed. This will be done in a Map <br>
  * 6. Send the data in the form of a tuple consisting of a key:value pair where, "key" represents the name of the
  *    argument "value" represents the actual value of the argument. A map of all the arguments is created and passed as
- *    input. <br> <br> 
- *    
+ *    input. <br> <br>
+ *
  *    The result will be returned on one of the output ports depending on the type of the return value.
  * <br> <br>
- * 
+ *
  * <b> Sample Usage Code : </b> oper is an object of type RScript. Create it by passing  <br> < name of the R script with
  * path from classpath>, < name of the function to be invoked>, < name of the return variable>);
  * <br> <br>
  * Map<String, RScript.REXP_TYPE> argTypeMap = new HashMap<String, RScript.REXP_TYPE>();  <br>
- * argTypeMap.put(< argument name>, RScript.< argument type in the form of REXP_TYPE>); <br> 
+ * argTypeMap.put(< argument name>, RScript.< argument type in the form of REXP_TYPE>); <br>
  * argTypeMap.put(< argument name>, RScript.< argument type in the form of REXP_TYPE>);  <br>
  * ...... <br>
  *

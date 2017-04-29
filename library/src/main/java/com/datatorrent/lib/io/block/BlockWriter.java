@@ -59,7 +59,7 @@ public class BlockWriter extends AbstractFileOutputOperator<AbstractBlockReader.
    * Directory under application directory where blocks gets stored
    */
   private String blocksDirectory = DEFAULT_BLOCKS_DIR;
-  
+
   /**
    * List of FileBlockMetadata received in the current window.
    */
@@ -206,7 +206,7 @@ public class BlockWriter extends AbstractFileOutputOperator<AbstractBlockReader.
       }
     }
   }
-  
+
   /**
    * Directory under application directory where blocks gets stored
    * @return blocks directory
@@ -215,7 +215,7 @@ public class BlockWriter extends AbstractFileOutputOperator<AbstractBlockReader.
   {
     return blocksDirectory;
   }
-  
+
   /**
    * Directory under application directory where blocks gets stored
    * @param blocksDirectory blocks directory
@@ -230,7 +230,7 @@ public class BlockWriter extends AbstractFileOutputOperator<AbstractBlockReader.
   {
 
   }
-  
+
   private static final Logger LOG = LoggerFactory.getLogger(BlockWriter.class);
 
 }

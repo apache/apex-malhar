@@ -192,7 +192,7 @@ public class RedisStore implements TransactionableKeyValueStore
   }
 
   /**
-   * Gets the stored Map for given the key, when the value data type is a map, stored with hmset  
+   * Gets the stored Map for given the key, when the value data type is a map, stored with hmset
    *
    * @param key
    * @return hashmap stored for the key.
@@ -329,8 +329,8 @@ public class RedisStore implements TransactionableKeyValueStore
       }
     }
   }
-  
-  
+
+
 
   /**
    * @return the timeOut

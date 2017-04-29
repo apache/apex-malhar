@@ -63,14 +63,17 @@ import com.google.common.io.LimitInputStream;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.testbench.RandomWordGenerator;
 import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 import com.datatorrent.netlet.util.DTThrowable;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class AbstractFileOutputOperatorTest
 {
@@ -86,7 +89,7 @@ public class AbstractFileOutputOperatorTest
   public static class FSTestWatcher extends TestInfo
   {
     public boolean writeToTmp = false;
-    public OperatorContextTestHelper.TestIdOperatorContext testOperatorContext;
+    public OperatorContext testOperatorContext;
 
     @Override
     protected void starting(Description description)
@@ -99,7 +102,7 @@ public class AbstractFileOutputOperatorTest
         attributeMap.put(Context.DAGContext.CHECKPOINT_WINDOW_COUNT, 60);
         attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
 
-        testOperatorContext = new OperatorContextTestHelper.TestIdOperatorContext(0, attributeMap);
+        testOperatorContext = mockOperatorContext(0, attributeMap);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -243,8 +246,11 @@ public class AbstractFileOutputOperatorTest
    * @param writer The writer to checkpoint.
    * @return new writer.
    */
-  public static AbstractFileOutputOperator checkpoint(AbstractFileOutputOperator writer)
+  public static AbstractFileOutputOperator checkpoint(AbstractFileOutputOperator writer, long windowId)
   {
+    if (windowId >= Stateless.WINDOW_ID) {
+      writer.beforeCheckpoint(windowId);
+    }
     Kryo kryo = new Kryo();
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     Output loutput = new Output(bos);
@@ -418,7 +424,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(1);
     writer.endWindow();
 
-    AbstractFileOutputOperator checkPointWriter = checkpoint(writer);
+    AbstractFileOutputOperator checkPointWriter = checkpoint(writer, Stateless.WINDOW_ID);
 
     writer.beginWindow(1);
     writer.input.put(2);
@@ -577,6 +583,7 @@ public class AbstractFileOutputOperatorTest
 
     writer.requestFinalize(EVEN_FILE);
     writer.requestFinalize(ODD_FILE);
+    writer.beforeCheckpoint(1);
     writer.committed(1);
   }
 
@@ -603,6 +610,7 @@ public class AbstractFileOutputOperatorTest
 
     writer.requestFinalize(ODD_FILE);
     writer.requestFinalize(EVEN_FILE);
+    writer.beforeCheckpoint(1);
     writer.committed(1);
   }
 
@@ -672,7 +680,7 @@ public class AbstractFileOutputOperatorTest
     writer.requestFinalize(EVEN_FILE);
     writer.endWindow();
 
-    AbstractFileOutputOperator checkPointWriter = checkpoint(writer);
+    AbstractFileOutputOperator checkPointWriter = checkpoint(writer, Stateless.WINDOW_ID);
 
     writer.beginWindow(1);
     writer.input.put(4);
@@ -690,6 +698,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(8);
     writer.input.put(9);
     writer.endWindow();
+    writer.beforeCheckpoint(2);
     writer.committed(2);
   }
 
@@ -774,6 +783,52 @@ public class AbstractFileOutputOperatorTest
   }
 
   @Test
+  public void testSingleRollingFileEmptyWindowsWrite()
+  {
+    SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
+
+    testSingleRollingFileEmptyWindowsWriteHelper(writer);
+
+    //Rolling file 0
+
+    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
+
+    int numberOfFiles = new File(testMeta.getDir()).listFiles().length;
+
+    Assert.assertEquals("More than one File in Directory", 1, numberOfFiles);
+
+    String correctContents = "0\n" + "1\n" + "2\n";
+    checkOutput(0, singleFileName, correctContents);
+  }
+
+  private void testSingleRollingFileEmptyWindowsWriteHelper(SingleHDFSExactlyOnceWriter writer)
+  {
+    writer.setFilePath(testMeta.getDir());
+    writer.setMaxLength(4);
+    writer.setRotationWindows(1);
+    writer.setAlwaysWriteToTmp(testMeta.writeToTmp);
+    writer.setup(testMeta.testOperatorContext);
+
+    writer.beginWindow(0);
+    writer.input.put(0);
+    writer.input.put(1);
+    writer.input.put(2);
+    writer.endWindow();
+
+    writer.beginWindow(1);
+    writer.endWindow();
+
+    writer.beginWindow(2);
+    writer.endWindow();
+
+    writer.beforeCheckpoint(2);
+    writer.checkpointed(2);
+    writer.committed(2);
+
+    writer.teardown();
+  }
+
+  @Test
   public void testSingleRollingFileFailedWrite()
   {
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
@@ -815,7 +870,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(2);
     writer.endWindow();
 
-    AbstractFileOutputOperator checkPointWriter = checkpoint(writer);
+    AbstractFileOutputOperator checkPointWriter = checkpoint(writer, Stateless.WINDOW_ID);
 
     writer.beginWindow(1);
     writer.input.put(3);
@@ -862,8 +917,8 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(4);
     writer.endWindow();
 
-    AbstractFileOutputOperator checkPointWriter = checkpoint(writer);
-    AbstractFileOutputOperator checkPointWriter1 = checkpoint(writer);
+    AbstractFileOutputOperator checkPointWriter = checkpoint(writer, Stateless.WINDOW_ID);
+    AbstractFileOutputOperator checkPointWriter1 = checkpoint(writer, Stateless.WINDOW_ID);
 
     LOG.debug("Checkpoint endOffsets={}", checkPointWriter.endOffsets);
 
@@ -1128,7 +1183,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(1);
     writer.endWindow();
 
-    AbstractFileOutputOperator checkPointWriter = checkpoint(writer);
+    AbstractFileOutputOperator checkPointWriter = checkpoint(writer, Stateless.WINDOW_ID);
 
     writer.beginWindow(1);
     writer.input.put(2);
@@ -1225,7 +1280,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(1);
     writer.endWindow();
 
-    AbstractFileOutputOperator checkPointWriter = checkpoint(writer);
+    AbstractFileOutputOperator checkPointWriter = checkpoint(writer, Stateless.WINDOW_ID);
 
     writer.beginWindow(1);
     writer.input.put(2);
@@ -1272,7 +1327,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.process(1);
     writer.endWindow();
 
-    AbstractFileOutputOperator checkPointWriter = checkpoint(writer);
+    AbstractFileOutputOperator checkPointWriter = checkpoint(writer, Stateless.WINDOW_ID);
 
     writer.beginWindow(1);
     writer.input.process(2);
@@ -1363,7 +1418,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(3);
     writer.input.put(4);
 
-    AbstractFileOutputOperator checkPointWriter = checkpoint(writer);
+    AbstractFileOutputOperator checkPointWriter = checkpoint(writer, Stateless.WINDOW_ID);
 
     writer.input.put(3);
     writer.input.put(4);
@@ -1422,7 +1477,7 @@ public class AbstractFileOutputOperatorTest
 
     Assert.assertEquals("Max length validation not thrown with -1 max length", true, error);
   }
-  
+
   @Test
   public void testPeriodicRotation()
   {
@@ -1439,7 +1494,7 @@ public class AbstractFileOutputOperatorTest
       for (int j = 0; j < i; ++j) {
         writer.input.put(2 * j + 1);
       }
-      writer.endWindow();      
+      writer.endWindow();
     }
     writer.committed(29);
     Set<String> fileNames = new TreeSet<String>();
@@ -1543,7 +1598,7 @@ public class AbstractFileOutputOperatorTest
     // http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4691425
     List<Long> evenOffsets = new ArrayList<Long>();
     List<Long> oddOffsets = new ArrayList<Long>();
-    
+
     writer.setFilePath(testMeta.getDir());
     writer.setAlwaysWriteToTmp(false);
     writer.setup(testMeta.testOperatorContext);
@@ -1554,8 +1609,11 @@ public class AbstractFileOutputOperatorTest
         writer.input.put(i);
       }
       writer.endWindow();
-      evenOffsets.add(evenFile.length());
-      oddOffsets.add(oddFile.length());
+      if ((i % 2) == 1) {
+        writer.beforeCheckpoint(i);
+        evenOffsets.add(evenFile.length());
+        oddOffsets.add(oddFile.length());
+      }
     }
 
     writer.teardown();
@@ -1580,6 +1638,7 @@ public class AbstractFileOutputOperatorTest
     writer.input.put(2);
     writer.input.put(3);
     writer.endWindow();
+    writer.beforeCheckpoint(0);
 
     //failure and restored
     writer.setup(testMeta.testOperatorContext);
@@ -1633,7 +1692,7 @@ public class AbstractFileOutputOperatorTest
         throw new RuntimeException(e);
       }
     }
-    
+
     int numWindows = 0;
     try {
       fis = new FileInputStream(file);
@@ -1651,7 +1710,7 @@ public class AbstractFileOutputOperatorTest
           throw new RuntimeException(e);
         }
       }
-      
+
       long startOffset = 0;
       for (long offset : offsets) {
         // Skip initial case in case file is not yet created
@@ -1757,10 +1816,11 @@ public class AbstractFileOutputOperatorTest
         writer.input.put(i);
       }
       writer.endWindow();
-      evenOffsets.add(evenCounterContext.getCounter());
-      oddOffsets.add(oddCounterContext.getCounter());
-      //evenOffsets.add(evenFile.length());
-      //oddOffsets.add(oddFile.length());
+      if ((i % 2) == 1) {
+        writer.beforeCheckpoint(i);
+        evenOffsets.add(evenCounterContext.getCounter());
+        oddOffsets.add(oddCounterContext.getCounter());
+      }
     }
 
     writer.teardown();
@@ -1792,8 +1852,8 @@ public class AbstractFileOutputOperatorTest
     {
       counterStream = new CounterFilterOutputStream(outputStream);
     }
-    
-    public boolean isDoInit() 
+
+    public boolean isDoInit()
     {
       return (counterStream == null);
     }
@@ -1809,7 +1869,7 @@ public class AbstractFileOutputOperatorTest
     {
 
     }
-    
+
     public long getCounter()
     {
       if (isDoInit()) {
@@ -1817,10 +1877,10 @@ public class AbstractFileOutputOperatorTest
       } else {
         return counterStream.getCounter();
       }
-      
+
     }
   }
-  
+
   private static class CounterFilterOutputStream extends FilterOutputStream
   {
     long counter;
@@ -1830,7 +1890,7 @@ public class AbstractFileOutputOperatorTest
     {
       super(out);
     }
-    
+
     @Override
     public void write(int b) throws IOException
     {
@@ -1869,5 +1929,5 @@ public class AbstractFileOutputOperatorTest
       return counter;
     }
   }
-  
+
 }

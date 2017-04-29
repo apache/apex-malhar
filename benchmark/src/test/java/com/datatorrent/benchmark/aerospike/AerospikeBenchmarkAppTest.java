@@ -21,12 +21,13 @@ package com.datatorrent.benchmark.aerospike;
 import org.junit.Test;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.benchmark.aerospike.AerospikeOutputBenchmarkApplication;
 
-public class AerospikeBenchmarkAppTest {
+public class AerospikeBenchmarkAppTest
+{
 
   @Test
-  public void test() throws Exception {
+  public void test() throws Exception
+  {
 
     LocalMode.runApp(new AerospikeOutputBenchmarkApplication(), 10000);
   }

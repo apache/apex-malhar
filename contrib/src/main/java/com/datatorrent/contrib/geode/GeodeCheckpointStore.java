@@ -47,7 +47,7 @@ import java.util.Map.Entry;
 /**
  * Geode Store implementation of {@link StorageAgentKeyValueStore} Uses {@link Kryo}
  * serialization to store retrieve objects
- * 
+ *
  *
  *
  * @since 3.4.0
@@ -56,7 +56,7 @@ public class GeodeCheckpointStore
     implements StorageAgentKeyValueStore, Serializable
 {
 
-  public static final String GET_KEYS_QUERY = 
+  public static final String GET_KEYS_QUERY =
       "SELECT entry.key FROM /$[region}.entries entry WHERE entry.key LIKE '${operator.id}%'";
 
   private String geodeLocators;
@@ -82,7 +82,7 @@ public class GeodeCheckpointStore
 
   /**
    * Initializes Geode store by using locator connection string
-   * 
+   *
    * @param locatorString
    */
   public GeodeCheckpointStore(String locatorString)
@@ -101,7 +101,7 @@ public class GeodeCheckpointStore
 
   /**
    * Get the Geode locator connection string
-   * 
+   *
    * @return locator connection string
    */
   public String getGeodeLocators()
@@ -111,7 +111,7 @@ public class GeodeCheckpointStore
 
   /**
    * Sets the Geode locator string
-   * 
+   *
    * @param geodeLocators
    */
   public void setGeodeLocators(String geodeLocators)
@@ -160,7 +160,7 @@ public class GeodeCheckpointStore
 
   /**
    * Creates a region
-   * 
+   *
    */
   public synchronized void createRegion()
   {
@@ -185,7 +185,7 @@ public class GeodeCheckpointStore
 
   /**
    * Check if store is connected to configured Geode cluster or not
-   * 
+   *
    * @return True is connected to Geode cluster and client cache is active
    */
   @Override
@@ -199,7 +199,7 @@ public class GeodeCheckpointStore
 
   /**
    * Return the value for specified key from Geode region
-   * 
+   *
    * @return the value object
    */
   @Override
@@ -252,7 +252,7 @@ public class GeodeCheckpointStore
 
   /**
    * Get list for keys starting from provided key name
-   * 
+   *
    * @return List of keys
    */
   @Override

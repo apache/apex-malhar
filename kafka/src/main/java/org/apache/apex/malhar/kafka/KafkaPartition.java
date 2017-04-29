@@ -18,7 +18,6 @@
  */
 package org.apache.apex.malhar.kafka;
 
-
 import java.io.Serializable;
 
 import org.apache.hadoop.classification.InterfaceStability;
@@ -53,7 +52,6 @@ public class KafkaPartition implements Serializable
    *
    */
   private static final long serialVersionUID = 7556802229202221546L;
-
 
   private String clusterId;
 
@@ -140,7 +138,5 @@ public class KafkaPartition implements Serializable
   {
     return "KafkaPartition [clusterId=" + clusterId + ", partitionId=" + partitionId + ", topic=" + topic + "]";
   }
-
-
 
 }

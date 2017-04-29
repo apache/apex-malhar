@@ -40,7 +40,7 @@ public abstract class ElasticSearchMapInputOperator<T extends Map<String, Object
   protected String type;
 
   /**
-   * 
+   *
    */
   public ElasticSearchMapInputOperator()
   {
@@ -49,7 +49,7 @@ public abstract class ElasticSearchMapInputOperator<T extends Map<String, Object
 
   /**
    * {@link SearchRequestBuilder} properties which do not change for each window are set during operator initialization.
-   * 
+   *
    * @see com.datatorrent.contrib.elasticsearch.AbstractElasticSearchInputOperator#setup(com.datatorrent.api.Context.OperatorContext)
    */
   @Override
@@ -61,7 +61,7 @@ public abstract class ElasticSearchMapInputOperator<T extends Map<String, Object
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * com.datatorrent.contrib.elasticsearch.AbstractElasticSearchInputOperator#convertToTuple(org.elasticsearch.search
    * .SearchHit)

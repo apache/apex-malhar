@@ -24,6 +24,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -40,8 +42,9 @@ import com.google.common.collect.Lists;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class FSLineReaderTest
 {
@@ -73,7 +76,7 @@ public class FSLineReaderTest
       Attribute.AttributeMap.DefaultAttributeMap readerAttr = new Attribute.AttributeMap.DefaultAttributeMap();
       readerAttr.put(DAG.APPLICATION_ID, appId);
       readerAttr.put(Context.OperatorContext.SPIN_MILLIS, 10);
-      readerContext = new OperatorContextTestHelper.TestIdOperatorContext(1, readerAttr);
+      readerContext = mockOperatorContext(1, readerAttr);
 
       blockReader.setup(readerContext);
 
@@ -166,18 +169,47 @@ public class FSLineReaderTest
 
     testMeta.blockReader.beginWindow(1);
 
-    for (int i = 0; i < noOfBlocks; i++) {
-      BlockMetadata.FileBlockMetadata blockMetadata = new BlockMetadata.FileBlockMetadata(
-          testMeta.dataFile.getAbsolutePath(), i,
-          i * blockSize, i == noOfBlocks - 1 ? testMeta.dataFile.length() : (i + 1) * blockSize, i == noOfBlocks - 1,
-          -1);
-      testMeta.blockReader.blocksMetadataInput.process(blockMetadata);
+    for (int i = 0; i < 10; i++) {
+      for (int j = 0; j < Math.ceil(noOfBlocks / 10.0); j++) {
+        int blockNo = 10 * j + i;
+        if (blockNo >= noOfBlocks) {
+          continue;
+        }
+        BlockMetadata.FileBlockMetadata blockMetadata = new BlockMetadata.FileBlockMetadata(
+            testMeta.dataFile.getAbsolutePath(), blockNo, blockNo * blockSize,
+            blockNo == noOfBlocks - 1 ? testMeta.dataFile.length() : (blockNo + 1) * blockSize,
+            blockNo == noOfBlocks - 1, blockNo - 1);
+        testMeta.blockReader.blocksMetadataInput.process(blockMetadata);
+      }
     }
 
     testMeta.blockReader.endWindow();
 
     List<Object> messages = testMeta.messageSink.collectedTuples;
     Assert.assertEquals("No of records", testMeta.messages.size(), messages.size());
+
+    Collections.sort(testMeta.messages, new Comparator<String[]>()
+    {
+      @Override
+      public int compare(String[] rec1, String[] rec2)
+      {
+        return compareStringArrayRecords(rec1, rec2);
+      }
+    });
+
+    Collections.sort(messages, new Comparator<Object>()
+    {
+      @Override
+      public int compare(Object object1, Object object2)
+      {
+        @SuppressWarnings("unchecked")
+        String[] rec1 = ((AbstractBlockReader.ReaderRecord<String>)object1).getRecord().split(",");
+        @SuppressWarnings("unchecked")
+        String[] rec2 = ((AbstractBlockReader.ReaderRecord<String>)object2).getRecord().split(",");
+        return compareStringArrayRecords(rec1, rec2);
+      }
+    });
+
     for (int i = 0; i < messages.size(); i++) {
       @SuppressWarnings("unchecked")
       AbstractBlockReader.ReaderRecord<String> msg = (AbstractBlockReader.ReaderRecord<String>)messages.get(i);
@@ -196,6 +228,24 @@ public class FSLineReaderTest
       String[] parts = record.split(",");
       return parts.length > 0 && datePattern.matcher(parts[0]).find() ? record : null;
     }
+  }
+
+  /**
+   * Utility function to compare lexicographically 2 records of string arrays
+   *
+   * @param rec1
+   * @param rec2
+   * @return negative if rec1 < rec2, positive if rec1 > rec2, 0 otherwise
+   */
+  private int compareStringArrayRecords(String[] rec1, String[] rec2)
+  {
+    for (int i = 0; i < rec1.length && i < rec2.length; i++) {
+      if (rec1[i].equals(rec2[i])) {
+        continue;
+      }
+      return rec1[i].compareTo(rec2[i]);
+    }
+    return 0;
   }
 
   @SuppressWarnings("unused")

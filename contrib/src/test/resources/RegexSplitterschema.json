@@ -1,0 +1,20 @@
+{
+    "fields": [
+        {
+            "name": "date",
+            "type": "Date",
+            "constraints": {
+                "format": "yyyy:MM:dd:hh:mm:ss"
+            }
+        },
+        {
+            "name": "id",
+            "type": "Integer"
+        },
+        {
+            "name": "message",
+            "type": "String"
+
+        }
+    ]
+}

@@ -46,10 +46,11 @@ import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.block.BlockMetadata;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Tests for {@link FileSplitterBase}
@@ -80,12 +81,13 @@ public class FileSplitterBaseTest
       }
 
       fileSplitter = new FileSplitterBase();
+      fileSplitter.setBlocksThreshold(100);
       fileSplitter.setFile(this.dataDirectory);
 
       Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(Context.OperatorContext.SPIN_MILLIS, 500);
 
-      context = new OperatorContextTestHelper.TestIdOperatorContext(0, attributes);
+      context = mockOperatorContext(0, attributes);
 
       fileMetadataSink = new CollectorTestSink<>();
       TestUtils.setSink(fileSplitter.filesMetadataOutput, fileMetadataSink);
@@ -183,7 +185,7 @@ public class FileSplitterBaseTest
 
     Assert.assertEquals("Blocks", 10, baseTestMeta.blockMetadataSink.collectedTuples.size());
 
-    for (int window = 2; window < 8; window++) {
+    for (int window = 2; window <= 8; window++) {
       baseTestMeta.fileSplitter.beginWindow(window);
       baseTestMeta.fileSplitter.handleIdleTime();
       baseTestMeta.fileSplitter.endWindow();
@@ -199,7 +201,9 @@ public class FileSplitterBaseTest
   {
     LocalMode lma = LocalMode.newInstance();
     SplitterApp app = new SplitterApp();
-    lma.prepareDAG(app, new Configuration());
+    Configuration appConf = new Configuration();
+    appConf.set("dt.operator.Splitter.prop.blocksThreshold", "4");
+    lma.prepareDAG(app, appConf);
     lma.cloneDAG(); // check serialization
     LocalMode.Controller lc = lma.getController();
     lc.runAsync();

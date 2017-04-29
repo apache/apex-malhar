@@ -192,7 +192,7 @@ public class TailFsInputOperatorTest
 
   /**
    * This tests the case when the file is rotated and new file has same size as old file
-   * 
+   *
    * @throws Exception
    */
 
@@ -231,7 +231,7 @@ public class TailFsInputOperatorTest
     oper.deactivate();
     file = new File(filePath);
     if (file.exists()) {
-      file.delete();      
+      file.delete();
     }
     file = new File(filePath + ".bk");
     if (file.exists()) {

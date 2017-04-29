@@ -50,7 +50,8 @@ public class OneToOnePartitioner extends AbstractKafkaPartitioner
     for (Map.Entry<String, Map<String, List<PartitionInfo>>> clusterMap : metadata.entrySet()) {
       for (Map.Entry<String, List<PartitionInfo>> topicPartition : clusterMap.getValue().entrySet()) {
         for (PartitionInfo pif : topicPartition.getValue()) {
-          currentAssignment.add(Sets.newHashSet(new PartitionMeta(clusterMap.getKey(), topicPartition.getKey(), pif.partition())));
+          currentAssignment.add(Sets.newHashSet(new PartitionMeta(clusterMap.getKey(),
+              topicPartition.getKey(), pif.partition())));
         }
       }
     }

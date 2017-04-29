@@ -19,6 +19,7 @@
 package com.datatorrent.lib.io.fs;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +38,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
@@ -96,8 +98,9 @@ import com.datatorrent.lib.util.KryoCloneUtils;
  * @param <T> The type of the object that this input operator reads.
  * @since 1.0.2
  */
-public abstract class AbstractFileInputOperator<T>
-    implements InputOperator, Partitioner<AbstractFileInputOperator<T>>, StatsListener, Operator.CheckpointListener
+@org.apache.hadoop.classification.InterfaceStability.Evolving
+public abstract class AbstractFileInputOperator<T> implements InputOperator, Partitioner<AbstractFileInputOperator<T>>, StatsListener,
+    Operator.CheckpointListener, Operator.CheckpointNotificationListener
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFileInputOperator.class);
 
@@ -105,16 +108,19 @@ public abstract class AbstractFileInputOperator<T>
   protected String directory;
   @NotNull
   protected DirectoryScanner scanner = new DirectoryScanner();
+  @Min(0)
   protected int scanIntervalMillis = 5000;
-  protected int offset;
+  protected long offset;
   protected String currentFile;
   protected Set<String> processedFiles = new HashSet<String>();
+  @Min(1)
   protected int emitBatchSize = 1000;
   protected int currentPartitions = 1;
   protected int partitionCount = 1;
   private int retryCount = 0;
+  @Min(0)
   private int maxRetryCount = 5;
-  protected transient int skipCount = 0;
+  protected transient long skipCount = 0;
   private transient OperatorContext context;
 
   private final BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
@@ -143,7 +149,7 @@ public abstract class AbstractFileInputOperator<T>
   protected static class FailedFile
   {
     String path;
-    int   offset;
+    long   offset;
     int    retryCount;
     long   lastFailedTime;
 
@@ -151,14 +157,14 @@ public abstract class AbstractFileInputOperator<T>
     @SuppressWarnings("unused")
     protected FailedFile() {}
 
-    protected FailedFile(String path, int offset)
+    protected FailedFile(String path, long offset)
     {
       this.path = path;
       this.offset = offset;
       this.retryCount = 0;
     }
 
-    protected FailedFile(String path, int offset, int retryCount)
+    protected FailedFile(String path, long offset, int retryCount)
     {
       this.path = path;
       this.offset = offset;
@@ -365,6 +371,9 @@ public abstract class AbstractFileInputOperator<T>
    */
   public void setScanIntervalMillis(int scanIntervalMillis)
   {
+    if (scanIntervalMillis < 0) {
+      throw new IllegalArgumentException("scanIntervalMillis should be greater than or equal to 0.");
+    }
     this.scanIntervalMillis = scanIntervalMillis;
   }
 
@@ -383,6 +392,9 @@ public abstract class AbstractFileInputOperator<T>
    */
   public void setEmitBatchSize(int emitBatchSize)
   {
+    if (emitBatchSize <= 0) {
+      throw new IllegalArgumentException("emitBatchSize should be greater than 0.");
+    }
     this.emitBatchSize = emitBatchSize;
   }
 
@@ -457,7 +469,7 @@ public abstract class AbstractFileInputOperator<T>
     fileCounters.setCounter(FileCounters.PENDING_FILES, pendingFileCount);
 
     windowDataManager.setup(context);
-    if (context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) < windowDataManager.getLargestRecoveryWindow()) {
+    if (context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) < windowDataManager.getLargestCompletedWindow()) {
       //reset current file and offset in case of replay
       currentFile = null;
       offset = 0;
@@ -519,7 +531,7 @@ public abstract class AbstractFileInputOperator<T>
   public void beginWindow(long windowId)
   {
     currentWindowId = windowId;
-    if (windowId <= windowDataManager.getLargestRecoveryWindow()) {
+    if (windowId <= windowDataManager.getLargestCompletedWindow()) {
       replay(windowId);
     }
   }
@@ -527,9 +539,9 @@ public abstract class AbstractFileInputOperator<T>
   @Override
   public void endWindow()
   {
-    if (currentWindowId > windowDataManager.getLargestRecoveryWindow()) {
+    if (currentWindowId > windowDataManager.getLargestCompletedWindow()) {
       try {
-        windowDataManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
+        windowDataManager.save(currentWindowRecoveryState, currentWindowId);
       } catch (IOException e) {
         throw new RuntimeException("saving recovery", e);
       }
@@ -553,7 +565,7 @@ public abstract class AbstractFileInputOperator<T>
     //all the recovery data for a window and then processes only those files which would be hashed
     //to it in the current run.
     try {
-      Map<Integer, Object> recoveryDataPerOperator = windowDataManager.load(windowId);
+      Map<Integer, Object> recoveryDataPerOperator = windowDataManager.retrieveAllPartitions(windowId);
 
       for (Object recovery : recoveryDataPerOperator.values()) {
         @SuppressWarnings("unchecked")
@@ -591,16 +603,26 @@ public abstract class AbstractFileInputOperator<T>
                 pendingFiles.remove(recoveryEntry.file);
               }
               inputStream = retryFailedFile(new FailedFile(recoveryEntry.file, recoveryEntry.startOffset));
+
+              while (--skipCount >= 0) {
+                readEntity();
+              }
               while (offset < recoveryEntry.endOffset) {
                 T line = readEntity();
                 offset++;
                 emit(line);
+              }
+              if (recoveryEntry.fileClosed) {
+                closeFile(inputStream);
               }
             } else {
               while (offset < recoveryEntry.endOffset) {
                 T line = readEntity();
                 offset++;
                 emit(line);
+              }
+              if (recoveryEntry.fileClosed) {
+                closeFile(inputStream);
               }
             }
           }
@@ -615,7 +637,7 @@ public abstract class AbstractFileInputOperator<T>
   @Override
   public void emitTuples()
   {
-    if (currentWindowId <= windowDataManager.getLargestRecoveryWindow()) {
+    if (currentWindowId <= windowDataManager.getLargestCompletedWindow()) {
       return;
     }
 
@@ -623,7 +645,7 @@ public abstract class AbstractFileInputOperator<T>
       try {
         if (currentFile != null && offset > 0) {
           //open file resets offset to 0 so this a way around it.
-          int tmpOffset = offset;
+          long tmpOffset = offset;
           if (fs.exists(new Path(currentFile))) {
             this.inputStream = openFile(new Path(currentFile));
             offset = tmpOffset;
@@ -651,8 +673,9 @@ public abstract class AbstractFileInputOperator<T>
       }
     }
     if (inputStream != null) {
-      int startOffset = offset;
+      long startOffset = offset;
       String file  = currentFile; //current file is reset to null when closed.
+      boolean fileClosed = false;
 
       try {
         int counterForTuple = 0;
@@ -661,6 +684,7 @@ public abstract class AbstractFileInputOperator<T>
           if (line == null) {
             LOG.info("done reading file ({} entries).", offset);
             closeFile(inputStream);
+            fileClosed = true;
             break;
           }
 
@@ -678,9 +702,9 @@ public abstract class AbstractFileInputOperator<T>
       } catch (IOException e) {
         failureHandling(e);
       }
-      //Only when something was emitted from the file then we record it for entry.
-      if (offset > startOffset) {
-        currentWindowRecoveryState.add(new RecoveryEntry(file, startOffset, offset));
+      //Only when something was emitted from the file, or we have a closeFile(), then we record it for entry.
+      if (offset >= startOffset) {
+        currentWindowRecoveryState.add(new RecoveryEntry(file, startOffset, offset, fileClosed));
       }
     }
   }
@@ -836,7 +860,7 @@ public abstract class AbstractFileInputOperator<T>
     List<DirectoryScanner> scanners = scanner.partition(totalCount, oldscanners);
 
     Collection<Partition<AbstractFileInputOperator<T>>> newPartitions = Lists.newArrayListWithExpectedSize(totalCount);
-    Collection<WindowDataManager> newManagers = Lists.newArrayListWithExpectedSize(totalCount);
+    List<WindowDataManager> newManagers = windowDataManager.partition(totalCount, deletedOperators);
 
     KryoCloneUtils<AbstractFileInputOperator<T>> cloneUtils = KryoCloneUtils.createCloneUtils(this);
     for (int i = 0; i < scanners.size(); i++) {
@@ -888,11 +912,10 @@ public abstract class AbstractFileInputOperator<T>
           pendingFilesIterator.remove();
         }
       }
+      oper.setWindowDataManager(newManagers.get(i));
       newPartitions.add(new DefaultPartition<AbstractFileInputOperator<T>>(oper));
-      newManagers.add(oper.windowDataManager);
     }
 
-    windowDataManager.partitioned(newManagers, deletedOperators);
     LOG.info("definePartitions called returning {} partitions", newPartitions.size());
     return newPartitions;
   }
@@ -909,6 +932,11 @@ public abstract class AbstractFileInputOperator<T>
   }
 
   @Override
+  public void beforeCheckpoint(long windowId)
+  {
+  }
+
+  @Override
   public void checkpointed(long windowId)
   {
   }
@@ -917,7 +945,7 @@ public abstract class AbstractFileInputOperator<T>
   public void committed(long windowId)
   {
     try {
-      windowDataManager.deleteUpTo(operatorId, windowId);
+      windowDataManager.committed(windowId);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -977,6 +1005,9 @@ public abstract class AbstractFileInputOperator<T>
    */
   public void setMaxRetryCount(int maxRetryCount)
   {
+    if (maxRetryCount < 0) {
+      throw new IllegalArgumentException("maxRetryCount should be greater than or equal to 0.");
+    }
     this.maxRetryCount = maxRetryCount;
   }
 
@@ -989,6 +1020,7 @@ public abstract class AbstractFileInputOperator<T>
     private static final long serialVersionUID = 4535844463258899929L;
     private String filePatternRegexp;
     private transient Pattern regex = null;
+    private boolean recursive = true;
     private int partitionIndex;
     private int partitionCount;
     protected final transient HashSet<String> ignoredFiles = new HashSet<String>();
@@ -1040,7 +1072,12 @@ public abstract class AbstractFileInputOperator<T>
             continue;
           }
 
-          if (acceptFile(filePathStr)) {
+          if (status.isDirectory() ) {
+            if (isRecursive()) {
+              LinkedHashSet<Path> childPathSet = scan(fs, path, consumedFiles);
+              pathSet.addAll(childPathSet);
+            }
+          } else if (acceptFile(filePathStr)) {
             LOG.debug("Found {}", filePathStr);
             pathSet.add(path);
           } else {
@@ -1056,10 +1093,15 @@ public abstract class AbstractFileInputOperator<T>
       return pathSet;
     }
 
+    protected int getPartition(String filePathStr)
+    {
+      return filePathStr.hashCode();
+    }
+
     protected boolean acceptFile(String filePathStr)
     {
       if (partitionCount > 1) {
-        int i = filePathStr.hashCode();
+        int i = getPartition(filePathStr);
         int mod = i % partitionCount;
         if (mod < 0) {
           mod += partitionCount;
@@ -1072,7 +1114,8 @@ public abstract class AbstractFileInputOperator<T>
       }
       Pattern regex = this.getRegex();
       if (regex != null) {
-        Matcher matcher = regex.matcher(filePathStr);
+        String fileName = new File(filePathStr).getName();
+        Matcher matcher = regex.matcher(fileName);
         if (!matcher.matches()) {
           return false;
         }
@@ -1096,7 +1139,8 @@ public abstract class AbstractFileInputOperator<T>
 
     protected DirectoryScanner createPartition(int partitionIndex, int partitionCount)
     {
-      DirectoryScanner that = new DirectoryScanner();
+      KryoCloneUtils<DirectoryScanner> cloneUtils = KryoCloneUtils.createCloneUtils(this);
+      DirectoryScanner that = cloneUtils.getClone();
       that.filePatternRegexp = this.filePatternRegexp;
       that.regex = this.regex;
       that.partitionIndex = partitionIndex;
@@ -1110,13 +1154,44 @@ public abstract class AbstractFileInputOperator<T>
       return "DirectoryScanner [filePatternRegexp=" + filePatternRegexp + " partitionIndex=" +
           partitionIndex + " partitionCount=" + partitionCount + "]";
     }
+
+    protected void setPartitionIndex(int partitionIndex)
+    {
+      this.partitionIndex = partitionIndex;
+    }
+
+    protected void setPartitionCount(int partitionCount)
+    {
+      this.partitionCount = partitionCount;
+    }
+
+    /**
+     * True if recursive; false otherwise.
+     *
+     * @param recursive true if recursive; false otherwise.
+     */
+    public boolean isRecursive()
+    {
+      return recursive;
+    }
+
+    /**
+     * Sets whether scan will be recursive.
+     *
+     * @return true if recursive; false otherwise.
+     */
+    public void setRecursive(boolean recursive)
+    {
+      this.recursive = recursive;
+    }
   }
 
   protected static class RecoveryEntry
   {
     final String file;
-    final int startOffset;
-    final int endOffset;
+    final long startOffset;
+    final long endOffset;
+    final boolean fileClosed;
 
     @SuppressWarnings("unused")
     private RecoveryEntry()
@@ -1124,13 +1199,15 @@ public abstract class AbstractFileInputOperator<T>
       file = null;
       startOffset = -1;
       endOffset = -1;
+      fileClosed = false;
     }
 
-    RecoveryEntry(String file, int startOffset, int endOffset)
+    RecoveryEntry(String file, long startOffset, long endOffset, boolean fileClosed)
     {
       this.file = Preconditions.checkNotNull(file, "file");
       this.startOffset = startOffset;
       this.endOffset = endOffset;
+      this.fileClosed = fileClosed;
     }
 
     @Override
@@ -1151,6 +1228,9 @@ public abstract class AbstractFileInputOperator<T>
       if (startOffset != that.startOffset) {
         return false;
       }
+      if (fileClosed != that.fileClosed) {
+        return false;
+      }
       return file.equals(that.file);
 
     }
@@ -1159,8 +1239,8 @@ public abstract class AbstractFileInputOperator<T>
     public int hashCode()
     {
       int result = file.hashCode();
-      result = 31 * result + startOffset;
-      result = 31 * result + endOffset;
+      result = 31 * result + (int)(startOffset & 0xFFFFFFFF);
+      result = 31 * result + (int)(endOffset & 0xFFFFFFFF);
       return result;
     }
   }

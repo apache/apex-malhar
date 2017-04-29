@@ -27,12 +27,14 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +82,7 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
   private boolean mysqlSyntax;
 
   @NotNull
-  private List<FieldInfo> fieldInfos;
+  private List<FieldInfo> fieldInfos = new ArrayList<>();;
 
   @Min(1)
   private int fetchSize;
@@ -94,8 +96,6 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
 
   private transient PreparedStatement preparedStatement;
   protected transient Class<?> pojoClass;
-
-  protected int pageNumber;
 
   @AutoMetric
   protected long tuplesRead;
@@ -188,7 +188,6 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
   public void beginWindow(long l)
   {
     windowDone = false;
-    tuplesRead = 0;
   }
 
   @Override
@@ -209,7 +208,6 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
           windowDone = true;
         }
         resultSet.close();
-        pageNumber++;
       } catch (SQLException ex) {
         store.disconnect();
         throw new RuntimeException(ex);
@@ -220,9 +218,9 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
   protected void setRuntimeParams() throws SQLException
   {
     if (mysqlSyntax) {
-      preparedStatement.setLong(1, pageNumber * fetchSize);
+      preparedStatement.setLong(1, tuplesRead);
     } else {
-      preparedStatement.setLong(1, pageNumber * fetchSize);
+      preparedStatement.setLong(1, tuplesRead);
     }
   }
 
@@ -404,7 +402,7 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
           break;
 
         case (Types.DOUBLE):
-          activeFieldInfo.setterOrGetter = PojoUtils.createGetterDouble(pojoClass,
+          activeFieldInfo.setterOrGetter = PojoUtils.createSetterDouble(pojoClass,
               activeFieldInfo.fieldInfo.getPojoFieldExpression());
           break;
 
@@ -634,6 +632,38 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
   public void setMysqlSyntax(boolean mysqlSyntax)
   {
     this.mysqlSyntax = mysqlSyntax;
+  }
+
+  /**
+   * Function to initialize the list of {@link FieldInfo} externally from configuration/properties file.
+   * Example entry in the properties/configuration file:
+   <property>
+   <name>dt.operator.JdbcPOJOInput.fieldInfosItem[0]</name>
+   <value>
+   {
+   "columnName":"ID",
+   "pojoFieldExpression": "id",
+   "type":"INTEGER"
+   }
+   </value>
+   </property>
+   * @param index is the index in the list which is to be initialized.
+   * @param value is the JSON String with appropriate mappings for {@link FieldInfo}.
+   */
+  public void setFieldInfosItem(int index, String value)
+  {
+    try {
+      JSONObject jo = new JSONObject(value);
+      FieldInfo fieldInfo = new FieldInfo(jo.getString("columnName"), jo.getString("pojoFieldExpression"),
+          FieldInfo.SupportType.valueOf(jo.getString("type")));
+      final int need = index - fieldInfos.size() + 1;
+      for (int i = 0; i < need; i++) {
+        fieldInfos.add(null);
+      }
+      fieldInfos.set(index,fieldInfo);
+    } catch (Exception e) {
+      throw new RuntimeException("Exception in setting FieldInfo " + value + " " + e.getMessage());
+    }
   }
 
   public static final Logger LOG = LoggerFactory.getLogger(JdbcPOJOInputOperator.class);

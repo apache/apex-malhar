@@ -25,10 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectReader;
-import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,30 +40,18 @@ import com.google.common.collect.Maps;
 import com.datatorrent.lib.db.cache.CacheManager;
 import com.datatorrent.lib.util.FieldInfo;
 
-
 /**
- * This implementation of {@link BackendLoader} loads the data from a given file into memory cache and serves queries
- * from the cache.
- * When this is set as primaryCache in {@link CacheManager}, CacheManager can call {@link #loadInitialData()}
- * periodically to reload the file.
- * <p>
- * The format of the input file is:
- * <p>
- * {"productCategory": 5, "productId": 0}
- * {"productCategory": 4, "productId": 1}
- * {"productCategory": 5, "productId": 2}
- * {"productCategory": 5, "productId": 3}
- * </p>
- * Each line in the input file should be a valid json object which represents a record and each key/value pair in that
- * json object represents the fields/value.
- * <p>
- * NOTE: This loader should be used with caution as all the data present in the file is loaded in memory because of
- * which the memory consumption may go up.
+ * This implementation of {@link BackendLoader} loads the data from a given file
+ * into memory cache and serves queries from the cache. When this is set as
+ * primaryCache in {@link CacheManager}, CacheManager can call
+ * {@link #loadInitialData()} periodically to reload the file. NOTE: This loader
+ * should be used with caution as all the data present in the file is loaded in
+ * memory because of which the memory consumption may go up.
  *
  * @since 3.4.0
  */
 @InterfaceStability.Evolving
-public class FSLoader extends ReadOnlyBackup
+public abstract class FSLoader extends ReadOnlyBackup
 {
   @NotNull
   private String fileName;
@@ -76,8 +60,6 @@ public class FSLoader extends ReadOnlyBackup
   private transient FileSystem fs;
   private transient boolean connected;
 
-  private static final ObjectMapper mapper = new ObjectMapper();
-  private static final ObjectReader reader = mapper.reader(new TypeReference<Map<String, Object>>(){});
   private static final Logger logger = LoggerFactory.getLogger(FSLoader.class);
 
   public String getFileName()
@@ -103,9 +85,11 @@ public class FSLoader extends ReadOnlyBackup
       String line;
       while ((line = bin.readLine()) != null) {
         try {
-          Map<String, Object> tuple = reader.readValue(line);
-          result.put(getKey(tuple), getValue(tuple));
-        } catch (JsonProcessingException parseExp) {
+          Map<String, Object> tuple = extractFields(line);
+          if (tuple != null && !tuple.isEmpty()) {
+            result.put(getKey(tuple), getValue(tuple));
+          }
+        } catch (Exception parseExp) {
           logger.info("Unable to parse line {}", line);
         }
       }
@@ -127,6 +111,18 @@ public class FSLoader extends ReadOnlyBackup
     logger.debug("loading initial data {}", result.size());
     return result;
   }
+
+  /**
+   * This method is called by {@link #loadInitialData()} to extract values from
+   * a record. Concrete implementations override this method to parse a record
+   * and convert it to Map of field names and values OR simply returns null to
+   * skip the records.
+   *
+   * @param line
+   *          A single record from file
+   * @return a map with field name and value. Null value if returned is ignored
+   */
+  abstract Map<String, Object> extractFields(String line);
 
   private Object getValue(Map<String, Object> tuple)
   {

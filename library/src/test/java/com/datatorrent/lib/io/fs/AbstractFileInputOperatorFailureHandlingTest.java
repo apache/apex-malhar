@@ -38,10 +38,11 @@ import com.google.common.collect.Sets;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class AbstractFileInputOperatorFailureHandlingTest
 {
@@ -124,8 +125,7 @@ public class AbstractFileInputOperatorFailureHandlingTest
     oper.setDirectory(testMeta.getDir());
     oper.getScanner().setFilePatternRegexp(".*file[\\d]");
 
-    oper.setup(
-        new OperatorContextTestHelper.TestIdOperatorContext(1, new Attribute.AttributeMap.DefaultAttributeMap()));
+    oper.setup(mockOperatorContext(1, new Attribute.AttributeMap.DefaultAttributeMap()));
     for (long wid = 0; wid < 1000; wid++) {
       oper.beginWindow(wid);
       oper.emitTuples();

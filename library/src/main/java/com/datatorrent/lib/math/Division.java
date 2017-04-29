@@ -58,17 +58,17 @@ public class Division extends BaseOperator
    * Array to store numerator inputs during window.
    */
   private ArrayList<Number> numer = new ArrayList<Number>();
-  
+
   /**
    * Array to store denominator input during window.
    */
   private ArrayList<Number> denom = new ArrayList<Number>();
-  
+
   /**
    * Number of pair processed in current window.
    */
   private int index = 0;
-  
+
   /**
    * Numerator input port.
    */
@@ -112,55 +112,55 @@ public class Division extends BaseOperator
       }
     }
   };
- 
+
   /**
-   * Long quotient output port. 
+   * Long quotient output port.
    */
   @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Long> longQuotient = new DefaultOutputPort<Long>();
-  
+
   /**
-   * Integer quotient output port. 
+   * Integer quotient output port.
    */
   @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Integer> integerQuotient = new DefaultOutputPort<Integer>();
-  
+
   /**
-   * Double quotient output port. 
+   * Double quotient output port.
    */
   @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Double> doubleQuotient = new DefaultOutputPort<Double>();
 
   /**
-   * Float quotient output port. 
+   * Float quotient output port.
    */
   @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Float> floatQuotient = new DefaultOutputPort<Float>();
-  
+
   /**
-   * Long remainder output port. 
+   * Long remainder output port.
    */
   @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Long> longRemainder = new DefaultOutputPort<Long>();
-  
+
   /**
-   * Integer remainder output port. 
+   * Integer remainder output port.
    */
   @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Integer> integerRemainder = new DefaultOutputPort<Integer>();
- 
+
   /**
-   * Double remainder output port. 
+   * Double remainder output port.
    */
   @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Double> doubleRemainder = new DefaultOutputPort<Double>();
-  
+
   /**
-   * Float remainder output port. 
+   * Float remainder output port.
    */
   @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Float> floatRemainder = new DefaultOutputPort<Float>();
-  
+
   /**
    * Error data output port that emits a string.
    */

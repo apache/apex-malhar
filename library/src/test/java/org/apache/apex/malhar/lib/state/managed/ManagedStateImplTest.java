@@ -177,7 +177,7 @@ public class ManagedStateImplTest
     testMeta.managedState.setup(testMeta.operatorContext);
 
     int numKeys = 300;
-    long lastWindowId = (long)numKeys;
+    long lastWindowId = numKeys;
 
     for (long windowId = 0L; windowId < lastWindowId; windowId++) {
       testMeta.managedState.beginWindow(windowId);
@@ -197,7 +197,7 @@ public class ManagedStateImplTest
     for (int key = numKeys - 1; key > 0; key--) {
       Slice keyVal = ManagedStateTestUtils.getSliceFor(Integer.toString(key));
       Slice val = testMeta.managedState.getSync(0L, keyVal);
-      Assert.assertNotNull(val);
+      Assert.assertNotNull("null value for key " + key, val);
     }
 
     testMeta.managedState.endWindow();

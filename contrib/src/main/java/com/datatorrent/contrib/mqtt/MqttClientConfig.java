@@ -294,7 +294,7 @@ public class MqttClientConfig
 
   /**
    * Sets the port
-   * 
+   *
    * @param port the port
    */
   public void setPort(int port)

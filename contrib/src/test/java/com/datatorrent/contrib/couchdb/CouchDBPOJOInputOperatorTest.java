@@ -26,8 +26,9 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class CouchDBPOJOInputOperatorTest
 {
@@ -86,7 +87,7 @@ public class CouchDBPOJOInputOperatorTest
     operatorTest.setViewName(CouchDBTestHelper.TEST_VIEW);
     operatorTest.setStartKey(testDocumentId1);
     operatorTest.outputPort.setSink(sink);
-    operatorTest.setup(new OperatorContextTestHelper.TestIdOperatorContext(2));
+    operatorTest.setup(mockOperatorContext(2));
 
     operatorTest.beginWindow(0);
     operatorTest.emitTuples();

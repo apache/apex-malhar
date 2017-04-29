@@ -28,7 +28,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
- * 
+ *
  * @since 2.1.0
  */
 public class ElasticSearchPercolatorStore extends ElasticSearchConnectable
@@ -44,7 +44,7 @@ public class ElasticSearchPercolatorStore extends ElasticSearchConnectable
   public void registerPercolateQuery(String indexName, String queryName, QueryBuilder queryBuilder)
   {
     try {
-      
+
       client.prepareIndex(indexName, PERCOLATOR_TYPE, queryName)
         .setSource(XContentFactory.jsonBuilder()
             .startObject()
@@ -52,22 +52,22 @@ public class ElasticSearchPercolatorStore extends ElasticSearchConnectable
             .endObject())
         .setRefresh(true)
         .execute().actionGet();
-      
+
     } catch (IOException e) {
       DTThrowable.rethrow(e);
     }
   }
-  
+
   public PercolateResponse percolate(String[] indexNames, String documentType, Object tuple){
     XContentBuilder docBuilder;
     try {
-      
+
       docBuilder = XContentFactory.jsonBuilder().startObject();
       docBuilder.field("doc").startObject(); //This is needed to designate the document
       docBuilder.field("content", tuple);
       docBuilder.endObject(); //End of the doc field
       docBuilder.endObject();//End of the JSON root object
-      
+
       return client.preparePercolate().setIndices(indexNames)
           .setDocumentType(documentType)
           .setSource(docBuilder)

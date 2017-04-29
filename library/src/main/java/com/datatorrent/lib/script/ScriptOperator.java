@@ -31,8 +31,8 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
 
 /**
- * A base implementation of a BaseOperator for language script operator.&nbsp; Subclasses should provide the 
-   implementation of getting the bindings and process method. 
+ * A base implementation of a BaseOperator for language script operator.&nbsp; Subclasses should provide the
+   implementation of getting the bindings and process method.
  * Interface for language script operator.
  * <p>
  * @displayName Script
@@ -55,13 +55,13 @@ public abstract class ScriptOperator extends BaseOperator
     }
 
   };
-  
+
   /**
    * Output outBindings port that emits a map of &lt;String, Object&gt.
    */
   @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Map<String, Object>> outBindings = new DefaultOutputPort<Map<String, Object>>();
-  
+
   /**
    * Output result port that emits an object as the result.
    */

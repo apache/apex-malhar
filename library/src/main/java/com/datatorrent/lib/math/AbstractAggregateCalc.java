@@ -42,7 +42,7 @@ import com.datatorrent.api.DefaultInputPort;
  * <b>integerResult</b>: emits Integer<br>
  * <b>longResult</b>: emits Long<br>
  * <br>
- * 
+ *
  * @displayName Abstract Aggregate Calculator
  * @category Math
  * @tags aggregate, collection

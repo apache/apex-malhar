@@ -19,6 +19,7 @@
 package org.apache.apex.malhar.lib.state.managed;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutorService;
@@ -33,10 +34,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
+import org.apache.apex.malhar.lib.wal.FileSystemWAL;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Queues;
+import com.google.common.primitives.Longs;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.annotation.Stateless;
@@ -69,6 +72,7 @@ public class IncrementalCheckpointManager extends FSWindowDataManager
   protected transient ManagedStateContext managedStateContext;
 
   private final transient AtomicLong latestExpiredTimeBucket = new AtomicLong(-1);
+  private long latestPurgedTimeBucket = -1;
 
   private transient int waitMillis;
   private volatile long lastTransferredWindow = Stateless.WINDOW_ID;
@@ -78,7 +82,8 @@ public class IncrementalCheckpointManager extends FSWindowDataManager
   public IncrementalCheckpointManager()
   {
     super();
-    setRecoveryPath(WAL_RELATIVE_PATH);
+    setStatePath(WAL_RELATIVE_PATH);
+    setRelyOnCheckpoints(true);
   }
 
   @Override
@@ -105,8 +110,9 @@ public class IncrementalCheckpointManager extends FSWindowDataManager
           transferWindowFiles();
           if (latestExpiredTimeBucket.get() > -1) {
             try {
-              managedStateContext.getBucketsFileSystem().deleteTimeBucketsLessThanEqualTo(
-                  latestExpiredTimeBucket.getAndSet(-1));
+              latestPurgedTimeBucket = latestExpiredTimeBucket.getAndSet(-1);
+              //LOG.debug("latestPurgedTimeBucket {}", latestPurgedTimeBucket);
+              managedStateContext.getBucketsFileSystem().deleteTimeBucketsLessThanEqualTo(latestPurgedTimeBucket);
             } catch (IOException e) {
               throwable.set(e);
               LOG.debug("delete files", e);
@@ -129,10 +135,9 @@ public class IncrementalCheckpointManager extends FSWindowDataManager
           Map<Long, Map<Slice, Bucket.BucketedValue>> buckets = savedWindows.remove(windowId);
 
           for (Map.Entry<Long, Map<Slice, Bucket.BucketedValue>> singleBucket : buckets.entrySet()) {
-            managedStateContext.getBucketsFileSystem().writeBucketData(windowId, singleBucket.getKey(),
-                singleBucket.getValue());
+            long bucketId = singleBucket.getKey();
+            managedStateContext.getBucketsFileSystem().writeBucketData(windowId, bucketId, singleBucket.getValue(), latestPurgedTimeBucket);
           }
-          storageAgent.delete(managedStateContext.getOperatorContext().getId(), windowId);
         } catch (Throwable t) {
           throwable.set(t);
           LOG.debug("transfer window {}", windowId, t);
@@ -150,7 +155,7 @@ public class IncrementalCheckpointManager extends FSWindowDataManager
   }
 
   @Override
-  public void save(Object object, int operatorId, long windowId) throws IOException
+  public void save(Object object, long windowId) throws IOException
   {
     throw new UnsupportedOperationException("doesn't support saving any object");
   }
@@ -159,15 +164,13 @@ public class IncrementalCheckpointManager extends FSWindowDataManager
    * The unsaved state combines data received in multiple windows. This window data manager persists this data
    * on disk by the window id in which it was requested.
    * @param unsavedData   un-saved data of all buckets.
-   * @param operatorId    operator id.
    * @param windowId      window id.
    * @param skipWriteToWindowFile flag that enables/disables saving the window file.
    *
    * @throws IOException
    */
-  public void save(Map<Long, Map<Slice, Bucket.BucketedValue>> unsavedData, int operatorId, long windowId,
-      boolean skipWriteToWindowFile)
-      throws IOException
+  public void save(Map<Long, Map<Slice, Bucket.BucketedValue>> unsavedData, long windowId,
+      boolean skipWriteToWindowFile) throws IOException
   {
     Throwable lthrowable;
     if ((lthrowable = throwable.get()) != null) {
@@ -177,25 +180,46 @@ public class IncrementalCheckpointManager extends FSWindowDataManager
     savedWindows.put(windowId, unsavedData);
 
     if (!skipWriteToWindowFile) {
-      super.save(unsavedData, operatorId, windowId);
+      super.save(unsavedData, windowId);
     }
+  }
+
+  /**
+   * Retrieves artifacts available for all the windows saved by the enclosing partitions.
+   * @return  artifact saved per window.
+   * @throws IOException
+   */
+  public Map<Long, Object> retrieveAllWindows() throws IOException
+  {
+    Map<Long, Object> artifactPerWindow = new HashMap<>();
+    FileSystemWAL.FileSystemWALReader reader = getWal().getReader();
+    reader.seek(getWal().getWalStartPointer());
+
+    Slice windowSlice = readNext(reader);
+    while (reader.getCurrentPointer().compareTo(getWal().getWalEndPointerAfterRecovery()) < 0 && windowSlice != null) {
+      long window = Longs.fromByteArray(windowSlice.toByteArray());
+      Object data = fromSlice(readNext(reader));
+      artifactPerWindow.put(window, data);
+      windowSlice = readNext(reader); //null or next window
+    }
+    reader.seek(getWal().getWalStartPointer());
+    return artifactPerWindow;
   }
 
   /**
    * Transfers the data which has been committed till windowId to data files.
    *
-   * @param operatorId operator id
-   * @param windowId   window id
+   * @param committedWindowId   window id
    */
-  @SuppressWarnings("UnusedParameters")
-  protected void committed(int operatorId, long windowId) throws IOException, InterruptedException
+  @Override
+  public void committed(long committedWindowId) throws IOException
   {
-    LOG.debug("data manager committed {}", windowId);
+    LOG.debug("data manager committed {}", committedWindowId);
     for (Long currentWindow : savedWindows.keySet()) {
       if (currentWindow <= largestWindowAddedToTransferQueue) {
         continue;
       }
-      if (currentWindow <= windowId) {
+      if (currentWindow <= committedWindowId) {
         LOG.debug("to transfer {}", currentWindow);
         largestWindowAddedToTransferQueue = currentWindow;
         windowsToTransfer.add(currentWindow);

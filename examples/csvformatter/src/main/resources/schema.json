@@ -1,0 +1,60 @@
+{
+  "separator": "|",
+  "quoteChar": "\"",
+  "lineDelimiter": "\n",
+  "fields": [
+    {
+      "name": "campaignId",
+      "type": "Integer"
+    },
+    {
+      "name": "advId",
+      "type": "Integer"
+    },
+    {
+      "name": "campaignName",
+      "type": "String"
+    },
+    {
+      "name": "campaignBudget",
+      "type": "Double",
+      "constraints": {
+        "maxValue": 30000
+      }
+    },
+    {
+      "name": "startDate",
+      "type": "Date",
+      "constraints": {
+        "format": "yyyy-MM-dd"
+      }
+    },
+    {
+      "name": "endDate",
+      "type": "Date",
+      "constraints": {
+        "format": "dd/MM/yyyy"
+      }
+    },
+    {
+      "name": "securityCode",
+      "type": "String"
+    },
+    {
+      "name": "weatherTargeting",
+      "type": "Boolean"
+    },
+    {
+      "name": "optimized",
+      "type": "Boolean"
+    },
+    {
+      "name": "parentCampaign",
+      "type": "String"
+    },
+    {
+      "name": "weatherTargeted",
+      "type": "Character"
+    }
+  ]
+}

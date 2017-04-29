@@ -549,6 +549,9 @@ public class PojoUtilsTest
 
     expression = createExpression(fqcn, "round(pow({$.innerObj.privateFloatVal}, {$.innerObj.privateDoubleVal}))", long.class, new String[] {"java.lang.Math.*"});
     assertEquals(46162L, expression.execute(testObj));
+
+    expression = createExpression(fqcn, "{$.innerObj.privateFloatVal} > 0 && {$.innerObj.privateStringVal}.length() > 0", boolean.class);
+    assertEquals(true, expression.execute(testObj));
   }
 
   @Test

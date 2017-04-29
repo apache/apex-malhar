@@ -76,7 +76,7 @@ public class RandomEventGeneratorTest
     node.integer_data.setSink(integer_data);
     CollectorTestSink string_data = new CollectorTestSink();
     node.string_data.setSink(string_data);
-    
+
     node.setup(null);
     node.beginWindow(1);
     node.emitTuples();

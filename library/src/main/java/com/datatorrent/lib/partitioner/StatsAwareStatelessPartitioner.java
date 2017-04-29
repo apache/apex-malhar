@@ -64,7 +64,7 @@ public abstract class StatsAwareStatelessPartitioner<T extends Operator> impleme
   private long nextMillis;
   private long partitionNextMillis;
   private boolean repartition;
-  private transient HashMap<Integer, BatchedOperatorStats> partitionedInstanceStatus = new HashMap<Integer, BatchedOperatorStats>();
+  protected transient HashMap<Integer, BatchedOperatorStats> partitionedInstanceStatus = new HashMap<Integer, BatchedOperatorStats>();
   @Min(1)
   private int initialPartitionCount = 1;
 

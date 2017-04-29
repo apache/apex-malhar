@@ -18,15 +18,17 @@
  */
 package com.datatorrent.benchmark.testbench;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.stream.DevNull;
 import com.datatorrent.lib.testbench.FilterClassifier;
-import java.util.ArrayList;
-import java.util.HashMap;
-import org.apache.hadoop.conf.Configuration;
 
 /**
  * Benchmark App for FilterClassifier Operator.
@@ -39,6 +41,7 @@ public class FilterClassifierApp implements StreamingApplication
 {
   private final Locality locality = null;
   public static final int QUEUE_CAPACITY = 16 * 1024;
+
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
@@ -80,9 +83,9 @@ public class FilterClassifierApp implements StreamingApplication
     filter.setTotalFilter(100);
 
     HashMapOperator hmapOper = dag.addOperator("hmapOper", new HashMapOperator());
-    DevNull<HashMap<String,Double>> dev = dag.addOperator("dev",  new DevNull());
-    dag.addStream("filter1",hmapOper.hmap_data,filter.data).setLocality(locality);
-    dag.addStream("filer2",filter.filter,dev.data).setLocality(locality);
+    DevNull<HashMap<String, Double>> dev = dag.addOperator("dev", new DevNull());
+    dag.addStream("filter1", hmapOper.hmap_data, filter.data).setLocality(locality);
+    dag.addStream("filer2", filter.filter, dev.data).setLocality(locality);
 
   }
 }

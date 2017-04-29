@@ -48,11 +48,11 @@ public class KinesisTestConsumer implements Runnable
 
   private volatile boolean isAlive = true;
   private int receiveCount = 0;
-  
+
   private CountDownLatch doneLatch;
-  
+
   protected static final int MAX_TRY_TIMES = 30;
-  
+
   private void createClient()
   {
     AWSCredentialsProvider credentials = new DefaultAWSCredentialsProviderChain();
@@ -87,16 +87,16 @@ public class KinesisTestConsumer implements Runnable
     buffer.get(bytes);
     return new String(bytes);
   }
-   
+
   @Override
   public void run()
   {
     String iterator = prepareIterator();
-    
-    while (isAlive ) 
+
+    while (isAlive )
     {
       iterator = processNextIterator(iterator);
-      
+
       //sleep at least 1 second to avoid exceeding the limit on getRecords frequency
       try
       {
@@ -167,7 +167,7 @@ public class KinesisTestConsumer implements Runnable
       return;
     receiveCount += records.size();
     logger.debug("ReceiveCount= {}", receiveCount);
-    
+
     for( Record record : records )
     {
       holdingBuffer.add(record);
@@ -175,18 +175,18 @@ public class KinesisTestConsumer implements Runnable
       {
         processRecord( record );
       }
-      
+
       if( doneLatch != null )
         doneLatch.countDown();
     }
-    
+
   }
-  
+
   protected void processRecord( Record record )
   {
-    
+
   }
-  
+
   public void close()
   {
     isAlive = false;

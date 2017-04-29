@@ -29,11 +29,11 @@ import com.datatorrent.lib.util.FieldInfo;
 public class HBaseFieldInfo extends FieldInfo
 {
 	private String familyName;
-	
+
 	public HBaseFieldInfo()
 	{
 	}
-	
+
 	public HBaseFieldInfo( String columnName, String columnExpression, SupportType type, String familyName )
 	{
 	  super( columnName, columnExpression, type );
@@ -49,7 +49,7 @@ public class HBaseFieldInfo extends FieldInfo
 	{
 		this.familyName = familyName;
 	}
-	
+
 	public byte[] toBytes( Object value )
 	{
 		final SupportType type = getType();
@@ -57,28 +57,28 @@ public class HBaseFieldInfo extends FieldInfo
 		{
 		case BOOLEAN:
 		  return Bytes.toBytes( (Boolean)value );
-		  
+
 		case SHORT:
 		  return Bytes.toBytes( (Short)value );
-		  
+
 		case INTEGER:
 		  return Bytes.toBytes( (Integer)value );
-		  
+
 		case LONG:
 		  return Bytes.toBytes( (Long)value );
-		  
+
 		case FLOAT:
 		  return Bytes.toBytes( (Float)value );
-		  
+
 		case DOUBLE:
 		  return Bytes.toBytes( (Double)value );
-		  
+
 		case STRING:
 		  return Bytes.toBytes( (String)value );
 		}
 		throw new IllegalArgumentException( "Unsupported type: " + type );
 	}
-	
+
 	public Object toValue( byte[] bytes )
 	{
     final SupportType type = getType();
@@ -86,26 +86,26 @@ public class HBaseFieldInfo extends FieldInfo
     {
     case BOOLEAN:
       return Bytes.toBoolean( bytes );
-      
+
     case SHORT:
       return Bytes.toShort( bytes );
-      
+
     case INTEGER:
       return Bytes.toInt( bytes );
-      
+
     case LONG:
       return Bytes.toLong( bytes );
-      
+
     case FLOAT:
       return Bytes.toFloat( bytes );
-      
+
     case DOUBLE:
       return Bytes.toDouble( bytes );
-      
+
     case STRING:
       return Bytes.toString( bytes );
     }
     throw new IllegalArgumentException( "Unsupported type: " + type );
   }
-	
+
 }

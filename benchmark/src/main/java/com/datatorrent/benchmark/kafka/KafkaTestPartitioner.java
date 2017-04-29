@@ -21,7 +21,6 @@ package com.datatorrent.benchmark.kafka;
 import kafka.producer.Partitioner;
 import kafka.utils.VerifiableProperties;
 
-
 /**
  * A simple partitioner class for test purpose
  * Key is a int string
@@ -32,12 +31,14 @@ import kafka.utils.VerifiableProperties;
  */
 public class KafkaTestPartitioner implements Partitioner
 {
-  public KafkaTestPartitioner (VerifiableProperties props) {
+  public KafkaTestPartitioner(VerifiableProperties props)
+  {
 
   }
+
   @Override
   public int partition(Object key, int num_Partitions)
   {
-    return Integer.parseInt((String)key)%num_Partitions;
+    return Integer.parseInt((String)key) % num_Partitions;
   }
 }

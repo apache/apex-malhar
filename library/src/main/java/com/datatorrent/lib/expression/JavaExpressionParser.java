@@ -84,7 +84,7 @@ public class JavaExpressionParser implements Expression.ExpressionParser
       sb.append(tempExpr.replace("\\$", "$"));
     }
 
-    return "return ((" + returnType.getName().replace("$", "\\$") + ")" + sb.toString() + ");";
+    return "return ((" + returnType.getName().replace("$", "\\$") + ")(" + sb.toString() + "));";
   }
 
   /**

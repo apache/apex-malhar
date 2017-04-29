@@ -19,6 +19,7 @@
 package com.datatorrent.lib.join;
 
 import java.util.HashMap;
+
 import org.junit.Assert;
 import org.junit.Test;
 

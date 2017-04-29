@@ -32,12 +32,14 @@ import org.junit.runner.Description;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.fileaccess.FileAccessFSImpl;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.util.KryoCloneUtils;
 import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.netlet.util.Slice;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class ManagedTimeStateImplTest
 {
@@ -84,8 +86,8 @@ public class ManagedTimeStateImplTest
     testMeta.managedState.setup(testMeta.operatorContext);
 
     Map<Slice, Bucket.BucketedValue> unsavedBucket0 = ManagedStateTestUtils.getTestBucketData(0, time);
-    testMeta.managedState.bucketsFileSystem.writeBucketData(time, 0, unsavedBucket0);
-    ManagedStateTestUtils.transferBucketHelper(testMeta.managedState.getFileAccess(), 0, unsavedBucket0, 1);
+    testMeta.managedState.bucketsFileSystem.writeBucketData(time, 0, unsavedBucket0, -1);
+    ManagedStateTestUtils.validateBucketOnFileSystem(testMeta.managedState.getFileAccess(), 0, unsavedBucket0, 1);
 
     Future<Slice> valFuture = testMeta.managedState.getAsync(0, zero);
 
@@ -142,7 +144,7 @@ public class ManagedTimeStateImplTest
     Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_PATH, testMeta.applicationPath);
     attributes.put(Context.OperatorContext.ACTIVATION_WINDOW_ID, 0L);
-    Context.OperatorContext operatorContext = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+    OperatorContext operatorContext = mockOperatorContext(1, attributes);
 
     testMeta.managedState.setup(operatorContext);
 

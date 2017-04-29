@@ -140,7 +140,7 @@ public class AvroToPojo extends BaseOperator
 
   /**
    * Returns a POJO from a Generic Record
-   * 
+   *
    * @return Object
    */
   @SuppressWarnings("unchecked")
@@ -220,7 +220,7 @@ public class AvroToPojo extends BaseOperator
   /**
    * Use reflection to generate field info values if the user has not provided
    * the inputs mapping
-   * 
+   *
    * @return String representing the POJO field to Avro field mapping
    */
   private String generateFieldInfoInputs(Class<?> cls)
@@ -240,7 +240,7 @@ public class AvroToPojo extends BaseOperator
   /**
    * Creates a map representing fieldName in POJO:field in Generic Record:Data
    * type
-   * 
+   *
    * @return List of FieldInfo
    */
   private List<FieldInfo> createFieldInfoMap(String str)

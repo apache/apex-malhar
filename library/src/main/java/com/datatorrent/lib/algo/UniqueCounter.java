@@ -19,9 +19,7 @@
 package com.datatorrent.lib.algo;
 
 import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.lang.mutable.MutableInt;
+import java.util.HashSet;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
@@ -30,14 +28,19 @@ import com.datatorrent.lib.util.BaseUniqueKeyCounter;
 import com.datatorrent.lib.util.UnifierHashMapSumKeys;
 
 /**
- * This operator counts the number of times a tuple exists in a window.&nbsp;A map from tuples to counts is emitted at the end of each window.
+ * This operator counts the number of times a tuple is received and emits
+ * modified counts (if any) at the end of the streaming window.
  * <p>
- * Counts the number of times a key exists in a window; Count is emitted at end of window in a single HashMap.
+ * Counts for modified keys are emitted at end of window in a single HashMap. If
+ * no keys were received in a window, then nothing will be emitted. By default
+ * the state is cleared at the end of the window. Cumulative counting can be
+ * configured through the {@link UniqueCounter#setCumulative} property.
  * </p>
  * <p>
  * This is an end of window operator<br>
  * <br>
- * <b>StateFull : yes, </b> Tuples are aggregated over application window(s). <br>
+ * <b>StateFull : yes, </b> Tuples are aggregated over application window(s).
+ * <br>
  * <b>Partitions : Yes, </b> Unique count is unified at output port. <br>
  * <br>
  * <b>Ports</b>:<br>
@@ -58,6 +61,7 @@ import com.datatorrent.lib.util.UnifierHashMapSumKeys;
 public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
 {
   private boolean cumulative;
+  HashSet<K> inputSet = new HashSet<>();
 
   /**
    * The input port which receives incoming tuples.
@@ -70,9 +74,9 @@ public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
     @Override
     public void process(K tuple)
     {
+      inputSet.add(tuple);
       processTuple(tuple);
     }
-
   };
 
   /**
@@ -90,24 +94,22 @@ public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
   };
 
   /**
-   * Emits one HashMap as tuple
+   * Emits only the keys and values changed or added in a given window.
    */
   @Override
   public void endWindow()
   {
-    HashMap<K, Integer> tuple = null;
-    for (Map.Entry<K, MutableInt> e: map.entrySet()) {
-      if (tuple == null) {
-        tuple = new HashMap<K, Integer>();
-      }
-      tuple.put(e.getKey(), e.getValue().toInteger());
+    HashMap<K, Integer> tuple = new HashMap<>();
+    for (K key: inputSet) {
+      tuple.put(key, map.get(key).toInteger());
     }
-    if (tuple != null) {
+    if (!tuple.isEmpty()) {
       count.emit(tuple);
     }
     if (!cumulative) {
       map.clear();
     }
+    inputSet.clear();
   }
 
   /**

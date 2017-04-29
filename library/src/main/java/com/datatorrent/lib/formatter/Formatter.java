@@ -18,6 +18,9 @@
  */
 package com.datatorrent.lib.formatter;
 
+import com.google.common.annotations.VisibleForTesting;
+
+import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DefaultInputPort;
@@ -37,7 +40,7 @@ import com.datatorrent.lib.converter.Converter;
  * <b>err</b>: emits &lt;Object&gt; error port that emits input tuple that could
  * not be converted<br>
  * <br>
- * 
+ *
  * @displayName Parser
  * @tags parser converter
  * @param <OUTPUT>
@@ -47,6 +50,13 @@ import com.datatorrent.lib.converter.Converter;
 public abstract class Formatter<OUTPUT> extends BaseOperator implements Converter<Object, OUTPUT>
 {
   protected transient Class<?> clazz;
+
+  @AutoMetric
+  private long errorTupleCount;
+  @AutoMetric
+  private long emittedObjectCount;
+  @AutoMetric
+  private long incomingTuplesCount;
 
   @OutputPortFieldAnnotation
   public transient DefaultOutputPort<OUTPUT> out = new DefaultOutputPort<OUTPUT>();
@@ -65,20 +75,31 @@ public abstract class Formatter<OUTPUT> extends BaseOperator implements Converte
     @Override
     public void process(Object inputTuple)
     {
+      incomingTuplesCount++;
       OUTPUT tuple = convert(inputTuple);
       if (tuple == null && err.isConnected()) {
+        errorTupleCount++;
         err.emit(inputTuple);
         return;
       }
       if (out.isConnected()) {
+        emittedObjectCount++;
         out.emit(tuple);
       }
     }
   };
 
+  @Override
+  public void beginWindow(long windowId)
+  {
+    errorTupleCount = 0;
+    emittedObjectCount = 0;
+    incomingTuplesCount = 0;
+  }
+
   /**
    * Get the class that needs to be formatted
-   * 
+   *
    * @return Class<?>
    */
   public Class<?> getClazz()
@@ -88,11 +109,30 @@ public abstract class Formatter<OUTPUT> extends BaseOperator implements Converte
 
   /**
    * Set the class of tuple that needs to be formatted
-   * 
+   *
    * @param clazz
    */
   public void setClazz(Class<?> clazz)
   {
     this.clazz = clazz;
   }
+
+  @VisibleForTesting
+  protected long getErrorTupleCount()
+  {
+    return errorTupleCount;
+  }
+
+  @VisibleForTesting
+  protected long getEmittedObjectCount()
+  {
+    return emittedObjectCount;
+  }
+
+  @VisibleForTesting
+  protected long getIncomingTuplesCount()
+  {
+    return incomingTuplesCount;
+  }
+
 }

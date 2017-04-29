@@ -469,7 +469,7 @@ public class TestTFileSeqFileComparison extends TestCase {
       System.out.println("Skipped for " + compress);
       return;
     }
-    
+
     options.compress = compress;
     String parameters = parameters2String(options);
     createSeqFile(parameters, compress);

@@ -49,7 +49,9 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
  * @tags rank, numeric
  *
  * @since 0.3.3
+ * @deprecated
  */
+@Deprecated
 @OperatorAnnotation(partitionable = true)
 public class MergeSortNumber<V extends Number> extends MergeSort<V>
 {

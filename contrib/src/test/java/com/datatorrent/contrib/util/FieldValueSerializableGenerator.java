@@ -35,18 +35,18 @@ import com.datatorrent.lib.util.PojoUtils.Setter;
 
 public class FieldValueSerializableGenerator< T extends FieldInfo> extends FieldValueGenerator<T>
 {
-  
+
   public static < T extends FieldInfo > FieldValueSerializableGenerator<T> getFieldValueGenerator(final Class<?> clazz, List<T> fieldInfos)
   {
     return new FieldValueSerializableGenerator(clazz, fieldInfos);
   }
-  
-  
+
+
   private static final Logger logger = LoggerFactory.getLogger( FieldValueGenerator.class );
   //it's better to same kryo instance for both de/serialize
   private Kryo _kryo = null;
   private Class<?> clazz;
-  
+
   private FieldValueSerializableGenerator(){}
 
   public FieldValueSerializableGenerator(Class<?> clazz, List<T> fieldInfos)
@@ -58,7 +58,7 @@ public class FieldValueSerializableGenerator< T extends FieldInfo> extends Field
   /**
    * get the object which is serialized.
    * this method will convert the object into a map from column name to column value and then serialize it
-   * 
+   *
    * @param obj
    * @return
    */
@@ -66,7 +66,7 @@ public class FieldValueSerializableGenerator< T extends FieldInfo> extends Field
   {
   //if don't have field information, just convert the whole object to byte[]
     Object convertObj = obj;
-    
+
     //if fields are specified, convert to map and then convert map to byte[]
     if( fieldGetterMap != null && !fieldGetterMap.isEmpty() )
     {
@@ -82,15 +82,15 @@ public class FieldValueSerializableGenerator< T extends FieldInfo> extends Field
     return os.toByteArray();
   }
 
-  
+
   public Object deserializeObject( byte[] bytes )
   {
     Object obj = getKryo().readClassAndObject( new Input( bytes ) );
-    
+
 
     if( fieldGetterMap == null || fieldGetterMap.isEmpty() )
       return obj;
-    
+
     // the obj in fact is a map, convert from map to object
     try
     {
@@ -114,7 +114,7 @@ public class FieldValueSerializableGenerator< T extends FieldInfo> extends Field
       return obj;
     }
   }
-  
+
   protected Kryo getKryo()
   {
     if( _kryo == null )

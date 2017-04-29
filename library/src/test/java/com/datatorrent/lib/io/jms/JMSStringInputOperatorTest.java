@@ -23,7 +23,6 @@ import java.io.File;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
-import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
@@ -41,9 +40,9 @@ import org.apache.commons.io.FileUtils;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
-import com.datatorrent.api.annotation.Stateless;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Tests for {@link JMSStringInputOperator}
@@ -75,8 +74,9 @@ public class JMSStringInputOperatorTest
       attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
       attributeMap.put(Context.DAGContext.APPLICATION_PATH, baseDir);
 
-      context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+      context = mockOperatorContext(1, attributeMap);
       operator = new JMSStringInputOperator();
+      operator.setSubject("TEST.FOO");
       operator.getConnectionFactoryProperties().put(JMSTestBase.AMQ_BROKER_URL, "vm://localhost");
 
       sink = new CollectorTestSink<>();
@@ -126,44 +126,12 @@ public class JMSStringInputOperatorTest
     testMeta.operator.activate(testMeta.context);
 
     Assert.assertEquals("largest recovery window", 1,
-        testMeta.operator.getWindowDataManager().getLargestRecoveryWindow());
+        testMeta.operator.getWindowDataManager().getLargestCompletedWindow());
 
     testMeta.operator.beginWindow(1);
     testMeta.operator.endWindow();
     Assert.assertEquals("num of messages in window 1", 100, testMeta.sink.collectedTuples.size());
     testMeta.sink.collectedTuples.clear();
-  }
-
-  @Test
-  public void testFailureAfterPersistenceAndBeforeRecovery() throws Exception
-  {
-    testMeta.operator = new JMSStringInputOperator()
-    {
-      @Override
-      protected void acknowledge() throws JMSException
-      {
-        throw new RuntimeException("fail ack");
-      }
-    };
-    testMeta.operator.getConnectionFactoryProperties().put(JMSTestBase.AMQ_BROKER_URL, "vm://localhost");
-
-    testMeta.operator.setup(testMeta.context);
-    testMeta.operator.activate(testMeta.context);
-
-    produceMsg(10);
-    Thread.sleep(1000);
-    testMeta.operator.beginWindow(1);
-    testMeta.operator.emitTuples();
-    try {
-      testMeta.operator.endWindow();
-    } catch (Throwable t) {
-      LOG.debug("ack failed");
-    }
-    testMeta.operator.setup(testMeta.context);
-    testMeta.operator.activate(testMeta.context);
-
-    Assert.assertEquals("window 1 should not exist", Stateless.WINDOW_ID,
-        testMeta.operator.getWindowDataManager().getLargestRecoveryWindow());
   }
 
   private void produceMsg(int numMessages) throws Exception

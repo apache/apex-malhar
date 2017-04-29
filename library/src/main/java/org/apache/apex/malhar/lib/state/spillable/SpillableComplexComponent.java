@@ -18,12 +18,13 @@
  */
 package org.apache.apex.malhar.lib.state.spillable;
 
+import org.apache.apex.malhar.lib.state.managed.TimeExtractor;
 import org.apache.apex.malhar.lib.state.spillable.Spillable.SpillableComponent;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
 
 import com.datatorrent.api.Component;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.netlet.util.Slice;
+import com.datatorrent.api.Operator;
 
 /**
  * This is a composite component containing spillable data structures. This should be used as
@@ -31,118 +32,170 @@ import com.datatorrent.netlet.util.Slice;
  *
  * @since 3.4.0
  */
-public interface SpillableComplexComponent extends Component<OperatorContext>, SpillableComponent
+public interface SpillableComplexComponent extends Component<OperatorContext>, SpillableComponent,
+    Operator.CheckpointNotificationListener
 {
   /**
-   * This is a method for creating a {@link SpillableArrayList}. This method
+   * This is a method for creating a {@link SpillableList}. This method
    * auto-generates an identifier for the data structure.
-   * @param <T> The type of data stored in the {@link SpillableArrayList}.
-   * @param bucket The bucket that this {@link SpillableArrayList} will be spilled too.
-   * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableArrayList}.
-   * @return A {@link SpillableArrayList}.
+   * @param <T> The type of data stored in the {@link SpillableList}.
+   * @param bucket The bucket that this {@link SpillableList} will be spilled to.
+   * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableList}.
+   * @return A {@link SpillableList}.
    */
-  <T> SpillableArrayList<T> newSpillableArrayList(long bucket, Serde<T, Slice> serde);
+  <T> SpillableList<T> newSpillableArrayList(long bucket, Serde<T> serde);
 
   /**
-   * This is a method for creating a {@link SpillableArrayList}.
-   * @param <T> The type of data stored in the {@link SpillableArrayList}.
-   * @param identifier The identifier for this {@link SpillableArrayList}.
-   * @param bucket The bucket that this {@link SpillableArrayList} will be spilled too.
-   * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableArrayList}.
-   * @return A {@link SpillableArrayList}.
+   * This is a method for creating a {@link SpillableList}.
+   * @param <T> The type of data stored in the {@link SpillableList}.
+   * @param identifier The identifier for this {@link SpillableList}.
+   * @param bucket The bucket that this {@link SpillableList} will be spilled to.
+   * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableList}.
+   * @return A {@link SpillableList}.
    */
-  <T> SpillableArrayList<T> newSpillableArrayList(byte[] identifier, long bucket, Serde<T, Slice> serde);
+  <T> SpillableList<T> newSpillableArrayList(byte[] identifier, long bucket, Serde<T> serde);
 
   /**
-   * This is a method for creating a {@link SpillableByteMap}. This method
+   * This is a method for creating a {@link SpillableMap}. This method
    * auto-generates an identifier for the data structure.
    * @param <K> The type of the keys.
    * @param <V> The type of the values.
-   * @param bucket The bucket that this {@link SpillableByteMap} will be spilled too.
+   * @param bucket The bucket that this {@link SpillableMap} will be spilled to.
    * @param serdeKey The Serializer/Deserializer to use for the map's keys.
    * @param serdeValue The Serializer/Deserializer to use for the map's values.
-   * @return A {@link SpillableByteMap}.
+   * @return A {@link SpillableMap}.
    */
-  <K, V> SpillableByteMap<K, V> newSpillableByteMap(long bucket, Serde<K, Slice> serdeKey,
-      Serde<V, Slice> serdeValue);
+  <K, V> SpillableMap<K, V> newSpillableMap(long bucket, Serde<K> serdeKey,
+      Serde<V> serdeValue);
 
   /**
-   * This is a method for creating a {@link SpillableByteMap}.
+   * This is a method for creating a {@link SpillableMap}. This method
+   * auto-generates an identifier for the data structure.
    * @param <K> The type of the keys.
    * @param <V> The type of the values.
-   * @param identifier The identifier for this {@link SpillableByteMap}.
-   * @param bucket The bucket that this {@link SpillableByteMap} will be spilled too.
    * @param serdeKey The Serializer/Deserializer to use for the map's keys.
    * @param serdeValue The Serializer/Deserializer to use for the map's values.
-   * @return A {@link SpillableByteMap}.
+   * @param timeExtractor a util object to extract time from key.
+   * @return A {@link SpillableMap}.
    */
-  <K, V> SpillableByteMap<K, V> newSpillableByteMap(byte[] identifier, long bucket,
-      Serde<K, Slice> serdeKey, Serde<V, Slice> serdeValue);
+  <K, V> SpillableMap<K, V> newSpillableMap(Serde<K> serdeKey,
+      Serde<V> serdeValue, TimeExtractor<K> timeExtractor);
 
   /**
-   * This is a method for creating a {@link SpillableByteArrayListMultimap}. This method
+   * This is a method for creating a {@link SpillableMap}.
+   * @param <K> The type of the keys.
+   * @param <V> The type of the values.
+   * @param identifier The identifier for this {@link SpillableMap}.
+   * @param bucket The bucket that this {@link SpillableMap} will be spilled to.
+   * @param serdeKey The Serializer/Deserializer to use for the map's keys.
+   * @param serdeValue The Serializer/Deserializer to use for the map's values.
+   * @return A {@link SpillableMap}.
+   */
+  <K, V> SpillableMap<K, V> newSpillableMap(byte[] identifier, long bucket,
+      Serde<K> serdeKey, Serde<V> serdeValue);
+
+  /**
+   * This is a method for creating a {@link SpillableMap}.
+   * @param <K> The type of the keys.
+   * @param <V> The type of the values.
+   * @param identifier The identifier for this {@link SpillableMap}.
+   * @param serdeKey The Serializer/Deserializer to use for the map's keys.
+   * @param serdeValue The Serializer/Deserializer to use for the map's values.
+   * @param timeExtractor a util object to extract time from key.
+   * @return A {@link SpillableMap}.
+   */
+  <K, V> SpillableMap<K, V> newSpillableMap(byte[] identifier,
+      Serde<K> serdeKey, Serde<V> serdeValue, TimeExtractor<K> timeExtractor);
+
+  /**
+   * This is a method for creating a {@link SpillableListMultimap}. This method
    * auto-generates an identifier for the data structure.
    * @param <K> The type of the keys.
    * @param <V> The type of the values in the map's lists.
-   * @param bucket The bucket that this {@link SpillableByteArrayListMultimap} will be spilled too.
+   * @param bucket The bucket that this {@link SpillableListMultimap} will be spilled to.
    * @param serdeKey The Serializer/Deserializer to use for the map's keys.
    * @param serdeValue The Serializer/Deserializer to use for the values in the map's lists.
-   * @return A {@link SpillableByteArrayListMultimap}.
+   * @return A {@link SpillableListMultimap}.
    */
-  <K, V> SpillableByteArrayListMultimap<K, V> newSpillableByteArrayListMultimap(long bucket, Serde<K,
-      Slice> serdeKey, Serde<V, Slice> serdeValue);
+  <K, V> SpillableListMultimap<K, V> newSpillableArrayListMultimap(long bucket, Serde<K> serdeKey, Serde<V> serdeValue);
 
   /**
-   * This is a method for creating a {@link SpillableByteArrayListMultimap}.
+   * This is a method for creating a {@link SpillableListMultimap}.
    * @param <K> The type of the keys.
    * @param <V> The type of the values in the map's lists.
-   * @param identifier The identifier for this {@link SpillableByteArrayListMultimap}.
-   * @param bucket The bucket that this {@link SpillableByteArrayListMultimap} will be spilled too.
+   * @param identifier The identifier for this {@link SpillableListMultimap}.
+   * @param bucket The bucket that this {@link SpillableListMultimap} will be spilled to.
    * @param serdeKey The Serializer/Deserializer to use for the map's keys.
    * @param serdeValue The Serializer/Deserializer to use for the values in the map's lists.
-   * @return A {@link SpillableByteArrayListMultimap}.
+   * @return A {@link SpillableListMultimap}.
    */
-  <K, V> SpillableByteArrayListMultimap<K, V> newSpillableByteArrayListMultimap(byte[] identifier, long bucket,
-      Serde<K, Slice> serdeKey,
-      Serde<V, Slice> serdeValue);
+  <K, V> SpillableListMultimap<K, V> newSpillableArrayListMultimap(byte[] identifier, long bucket,
+      Serde<K> serdeKey,
+      Serde<V> serdeValue);
 
   /**
-   * This is a method for creating a {@link SpillableByteMultiset}. This method
+   * This is a method for creating a {@link SpillableSetMultimap}.
+   * @param <K> The type of the keys.
+   * @param <V> The type of the values in the map's lists.
+   * @param bucket The bucket that this {@link SpillableSetMultimap} will be spilled to.
+   * @param serdeKey The Serializer/Deserializer to use for the map's keys.
+   * @param serdeValue The Serializer/Deserializer to use for the values in the map's lists.
+   * @return A {@link SpillableSetMultimap}.
+   */
+  <K, V> SpillableSetMultimap<K, V> newSpillableSetMultimap(long bucket, Serde<K> serdeKey, Serde<V> serdeValue);
+
+  /**
+   * This is a method for creating a {@link SpillableSetMultimap}.
+   * @param <K> The type of the keys.
+   * @param <V> The type of the values in the map's lists.
+   * @param bucket The bucket that this {@link SpillableSetMultimap} will be spilled to.
+   * @param serdeKey The Serializer/Deserializer to use for the map's keys.
+   * @param serdeValue The Serializer/Deserializer to use for the values in the map's lists.
+   * @param timeExtractor a util object to extract time from key.
+   * @return A {@link SpillableSetMultimap}.
+   */
+  <K, V> SpillableSetMultimap<K, V> newSpillableSetMultimap(long bucket, Serde<K> serdeKey,
+      Serde<V> serdeValue, TimeExtractor<K> timeExtractor);
+
+  /**
+   * This is a method for creating a {@link SpillableMultiset}. This method
    * auto-generates an identifier for the data structure.
    * @param <T> The type of the elements.
-   * @param bucket The bucket that this {@link SpillableByteMultiset} will be spilled too.
-   * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableByteMultiset}.
-   * @return A {@link SpillableByteMultiset}.
+   * @param bucket The bucket that this {@link SpillableMultiset} will be spilled to.
+   * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableMultiset}.
+   * @return A {@link SpillableMultiset}.
    */
-  <T> SpillableByteMultiset<T> newSpillableByteMultiset(long bucket, Serde<T, Slice> serde);
+  <T> SpillableMultiset<T> newSpillableMultiset(long bucket, Serde<T> serde);
 
   /**
-   * This is a method for creating a {@link SpillableByteMultiset}.
+   * This is a method for creating a {@link SpillableMultiset}.
    * @param <T> The type of the elements.
-   * @param identifier The identifier for this {@link SpillableByteMultiset}.
-   * @param bucket The bucket that this {@link SpillableByteMultiset} will be spilled too.
-   * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableByteMultiset}.
-   * @return A {@link SpillableByteMultiset}.
+   * @param identifier The identifier for this {@link SpillableMultiset}.
+   * @param bucket The bucket that this {@link SpillableMultiset} will be spilled to.
+   * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableMultiset}.
+   * @return A {@link SpillableMultiset}.
    */
-  <T> SpillableByteMultiset<T> newSpillableByteMultiset(byte[] identifier, long bucket, Serde<T, Slice> serde);
+  <T> SpillableMultiset<T> newSpillableMultiset(byte[] identifier, long bucket, Serde<T> serde);
 
   /**
    * This is a method for creating a {@link SpillableQueue}. This method
    * auto-generates an identifier for the data structure.
    * @param <T> The type of the data stored in the {@link SpillableQueue}.
-   * @param bucket The bucket that this {@link SpillableQueue} will be spilled too.
+   * @param bucket The bucket that this {@link SpillableQueue} will be spilled to.
    * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableQueue}.
    * @return A {@link SpillableQueue}.
    */
-  <T> SpillableQueue<T> newSpillableQueue(long bucket, Serde<T, Slice> serde);
+  <T> SpillableQueue<T> newSpillableQueue(long bucket, Serde<T> serde);
 
   /**
    * This is a method for creating a {@link SpillableQueue}.
    * @param <T> The type of the data stored in the {@link SpillableQueue}.
-   * @param identifier The identifier for this {@link SpillableByteArrayListMultimap}.
-   * @param bucket The bucket that this {@link SpillableQueue} will be spilled too.
+   * @param identifier The identifier for this {@link SpillableListMultimap}.
+   * @param bucket The bucket that this {@link SpillableQueue} will be spilled to.
    * @param serde The Serializer/Deserializer to use for data stored in the {@link SpillableQueue}.
    * @return A {@link SpillableQueue}.
    */
-  <T> SpillableQueue<T> newSpillableQueue(byte[] identifier, long bucket, Serde<T, Slice> serde);
+  <T> SpillableQueue<T> newSpillableQueue(byte[] identifier, long bucket, Serde<T> serde);
+
+  SpillableStateStore getStore();
 }

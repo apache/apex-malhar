@@ -47,7 +47,7 @@ public class MessageQueueTestHelper {
     }
   }
 
-  public static ArrayList<HashMap<String, Integer>> getMessages()  
+  public static ArrayList<HashMap<String, Integer>> getMessages()
   {
     ArrayList<HashMap<String, Integer>> mapList = new ArrayList<HashMap<String, Integer>>();
 

@@ -26,7 +26,7 @@ import org.junit.Assert;
 
 import com.datatorrent.api.DAG;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * @param <S>
@@ -63,7 +63,7 @@ public class TransactionableKeyValueStoreOperatorTest<S extends TransactionableK
     try {
       testStore.connect();
       outputOperator.setStore(operatorStore);
-      outputOperator.setup(new OperatorContextTestHelper.TestIdOperatorContext(operatorId, attributes));
+      outputOperator.setup(mockOperatorContext(operatorId, attributes));
       outputOperator.beginWindow(100);
       Map<String, String> m = new HashMap<String, String>();
       m.put("test_abc", "123");

@@ -33,13 +33,18 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
+
+import com.datatorrent.api.Attribute;
+import com.datatorrent.api.Context;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.DAG.Locality;
-
-import com.datatorrent.common.util.BaseOperator;
+import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class KinesisInputOperatorTest extends KinesisOperatorTestBase
 {
@@ -91,6 +96,30 @@ public class KinesisInputOperatorTest extends KinesisOperatorTestBase
     }
   }
 
+  @Test
+  public void testWindowDataManager() throws Exception
+  {
+    // Create DAG for testing.
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
+
+    KinesisStringInputOperator inputOperator = dag.addOperator("KinesisInput", new KinesisStringInputOperator()
+    {
+      @Override
+      public void deactivate()
+      {
+      }
+
+      @Override
+      public void teardown()
+      {
+      }
+    });
+    testMeta.operator = inputOperator;
+    Assert.assertTrue("Default behaviour of WindowDataManager changed",
+      (inputOperator.getWindowDataManager() instanceof WindowDataManager.NoopWindowDataManager));
+  }
+
   /**
    * Test AbstractKinesisSinglePortInputOperator (i.e. an input adapter for
    * Kinesis, consumer). This module receives data from an outside test
@@ -132,6 +161,55 @@ public class KinesisInputOperatorTest extends KinesisOperatorTestBase
 
     // Create Test tuple collector
     CollectorModule<String> collector = dag.addOperator("TestMessageCollector", new CollectorModule<String>());
+
+    // Connect ports
+    dag.addStream("Kinesis message", node.outputPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
+
+    // Create local cluster
+    final LocalMode.Controller lc = lma.getController();
+    lc.setHeartbeatMonitoringEnabled(false);
+
+    lc.runAsync();
+
+    // Wait 45s for consumer finish consuming all the messages
+    latch.await(45000, TimeUnit.MILLISECONDS);
+
+    // Check results
+    Assert.assertEquals("Collections size", 1, collections.size());
+    Assert.assertEquals("Tuple count", totalCount, collections.get(collector.inputPort.id).size());
+    logger.debug(String.format("Number of emitted tuples: %d", collections.get(collector.inputPort.id).size()));
+
+    lc.shutdown();
+  }
+
+  @Test
+  public void testKinesisByteArrayInputOperator() throws Exception
+  {
+    int totalCount = 10;
+    // initial the latch for this test
+    latch = new CountDownLatch(1);
+
+    // Start producer
+    KinesisTestProducer p = new KinesisTestProducer(streamName);
+    p.setSendCount(totalCount);
+    p.setBatchSize(9);
+    new Thread(p).start();
+
+    // Create DAG for testing.
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
+
+    // Create KinesisByteArrayInputOperator and set some properties with respect to consumer.
+    KinesisByteArrayInputOperator node = dag.addOperator("Kinesis message consumer", KinesisByteArrayInputOperator.class);
+    node.setAccessKey(credentials.getCredentials().getAWSSecretKey());
+    node.setSecretKey(credentials.getCredentials().getAWSAccessKeyId());
+    KinesisConsumer consumer = new KinesisConsumer();
+    consumer.setStreamName(streamName);
+    consumer.setRecordsLimit(totalCount);
+    node.setConsumer(consumer);
+
+    // Create Test tuple collector
+    CollectorModule<byte[]> collector = dag.addOperator("TestMessageCollector", new CollectorModule<byte[]>());
 
     // Connect ports
     dag.addStream("Kinesis message", node.outputPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
@@ -205,7 +283,7 @@ public class KinesisInputOperatorTest extends KinesisOperatorTestBase
     attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
     attributeMap.put(Context.DAGContext.APPLICATION_PATH, testMeta.baseDir);
 
-    testMeta.context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+    testMeta.context = mockOperatorContext(1, attributeMap);
     testMeta.operator = new KinesisStringInputOperator();
 
     KinesisUtil.getInstance().setClient(client);
@@ -232,7 +310,7 @@ public class KinesisInputOperatorTest extends KinesisOperatorTestBase
     testMeta.operator.setup(testMeta.context);
     testMeta.operator.activate(testMeta.context);
 
-    Assert.assertEquals("largest recovery window", 1, testMeta.operator.getWindowDataManager().getLargestRecoveryWindow());
+    Assert.assertEquals("largest recovery window", 1, testMeta.operator.getWindowDataManager().getLargestCompletedWindow());
 
     testMeta.operator.beginWindow(1);
     testMeta.operator.endWindow();
