@@ -47,7 +47,6 @@ import com.datatorrent.api.Partitioner;
 public class ClonePartitioner<T extends Operator> implements Partitioner<T>, Serializable
 {
   private static final Logger logger = LoggerFactory.getLogger(ClonePartitioner.class);
-  
   private static final long serialVersionUID = 201462371710L;
   /**
    * The number of partitions for the default partitioner to create.

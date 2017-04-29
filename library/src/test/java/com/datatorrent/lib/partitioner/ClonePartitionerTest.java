@@ -18,7 +18,6 @@
  */
 package com.datatorrent.lib.partitioner;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -234,7 +233,7 @@ public class ClonePartitionerTest
   }
 
   @Test
-  public void testCloningAcrossPartitions() throws IOException, Exception
+  public void testCloningAcrossPartitions() throws Exception
   {
     try {
       LocalMode lma = LocalMode.newInstance();
@@ -242,7 +241,20 @@ public class ClonePartitionerTest
       lma.prepareDAG(new Application(), conf);
       LocalMode.Controller lc = lma.getController();
 
-      lc.run(20000); // runs for 10 seconds and quits
+      lc.runAsync(); // runs for 10 seconds and quits
+      long startTime = System.currentTimeMillis();
+      long timeout = 20 * 1000;
+
+      while (System.currentTimeMillis() - startTime < timeout) {
+        try {
+          Thread.sleep(200);
+        } catch (InterruptedException e) {
+          break;
+        }
+      }
+
+      lc.shutdown();
+
       assertFalse("Failed to match all values in all partitions.", matchFailed);
     } catch (ConstraintViolationException e) {
       Assert.fail("constraint violations: " + e.getConstraintViolations());
