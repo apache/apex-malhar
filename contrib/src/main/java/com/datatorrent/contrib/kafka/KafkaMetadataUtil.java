@@ -105,6 +105,7 @@ public class KafkaMetadataUtil
       }});
   }
 
+
   /**
    * There is always only one string in zkHost
    * @param zkHost
@@ -216,5 +217,86 @@ public class KafkaMetadataUtil
     return offsets[0];
   }
 
+
+  /**
+   * this method wrapper kafka.javaapi.consumer.SimpleConsumer.getOffsetsBefore(OffsetRequest)
+   * @param consumer
+   * @param clientName
+   * @param topic
+   * @param partitionId
+   * @param time
+   * @param maxNumOffsets
+   * @return
+   */
+  public static long[] getOffsetsBefore(SimpleConsumer consumer, String clientName, String topic, int partitionId, long time, int maxNumOffsets)
+  {
+    if (consumer == null) {
+      throw new IllegalArgumentException("consumer is not suppose to be null.");
+    }
+    
+    TopicAndPartition topicAndPartition = new TopicAndPartition(topic, partitionId);
+    Map<TopicAndPartition, PartitionOffsetRequestInfo> requestInfo = new HashMap<TopicAndPartition, PartitionOffsetRequestInfo>();
+    requestInfo.put(topicAndPartition, new PartitionOffsetRequestInfo(time, maxNumOffsets));
+    OffsetRequest request = new OffsetRequest(requestInfo, kafka.api.OffsetRequest.CurrentVersion(), clientName);
+    OffsetResponse response = consumer.getOffsetsBefore(request);
+
+    if (response.hasError()) {
+      logger.error("Error fetching data Offset Data the Broker. Reason: " + response.errorCode(topic, partitionId));
+      return null;
+    }
+    return response.offsets(topic, partitionId);
+  }
+
+  
+  /**
+   * get the last offset of each partition to the partitionToOffset map
+   * @param clientNamePrefix
+   * @param brokerSet
+   * @param topic
+   * @param time
+   * @param partitionToOffset
+   */
+  public static void getLastOffsetsTo(String clientNamePrefix, Set<String> brokerSet, String topic,
+      Map<Integer, Long> partitionToOffset)
+  {
+    // read last received kafka message
+    TopicMetadata tm = KafkaMetadataUtil.getTopicMetadata(brokerSet, topic);
+
+    if (tm == null) {
+      throw new RuntimeException("Failed to retrieve topic metadata");
+    }
+
+    for (PartitionMetadata pm : tm.partitionsMetadata()) {
+      SimpleConsumer consumer = null;
+      try {
+        int partitionId = pm.partitionId();
+
+        String leadBroker = pm.leader().host();
+        int port = pm.leader().port();
+        final String clientName = getClientName(clientNamePrefix, topic, partitionId);
+        consumer = new SimpleConsumer(leadBroker, port, 100000, 64 * 1024, clientName);
+
+        TopicAndPartition topicAndPartition = new TopicAndPartition(topic, partitionId);
+        Map<TopicAndPartition, PartitionOffsetRequestInfo> requestInfo = new HashMap<TopicAndPartition, PartitionOffsetRequestInfo>();
+        requestInfo.put(topicAndPartition, new PartitionOffsetRequestInfo(kafka.api.OffsetRequest.LatestTime(), 1));
+        OffsetRequest request = new OffsetRequest(requestInfo, kafka.api.OffsetRequest.CurrentVersion(), clientName);
+        OffsetResponse response = consumer.getOffsetsBefore(request);
+
+        if (response.hasError()) {
+          logger.error("Error fetching data Offset Data the Broker. Reason: " + response.errorCode(topic, partitionId));
+        }
+        partitionToOffset.put(partitionId, response.offsets(topic, partitionId)[0]);
+      } finally {
+        if (consumer != null) {
+          consumer.close();
+        }
+      }
+    }
+  }
+  
+  public static String getClientName(String clientNamePrefix, String topic, int partitionId)
+  {
+    return clientNamePrefix + "_" + topic + "_" + partitionId;
+  }
 
 }
