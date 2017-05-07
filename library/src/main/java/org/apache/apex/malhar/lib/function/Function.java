@@ -35,7 +35,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * @since 3.4.0
  */
 @InterfaceStability.Evolving
-public interface Function
+public interface Function extends java.io.Serializable
 {
   /**
    * If the {@link Function} implements this interface.
