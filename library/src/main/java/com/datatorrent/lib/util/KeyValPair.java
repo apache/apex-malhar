@@ -53,4 +53,9 @@ public class KeyValPair<K, V> extends AbstractMap.SimpleEntry<K, V>
     super(k, v);
   }
 
+  @Override
+  public int hashCode()
+  {
+    return getKey().hashCode();
+  }
 }
