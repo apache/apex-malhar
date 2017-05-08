@@ -18,10 +18,12 @@
  */
 package com.datatorrent.lib.io.fs;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -55,6 +57,10 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.io.compress.CompressionCodec;
+import org.apache.hadoop.io.compress.CompressionInputStream;
+import org.apache.hadoop.io.compress.SnappyCodec;
+import org.apache.hadoop.util.ReflectionUtils;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -74,6 +80,7 @@ import com.datatorrent.lib.util.TestUtils.TestInfo;
 import com.datatorrent.netlet.util.DTThrowable;
 
 import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.junit.Assert.assertEquals;
 
 public class AbstractFileOutputOperatorTest
 {
@@ -1585,20 +1592,9 @@ public class AbstractFileOutputOperatorTest
     Assert.assertEquals("Part file names", fileNames, getFileNames(files));
   }
 
-  @Test
-  public void testCompression() throws IOException
+  private void writeCompressedData(EvenOddHDFSExactlyOnceWriter writer, File evenFile,
+      File oddFile, List<Long> evenOffsets, List<Long> oddOffsets)
   {
-    EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
-    writer.setFilterStreamProvider(new FilterStreamCodec.GZipFilterStreamProvider());
-
-    File evenFile = new File(testMeta.getDir(), EVEN_FILE);
-    File oddFile = new File(testMeta.getDir(), ODD_FILE);
-
-    // To get around the multi member gzip issue with openjdk
-    // http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4691425
-    List<Long> evenOffsets = new ArrayList<Long>();
-    List<Long> oddOffsets = new ArrayList<Long>();
-
     writer.setFilePath(testMeta.getDir());
     writer.setAlwaysWriteToTmp(false);
     writer.setup(testMeta.testOperatorContext);
@@ -1617,9 +1613,98 @@ public class AbstractFileOutputOperatorTest
     }
 
     writer.teardown();
+  }
+
+
+  @Test
+  public void testCompression() throws IOException
+  {
+    EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
+    writer.setFilterStreamProvider(new FilterStreamCodec.GZipFilterStreamProvider());
+
+    File evenFile = new File(testMeta.getDir(), EVEN_FILE);
+    File oddFile = new File(testMeta.getDir(), ODD_FILE);
+
+    // To get around the multi member gzip issue with openjdk
+    // http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4691425
+    List<Long> evenOffsets = new ArrayList<Long>();
+    List<Long> oddOffsets = new ArrayList<Long>();
+
+    writeCompressedData(writer, evenFile, oddFile, evenOffsets, oddOffsets);
 
     checkCompressedFile(evenFile, evenOffsets, 0, 5, 1000, null, null);
     checkCompressedFile(oddFile, oddOffsets, 1, 5, 1000, null, null);
+  }
+
+  @Test
+  public void testSnappyStreamProvider() throws IOException
+  {
+    if (checkNativeSnappy()) {
+      return;
+    }
+
+    EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
+    writer.setFilterStreamProvider(new FilterStreamCodec.SnappyFilterStreamProvider());
+
+    File evenFile = new File(testMeta.getDir(), EVEN_FILE);
+    File oddFile = new File(testMeta.getDir(), ODD_FILE);
+
+    // To get around the multi member gzip issue with openjdk
+    // http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4691425
+    List<Long> evenOffsets = new ArrayList<Long>();
+    List<Long> oddOffsets = new ArrayList<Long>();
+
+    writeCompressedData(writer, evenFile, oddFile, evenOffsets, oddOffsets);
+
+    checkSnappyFile(evenFile, evenOffsets, 0, 5, 1000);
+    checkSnappyFile(oddFile, oddOffsets, 1, 5, 1000);
+  }
+
+  private boolean checkNativeSnappy()
+  {
+    try {
+      SnappyCodec.checkNativeCodeLoaded();
+    } catch (UnsatisfiedLinkError u) {
+      LOG.error("WARNING: Skipping Snappy compression test since native libraries were not found.");
+      return true;
+    } catch (RuntimeException e) {
+      LOG.error("WARNING: Skipping Snappy compression test since native libraries were not found.");
+      return true;
+    }
+    return false;
+  }
+
+
+  @Test
+  public void testSnappyCompressionSimple() throws IOException
+  {
+    if (checkNativeSnappy()) {
+      return;
+    }
+
+    File snappyFile = new File(testMeta.getDir(), "snappyTestFile.snappy");
+
+    BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(snappyFile));
+    Configuration conf = new Configuration();
+    CompressionCodec codec = (CompressionCodec)ReflectionUtils.newInstance(SnappyCodec.class, conf);
+    FilterStreamCodec.SnappyFilterStream filterStream = new FilterStreamCodec.SnappyFilterStream(
+        codec.createOutputStream(os));
+
+    int ONE_MB = 1024 * 1024;
+
+    String testStr = "TestSnap-16bytes";
+    for (int i = 0; i < ONE_MB; i++) { // write 16 MBs
+      filterStream.write(testStr.getBytes());
+    }
+    filterStream.flush();
+    filterStream.close();
+
+    CompressionInputStream is = codec.createInputStream(new FileInputStream(snappyFile));
+
+    byte[] recovered = new byte[testStr.length()];
+    int bytesRead = is.read(recovered);
+    is.close();
+    assertEquals(testStr, new String(recovered));
   }
 
   @Test
@@ -1745,6 +1830,61 @@ public class AbstractFileOutputOperatorTest
       } else {
         if (gis != null) {
           gis.close();
+        } else if (gss != null) {
+          gss.close();
+        }
+      }
+    }
+    Assert.assertEquals("Total", totalWindows, numWindows);
+  }
+
+  private void checkSnappyFile(File file, List<Long> offsets, int startVal, int totalWindows, int totalRecords) throws IOException
+  {
+    FileInputStream fis;
+    InputStream gss = null;
+    Configuration conf = new Configuration();
+    CompressionCodec codec = (CompressionCodec)ReflectionUtils.newInstance(SnappyCodec.class, conf);
+    CompressionInputStream snappyIs = null;
+
+    BufferedReader br = null;
+
+    int numWindows = 0;
+    try {
+      fis = new FileInputStream(file);
+      gss = fis;
+
+      long startOffset = 0;
+      for (long offset : offsets) {
+        // Skip initial case in case file is not yet created
+        if (offset == 0) {
+          continue;
+        }
+        long limit = offset - startOffset;
+        LimitInputStream lis = new LimitInputStream(gss, limit);
+
+        snappyIs = codec.createInputStream(lis);
+        br = new BufferedReader(new InputStreamReader(snappyIs));
+        String eline = "" + (startVal + numWindows * 2);
+        int count = 0;
+        String line;
+        while ((line = br.readLine()) != null) {
+          Assert.assertEquals("File line", eline, line);
+          ++count;
+          if ((count % totalRecords) == 0) {
+            ++numWindows;
+            eline = "" + (startVal + numWindows * 2);
+          }
+        }
+        startOffset = offset;
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      if (br != null) {
+        br.close();
+      } else {
+        if (snappyIs != null) {
+          snappyIs.close();
         } else if (gss != null) {
           gss.close();
         }
