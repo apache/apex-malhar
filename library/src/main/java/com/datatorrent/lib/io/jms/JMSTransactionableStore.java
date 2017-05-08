@@ -33,8 +33,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This transactionable store commits the messages sent within a window along with the windowId of the completed window
- * to JMS. WindowIds will be sent to a subject specific meta-queue with the name of the form '{subject}.metadata'. Physical
- * creation of this meta-queue is required by the JMS provider.
+ * to JMS. WindowIds will be sent to a subject specific meta-data queue with the name of the form '{subject}.metadata'.
+ * It is the responsibility of the user to create the meta-data queue in the JMS provider.
  * A MessageSelector and an unique 'appOperatorId' message property ensure each operator receives its own windowId.
  * This store ensures that the JMS output operator is capable of outputting data to JMS exactly once.
  *
@@ -76,10 +76,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
           message.getStringProperty(APP_OPERATOR_ID));
       long windowId = message.readLong();
 
-      message = getBase().getSession().createBytesMessage();
-      message.setStringProperty(APP_OPERATOR_ID, appId + "_" + operatorId);
-      message.writeLong(windowId);
-      producer.send(message);
+      writeWindowId(appId, operatorId, windowId);
       commitTransaction();
       logger.debug("metaQueueName: " + metaQueueName);
       logger.debug("Retrieved windowId {}", windowId);
@@ -100,11 +97,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
         appId, operatorId, windowId);
     try {
       removeCommittedWindowId(appId, operatorId);
-      BytesMessage bytesMessage = this.getBase().getSession().createBytesMessage();
-      bytesMessage.setStringProperty(APP_OPERATOR_ID, appId + "_" + operatorId);
-      bytesMessage.writeLong(windowId);
-      producer.send(bytesMessage);
-      logger.debug("Retrieved committed window message id {}", bytesMessage.getJMSMessageID());
+      writeWindowId(appId, operatorId, windowId);
     } catch (JMSException ex) {
       throw new RuntimeException(ex);
     }
@@ -118,6 +111,15 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
     } catch (JMSException ex) {
       throw new RuntimeException(ex);
     }
+  }
+
+  private void writeWindowId(String appId, int operatorId, long windowId) throws JMSException
+  {
+    BytesMessage message = getBase().getSession().createBytesMessage();
+    message.setStringProperty(APP_OPERATOR_ID, appId + "_" + operatorId);
+    message.writeLong(windowId);
+    producer.send(message);
+    logger.debug("Message with windowId {} sent", windowId);
   }
 
   @Override
@@ -199,10 +201,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
 
       if (!hasStore) {
         beginTransaction();
-        BytesMessage message = getBase().getSession().createBytesMessage();
-        message.setStringProperty(APP_OPERATOR_ID, appOperatorId);
-        message.writeLong(-1L);
-        producer.send(message);
+        writeWindowId(getAppId(), getOperatorId(), -1L);
         commitTransaction();
       }
     } catch (JMSException ex) {
