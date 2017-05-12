@@ -18,12 +18,18 @@
  */
 package com.datatorrent.lib.io.fs;
 
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.compress.CompressionOutputStream;
+import org.apache.hadoop.io.compress.SnappyCodec;
+import org.apache.hadoop.io.compress.snappy.SnappyCompressor;
 
 /**
  * Filters for compression and encryption.
@@ -99,11 +105,86 @@ public class FilterStreamCodec
     @Override
     public FilterStreamContext<CipherOutputStream> getFilterStreamContext(OutputStream outputStream) throws IOException
     {
-      return new FilterStreamContext.SimpleFilterStreamContext<CipherOutputStream>(new CipherOutputStream(outputStream, cipher));
+      return new FilterStreamContext.SimpleFilterStreamContext<CipherOutputStream>(
+          new CipherOutputStream(outputStream, cipher));
     }
 
     @Override
     public void reclaimFilterStreamContext(FilterStreamContext<CipherOutputStream> filterStreamContext)
+    {
+
+    }
+  }
+
+  public static class SnappyFilterStream extends FilterOutputStream
+  {
+    /**
+     * Creates an output stream filter built on top of the specified
+     * underlying output stream.
+     *
+     * @param out the underlying output stream to be assigned to
+     *            the field <tt>this.out</tt> for later use, or
+     *            <code>null</code> if this instance is to be
+     *            created without an underlying stream.
+     */
+    public SnappyFilterStream(CompressionOutputStream out)
+    {
+      super(out);
+    }
+
+    public void finish() throws IOException
+    {
+      ((CompressionOutputStream)out).finish();
+    }
+  }
+
+  public static class SnappyFilterStreamContext extends FilterStreamContext.BaseFilterStreamContext<SnappyFilterStream>
+  {
+    private int bufferSize = 256 * 1024;
+
+    public void setBufferSize(int bufferSize)
+    {
+      this.bufferSize = bufferSize;
+    }
+
+    public SnappyFilterStreamContext(OutputStream outputStream) throws IOException
+    {
+      SnappyCodec codec = new SnappyCodec();
+      codec.setConf(new Configuration());
+      try {
+        filterStream = new SnappyFilterStream(
+            codec.createOutputStream(outputStream, new SnappyCompressor(bufferSize)));
+      } catch (IOException e) {
+        throw e;
+      }
+    }
+
+    @Override
+    public void finalizeContext() throws IOException
+    {
+      try {
+        filterStream.finish();
+      } catch (IOException e) {
+        throw e;
+      }
+    }
+  }
+
+  /**
+   * A provider for Snappy filter
+   */
+  public static class SnappyFilterStreamProvider implements FilterStreamProvider<SnappyFilterStream,
+      OutputStream>
+  {
+    @Override
+    public FilterStreamContext<SnappyFilterStream> getFilterStreamContext(OutputStream outputStream)
+        throws IOException
+    {
+      return new SnappyFilterStreamContext(outputStream);
+    }
+
+    @Override
+    public void reclaimFilterStreamContext(FilterStreamContext<SnappyFilterStream> filterStreamContext)
     {
 
     }
