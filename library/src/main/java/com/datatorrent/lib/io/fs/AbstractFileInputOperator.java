@@ -35,6 +35,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,6 +59,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -100,9 +107,12 @@ import com.datatorrent.lib.util.KryoCloneUtils;
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public abstract class AbstractFileInputOperator<T> implements InputOperator, Partitioner<AbstractFileInputOperator<T>>, StatsListener,
-    Operator.CheckpointListener, Operator.CheckpointNotificationListener
+    Operator.CheckpointListener, Operator.CheckpointNotificationListener, Operator.ActivationListener<OperatorContext>
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFileInputOperator.class);
+
+  private static final int DEFAULT_MAX_FILES_PER_WINDOW = 1024;
+  private static final int DEFAULT_QUEUE_CAPACITY = 4 * 1024;
 
   @NotNull
   protected String directory;
@@ -110,9 +120,11 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   protected DirectoryScanner scanner = new DirectoryScanner();
   @Min(0)
   protected int scanIntervalMillis = 5000;
+  private int queueCapacity = DEFAULT_QUEUE_CAPACITY;
+  private int maxFilesPerWindow = DEFAULT_MAX_FILES_PER_WINDOW;
   protected long offset;
   protected String currentFile;
-  protected Set<String> processedFiles = new HashSet<String>();
+  protected ConcurrentHashSet<String> processedFiles = new ConcurrentHashSet<String>();
   @Min(1)
   protected int emitBatchSize = 1000;
   protected int currentPartitions = 1;
@@ -121,7 +133,9 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   @Min(0)
   private int maxRetryCount = 5;
   protected transient long skipCount = 0;
-  private transient OperatorContext context;
+  protected transient OperatorContext context;
+  protected transient ScheduledExecutorService scanDirService;
+  protected transient ArrayBlockingQueue<Path> fileQueue;
 
   private final BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
   protected MutableLong globalNumberOfFailures = new MutableLong();
@@ -137,6 +151,8 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   protected transient long currentWindowId;
   protected final transient LinkedList<RecoveryEntry> currentWindowRecoveryState = Lists.newLinkedList();
   protected int operatorId; //needed in partitioning
+  protected int fileCount;
+  protected transient AtomicReference<Throwable> atomicThrowable = new AtomicReference<>();
 
   /**
    * Class representing failed file, When read fails on a file in middle, then the file is
@@ -378,6 +394,46 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   }
 
   /**
+   * Returns the capacity of the emit queue
+   *
+   * @return queueCapacity
+   */
+  public int getQueueCapacity()
+  {
+    return queueCapacity;
+  }
+
+  /**
+   * Sets the capacity of the emit queue
+   *
+   * @param queueCapacity
+   */
+  public void setQueueCapacity(int queueCapacity)
+  {
+    this.queueCapacity = queueCapacity;
+  }
+
+  /**
+   * Returns the maximum number of files to read per window
+   *
+   * @return queueCapacity
+   */
+  public int getMaxFilesPerWindow()
+  {
+    return maxFilesPerWindow;
+  }
+
+  /**
+   * Sets the maximum number of files to read per window
+   *
+   * @param maxFilesPerWindow
+   */
+  public void setMaxFilesPerWindow(int maxFilesPerWindow)
+  {
+    this.maxFilesPerWindow = maxFilesPerWindow;
+  }
+
+  /**
    * Returns the number of tuples emitted in a batch.
    * @return The number of tuples emitted in a batch.
    */
@@ -474,6 +530,9 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
       currentFile = null;
       offset = 0;
     }
+
+    fileQueue = new ArrayBlockingQueue<Path>(queueCapacity);
+    scanDirService = Executors.newSingleThreadScheduledExecutor();
   }
 
   /**
@@ -528,9 +587,22 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   }
 
   @Override
+  public void activate(OperatorContext context)
+  {
+    scanDirService.scheduleWithFixedDelay(new DirectoryScannerTask(), 0, scanIntervalMillis, TimeUnit.MILLISECONDS);
+  }
+
+  @Override
+  public void deactivate()
+  {
+    scanDirService.shutdownNow();
+  }
+
+  @Override
   public void beginWindow(long windowId)
   {
     currentWindowId = windowId;
+    fileCount = 0;
     if (windowId <= windowDataManager.getLargestCompletedWindow()) {
       replay(windowId);
     }
@@ -581,6 +653,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
                 closeFile(inputStream);
               }
               processedFiles.add(recoveryEntry.file);
+
               //removing the file from failed and unfinished queues and pending set
               Iterator<FailedFile> failedFileIterator = failedFiles.iterator();
               while (failedFileIterator.hasNext()) {
@@ -641,6 +714,11 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
       return;
     }
 
+    Throwable throwable;
+    if ((throwable = atomicThrowable.get()) != null) {
+      Throwables.propagate(throwable);
+    }
+
     if (inputStream == null) {
       try {
         if (currentFile != null && offset > 0) {
@@ -666,7 +744,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
         } else if (!failedFiles.isEmpty()) {
           retryFailedFile(failedFiles.poll());
         } else {
-          scanDirectory();
+          getFilesFromQueue();
         }
       } catch (IOException ex) {
         failureHandling(ex);
@@ -709,22 +787,16 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     }
   }
 
-  /**
-   * Scans the directory for new files.
-   */
-  protected void scanDirectory()
+  protected void getFilesFromQueue()
   {
-    if (System.currentTimeMillis() - scanIntervalMillis >= lastScanMillis) {
-      Set<Path> newPaths = scanner.scan(fs, filePath, processedFiles);
-
-      for (Path newPath : newPaths) {
-        String newPathString = newPath.toString();
-        pendingFiles.add(newPathString);
-        processedFiles.add(newPathString);
-        localProcessedFileCount.increment();
-      }
-
-      lastScanMillis = System.currentTimeMillis();
+    while ((!fileQueue.isEmpty()) && (fileCount < getMaxFilesPerWindow())) {
+      Path newPath = fileQueue.peek();
+      String newPathString = newPath.toString();
+      pendingFiles.add(newPathString);
+      processedFiles.add(newPathString);
+      localProcessedFileCount.increment();
+      fileQueue.remove();
+      fileCount++;
     }
   }
 
@@ -1012,6 +1084,31 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   }
 
   /**
+   * This class scans a directory and put the list of files in a blocking queue.
+   */
+  public class DirectoryScannerTask implements Runnable
+  {
+    @Override
+    public void run()
+    {
+      try {
+        if (pendingFiles.isEmpty() && fileQueue.isEmpty() && (System.currentTimeMillis() - scanIntervalMillis >= lastScanMillis)) {
+          LinkedHashSet<Path> newFileSet = scanner.scan(fs, filePath, processedFiles);
+          for (Path newFile : newFileSet) {
+            fileQueue.put(newFile);
+          }
+
+          lastScanMillis = System.currentTimeMillis();
+        }
+      } catch (Throwable throwable) {
+        LOG.error("service", throwable);
+        atomicThrowable.set(throwable);
+        Throwables.propagate(throwable);
+      }
+    }
+  }
+
+  /**
    * The class that is used to scan for new files in the directory for the
    * AbstractFSDirectoryInputOperator.
    */
@@ -1168,7 +1265,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     /**
      * True if recursive; false otherwise.
      *
-     * @param recursive true if recursive; false otherwise.
+     * @return true if recursive; false otherwise.
      */
     public boolean isRecursive()
     {
@@ -1242,6 +1339,66 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
       result = 31 * result + (int)(startOffset & 0xFFFFFFFF);
       result = 31 * result + (int)(endOffset & 0xFFFFFFFF);
       return result;
+    }
+  }
+
+  protected static class ConcurrentHashSet<E> extends java.util.AbstractSet<E> implements Set<E>
+  {
+    private final java.util.concurrent.ConcurrentMap<E, Object> theMap;
+
+    private static final Object dummy = new Object();
+
+    public ConcurrentHashSet()
+    {
+      theMap = new ConcurrentHashMap<E, Object>();
+    }
+
+    @Override
+    public int size()
+    {
+      return theMap.size();
+    }
+
+    @Override
+    public Iterator<E> iterator()
+    {
+      return theMap.keySet().iterator();
+    }
+
+    @Override
+    public boolean isEmpty()
+    {
+      return theMap.isEmpty();
+    }
+
+    @Override
+    public boolean add(final E o)
+    {
+      return theMap.put(o, ConcurrentHashSet.dummy) == null;
+    }
+
+    @Override
+    public boolean contains(final Object o)
+    {
+      return theMap.containsKey(o);
+    }
+
+    @Override
+    public void clear()
+    {
+      theMap.clear();
+    }
+
+    @Override
+    public boolean remove(final Object o)
+    {
+      return theMap.remove(o) == ConcurrentHashSet.dummy;
+    }
+
+    public boolean addIfAbsent(final E o)
+    {
+      Object obj = theMap.putIfAbsent(o, ConcurrentHashSet.dummy);
+      return obj == null;
     }
   }
 

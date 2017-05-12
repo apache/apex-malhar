@@ -122,8 +122,7 @@ public abstract class AbstractThroughputFileInputOperator<T> extends AbstractFil
   @Override
   public void emitTuples()
   {
-    scanDirectory();
-
+    getFilesFromQueue();
     super.emitTuples();
   }
 
