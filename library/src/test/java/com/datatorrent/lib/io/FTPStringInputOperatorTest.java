@@ -30,7 +30,7 @@ import org.mockftpserver.fake.filesystem.FileEntry;
 import org.mockftpserver.fake.filesystem.UnixFakeFileSystem;
 
 import com.datatorrent.api.Attribute;
-
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.io.AbstractFTPInputOperator.FTPStringInputOperator;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
@@ -41,6 +41,8 @@ import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorC
  */
 public class FTPStringInputOperatorTest
 {
+  private static int MAX_TEST_TIME = 30 * 1000;
+
   public static class TestMeta extends TestWatcher
   {
     FTPStringInputOperator ftpOperator;
@@ -71,7 +73,9 @@ public class FTPStringInputOperatorTest
       ftpOperator.setPassword("test");
 
       ftpOperator.setDirectory(homeDirectory.getPath());
-      ftpOperator.setup(mockOperatorContext(11, new Attribute.AttributeMap.DefaultAttributeMap()));
+      OperatorContext operContext = mockOperatorContext(11, new Attribute.AttributeMap.DefaultAttributeMap());
+      ftpOperator.setup(operContext);
+      ftpOperator.activate(operContext);
 
       sink = new CollectorTestSink<>();
       ftpOperator.output.setSink(sink);
@@ -80,6 +84,7 @@ public class FTPStringInputOperatorTest
     @Override
     protected void finished(Description description)
     {
+      ftpOperator.deactivate();
       ftpOperator.teardown();
       fakeFtpServer.stop();
     }
@@ -91,8 +96,9 @@ public class FTPStringInputOperatorTest
   @Test
   public void testFtpDirectoryInput()
   {
+    long startTime = System.currentTimeMillis();
     testMeta.ftpOperator.beginWindow(0);
-    for (int i = 0; i < 3; i++) {
+    while (System.currentTimeMillis() - startTime <= MAX_TEST_TIME && testMeta.sink.collectedTuples.size() < 4) {
       testMeta.ftpOperator.emitTuples();
     }
     testMeta.ftpOperator.endWindow();
