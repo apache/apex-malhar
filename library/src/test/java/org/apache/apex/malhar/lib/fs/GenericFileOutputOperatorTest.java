@@ -166,6 +166,7 @@ public class GenericFileOutputOperatorTest extends AbstractFileOutputOperatorTes
     for (int i = 0; i < MAX && (!outputFile.exists()); ++i) {
       Thread.sleep(1000);
     }
+    lc.shutdown();
     if (!outputFile.exists()) {
       String msg = String.format("Error: output file not found after %d seconds%n", MAX);
       throw new RuntimeException(msg);
