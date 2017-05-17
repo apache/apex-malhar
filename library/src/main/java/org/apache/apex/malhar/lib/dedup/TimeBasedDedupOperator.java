@@ -186,7 +186,7 @@ public class TimeBasedDedupOperator extends AbstractDeduper<Object> implements A
   @Override
   protected void putManagedState(Object tuple)
   {
-    ((ManagedTimeUnifiedStateImpl)managedState).put(getTime(tuple), getKey(tuple), new Slice(new byte[0]));
+    ((ManagedTimeUnifiedStateImpl)managedState).put(getTime(tuple), getKey(tuple), new Slice(null, 0, 0));
   }
 
 

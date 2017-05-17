@@ -156,8 +156,7 @@ public class BoundedDedupOperator extends AbstractDeduper<Object>
   protected void putManagedState(Object tuple)
   {
     Slice key = getKey(tuple);
-    ((ManagedTimeStateImpl)managedState).put(getBucketId(key), DEFAULT_CONSTANT_TIME,
-        key, new Slice(new byte[0]));
+    ((ManagedTimeStateImpl)managedState).put(getBucketId(key), DEFAULT_CONSTANT_TIME, key, new Slice(null, 0, 0));
   }
 
   protected int getBucketId(Slice key)
