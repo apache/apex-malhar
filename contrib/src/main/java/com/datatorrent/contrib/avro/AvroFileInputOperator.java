@@ -161,6 +161,7 @@ public class AvroFileInputOperator extends AbstractFileInputOperator<GenericReco
   @Override
   public void beginWindow(long windowId)
   {
+    super.beginWindow(windowId);
     errorCount = 0;
     recordCount = 0;
   }

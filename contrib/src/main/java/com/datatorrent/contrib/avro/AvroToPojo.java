@@ -72,9 +72,9 @@ public class AvroToPojo extends BaseOperator
 
   private String genericRecordToPOJOFieldsMapping = null;
 
-  private List<FieldInfo> fieldInfos;
+  private transient List<FieldInfo> fieldInfos;
 
-  private List<ActiveFieldInfo> columnFieldSetters;
+  private transient List<ActiveFieldInfo> columnFieldSetters;
 
   @AutoMetric
   @VisibleForTesting
@@ -87,7 +87,7 @@ public class AvroToPojo extends BaseOperator
   @AutoMetric
   @VisibleForTesting
   int fieldErrorCount = 0;
-
+  
   public final transient DefaultOutputPort<GenericRecord> errorPort = new DefaultOutputPort<GenericRecord>();
 
   /**

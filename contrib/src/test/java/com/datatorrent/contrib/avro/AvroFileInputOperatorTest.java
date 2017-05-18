@@ -53,10 +53,13 @@ import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.Sink;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.lib.helper.TestPortContext;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.io.fs.AbstractFileInputOperatorTest;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.TestUtils;
 
 import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
@@ -149,7 +152,51 @@ public class AvroFileInputOperatorTest
     avroFileInput.teardown();
 
   }
+  
+  @Test
+  public void testIdempotencyWithCheckPoint() throws Exception
+  {
+    AbstractFileInputOperatorTest.testIdempotencyWithCheckPoint(new AvroFileInputOperator(), new CollectorTestSink<String>(), new AbstractFileInputOperatorTest.IdempotencyTestDriver<AvroFileInputOperator>()
+    {
+      @Override
+      public void writeFile(int count, String fileName) throws IOException
+      {
+        recordList = Lists.newArrayList();
+        
+        while (count > 0) {
+          GenericRecord rec = new GenericData.Record(new Schema.Parser().parse(AVRO_SCHEMA));
+          rec.put("orderId", count * 1L);
+          rec.put("customerId", count * 2);
+          rec.put("total", count * 1.5);
+          rec.put("customerName", "*" + count + "*");
+          count--;
+          recordList.add(rec);
+        }
+        
+        writeAvroFile(new File(fileName));
+      }
 
+      @Override
+      public void setSink(AvroFileInputOperator operator, Sink<?> sink)
+      {
+        TestUtils.setSink(operator.output, sink);
+      }
+
+      @Override
+      public String getDirectory()
+      {
+        return testMeta.dir;
+      }
+
+      @Override
+      public OperatorContext getContext()
+      {
+        return testMeta.context;
+      }
+    });
+  }
+  
+  
   @Test
   public void testMultipleFileAvroReads() throws Exception
   {
