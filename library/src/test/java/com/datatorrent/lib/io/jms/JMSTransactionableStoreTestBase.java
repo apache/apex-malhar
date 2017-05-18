@@ -47,7 +47,6 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
   public static final String APP_ID = "appId";
   public static final int OPERATOR_ID = 1;
   public static final int OPERATOR_2_ID = 2;
-  //public static JMSStringSinglePortOutputOperator outputOperator;
   public static Class<? extends JMSBaseTransactionableStore> storeClass;
 
   public static OperatorContext testOperatorContext;
@@ -113,7 +112,6 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
     return outputOperator;
   }
 
-  //@Ignore
   @Test
   public void connectedTest()
   {
@@ -125,7 +123,6 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
     Assert.assertFalse("Should not be connected.", store.isConnected());
   }
 
-  //@Ignore
   @Test
   public void transactionTest()
   {
@@ -141,7 +138,6 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
     jmsOutputOperator.teardown();
   }
 
-  //@Ignore
   @Test
   public void storeRetreiveTransactionTest()
   {
@@ -161,7 +157,6 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
    * Creates two operators with different operatorId and same appId to test correct functionality of storing and
    * retrieving windowId with message selector
    */
-  //@Ignore
   @Test
   public void twoOperatorsStoreRetrieveWithMessageSelectorTransactionTest()
   {
@@ -186,7 +181,6 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
     jmsOutputOperator2.teardown();
   }
 
-  ////@Ignore
   @Test
   public void multiWindowTransactionTest()
   {
