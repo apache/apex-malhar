@@ -36,6 +36,8 @@
 
   <properties>
     <skipTests>true</skipTests>
+    <apex.apppackage.tags>demos, mobile</apex.apppackage.tags>
+    <apex.apppackage.longDescription>README.md</apex.apppackage.longDescription>
   </properties>
 
   <dependencies>

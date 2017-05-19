@@ -36,6 +36,8 @@
 
   <properties>
     <skipTests>true</skipTests>
+    <apex.apppackage.tags>demos, wordcount</apex.apppackage.tags>
+    <apex.apppackage.longDescription>README.md</apex.apppackage.longDescription>
   </properties>
 
   <dependencies>

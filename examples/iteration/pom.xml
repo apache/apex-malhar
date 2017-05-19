@@ -28,6 +28,11 @@
   <name>Apache Apex Malhar Iteration Example</name>
   <description>DataTorrent example applications that demonstrates the iteration feature.</description>
 
+  <properties>
+    <apex.apppackage.tags>demos, iteration</apex.apppackage.tags>
+    <apex.apppackage.longDescription>README.md</apex.apppackage.longDescription>
+  </properties>
+
   <parent>
     <groupId>org.apache.apex</groupId>
     <artifactId>malhar-examples</artifactId>
