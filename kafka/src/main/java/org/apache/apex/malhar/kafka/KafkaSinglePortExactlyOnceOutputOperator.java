@@ -352,6 +352,11 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
 
         for (ConsumerRecord<String, T> consumerRecord : consumerRecords) {
 
+          if (consumerRecord.offset() >= currentOffset) {
+            crossedBoundary = true;
+            break;
+          }
+
           if (!doesKeyBelongsToThisInstance(operatorId, consumerRecord.key())) {
             continue;
           }
@@ -365,10 +370,6 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaOu
             partialWindowTuples.put(value, 1);
           }
 
-          if (consumerRecord.offset() >= currentOffset) {
-            crossedBoundary = true;
-            break;
-          }
         }
 
         if (crossedBoundary) {
