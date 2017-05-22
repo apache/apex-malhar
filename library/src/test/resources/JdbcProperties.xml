@@ -177,8 +177,15 @@
     </value>
   </property>
 
+   <!-- following properties serve as examples, they can also be omitted for the test -->
+  <property>
+    <name>dt.operator.JdbcPOJOInput.prop.store.connectionProperties(user)</name>
+    <value>sa</value>
+  </property>
 
-
-
+  <property>
+    <name>dt.operator.JdbcPOJOInput.prop.store.connectionProperties(password)</name>
+    <value></value>
+  </property>
 
 </configuration>
