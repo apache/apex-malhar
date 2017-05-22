@@ -119,7 +119,7 @@ public abstract class AbstractFlumeInputOperator<T>
   public void activate(OperatorContext ctx)
   {
     if (connectionSpecs.length == 0) {
-      logger.info("Discovered zero DTFlumeSink");
+      logger.info("Discovered zero FlumeSink");
     } else if (connectionSpecs.length == 1) {
       for (String connectAddresse: connectionSpecs) {
         logger.debug("Connection spec is {}", connectAddresse);

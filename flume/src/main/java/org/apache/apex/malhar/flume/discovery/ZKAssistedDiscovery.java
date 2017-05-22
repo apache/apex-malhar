@@ -70,7 +70,7 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>,
 
   public ZKAssistedDiscovery()
   {
-    this.serviceName = "DTFlume";
+    this.serviceName = "ApexFlume";
     this.conntectionRetrySleepMillis = 500;
     this.connectionRetryCount = 10;
     this.connectionTimeoutMillis = 1000;
@@ -333,7 +333,7 @@ public class ZKAssistedDiscovery implements Discovery<byte[]>,
   @Override
   public void configure(org.apache.flume.Context context)
   {
-    serviceName = context.getString("serviceName", "DTFlume");
+    serviceName = context.getString("serviceName", "ApexFlume");
     connectionString = context.getString("connectionString");
     basePath = context.getString("basePath");
 

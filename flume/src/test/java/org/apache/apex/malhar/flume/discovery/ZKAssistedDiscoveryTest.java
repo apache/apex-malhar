@@ -46,9 +46,9 @@ public class ZKAssistedDiscoveryTest
   public void testSerialization() throws Exception
   {
     ZKAssistedDiscovery discovery = new ZKAssistedDiscovery();
-    discovery.setServiceName("DTFlumeTest");
+    discovery.setServiceName("ApexFlumeTest");
     discovery.setConnectionString("localhost:2181");
-    discovery.setBasePath("/HelloDT");
+    discovery.setBasePath("/HelloApex");
     discovery.setup(null);
     ServiceInstance<byte[]> instance = discovery.getInstance(new Service<byte[]>()
     {
@@ -91,9 +91,9 @@ public class ZKAssistedDiscoveryTest
   public void testDiscover()
   {
     ZKAssistedDiscovery discovery = new ZKAssistedDiscovery();
-    discovery.setServiceName("DTFlumeTest");
+    discovery.setServiceName("ApexFlumeTest");
     discovery.setConnectionString("localhost:2181");
-    discovery.setBasePath("/HelloDT");
+    discovery.setBasePath("/HelloApex");
     discovery.setup(null);
     assertNotNull("Discovered Sinks", discovery.discover());
     discovery.teardown();
@@ -103,9 +103,9 @@ public class ZKAssistedDiscoveryTest
   public void testAdvertize()
   {
     ZKAssistedDiscovery discovery = new ZKAssistedDiscovery();
-    discovery.setServiceName("DTFlumeTest");
+    discovery.setServiceName("ApexFlumeTest");
     discovery.setConnectionString("localhost:2181");
-    discovery.setBasePath("/HelloDT");
+    discovery.setBasePath("/HelloApex");
     discovery.setup(null);
 
     Service<byte[]> service = new Service<byte[]>()

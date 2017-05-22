@@ -40,7 +40,7 @@ import com.datatorrent.netlet.util.Slice;
 /**
  *
  */
-public class DTFlumeSinkTest
+public class FlumeSinkTest
 {
   static final String hostname = "localhost";
   int port = 0;
@@ -78,7 +78,7 @@ public class DTFlumeSinkTest
       }
 
     };
-    DTFlumeSink sink = new DTFlumeSink();
+    FlumeSink sink = new FlumeSink();
     sink.setName("TeskSink");
     sink.setHostname(hostname);
     sink.setPort(0);
@@ -98,8 +98,8 @@ public class DTFlumeSinkTest
         logger.debug("Client Received = {}", received);
         Assert.assertEquals(received,
             new Slice(Arrays.copyOfRange(array, this.offset, array.length), 0, Server.Request.FIXED_SIZE));
-        synchronized (DTFlumeSinkTest.this) {
-          DTFlumeSinkTest.this.notify();
+        synchronized (FlumeSinkTest.this) {
+          FlumeSinkTest.this.notify();
         }
       }
 
@@ -142,5 +142,5 @@ public class DTFlumeSinkTest
     sink.stop();
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(DTFlumeSinkTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(FlumeSinkTest.class);
 }

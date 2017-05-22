@@ -21,12 +21,12 @@ package org.apache.apex.malhar.flume.discovery;
 import java.util.Collection;
 
 /**
- * When DTFlumeSink server instance binds to the network interface, it can publish
+ * When FlumeSink server instance binds to the network interface, it can publish
  * its whereabouts by invoking advertise method on the Discovery object. Similarly
  * when it ceases accepting any more connections, it can publish its intent to do
  * so by invoking unadvertise.<p />
  * Interesting parties can call discover method to get the list of addresses where
- * they can find an available DTFlumeSink server instance.
+ * they can find an available FlumeSink server instance.
  *
  * @param <T> - Type of the objects which can be discovered
  * @since 0.9.3
@@ -41,7 +41,7 @@ public interface Discovery<T>
   void unadvertise(Service<T> service);
 
   /**
-   * Advertise the host/port address where DTFlumeSink is accepting a client connection.
+   * Advertise the host/port address where FlumeSink is accepting a client connection.
    *
    * @param service
    */

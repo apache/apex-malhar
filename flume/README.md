@@ -23,7 +23,7 @@ and all the needed dependencies into `plugins.d/custom-plugin-name/libext/`
 (Alternatively to flume's automatic plugins.d detection, jars can be added to the
 FLUME_CLASSPATH using a `flume-env.sh` script. (See 'resources/flume-conf/flume-env.sample.sh')
 Therefore a maven repository must be available under $HOME/.m2 and the environment variable
-DT_FLUME_JAR must point to the plugin JAR.)
+APEX_FLUME_JAR must point to the plugin JAR.)
 
 ***Flume configuration***  
 A basic flume configuration can be found in `src/test/resources/flume/conf/flume_simple.conf`.  
@@ -31,7 +31,7 @@ A flume configuration using discovery service can be found in `src/test/resource
   Configuration files should be placed in flumes 'conf' directory and will be explicitly selected
   when running flume-ng
 
-In the configuration file set `org.apache.apex.malhar.flume.sink.DTFlumeSink` for the **type**  
+In the configuration file set `org.apache.apex.malhar.flume.sink.FlumeSink` for the **type**  
 and `org.apache.apex.malhar.flume.storage.HDFSStorage` for the **storage**,  
 as well as a **HDFS directory** for `baseDir`. The HDFS base directory needs
 to be created on HDFS.

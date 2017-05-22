@@ -50,14 +50,14 @@ import com.datatorrent.netlet.NetletThrowable.NetletRuntimeException;
 import com.datatorrent.netlet.util.Slice;
 
 /**
- * DTFlumeSink is a flume sink developed to ingest the data into DataTorrent DAG
+ * FlumeSink is a flume sink developed to ingest the data into DataTorrent DAG
  * from flume. It's essentially a flume sink which acts as a server capable of
  * talking to one client at a time. The client for this server is AbstractFlumeInputOperator.
  * <p />
- * &lt;experimental&gt;DTFlumeSink auto adjusts the rate at which it consumes the data from channel to
+ * &lt;experimental&gt;FlumeSink auto adjusts the rate at which it consumes the data from channel to
  * match the throughput of the DAG.&lt;/experimental&gt;
  * <p />
- * The properties you can set on the DTFlumeSink are: <br />
+ * The properties you can set on the FlumeSink are: <br />
  * id - string unique value identifying this sink <br />
  * hostname - string value indicating the fqdn or ip address of the interface on which the server should listen <br />
  * port - integer value indicating the numeric port to which the server should bind <br />
@@ -71,7 +71,7 @@ import com.datatorrent.netlet.util.Slice;
  *
  * @since 0.9.2
  */
-public class DTFlumeSink extends AbstractSink implements Configurable
+public class FlumeSink extends AbstractSink implements Configurable
 {
   private static final String HOSTNAME_STRING = "hostname";
   private static final String HOSTNAME_DEFAULT = "locahost";
@@ -399,7 +399,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
     storage = configure("storage", Storage.class, context);
     if (storage == null) {
-      logger.warn("storage key missing... DTFlumeSink may lose data!");
+      logger.warn("storage key missing... FlumeSink may lose data!");
       storage = new Storage()
       {
         @Override
@@ -570,5 +570,5 @@ public class DTFlumeSink extends AbstractSink implements Configurable
     throw new IOException("Client disconnected!");
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(DTFlumeSink.class);
+  private static final Logger logger = LoggerFactory.getLogger(FlumeSink.class);
 }
