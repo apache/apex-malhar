@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<configuration>
+
+  <property>
+    <name>dt.application.KafkaExactlyOnce.operator.*.attr.MEMORY_MB</name>
+    <value>512</value>
+  </property>
+
+  <!-- set maxTuplesTotal for both BatchSequenceGenerator and ValidationToFile -->
+  <property>
+    <name>dt.application.KafkaExactlyOnce.operator.(sequenceGenerator)|(validationToFile).prop.maxTuplesTotal</name>
+    <value>20</value>
+  </property>
+  <!-- max tuples per window -->
+  <property>
+    <name>dt.application.KafkaExactlyOnce.operator.sequenceGenerator.prop.maxTuples</name>
+    <value>5</value>
+  </property>
+  <property>
+    <name>dt.application.KafkaExactlyOnce.operator.passthrough.prop.directoryPath</name>
+    <value>/tmp/kafka_exactly</value>
+  </property>
+  <property>
+    <name>dt.application.KafkaExactlyOnce.operator.passthrough.prop.tuplesUntilKill</name>
+    <value>5</value>
+  </property>
+
+  <!-- Do not change any topics for this application-->
+  <!-- KafkaExactlyOnceOutputOperator -->
+  <property>
+    <name>dt.application.KafkaExactlyOnce.operator.kafkaExactlyOnceOutputOperator.prop.topic</name>
+    <value>exactly-once</value>
+  </property>
+  <property>
+    <name>dt.application.KafkaExactlyOnce.operator.kafkaExactlyOnceOutputOperator.prop.properties(bootstrap.servers)</name>
+    <value>localhost:9092</value>
+  </property>
+  <property>
+    <name>dt.application.KafkaExactlyOnce.operator.kafkaExactlyOnceOutputOperator.prop.properties(value.serializer)</name>
+    <value>org.apache.kafka.common.serialization.StringSerializer</value>
+  </property>
+  <property>
+    <name>dt.application.KafkaExactlyOnce.operator.kafkaExactlyOnceOutputOperator.prop.properties(value.deserializer)</name>
+    <value>org.apache.kafka.common.serialization.StringDeserializer</value>
+  </property>
+
+  <!-- KafkaOutputOperator -->
+  <property>
+    <name>dt.application.KafkaExactlyOnce.operator.kafkaOutputOperator.prop.topic</name>
+    <value>at-least-once</value>
+  </property>
+  <property>
+    <name>dt.application.KafkaExactlyOnce.operator.kafkaOutputOperator.prop.properties(bootstrap.servers)</name>
+    <value>localhost:9092</value>
+  </property>
+  <property>
+    <name>dt.application.KafkaExactlyOnce.operator.kafkaOutputOperator.prop.properties(key.serializer)</name>
+    <value>org.apache.kafka.common.serialization.StringSerializer</value>
+  </property>
+  <property>
+    <name>dt.application.KafkaExactlyOnce.operator.kafkaOutputOperator.prop.properties(value.serializer)</name>
+    <value>org.apache.kafka.common.serialization.StringSerializer</value>
+  </property>
+
+  <!-- Validation: kafka input operator (0.9) -->
+  <property>
+    <name>dt.application.KafkaExactlyOnce.operator.kafkaTopicExactly.prop.topics</name>
+    <value>exactly-once</value>
+  </property>
+  <property>
+  <name>dt.application.KafkaExactlyOnce.operator.kafkaTopicExactly.prop.clusters</name>
+  <value>localhost:9092</value>  <!-- broker (NOT zookeeper) address -->
+</property>
+
+  <property>
+    <name>dt.application.KafkaExactlyOnce.operator.kafkaTopicAtLeast.prop.topics</name>
+    <value>at-least-once</value>
+  </property>
+  <property>
+    <name>dt.application.KafkaExactlyOnce.operator.kafkaTopicAtLeast.prop.clusters</name>
+    <value>localhost:9092</value>  <!-- broker (NOT zookeeper) address -->
+  </property>
+
+  <!-- ValidationToFile -->
+  <property>
+    <name>dt.application.KafkaExactlyOnce.operator.validationToFile.prop.outputFileName</name>
+    <value>validation.txt</value>
+  </property>
+  <property>
+    <name>dt.application.KafkaExactlyOnce.operator.validationToFile.prop.filePath</name>
+    <value>/tmp/kafka_exactly</value>
+  </property>
+</configuration>
+
