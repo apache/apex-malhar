@@ -29,7 +29,6 @@ import org.apache.apex.malhar.lib.state.BucketedState;
 import org.apache.apex.malhar.lib.state.managed.ManagedTimeUnifiedStateImpl;
 import org.apache.apex.malhar.lib.state.managed.TimeExtractor;
 import org.apache.apex.malhar.lib.utils.serde.AffixKeyValueSerdeManager;
-import org.apache.apex.malhar.lib.utils.serde.BufferSlice;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
 import org.apache.hadoop.classification.InterfaceStability;
 
@@ -259,7 +258,7 @@ public class SpillableMapImpl<K, V> implements Spillable.SpillableMap<K, V>, Spi
         bucketId = ((ManagedTimeUnifiedStateImpl)store).getTimeBucketAssigner().getTimeBucket(timeOrBucketId);
       }
       keyValueSerdeManager.updateBuffersForBucketChange(bucketId);
-      store.put(timeOrBucketId, keyValueSerdeManager.serializeDataKey(key, true), BufferSlice.EMPTY_SLICE);
+      store.put(timeOrBucketId, keyValueSerdeManager.serializeDataKey(key, true), new Slice(null, 0, 0));
     }
     cache.endWindow();
     keyValueSerdeManager.resetReadBuffer();

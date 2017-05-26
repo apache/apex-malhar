@@ -31,6 +31,7 @@ import com.datatorrent.netlet.util.Slice;
  *
  * @since 3.6.0
  */
+@Deprecated
 public class BufferSlice extends Slice
 {
   private static final long serialVersionUID = -471209532589983329L;

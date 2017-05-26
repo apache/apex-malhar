@@ -156,12 +156,12 @@ public class Block
    *
    * @return
    */
-  public BufferSlice toSlice()
+  public Slice toSlice()
   {
     if (size == objectBeginOffset) {
       throw new RuntimeException("data size is zero.");
     }
-    BufferSlice slice = new BufferSlice(buffer, objectBeginOffset, size - objectBeginOffset);
+    Slice slice = new Slice(buffer, objectBeginOffset, size - objectBeginOffset);
     //prepare for next object
     objectBeginOffset = size;
     exposedSlices = true;
