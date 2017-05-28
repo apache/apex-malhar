@@ -56,19 +56,19 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   /**
    * This is the output port on which the twitter status information is emitted.
    */
-  public final transient DefaultOutputPort<Status> status = new DefaultOutputPort<Status>();
+  public final transient DefaultOutputPort<Status> status = new DefaultOutputPort<>();
   /**
    * This is the output port on which the twitter text is emitted.
    */
-  public final transient DefaultOutputPort<String> text = new DefaultOutputPort<String>();
+  public final transient DefaultOutputPort<String> text = new DefaultOutputPort<>();
   /**
    * This is the output port on which the twitter url is emitted.
    */
-  public final transient DefaultOutputPort<String> url = new DefaultOutputPort<String>();
+  public final transient DefaultOutputPort<String> url = new DefaultOutputPort<>();
   /**
    * This is the output port on which the twitter hashtags are emitted.
    */
-  public final transient DefaultOutputPort<String> hashtag = new DefaultOutputPort<String>();
+  public final transient DefaultOutputPort<String> hashtag = new DefaultOutputPort<>();
 
   /* the following 3 ports are not implemented so far */
   public final transient DefaultOutputPort<?> userMention = null;
@@ -82,8 +82,8 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
    */
   private transient Thread operatorThread;
   private transient TwitterStream ts;
-  private transient ArrayBlockingQueue<Status> statuses = new ArrayBlockingQueue<Status>(1024 * 1024);
-  transient int count;
+  private transient ArrayBlockingQueue<Status> statuses = new ArrayBlockingQueue<>(1024 * 1024);
+  protected transient int count;
   /**
    * The state which we would like to save for this operator.
    */
@@ -112,13 +112,7 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
       logger.info("Load set to be {}% of the entire twitter feed", feedMultiplier);
     }
 
-    ConfigurationBuilder cb = new ConfigurationBuilder();
-    cb.setDebugEnabled(debug).
-            setOAuthConsumerKey(consumerKey).
-            setOAuthConsumerSecret(consumerSecret).
-            setOAuthAccessToken(accessToken).
-            setOAuthAccessTokenSecret(accessTokenSecret);
-
+    ConfigurationBuilder cb = setupConfigurationBuilder();
     ts = new TwitterStreamFactory(cb.build()).getInstance();
   }
 
@@ -204,7 +198,10 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
     }
   }
 
-  private void setUpTwitterConnection()
+  /**
+   * Allow derived classes to customize the configuration
+   */
+  protected ConfigurationBuilder setupConfigurationBuilder()
   {
     ConfigurationBuilder cb = new ConfigurationBuilder();
     cb.setDebugEnabled(debug).
@@ -212,7 +209,12 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
             setOAuthConsumerSecret(consumerSecret).
             setOAuthAccessToken(accessToken).
             setOAuthAccessTokenSecret(accessTokenSecret);
+    return cb;
+  }
 
+  private void setUpTwitterConnection()
+  {
+    ConfigurationBuilder cb = setupConfigurationBuilder();
     ts = new TwitterStreamFactory(cb.build()).getInstance();
     ts.addListener(TwitterSampleInput.this);
     // we can only listen to tweets containing links by callng ts.links().
