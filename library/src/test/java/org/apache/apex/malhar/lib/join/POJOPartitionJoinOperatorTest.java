@@ -24,6 +24,7 @@ import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import org.apache.hadoop.conf.Configuration;
@@ -43,6 +44,7 @@ import com.datatorrent.common.partitioner.StatelessPartitioner;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 
+@Ignore
 public class POJOPartitionJoinOperatorTest
 {
   public static final int NUM_OF_PARTITIONS = 4;

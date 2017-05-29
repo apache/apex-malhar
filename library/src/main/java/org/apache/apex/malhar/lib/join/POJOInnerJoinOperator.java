@@ -22,6 +22,8 @@ import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.window.impl.KeyedWindowedMergeOperatorImpl;
+import org.apache.apex.malhar.lib.window.impl.WindowedMergeOperatorImpl;
 import org.apache.commons.lang3.ClassUtils;
 
 import com.datatorrent.api.Context;
@@ -39,8 +41,12 @@ import com.datatorrent.lib.util.PojoUtils;
  * @displayName POJO Inner Join Operator
  * @tags join
  *
+ * @deprecated This operator is deprecated and would be removed in the following major release. <br/>
+ * Please use {@link WindowedMergeOperatorImpl} or {@link KeyedWindowedMergeOperatorImpl} for join use cases.
+ *
  * @since 3.5.0
  */
+@Deprecated
 @org.apache.hadoop.classification.InterfaceStability.Evolving
 public class POJOInnerJoinOperator extends AbstractManagedStateInnerJoinOperator<Object,Object> implements Operator.ActivationListener<Context>
 {
