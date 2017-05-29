@@ -197,7 +197,7 @@ public class SnapshotSchema implements Schema
       schema.put(Schema.FIELD_SCHEMA_KEYS, SchemaUtils.createJSONObject(schemaKeys));
     }
 
-    valueToType = Maps.newHashMap();
+    valueToType = Maps.newLinkedHashMap();
 
     JSONArray values = schema.getJSONArray(FIELD_VALUES);
 

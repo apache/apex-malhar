@@ -62,7 +62,7 @@ public class Fields implements Serializable
    */
   public Fields(Collection<String> fields)
   {
-    this.fields = Sets.newHashSet();
+    this.fields = Sets.newLinkedHashSet();
 
     for (String field : fields) {
       Preconditions.checkNotNull(field);

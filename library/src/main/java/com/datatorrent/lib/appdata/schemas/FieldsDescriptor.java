@@ -97,6 +97,7 @@ public class FieldsDescriptor implements Serializable
   /**
    * This constructor is used for serialization.
    */
+  @SuppressWarnings("unused")
   private FieldsDescriptor()
   {
     //For kryo
@@ -197,7 +198,7 @@ public class FieldsDescriptor implements Serializable
       List<String> tempFields = entry.getValue();
 
       Collections.sort(tempFields);
-      Object2IntLinkedOpenHashMap<String> fieldToIndex = new Object2IntLinkedOpenHashMap<String>();
+      Object2IntLinkedOpenHashMap<String> fieldToIndex = new Object2IntLinkedOpenHashMap<>();
 
       for (int index = 0; index < tempFields.size(); index++) {
         String field = tempFields.get(index);
@@ -231,7 +232,7 @@ public class FieldsDescriptor implements Serializable
     Collections.sort(fieldList);
 
     //Array Sizes
-    typeToSize = new Object2IntLinkedOpenHashMap<Type>();
+    typeToSize = new Object2IntLinkedOpenHashMap<>();
 
     for (Map.Entry<Type, List<String>> entry : typeToFields.entrySet()) {
       Type type = entry.getKey();
@@ -266,7 +267,7 @@ public class FieldsDescriptor implements Serializable
       Preconditions.checkNotNull(entry.getValue());
     }
 
-    this.fieldToType = Maps.newHashMap(fieldToType);
+    this.fieldToType = Maps.newLinkedHashMap(fieldToType);
   }
 
   /**
