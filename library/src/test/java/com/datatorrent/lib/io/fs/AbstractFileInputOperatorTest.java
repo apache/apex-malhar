@@ -37,6 +37,9 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import org.apache.apex.api.operator.ControlTuple;
+import org.apache.apex.malhar.lib.batch.BatchControlTuple;
+import org.apache.apex.malhar.lib.batch.FileControlTuple;
 import org.apache.apex.malhar.lib.fs.LineByLineFileInputOperator;
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.commons.io.FileUtils;
@@ -738,6 +741,71 @@ public class AbstractFileInputOperatorTest
   }
 
   @Test
+  public void testBatchIdempotency() throws Exception
+  {
+    FileContext.getLocalFSFileContext().delete(new Path(new File(testMeta.dir).getAbsolutePath()), true);
+
+    List<String> allLines = Lists.newArrayList();
+    for (int file = 0; file < 2; file++) {
+      List<String> lines = Lists.newArrayList();
+      for (int line = 0; line < 2; line++) {
+        lines.add("f" + file + "l" + line);
+      }
+      allLines.addAll(lines);
+      FileUtils.write(new File(testMeta.dir, "file" + file), StringUtils.join(lines, '\n'));
+    }
+
+    LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
+    oper.setEmitBatchTuples(true);
+    FSWindowDataManager manager = new FSWindowDataManager();
+    manager.setStatePath(testMeta.dir + "/recovery");
+
+    oper.setWindowDataManager(manager);
+
+    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    TestUtils.setSink(oper.output, queryResults);
+
+    oper.setDirectory(testMeta.dir);
+    oper.getScanner().setFilePatternRegexp(".*file[\\d]");
+
+    oper.setup(testMeta.context);
+    for (long wid = 0; wid < 4; wid++) {
+      oper.beginWindow(wid);
+      oper.emitTuples();
+      oper.endWindow();
+    }
+    oper.teardown();
+    List<String> beforeRecovery = Lists.newArrayList(queryResults.collectedTuples);
+    List<ControlTuple> controlTuplesBeforeRecovery = Lists.newArrayList(queryResults.collectedControlTuples);
+
+    queryResults.clear();
+
+    //idempotency  part
+    oper.setup(testMeta.context);
+    for (long wid = 0; wid < 4; wid++) {
+      oper.beginWindow(wid);
+      oper.endWindow();
+    }
+    List<ControlTuple> controlTuplesAfterRecovery = Lists.newArrayList(queryResults.collectedControlTuples);
+
+    Assert.assertEquals("number tuples", 4, queryResults.collectedTuples.size());
+    Assert.assertEquals("lines", beforeRecovery, queryResults.collectedTuples);
+    Assert.assertTrue(controlTuplesBeforeRecovery.get(0) instanceof BatchControlTuple.StartBatchControlTuple);
+    Assert.assertTrue(controlTuplesBeforeRecovery.get(1) instanceof FileControlTuple.StartFileControlTuple);
+    Assert.assertTrue(controlTuplesBeforeRecovery.get(2) instanceof FileControlTuple.EndFileControlTuple);
+    Assert.assertTrue(controlTuplesBeforeRecovery.get(3) instanceof FileControlTuple.StartFileControlTuple);
+    Assert.assertTrue(controlTuplesBeforeRecovery.get(4) instanceof FileControlTuple.EndFileControlTuple);
+    Assert.assertTrue(controlTuplesBeforeRecovery.get(5) instanceof BatchControlTuple.EndBatchControlTuple);
+    Assert.assertTrue(controlTuplesAfterRecovery.get(0) instanceof BatchControlTuple.StartBatchControlTuple);
+    Assert.assertTrue(controlTuplesAfterRecovery.get(1) instanceof FileControlTuple.StartFileControlTuple);
+    Assert.assertTrue(controlTuplesAfterRecovery.get(2) instanceof FileControlTuple.EndFileControlTuple);
+    Assert.assertTrue(controlTuplesAfterRecovery.get(3) instanceof FileControlTuple.StartFileControlTuple);
+    Assert.assertTrue(controlTuplesAfterRecovery.get(4) instanceof FileControlTuple.EndFileControlTuple);
+    Assert.assertTrue(controlTuplesAfterRecovery.get(5) instanceof BatchControlTuple.EndBatchControlTuple);
+    oper.teardown();
+  }
+
+  @Test
   public void testIdempotencyWithMultipleEmitTuples() throws Exception
   {
     FileContext.getLocalFSFileContext().delete(new Path(new File(testMeta.dir).getAbsolutePath()), true);
@@ -1034,6 +1102,168 @@ public class AbstractFileInputOperatorTest
     oper.emitTuples();
     oper.endWindow();
     Assert.assertEquals("lines", beforeRecovery6, queryResults.collectedTuples);
+
+    Assert.assertEquals("number tuples", 8, queryResults.collectedTuples.size());
+
+    oper.teardown();
+  }
+
+  @Test
+  public void testBatchIdempotencyWithCheckPoint() throws Exception
+  {
+    FileContext.getLocalFSFileContext().delete(new Path(new File(testMeta.dir).getAbsolutePath()), true);
+
+    List<String> lines = Lists.newArrayList();
+    int file = 0;
+    for (int line = 0; line < 5; line++) {
+      lines.add("f" + file + "l" + line);
+    }
+    FileUtils.write(new File(testMeta.dir, "file" + file), StringUtils.join(lines, '\n'));
+
+    file = 1;
+    lines = Lists.newArrayList();
+    for (int line = 0; line < 6; line++) {
+      lines.add("f" + file + "l" + line);
+    }
+    FileUtils.write(new File(testMeta.dir, "file" + file), StringUtils.join(lines, '\n'));
+
+    // empty file
+    file = 2;
+    lines = Lists.newArrayList();
+    FileUtils.write(new File(testMeta.dir, "file" + file), StringUtils.join(lines, '\n'));
+
+
+    LineByLineFileInputOperator oper = new LineByLineFileInputOperator();
+    oper.setEmitBatchTuples(true);
+    FSWindowDataManager manager = new FSWindowDataManager();
+    manager.setStatePath(testMeta.dir + "/recovery");
+
+    oper.setWindowDataManager(manager);
+
+    oper.setDirectory(testMeta.dir);
+    oper.getScanner().setFilePatternRegexp(".*file[\\d]");
+
+    oper.setup(testMeta.context);
+
+    oper.setEmitBatchSize(3);
+
+    // sort the pendingFiles and ensure the ordering of the files scanned
+    DirectoryScannerNew newScanner = new DirectoryScannerNew();
+    oper.setScanner(newScanner);
+
+    // emit start Batch and scan directory
+    oper.beginWindow(0);
+    oper.emitTuples();
+    oper.endWindow();
+
+    // emit startfile(f0) f0l0, f0l1, f0l2
+    oper.beginWindow(1);
+    oper.emitTuples();
+    oper.endWindow();
+
+    //checkpoint the operator
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    LineByLineFileInputOperator checkPointOper = checkpoint(oper, bos);
+
+    // start saving output
+    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    TestUtils.setSink(oper.output, queryResults);
+
+    // emit f0l3, f0l4, endFile and closeFile(f0) in the same window
+    oper.beginWindow(2);
+    oper.emitTuples();
+    oper.endWindow();
+    List<String> beforeRecovery2 = Lists.newArrayList(queryResults.collectedTuples);
+    List<ControlTuple> beforeRecoveryControlTuples2 = Lists.newArrayList(queryResults.collectedControlTuples);
+
+    // emit startFile, f1l0, f1l1, f1l2
+    oper.beginWindow(3);
+    oper.emitTuples();
+    oper.endWindow();
+    List<String> beforeRecovery3 = Lists.newArrayList(queryResults.collectedTuples);
+    List<ControlTuple> beforeRecoveryControlTuples3 = Lists.newArrayList(queryResults.collectedControlTuples);
+
+    // emit f1l3, f1l4, f1l5
+    oper.beginWindow(4);
+    oper.emitTuples();
+    oper.endWindow();
+    List<String> beforeRecovery4 = Lists.newArrayList(queryResults.collectedTuples);
+    List<ControlTuple> beforeRecoveryControlTuples4 = Lists.newArrayList(queryResults.collectedControlTuples);
+
+    // endFile(f1) and closeFile(f1) in a new window
+    oper.beginWindow(5);
+    oper.emitTuples();
+    oper.endWindow();
+    List<String> beforeRecovery5 = Lists.newArrayList(queryResults.collectedTuples);
+    List<ControlTuple> beforeRecoveryControlTuples5 = Lists.newArrayList(queryResults.collectedControlTuples);
+
+    // empty file ops,startFile, endFile and closeFile(f2) in emitTuples() only
+    oper.beginWindow(6);
+    oper.emitTuples();
+    oper.endWindow();
+    List<String> beforeRecovery6 = Lists.newArrayList(queryResults.collectedTuples);
+    List<ControlTuple> beforeRecoveryControlTuples6 = Lists.newArrayList(queryResults.collectedControlTuples);
+
+    // end batch only
+    oper.beginWindow(7);
+    oper.emitTuples();
+    oper.endWindow();
+    List<String> beforeRecovery7 = Lists.newArrayList(queryResults.collectedTuples);
+    List<ControlTuple> beforeRecoveryControlTuples7 = Lists.newArrayList(queryResults.collectedControlTuples);
+
+    oper.teardown();
+
+    queryResults.clear();
+
+    //idempotency  part
+
+    oper = restoreCheckPoint(checkPointOper, bos);
+    testMeta.context.getAttributes().put(Context.OperatorContext.ACTIVATION_WINDOW_ID, 1L);
+    oper.setup(testMeta.context);
+    TestUtils.setSink(oper.output, queryResults);
+
+    long startwid = testMeta.context.getAttributes().get(Context.OperatorContext.ACTIVATION_WINDOW_ID) + 1;
+
+    oper.beginWindow(startwid);
+    Assert.assertTrue(oper.currentFile == null);
+    oper.emitTuples();
+    oper.endWindow();
+    Assert.assertEquals("lines", beforeRecovery2, queryResults.collectedTuples);
+    Assert.assertTrue("End file f0", beforeRecoveryControlTuples2.get(0) instanceof FileControlTuple.EndFileControlTuple);
+
+    oper.beginWindow(++startwid);
+    oper.emitTuples();
+    oper.endWindow();
+    Assert.assertEquals("lines", beforeRecovery3, queryResults.collectedTuples);
+    Assert.assertTrue("Start file f1", beforeRecoveryControlTuples3.get(1) instanceof FileControlTuple.StartFileControlTuple);
+
+    oper.beginWindow(++startwid);
+    oper.emitTuples();
+    oper.endWindow();
+    Assert.assertEquals("lines", beforeRecovery4, queryResults.collectedTuples);
+    Assert.assertEquals("No control tuples", 2, beforeRecoveryControlTuples4.size());
+
+    oper.beginWindow(++startwid);
+    Assert.assertTrue(oper.currentFile == null);
+    oper.emitTuples();
+    oper.endWindow();
+    Assert.assertEquals("lines", beforeRecovery5, queryResults.collectedTuples);
+    Assert.assertTrue("End file f1", beforeRecoveryControlTuples5.get(2) instanceof FileControlTuple.EndFileControlTuple);
+
+    oper.beginWindow(++startwid);
+    Assert.assertTrue(oper.currentFile == null);
+    oper.emitTuples();
+    oper.endWindow();
+    Assert.assertEquals("lines", beforeRecovery6, queryResults.collectedTuples);
+    Assert.assertTrue("Start file f2", beforeRecoveryControlTuples6.get(3) instanceof FileControlTuple.StartFileControlTuple);
+    Assert.assertTrue("End file f2", beforeRecoveryControlTuples6.get(4) instanceof FileControlTuple.EndFileControlTuple);
+
+    oper.beginWindow(++startwid);
+    Assert.assertTrue(oper.currentFile == null);
+    oper.emitTuples();
+    oper.endWindow();
+    Assert.assertEquals("lines", beforeRecovery7, queryResults.collectedTuples);
+    Assert.assertTrue("End batch", beforeRecoveryControlTuples7.get(5) instanceof BatchControlTuple.EndBatchControlTuple);
 
     Assert.assertEquals("number tuples", 8, queryResults.collectedTuples.size());
 

@@ -21,7 +21,9 @@ package com.datatorrent.lib.testbench;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.datatorrent.api.Sink;
+import org.apache.apex.api.operator.ControlTuple;
+
+import com.datatorrent.api.ControlTupleEnabledSink;
 
 /**
  * A sink implementation to collect expected test results.
@@ -31,16 +33,17 @@ import com.datatorrent.api.Sink;
  * @tags sink
  * @since 0.3.2
  */
-public class CollectorTestSink<T> implements Sink<T>
+public class CollectorTestSink<T> implements ControlTupleEnabledSink<T>
 {
   public final List<T> collectedTuples = new ArrayList<T>();
-
+  public final List<ControlTuple> collectedControlTuples = new ArrayList<>();
   /**
    * clears data
    */
   public void clear()
   {
     this.collectedTuples.clear();
+    this.collectedControlTuples.clear();
   }
 
   @Override
@@ -64,6 +67,24 @@ public class CollectorTestSink<T> implements Sink<T>
     }
   }
 
+  public void waitForResultCount(int tupleCount, int controlTupleCount, long timeoutMillis) throws InterruptedException
+  {
+    while (collectedTuples.size() < tupleCount && collectedControlTuples.size() < controlTupleCount && timeoutMillis > 0) {
+      timeoutMillis -= 20;
+      synchronized (collectedTuples) {
+        if (collectedTuples.size() < tupleCount) {
+          collectedTuples.wait(20);
+        }
+      }
+      timeoutMillis -= 20;
+      synchronized (collectedControlTuples) {
+        if (collectedControlTuples.size() < controlTupleCount) {
+          collectedControlTuples.wait(20);
+        }
+      }
+    }
+  }
+
   @Override
   public int getCount(boolean reset)
   {
@@ -73,8 +94,16 @@ public class CollectorTestSink<T> implements Sink<T>
       } finally {
         if (reset) {
           collectedTuples.clear();
+          collectedControlTuples.clear();
         }
       }
     }
+  }
+
+  @Override
+  public boolean putControl(ControlTuple controlTuple)
+  {
+    collectedControlTuples.add(controlTuple);
+    return false;
   }
 }

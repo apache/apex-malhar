@@ -16,30 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.lib.window;
 
-import org.apache.hadoop.classification.InterfaceStability;
+package org.apache.apex.malhar.lib.batch;
 
-/**
- * Control tuple interface.
- * TODO: This should be removed or moved to Apex Core when Apex Core has native support for custom control tuples.
- *
- * @since 3.5.0
- */
-@InterfaceStability.Evolving
-@Deprecated
-public interface ControlTuple
+import org.apache.apex.api.operator.ControlTuple;
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
+
+@Evolving
+public interface BatchControlTuple extends ControlTuple
 {
-  /**
-   * Watermark control tuple
-   */
-  interface Watermark extends ControlTuple
+  @Evolving
+  public interface StartBatchControlTuple extends BatchControlTuple
   {
-    /**
-     * Gets the timestamp associated with this watermark
-     *
-     * @return the timestamp
-     */
-    long getTimestamp();
+  }
+
+  @Evolving
+  public interface EndBatchControlTuple extends BatchControlTuple
+  {
   }
 }

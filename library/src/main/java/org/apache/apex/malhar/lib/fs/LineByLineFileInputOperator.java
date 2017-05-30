@@ -23,9 +23,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.apache.apex.api.ControlAwareDefaultOutputPort;
+import org.apache.apex.malhar.lib.batch.BatchControlTuple;
+import org.apache.apex.malhar.lib.batch.FileControlTuple;
 import org.apache.hadoop.fs.Path;
-
-import com.datatorrent.api.DefaultOutputPort;
 
 import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
 
@@ -43,7 +44,7 @@ import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
  */
 public class LineByLineFileInputOperator extends AbstractFileInputOperator<String>
 {
-  public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
+  public final transient ControlAwareDefaultOutputPort<String> output = new ControlAwareDefaultOutputPort<String>();
 
   protected transient BufferedReader br;
 
@@ -73,5 +74,45 @@ public class LineByLineFileInputOperator extends AbstractFileInputOperator<Strin
   protected void emit(String tuple)
   {
     output.emit(tuple);
+  }
+
+  @Override
+  public void emitStartBatchControlTuple()
+  {
+    BatchControlTuple startBatch = new BatchControlTuple.StartBatchControlTuple()
+    {
+      @Override
+      public DeliveryType getDeliveryType()
+      {
+        return DeliveryType.IMMEDIATE;
+      }
+    };
+    output.emitControl(startBatch);
+  }
+
+  @Override
+  public void emitEndBatchControlTuple()
+  {
+    BatchControlTuple endBatch = new BatchControlTuple.EndBatchControlTuple()
+    {
+      @Override
+      public DeliveryType getDeliveryType()
+      {
+        return DeliveryType.END_WINDOW;
+      }
+    };
+    output.emitControl(endBatch);
+  }
+
+  @Override
+  public void emitStartFileControlTuple(boolean isFailedFile)
+  {
+    output.emitControl(new FileControlTuple.StartFileControlTuple(this.currentFile, isFailedFile));
+  }
+
+  @Override
+  public void emitEndFileControlTuple(boolean isFailedFile)
+  {
+    output.emitControl(new FileControlTuple.EndFileControlTuple(this.currentFile, isFailedFile));
   }
 }

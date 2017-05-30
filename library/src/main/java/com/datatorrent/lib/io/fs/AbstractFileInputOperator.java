@@ -124,6 +124,34 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   protected transient long skipCount = 0;
   private transient OperatorContext context;
 
+  /**
+   * The time between sending batch tuples. Default value is 1 hour. A batch
+   * interval could consist of multiple scan intervals
+   */
+  private long batchIntervalMillis = 60 * 60 * 1000; //1 hour
+
+  /**
+   * By setting this property to true, a single scan will be performed every
+   * batchIntervalMillis. All files made available in this scan period will form
+   * a part of same batch. For each batch, start batch and end batch control
+   * tuples will be emitted before and after the batch respectively. Note that
+   * batch tuple processing currently works only in single operator instance
+   * scenarios i.e without partitions. However, batch processing with parallel
+   * partitions will work
+   */
+  private boolean emitBatchTuples = false;
+
+  private transient boolean fileClosed = false;
+  private transient boolean startBatchEmittedInCurrentWindow = false;
+  private transient boolean endBatchEmittedInCurrentWindow = false;
+
+  /**
+   * End Batch can only be emitted if start batch was emitted earlier. This is
+   * set to true only after a start batch is emitted
+   */
+  private boolean canEmitEndBatch = false;
+
+
   private final BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
   protected MutableLong globalNumberOfFailures = new MutableLong();
   protected MutableLong localNumberOfFailures = new MutableLong();
@@ -137,6 +165,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   private WindowDataManager windowDataManager = new WindowDataManager.NoopWindowDataManager();
   protected transient long currentWindowId;
   protected final transient LinkedList<RecoveryEntry> currentWindowRecoveryState = Lists.newLinkedList();
+  protected final transient WindowRecoveryEntry currentWindowState = new WindowRecoveryEntry();
   protected int operatorId; //needed in partitioning
 
   /**
@@ -535,6 +564,9 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     if (windowId <= windowDataManager.getLargestCompletedWindow()) {
       replay(windowId);
     }
+    fileClosed = false;
+    startBatchEmittedInCurrentWindow = false;
+    endBatchEmittedInCurrentWindow = false;
   }
 
   @Override
@@ -542,12 +574,12 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   {
     if (currentWindowId > windowDataManager.getLargestCompletedWindow()) {
       try {
-        windowDataManager.save(currentWindowRecoveryState, currentWindowId);
+        windowDataManager.save(currentWindowState, currentWindowId);
       } catch (IOException e) {
         throw new RuntimeException("saving recovery", e);
       }
     }
-    currentWindowRecoveryState.clear();
+    currentWindowState.clear();
     if (context != null) {
       pendingFileCount.setValue(pendingFiles.size() + failedFiles.size() + unfinishedFiles.size());
 
@@ -569,9 +601,18 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
       Map<Integer, Object> recoveryDataPerOperator = windowDataManager.retrieveAllPartitions(windowId);
 
       for (Object recovery : recoveryDataPerOperator.values()) {
-        @SuppressWarnings("unchecked")
-        LinkedList<RecoveryEntry> recoveryData = (LinkedList<RecoveryEntry>)recovery;
 
+        WindowRecoveryEntry windowRecoveryEntry = (WindowRecoveryEntry)recovery;
+        List<RecoveryEntry> recoveryData = windowRecoveryEntry.fileRecoveryInfo;
+
+        if (windowRecoveryEntry.startBatchEmitted) {
+          emitStartBatchControlTuple();
+          return;
+        }
+        if (windowRecoveryEntry.endBatchEmitted) {
+          emitEndBatchControlTuple();
+          return;
+        }
         for (RecoveryEntry recoveryEntry : recoveryData) {
           if (scanner.acceptFile(recoveryEntry.file)) {
             //The operator may have continued processing the same file in multiple windows.
@@ -583,11 +624,13 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
               }
               processedFiles.add(recoveryEntry.file);
               //removing the file from failed and unfinished queues and pending set
+              boolean isFailedFile = false;
               Iterator<FailedFile> failedFileIterator = failedFiles.iterator();
               while (failedFileIterator.hasNext()) {
                 FailedFile ff = failedFileIterator.next();
                 if (ff.path.equals(recoveryEntry.file) && ff.offset == recoveryEntry.startOffset) {
                   failedFileIterator.remove();
+                  isFailedFile = true;
                   break;
                 }
               }
@@ -604,7 +647,12 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
                 pendingFiles.remove(recoveryEntry.file);
               }
               inputStream = retryFailedFile(new FailedFile(recoveryEntry.file, recoveryEntry.startOffset));
-
+              if (skipCount == 0) {
+                emitStartFileControlTuple(false);
+              }
+              if (isFailedFile) {
+                emitStartFileControlTuple(isFailedFile);
+              }
               while (--skipCount >= 0) {
                 readEntity();
               }
@@ -614,6 +662,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
                 emit(line);
               }
               if (recoveryEntry.fileClosed) {
+                emitEndFileControlTuple(false);
                 closeFile(inputStream);
               }
             } else {
@@ -623,6 +672,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
                 emit(line);
               }
               if (recoveryEntry.fileClosed) {
+                emitEndFileControlTuple(false);
                 closeFile(inputStream);
               }
             }
@@ -642,6 +692,11 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
       return;
     }
 
+    if (emitBatchTuples && (fileClosed || startBatchEmittedInCurrentWindow || endBatchEmittedInCurrentWindow)) {
+      //Maximum one file will be processed in each window
+      return;
+    }
+
     if (inputStream == null) {
       try {
         if (currentFile != null && offset > 0) {
@@ -658,14 +713,17 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
           }
         } else if (!unfinishedFiles.isEmpty()) {
           retryFailedFile(unfinishedFiles.poll());
+          //For an unfinished file, we wont emit start file control tuple since it was already emitted before partitioning
         } else if (!pendingFiles.isEmpty()) {
           String newPathString = pendingFiles.iterator().next();
           pendingFiles.remove(newPathString);
           if (fs.exists(new Path(newPathString))) {
             this.inputStream = openFile(new Path(newPathString));
+            emitStartFileControlTuple(false);
           }
         } else if (!failedFiles.isEmpty()) {
           retryFailedFile(failedFiles.poll());
+          emitStartFileControlTuple(true);
         } else {
           scanDirectory();
         }
@@ -676,7 +734,6 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     if (inputStream != null) {
       long startOffset = offset;
       String file  = currentFile; //current file is reset to null when closed.
-      boolean fileClosed = false;
 
       try {
         int counterForTuple = 0;
@@ -684,6 +741,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
           T line = readEntity();
           if (line == null) {
             LOG.info("done reading file ({} entries).", offset);
+            emitEndFileControlTuple(false);
             closeFile(inputStream);
             fileClosed = true;
             break;
@@ -701,11 +759,13 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
           }
         }
       } catch (IOException e) {
+        //An exception indicating file I/O encountered exception
+        emitEndFileControlTuple(true);
         failureHandling(e);
       }
       //Only when something was emitted from the file, or we have a closeFile(), then we record it for entry.
       if (offset >= startOffset) {
-        currentWindowRecoveryState.add(new RecoveryEntry(file, startOffset, offset, fileClosed));
+        currentWindowState.addRecoveryEntry(new RecoveryEntry(file, startOffset, offset, fileClosed));
       }
     }
   }
@@ -732,7 +792,34 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
    */
   protected void scanDirectory()
   {
-    if (System.currentTimeMillis() - scanIntervalMillis >= lastScanMillis) {
+    boolean allowScan = true;
+    if (emitBatchTuples) {
+      if (canEmitEndBatch) {
+        /*
+         * Emit EndBatch and mark canEmitEndBatch to false to avoid multiple emits of End Batch
+         */
+        emitEndBatchControlTuple();
+        endBatchEmittedInCurrentWindow = true;
+        currentWindowState.endBatchEmitted = true;
+        canEmitEndBatch = false;
+      }
+      if ((System.currentTimeMillis() - batchIntervalMillis) < lastScanMillis) {
+        /*
+         * If batch is enabled and if time since last scan is less than batchIntervalMillis,
+         * we will not scan for new files
+         */
+        allowScan = false;
+      } else {
+        /*
+         * Allow scanning and emit start batch tuple
+         */
+        emitStartBatchControlTuple();
+        startBatchEmittedInCurrentWindow = true;
+        currentWindowState.startBatchEmitted = true;
+        canEmitEndBatch = true;
+      }
+    }
+    if (allowScan && System.currentTimeMillis() - scanIntervalMillis >= lastScanMillis) {
       Set<Path> newPaths = scanner.scan(fs, filePath, processedFiles);
 
       for (Path newPath : newPaths) {
@@ -1039,6 +1126,48 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   }
 
   /**
+   * @param isFailedFile true if a failed file Processing is started midway. File processing had failed earlier
+   */
+  public void emitStartFileControlTuple(boolean isFailedFile)
+  {
+  }
+
+  /**
+   * @param isFailedFile true if file processing failed due to I/O midway
+   */
+  public void emitEndFileControlTuple(boolean isFailedFile)
+  {
+  }
+
+  public void emitStartBatchControlTuple()
+  {
+  }
+
+  public void emitEndBatchControlTuple()
+  {
+  }
+
+  public long getBatchIntervalMillis()
+  {
+    return batchIntervalMillis;
+  }
+
+  public void setBatchIntervalMillis(long batchIntervalMillis)
+  {
+    this.batchIntervalMillis = batchIntervalMillis;
+  }
+
+  public boolean isEmitBatchTuples()
+  {
+    return emitBatchTuples;
+  }
+
+  public void setEmitBatchTuples(boolean emitBatchTuples)
+  {
+    this.emitBatchTuples = emitBatchTuples;
+  }
+
+  /**
    * The class that is used to scan for new files in the directory for the
    * AbstractFSDirectoryInputOperator.
    */
@@ -1215,6 +1344,39 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     public void setRecursive(boolean recursive)
     {
       this.recursive = recursive;
+    }
+  }
+
+  protected static class WindowRecoveryEntry
+  {
+    boolean startBatchEmitted;
+    boolean endBatchEmitted;
+    final List<RecoveryEntry> fileRecoveryInfo;
+
+    public WindowRecoveryEntry()
+    {
+      startBatchEmitted = false;
+      endBatchEmitted = false;
+      fileRecoveryInfo = Lists.newLinkedList();
+    }
+
+    public WindowRecoveryEntry(boolean startBatchEmitted, boolean endBatchEmitted, List<RecoveryEntry> recoveryInfo)
+    {
+      this.startBatchEmitted = startBatchEmitted;
+      this.endBatchEmitted = endBatchEmitted;
+      this.fileRecoveryInfo = recoveryInfo;
+    }
+
+    public void clear()
+    {
+      startBatchEmitted = false;
+      endBatchEmitted = false;
+      fileRecoveryInfo.clear();
+    }
+
+    public void addRecoveryEntry(RecoveryEntry recoveryEntry)
+    {
+      fileRecoveryInfo.add(recoveryEntry);
     }
   }
 
