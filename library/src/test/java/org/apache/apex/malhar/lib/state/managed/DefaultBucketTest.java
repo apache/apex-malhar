@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import org.apache.apex.malhar.lib.state.managed.Bucket.DefaultBucket;
 import org.apache.apex.malhar.lib.state.managed.Bucket.ReadSource;
 import org.apache.apex.malhar.lib.utils.serde.AffixSerde;
 import org.apache.apex.malhar.lib.utils.serde.SerializationBuffer;
@@ -52,6 +53,9 @@ public class DefaultBucketTest
     @Override
     protected void starting(Description description)
     {
+      //lots of test case get around the normal workflow and directly write to file. So should disable bloom filter
+      DefaultBucket.setDisableBloomFilterByDefault(true);
+
       TestUtils.deleteTargetTestClassFolder(description);
       managedStateContext = new MockManagedStateContext(ManagedStateTestUtils.getOperatorContext(9));
       applicationPath = "target/" + description.getClassName() + "/" + description.getMethodName();
@@ -193,6 +197,8 @@ public class DefaultBucketTest
   @Test
   public void testFreeMemory() throws IOException
   {
+    DefaultBucket.setDisableBloomFilterByDefault(false);
+
     testMeta.defaultBucket.setup(testMeta.managedStateContext);
     testGetFromReader();
     long initSize = testMeta.defaultBucket.getSizeInBytes();
@@ -224,6 +230,35 @@ public class DefaultBucketTest
 
     Assert.assertEquals("size freed", initSize, sizeFreed);
     Assert.assertEquals("existing size", currentSize - initSize, testMeta.defaultBucket.getSizeInBytes());
+
+    testMeta.defaultBucket.teardown();
+  }
+
+  @Test
+  public void testBloomFilter() throws IOException
+  {
+    testMeta.defaultBucket.setDisableBloomFilter(false);
+    testMeta.defaultBucket.setup(testMeta.managedStateContext);
+    final int itemSize = 1000;
+    final int bucketId = 1;
+    for (int i = 0; i < itemSize; i += 2) {
+      //put only even value
+      Slice keyAndValue = ManagedStateTestUtils.getSliceFor(String.valueOf(i));
+      testMeta.defaultBucket.put(keyAndValue, bucketId, keyAndValue);
+    }
+
+    testMeta.defaultBucket.freeMemory(Long.MAX_VALUE);
+
+    for (int i = 0; i < itemSize; ++i) {
+      //put only even value
+      Slice key = ManagedStateTestUtils.getSliceFor(String.valueOf(i));
+      Slice value = testMeta.defaultBucket.get(key, bucketId, ReadSource.ALL);
+      if ((i & 0x01) == 0) {
+        Assert.assertEquals(key, value);
+      } else {
+        Assert.assertTrue(value == null);
+      }
+    }
 
     testMeta.defaultBucket.teardown();
   }

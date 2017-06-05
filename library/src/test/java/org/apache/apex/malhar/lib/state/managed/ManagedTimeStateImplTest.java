@@ -30,6 +30,8 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import org.apache.apex.malhar.lib.state.managed.Bucket.DefaultBucket;
+
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
@@ -83,6 +85,7 @@ public class ManagedTimeStateImplTest
     Slice zero = ManagedStateTestUtils.getSliceFor("0");
     long time = System.currentTimeMillis();
 
+    DefaultBucket.setDisableBloomFilterByDefault(true);
     testMeta.managedState.setup(testMeta.operatorContext);
 
     Map<Slice, Bucket.BucketedValue> unsavedBucket0 = ManagedStateTestUtils.getTestBucketData(0, time);

@@ -30,6 +30,8 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import org.apache.apex.malhar.lib.state.managed.Bucket.DefaultBucket;
+
 import com.datatorrent.api.Context;
 import com.datatorrent.lib.fileaccess.FileAccessFSImpl;
 import com.datatorrent.lib.util.TestUtils;
@@ -116,6 +118,8 @@ public class ManagedTimeUnifiedStateImplTest
   @Test
   public void testSyncGetFromFiles() throws IOException, ExecutionException, InterruptedException
   {
+    DefaultBucket.setDisableBloomFilterByDefault(true);
+
     Slice zero = ManagedStateTestUtils.getSliceFor("0");
     long time = System.currentTimeMillis();
 
@@ -138,6 +142,8 @@ public class ManagedTimeUnifiedStateImplTest
   @Test
   public void testAsyncSyncGetFromFiles() throws IOException, ExecutionException, InterruptedException
   {
+    DefaultBucket.setDisableBloomFilterByDefault(true);
+
     Slice zero = ManagedStateTestUtils.getSliceFor("0");
     long time = System.currentTimeMillis();
 

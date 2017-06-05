@@ -232,6 +232,12 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
 
     protected ConcurrentLinkedQueue<Long> windowsForFreeMemory = new ConcurrentLinkedQueue<>();
 
+    private static boolean disableBloomFilterByDefault = false;
+    private boolean disableBloomFilter = disableBloomFilterByDefault;
+    private static int bloomFilterDefaultBitSize = 1000000;
+    private SliceBloomFilter bloomFilter = null;
+    private int bloomFilterBitSize = bloomFilterDefaultBitSize;
+
     private DefaultBucket()
     {
       //for kryo
@@ -247,6 +253,9 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
     public void setup(@NotNull ManagedStateContext managedStateContext)
     {
       this.managedStateContext = Preconditions.checkNotNull(managedStateContext, "managed state context");
+      if (!disableBloomFilter && bloomFilter == null) {
+        bloomFilter = new SliceBloomFilter(bloomFilterBitSize, 0.99);
+      }
     }
 
     @Override
@@ -353,6 +362,33 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
       }
     }
 
+
+    private int filteredCount = 0;
+    private int unfilteredCount = 0;
+    private static final int STATISTICS_BARRIER_NUM = 10000;
+    /**
+     * Test the result of using bloom filter and remove it if it not helpful for improving the performance.
+     *
+     * @param mightContain true if collection might contain the value
+     */
+    private void verifyBloomFilter(boolean mightContain)
+    {
+      if (!mightContain) {
+        filteredCount++;
+      } else {
+        unfilteredCount++;
+      }
+
+      if (unfilteredCount + filteredCount > STATISTICS_BARRIER_NUM && unfilteredCount > filteredCount * 4) {
+        unloadBloomFilter();
+      }
+    }
+
+    private void unloadBloomFilter()
+    {
+      bloomFilter = null;
+    }
+
     /**
      * Returns the value for the key from a valid time-bucket reader. Here, valid means the time bucket which is not purgeable.
      * If the timebucketAssigner is of type MovingBoundaryTimeBucketAssigner and the time bucket is purgeable, then return null.
@@ -362,11 +398,21 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
      */
     private BucketedValue getValueFromTimeBucketReader(Slice key, long timeBucket)
     {
-
       if (managedStateContext.getTimeBucketAssigner() instanceof MovingBoundaryTimeBucketAssigner &&
           timeBucket <= ((MovingBoundaryTimeBucketAssigner)managedStateContext.getTimeBucketAssigner()).getLowestPurgeableTimeBucket()) {
         return null;
       }
+
+      if (bloomFilter != null) {
+        boolean mightContain = bloomFilter.mightContain(key);
+
+        verifyBloomFilter(mightContain);
+
+        if (!mightContain) {
+          return null;
+        }
+      }
+
       FileAccess.FileReader fileReader = readers.get(timeBucket);
       if (fileReader != null) {
         return readValue(fileReader, key, timeBucket);
@@ -417,6 +463,7 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
     {
       // This call is lightweight
       releaseMemory();
+
       key = SliceUtils.toBufferSlice(key);
       value = SliceUtils.toBufferSlice(value);
 
@@ -460,6 +507,14 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
         entryIter.remove();
 
         for (Map.Entry<Slice, BucketedValue> entry : windowData.entrySet()) {
+          /**
+           * The data still in memory and reachable before the memory released
+           * So put key into bloom filter here
+           */
+          if (bloomFilter != null) {
+            bloomFilter.put(entry.getKey());
+          }
+
           memoryFreed += entry.getKey().length + entry.getValue().getSize();
         }
       }
@@ -511,6 +566,7 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
     public Map<Slice, BucketedValue> checkpoint(long windowId)
     {
       releaseMemory();
+
       try {
         //transferring the data from flash to check-pointed state in finally block and re-initializing the flash.
         return flash;
@@ -634,6 +690,48 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
     {
       return valueStream;
     }
+
+    public static int getBloomFilterDefaultBitSize()
+    {
+      return bloomFilterDefaultBitSize;
+    }
+
+    public static void setBloomFilterDefaultBitSize(int bloomFilterDefaultBitSize)
+    {
+      DefaultBucket.bloomFilterDefaultBitSize = bloomFilterDefaultBitSize;
+    }
+
+    public int getBloomFilterBitSize()
+    {
+      return bloomFilterBitSize;
+    }
+
+    public void setBloomFilterBitSize(int bloomFilterBitSize)
+    {
+      this.bloomFilterBitSize = bloomFilterBitSize;
+    }
+
+    public static boolean isDisableBloomFilterByDefault()
+    {
+      return disableBloomFilterByDefault;
+    }
+
+    public static void setDisableBloomFilterByDefault(boolean disableBloomFilterByDefault)
+    {
+      DefaultBucket.disableBloomFilterByDefault = disableBloomFilterByDefault;
+    }
+
+    public boolean isDisableBloomFilter()
+    {
+      return disableBloomFilter;
+    }
+
+    public void setDisableBloomFilter(boolean disableBloomFilter)
+    {
+      this.disableBloomFilter = disableBloomFilter;
+      this.unloadBloomFilter();
+    }
+
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultBucket.class);
   }
