@@ -34,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.apex.malhar.lib.utils.serde.KeyValueByteStreamProvider;
-import org.apache.apex.malhar.lib.utils.serde.SliceUtils;
 import org.apache.apex.malhar.lib.utils.serde.WindowedBlockStream;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -337,7 +336,6 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
     {
       // This call is lightweight
       releaseMemory();
-      key = SliceUtils.toBufferSlice(key);
       switch (readSource) {
         case MEMORY:
           return getFromMemory(key);
@@ -417,8 +415,6 @@ public interface Bucket extends ManagedStateComponent, KeyValueByteStreamProvide
     {
       // This call is lightweight
       releaseMemory();
-      key = SliceUtils.toBufferSlice(key);
-      value = SliceUtils.toBufferSlice(value);
 
       BucketedValue bucketedValue = flash.get(key);
       if (bucketedValue == null) {
