@@ -114,7 +114,7 @@ public abstract class AbstractKuduOutputOperator extends BaseOperator
   private static final transient Logger LOG = LoggerFactory.getLogger(AbstractKuduOutputOperator.class);
 
   @NotNull
-  private WindowDataManager windowDataManager;
+  protected WindowDataManager windowDataManager;
 
   private transient long currentWindowId;
 
@@ -231,7 +231,10 @@ public abstract class AbstractKuduOutputOperator extends BaseOperator
   private void performCommonProcessing(Operation currentOperation, KuduExecutionContext kuduExecutionContext)
   {
     currentOperation.setExternalConsistencyMode(kuduExecutionContext.getExternalConsistencyMode());
-    currentOperation.setPropagatedTimestamp(kuduExecutionContext.getPropagatedTimestamp());
+    Long propagatedTimeStamp = kuduExecutionContext.getPropagatedTimestamp();
+    if ( propagatedTimeStamp != null) { // set propagation timestamp only if enabled
+      currentOperation.setPropagatedTimestamp(propagatedTimeStamp);
+    }
     PartialRow partialRow = currentOperation.getRow();
     Object payload = kuduExecutionContext.getPayload();
     Set<String> doNotWriteColumns = kuduExecutionContext.getDoNotWriteColumns();

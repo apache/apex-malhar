@@ -213,7 +213,7 @@ public class ApexKuduConnection implements AutoCloseable, Serializable
       return this;
     }
 
-    protected ApexKuduConnection build()
+    public ApexKuduConnection build()
     {
       ApexKuduConnection apexKuduConnection = new ApexKuduConnection(this);
       return apexKuduConnection;

@@ -50,7 +50,7 @@ public class KuduExecutionContext<T>
 
   private ExternalConsistencyMode externalConsistencyMode;
 
-  private long propagatedTimestamp;
+  private Long propagatedTimestamp;
 
   public T getPayload()
   {
@@ -82,12 +82,12 @@ public class KuduExecutionContext<T>
     this.externalConsistencyMode = externalConsistencyMode;
   }
 
-  public long getPropagatedTimestamp()
+  public Long getPropagatedTimestamp()
   {
     return propagatedTimestamp;
   }
 
-  public void setPropagatedTimestamp(long propagatedTimestamp)
+  public void setPropagatedTimestamp(Long propagatedTimestamp)
   {
     this.propagatedTimestamp = propagatedTimestamp;
   }

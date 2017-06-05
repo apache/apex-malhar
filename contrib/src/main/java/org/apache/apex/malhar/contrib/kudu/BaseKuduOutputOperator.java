@@ -24,6 +24,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.kudu.client.ExternalConsistencyMode;
 import org.apache.kudu.client.SessionConfiguration;
 
@@ -65,11 +67,13 @@ public class BaseKuduOutputOperator extends AbstractKuduOutputOperator
 
   public BaseKuduOutputOperator() throws IOException, ClassNotFoundException
   {
+    windowDataManager = new FSWindowDataManager();
     initConnectionBuilderProperties(DEFAULT_CONNECTION_PROPS_FILE_NAME);
   }
 
   public BaseKuduOutputOperator(String configFileInClasspath) throws IOException, ClassNotFoundException
   {
+    windowDataManager = new FSWindowDataManager();
     initConnectionBuilderProperties(configFileInClasspath);
   }
 
