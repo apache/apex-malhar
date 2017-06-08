@@ -18,9 +18,6 @@
  */
 package org.apache.apex.examples.pi;
 
-import java.net.URI;
-
-import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
@@ -100,14 +97,6 @@ public class ApplicationAppData implements StreamingApplication
 
     dag.addStream("rand_calc", rand.integer_data, calc.input).setLocality(locality);
 
-    String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
-
-    if (StringUtils.isEmpty(gatewayAddress)) {
-      throw new RuntimeException("Error: No GATEWAY_CONNECT_ADDRESS");
-    }
-
-    URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
-
     AppDataSnapshotServerMap snapshotServer = dag.addOperator("SnapshotServer", new AppDataSnapshotServerMap());
 
     String snapshotServerJSON = SchemaUtils.jarResourceFileToString(SNAPSHOT_SCHEMA);
@@ -120,8 +109,6 @@ public class ApplicationAppData implements StreamingApplication
 
     PubSubWebSocketAppDataResult wsResult = dag.addOperator("QueryResult", new PubSubWebSocketAppDataResult());
 
-    wsQuery.setUri(uri);
-    wsResult.setUri(uri);
     Operator.InputPort<String> queryResultPort = wsResult.input;
 
     NamedValueList<Object> adaptor = dag.addOperator("adaptor", new NamedValueList<Object>());
