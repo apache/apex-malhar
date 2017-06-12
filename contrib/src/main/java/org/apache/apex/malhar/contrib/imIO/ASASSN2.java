@@ -13,6 +13,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.imageio.ImageIO;
+import javax.validation.constraints.NotNull;
+
+import org.apache.hadoop.fs.Path;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
@@ -26,7 +29,9 @@ public class ASASSN2 extends ToolKit
 {
   protected static final Logger LOG = LoggerFactory.getLogger(ASASSN.class);
   public final transient DefaultOutputPort<Data> outputScore = new DefaultOutputPort<>();
-  protected String soPath = "/home/aditya/opencv-3.2.0/build/lib/libopencv_java320.so";
+  @NotNull
+  protected Path SoPath;
+  protected String soPath = SoPath.toString();
   protected int matches = 0;
   protected transient int notMatch = 0;
   protected int dense = 0;

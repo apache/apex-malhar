@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.imageio.ImageIO;
+import javax.validation.constraints.NotNull;
 
 import org.opencv.core.Mat;
 
@@ -23,7 +24,9 @@ import static org.opencv.videoio.Videoio.CV_CAP_FFMPEG;
 public class FrameByFrameVideoReader extends FileReaderA
 {
   private static final Logger LOG = LoggerFactory.getLogger(FrameByFrameVideoReader.class);
-  protected String soPath = "/home/aditya/opencv-3.2.0/build/lib/libopencv_java320.so";
+  @NotNull
+  protected Path SoPath;
+  protected String soPath = SoPath.toString();
   private int framesInAVideo;
   private int framesPerSecond;
   private boolean webCam;

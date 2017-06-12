@@ -15,6 +15,9 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
+import javax.validation.constraints.NotNull;
+
+import org.apache.hadoop.fs.Path;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
@@ -31,7 +34,9 @@ import static org.opencv.imgcodecs.Imgcodecs.imread;
 public class ASASSN extends ToolKit
 {
   protected static final Logger LOG = LoggerFactory.getLogger(ASASSN.class);
-  protected String soPath = "/home/aditya/opencv-3.2.0/build/lib/libopencv_java320.so";
+  @NotNull
+  protected Path SoPath;
+  protected String soPath = SoPath.toString();
   public final transient DefaultOutputPort<Data2> outputScore = new DefaultOutputPort<>();
   protected int matches = 0;
   protected transient int notMatch = 0;
@@ -197,24 +202,9 @@ public class ASASSN extends ToolKit
                 // LOG.info("Should Match but did NOT! "+refImagePath);
               }
             }
-                    /*
-                    if (mmr.maxVal >= 0.95 && mmr.maxVal < 0.97)
-                    {
-                        referenceList.add(template);
-                    }*/
-            // Point matchLoc;
-            //matchLoc = mmr.maxLoc;
-            //rectangle(source, matchLoc, new Point(matchLoc.x + template.cols(), matchLoc.y + template.rows()),
-            // new Scalar(0, 255, 0));
           }
-          //writeMat(source,"/home/aditya/Desktop/xyzabc"+index+".jpg");
         }
       }
-
-      //LOG.info(fileName);
-      //LOG.info("Matches:"+matches);
-      //LOG.info("Not matches:"+notMatch);
-
     }
     templateList.clear();
     Data2 data2 = new Data2();

@@ -36,9 +36,6 @@ public class FileFormatConverter extends ToolKit
   {
     this.toFileType = toFileType;
   }
-  // public final transient DefaultOutputPort<Data> output1 = new DefaultOutputPort<>();
-  // public final transient DefaultOutputPort<Data> output2 = new DefaultOutputPort<>();
-
   protected void converter(Data data)
   {
     String fromFileType = ToolKit.fileType;

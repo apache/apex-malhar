@@ -10,6 +10,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
+import javax.validation.constraints.NotNull;
+
+import org.apache.hadoop.fs.Path;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -26,12 +29,13 @@ public class ToolKit extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(ToolKit.class);
   public static String fileType;
-  protected static String soPath = "/home/aditya/opencv-3.2.0/build/lib/libopencv_java320.so";
-  public final transient DefaultOutputPort<Data> output = new DefaultOutputPort<>();
+  @NotNull
+  protected Path SoPath;
+  protected String soPath = SoPath.toString();  public final transient DefaultOutputPort<Data> output = new DefaultOutputPort<>();
   public String filePath;
   public transient BufferedImage bufferedImage = null;
   protected int bufferedImageType;
-  ArrayList<Data> dataArrayList = new ArrayList<>();
+  //Planed ArrayList<Data> dataArrayList = new ArrayList<>();
   private int partitions;
   private transient StreamCodec streamCodec;
   public final transient DefaultInputPort<Data> input = new DefaultInputPort<Data>()

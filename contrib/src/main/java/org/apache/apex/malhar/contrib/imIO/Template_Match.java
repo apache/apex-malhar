@@ -13,12 +13,15 @@ import org.opencv.imgproc.Imgproc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.constraints.NotNull;
+
 import static org.opencv.imgcodecs.Imgcodecs.imread;
 import static org.opencv.imgproc.Imgproc.rectangle;
 
 public class Template_Match extends ToolKit
 {
   protected static final Logger LOG = LoggerFactory.getLogger(Template_Match.class);
+  @NotNull
   double matchThreshold;
   private ArrayList<Templates> templatesList = new ArrayList<>();
   private ArrayList<Templates> templatesCopyList = new ArrayList<>();

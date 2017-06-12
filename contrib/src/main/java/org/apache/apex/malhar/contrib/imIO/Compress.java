@@ -12,6 +12,8 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
+import javax.validation.constraints.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +22,7 @@ import org.slf4j.LoggerFactory;
 public class Compress extends ToolKit
 {
   private static final Logger LOG = LoggerFactory.getLogger(Compress.class);
+  @NotNull
   private float compressionRatio;
 
   public float getCompressionRatio()
