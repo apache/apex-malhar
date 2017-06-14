@@ -1,8 +1,23 @@
-package org.apache.apex.malhar.contrib.imIO;
-/*
- * imIO5.1
- * Created by Aditya Gholba on 3/4/17.
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
  */
+package org.apache.apex.malhar.contrib.imIO;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -92,7 +107,7 @@ public class FileReaderA extends AbstractFileInputOperator<Data>
     try {
       Thread.sleep(pauseTime);
     } catch (InterruptedException e) {
-      LOG.info("Sleep interrupted");
+      LOG.debug("Sleep interrupted");
     }
   }
 
@@ -118,8 +133,6 @@ public class FileReaderA extends AbstractFileInputOperator<Data>
       if (fitsPath.contains(":")) {
         fitsPath = fitsPath.replace("file:", "");
       }
-      LOG.info("ERR " + filePath.getParent() + "/" + filePath.getName());
-      LOG.info("ERR " + fitsPath);
       ImagePlus imagePlus = new ImagePlus(fitsPath);
       a = new FileSaver(imagePlus).serialize();
     }
@@ -140,7 +153,7 @@ public class FileReaderA extends AbstractFileInputOperator<Data>
   protected Data readEntity() throws IOException
   {
     //try{Thread.sleep(500);}catch (Exception e){LOG.info("Read Sleep"+e.getMessage());}
-    LOG.info("read entity was called" + currentFile);
+    LOG.debug("read entity was called" + currentFile);
     byte[] imageInByte = a;
     if (countImageSent < 1) {
       countImageSent++;
@@ -150,7 +163,7 @@ public class FileReaderA extends AbstractFileInputOperator<Data>
       data.fileName = filePath.getName().toString();
       return data;
     }
-    LOG.info("readEntity: EOF for {}", filePath);
+    LOG.debug("readEntity: EOF for {}", filePath);
     countImageSent = 0;
     return null;
   }
@@ -189,7 +202,7 @@ public class FileReaderA extends AbstractFileInputOperator<Data>
         }
       }
     }
-    LOG.info("send data from read " + countImageSent2);
+    LOG.info("sent data from read " + countImageSent2);
     output.emit(data);
     countImageSent2++;
     //output1.emit(data);

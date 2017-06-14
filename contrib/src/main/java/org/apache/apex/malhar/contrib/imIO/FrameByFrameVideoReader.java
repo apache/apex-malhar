@@ -1,17 +1,30 @@
-package org.apache.apex.malhar.contrib.imIO;
-/*
- * imIO5.1
- * Created by Aditya Gholba on 19/4/17.
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
  */
+package org.apache.apex.malhar.contrib.imIO;
+
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.imageio.ImageIO;
-import javax.validation.constraints.NotNull;
-
 import org.opencv.core.Mat;
-
 import org.opencv.videoio.VideoCapture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,12 +34,12 @@ import static org.opencv.videoio.Videoio.CAP_PROP_FPS;
 import static org.opencv.videoio.Videoio.CAP_PROP_FRAME_COUNT;
 import static org.opencv.videoio.Videoio.CV_CAP_FFMPEG;
 
+
 public class FrameByFrameVideoReader extends FileReaderA
 {
   private static final Logger LOG = LoggerFactory.getLogger(FrameByFrameVideoReader.class);
-  @NotNull
-  protected Path SoPath;
-  protected String soPath = SoPath.toString();
+  imIOHelper imIOHelper = new imIOHelper();
+  protected String soPath = imIOHelper.soPath;
   private int framesInAVideo;
   private int framesPerSecond;
   private boolean webCam;
@@ -148,7 +161,7 @@ public class FrameByFrameVideoReader extends FileReaderA
     }
     if (frameCheck == 0) {
       output.emit(data);
-      LOG.info("send data from read");
+      LOG.info("sent data from read");
     }
 
   }

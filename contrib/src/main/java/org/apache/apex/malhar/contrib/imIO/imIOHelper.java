@@ -1,18 +1,30 @@
-package org.apache.apex.malhar.contrib.imIO;
-/*
- * imIO4
- * Created by Aditya Gholba on 9/2/17.
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
  */
+package org.apache.apex.malhar.contrib.imIO;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.validation.constraints.NotNull;
-
-import org.apache.hadoop.fs.Path;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -25,19 +37,30 @@ import com.datatorrent.common.util.BaseOperator;
 
 
 
-public class ToolKit extends BaseOperator
+public class imIOHelper extends BaseOperator
 {
-  private static final Logger LOG = LoggerFactory.getLogger(ToolKit.class);
+  private static final Logger LOG = LoggerFactory.getLogger(imIOHelper.class);
   public static String fileType;
+
+  public String getSoPath()
+  {
+    return soPath;
+  }
+
+  public void setSoPath(String soPath)
+  {
+    this.soPath = soPath;
+  }
+
   @NotNull
-  protected Path SoPath;
-  protected String soPath = SoPath.toString();  public final transient DefaultOutputPort<Data> output = new DefaultOutputPort<>();
+  public String soPath;
+  public final transient DefaultOutputPort<Data> output = new DefaultOutputPort<>();
   public String filePath;
   public transient BufferedImage bufferedImage = null;
-  protected int bufferedImageType;
+  public int bufferedImageType;
   //Planed ArrayList<Data> dataArrayList = new ArrayList<>();
   private int partitions;
-  private transient StreamCodec streamCodec;
+  public transient StreamCodec streamCodec;
   public final transient DefaultInputPort<Data> input = new DefaultInputPort<Data>()
   {
 
@@ -86,15 +109,6 @@ public class ToolKit extends BaseOperator
     this.partitions = partitions;
   }
 
-  public String getSoPath()
-  {
-    return soPath;
-  }
-
-  public void setSoPath(String soPath)
-  {
-    this.soPath = soPath;
-  }
 
   protected Mat readMat(byte[] bytesImage)
   {
@@ -105,13 +119,13 @@ public class ToolKit extends BaseOperator
       bufferedImage = ImageIO.read(src);
       bufferedImageType = bufferedImage.getType();
     } catch (Exception e) {
-      LOG.info(e.getMessage());
+      LOG.debug("Error is " + e.getMessage());
     }
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     try {
       ImageIO.write(bufferedImage, "png", byteArrayOutputStream);
     } catch (Exception e) {
-      LOG.info(e.getMessage());
+      LOG.debug("Error is " + e.getMessage());
     }
     byte[] bytes = byteArrayOutputStream.toByteArray();
     return Imgcodecs.imdecode(new MatOfByte(bytes), Imgcodecs.CV_LOAD_IMAGE_UNCHANGED);
@@ -136,7 +150,7 @@ public class ToolKit extends BaseOperator
     try {
       ImageIO.write(bufferedImage1, "png", byteArrayOutputStream);
     } catch (Exception e) {
-      LOG.info(e.getMessage());
+      LOG.debug("Error is " + e.getMessage());
     }
     return byteArrayOutputStream.toByteArray();
 

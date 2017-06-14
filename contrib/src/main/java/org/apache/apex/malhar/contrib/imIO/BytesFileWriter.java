@@ -21,30 +21,52 @@ package org.apache.apex.malhar.contrib.imIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
+import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
 
-
-public class ImStreamCodec extends KryoSerializableStreamCodec
+public class BytesFileWriter extends AbstractFileOutputOperator<Data>
 {
-  protected static final Logger LOG = LoggerFactory.getLogger(ASASSN.class);
-  private int tupleNum;
-  private int partitions;
+  private static final transient Logger LOG = LoggerFactory.getLogger(BytesFileWriter.class);
 
-  ImStreamCodec(int partitions)
+  public String fileName;
+  private boolean eof;
+
+  @Override
+  protected byte[] getBytesForTuple(Data tuple)
   {
-    this.partitions = partitions;
+    eof = true;
+    return tuple.bytesImage;
   }
 
   @Override
-  public int getPartition(Object o)
+  protected String getFileName(Data tuple)
+  {
+    fileName = tuple.fileName;
+    LOG.info("fileName :" + fileName);
+    return tuple.fileName;
+  }
+
+  @Override
+  public void endWindow()
   {
 
-    int part = tupleNum % 10;
-    if (part > partitions) {
-      part = part - (partitions + 1);
+    if (!eof) {
+      LOG.debug("ERR no eof" + fileName);
+      return;
     }
-    LOG.info("TupNumIs " + part);
-    tupleNum++;
-    return part;
+    if (null == fileName) {
+      LOG.debug("ERR file name is null" + fileName);
+      return;
+    }
+    try {
+      finalizeFile(fileName);
+      Thread.sleep(100);
+    } catch (Exception e) {
+      LOG.debug("Finalize err " + e.getMessage());
+    }
+    super.endWindow();
+    eof = false;
+    fileName = null;
   }
+
+
 }
