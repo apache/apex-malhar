@@ -177,7 +177,9 @@ public class CacheManager implements Closeable
   @Override
   public void close() throws IOException
   {
-    refresher.cancel();
+    if (refresher != null) {
+      refresher.cancel();
+    }
     primary.disconnect();
     backup.disconnect();
   }
