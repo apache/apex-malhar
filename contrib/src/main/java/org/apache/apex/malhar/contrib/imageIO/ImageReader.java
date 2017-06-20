@@ -5,7 +5,7 @@
  * regarding copyright ownership.  The ASF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * with the License.  You may obtain imageInBytes copy of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -32,8 +32,8 @@ import ij.ImagePlus;
 import ij.io.FileSaver;
 
 /**
- * This in a file reader operator specifically for image processing.
- * It emits a Data POJO which contains the image data as byte array and the file name as String.
+ * This in imageInBytes file reader operator specifically for image processing.
+ * It emits imageInBytes Data POJO which contains the image data as byte array and the file name as String.
  * Data POJO is uniform across all operators under imageIO.
  * Image processing can be very CPU intensive and hence time consuming. It is recommended to use the slowDown=true
  * property and appropriately set slowDownMills (per tuple) to avoid back pressure on down stream operators.
@@ -49,7 +49,7 @@ public class ImageReader extends AbstractFileInputOperator<Data>
   public int countImageSent = 0;
   public int countImageSent2 = 0;
   public transient String filePathStr;
-  byte[] a;
+  byte[] imageInBytes;
   private boolean stop;
   private transient int pauseTime;
   private transient Path filePath;
@@ -95,7 +95,7 @@ public class ImageReader extends AbstractFileInputOperator<Data>
       return;
     }
 
-    // we have end-of-file, so emit no further tuples till next window; relax for a bit
+    // we have end-of-file, so emit no further tuples till next window; relax for imageInBytes bit
     try {
       Thread.sleep(pauseTime);
     } catch (InterruptedException e) {
@@ -119,14 +119,14 @@ public class ImageReader extends AbstractFileInputOperator<Data>
     LOG.info("readOpen " + START_FILE + filePath.getName());
     InputStream is = super.openFile(filePath);
     if (!filePathStr.contains(".fits")) {
-      a = IOUtils.toByteArray(is);
+      imageInBytes = IOUtils.toByteArray(is);
     } else {
       String fitsPath = filePath.getParent().toString() + "/" + filePath.getName();
       if (fitsPath.contains(":")) {
         fitsPath = fitsPath.replace("file:", "");
       }
       ImagePlus imagePlus = new ImagePlus(fitsPath);
-      a = new FileSaver(imagePlus).serialize();
+      imageInBytes = new FileSaver(imagePlus).serialize();
     }
     return is;
   }
@@ -146,11 +146,10 @@ public class ImageReader extends AbstractFileInputOperator<Data>
   {
     //try{Thread.sleep(500);}catch (Exception e){LOG.info("Read Sleep"+e.getMessage());}
     LOG.debug("read entity was called" + currentFile);
-    byte[] imageInByte = a;
     if (countImageSent < 1) {
       countImageSent++;
       Data data = new Data();
-      data.bytesImage = imageInByte;
+      data.bytesImage = imageInBytes;
       data.fileName = filePath.getName().toString();
       return data;
     }

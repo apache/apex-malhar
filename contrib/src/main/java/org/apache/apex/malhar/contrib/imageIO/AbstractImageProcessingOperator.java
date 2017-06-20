@@ -5,7 +5,7 @@
  * regarding copyright ownership.  The ASF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * with the License.  You may obtain imageInBytes copy of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -47,7 +47,7 @@ public abstract class AbstractImageProcessingOperator extends BaseOperator
   public String filePath;
   public transient BufferedImage bufferedImage = null;
   public int bufferedImageType;
-  //Planed ArrayList<Data> dataArrayList = new ArrayList<>();
+  String[] compatibleFileTyes = {"jpg", "png", "jpeg", "fits", "gif", "tif"};
   public final transient DefaultInputPort<Data> input = new DefaultInputPort<Data>()
   {
 
@@ -56,23 +56,16 @@ public abstract class AbstractImageProcessingOperator extends BaseOperator
     {
       filePath = tuple.fileName;
       fileType = "jpg";
-      if (filePath.contains(".png")) {
-        fileType = "png";
-      }
-      if (filePath.contains(".jpg")) {
-        fileType = "jpg";
-      }
-      if (filePath.contains(".jpeg")) {
-        fileType = "jpeg";
-      }
-      if (filePath.contains(".fits")) {
-        fileType = "fits";
-      }
-      if (filePath.contains(".gif")) {
-        fileType = "gif";
-      }
-      if (filePath.contains(".tif")) {
-        fileType = "tif";
+      for( int i = 0; i < compatibleFileTyes.length; i++)
+      {
+        if( filePath.contains(compatibleFileTyes[i]))
+        {
+          fileType = compatibleFileTyes[i];
+          if( fileType.equalsIgnoreCase("jpeg"))
+          {
+            fileType = "jpg";
+          }
+        }
       }
       LOG.info("file type" + fileType);
       processTuple(tuple);
