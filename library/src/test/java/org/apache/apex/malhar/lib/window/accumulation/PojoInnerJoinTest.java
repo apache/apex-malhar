@@ -320,4 +320,72 @@ public class PojoInnerJoinTest
     Assert.assertEquals(null, testOutClass.getUName());
     Assert.assertEquals(12, testOutClass.getAge());
   }
+
+  @Test
+  public void PojoInnerJoinTestDuplicateKeysLeftTable()
+  {
+    String[] leftKeys = {"uId", "uName"};
+    String[] rightKeys = {"uId", "uNickName"};
+    PojoInnerJoin<TestPojo1, TestPojo3> pij = new PojoInnerJoin<>(TestOutMultipleKeysClass.class, leftKeys, rightKeys);
+
+    List<Multimap<List<Object>, Object>> accu = pij.defaultAccumulatedValue();
+
+    Assert.assertEquals(2, accu.size());
+
+    accu = pij.accumulate(accu, new TestPojo1(1, "Josh"));
+    accu = pij.accumulate(accu, new TestPojo1(1, "Josh"));
+
+    accu = pij.accumulate2(accu, new TestPojo3(1, "Josh", 12));
+    accu = pij.accumulate2(accu, new TestPojo3(3, "ECE", 13));
+
+    Assert.assertEquals(2, pij.getOutput(accu).size());
+    for (int i = 0; i < 2; i++) {
+      Object o = pij.getOutput(accu).get(i);
+      Assert.assertTrue(o instanceof TestOutMultipleKeysClass);
+      TestOutMultipleKeysClass testOutClass = (TestOutMultipleKeysClass)o;
+      Assert.assertEquals(1, testOutClass.getUId());
+      Assert.assertEquals("Josh", testOutClass.getUName());
+      Assert.assertEquals(12, testOutClass.getAge());
+    }
+  }
+
+  @Test
+  public void PojoInnerJoinTestDuplicateKeysRightTable()
+  {
+    String[] leftKeys = {"uId", "uName"};
+    String[] rightKeys = {"uId", "uNickName"};
+    PojoInnerJoin<TestPojo1, TestPojo3> pij = new PojoInnerJoin<>(TestOutMultipleKeysClass.class, leftKeys, rightKeys);
+
+    List<Multimap<List<Object>, Object>> accu = pij.defaultAccumulatedValue();
+
+    Assert.assertEquals(2, accu.size());
+
+    accu = pij.accumulate(accu, new TestPojo1(1, "Josh"));
+    accu = pij.accumulate(accu, new TestPojo1(2, "Bob"));
+
+    accu = pij.accumulate2(accu, new TestPojo3(1, "Josh", 12));
+    accu = pij.accumulate2(accu, new TestPojo3(1, "Josh", 13));
+
+    Assert.assertEquals(2, pij.getOutput(accu).size());
+    int[] age = new int[2];
+    for (int i = 0; i < 2; i++) {
+      Object o = pij.getOutput(accu).get(i);
+      Assert.assertTrue(o instanceof TestOutMultipleKeysClass);
+      TestOutMultipleKeysClass testOutClass = (TestOutMultipleKeysClass)o;
+      Assert.assertEquals(1, testOutClass.getUId());
+      Assert.assertEquals("Josh", testOutClass.getUName());
+      age[i] = testOutClass.getAge();
+    }
+    if (age[0] == 12) {
+      if (age[1] != 13) {
+        Assert.fail("Incorrect age");
+      }
+    } else if (age[0] == 13) {
+      if (age[1] != 12) {
+        Assert.fail("Incorrect age");
+      }
+    } else {
+      Assert.fail("Incorrect age");
+    }
+  }
 }
