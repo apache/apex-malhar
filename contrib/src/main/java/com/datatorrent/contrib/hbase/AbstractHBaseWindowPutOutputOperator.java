@@ -19,21 +19,15 @@
 package com.datatorrent.contrib.hbase;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
-
-import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Put;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
 
 /**
  * A base implementation of an AggregateTransactionableStoreOutputOperator operator for storing tuples in HBase rows and provides a batch put.Subclasses should provide implementation for put operation. <br>
@@ -46,8 +40,6 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperato
  * the tuple in the table.<br>
  *
  * <br>
- * This class provides a batch put where tuples are collected till the end
- * window and they are put on end window
  *
  * Note that since HBase doesn't support transactions this store cannot
  * guarantee each tuple is written only once to HBase in case the operator is
@@ -63,15 +55,17 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperato
  *            The tuple type
  * @since 1.0.2
  */
-public abstract class AbstractHBaseWindowPutOutputOperator<T> extends AbstractAggregateTransactionableStoreOutputOperator<T, HBaseWindowStore> {
+public abstract class AbstractHBaseWindowPutOutputOperator<T> extends AbstractHBaseWindowOutputOperator<T> {
   private static final transient Logger logger = LoggerFactory.getLogger(AbstractHBaseWindowPutOutputOperator.class);
-  private List<T> tuples;
   private transient ProcessingMode mode;
+  
+  @Deprecated
   public ProcessingMode getMode()
   {
     return mode;
   }
 
+  @Deprecated
   public void setMode(ProcessingMode mode)
   {
     this.mode = mode;
@@ -79,43 +73,21 @@ public abstract class AbstractHBaseWindowPutOutputOperator<T> extends AbstractAg
 
   public AbstractHBaseWindowPutOutputOperator() {
     store = new HBaseWindowStore();
-    tuples = new ArrayList<T>();
   }
 
   @Override
-  public void storeAggregate() {
-    HTable table = store.getTable();
-    Iterator<T> it = tuples.iterator();
-    while (it.hasNext()) {
-      T t = it.next();
-      try {
-        Put put = operationPut(t);
-        table.put(put);
-      } catch (IOException e) {
-        logger.error("Could not output tuple", e);
-        DTThrowable.rethrow(e);
-      }
-
-    }
+  public void processTuple(T tuple, HTable table) {
     try {
-      table.flushCommits();
-    } catch (RetriesExhaustedWithDetailsException e) {
-      logger.error("Could not output tuple", e);
-      DTThrowable.rethrow(e);
-    } catch (InterruptedIOException e) {
+      Put put = operationPut(tuple);
+      table.put(put);
+    } catch (IOException e) {
       logger.error("Could not output tuple", e);
       DTThrowable.rethrow(e);
     }
-    tuples.clear();
   }
 
 
   public abstract Put operationPut(T t) throws IOException;
-
-  @Override
-  public void processTuple(T tuple) {
-    tuples.add(tuple);
-  }
 
   @Override
   public void setup(OperatorContext context)
@@ -123,9 +95,6 @@ public abstract class AbstractHBaseWindowPutOutputOperator<T> extends AbstractAg
     mode=context.getValue(context.PROCESSING_MODE);
     if(mode==ProcessingMode.EXACTLY_ONCE){
       throw new RuntimeException("This operator only supports atmost once and atleast once processing modes");
-    }
-    if(mode==ProcessingMode.AT_MOST_ONCE){
-      tuples.clear();
     }
     super.setup(context);
   }

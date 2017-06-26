@@ -19,14 +19,27 @@
 package com.datatorrent.contrib.hbase;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.util.Map;
+
+import javax.validation.constraints.Min;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
 import org.apache.hadoop.security.UserGroupInformation;
+
+import com.google.common.base.Throwables;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 
 import com.datatorrent.lib.db.Connectable;
 /**
@@ -45,6 +58,8 @@ public class HBaseStore implements Connectable {
 
   private String zookeeperQuorum;
   private int zookeeperClientPort;
+  
+  // Default table name if specified
   protected String tableName;
 
   protected String principal;
@@ -55,7 +70,13 @@ public class HBaseStore implements Connectable {
   private volatile transient boolean doRelogin;
 
   protected transient HTable table;
+  // Multi - table
+  protected String[] allowedTableNames;
+  protected transient LoadingCache<String, HTable> tableCache;
 
+  @Min(1)
+  protected int maxOpenTables = Integer.MAX_VALUE;
+  
   /**
    * Get the zookeeper quorum location.
    *
@@ -177,6 +198,21 @@ public class HBaseStore implements Connectable {
   }
 
   /**
+   * Gets the allowedtableNames
+   * 
+   * @return  allowedTableNames 
+   */
+  public String[] getAllowedTableNames()
+  {
+    return allowedTableNames;
+  }
+
+  public void setAllowedTableNames(String[] allowedTableNames)
+  {
+    this.allowedTableNames = allowedTableNames;
+  }
+  
+  /**
    * Get the HBase table .
    *
    * @return The HBase table
@@ -186,6 +222,38 @@ public class HBaseStore implements Connectable {
     return table;
   }
 
+  /**
+   * Get the HBase table for the given table name.
+   *
+   * @param tableName The name of the table
+   *
+   * @return The HBase table
+   * @omitFromUI
+   */
+  public HTable getTable(String tableName) {
+    if ((tableName == null) || tableName.equals(this.tableName))
+      return getTable();
+    try {
+      return tableCache.get(tableName);
+    } catch (Exception e) {
+      throw Throwables.propagate(e);
+    }
+  }
+  
+  public void flushTables() throws InterruptedIOException, RetriesExhaustedWithDetailsException
+  {
+    if (table != null) {
+      flushTable(table);
+    }
+    for (Map.Entry<String, HTable> entry : tableCache.asMap().entrySet()) {
+      flushTable(entry.getValue());
+    }
+  }
+  
+  protected void flushTable(HTable table) throws InterruptedIOException, RetriesExhaustedWithDetailsException
+  {
+    table.flushCommits();
+  }
 
   /**
    * Get the configuration.
@@ -249,9 +317,57 @@ public class HBaseStore implements Connectable {
     if (zookeeperClientPort != 0) {
       configuration.set("hbase.zookeeper.property.clientPort", "" + zookeeperClientPort);
     }
-    table = new HTable(configuration, tableName);
-    table.setAutoFlushTo(false);
+    
+    // Connect to default table if specified
+    if (tableName != null) {
+      table = connectTable(tableName);
+    }
+    
+    CacheLoader<String, HTable> cacheLoader = new CacheLoader<String, HTable>()
+    {
+      @Override
+      public HTable load(String key) throws Exception
+      {
+        return loadTable(key);
+      }
+    };
+    
+    RemovalListener<String, HTable> removalListener = new RemovalListener<String, HTable>()
+    {
+      @Override
+      public void onRemoval(RemovalNotification<String, HTable> notification)
+      {
+        unloadTable(notification.getValue());
+      }
+    };
+    
+    int maxCacheSize = (tableName == null) ? maxOpenTables : (maxOpenTables - 1);
+    
+    tableCache = CacheBuilder.<String, HTable>newBuilder().maximumSize(maxCacheSize).removalListener(removalListener).build(cacheLoader);
+  }
 
+  protected HTable loadTable(String tableName) throws IOException
+  {
+    if ((allowedTableNames != null) && !ArrayUtils.contains(allowedTableNames, tableName)) {
+      return null;
+    }
+    return connectTable(tableName);
+  }
+
+  protected void unloadTable(HTable table)
+  {
+    try {
+      table.close();
+    } catch (IOException e) {
+      logger.warn("Could not close table", e);
+    }
+  }
+  
+  protected HTable connectTable(String tableName) throws IOException
+  {
+    HTable table = new HTable(configuration, tableName);
+    table.setAutoFlushTo(false);
+    return table;
   }
 
   private String evaluateProperty(String property) throws IOException
@@ -281,4 +397,13 @@ public class HBaseStore implements Connectable {
     return false;
   }
 
+  public int getMaxOpenTables()
+  {
+    return maxOpenTables;
+  }
+
+  public void setMaxOpenTables(int maxOpenTables)
+  {
+    this.maxOpenTables = maxOpenTables;
+  }
 }

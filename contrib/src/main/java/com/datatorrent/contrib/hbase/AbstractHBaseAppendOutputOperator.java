@@ -20,15 +20,17 @@ package com.datatorrent.contrib.hbase;
 
 import java.io.IOException;
 
-import org.apache.hadoop.hbase.client.Append;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.hadoop.hbase.client.Append;
+import org.apache.hadoop.hbase.client.HTable;
+
 import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
 /**
- * A base implementation of a StoreOutputOperator operator that stores tuples in HBase columns and offers non-transactional append.&nbsp; Subclasses should provide implementation for appending operations. <br>
+ * A base implementation of a StoreOutputOperator operator that stores tuples in HBase columns and offers 
+ * non-transactional append.&nbsp; Subclasses should provide implementation for appending operations. <br>
  * <p>
  * <br>
  * This class provides a HBase output operator that can be used to store tuples
@@ -47,8 +49,7 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  *            The tuple type
  * @since 1.0.2
  */
-public abstract class AbstractHBaseAppendOutputOperator<T>
-extends AbstractStoreOutputOperator<T, HBaseStore> {
+public abstract class AbstractHBaseAppendOutputOperator<T> extends AbstractHBaseOutputOperator<T> {
   private static final transient Logger logger = LoggerFactory
       .getLogger(AbstractHBaseAppendOutputOperator.class);
 
@@ -57,10 +58,10 @@ extends AbstractStoreOutputOperator<T, HBaseStore> {
   }
 
   @Override
-  public void processTuple(T tuple) {
+  public void processTuple(T tuple, HTable table) {
     Append append = operationAppend(tuple);
     try {
-      store.getTable().append(append);
+      table.append(append);
     } catch (IOException e) {
       logger.error("Could not append tuple", e);
       DTThrowable.rethrow(e);

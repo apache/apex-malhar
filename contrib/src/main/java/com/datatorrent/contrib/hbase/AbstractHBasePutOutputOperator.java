@@ -20,17 +20,12 @@ package com.datatorrent.contrib.hbase;
 
 import java.io.InterruptedIOException;
 
-import javax.validation.constraints.Min;
-
-import com.datatorrent.api.Operator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
-
-import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -53,7 +48,7 @@ import com.datatorrent.netlet.util.DTThrowable;
  *            The tuple type
  * @since 1.0.2
  */
-public abstract class AbstractHBasePutOutputOperator<T> extends AbstractStoreOutputOperator<T, HBaseStore> implements Operator.CheckpointNotificationListener {
+public abstract class AbstractHBasePutOutputOperator<T> extends AbstractHBaseOutputOperator<T> {
   private static final transient Logger logger = LoggerFactory.getLogger(AbstractHBasePutOutputOperator.class);
 
   public AbstractHBasePutOutputOperator()
@@ -62,9 +57,8 @@ public abstract class AbstractHBasePutOutputOperator<T> extends AbstractStoreOut
   }
 
   @Override
-  public void processTuple(T tuple)
+  public void processTuple(T tuple, HTable table)
   {
-    HTable table = store.getTable();
     Put put = operationPut(tuple);
     try {
       table.put(put);
@@ -75,28 +69,6 @@ public abstract class AbstractHBasePutOutputOperator<T> extends AbstractStoreOut
       logger.error("Could not output tuple", e);
       DTThrowable.rethrow(e);
     }
-  }
-
-  @Override
-  public void beforeCheckpoint(long windowId)
-  {
-    try {
-      store.getTable().flushCommits();
-    } catch (InterruptedIOException e) {
-      DTThrowable.rethrow(e);
-    } catch (RetriesExhaustedWithDetailsException e) {
-      DTThrowable.rethrow(e);
-    }
-  }
-
-  @Override
-  public void checkpointed(long l) {
-
-  }
-
-  @Override
-  public void committed(long l) {
-
   }
 
   public abstract Put operationPut(T t);

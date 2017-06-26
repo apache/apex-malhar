@@ -19,21 +19,15 @@
 package com.datatorrent.contrib.hbase;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
-import org.apache.hadoop.hbase.client.Append;
-import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.hadoop.hbase.client.Append;
+import org.apache.hadoop.hbase.client.HTable;
+
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Operator.ProcessingMode;
 import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
 
 /**
  * A base implementation of an AggregateTransactionableStoreOutputOperator operator that stores tuples in HBase columns and provides batch append.&nbsp; Subclasses should provide implementation for appending operations. <br>
@@ -46,8 +40,6 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperato
  * for the tuple in the table.<br>
  *
  * <br>
- * This class provides batch append where tuples are collected till the end
- * window and they are appended on end window
  *
  * Note that since HBase doesn't support transactions this store cannot
  * guarantee each tuple is written only once to HBase in case the operator is
@@ -63,15 +55,20 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperato
  *            The tuple type
  * @since 1.0.2
  */
-public abstract class AbstractHBaseWindowAppendOutputOperator<T> extends AbstractAggregateTransactionableStoreOutputOperator<T, HBaseWindowStore> {
+public abstract class AbstractHBaseWindowAppendOutputOperator<T> extends AbstractHBaseWindowOutputOperator<T> {
   private static final transient Logger logger = LoggerFactory.getLogger(AbstractHBaseWindowAppendOutputOperator.class);
-  private List<T> tuples;
   private transient ProcessingMode mode;
+
+  /**
+   * Processing mode being a common platform feature should be set as an attribute.
+   * Even if the property is set, it wouldn't effect how the platform would process that feature for the operator. */
+  @Deprecated
   public ProcessingMode getMode()
   {
     return mode;
   }
 
+  @Deprecated
   public void setMode(ProcessingMode mode)
   {
     this.mode = mode;
@@ -79,34 +76,17 @@ public abstract class AbstractHBaseWindowAppendOutputOperator<T> extends Abstrac
 
   public AbstractHBaseWindowAppendOutputOperator() {
     store = new HBaseWindowStore();
-    tuples = new ArrayList<T>();
   }
 
   @Override
-  public void storeAggregate() {
-    HTable table = store.getTable();
-    Iterator<T> it = tuples.iterator();
-    while (it.hasNext()) {
-      T t = it.next();
-      try {
-        Append append = operationAppend(t);
-        table.append(append);
-      } catch (IOException e) {
-        logger.error("Could not output tuple", e);
-        DTThrowable.rethrow(e);
-      }
-
-    }
+  public void processTuple(T tuple, HTable table) {
     try {
-      table.flushCommits();
-    } catch (RetriesExhaustedWithDetailsException e) {
-      logger.error("Could not output tuple", e);
-      DTThrowable.rethrow(e);
-    } catch (InterruptedIOException e) {
+      Append append = operationAppend(tuple);
+      table.append(append);
+    } catch (IOException e) {
       logger.error("Could not output tuple", e);
       DTThrowable.rethrow(e);
     }
-    tuples.clear();
   }
 
   /**
@@ -121,19 +101,11 @@ public abstract class AbstractHBaseWindowAppendOutputOperator<T> extends Abstrac
   public abstract Append operationAppend(T t);
 
   @Override
-  public void processTuple(T tuple) {
-    tuples.add(tuple);
-  }
-
-  @Override
   public void setup(OperatorContext context)
   {
-    mode=context.getValue(context.PROCESSING_MODE);
+    mode=context.getValue(OperatorContext.PROCESSING_MODE);
     if(mode==ProcessingMode.EXACTLY_ONCE){
       throw new RuntimeException("This operator only supports atmost once and atleast once processing modes");
-    }
-    if(mode==ProcessingMode.AT_MOST_ONCE){
-      tuples.clear();
     }
     super.setup(context);
   }

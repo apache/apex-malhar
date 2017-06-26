@@ -18,18 +18,26 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.lib.db.TransactionableStore;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.client.*;
-import org.apache.hadoop.hbase.util.Bytes;
+import java.io.IOException;
+import java.io.InterruptedIOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InterruptedIOException;
+import org.apache.hadoop.hbase.HColumnDescriptor;
+import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
+import org.apache.hadoop.hbase.util.Bytes;
+
+import com.google.common.base.Throwables;
+
+import com.datatorrent.lib.db.TransactionableStore;
+import com.datatorrent.netlet.util.DTThrowable;
 /**
  * <p>Provides transaction support to the operators by implementing TransactionableStore abstract methods. </p>
  * <p>
@@ -126,25 +134,28 @@ public class HBaseWindowStore extends HBaseStore implements TransactionableStore
 
   @Override
   public void beginTransaction() {
-    // HBase does support transactions so this method left empty
+    // HBase does not support transactions so this method left empty
 
   }
 
   @Override
   public void commitTransaction() {
-    // HBase does support transactions so this method left empty
-
+    try {
+      flushTables();
+    } catch (InterruptedIOException | RetriesExhaustedWithDetailsException e) {
+      throw Throwables.propagate(e);
+    }
   }
 
   @Override
   public void rollbackTransaction() {
-    // HBase does support transactions so this method left empty
+    // HBase does not support transactions so this method left empty
 
   }
 
   @Override
   public boolean isInTransaction() {
-    // HBase does support transactions so this method left empty
+    // HBase does not support transactions so this method left empty
     return false;
   }
 
