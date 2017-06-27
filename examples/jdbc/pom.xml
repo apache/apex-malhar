@@ -23,11 +23,11 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>malhar-examples-JDBC</artifactId>
+  <artifactId>malhar-examples-jdbc</artifactId>
   <packaging>jar</packaging>
   
   <name>Apache Apex Malhar JDBC Examples</name>
-  <description>Demostrates the JDBC Examples</description>
+  <description>Apache Apex Malhar JDBC Examples</description>
 
   <parent>
     <groupId>org.apache.apex</groupId>

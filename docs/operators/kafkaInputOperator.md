@@ -398,33 +398,39 @@ public class ExampleKafkaApplication implements StreamingApplication
   }
 }
 ```
-Below is the configuration for “test” Kafka topic name and
-“localhost:9092” is the Broker:
+Below is the configuration for topic “test” and broker “localhost:9092”:
 
 ```xml
 <property>
-  <name>dt.operator.MessageReader.prop.topics</name>
+  <name>apex.operator.MessageReader.prop.topics</name>
   <value>test</value>
 </property>
 
 <property>
-  <name>dt.operator.KafkaInputOperator.prop.clusters</nam>
+  <name>apex.operator.KafkaInputOperator.prop.clusters</name>
   <value>localhost:9092</value>
 </property>
 ```
 
-By adding following lines to properties file, Kafka Input Operator supports multi-topic and multi-cluster:
+Multiple topics can be specified as a comma-separated list; similarly, multiple clusters can be specified as a semicolon-separated list; for example:
  
 ```xml
 <property>
-  <name>dt.operator.MessageReader.prop.topics</name>
+  <name>apex.operator.MessageReader.prop.topics</name>
   <value>test1, test2</value>
 </property>
  
 <property>
-  <name>dt.operator.KafkaInputOperator.prop.clusters</nam>
+  <name>apex.operator.KafkaInputOperator.prop.clusters</nam>
   <value>localhost:9092; localhost:9093; localhost:9094</value>
 </property>
 ```
 
-For a full example application project, refer to https://github.com/DataTorrent/examples/tree/master/tutorials/kafka
+A full example application project can be found [here](https://github.com/apache/apex-malhar/tree/master/examples/kafka).
+
+### Security
+
+Kafka from 0.9.x onwards supports [Authentication, Encryption and Authorization](https://kafka.apache.org/090/documentation.html#security_overview).
+
+See [here](http://apache-apex-users-list.78494.x6.nabble.com/kafka-td1089.html) for more information.
+
