@@ -202,6 +202,7 @@
     <module>s3</module>
     <module>jdbc</module>
     <module>exactly-once</module>
+    <module>nyctaxi</module>
   </modules>
 
   <dependencies>

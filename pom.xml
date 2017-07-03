@@ -65,13 +65,13 @@
         <configuration>
           <excludes combine.children="append">
             <exclude>**/src/test/resources/**/sample_logs/**</exclude>
-            <exclude>src/test/resources/*.csv</exclude>
             <exclude>src/test/resources/*.xsd</exclude>
             <exclude>**/src/main/resources/com/datatorrent/apps/logstream/**</exclude>
             <exclude>src/main/c/zmq_push/Makefile</exclude>
             <exclude>src/test/resources/com/datatorrent/contrib/romesyndication/*.rss</exclude>
             <exclude>**/*.md</exclude>
             <exclude>**/*.yml</exclude>
+            <exclude>**/*.csv</exclude>
             <exclude>.mvn/jvm.config</exclude>
           </excludes>
           <mapping combine.children="append">
@@ -92,7 +92,6 @@
         <configuration>
           <excludes combine.children="append">
             <exclude>**/src/test/resources/**/sample_logs/**</exclude>
-            <exclude>src/test/resources/*.csv</exclude>
             <exclude>src/test/resources/*.xsd</exclude>
             <exclude>**/src/main/resources/com/datatorrent/apps/logstream/**</exclude>
             <exclude>src/main/c/zmq_push/Makefile</exclude>
@@ -101,6 +100,7 @@
             <exclude>**/*.json</exclude>
             <exclude>**/*.md</exclude>
             <exclude>**/*.yml</exclude>
+            <exclude>**/*.csv</exclude>
             <exclude>.mvn/jvm.config</exclude>
           </excludes>
         </configuration>

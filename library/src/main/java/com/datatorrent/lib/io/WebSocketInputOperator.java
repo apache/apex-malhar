@@ -207,7 +207,6 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
         @Override
         public void onMessage(String string)
         {
-          LOG.debug("Got: " + string);
           try {
             T o = convertMessage(string);
             if (!(skipNull && o == null)) {
