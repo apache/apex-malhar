@@ -68,8 +68,9 @@ public class JdbcPollInputOperator extends AbstractJdbcPollInputOperator<String>
   {
     StringBuilder resultTuple = new StringBuilder();
     try {
-      for (String obj : emitColumns) {
-        resultTuple.append(rs.getObject(obj) + ",");
+      int columnCount = rs.getMetaData().getColumnCount();
+      for (int i = 0; i < columnCount; i++) {
+        resultTuple.append(rs.getObject(i + 1) + ",");
       }
       return resultTuple.substring(0, resultTuple.length() - 1); //remove last comma
     } catch (SQLException e) {

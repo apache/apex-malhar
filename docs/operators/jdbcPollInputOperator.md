@@ -26,10 +26,10 @@ JDBC Poller Input operator addresses the first issue with an asynchronous worker
 Assumption is that there is an ordered column using which range queries can be formed. That means database has a column or combination of columns which has unique constraint as well as every newly inserted record should have column value more than max value in that column, as we poll only appended records.
 
 ## Use cases
-1. Scan huge database tables to either copy to other database or process it using **Apache Apex**. An example application using this operator to copy database contents to HDFS is available in the [examples repository](https://github.com/DataTorrent/examples/tree/master/tutorials/jdbcIngest). Look for "PollJdbcToHDFSApp" for example of this particular operator.
+1. Ingest large database tables. An example application that copies database contents to HDFS is available [here](https://github.com/apache/apex-malhar/blob/master/examples/jdbc/src/main/java/org/apache/apex/examples/JdbcIngest/JdbcPollerApplication.java).
 
 ## How to Use?
-The tuple type in the abstract class is a generic parameter. Concrete subclasses need to choose an appropriate class (such as String or an appropriate concrete java class, having no-argument constructor so that it can be serialized using kyro). Also implement a couple of abstract methods: `getTuple(ResultSet)` to convert database rows to objects of concrete class and `emitTuple(T)` to emit the tuple.
+The tuple type in the abstract class is a generic parameter. Concrete subclasses need to choose an appropriate class (such as String or an appropriate concrete java class, having no-argument constructor so that it can be serialized using Kryo). Also implement a couple of abstract methods: `getTuple(ResultSet)` to convert database rows to objects of concrete class and `emitTuple(T)` to emit the tuple.
 
 In principle, no ports need be defined in the rare case that the operator simply writes tuples to some external sink or merely maintains aggregated statistics. But in most common scenarios, the tuples need to be sent to one or more downstream operators for additional processing such as parsing, enrichment or aggregation; in such cases, appropriate output ports are defined and the emitTuple(T) implementation dispatches tuples to the desired output ports.
 
@@ -46,7 +46,7 @@ Only static partitioning is supported for JDBC Poller Input Operator. Configure 
 
 ```xml
   <property>
-    <name>dt.operator.{OperatorName}.prop.partitionCount</name>
+    <name>apex.operator.{OperatorName}.prop.partitionCount</name>
     <value>4</value>
   </property>
 ```
@@ -62,8 +62,7 @@ Not supported.
 1. Operator location: ***malhar-library***
 2. Available since: ***3.5.0***
 3. Operator state: ***Evolving***
-4. Java Packages:
-    * Operator: ***[com.datatorrent.lib.db.jdbc.AbstractJdbcPollInputOperator](https://www.datatorrent.com/docs/apidocs/com/datatorrent/lib/db/jdbc/AbstractJdbcPollInputOperator.html)***
+4. Java Packages: ***[AbstractJdbcPollInputOperator](https://ci.apache.org/projects/apex-malhar/apex-malhar-javadoc-release-3.7/com/datatorrent/lib/db/jdbc/package-summary.html)***
 
 JDBC Poller is **idempotent**, **fault-tolerant** and **statically partitionable**.
 
@@ -99,27 +98,27 @@ Of these only `store` properties, `tableName`, `columnsExpression` and `key` are
 
 ```xml
 <property>
-  <name>dt.operator.{OperatorName}.prop.tableName</name>
+  <name>apex.operator.{OperatorName}.prop.tableName</name>
   <value>mytable</value>
 </property>
 <property>
-  <name>dt.operator.{OperatorName}.prop.columnsExpression</name>
+  <name>apex.operator.{OperatorName}.prop.columnsExpression</name>
   <value>column1,column2,column4</value>
 </property>
 <property>
-  <name>dt.operator.{OperatorName}.prop.key</name>
+  <name>apex.operator.{OperatorName}.prop.key</name>
   <value>keycolumn</value>
 </property>
 <property>
-  <name>dt.operator.{OperatorName}.prop.store.databaseDriver</name>
+  <name>apex.operator.{OperatorName}.prop.store.databaseDriver</name>
   <value>com.mysql.jdbc.Driver</value>
 </property>
 <property>
-  <name>dt.operator.{OperatorName}.prop.store.databaseUrl</name>
+  <name>apex.operator.{OperatorName}.prop.store.databaseUrl</name>
   <value>jdbc:mysql://localhost:3306/mydb</value>
 </property>
 <property>
-  <name>dt.operator.{OperatorName}.prop.store.connectionProps</name>
+  <name>apex.operator.{OperatorName}.prop.store.connectionProps</name>
   <value>user:myuser,password:mypassword</value>
 </property>
 ```
@@ -147,7 +146,7 @@ This operator defines following additional properties beyond those defined in th
 
 | **Property** | **Description** | **Type** | **Mandatory** | **Default Value** |
 | -------- | ----------- | ---- | ------------------ | ------------- |
-| *fieldInfos*| [FieldInfo](https://www.datatorrent.com/docs/apidocs/com/datatorrent/lib/util/FieldInfo.html) maps a store column to a POJO field name.| List | Yes | N/A |
+| *fieldInfos*| Maps columns to POJO field names.| List | Yes | N/A |
 
 #### Platform Attributes that influence operator behavior
 | **Attribute** | **Description** | **Type** | **Mandatory** |

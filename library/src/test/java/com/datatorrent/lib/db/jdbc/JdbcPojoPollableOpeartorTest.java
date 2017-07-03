@@ -87,7 +87,7 @@ public class JdbcPojoPollableOpeartorTest extends JdbcOperatorTest
   }
 
   @Test
-  public void testDBPoller() throws InterruptedException
+  public void testDBPoller() throws Exception
   {
     insertEvents(10, true, 0);
 
@@ -179,7 +179,7 @@ public class JdbcPojoPollableOpeartorTest extends JdbcOperatorTest
   {
     int operatorId = 1;
     when(windowDataManagerMock.getLargestCompletedWindow()).thenReturn(1L);
-    when(windowDataManagerMock.retrieve(1)).thenReturn(new MutablePair<Integer, Integer>(0, 4));
+    when(windowDataManagerMock.retrieve(1)).thenReturn(new MutablePair<>(0, 4));
 
     insertEvents(10, true, 0);
 
@@ -207,7 +207,8 @@ public class JdbcPojoPollableOpeartorTest extends JdbcOperatorTest
     inputOperator.setFetchSize(100);
     inputOperator.setBatchSize(100);
     inputOperator.lastEmittedRow = 0; //setting as not calling partition logic
-    inputOperator.rangeQueryPair = new KeyValPair<Integer, Integer>(0, 8);
+    inputOperator.isPollerPartition = true;
+    inputOperator.rangeQueryPair = new KeyValPair<>(0, 8);
 
     inputOperator.outputPort.setup(tpc);
     inputOperator.setScheduledExecutorService(mockscheduler);
@@ -219,15 +220,17 @@ public class JdbcPojoPollableOpeartorTest extends JdbcOperatorTest
     inputOperator.outputPort.setSink(sink);
     inputOperator.beginWindow(0);
     verify(mockscheduler, times(0)).scheduleAtFixedRate(any(Runnable.class), anyLong(), anyLong(), any(TimeUnit.class));
+    verify(mockscheduler, times(0)).schedule(any(Runnable.class), anyLong(), any(TimeUnit.class));
     inputOperator.emitTuples();
     inputOperator.endWindow();
     inputOperator.beginWindow(1);
     verify(mockscheduler, times(1)).scheduleAtFixedRate(any(Runnable.class), anyLong(), anyLong(), any(TimeUnit.class));
+    verify(mockscheduler, times(0)).schedule(any(Runnable.class), anyLong(), any(TimeUnit.class));
 
   }
 
   @Test
-  public void testDBPollerExtraField() throws InterruptedException
+  public void testDBPollerExtraField() throws Exception
   {
     insertEvents(10, true, 0);
 

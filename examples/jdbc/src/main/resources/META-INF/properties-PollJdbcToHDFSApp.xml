@@ -23,68 +23,68 @@
     <!-- Static partitioning, specify the partition count, this decides how 
         many ranges would be initiated -->
     <property>
-        <name>dt.application.operator.JdbcPoller.prop.partitionCount</name>
+        <name>apex.operator.JdbcPoller.prop.partitionCount</name>
         <value>2</value>
     </property>
 
     <property>
-        <name>dt.application.operator.JdbcPoller.prop.store.databaseDriver</name>
+        <name>apex.operator.JdbcPoller.prop.store.databaseDriver</name>
         <!-- replace value with your jbdc driver -->
         <value>org.hsqldb.jdbcDriver</value>
     </property>
 
     <property>
-        <name>dt.application.operator.JdbcPoller.prop.store.databaseUrl</name>
+        <name>apex.operator.JdbcPoller.prop.store.databaseUrl</name>
         <!-- replace value with your jbdc  url -->
         <value>jdbc:hsqldb:mem:test</value>
     </property>
 
     <!--property>
-        <name>dt.application.operator.JdbcPoller.prop.store.userName</name>
+        <name>apex.operator.JdbcPoller.prop.store.connectionProperties(user)</name>
         <value>username</value>
     </property>
     
     <property>
-        <name>dt.application.operator.JdbcPoller.prop.store.password</name>
+        <name>apex.operator.JdbcPoller.prop.store.connectionProperties(password)</name>
         <value>password</value>
     </property-->
 
     <!-- Batch size for poller -->
     <property>
-        <name>dt.application.operator.JdbcPoller.prop.batchSize</name>
+        <name>apex.operator.JdbcPoller.prop.batchSize</name>
         <value>50</value>
     </property>
 
     <!-- look-up key for forming range queries, this would be the column name 
         on which the table is sorted -->
     <property>
-        <name>dt.application.operator.JdbcPoller.prop.key</name>
+        <name>apex.operator.JdbcPoller.prop.key</name>
         <value>ACCOUNT_NO</value>
     </property>
 
     <property>
-        <name>dt.application.operator.JdbcPoller.prop.columnsExpression</name>
+        <name>apex.operator.JdbcPoller.prop.columnsExpression</name>
         <value>ACCOUNT_NO,NAME,AMOUNT</value>
     </property>
     <property>
-      <name>dt.application.operator.JdbcPoller.port.outputPort.attr.TUPLE_CLASS</name>
+      <name>apex.operator.JdbcPoller.port.outputPort.attr.TUPLE_CLASS</name>
       <value>org.apache.apex.examples.JdbcIngest.PojoEvent</value>
     </property>
 
     <!-- Table name -->
     <property>
-        <name>dt.application.operator.JdbcPoller.prop.tableName</name>
+        <name>apex.operator.JdbcPoller.prop.tableName</name>
         <value>test_event_table</value>
     </property>
 
     <property>
-        <name>dt.application.operator.JdbcPoller.prop.pollInterval</name>
+        <name>apex.operator.JdbcPoller.prop.pollInterval</name>
         <value>1000</value>
     </property>
 
     <!-- Output folder for HDFS output operator -->
     <property>
-        <name>dt.application.operator.Writer.filePath</name>
+        <name>apex.operator.Writer.filePath</name>
         <value>/tmp/test/output</value>
     </property>
 
