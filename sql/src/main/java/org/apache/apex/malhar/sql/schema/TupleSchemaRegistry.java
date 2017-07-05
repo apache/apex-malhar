@@ -129,9 +129,7 @@ public class TupleSchemaRegistry
       case DOUBLE:
         return Double.class;
       case DATE:
-        return Date.class;
       case TIME:
-        return Date.class;
       case TIMESTAMP:
         return Date.class;
       case CHAR:

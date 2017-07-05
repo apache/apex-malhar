@@ -84,7 +84,6 @@ public class JdbcPOJOPollInputOperator extends AbstractJdbcPollInputOperator<Obj
   {
     super.setup(context);
     try {
-      // closing the query statement in super class as it is not needed
       if (getColumnsExpression() == null) {
         StringBuilder columns = new StringBuilder();
         for (int i = 0; i < fieldInfos.size(); i++) {

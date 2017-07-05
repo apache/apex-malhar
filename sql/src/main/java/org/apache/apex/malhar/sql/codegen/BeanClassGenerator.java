@@ -104,7 +104,6 @@ public class BeanClassGenerator
    * @throws JSONException
    * @throws IOException
    */
-  @SuppressWarnings("unchecked")
   public static byte[] createAndWriteBeanClass(String fqcn, List<TupleSchemaRegistry.SQLFieldInfo> fieldList,
       FSDataOutputStream outputStream) throws JSONException, IOException
   {

@@ -134,6 +134,7 @@
               <excludes>
                 <exclude>@org.apache.hadoop.classification.InterfaceStability$Evolving</exclude>
                 <exclude>@org.apache.hadoop.classification.InterfaceStability$Unstable</exclude>
+                <exclude>com.datatorrent.contrib.parquet</exclude>
               </excludes>
             </parameter>
             <skip>${semver.plugin.skip}</skip>

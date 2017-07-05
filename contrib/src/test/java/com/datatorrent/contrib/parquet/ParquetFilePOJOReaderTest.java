@@ -55,15 +55,15 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
 
-import parquet.column.ColumnDescriptor;
-import parquet.hadoop.ParquetWriter;
-import parquet.hadoop.api.WriteSupport;
-import parquet.hadoop.metadata.CompressionCodecName;
-import parquet.io.ParquetEncodingException;
-import parquet.io.api.Binary;
-import parquet.io.api.RecordConsumer;
-import parquet.schema.MessageType;
-import parquet.schema.MessageTypeParser;
+import org.apache.parquet.column.ColumnDescriptor;
+import org.apache.parquet.hadoop.ParquetWriter;
+import org.apache.parquet.hadoop.api.WriteSupport;
+import org.apache.parquet.hadoop.metadata.CompressionCodecName;
+import org.apache.parquet.io.ParquetEncodingException;
+import org.apache.parquet.io.api.Binary;
+import org.apache.parquet.io.api.RecordConsumer;
+import org.apache.parquet.schema.MessageType;
+import org.apache.parquet.schema.MessageTypeParser;
 
 import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
@@ -74,7 +74,7 @@ public class ParquetFilePOJOReaderTest
       + "required INT32 event_id;" + "required BINARY org_id (UTF8);" + "required INT64 long_id;"
       + "optional BOOLEAN css_file_loaded;" + "optional FLOAT float_val;" + "optional DOUBLE double_val;}";
 
-  CollectorTestSink<Object> outputSink = new CollectorTestSink<Object>();
+  CollectorTestSink<Object> outputSink = new CollectorTestSink<>();
   ParquetFilePOJOReader parquetFilePOJOReader = new ParquetFilePOJOReader();
 
   public static class TestMeta extends TestWatcher
@@ -506,7 +506,7 @@ public class ParquetFilePOJOReaderTest
     public ParquetPOJOWriter(Path file, MessageType schema, Class klass, CompressionCodecName codecName,
         boolean enableDictionary) throws IOException
     {
-      super(file, (WriteSupport<Object>)new POJOWriteSupport(schema, klass), codecName, DEFAULT_BLOCK_SIZE,
+      super(file, new POJOWriteSupport(schema, klass), codecName, DEFAULT_BLOCK_SIZE,
           DEFAULT_PAGE_SIZE, enableDictionary, false);
     }
 
@@ -530,7 +530,7 @@ public class ParquetFilePOJOReaderTest
 
     private void init()
     {
-      keyMethodMap = new ArrayList<Getter>();
+      keyMethodMap = new ArrayList<>();
       for (int i = 0; i < cols.size(); i++) {
         try {
           keyMethodMap.add(generateGettersForField(klass, cols.get(i).getPath()[0]));
@@ -542,7 +542,7 @@ public class ParquetFilePOJOReaderTest
     }
 
     @Override
-    public parquet.hadoop.api.WriteSupport.WriteContext init(Configuration configuration)
+    public WriteContext init(Configuration configuration)
     {
       return new WriteContext(schema, new HashMap<String, String>());
     }

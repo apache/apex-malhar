@@ -36,6 +36,7 @@ import com.datatorrent.lib.util.FieldInfo.SupportType;
 @ApplicationAnnotation(name = "PollJdbcToHDFSApp")
 public class JdbcPollerApplication implements StreamingApplication
 {
+  @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
     JdbcPOJOPollInputOperator poller = dag.addOperator("JdbcPoller", new JdbcPOJOPollInputOperator());
@@ -53,7 +54,7 @@ public class JdbcPollerApplication implements StreamingApplication
   }
 
   /**
-   * This method can be modified to have field mappings based on used defined
+   * This method can be modified to have field mappings based on user defined
    * class
    */
   private List<FieldInfo> addFieldInfos()

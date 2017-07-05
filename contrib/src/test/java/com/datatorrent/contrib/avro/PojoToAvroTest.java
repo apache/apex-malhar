@@ -18,6 +18,7 @@
  */
 package com.datatorrent.contrib.avro;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -26,7 +27,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import org.python.google.common.collect.Lists;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
@@ -41,7 +41,7 @@ public class PojoToAvroTest
       + "\"type\": \"long\"}," + "{\"name\":\"customerId\",\"type\": \"int\"},"
       + "{\"name\":\"total\",\"type\": \"double\"}," + "{\"name\":\"customerName\",\"type\": \"string\"}]}";
 
-  CollectorTestSink<Object> outputSink = new CollectorTestSink<Object>();
+  CollectorTestSink<Object> outputSink = new CollectorTestSink<>();
   PojoToAvro avroWriter = new PojoToAvro();
 
   public class TestMeta extends TestWatcher
@@ -74,7 +74,7 @@ public class PojoToAvroTest
   public void testWriting() throws Exception
   {
 
-    List<SimpleOrder> orderList = Lists.newArrayList();
+    List<SimpleOrder> orderList = new ArrayList<>();
     orderList.add(new SimpleOrder(1, 11, 100.25, "customerOne"));
     orderList.add(new SimpleOrder(2, 22, 200.25, "customerTwo"));
     orderList.add(new SimpleOrder(3, 33, 300.25, "customerThree"));
@@ -101,7 +101,7 @@ public class PojoToAvroTest
   public void testWriteFailure() throws Exception
   {
 
-    List<Order> orderList = Lists.newArrayList();
+    List<Order> orderList = new ArrayList<>();
     orderList.add(new Order(11));
     orderList.add(new Order(22));
     orderList.add(new Order(33));

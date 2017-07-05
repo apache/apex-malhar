@@ -25,17 +25,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.hadoop.classification.InterfaceStability;
+import org.apache.parquet.example.data.Group;
+import org.apache.parquet.io.InvalidRecordException;
+import org.apache.parquet.io.ParquetEncodingException;
+import org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.FieldInfo.SupportType;
 import com.datatorrent.lib.util.PojoUtils;
-
-import parquet.example.data.Group;
-import parquet.io.InvalidRecordException;
-import parquet.io.ParquetEncodingException;
-import parquet.schema.PrimitiveType.PrimitiveTypeName;
 
 /**
  * <p>
@@ -57,6 +57,7 @@ import parquet.schema.PrimitiveType.PrimitiveTypeName;
  *
  * @since 3.4.0
  */
+@InterfaceStability.Evolving
 public class ParquetFilePOJOReader extends AbstractParquetFileReader<Object>
 {
 
@@ -175,7 +176,7 @@ public class ParquetFilePOJOReader extends AbstractParquetFileReader<Object>
   private void initialiseActiveFieldInfo(String fieldMapping)
   {
     String[] fields = fieldMapping.split(RECORD_SEPARATOR);
-    activeFieldInfos = new ArrayList<ActiveFieldInfo>(fields.length);
+    activeFieldInfos = new ArrayList<>(fields.length);
     for (String field : fields) {
       String[] token = field.split(FIELD_SEPARATOR);
       try {

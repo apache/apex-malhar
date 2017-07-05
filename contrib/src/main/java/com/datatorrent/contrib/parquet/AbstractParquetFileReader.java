@@ -21,16 +21,16 @@ package com.datatorrent.contrib.parquet;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.Path;
+import org.apache.parquet.example.data.Group;
+import org.apache.parquet.hadoop.ParquetReader;
+import org.apache.parquet.hadoop.example.GroupReadSupport;
+import org.apache.parquet.schema.MessageType;
+import org.apache.parquet.schema.MessageTypeParser;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
-
-import parquet.example.data.Group;
-import parquet.hadoop.ParquetReader;
-import parquet.hadoop.example.GroupReadSupport;
-import parquet.schema.MessageType;
-import parquet.schema.MessageTypeParser;
 
 /**
  * Base implementation of ParquetFileReader. Reads Parquet files from input
@@ -41,6 +41,7 @@ import parquet.schema.MessageTypeParser;
  *
  * @since 3.4.0
  */
+@InterfaceStability.Evolving
 public abstract class AbstractParquetFileReader<T> extends AbstractFileInputOperator<T>
 {
   private transient ParquetReader<Group> reader;
@@ -70,7 +71,7 @@ public abstract class AbstractParquetFileReader<T> extends AbstractFileInputOper
     InputStream is = super.openFile(path);
     GroupReadSupport readSupport = new GroupReadSupport();
     readSupport.init(configuration, null, schema);
-    reader = new ParquetReader<Group>(path, readSupport);
+    reader = new ParquetReader<>(path, readSupport);
     return is;
   }
 

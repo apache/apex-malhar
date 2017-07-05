@@ -86,9 +86,9 @@ public class PojoToAvro extends BaseOperator
   @VisibleForTesting
   int fieldErrorCount = 0;
 
-  public final transient DefaultOutputPort<GenericRecord> output = new DefaultOutputPort<GenericRecord>();
+  public final transient DefaultOutputPort<GenericRecord> output = new DefaultOutputPort<>();
 
-  public final transient DefaultOutputPort<Object> errorPort = new DefaultOutputPort<Object>();
+  public final transient DefaultOutputPort<Object> errorPort = new DefaultOutputPort<>();
 
   private void parseSchema() throws IOException
   {
@@ -172,7 +172,7 @@ public class PojoToAvro extends BaseOperator
   {
     setColumnNames(schema.getFields());
 
-    keyMethodMap = new ArrayList<Getter>();
+    keyMethodMap = new ArrayList<>();
     for (int i = 0; i < getColumnNames().size(); i++) {
       try {
         keyMethodMap.add(generateGettersForField(cls, getColumnNames().get(i).name()));
@@ -217,7 +217,7 @@ public class PojoToAvro extends BaseOperator
     try {
       record = getGenericRecord(tuple);
     } catch (Exception e) {
-      LOG.error("Exception in parsing record");
+      LOG.error("Exception in creating record");
       errorCount++;
     }
 
