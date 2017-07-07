@@ -36,6 +36,8 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.ControlAwareDefaultInputPort;
+import org.apache.apex.api.operator.ControlTuple;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -64,7 +66,6 @@ import com.google.common.collect.Sets;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.OperatorAnnotation;
@@ -267,7 +268,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
   /**
    * This input port receives incoming tuples.
    */
-  public final transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>()
+  public final transient ControlAwareDefaultInputPort<INPUT> input = new ControlAwareDefaultInputPort<INPUT>()
   {
     @Override
     public void process(INPUT tuple)
@@ -283,6 +284,12 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
       } else {
         return streamCodec;
       }
+    }
+
+    @Override
+    public boolean processControl(ControlTuple controlTuple)
+    {
+      return processControlTuple(controlTuple);
     }
   };
 
@@ -868,6 +875,15 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
     } catch (IOException | ExecutionException ex) {
       throw new RuntimeException(ex);
     }
+  }
+
+  /**
+   * @param controlTuple
+   * @return
+   */
+  public boolean processControlTuple(ControlTuple controlTuple)
+  {
+    return false;
   }
 
   /**
