@@ -18,47 +18,29 @@
  */
 package org.apache.apex.malhar.kafka;
 
-import java.util.Map;
+import java.util.Properties;
 
-import org.apache.kafka.clients.producer.Partitioner;
-import org.apache.kafka.common.Cluster;
+import org.apache.kafka.common.utils.SystemTime;
 
-import kafka.utils.VerifiableProperties;
+import kafka.admin.AdminUtils;
+import kafka.admin.RackAwareMode;
+import kafka.server.KafkaConfig;
+import kafka.server.KafkaServer;
+import kafka.utils.TestUtils;
+import kafka.utils.ZkUtils;
 
-/**
- * A simple partitioner class for test purpose
- * Key is a int string
- * Messages are distributed to all partitions
- * One for even number, the other for odd
- */
-public class KafkaTestPartitioner implements Partitioner
+public class EmbeddedKafka extends AbstractEmbeddedKafka
 {
-  public KafkaTestPartitioner(VerifiableProperties props)
+  @Override
+  public KafkaServer createKafkaServer(Properties prop)
   {
-
-  }
-
-  public KafkaTestPartitioner()
-  {
-
+    KafkaConfig config = new KafkaConfig(prop);
+    return TestUtils.createServer(config, new SystemTime());
   }
 
   @Override
-  public int partition(String topic, Object key, byte[] bytes, Object o1, byte[] bytes1, Cluster cluster)
+  public void createTopic(String topic, ZkUtils zkUtils, int noOfPartitions)
   {
-    int num_partitions = cluster.partitionsForTopic(topic).size();
-    return Integer.parseInt((String)key) % num_partitions;
-  }
-
-  @Override
-  public void close()
-  {
-
-  }
-
-  @Override
-  public void configure(Map<String, ?> map)
-  {
-
+    AdminUtils.createTopic(zkUtils, topic, noOfPartitions, 1, new Properties(), RackAwareMode.Disabled$.MODULE$);
   }
 }

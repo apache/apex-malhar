@@ -69,12 +69,17 @@ public class KafkaTestProducer implements Runnable
 
   private Properties createProducerConfig(int cid)
   {
+    return createProducerConfig(cid, "localhost:" + AbstractEmbeddedKafka.TEST_KAFKA_BROKER_PORT[cid]);
+  }
+
+  private Properties createProducerConfig(int cid, String brokerId)
+  {
     Properties props = new Properties();
     props.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
     props.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
     props.setProperty(ProducerConfig.PARTITIONER_CLASS_CONFIG, KafkaTestPartitioner.class.getName());
-    String brokerList = "localhost:" + KafkaOperatorTestBase.TEST_KAFKA_BROKER_PORT[cid];
-    brokerList += hasPartition ? (",localhost:" + KafkaOperatorTestBase.TEST_KAFKA_BROKER_PORT[cid]) : "";
+    String brokerList = brokerId;
+    brokerList += hasPartition ? (",localhost:" + AbstractEmbeddedKafka.TEST_KAFKA_BROKER_PORT[cid]) : "";
     props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerList);
     props.setProperty(ProducerConfig.METADATA_MAX_AGE_CONFIG, "20000");
     props.setProperty(ProducerConfig.ACKS_CONFIG, getAckType());
@@ -104,6 +109,21 @@ public class KafkaTestProducer implements Runnable
     }
   }
 
+  public KafkaTestProducer(String topic, boolean hasPartition, boolean hasMultiCluster, AbstractEmbeddedKafka server)
+  {
+    // Use random partitioner. Don't need the key type. Just set it to Integer.
+    // The message is of type String.
+    this.topic = topic;
+    this.hasPartition = hasPartition;
+    this.hasMultiCluster = hasMultiCluster;
+    producer = new KafkaProducer<>(createProducerConfig(0, server.getBroker(0)));
+    if (hasMultiCluster) {
+      producer1 = new KafkaProducer<>(createProducerConfig(1, server.getBroker(1)));
+    } else {
+      producer1 = null;
+    }
+  }
+
   public KafkaTestProducer(String topic, boolean hasPartition)
   {
     this(topic, hasPartition, false);
@@ -127,9 +147,9 @@ public class KafkaTestProducer implements Runnable
     }
     // produce the end tuple to let the test input operator know it's done produce messages
     for (int i = 0; i < (hasPartition ? 2 : 1); ++i) {
-      sendTasks.add(producer.send(new ProducerRecord<>(topic, "" + i, KafkaOperatorTestBase.END_TUPLE)));
+      sendTasks.add(producer.send(new ProducerRecord<>(topic, "" + i, AbstractEmbeddedKafka.END_TUPLE)));
       if (hasMultiCluster) {
-        sendTasks.add(producer1.send(new ProducerRecord<>(topic, "" + i, KafkaOperatorTestBase.END_TUPLE)));
+        sendTasks.add(producer1.send(new ProducerRecord<>(topic, "" + i, AbstractEmbeddedKafka.END_TUPLE)));
       }
     }
   }

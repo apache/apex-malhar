@@ -48,7 +48,7 @@ public class KafkaSinglePortInputOperator extends AbstractKafkaInputOperator
   @Override
   public AbstractKafkaConsumer createConsumer(Properties properties)
   {
-    return new KafkaConsumer09(properties);
+    return new KafkaConsumer09<byte[], byte[]>(properties);
   }
 
   @Override

@@ -27,6 +27,7 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.consumer.OffsetCommitCallback;
 import org.apache.kafka.common.Metric;
 import org.apache.kafka.common.MetricName;
+import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 
 /**
@@ -53,7 +54,7 @@ public interface AbstractKafkaConsumer
    * @param timeOut time in milliseconds, spent waiting in poll if data is not available in buffer.
    * @return records
    */
-  ConsumerRecords<byte[], byte[]> pollRecords(long timeOut);
+  ConsumerRecords pollRecords(long timeOut);
 
   /**
    * Commit the specified offsets for the specified list of topics and partitions to Kafka.
@@ -124,4 +125,6 @@ public interface AbstractKafkaConsumer
    * @param tp partition
    */
   long positionPartition(TopicPartition tp);
+
+  List<PartitionInfo> partitionsFor(String topic);
 }

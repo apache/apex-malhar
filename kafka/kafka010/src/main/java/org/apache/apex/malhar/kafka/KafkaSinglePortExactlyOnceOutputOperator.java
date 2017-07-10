@@ -73,6 +73,6 @@ public class KafkaSinglePortExactlyOnceOutputOperator<T> extends AbstractKafkaEx
   @Override
   public AbstractKafkaConsumer createConsumer(Properties prop)
   {
-    return new KafkaConsumer09<String, T>(prop);
+    return new KafkaConsumer010<String, T>(prop);
   }
 }
