@@ -46,11 +46,11 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
   public static final String CLIENT_ID = "Client1";
   public static final String APP_ID = "appId";
   public static final int OPERATOR_ID = 1;
-  public static JMSBaseTransactionableStore store;
-  public static JMSStringSinglePortOutputOperator outputOperator;
+  public static final int OPERATOR_2_ID = 2;
   public static Class<? extends JMSBaseTransactionableStore> storeClass;
 
   public static OperatorContext testOperatorContext;
+  public static OperatorContext testOperator2Context;
 
   public static class TestMeta extends TestWatcher
   {
@@ -61,6 +61,7 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
       DefaultAttributeMap attributes = new DefaultAttributeMap();
       attributes.put(DAG.APPLICATION_ID, APP_ID);
       testOperatorContext = mockOperatorContext(OPERATOR_ID, attributes);
+      testOperator2Context = mockOperatorContext(OPERATOR_2_ID, attributes);
       FileUtils.deleteQuietly(new File(FSPsuedoTransactionableStore.DEFAULT_RECOVERY_DIRECTORY));
     }
 
@@ -83,17 +84,22 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
    * This is a helper method to create the output operator. Note this cannot be
    * put in test watcher because because JMS connection issues occur when this code
    * is run from a test watcher.
+   *
+   * @param metaQueueName metaQueueName to set in JMSTransactionableStore
    */
-  private void createOperator()
+  private JMSStringSinglePortOutputOperator createOperator(OperatorContext context, String metaQueueName)
   {
-    outputOperator = new JMSStringSinglePortOutputOperator();
-
+    JMSStringSinglePortOutputOperator outputOperator = new JMSStringSinglePortOutputOperator();
+    JMSBaseTransactionableStore store;
     try {
       store = storeClass.newInstance();
     } catch (InstantiationException | IllegalAccessException ex) {
       throw new RuntimeException(ex);
     }
 
+    if (JMSTransactionableStore.class.equals(storeClass) && metaQueueName != null) {
+      ((JMSTransactionableStore)store).setMetaQueueName(metaQueueName);
+    }
     outputOperator.getConnectionFactoryProperties().put("userName", "");
     outputOperator.getConnectionFactoryProperties().put("password", "");
     outputOperator.getConnectionFactoryProperties().put("brokerURL", "tcp://localhost:61617");
@@ -106,32 +112,27 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
     outputOperator.setDurable(false);
     outputOperator.setStore(store);
     outputOperator.setVerbose(true);
-    outputOperator.setup(testOperatorContext);
+    outputOperator.setup(context);
+
+    return outputOperator;
   }
 
-  /**
-   * This is a helper method to teardown a test operator.
-   */
-  private void deleteOperator()
-  {
-    outputOperator.teardown();
-  }
-
-  //@Ignore
   @Test
   public void connectedTest()
   {
-    createOperator();
+    JMSStringSinglePortOutputOperator jmsOutputOperator = createOperator(testOperatorContext, null);
+    JMSBaseTransactionableStore store = jmsOutputOperator.getStore();
+
     Assert.assertTrue("Should be connected.", store.isConnected());
-    deleteOperator();
+    jmsOutputOperator.teardown();
     Assert.assertFalse("Should not be connected.", store.isConnected());
   }
 
-  //@Ignore
   @Test
   public void transactionTest()
   {
-    createOperator();
+    JMSStringSinglePortOutputOperator jmsOutputOperator = createOperator(testOperatorContext, null);
+    JMSBaseTransactionableStore store = jmsOutputOperator.getStore();
 
     Assert.assertFalse("Should not be in transaction.", store.isInTransaction());
     store.beginTransaction();
@@ -139,61 +140,116 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
     store.commitTransaction();
     Assert.assertFalse("Should not be in transaction.", store.isInTransaction());
 
-    deleteOperator();
+    jmsOutputOperator.teardown();
   }
 
-  //@Ignore
   @Test
   public void storeRetreiveTransactionTest()
   {
-    createOperator();
+    JMSStringSinglePortOutputOperator jmsOutputOperator = createOperator(testOperatorContext, null);
+    JMSBaseTransactionableStore store = jmsOutputOperator.getStore();
 
-    outputOperator.beginWindow(0L);
-    outputOperator.endWindow();
+    jmsOutputOperator.beginWindow(0L);
+    jmsOutputOperator.endWindow();
 
     long windowId = store.getCommittedWindowId(APP_ID, OPERATOR_ID);
     Assert.assertEquals(0L, windowId);
 
-    deleteOperator();
+    jmsOutputOperator.teardown();
   }
 
-  ////@Ignore
+  /**
+   * Creates two operators with different operatorId and same appId to test correct functionality of storing and
+   * retrieving windowId with message selector
+   */
+  @Test
+  public void twoOperatorsStoreRetrieveWithMessageSelectorTransactionTest()
+  {
+    JMSStringSinglePortOutputOperator jmsOutputOperator = createOperator(testOperatorContext, null);
+
+    jmsOutputOperator.beginWindow(0L);
+    jmsOutputOperator.endWindow();
+
+    //Create fresh operator context
+
+    JMSStringSinglePortOutputOperator jmsOutputOperator2 = createOperator(testOperator2Context, null);
+    jmsOutputOperator2.beginWindow(1L);
+    jmsOutputOperator2.endWindow();
+
+    long windowIdOp = jmsOutputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID);
+    Assert.assertEquals(0L, windowIdOp);
+
+    long windowIdOp2 = jmsOutputOperator2.getStore().getCommittedWindowId(APP_ID, OPERATOR_2_ID);
+    Assert.assertEquals(1L, windowIdOp2);
+
+    jmsOutputOperator.teardown();
+    jmsOutputOperator2.teardown();
+  }
+
+  /**
+   * Similar to the test above with using a custom metaQueueName
+   */
+  @Test
+  public void twoOperatorsStoreRetrieveWithMessageSelectorTransactionTestWithCustomMetaQueueName()
+  {
+    JMSStringSinglePortOutputOperator jmsOutputOperator = createOperator(testOperatorContext, "metaQ1");
+
+    jmsOutputOperator.beginWindow(0L);
+    jmsOutputOperator.endWindow();
+
+    //Create fresh operator context
+
+    JMSStringSinglePortOutputOperator jmsOutputOperator2 = createOperator(testOperator2Context, "metaQ2");
+    jmsOutputOperator2.beginWindow(1L);
+    jmsOutputOperator2.endWindow();
+
+    long windowIdOp = jmsOutputOperator.getStore().getCommittedWindowId(APP_ID, OPERATOR_ID);
+    Assert.assertEquals(0L, windowIdOp);
+
+    long windowIdOp2 = jmsOutputOperator2.getStore().getCommittedWindowId(APP_ID, OPERATOR_2_ID);
+    Assert.assertEquals(1L, windowIdOp2);
+
+    jmsOutputOperator.teardown();
+    jmsOutputOperator2.teardown();
+  }
+
   @Test
   public void multiWindowTransactionTest()
   {
-    createOperator();
+    JMSStringSinglePortOutputOperator jmsOutputOperator = createOperator(testOperatorContext, null);
+    JMSBaseTransactionableStore store = jmsOutputOperator.getStore();
 
     long windowId = store.getCommittedWindowId(APP_ID, OPERATOR_ID);
     Assert.assertEquals(-1L, windowId);
 
-    outputOperator.beginWindow(0L);
-    outputOperator.endWindow();
+    jmsOutputOperator.beginWindow(0L);
+    jmsOutputOperator.endWindow();
 
     windowId = store.getCommittedWindowId(APP_ID, OPERATOR_ID);
     Assert.assertEquals(0L, windowId);
 
-    outputOperator.beginWindow(1L);
-    outputOperator.endWindow();
+    jmsOutputOperator.beginWindow(1L);
+    jmsOutputOperator.endWindow();
 
     windowId = store.getCommittedWindowId(APP_ID, OPERATOR_ID);
     Assert.assertEquals(1L, windowId);
 
-    outputOperator.beginWindow(2L);
-    outputOperator.endWindow();
+    jmsOutputOperator.beginWindow(2L);
+    jmsOutputOperator.endWindow();
 
     windowId = store.getCommittedWindowId(APP_ID, OPERATOR_ID);
     Assert.assertEquals(2L, windowId);
 
-    outputOperator.beginWindow(3L);
-    outputOperator.endWindow();
+    jmsOutputOperator.beginWindow(3L);
+    jmsOutputOperator.endWindow();
 
     windowId = store.getCommittedWindowId(APP_ID, OPERATOR_ID);
     Assert.assertEquals(3L, windowId);
 
-    outputOperator.beginWindow(4L);
-    outputOperator.endWindow();
+    jmsOutputOperator.beginWindow(4L);
+    jmsOutputOperator.endWindow();
 
-    deleteOperator();
+    jmsOutputOperator.teardown();
   }
 
   @Test
@@ -205,10 +261,11 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
     listener.setupConnection();
     listener.run();
 
-    createOperator();
+    JMSStringSinglePortOutputOperator jmsOutputOperator = createOperator(testOperatorContext, null);
+    JMSBaseTransactionableStore store = jmsOutputOperator.getStore();
 
     store.beginTransaction();
-    outputOperator.inputPort.put("a");
+    jmsOutputOperator.inputPort.put("a");
 
     Thread.sleep(500);
     Assert.assertEquals(0, listener.receivedData.size());
@@ -217,7 +274,7 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
     Thread.sleep(500);
     Assert.assertEquals(1, listener.receivedData.size());
 
-    deleteOperator();
+    jmsOutputOperator.teardown();
 
     listener.closeConnection();
   }

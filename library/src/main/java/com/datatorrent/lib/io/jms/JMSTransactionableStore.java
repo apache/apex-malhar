@@ -31,9 +31,14 @@ import javax.jms.QueueBrowser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.api.annotation.Stateless;
+
 /**
  * This transactionable store commits the messages sent within a window along with the windowId of the completed window
- * to JMS. This store ensures that the JMS output operator is capable of outputting data to JMS exactly once.
+ * to JMS. WindowIds will be sent to a subject specific meta-data queue with the name of the form '{subject}.metadata'.
+ * It is the responsibility of the user to create the meta-data queue in the JMS provider.
+ * A MessageSelector and an unique 'appOperatorId' message property ensure each operator receives its own windowId.
+ * This store ensures that the JMS output operator is capable of outputting data to JMS exactly once.
  *
  * @since 2.0.0
  */
@@ -44,6 +49,8 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
 
   private transient MessageProducer producer;
   private transient MessageConsumer consumer;
+  private String metaQueueName;
+  private static final String APP_OPERATOR_ID = "appOperatorId";
 
   /**
    * Indicates whether the store is connected or not.
@@ -58,6 +65,26 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
   {
   }
 
+  /**
+   * Get the meta queue name for this store
+   *
+   * @return the metaQueueName
+   */
+  public String getMetaQueueName()
+  {
+    return metaQueueName;
+  }
+
+  /**
+   * Set the meta queue name for this store
+   *
+   * @param metaQueueName the metaQueueName to set
+   */
+  public void setMetaQueueName(String metaQueueName)
+  {
+    this.metaQueueName = metaQueueName;
+  }
+
   @Override
   @SuppressWarnings("rawtypes")
   public long getCommittedWindowId(String appId, int operatorId)
@@ -65,17 +92,15 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
     logger.debug("Getting committed windowId appId {} operatorId {}", appId, operatorId);
 
     try {
-
       beginTransaction();
       BytesMessage message = (BytesMessage)consumer.receive();
-      logger.debug("Retrieved committed window message id {}", message.getJMSMessageID());
+      logger.debug("Retrieved committed window messageId: {}, messageAppOperatorIdProp: {}", message.getJMSMessageID(),
+          message.getStringProperty(APP_OPERATOR_ID));
       long windowId = message.readLong();
 
-      message = getBase().getSession().createBytesMessage();
-      message.writeLong(windowId);
-      producer.send(message);
+      writeWindowId(appId, operatorId, windowId);
       commitTransaction();
-
+      logger.debug("metaQueueName: " + metaQueueName);
       logger.debug("Retrieved windowId {}", windowId);
       return windowId;
     } catch (JMSException ex) {
@@ -94,10 +119,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
         appId, operatorId, windowId);
     try {
       removeCommittedWindowId(appId, operatorId);
-      BytesMessage bytesMessage = this.getBase().getSession().createBytesMessage();
-      bytesMessage.writeLong(windowId);
-      producer.send(bytesMessage);
-      logger.debug("Retrieved committed window message id {}", bytesMessage.getJMSMessageID());
+      writeWindowId(appId, operatorId, windowId);
     } catch (JMSException ex) {
       throw new RuntimeException(ex);
     }
@@ -111,6 +133,15 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
     } catch (JMSException ex) {
       throw new RuntimeException(ex);
     }
+  }
+
+  private void writeWindowId(String appId, int operatorId, long windowId) throws JMSException
+  {
+    BytesMessage message = getBase().getSession().createBytesMessage();
+    message.setStringProperty(APP_OPERATOR_ID, appId + "_" + operatorId);
+    message.writeLong(windowId);
+    producer.send(message);
+    logger.debug("Message with windowId {} sent", windowId);
   }
 
   @Override
@@ -166,16 +197,17 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
     logger.debug("Entering connect. is in transaction: {}", inTransaction);
 
     try {
-      String queueName = getQueueName(getAppId(), getOperatorId());
-
       logger.debug("Base is null: {}", getBase() == null);
 
       if (getBase() != null) {
         logger.debug("Session is null: {}", getBase().getSession() == null);
       }
-
-      Queue queue = getBase().getSession().createQueue(queueName);
-      QueueBrowser browser = getBase().getSession().createBrowser(queue);
+      if (metaQueueName == null) {
+        metaQueueName = getBase().getSubject() + ".metadata";
+      }
+      String appOperatorId = getAppId() + "_" + getOperatorId();
+      Queue queue = getBase().getSession().createQueue(metaQueueName);
+      QueueBrowser browser = getBase().getSession().createBrowser(queue, APP_OPERATOR_ID + " = '" + appOperatorId + "'");
       boolean hasStore;
 
       try {
@@ -186,16 +218,14 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
       }
 
       producer = getBase().getSession().createProducer(queue);
-      consumer = getBase().getSession().createConsumer(queue);
+      consumer = getBase().getSession().createConsumer(queue, APP_OPERATOR_ID + " = '" + appOperatorId + "'");
 
       connected = true;
       logger.debug("Connected. is in transaction: {}", inTransaction);
 
       if (!hasStore) {
         beginTransaction();
-        BytesMessage message = getBase().getSession().createBytesMessage();
-        message.writeLong(-1L);
-        producer.send(message);
+        writeWindowId(getAppId(), getOperatorId(), Stateless.WINDOW_ID);
         commitTransaction();
       }
     } catch (JMSException ex) {
@@ -225,10 +255,5 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
   public boolean isConnected()
   {
     return connected;
-  }
-
-  private String getQueueName(String appId, int operatorId)
-  {
-    return appId + "-" + operatorId;
   }
 }
