@@ -21,6 +21,7 @@ package org.apache.apex.malhar.kafka;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -32,6 +33,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
@@ -87,6 +89,19 @@ public class KafkaConsumerWrapper implements Closeable
   private final Map<String, Map<TopicPartition, OffsetAndMetadata>> offsetsToCommit = new HashMap<>();
 
   private boolean waitForReplay = false;
+
+  private final List<Future<?>> kafkaConsumerThreads = new ArrayList<>();
+
+  public boolean hasAnyKafkaReaderThreadDied()
+  {
+    for (Future<?> future : kafkaConsumerThreads) {
+      if (future.isDone() || future.isCancelled()) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 
   /**
    *
@@ -218,10 +233,14 @@ public class KafkaConsumerWrapper implements Closeable
           }
         }
       } catch (WakeupException we) {
-        logger.info("The consumer is being stopped");
+        logger.error("The consumer is being stopped");
       } catch (InterruptedException e) {
+        logger.error("Kafka consumer thread was interrupted. {}", e);
         DTThrowable.rethrow(e);
+      } catch (Throwable ex) {
+        logger.error("Kafka consumer wrapper thread failed with the exception {}", ex);
       } finally {
+        logger.error("Exiting Kafka consumer thread.");
         consumer.close();
       }
     }
@@ -328,9 +347,9 @@ public class KafkaConsumerWrapper implements Closeable
       }
 
       consumers.put(e.getKey(), kc);
-      kafkaConsumerExecutor.submit(new ConsumerThread(e.getKey(), kc, this));
+      Future<?> future = kafkaConsumerExecutor.submit(new ConsumerThread(e.getKey(), kc, this));
+      kafkaConsumerThreads.add(future);
     }
-
   }
 
   /**
