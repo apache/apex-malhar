@@ -340,6 +340,10 @@ public abstract class AbstractKafkaInputOperator implements InputOperator,
 
   protected void processConsumerError()
   {
+    if (consumerWrapper.hasAnyKafkaReaderThreadDied()) {
+      throw new RuntimeException("Kafka Consumer threads exited.");
+    }
+
     if (consumerError != null) {
       logger.error("Error in consumer, terminating");
       throw Throwables.propagate(consumerError);
