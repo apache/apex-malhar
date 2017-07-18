@@ -94,7 +94,7 @@ public class YahooFinanceCSVInputOperator extends SimpleSinglePortInputOperator<
 
   /**
    * Prepare URL from symbols and parameters.
-   * URL will be something like: http://download.finance.yahoo.com/d/quotes.csv?s=GOOG,FB,YHOO&f=sl1vt1&e=.csv
+   * URL will be something like: http://download.finance.yahoo.com/d/quotes.csv?s=GOOG,FB,AABA&f=sl1vt1&e=.csv
    * @return
    */
   private String prepareURL()
