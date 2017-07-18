@@ -91,8 +91,8 @@ import com.datatorrent.lib.util.HighLow;
  * <pre>
  *  Price SMA: AAPL=435.965
  * Price SMA: GOOG=877.0
- * QUOTE: {YHOO=[26.37, 9760360, 4:00pm, null, null], IBM=[203.77, 2899698, 4:00pm, null, null], GOOG=[877.0, 2069614, 4:00pm, null, null], AAPL=[435.965, 10208099, 4:00pm, null, null]}
- * Price SMA: YHOO=26.37
+ * QUOTE: {AABA=[26.37, 9760360, 4:00pm, null, null], IBM=[203.77, 2899698, 4:00pm, null, null], GOOG=[877.0, 2069614, 4:00pm, null, null], AAPL=[435.965, 10208099, 4:00pm, null, null]}
+ * Price SMA: AABA=26.37
  * </pre>
  *
  * Scaling Options : <br>
@@ -196,7 +196,7 @@ public class YahooFinanceApplication implements StreamingApplication
   protected int streamingWindowSizeMilliSeconds = 1000; // 1 second
   protected int appWindowCountMinute = 60;   // 1 minute
   protected int appWindowCountSMA = 300;  // 5 minute
-  //protected String[] tickers = {"IBM", "GOOG", "AAPL", "YHOO"};
+  //protected String[] tickers = {"IBM", "GOOG", "AAPL", "AABA"};
 
   /**
    * Instantiate stock input operator for actual Yahoo finance ticks of symbol, last price, total daily volume, and last traded price.

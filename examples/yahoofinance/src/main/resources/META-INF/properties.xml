@@ -34,7 +34,7 @@
   </property>
   <property>
     <name>dt.application.YahooFinanceExampleWithChart.operator.StockTickInput.tickers</name>
-    <value>IBM,GOOG,AAPL,YHOO</value>
+    <value>IBM,GOOG,AAPL,AABA</value>
   </property>
   <property>
     <name>dt.application.*.operator.*.attr.MEMORY_MB</name>
@@ -50,11 +50,11 @@
   </property>
   <property>
     <name>dt.application.YahooFinanceExample.operator.StockTickInput.tickers</name>
-    <value>IBM,GOOG,AAPL,YHOO</value>
+    <value>IBM,GOOG,AAPL,AABA</value>
   </property>
   <property>
     <name>dt.application.YahooFinanceWithoutChartExample.operator.StockTickInput.tickers</name>
-    <value>IBM,GOOG,AAPL,YHOO</value>
+    <value>IBM,GOOG,AAPL,AABA</value>
   </property>
   <property>
     <name>dt.application.YahooFinanceExampleWithChart.operator.AverageChart.yAxisLabel</name>

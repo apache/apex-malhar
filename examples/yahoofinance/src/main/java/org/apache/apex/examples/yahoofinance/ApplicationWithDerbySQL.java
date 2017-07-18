@@ -38,7 +38,7 @@ public class ApplicationWithDerbySQL implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    String symbolStr = conf.get(ApplicationWithDerbySQL.class.getName() + ".tickerSymbols", "YHOO,GOOG,AAPL,FB,AMZN,NFLX,IBM");
+    String symbolStr = conf.get(ApplicationWithDerbySQL.class.getName() + ".tickerSymbols", "AABA,GOOG,AAPL,FB,AMZN,NFLX,IBM");
 
     String[] symbols = symbolStr.split(",");
 
