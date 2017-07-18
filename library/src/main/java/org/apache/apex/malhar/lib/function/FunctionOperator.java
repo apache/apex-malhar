@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.apex.malhar.lib.utils.ByteArrayClassLoader;
+import org.apache.apex.malhar.lib.utils.KryoJavaSerializer;
 import org.apache.apex.malhar.lib.utils.TupleUtil;
 import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.commons.io.IOUtils;
@@ -34,7 +35,6 @@ import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.esotericsoftware.kryo.serializers.FieldSerializer.Bind;
-import com.esotericsoftware.kryo.serializers.JavaSerializer;
 import com.esotericsoftware.reflectasm.shaded.org.objectweb.asm.ClassReader;
 import com.esotericsoftware.reflectasm.shaded.org.objectweb.asm.ClassWriter;
 import com.esotericsoftware.reflectasm.shaded.org.objectweb.asm.Opcodes;
@@ -62,7 +62,7 @@ public class FunctionOperator<OUT, FUNCTION extends Function> implements Operato
    * Kryo cannot handle fields that reference ({@link java.io.Serializable}) lambda classes.
    * Wrap the reference to keep Kryo happy and delegate to Java serialization.
    */
-  @Bind(JavaSerializer.class)
+  @Bind(KryoJavaSerializer.class)
   protected final MutableObject<FUNCTION> statefulF = new MutableObject<>();
 
   protected boolean stateful = false;
