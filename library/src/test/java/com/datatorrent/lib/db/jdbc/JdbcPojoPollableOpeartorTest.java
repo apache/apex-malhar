@@ -137,7 +137,13 @@ public class JdbcPojoPollableOpeartorTest extends JdbcOperatorTest
     firstInstance.outputPort.setSink(sink1);
     firstInstance.beginWindow(0);
     firstInstance.pollRecords();
-    firstInstance.pollRecords();
+    try {
+      firstInstance.pollRecords();
+      // non-poller partition
+      Assert.fail("expected closed connection");
+    } catch (Exception e) {
+      // expected
+    }
     firstInstance.emitTuples();
     firstInstance.endWindow();
 
@@ -167,6 +173,7 @@ public class JdbcPojoPollableOpeartorTest extends JdbcOperatorTest
     CollectorTestSink<Object> sink3 = new CollectorTestSink<>();
     thirdInstance.outputPort.setSink(sink3);
     thirdInstance.beginWindow(0);
+    thirdInstance.pollRecords();
     thirdInstance.pollRecords();
     thirdInstance.emitTuples();
     thirdInstance.endWindow();
@@ -280,8 +287,9 @@ public class JdbcPojoPollableOpeartorTest extends JdbcOperatorTest
     CollectorTestSink<Object> sink1 = new CollectorTestSink<>();
     firstInstance.outputPort.setSink(sink1);
     firstInstance.beginWindow(0);
+    Assert.assertFalse(firstInstance.ps.isClosed());
     firstInstance.pollRecords();
-    firstInstance.pollRecords();
+    Assert.assertTrue(firstInstance.ps.isClosed());
     firstInstance.emitTuples();
     firstInstance.endWindow();
 

@@ -44,7 +44,7 @@ public class JdbcPollerApplicationTest
   private static final String DB_DRIVER = "org.hsqldb.jdbcDriver";
   private static final String URL = "jdbc:hsqldb:mem:test;sql.syntax_mys=true";
   private static final String TABLE_NAME = "test_event_table";
-  private static final String OUTPUT_DIR_NAME = "/tmp/test/output";
+  private static final String OUTPUT_DIR_NAME = "./target/tmp/test/output";
 
   @BeforeClass
   public static void setup()
