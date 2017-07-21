@@ -281,7 +281,7 @@ public class KafkaConsumerWrapper implements Closeable
   /**
    * This method is called in the activate method of the operator
    */
-  public void start(boolean waitForReplay)
+  public void start(boolean waitForReplay, Map<Pair<String, Integer>, Long> initialOffSets)
   {
     this.waitForReplay = waitForReplay;
     isAlive.set(true);
@@ -336,7 +336,18 @@ public class KafkaConsumerWrapper implements Closeable
         logger.info("Create consumer with properties {} ", Joiner.on(";").withKeyValueSeparator("=").join(prop));
         logger.info("Assign consumer to {}", Joiner.on('#').join(e.getValue()));
       }
-      if (currentOffset != null && !currentOffset.isEmpty()) {
+
+      if (initialOffSets != null) {
+        logger.info("Initial offsets will be set for partitions");
+        for (TopicPartition tp : kc.getPartitions()) {
+          Long offset = initialOffSets.get(Pair.of(tp.topic(), tp.partition()));
+          if (offset != null) {
+            kc.seekToOffset(tp, offset);
+          } else {
+            logger.warn("Initial offset was not set for topic {} and partition {}", tp.partition(), tp.partition());
+          }
+        }
+      } else if (currentOffset != null && !currentOffset.isEmpty()) {
         for (TopicPartition tp : e.getValue()) {
           AbstractKafkaPartitioner.PartitionMeta partitionKey =
               new AbstractKafkaPartitioner.PartitionMeta(e.getKey(), tp.topic(), tp.partition());
