@@ -28,7 +28,7 @@
   -->
   <property>
     <name>dt.attr.MASTER_MEMORY_MB</name>
-    <value>1024</value>
+    <value>2048</value>
   </property>
   <property>
     <name>dt.application.PerformanceBenchmarkForFixedNumberOfTuples.operator.WordGenerator.count</name>
