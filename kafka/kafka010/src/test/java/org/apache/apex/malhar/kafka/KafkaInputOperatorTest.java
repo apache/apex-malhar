@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
@@ -54,6 +55,7 @@ import com.datatorrent.stram.StramLocalCluster;
  * per kafka partition This test is launching its
  * own Kafka cluster.
  */
+@Ignore // see https://issues.apache.org/jira/browse/APEXMALHAR-2162
 @RunWith(Parameterized.class)
 public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 {
