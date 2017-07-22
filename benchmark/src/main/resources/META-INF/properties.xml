@@ -27,6 +27,10 @@
   </property>
   -->
   <property>
+    <name>dt.application.*.operator.*.attr.MEMORY_MB</name>
+    <value>2048</value>
+  </property>
+  <property>
     <name>dt.attr.MASTER_MEMORY_MB</name>
     <value>1024</value>
   </property>
