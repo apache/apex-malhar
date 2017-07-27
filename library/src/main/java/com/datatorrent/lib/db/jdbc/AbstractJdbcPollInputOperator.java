@@ -132,7 +132,6 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
   private transient volatile boolean execute;
   private transient ScheduledExecutorService scanService;
   private transient ScheduledFuture<?> pollFuture;
-  protected transient boolean isPolled;
   protected transient LinkedBlockingDeque<T> emitQueue;
   protected transient PreparedStatement ps;
   protected boolean isPollerPartition;
@@ -176,6 +175,15 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
     }
   }
 
+  private class DBPoller implements Runnable
+  {
+    @Override
+    public void run()
+    {
+      pollRecords();
+    }
+  }
+
   private void schedulePollTask()
   {
     if (isPollerPartition) {
@@ -215,9 +223,6 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
       } catch (SQLException e) {
         throw new RuntimeException("Replay failed", e);
       }
-    }
-    if (isPollerPartition) {
-      isPolled = false;
     }
     lowerBound = lastEmittedRow;
   }
@@ -287,22 +292,23 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
     ResultSet result = preparedStatement.executeQuery();
     if (result.next()) {
       do {
-        while (!emitQueue.offer(getTuple(result))) {
+        while (execute && !emitQueue.offer(getTuple(result))) {
           Thread.sleep(DEFAULT_SLEEP_TIME);
         }
-      } while (result.next());
+      } while (execute && result.next());
       result.close();
     }
     preparedStatement.close();
   }
 
+  /**
+   * Fetch results from JDBC and transfer to queue.
+   */
   protected void pollRecords()
   {
-    if (isPolled) {
-      return;
-    }
     try {
       if (isPollerPartition) {
+        LOG.debug("poll query");
         int nextOffset = getRecordsCount();
         while (lastOffset < nextOffset) {
           PreparedStatement preparedStatement = store.getConnection().prepareStatement(buildRangeQuery(lastOffset, resultLimit),
@@ -314,7 +320,6 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
       } else {
         insertDbDataInQueue(ps);
       }
-      isPolled = true;
     } catch (SQLException | InterruptedException ex) {
       throw new RuntimeException(ex);
     } finally {
@@ -323,7 +328,6 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
         execute = false;
       }
     }
-    isPolled = true;
   }
 
   public abstract T getTuple(ResultSet result);
@@ -520,28 +524,6 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
     }
     LOG.info("DSL Query: " + sqlQuery);
     return sqlQuery;
-  }
-
-  /**
-   * This class polls a store that can be queried with a JDBC interface The
-   * preparedStatement is updated as more rows are read
-   */
-  public class DBPoller implements Runnable
-  {
-    @Override
-    public void run()
-    {
-      try {
-        LOG.debug("Entering poll task");
-        while (execute) {
-          if ((isPollerPartition && !isPolled) || !isPollerPartition) {
-            pollRecords();
-          }
-        }
-      } finally {
-        LOG.debug("Exiting poll task");
-      }
-    }
   }
 
   @VisibleForTesting
