@@ -186,7 +186,7 @@ public class JdbcPOJOPollInputOperator extends AbstractJdbcPollInputOperator<Obj
   protected void populateColumnDataTypes() throws SQLException
   {
     columnDataTypes = Lists.newArrayList();
-    try (PreparedStatement stmt = store.getConnection().prepareStatement(buildRangeQuery(1, 1))) {
+    try (PreparedStatement stmt = store.getConnection().prepareStatement(buildRangeQuery(null, 1, 1))) {
       Map<String, Integer> nameToType = Maps.newHashMap();
       ResultSetMetaData rsMetaData = stmt.getMetaData();
       LOG.debug("resultSet MetaData column count {}", rsMetaData.getColumnCount());
