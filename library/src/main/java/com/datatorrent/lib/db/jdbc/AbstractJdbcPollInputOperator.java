@@ -24,14 +24,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -85,7 +86,7 @@ import static org.jooq.impl.DSL.field;
  * The operator uses jOOQ to build the SQL queries based on the discovered {@link org.jooq.SQLDialect}.
  * Note that some of the dialects (including Oracle) are only available in commercial
  * jOOQ distributions. If the dialect is not available, a generic translation is applied,
- * you can post-process the generated SQL by overriding {@link #buildRangeQuery(int, int)}.
+ * you can post-process the generated SQL by overriding {@link #buildRangeQuery(Object, int, int)}.
  *
  * @displayName Jdbc Polling Input Operator
  * @category Input
@@ -98,13 +99,14 @@ import static org.jooq.impl.DSL.field;
 public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInputOperator<T, JdbcStore> implements
     ActivationListener<OperatorContext>, Partitioner<AbstractJdbcPollInputOperator<T>>
 {
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractJdbcPollInputOperator.class);
   private static int DEFAULT_QUEUE_CAPACITY = 4 * 1024;
   private static int DEFAULT_POLL_INTERVAL = 10 * 1000;
   private static int DEFAULT_FETCH_SIZE = 20000;
   private static int DEFAULT_BATCH_SIZE = 2000;
   private static int DEFAULT_SLEEP_TIME = 100;
   private static int DEFAULT_RESULT_LIMIT = 100000;
-  private int pollInterval = DEFAULT_POLL_INTERVAL; //in miliseconds
+  private int pollInterval = DEFAULT_POLL_INTERVAL; //in milliseconds
   private int queueCapacity = DEFAULT_QUEUE_CAPACITY;
   private int fetchSize = DEFAULT_FETCH_SIZE;
   /**
@@ -112,8 +114,8 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
    */
   private int resultLimit = DEFAULT_RESULT_LIMIT;
 
-  @Min(1)
-  private int partitionCount = 1;
+  @Min(0)
+  private int partitionCount = 0;
   private int batchSize = DEFAULT_BATCH_SIZE;
 
   @NotNull
@@ -124,25 +126,37 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
   private String whereCondition = null;
   private long currentWindowId;
   private WindowDataManager windowManager;
+  protected WindowData currentWindowRecoveryState;
+  private boolean rebaseOffset;
 
   protected KeyValPair<Integer, Integer> rangeQueryPair;
-  protected Integer lowerBound;
   protected Integer lastEmittedRow;
   protected transient DSLContext dslContext;
   private transient volatile boolean execute;
   private transient ScheduledExecutorService scanService;
   private transient ScheduledFuture<?> pollFuture;
-  protected transient LinkedBlockingDeque<T> emitQueue;
+  protected transient LinkedBlockingQueue<T> emitQueue;
   protected transient PreparedStatement ps;
   protected boolean isPollerPartition;
 
-  protected transient MutablePair<Integer, Integer> currentWindowRecoveryState;
-
   private transient int lastOffset;
+  private transient Object prevKey;
+  private transient Object lastKey;
+
+  /**
+   * The candidate key/offset pair identified by the poller thread
+   * that, once emitted, can be used to rebase the lower bound for subsequent queries.
+   */
+  private transient AtomicReference<MutablePair<Object, Integer>> fetchedKeyAndOffset = new AtomicReference<>();
+
+  /**
+   * Signal to the fetch thread to rebase query.
+   */
+  private transient AtomicBoolean adjustKeyAndOffset = new AtomicBoolean();
 
   public AbstractJdbcPollInputOperator()
   {
-    currentWindowRecoveryState = new MutablePair<>();
+    currentWindowRecoveryState = new WindowData();
     windowManager = new FSWindowDataManager();
   }
 
@@ -155,7 +169,7 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
       scanService = Executors.newScheduledThreadPool(1);
     }
     execute = true;
-    emitQueue = new LinkedBlockingDeque<>(queueCapacity);
+    emitQueue = new LinkedBlockingQueue<>(queueCapacity);
     windowManager.setup(context);
   }
 
@@ -167,10 +181,10 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
   @Override
   public void activate(OperatorContext context)
   {
-    initializePreparedStatement();
     long largestRecoveryWindow = windowManager.getLargestCompletedWindow();
     if (largestRecoveryWindow == Stateless.WINDOW_ID
         || context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID) > largestRecoveryWindow) {
+      initializePreparedStatement();
       schedulePollTask();
     }
   }
@@ -197,16 +211,18 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
   protected void initializePreparedStatement()
   {
     try {
-      // If its a range query pass upper and lower bounds, If its a polling query pass only the lower bound
-      if (isPollerPartition) {
+      if (currentWindowRecoveryState.lowerBound == 0 && currentWindowRecoveryState.key == null) {
         lastOffset = rangeQueryPair.getKey();
       } else {
+        lastOffset = currentWindowRecoveryState.lowerBound;
+        lastKey = currentWindowRecoveryState.key;
+      }
+      if (!isPollerPartition) {
         ps = store.getConnection().prepareStatement(
-            buildRangeQuery(rangeQueryPair.getKey(), (rangeQueryPair.getValue() - rangeQueryPair.getKey())),
+            buildRangeQuery(null, lastOffset, (rangeQueryPair.getValue() - lastOffset)),
             TYPE_FORWARD_ONLY, CONCUR_READ_ONLY);
       }
     } catch (SQLException e) {
-      LOG.error("Exception in initializing the range query for a given partition", e);
       throw new RuntimeException(e);
     }
 
@@ -224,7 +240,20 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
         throw new RuntimeException("Replay failed", e);
       }
     }
-    lowerBound = lastEmittedRow;
+
+    currentWindowRecoveryState = WindowData.of(currentWindowRecoveryState.key, lastEmittedRow, 0);
+    if (isPollerPartition) {
+      MutablePair<Object, Integer> keyOffset = fetchedKeyAndOffset.get();
+      if (keyOffset != null && keyOffset.getRight() < lastEmittedRow) {
+        if (!adjustKeyAndOffset.get()) {
+          // rebase offset
+          lastEmittedRow -= keyOffset.getRight();
+          currentWindowRecoveryState.lowerBound = lastEmittedRow;
+          currentWindowRecoveryState.key = keyOffset.getLeft();
+          adjustKeyAndOffset.set(true);
+        }
+      }
+    }
   }
 
   @Override
@@ -246,6 +275,26 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
 
   protected abstract void emitTuple(T tuple);
 
+  /**
+   * Visible to subclasses to allow for custom offset saving and initialization.
+   */
+  protected static class WindowData
+  {
+    // members visible for access in subclasses of poll operator
+    public Object key;
+    public int lowerBound;
+    public int upperBound;
+
+    public static WindowData of(Object key, int lowerBound, int upperBound)
+    {
+      WindowData wd = new WindowData();
+      wd.key = key;
+      wd.lowerBound = lowerBound;
+      wd.upperBound = upperBound;
+      return wd;
+    }
+  }
+
   @Override
   public void endWindow()
   {
@@ -266,7 +315,7 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
 
     try {
       if (currentWindowId > windowManager.getLargestCompletedWindow()) {
-        currentWindowRecoveryState = new MutablePair<>(lowerBound, lastEmittedRow);
+        currentWindowRecoveryState.upperBound = lastEmittedRow;
         windowManager.save(currentWindowRecoveryState, currentWindowId);
       }
     } catch (IOException e) {
@@ -282,23 +331,45 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
     store.disconnect();
   }
 
+  protected Object extractKey(ResultSet rs) throws SQLException
+  {
+    return rs.getObject(this.key);
+  }
+
   /**
    * Execute the query and transfer results to the emit queue.
    * @param preparedStatement PreparedStatement to execute the query and fetch results.
    */
-  protected void insertDbDataInQueue(PreparedStatement preparedStatement) throws SQLException, InterruptedException
+  protected int insertDbDataInQueue(PreparedStatement preparedStatement) throws SQLException, InterruptedException
   {
+    int resultCount = 0;
     preparedStatement.setFetchSize(getFetchSize());
     ResultSet result = preparedStatement.executeQuery();
-    if (result.next()) {
-      do {
-        while (execute && !emitQueue.offer(getTuple(result))) {
-          Thread.sleep(DEFAULT_SLEEP_TIME);
+    while (execute && result.next()) {
+      T obj = getTuple(result);
+      if (obj == null) {
+        continue;
+      }
+      while (execute && !emitQueue.offer(obj)) {
+        Thread.sleep(DEFAULT_SLEEP_TIME);
+      }
+      if (isPollerPartition && rebaseOffset) {
+        if (prevKey == null) {
+          prevKey = extractKey(result);
+        } else if (this.fetchedKeyAndOffset.get() == null) {
+          // track key change
+          Object nextKey = extractKey(result);
+          if (!nextKey.equals(prevKey)) {
+            // new key, ready for rebase (WHERE key > ?)
+            fetchedKeyAndOffset.set(new MutablePair<>(prevKey, lastOffset + resultCount));
+          }
         }
-      } while (execute && result.next());
-      result.close();
+      }
+      resultCount++;
     }
+    result.close();
     preparedStatement.close();
+    return resultCount;
   }
 
   /**
@@ -308,15 +379,21 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
   {
     try {
       if (isPollerPartition) {
-        LOG.debug("poll query");
-        int nextOffset = getRecordsCount();
-        while (lastOffset < nextOffset) {
-          PreparedStatement preparedStatement = store.getConnection().prepareStatement(buildRangeQuery(lastOffset, resultLimit),
-              TYPE_FORWARD_ONLY, CONCUR_READ_ONLY);
-          insertDbDataInQueue(preparedStatement);
-          lastOffset = lastOffset + resultLimit;
+        if (adjustKeyAndOffset.get()) {
+          LOG.debug("lastOffset {} lastKey {} rebase {}", lastOffset, lastKey, fetchedKeyAndOffset.get());
+          lastOffset -= fetchedKeyAndOffset.get().getRight();
+          lastKey = fetchedKeyAndOffset.get().getLeft();
+          prevKey = null;
+          fetchedKeyAndOffset.set(null);
+          adjustKeyAndOffset.set(false);
         }
-        lastOffset = nextOffset;
+        int count = getRecordsCount(lastKey);
+        LOG.debug("Poll count {}", count);
+        while (lastOffset < count) {
+          PreparedStatement preparedStatement = store.getConnection().prepareStatement(buildRangeQuery(lastKey, lastOffset, resultLimit),
+              TYPE_FORWARD_ONLY, CONCUR_READ_ONLY);
+          lastOffset += insertDbDataInQueue(preparedStatement);
+        }
       } else {
         insertDbDataInQueue(ps);
       }
@@ -335,58 +412,26 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
   protected void replay(long windowId) throws SQLException
   {
     try {
-      @SuppressWarnings("unchecked")
-      MutablePair<Integer, Integer> recoveredData = (MutablePair<Integer, Integer>)windowManager.retrieve(windowId);
-
-      if (recoveredData != null && shouldReplayWindow(recoveredData)) {
-        LOG.debug("[Recovering Window ID - {} for record range: {}, {}]", windowId, recoveredData.left,
-            recoveredData.right);
+      WindowData wd = (WindowData)windowManager.retrieve(windowId);
+      if (wd != null && wd.upperBound - wd.lowerBound > 0) {
+        LOG.debug("[Recovering Window ID - {} for key: {} record range: {}, {}]", windowId, wd.key,
+            wd.lowerBound, wd.upperBound);
         ps = store.getConnection().prepareStatement(
-            buildRangeQuery(recoveredData.left, (recoveredData.right - recoveredData.left)), TYPE_FORWARD_ONLY,
+            buildRangeQuery(wd.key, wd.lowerBound, (wd.upperBound - wd.lowerBound)), TYPE_FORWARD_ONLY,
             CONCUR_READ_ONLY);
         LOG.info("Query formed to recover data - {}", ps.toString());
         emitReplayedTuples(ps);
       }
 
       if (currentWindowId == windowManager.getLargestCompletedWindow()) {
-        try {
-          if (!isPollerPartition && rangeQueryPair.getValue() != null) {
-            ps = store.getConnection().prepareStatement(
-                buildRangeQuery(lastEmittedRow, (rangeQueryPair.getValue() - lastEmittedRow)), TYPE_FORWARD_ONLY,
-                CONCUR_READ_ONLY);
-          } else {
-            Integer bound = null;
-            if (lastEmittedRow == null) {
-              bound = rangeQueryPair.getKey();
-            } else {
-              bound = lastEmittedRow;
-            }
-            ps = store.getConnection().prepareStatement(buildRangeQuery(bound, Integer.MAX_VALUE), TYPE_FORWARD_ONLY,
-                CONCUR_READ_ONLY);
-            if (isPollerPartition) {
-              lastOffset = bound;
-            }
-          }
-          schedulePollTask();
-        } catch (SQLException e) {
-          throw new RuntimeException(e);
-        }
+        currentWindowRecoveryState = WindowData.of(wd.key, wd.upperBound, wd.upperBound);
+        initializePreparedStatement();
+        schedulePollTask();
       }
     } catch (IOException e) {
       throw new RuntimeException("Exception during replay of records.", e);
     }
 
-  }
-
-  private boolean shouldReplayWindow(MutablePair<Integer, Integer> recoveredData)
-  {
-    if (recoveredData.left == null || recoveredData.right == null) {
-      return false;
-    }
-    if (recoveredData.right.equals(rangeQueryPair.getValue()) || recoveredData.right.equals(lastEmittedRow)) {
-      return false;
-    }
-    return true;
   }
 
   /**
@@ -423,11 +468,11 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
     List<Partition<AbstractJdbcPollInputOperator<T>>> newPartitions = new ArrayList<>(
         getPartitionCount());
 
-    HashMap<Integer, KeyValPair<Integer, Integer>> partitionToRangeMap = null;
+    final List<KeyValPair<Integer, Integer>> partitionRanges;
     try {
       store.connect();
       dslContext = createDSLContext();
-      partitionToRangeMap = getPartitionedQueryRangeMap(getPartitionCount());
+      partitionRanges = getPartitionedQueryRanges(getPartitionCount());
     } catch (SQLException e) {
       LOG.error("Exception in initializing the partition range", e);
       throw new RuntimeException(e);
@@ -436,23 +481,24 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
     }
 
     KryoCloneUtils<AbstractJdbcPollInputOperator<T>> cloneUtils = KryoCloneUtils.createCloneUtils(this);
+    int pollOffset = 0;
 
     // The n given partitions are for range queries and n + 1 partition is for polling query
-    for (int i = 0; i <= getPartitionCount(); i++) {
+    for (KeyValPair<Integer, Integer> range : partitionRanges) {
       AbstractJdbcPollInputOperator<T> jdbcPoller = cloneUtils.getClone();
-      if (i < getPartitionCount()) {
-        jdbcPoller.rangeQueryPair = partitionToRangeMap.get(i);
-        jdbcPoller.lastEmittedRow = partitionToRangeMap.get(i).getKey();
-        jdbcPoller.isPollerPartition = false;
-      } else {
-        // The upper bound for the n+1 partition is set to null since its a pollable partition
-        int partitionKey = partitionToRangeMap.get(i - 1).getValue();
-        jdbcPoller.rangeQueryPair = new KeyValPair<>(partitionKey, null);
-        jdbcPoller.lastEmittedRow = partitionKey;
-        jdbcPoller.isPollerPartition = true;
-      }
+      jdbcPoller.rangeQueryPair = range;
+      jdbcPoller.lastEmittedRow = range.getKey();
+      jdbcPoller.isPollerPartition = false;
       newPartitions.add(new DefaultPartition<>(jdbcPoller));
+      pollOffset = range.getValue();
     }
+
+    // The upper bound for the n+1 partition is set to null since its a pollable partition
+    AbstractJdbcPollInputOperator<T> jdbcPoller = cloneUtils.getClone();
+    jdbcPoller.rangeQueryPair = new KeyValPair<>(pollOffset, null);
+    jdbcPoller.lastEmittedRow = pollOffset;
+    jdbcPoller.isPollerPartition = true;
+    newPartitions.add(new DefaultPartition<>(jdbcPoller));
 
     return newPartitions;
   }
@@ -464,25 +510,34 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
     // Nothing to implement here
   }
 
-  private HashMap<Integer, KeyValPair<Integer, Integer>> getPartitionedQueryRangeMap(int partitions)
+  private List<KeyValPair<Integer, Integer>> getPartitionedQueryRanges(int partitions)
       throws SQLException
   {
+    if (partitions == 0) {
+      return new ArrayList<>(0);
+    }
+
     int rowCount = 0;
     try {
-      rowCount = getRecordsCount();
+      rowCount = getRecordsCount(null);
     } catch (SQLException e) {
       LOG.error("Exception in getting the record range", e);
     }
 
-    HashMap<Integer, KeyValPair<Integer, Integer>> partitionToQueryMap = new HashMap<>();
+    List<KeyValPair<Integer, Integer>> partitionToQueryList = new ArrayList<>();
     int events = (rowCount / partitions);
     for (int i = 0, lowerOffset = 0, upperOffset = events; i < partitions - 1; i++, lowerOffset += events, upperOffset += events) {
-      partitionToQueryMap.put(i, new KeyValPair<>(lowerOffset, upperOffset));
+      partitionToQueryList.add(new KeyValPair<>(lowerOffset, upperOffset));
     }
 
-    partitionToQueryMap.put(partitions - 1, new KeyValPair<>(events * (partitions - 1), rowCount));
-    LOG.info("Partition map - " + partitionToQueryMap.toString());
-    return partitionToQueryMap;
+    partitionToQueryList.add(new KeyValPair<>(events * (partitions - 1), rowCount));
+    LOG.info("Partition ranges - " + partitionToQueryList.toString());
+    return partitionToQueryList;
+  }
+
+  protected Condition andLowerBoundKeyCondition(Condition c, Object lowerBoundKey)
+  {
+    return c.and(this.key + " > ?", lowerBoundKey);
   }
 
   /**
@@ -490,12 +545,17 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
    *
    * @return number of records in table
    */
-  private int getRecordsCount() throws SQLException
+  private int getRecordsCount(Object lowerBoundKey) throws SQLException
   {
     Condition condition = DSL.trueCondition();
     if (getWhereCondition() != null) {
       condition = condition.and(getWhereCondition());
     }
+
+    if (isPollerPartition && lowerBoundKey != null) {
+      condition = andLowerBoundKeyCondition(condition, lowerBoundKey);
+    }
+
     int recordsCount = dslContext.select(DSL.count()).from(getTableName()).where(condition).fetchOne(0, int.class);
     return recordsCount;
   }
@@ -503,11 +563,15 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
   /**
    * Helper function returns a range query based on the bounds passed<br>
    */
-  protected String buildRangeQuery(int offset, int limit)
+  protected String buildRangeQuery(Object lowerBoundKey, int offset, int limit)
   {
     Condition condition = DSL.trueCondition();
     if (getWhereCondition() != null) {
       condition = condition.and(getWhereCondition());
+    }
+
+    if (isPollerPartition && lowerBoundKey != null) {
+      condition = andLowerBoundKeyCondition(condition, lowerBoundKey);
     }
 
     String sqlQuery;
@@ -563,7 +627,8 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
   }
 
   /**
-   * Sets non-polling static partitions count
+   * Sets non-polling static partitions count.<p>
+   * When set to 0, the operator will run in poll mode only.
    *
    * @param partitionCount
    */
@@ -750,6 +815,24 @@ public abstract class AbstractJdbcPollInputOperator<T> extends AbstractStoreInpu
     this.resultLimit = resultLimit;
   }
 
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractJdbcPollInputOperator.class);
+  public boolean isRebaseOffset()
+  {
+    return rebaseOffset;
+  }
+
+  /**
+   * Whether the query should automatically be augmented with a WHERE
+   * condition for trailing lower bound key value.
+   * <p>
+   * Rebase allows the operator to poll from tables where old data is
+   * periodically purged. Without it, the default zero based row offset would
+   * lead to missed data. The trailing floor is also more efficient when working
+   * with key partitioned sources as the query planner can skip those partitions
+   * below the base key.
+   */
+  public void setRebaseOffset(boolean rebaseOffset)
+  {
+    this.rebaseOffset = rebaseOffset;
+  }
 
 }
