@@ -29,8 +29,17 @@ import static org.junit.Assert.assertEquals;
  */
 public class RunningAverageTest
 {
-  public RunningAverageTest()
+
+  @Test
+  public void testDoesNotOverflow()
   {
+    RunningAverage instance = new RunningAverage();
+    instance.input.process(Double.MAX_VALUE);
+    assertEquals("first average", Double.MAX_VALUE, instance.average, 0);
+
+    instance.input.process(Double.MAX_VALUE);
+
+    assertEquals("second average", Double.MAX_VALUE, instance.average, 0);
   }
 
   @Test
