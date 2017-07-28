@@ -33,7 +33,7 @@ import com.datatorrent.lib.io.block.ReaderContext;
 import com.datatorrent.netlet.util.Slice;
 
 /**
- * FSInputModule is an abstract class used to read files from file systems like HDFS, NFS, S3, etc. <br/>
+ * FSInputModule is a class used to read files from file systems like HDFS, NFS, S3, etc. <br/>
  * FSInputModule emits FileMetadata, BlockMetadata, BlockBytes. <br/>
  * The module reads data in parallel, following parameters can be configured<br/>
  * 1. files: list of file(s)/directories to read<br/>
