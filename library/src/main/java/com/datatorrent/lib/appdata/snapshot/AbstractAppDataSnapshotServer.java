@@ -28,6 +28,7 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.appdata.AbstractAppDataServer;
 import org.apache.commons.lang3.mutable.MutableLong;
 
 import com.google.common.base.Preconditions;
@@ -36,11 +37,9 @@ import com.google.common.collect.Lists;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.experimental.AppData;
 import com.datatorrent.common.experimental.AppData.EmbeddableQueryInfoProvider;
-import com.datatorrent.lib.appdata.StoreUtils;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.query.AppDataWindowEndQueueManager;
 import com.datatorrent.lib.appdata.query.QueryExecutor;
@@ -67,7 +66,7 @@ import com.datatorrent.lib.appdata.schemas.SnapshotSchema;
  * @param <INPUT_EVENT> The type of the input events that the operator accepts.
  * @since 3.0.0
  */
-public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Operator, AppData.Store<String>
+public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> extends AbstractAppDataServer<String>
 {
   /**
    * The {@link QueryManagerSynchronous} for the operator.
@@ -198,6 +197,7 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
   @Override
   public void setup(OperatorContext context)
   {
+    super.setup(context);
     setupSchema();
 
     schemaRegistry = new SchemaRegistrySingle(schema);
@@ -209,13 +209,6 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
     queryDeserializerFactory.setContext(DataQuerySnapshot.class, schemaRegistry);
     resultSerializerFactory = new MessageSerializerFactory(resultFormatter);
     queryProcessor.setup(context);
-
-    if (embeddableQueryInfoProvider != null) {
-      embeddableQueryInfoProvider.enableEmbeddedMode();
-      LOG.info("An embeddable query operator is being used of class {}.", embeddableQueryInfoProvider.getClass().getName());
-      StoreUtils.attachOutputPortToInputPort(embeddableQueryInfoProvider.getOutputPort(), query);
-      embeddableQueryInfoProvider.setup(context);
-    }
   }
 
   protected void setupSchema()
@@ -235,19 +228,14 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
   @Override
   public void beginWindow(long windowId)
   {
-    if (embeddableQueryInfoProvider != null) {
-      embeddableQueryInfoProvider.beginWindow(windowId);
-    }
-
+    super.beginWindow(windowId);
     queryProcessor.beginWindow(windowId);
   }
 
   @Override
   public void endWindow()
   {
-    if (embeddableQueryInfoProvider != null) {
-      embeddableQueryInfoProvider.endWindow();
-    }
+    super.endWindow();
 
     {
       Result result;
@@ -275,19 +263,8 @@ public abstract class AbstractAppDataSnapshotServer<INPUT_EVENT> implements Oper
   @Override
   public void teardown()
   {
-    if (embeddableQueryInfoProvider != null) {
-      embeddableQueryInfoProvider.teardown();
-    }
-
+    super.teardown();
     queryProcessor.teardown();
-  }
-
-  @Override
-  public void deactivate()
-  {
-    if (embeddableQueryInfoProvider != null) {
-      embeddableQueryInfoProvider.deactivate();
-    }
   }
 
   /**

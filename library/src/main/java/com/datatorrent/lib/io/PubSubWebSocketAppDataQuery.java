@@ -23,7 +23,6 @@ import java.net.URISyntaxException;
 
 import javax.validation.constraints.Min;
 
-import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
@@ -158,19 +157,6 @@ public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<St
 
     try {
       JSONObject jo = new JSONObject(message);
-      JSONArray ja = jo.names();
-
-      //Make sure that only the correct keys are in the first level of JSON
-      for (int keyIndex = 0; keyIndex < ja.length(); keyIndex++) {
-        String key = ja.getString(keyIndex);
-        if (!(PubSubMessage.DATA_KEY.equals(key) ||
-            PubSubMessage.TOPIC_KEY.equals(key) ||
-            PubSubMessage.TYPE_KEY.equals(key))) {
-          logger.error("{} is not a valid key in the first level of the following pubsub message:\n{}", key, message);
-          return null;
-        }
-      }
-
       data = jo.getString(PubSubMessage.DATA_KEY);
     } catch (JSONException e) {
       return null;
