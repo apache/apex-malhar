@@ -97,15 +97,15 @@ public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<
       throw new RuntimeException(ex);
     }
 
-    String id;
+    String topic = getTopic();
 
-    try {
-      id = jo.getString("id");
-    } catch (JSONException ex) {
-      throw new RuntimeException(ex);
+    if (jo.has("id")) {
+      try {
+        topic += "." + jo.getString("id");
+      } catch (JSONException ex) {
+        throw new RuntimeException(ex);
+      }
     }
-
-    String topic = getTopic() + "." + id;
 
     JSONObject output = new JSONObject();
 
