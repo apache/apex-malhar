@@ -680,7 +680,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
 
       try {
         int counterForTuple = 0;
-        while (counterForTuple++ < emitBatchSize) {
+        while (!suspendEmit() && counterForTuple++ < emitBatchSize) {
           T line = readEntity();
           if (line == null) {
             LOG.info("done reading file ({} entries).", offset);
@@ -708,6 +708,15 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
         currentWindowRecoveryState.add(new RecoveryEntry(file, startOffset, offset, fileClosed));
       }
     }
+  }
+
+  /**
+   * Whether or not to suspend emission of tuples, regardless of emitBatchSize.
+   * This is useful for subclasses to have their own logic of whether to emit during the current window.
+   */
+  protected boolean suspendEmit()
+  {
+    return false;
   }
 
   /**
