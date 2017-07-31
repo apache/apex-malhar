@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.net.NetUtils;
 
 import com.datatorrent.api.LocalMode;
 
@@ -52,8 +53,9 @@ public class ApplicationTest
   private static final String directory = "target/exactlyonceoutput";
   private String tuplesUntilKill;
 
-  private static final int zkPort = 2181;
-  private static final int brokerPort = 9092;
+  private final int zkPort = NetUtils.getFreeSocketPort();
+  private final int brokerPort = NetUtils.getFreeSocketPort();
+  private final String broker = "localhost:" + brokerPort;
 
   private static final Logger logger = LoggerFactory.getLogger(ApplicationTest.class);
 
@@ -107,6 +109,10 @@ public class ApplicationTest
     conf.addResource(this.getClass().getResourceAsStream("/META-INF/properties-KafkaExactlyOnceOutput.xml"));
     conf.set("dt.operator.passthrough.prop.directoryPath", directory);
     conf.set("dt.operator.validationToFile.prop.filePath", directory);
+    conf.set("dt.operator.kafkaTopicExactly.prop.clusters", broker);
+    conf.set("dt.operator.kafkaTopicAtLeast.prop.clusters", broker);
+    conf.set("dt.operator.kafkaOutputOperator.prop.properties(bootstrap.servers)", broker);
+    conf.set("dt.operator.kafkaExactlyOnceOutputOperator.prop.properties(bootstrap.servers)", broker);
     tuplesUntilKill = conf.get("dt.operator.passthrough.prop.tuplesUntilKill");
     return conf;
   }

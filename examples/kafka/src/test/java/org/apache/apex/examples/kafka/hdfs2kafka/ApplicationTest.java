@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.net.NetUtils;
 
 import com.datatorrent.api.LocalMode;
 
@@ -51,8 +52,8 @@ public class ApplicationTest
   private static final String directory = "target/hdfs2kafka";
   private static final String FILE_NAME = "messages.txt";
 
-  private static final int zkPort = 2181;
-  private static final int brokerPort = 9092;
+  private static final int zkPort = NetUtils.getFreeSocketPort();
+  private static final int brokerPort = NetUtils.getFreeSocketPort();
   private static final String BROKER = "localhost:" + brokerPort;
   //private static final String FILE_PATH = FILE_DIR + "/" + FILE_NAME + ".0";     // first part
 
@@ -119,6 +120,9 @@ public class ApplicationTest
     Configuration conf = new Configuration(false);
     conf.addResource(this.getClass().getResourceAsStream("/META-INF/properties-hdfs2kafka.xml"));
     conf.set("dt.operator.lines.prop.directory", directory);
+    conf.set("dt.operator.kafkaOutput.prop.producerProperties",
+        "serializer.class=kafka.serializer.StringEncoder,producer.type=async,metadata.broker.list=" + BROKER);
+
     return conf;
   }
 
