@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.apex.malhar.kafka.AbstractKafkaInputOperator;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.net.NetUtils;
 
 import com.datatorrent.api.LocalMode;
 
@@ -50,11 +51,11 @@ public class ApplicationTest
   private static final Logger LOG = LoggerFactory.getLogger(ApplicationTest.class);
   private static final String TOPIC = "kafka2hdfs";
 
-  private static final int zkPort = 2181;
-  private static final int brokerPort = 9092;
+  private static final int zkPort = NetUtils.getFreeSocketPort();
+  private static final int brokerPort = NetUtils.getFreeSocketPort();
   private static final String BROKER = "localhost:" + brokerPort;
   private static final String FILE_NAME = "test";
-  private static final String FILE_DIR = "/tmp/FromKafka";
+  private static final String FILE_DIR = "./target/tmp/FromKafka";
   private static final String FILE_PATH = FILE_DIR + "/" + FILE_NAME + ".0";     // first part
 
   // test messages
