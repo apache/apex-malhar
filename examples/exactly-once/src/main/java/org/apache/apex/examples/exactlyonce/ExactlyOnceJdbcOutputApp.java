@@ -1,38 +1,55 @@
 /**
- * Put your copyright and license info here.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-package com.example.myapexapp;
+package org.apache.apex.examples.exactlyonce;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Properties;
 
+import org.apache.apex.malhar.kafka.AbstractKafkaConsumer;
+import org.apache.apex.malhar.kafka.AbstractKafkaInputOperator;
+import org.apache.apex.malhar.kafka.KafkaConsumer09;
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
-import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
 import com.datatorrent.lib.db.jdbc.JdbcTransactionalStore;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.IdempotentStorageManager;
-import com.datatorrent.lib.util.BaseUniqueKeyCounter;
 import com.datatorrent.lib.util.KeyValPair;
 
-@ApplicationAnnotation(name="ExactlyOnceExampleApplication")
-public class Application implements StreamingApplication
+@ApplicationAnnotation(name = "ExactlyOnceJbdcOutput")
+public class ExactlyOnceJdbcOutputApp implements StreamingApplication
 {
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
     KafkaSinglePortStringInputOperator kafkaInput = dag.addOperator("kafkaInput", new KafkaSinglePortStringInputOperator());
-    kafkaInput.setIdempotentStorageManager(new IdempotentStorageManager.FSIdempotentStorageManager());
+    kafkaInput.setWindowDataManager(new FSWindowDataManager());
     UniqueCounterFlat count = dag.addOperator("count", new UniqueCounterFlat());
     CountStoreOperator store = dag.addOperator("store", new CountStoreOperator());
     store.setStore(new JdbcTransactionalStore());
@@ -74,6 +91,23 @@ public class Application implements StreamingApplication
         counts.emit(new KeyValPair<>(e.getKey(), e.getValue().toInteger()));
       }
       map.clear();
+    }
+  }
+
+  public static class KafkaSinglePortStringInputOperator extends AbstractKafkaInputOperator
+  {
+    public final transient DefaultOutputPort<String> outputPort = new DefaultOutputPort<>();
+
+    @Override
+    public AbstractKafkaConsumer createConsumer(Properties properties)
+    {
+      return new KafkaConsumer09(properties);
+    }
+
+    @Override
+    protected void emitTuple(String cluster, ConsumerRecord<byte[], byte[]> message)
+    {
+      outputPort.emit(new String(message.value()));
     }
   }
 
