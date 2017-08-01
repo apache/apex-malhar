@@ -41,6 +41,7 @@ import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
 public class LineReader extends AbstractFileInputOperator<String>
 {
   private static final Logger LOG = LoggerFactory.getLogger(LineReader.class);
+  private boolean flag = true;
 
   /**
    * Output port on which lines from current file name are emitted
@@ -104,6 +105,7 @@ public class LineReader extends AbstractFileInputOperator<String>
     if (control.isConnected()) {
       LOG.info("readEntity: EOF for {}", path);
       final String name = path.getName();    // final component of path
+      flag = false;
       control.emit(name);
     }
 
@@ -111,8 +113,23 @@ public class LineReader extends AbstractFileInputOperator<String>
   }
 
   @Override
+  public void emitTuples()
+  {
+    if (flag) {
+      super.emitTuples();
+    }
+  }
+
+  @Override
   protected void emit(String tuple)
   {
     output.emit(tuple);
+  }
+
+  @Override
+  public void endWindow()
+  {
+    super.endWindow();
+    flag = true;
   }
 }
