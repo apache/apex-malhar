@@ -201,6 +201,7 @@
     <module>ftp</module>
     <module>s3</module>
     <module>jdbc</module>
+    <module>JMS</module>
   </modules>
 
   <dependencies>
