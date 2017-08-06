@@ -48,7 +48,8 @@ public class ExactlyOnceJdbcOutputApp implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    KafkaSinglePortStringInputOperator kafkaInput = dag.addOperator("kafkaInput", new KafkaSinglePortStringInputOperator());
+    KafkaSinglePortStringInputOperator kafkaInput = dag.addOperator("kafkaInput",
+        new KafkaSinglePortStringInputOperator());
     kafkaInput.setWindowDataManager(new FSWindowDataManager());
     UniqueCounterFlat count = dag.addOperator("count", new UniqueCounterFlat());
     CountStoreOperator store = dag.addOperator("store", new CountStoreOperator());
@@ -58,7 +59,8 @@ public class ExactlyOnceJdbcOutputApp implements StreamingApplication
     dag.addStream("counts", count.counts, store.input, cons.input);
   }
 
-  public static class CountStoreOperator extends AbstractJdbcTransactionableOutputOperator<KeyValPair<String, Integer>>
+  public static class CountStoreOperator
+      extends AbstractJdbcTransactionableOutputOperator<KeyValPair<String, Integer>>
   {
     public static final String SQL =
         "MERGE INTO words USING (VALUES ?, ?) I (word, wcount)"
@@ -73,13 +75,18 @@ public class ExactlyOnceJdbcOutputApp implements StreamingApplication
     }
 
     @Override
-    protected void setStatementParameters(PreparedStatement statement, KeyValPair<String, Integer> tuple) throws SQLException
+    protected void setStatementParameters(PreparedStatement statement,
+        KeyValPair<String, Integer> tuple) throws SQLException
     {
       statement.setString(1, tuple.getKey());
       statement.setInt(2, tuple.getValue());
     }
   }
 
+  /**
+   * Extension of {@link UniqueCounter} that emits individual key/value pairs instead
+   * of map with all modified values.
+   */
   public static class UniqueCounterFlat extends UniqueCounter<String>
   {
     public final transient DefaultOutputPort<KeyValPair<String, Integer>> counts = new DefaultOutputPort<>();

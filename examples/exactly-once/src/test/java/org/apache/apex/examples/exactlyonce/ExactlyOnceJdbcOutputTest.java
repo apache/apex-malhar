@@ -76,19 +76,20 @@ public class ExactlyOnceJdbcOutputTest
     Connection con = DriverManager.getConnection(DB_URL);
     Statement stmt = con.createStatement();
 
-    String createMetaTable = "CREATE TABLE IF NOT EXISTS " + JdbcTransactionalStore.DEFAULT_META_TABLE + " ( "
+    String createMetaTable = "CREATE TABLE IF NOT EXISTS "
+        + JdbcTransactionalStore.DEFAULT_META_TABLE + " ( "
         + JdbcTransactionalStore.DEFAULT_APP_ID_COL + " VARCHAR(100) NOT NULL, "
         + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT NOT NULL, "
         + JdbcTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT NOT NULL, "
         + "UNIQUE (" + JdbcTransactionalStore.DEFAULT_APP_ID_COL + ", "
-        + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + ", " + JdbcTransactionalStore.DEFAULT_WINDOW_COL + ") "
+        + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + ", "
+        + JdbcTransactionalStore.DEFAULT_WINDOW_COL + ") "
         + ")";
     stmt.executeUpdate(createMetaTable);
 
     String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME
         + "(word VARCHAR(255) not NULL, wcount INTEGER, PRIMARY KEY ( word ))";
     stmt.executeUpdate(createTable);
-
   }
 
   @Test
