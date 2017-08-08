@@ -25,11 +25,13 @@ import java.util.List;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.esotericsoftware.kryo.NotNull;
+
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Operator;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.db.cache.CacheManager;
 import com.datatorrent.lib.db.cache.CacheStore;
+import com.datatorrent.lib.db.cache.CacheStore.ExpiryType;
 import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.lib.util.FieldInfo.SupportType;
 
@@ -66,8 +68,9 @@ public abstract class AbstractEnricher<INPUT, OUTPUT> extends BaseOperator imple
   /**
    * Optional parameters for enricher.
    */
-  private int cacheExpirationInterval = 1 * 60 * 60 * 1000;  // 1 hour
-  private int cacheCleanupInterval = 1 * 60 * 60 * 1000; // 1 hour
+  private long cacheExpirationInterval = 1 * 60 * 60 * 1000;  // 1 hour
+  private long cacheCleanupInterval = 1 * 60 * 60 * 1000; // 1 hour
+  private ExpiryType expiryType = ExpiryType.EXPIRE_AFTER_WRITE;
   private int cacheSize = 1024; // 1024 records
 
   /**
@@ -160,7 +163,7 @@ public abstract class AbstractEnricher<INPUT, OUTPUT> extends BaseOperator imple
     // set expiration to one day.
     primaryCache.setEntryExpiryDurationInMillis(cacheExpirationInterval);
     primaryCache.setCacheCleanupInMillis(cacheCleanupInterval);
-    primaryCache.setEntryExpiryStrategy(CacheStore.ExpiryType.EXPIRE_AFTER_WRITE);
+    primaryCache.setEntryExpiryStrategy(expiryType);
     primaryCache.setMaxCacheSize(cacheSize);
 
     cacheManager.setPrimary(primaryCache);
@@ -268,7 +271,7 @@ public abstract class AbstractEnricher<INPUT, OUTPUT> extends BaseOperator imple
    *
    * @return Cache entry expiration interval in ms
    */
-  public int getCacheExpirationInterval()
+  public long getCacheExpirationInterval()
   {
     return cacheExpirationInterval;
   }
@@ -279,7 +282,7 @@ public abstract class AbstractEnricher<INPUT, OUTPUT> extends BaseOperator imple
    *
    * @param cacheExpirationInterval Cache entry expiration interval in ms
    */
-  public void setCacheExpirationInterval(int cacheExpirationInterval)
+  public void setCacheExpirationInterval(long cacheExpirationInterval)
   {
     this.cacheExpirationInterval = cacheExpirationInterval;
   }
@@ -290,7 +293,7 @@ public abstract class AbstractEnricher<INPUT, OUTPUT> extends BaseOperator imple
    *
    * @return cache cleanup interval in ms.
    */
-  public int getCacheCleanupInterval()
+  public long getCacheCleanupInterval()
   {
     return cacheCleanupInterval;
   }
@@ -301,7 +304,7 @@ public abstract class AbstractEnricher<INPUT, OUTPUT> extends BaseOperator imple
    *
    * @param cacheCleanupInterval cache cleanup interval in ms.
    */
-  public void setCacheCleanupInterval(int cacheCleanupInterval)
+  public void setCacheCleanupInterval(long cacheCleanupInterval)
   {
     this.cacheCleanupInterval = cacheCleanupInterval;
   }
@@ -324,6 +327,16 @@ public abstract class AbstractEnricher<INPUT, OUTPUT> extends BaseOperator imple
   public void setCacheSize(int cacheSize)
   {
     this.cacheSize = cacheSize;
+  }
+
+  public ExpiryType getExpiryType()
+  {
+    return expiryType;
+  }
+
+  public void setExpiryType(ExpiryType expiryType)
+  {
+    this.expiryType = expiryType;
   }
 
   public CacheManager getCacheManager()

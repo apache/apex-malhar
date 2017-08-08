@@ -58,10 +58,10 @@ public class CacheStore implements CacheManager.Primary, Component<CacheManager.
   protected long maxCacheSize = 2000;
 
   @Min(0)
-  protected int entryExpiryDurationInMillis = 60000; //1 minute
+  protected long entryExpiryDurationInMillis = 60000; //1 minute
 
   @Min(0)
-  protected int cacheCleanupIntervalInMillis = 60500; //.5 seconds after entries are expired
+  protected long cacheCleanupIntervalInMillis = 60500; //.5 seconds after entries are expired
 
   @NotNull
   protected ExpiryType entryExpiryStrategy = ExpiryType.EXPIRE_AFTER_ACCESS;
@@ -190,7 +190,7 @@ public class CacheStore implements CacheManager.Primary, Component<CacheManager.
    *
    * @param durationInMillis the duration after which a cache entry is expired.
    */
-  public void setEntryExpiryDurationInMillis(int durationInMillis)
+  public void setEntryExpiryDurationInMillis(long durationInMillis)
   {
     this.entryExpiryDurationInMillis = durationInMillis;
   }
@@ -200,7 +200,7 @@ public class CacheStore implements CacheManager.Primary, Component<CacheManager.
    *
    * @param durationInMillis the duration after which cache is cleaned up regularly.
    */
-  public void setCacheCleanupInMillis(int durationInMillis)
+  public void setCacheCleanupInMillis(long durationInMillis)
   {
     this.cacheCleanupIntervalInMillis = durationInMillis;
   }
