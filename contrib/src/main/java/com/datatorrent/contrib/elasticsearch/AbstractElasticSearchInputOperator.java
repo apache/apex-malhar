@@ -53,13 +53,13 @@ public abstract class AbstractElasticSearchInputOperator<T, S extends ElasticSea
   /**
    * Initializing transient fields such as ElasticSearchConnectable, SearchRequestBuilder
    *
-   * @see com.datatorrent.lib.db.AbstractStoreInputOperator#setup(com.datatorrent.api.Context.OperatorContext)
+   * @see AbstractStoreInputOperator#setup(OperatorContext)
    */
   @Override
   public void setup(OperatorContext t1)
   {
     super.setup(t1);
-    this.searchRequestBuilder = new SearchRequestBuilder(store.client);
+    this.searchRequestBuilder = store.client.prepareSearch(getIndexName());
   }
 
   /**
@@ -95,5 +95,17 @@ public abstract class AbstractElasticSearchInputOperator<T, S extends ElasticSea
    * @return {@link SearchRequestBuilder}
    */
   protected abstract SearchRequestBuilder getSearchRequestBuilder();
+
+  /**
+   *
+   * @return
+     */
+  protected abstract String getIndexName();
+
+  /**
+   *
+   * @param indexName
+     */
+  protected abstract void setIndexName(String indexName);
 
 }
