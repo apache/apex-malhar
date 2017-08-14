@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.parquet;
+package org.apache.apex.malhar.contrib.parquet;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,25 +35,17 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.python.google.common.collect.Lists;
 
+import org.apache.apex.malhar.lib.helper.TestPortContext;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Getter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.Path;
-
-import com.google.common.collect.Sets;
-
-import com.datatorrent.api.Attribute;
-import com.datatorrent.api.Context;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.lib.helper.TestPortContext;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Getter;
 
 import org.apache.parquet.column.ColumnDescriptor;
 import org.apache.parquet.hadoop.ParquetWriter;
@@ -65,12 +57,19 @@ import org.apache.parquet.io.api.RecordConsumer;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.MessageTypeParser;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import com.google.common.collect.Sets;
+
+import com.datatorrent.api.Attribute;
+import com.datatorrent.api.Context;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.StreamingApplication;
+
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class ParquetFilePOJOReaderTest
 {
-
-  private static final String PARQUET_SCHEMA = "message com.datatorrent.contrib.parquet.eventsEventRecord {"
+  private static final String PARQUET_SCHEMA = "message org.apache.apex.malhar.contrib.parquet.eventsEventRecord {"
       + "required INT32 event_id;" + "required BINARY org_id (UTF8);" + "required INT64 long_id;"
       + "optional BOOLEAN css_file_loaded;" + "optional FLOAT float_val;" + "optional DOUBLE double_val;}";
 
@@ -251,7 +250,7 @@ public class ParquetFilePOJOReaderTest
   }
 
   private static void writeParquetFile(String rawSchema, File outputParquetFile, List<EventRecord> data)
-      throws IOException
+    throws IOException
   {
     Path path = new Path(outputParquetFile.toURI());
     MessageType schema = MessageTypeParser.parseMessageType(rawSchema);
@@ -594,7 +593,7 @@ public class ParquetFilePOJOReaderTest
     }
 
     private Getter generateGettersForField(Class<?> klass, String inputFieldName)
-        throws NoSuchFieldException, SecurityException
+      throws NoSuchFieldException, SecurityException
     {
       Field f = klass.getDeclaredField(inputFieldName);
       Class c = ClassUtils.primitiveToWrapper(f.getType());

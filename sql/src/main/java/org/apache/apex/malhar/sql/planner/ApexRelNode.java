@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
 import org.apache.apex.malhar.sql.codegen.ExpressionCompiler;
 import org.apache.apex.malhar.sql.operators.FilterTransformOperator;
 import org.apache.apex.malhar.sql.operators.InnerJoinOperator;
@@ -60,7 +61,6 @@ import com.google.common.collect.Lists;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 /**
  * This class defines how to populate DAG of Apex for the relational nodes of SQL Calcite

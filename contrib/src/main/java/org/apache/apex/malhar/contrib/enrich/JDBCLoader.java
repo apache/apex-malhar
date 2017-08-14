@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.enrich;
+package org.apache.apex.malhar.contrib.enrich;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,12 +26,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.db.jdbc.JdbcStore;
+import org.apache.apex.malhar.lib.util.FieldInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.google.common.collect.Lists;
-import com.datatorrent.lib.db.jdbc.JdbcStore;
-import com.datatorrent.lib.util.FieldInfo;
 
 /**
  * <p>HBaseLoader extends from {@link JdbcStore} uses JDBC to connect and implements BackendLoaders interface.</p> <br/>

@@ -24,7 +24,7 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
-import com.datatorrent.lib.streamquery.condition.Condition;
+import org.apache.apex.malhar.lib.streamquery.condition.Condition;
 
 /**
  * An implementation of condition class to check if a column value is in a given set of values.

@@ -16,23 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.accumulo;
+package org.apache.apex.malhar.contrib.accumulo;
 
-
-import org.apache.accumulo.core.data.Mutation;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import org.apache.accumulo.core.data.Mutation;
 
-public class AccumuloOutputOperatorTest {
-  private static final Logger logger = LoggerFactory
-      .getLogger(AccumuloOutputOperatorTest.class);
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
+public class AccumuloOutputOperatorTest
+{
   @Test
-  public void testPut() throws Exception {
+  public void testPut() throws Exception
+  {
 
     AccumuloTestHelper.getConnector();
     AccumuloTestHelper.clearTable();
@@ -46,8 +43,11 @@ public class AccumuloOutputOperatorTest {
 
     atleastOper.setup(mockOperatorContext(0));
     atleastOper.beginWindow(0);
-    AccumuloTuple a=new AccumuloTuple();
-    a.setRow("john");a.setColFamily("colfam0");a.setColName("street");a.setColValue("patrick");
+    AccumuloTuple a = new AccumuloTuple();
+    a.setRow("john");
+    a.setColFamily("colfam0");
+    a.setColName("street");
+    a.setColValue("patrick");
     atleastOper.input.process(a);
     atleastOper.endWindow();
     AccumuloTuple tuple;
@@ -62,10 +62,12 @@ public class AccumuloOutputOperatorTest {
     Assert.assertEquals("Tuple column value", tuple.getColValue(), "patrick");
 
   }
-  public static class TestAccumuloOutputOperator extends AbstractAccumuloOutputOperator<AccumuloTuple> {
 
+  public static class TestAccumuloOutputOperator extends AbstractAccumuloOutputOperator<AccumuloTuple>
+  {
     @Override
-    public Mutation operationMutation(AccumuloTuple t) {
+    public Mutation operationMutation(AccumuloTuple t)
+    {
       Mutation mutation = new Mutation(t.getRow().getBytes());
       mutation.put(t.getColFamily().getBytes(),t.getColName().getBytes(),t.getColValue().getBytes());
       return mutation;

@@ -33,6 +33,7 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.fileaccess.FileAccess;
 import org.apache.apex.malhar.lib.utils.serde.KeyValueByteStreamProvider;
 import org.apache.apex.malhar.lib.utils.serde.SliceUtils;
 import org.apache.apex.malhar.lib.utils.serde.WindowedBlockStream;
@@ -43,7 +44,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Longs;
 
-import com.datatorrent.lib.fileaccess.FileAccess;
 import com.datatorrent.netlet.util.Slice;
 
 /**

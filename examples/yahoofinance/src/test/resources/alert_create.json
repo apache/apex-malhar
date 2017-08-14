@@ -2,14 +2,14 @@
     "name":"alertName",
     "streamName":"yahooFinance.outputPort",
     "filter": { 
-        "class": "com.datatorrent.lib.util.JavaScriptFilterOperator", 
+        "class": "org.apache.apex.malhar.lib.util.JavaScriptFilterOperator", 
         "properties": {
             "setupScript":"function f() { return s0 == \"AAPL\" && l1 > 508 }",
             "functionName":"f"
         }
     },
     "escalation": { 
-        "class": "com.datatorrent.lib.util.AlertEscalationOperator", 
+        "class": "org.apache.apex.malhar.lib.util.AlertEscalationOperator", 
         "properties": { 
             "alertInterval":"5000",
             "timeout":"10000"
@@ -18,7 +18,7 @@
     "actions": [{ 
         "outputPort":"alert",
         "inputPort":"input",
-        "class":"com.datatorrent.lib.io.ConsoleOutputOperator"
+        "class":"org.apache.apex.malhar.lib.io.ConsoleOutputOperator"
     }],
     "saveAs":"firstAlert"
 }

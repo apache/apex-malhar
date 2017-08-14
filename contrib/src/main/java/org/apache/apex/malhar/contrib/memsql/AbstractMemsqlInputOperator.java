@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.memsql;
+package org.apache.apex.malhar.contrib.memsql;
 
-import com.datatorrent.lib.db.jdbc.AbstractJdbcInputOperator;
+import org.apache.apex.malhar.lib.db.jdbc.AbstractJdbcInputOperator;
 
 /**
  * This is an input operator that reads from a memsql database.

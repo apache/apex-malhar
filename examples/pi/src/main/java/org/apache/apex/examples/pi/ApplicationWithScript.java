@@ -18,15 +18,15 @@
  */
 package org.apache.apex.examples.pi;
 
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+import org.apache.apex.malhar.lib.script.JavaScriptOperator;
+import org.apache.apex.malhar.lib.stream.RoundRobinHashMap;
+import org.apache.apex.malhar.lib.testbench.RandomEventGenerator;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.script.JavaScriptOperator;
-import com.datatorrent.lib.stream.RoundRobinHashMap;
-import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 /**
  * Monte Carlo PI estimation example : <br>
@@ -61,14 +61,14 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
  * <ul>
  * <li><b>The rand Operator : </b> This operator generates random integer
  * between 0-30k. <br>
- * Class : {@link com.datatorrent.lib.testbench.RandomEventGenerator} <br>
+ * Class : {@link org.apache.apex.malhar.lib.testbench.RandomEventGenerator} <br>
  * StateFull : No</li>
  *  <li><b>The rrhm Operator : </b> This operator takes input from random generator
  *  creates tuples of (x,y) in round robin fashion. <br>
- * Class : {@link com.datatorrent.lib.stream.RandomEventGenerator} <br>
+ * Class : {@link org.apache.apex.malhar.lib.stream.RandomEventGenerator} <br>
  * StateFull : Yes, tuple is emitted after (x, y) values have been aggregated.</li>
  * <li><b>The calc operator : </b> This is java script operator implementing <br>
- * Class : {@link com.datatorrent.lib.math.Script} <br>
+ * Class : {@link org.apache.apex.malhar.lib.math.Script} <br>
  * StateFull : No</li>
  * <li><b>The operator Console: </b> This operator just outputs the input tuples
  * to the console (or stdout). User can use any output adapter.  <br>

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.mqtt;
+package org.apache.apex.malhar.contrib.mqtt;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,9 +30,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator.ActivationListener;
 import com.datatorrent.common.util.BaseOperator;
 
@@ -45,7 +48,7 @@ public class MqttOutputOperatorTest
   private static final Map<String, String> sendingData = new HashMap<String, String>();
   private static final Map<String, String> receivedData = new HashMap<String, String>();
   static int sentTuples = 0;
-  final static int totalTuples = 9;
+  static final int totalTuples = 9;
 
   private static final class TestMqttOutputOperator extends AbstractSinglePortMqttOutputOperator<Map<String, String>>
   {
@@ -55,8 +58,7 @@ public class MqttOutputOperatorTest
       for (Map.Entry<String, String> entry : tuple.entrySet()) {
         try {
           connection.publish(entry.getKey(), entry.getValue().getBytes(), QoS.AT_LEAST_ONCE, false);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
           throw new RuntimeException(ex);
         }
       }
@@ -78,8 +80,7 @@ public class MqttOutputOperatorTest
             Message msg = connection.receive();
             receivedData.put(msg.getTopic(), new String(msg.getPayload()));
           }
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
           throw new RuntimeException(ex);
         }
       }
@@ -89,7 +90,7 @@ public class MqttOutputOperatorTest
   }
 
   public static class SourceModule extends BaseOperator
-          implements InputOperator, ActivationListener<OperatorContext>
+      implements InputOperator, ActivationListener<OperatorContext>
   {
     public final transient DefaultOutputPort<Map<String, String>> outPort = new DefaultOutputPort<Map<String, String>>();
     static transient ArrayBlockingQueue<Map<String, String>> holdingBuffer;
@@ -161,23 +162,16 @@ public class MqttOutputOperatorTest
 
     final LocalMode.Controller lc = lma.getController();
     lc.runAsync();
-
-    try {
-      Thread.sleep(2000);
-    }
-    catch (InterruptedException ex) {
-    }
+    Thread.sleep(2000);
     lc.shutdown();
 
     Assert.assertEquals("emitted value for testNum was ", 3, receivedData.size());
     for (Map.Entry<String, String> e : receivedData.entrySet()) {
       if (e.getKey().equals("testa")) {
         Assert.assertEquals("emitted value for 'testa' was ", "2", e.getValue());
-      }
-      else if (e.getKey().equals("testb")) {
+      } else if (e.getKey().equals("testb")) {
         Assert.assertEquals("emitted value for 'testb' was ", "20", e.getValue());
-      }
-      else if (e.getKey().equals("testc")) {
+      } else if (e.getKey().equals("testc")) {
         Assert.assertEquals("emitted value for 'testc' was ", "1000", e.getValue());
       }
     }

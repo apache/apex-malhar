@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io.jms;
+package org.apache.apex.malhar.lib.io.jms;
 
 import java.io.IOException;
 import java.util.Map;
@@ -38,6 +38,7 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.counters.BasicCounters;
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.commons.lang.mutable.MutableLong;
@@ -53,7 +54,6 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.ActivationListener;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.lib.counters.BasicCounters;
 
 /**
  * This is the base implementation of a JMS input operator.<br/>

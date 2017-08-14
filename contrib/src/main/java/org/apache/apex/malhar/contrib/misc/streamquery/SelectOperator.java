@@ -22,11 +22,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.streamquery.condition.Condition;
+import org.apache.apex.malhar.lib.streamquery.index.Index;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.streamquery.condition.Condition;
-import com.datatorrent.lib.streamquery.index.Index;
 
 /**
  * An implementation of that provides sql select query semantics on live data stream. <br>

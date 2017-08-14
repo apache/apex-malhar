@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
+package org.apache.apex.malhar.contrib.kafka;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,9 +29,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
-import org.apache.commons.io.FileUtils;
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -39,6 +36,12 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.partitioner.StatelessPartitionerTest;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
+import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
@@ -49,13 +52,11 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Partitioner;
-import com.datatorrent.common.util.FSStorageAgent;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.partitioner.StatelessPartitionerTest;
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.common.util.FSStorageAgent;
 import com.datatorrent.stram.StramLocalCluster;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 
 public class KafkaInputOperatorTest extends KafkaOperatorTestBase
@@ -136,14 +137,14 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 
     // Create KafkaSinglePortStringInputOperator
     KafkaSinglePortStringInputOperator node = dag.addOperator("Kafka message consumer", KafkaSinglePortStringInputOperator.class);
-    if(isSuicide) {
+    if (isSuicide) {
       // make some extreme assumptions to make it fail if checkpointing wrong offsets
       dag.setAttribute(Context.DAGContext.CHECKPOINT_WINDOW_COUNT, 1);
       dag.setAttribute(Context.OperatorContext.STORAGE_AGENT, new FSStorageAgent("target/ck", new Configuration()));
       node.setMaxTuplesPerWindow(500);
     }
 
-    if(idempotent) {
+    if (idempotent) {
       node.setWindowDataManager(new FSWindowDataManager());
     }
     consumer.setTopic(TEST_TOPIC);
@@ -173,7 +174,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 
     // Check results
     Assert.assertTrue("Expected count >= " + totalCount + "; Actual count " + tupleCount.intValue(),
-      totalCount <= tupleCount.intValue());
+        totalCount <= tupleCount.intValue());
     logger.debug(String.format("Number of emitted tuples: %d", tupleCount.intValue()));
 
     p.close();
@@ -227,9 +228,9 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
   {
     int totalCount = 10000;
     SimpleKafkaConsumer consumer = new SimpleKafkaConsumer();
-    try{
+    try {
       testKafkaInputOperator(1000, totalCount,consumer, false, false);
-    }catch(Exception e){
+    } catch (Exception e) {
       // invalid host setup expect to fail here
       Assert.assertEquals("Error creating local cluster", e.getMessage());
     }
@@ -424,7 +425,8 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
   }
 
   @Test
-  public void testMaxTotalSize() throws InterruptedException {
+  public void testMaxTotalSize() throws InterruptedException
+  {
     int totalCount = 1500;
     int maxTotalSize = 500;
 

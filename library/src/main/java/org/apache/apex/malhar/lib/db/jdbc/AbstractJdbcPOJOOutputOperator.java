@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.db.jdbc;
+package org.apache.apex.malhar.lib.db.jdbc;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -34,21 +34,22 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.util.FieldInfo;
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Getter;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterBoolean;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterDouble;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterFloat;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterInt;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterLong;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterShort;
+
 import com.google.common.collect.Lists;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.lib.util.FieldInfo;
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Getter;
-import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
-import com.datatorrent.lib.util.PojoUtils.GetterDouble;
-import com.datatorrent.lib.util.PojoUtils.GetterFloat;
-import com.datatorrent.lib.util.PojoUtils.GetterInt;
-import com.datatorrent.lib.util.PojoUtils.GetterLong;
-import com.datatorrent.lib.util.PojoUtils.GetterShort;
 
 /**
  * <p>

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io.fs;
+package org.apache.apex.malhar.lib.io.fs;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +25,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.Description;
 
+import org.apache.apex.malhar.lib.io.fs.AbstractFileOutputOperatorTest.FSTestWatcher;
+import org.apache.apex.malhar.lib.util.TestUtils.TestInfo;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.conf.Configuration;
@@ -33,10 +35,8 @@ import org.apache.hadoop.fs.FileSystem;
 import com.google.common.collect.Maps;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest.FSTestWatcher;
-import com.datatorrent.lib.util.TestUtils.TestInfo;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class AbstractSingleFileOutputOperatorTest
 {

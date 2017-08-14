@@ -16,27 +16,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.memsql;
+package org.apache.apex.malhar.contrib.memsql;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
-import com.datatorrent.lib.util.PojoUtils.GetterChar;
-import com.datatorrent.lib.util.PojoUtils.GetterDouble;
-import com.datatorrent.lib.util.PojoUtils.GetterFloat;
-import com.datatorrent.lib.util.PojoUtils.GetterInt;
-import com.datatorrent.lib.util.PojoUtils.GetterLong;
-import com.datatorrent.lib.util.PojoUtils.Getter;
-import com.datatorrent.lib.util.PojoUtils.GetterShort;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Getter;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterBoolean;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterChar;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterDouble;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterFloat;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterInt;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterLong;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterShort;
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * A generic implementation of AbstractMemsqlOutputOperator which can take in a POJO.
@@ -146,7 +151,6 @@ public class MemsqlPOJOOutputOperator extends AbstractMemsqlOutputOperator<Objec
     try {
       Statement st = conn.createStatement();
       ResultSet rs = st.executeQuery("select * from " + tablename);
-
       ResultSetMetaData rsMetaData = rs.getMetaData();
 
       int numberOfColumns;
@@ -161,8 +165,7 @@ public class MemsqlPOJOOutputOperator extends AbstractMemsqlOutputOperator<Objec
         columnDataTypes.add(type);
         LOG.debug("sql column type is " + type);
       }
-    }
-    catch (SQLException ex) {
+    } catch (SQLException ex) {
       throw new RuntimeException(ex);
     }
 
@@ -252,29 +255,29 @@ public class MemsqlPOJOOutputOperator extends AbstractMemsqlOutputOperator<Objec
       switch (type) {
         case (Types.CHAR):
           // TODO: verify that memsql driver handles char as int
-          statement.setInt(i+1, ((GetterChar<Object>) getters.get(i)).get(tuple));
+          statement.setInt(i + 1, ((GetterChar<Object>)getters.get(i)).get(tuple));
           break;
         case (Types.VARCHAR):
-          statement.setString(i+1, ((Getter<Object, String>) getters.get(i)).get(tuple));
+          statement.setString(i + 1, ((Getter<Object, String>)getters.get(i)).get(tuple));
           break;
         case (Types.BOOLEAN):
         case (Types.TINYINT):
-          statement.setBoolean(i+1, ((GetterBoolean<Object>) getters.get(i)).get(tuple));
+          statement.setBoolean(i + 1, ((GetterBoolean<Object>)getters.get(i)).get(tuple));
           break;
         case (Types.SMALLINT):
-          statement.setShort(i+1, ((GetterShort<Object>) getters.get(i)).get(tuple));
+          statement.setShort(i + 1, ((GetterShort<Object>)getters.get(i)).get(tuple));
           break;
         case (Types.INTEGER):
-          statement.setInt(i+1, ((GetterInt<Object>) getters.get(i)).get(tuple));
+          statement.setInt(i + 1, ((GetterInt<Object>)getters.get(i)).get(tuple));
           break;
         case (Types.BIGINT):
-          statement.setLong (i+1, ((GetterLong<Object>) getters.get(i)).get(tuple));
+          statement.setLong(i + 1, ((GetterLong<Object>)getters.get(i)).get(tuple));
           break;
         case (Types.FLOAT):
-          statement.setFloat(i+1, ((GetterFloat<Object>) getters.get(i)).get(tuple));
+          statement.setFloat(i + 1, ((GetterFloat<Object>)getters.get(i)).get(tuple));
           break;
         case (Types.DOUBLE):
-          statement.setDouble(i+1, ((GetterDouble<Object>) getters.get(i)).get(tuple));
+          statement.setDouble(i + 1, ((GetterDouble<Object>)getters.get(i)).get(tuple));
           break;
         default:
           /*
@@ -284,12 +287,12 @@ public class MemsqlPOJOOutputOperator extends AbstractMemsqlOutputOperator<Objec
             Types.ARRAY
             Types.OTHER
            */
-          statement.setObject(i+1, ((Getter<Object, Object>)getters.get(i)).get(tuple));
+          statement.setObject(i + 1, ((Getter<Object, Object>)getters.get(i)).get(tuple));
           break;
       }
     }
   }
 
-  private static transient final Logger LOG = LoggerFactory.getLogger(MemsqlPOJOOutputOperator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MemsqlPOJOOutputOperator.class);
 
 }

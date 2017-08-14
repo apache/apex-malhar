@@ -16,10 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.nifi.demo;
+package org.apache.apex.malhar.contrib.nifi.demo;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+
+import org.apache.apex.malhar.contrib.nifi.NiFiDataPacket;
+import org.apache.apex.malhar.contrib.nifi.NiFiDataPacketBuilder;
+import org.apache.apex.malhar.contrib.nifi.NiFiSinglePortOutputOperator;
+import org.apache.apex.malhar.contrib.nifi.StandardNiFiDataPacket;
+import org.apache.apex.malhar.lib.testbench.RandomEventGenerator;
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nifi.remote.client.SiteToSiteClient;
@@ -28,12 +35,6 @@ import org.apache.nifi.remote.client.SiteToSiteClientConfig;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.contrib.nifi.NiFiDataPacket;
-import com.datatorrent.contrib.nifi.NiFiDataPacketBuilder;
-import com.datatorrent.contrib.nifi.NiFiSinglePortOutputOperator;
-import com.datatorrent.contrib.nifi.StandardNiFiDataPacket;
-import com.datatorrent.lib.testbench.RandomEventGenerator;
-import org.apache.apex.malhar.lib.wal.WindowDataManager;
 
 /**
  * A sample application that shows how to send data to a NiFi Input Port.
@@ -69,7 +70,7 @@ public class TestNiFiOutputApplication implements StreamingApplication
     RandomEventGenerator rand = dag.addOperator("rand", new RandomEventGenerator());
 
     NiFiSinglePortOutputOperator nifi = dag.addOperator("nifi",
-        new NiFiSinglePortOutputOperator(builder, dataPacketBuilder, windowDataManager ,batchSize));
+        new NiFiSinglePortOutputOperator(builder, dataPacketBuilder, windowDataManager, batchSize));
 
     dag.addStream("rand_nifi", rand.string_data, nifi.inputPort).setLocality(null);
   }

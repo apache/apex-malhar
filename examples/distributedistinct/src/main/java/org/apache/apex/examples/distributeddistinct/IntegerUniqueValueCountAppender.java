@@ -25,8 +25,8 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.datatorrent.lib.algo.UniqueValueCount;
-import com.datatorrent.lib.util.KeyValPair;
+import org.apache.apex.malhar.lib.algo.UniqueValueCount;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 
 /**
  * This operator demonstrates {@link UniqueValueCountAppender} given that the keys and values of the preceding {@link UniqueValueCount} operator

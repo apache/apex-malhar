@@ -31,14 +31,16 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.helper.SamplePubSubWebSocketServlet;
+import org.apache.apex.malhar.lib.io.PubSubWebSocketInputOperator;
+import org.apache.apex.malhar.lib.io.PubSubWebSocketOutputOperator;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 import org.apache.apex.malhar.lib.utils.PubSubHelper;
+
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
-import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
-import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 
 public class ApplicationTest
 {

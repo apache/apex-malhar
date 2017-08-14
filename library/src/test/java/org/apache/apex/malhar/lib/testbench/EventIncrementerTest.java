@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.testbench;
+package org.apache.apex.malhar.lib.testbench;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.Sink;
 
 /**
- * Functional test for {@link com.datatorrent.lib.testbench.EventIncrementer}<p>
+ * Functional test for {@link org.apache.apex.malhar.lib.testbench.EventIncrementer}<p>
  * <br>
  * Benchmarks: The benchmark was done in local/inline mode<br>
  * Processing tuples on seed port are at 3.5 Million tuples/sec<br>

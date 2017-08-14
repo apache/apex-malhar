@@ -20,10 +20,11 @@ package org.apache.apex.malhar.lib.state.managed;
 
 import java.util.Comparator;
 
+import org.apache.apex.malhar.lib.fileaccess.FileAccess;
+import org.apache.apex.malhar.lib.fileaccess.TFileImpl;
+import org.apache.apex.malhar.lib.util.comparator.SliceComparator;
+
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.fileaccess.FileAccess;
-import com.datatorrent.lib.fileaccess.TFileImpl;
-import com.datatorrent.lib.util.comparator.SliceComparator;
 import com.datatorrent.netlet.util.Slice;
 
 class MockManagedStateContext implements ManagedStateContext

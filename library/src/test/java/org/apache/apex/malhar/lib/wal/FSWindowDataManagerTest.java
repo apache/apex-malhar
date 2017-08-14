@@ -29,6 +29,8 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import org.apache.apex.malhar.lib.util.TestUtils;
+
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -38,9 +40,8 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.Pair;
-import com.datatorrent.lib.util.TestUtils;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Tests for {@link WindowDataManager}

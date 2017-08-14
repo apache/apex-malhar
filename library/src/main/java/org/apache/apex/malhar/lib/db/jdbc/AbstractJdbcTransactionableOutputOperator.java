@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.db.jdbc;
+package org.apache.apex.malhar.lib.db.jdbc;
 
 import java.sql.BatchUpdateException;
 import java.sql.PreparedStatement;
@@ -29,6 +29,8 @@ import javax.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.db.AbstractPassThruTransactionableStoreOutputOperator;
+
 import com.google.common.collect.Lists;
 import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
@@ -36,7 +38,6 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator;
 
 /**
  * This is the base class implementation of a transactionable JDBC output operator.&nbsp;

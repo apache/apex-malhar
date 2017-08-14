@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.hive;
+package org.apache.apex.benchmark.hive;
 
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -27,18 +27,17 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.benchmark.RandomMapOutput;
+import org.apache.apex.malhar.hive.AbstractFSRollingOutputOperator;
+import org.apache.apex.malhar.hive.HiveOperator;
+import org.apache.apex.malhar.hive.HiveStore;
+import org.apache.apex.malhar.lib.testbench.RandomEventGenerator;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.benchmark.RandomMapOutput;
-
-import com.datatorrent.contrib.hive.AbstractFSRollingOutputOperator;
-import com.datatorrent.contrib.hive.HiveOperator;
-import com.datatorrent.contrib.hive.HiveStore;
-import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 
 /**

@@ -32,6 +32,7 @@ import org.joda.time.Duration;
 import org.apache.apex.malhar.lib.function.Function;
 import org.apache.apex.malhar.lib.function.Function.FlatMapFunction;
 import org.apache.apex.malhar.lib.function.FunctionOperator;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
 import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.WindowOption;
 
@@ -48,7 +49,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.stram.StramLocalCluster;
 import com.datatorrent.stram.plan.logical.LogicalPlan;
 

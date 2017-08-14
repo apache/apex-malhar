@@ -23,12 +23,12 @@ import java.util.Random;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
+import org.apache.apex.malhar.lib.util.BaseKeyOperator;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
-
-import com.datatorrent.lib.util.BaseKeyOperator;
 
 /**
  * This operator takes a stream of tuples as input, and emits each tuple with a specified probability.

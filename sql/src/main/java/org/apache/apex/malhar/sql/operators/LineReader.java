@@ -23,11 +23,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.apache.apex.malhar.lib.io.fs.AbstractFileInputOperator;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.Path;
 
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
 
 /**
  * This operator reads data from given file/folder in line by line fashion.

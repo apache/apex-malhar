@@ -32,6 +32,7 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.util.PojoUtils;
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -56,7 +57,6 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.util.PojoUtils;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

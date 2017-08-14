@@ -16,11 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.splunk;
-
-import kafka.javaapi.producer.Producer;
-import kafka.producer.KeyedMessage;
-import kafka.producer.ProducerConfig;
+package org.apache.apex.malhar.contrib.splunk;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,6 +24,10 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
+
+import kafka.javaapi.producer.Producer;
+import kafka.producer.KeyedMessage;
+import kafka.producer.ProducerConfig;
 
 /**
  *
@@ -37,8 +37,8 @@ import java.util.Properties;
  * @param <T> the type of data to be stored into kafka
  * @since 1.0.4
  */
-public abstract class SplunkInputFromForwarder<T> {
-
+public abstract class SplunkInputFromForwarder<T>
+{
   private final int DEFAULT_PORT = 6789;
   private int port;
   protected Producer<String, T> producer;
@@ -47,62 +47,74 @@ public abstract class SplunkInputFromForwarder<T> {
   protected ServerSocket serverSocket;
   protected Socket connectionSocket;
 
-  public SplunkInputFromForwarder() {
+  public SplunkInputFromForwarder()
+  {
     port = DEFAULT_PORT;
   }
 
-  public int getPort() {
+  public int getPort()
+  {
     return port;
   }
 
-  public void setPort(int port) {
+  public void setPort(int port)
+  {
     this.port = port;
   }
 
-  public String getTopic() {
+  public String getTopic()
+  {
     return topic;
   }
 
-  public void setTopic(String topic) {
+  public void setTopic(String topic)
+  {
     this.topic = topic;
   }
 
-  public Properties getConfigProperties() {
+  public Properties getConfigProperties()
+  {
     return configProperties;
   }
 
-  public void setConfigProperties(Properties configProperties) {
+  public void setConfigProperties(Properties configProperties)
+  {
     this.configProperties = configProperties;
   }
 
   public abstract T getMessage(String line);
 
-  public void writeToKafka(String line) {
-    T message=null;
-    if(line!=null)
+  public void writeToKafka(String line)
+  {
+    T message = null;
+    if (line != null) {
       message = getMessage(line);
-    if(message!=null) {
+    }
+    if (message != null) {
       producer.send(new KeyedMessage<String, T>(getTopic(), message));
     }
   }
 
-  public void startServer() throws IOException {
+  public void startServer() throws IOException
+  {
     ProducerConfig producerConfig = new ProducerConfig(configProperties);
     producer = new Producer<String, T>(producerConfig);
     serverSocket = new ServerSocket(port);
   }
 
-  public void process() throws IOException {
+  public void process() throws IOException
+  {
     connectionSocket = serverSocket.accept();
     String line;
     BufferedReader reader = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
-    while(true) {
+    while (true) {
       line = reader.readLine();
       writeToKafka(line);
     }
   }
 
-  public void stopServer() throws IOException {
+  public void stopServer() throws IOException
+  {
     serverSocket.close();
     connectionSocket.close();
     producer.close();

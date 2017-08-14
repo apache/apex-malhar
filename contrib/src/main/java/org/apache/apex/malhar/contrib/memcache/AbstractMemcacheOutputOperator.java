@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.memcache;
+package org.apache.apex.malhar.contrib.memcache;
 
-import com.datatorrent.lib.db.AbstractStoreOutputOperator;
+import org.apache.apex.malhar.lib.db.AbstractStoreOutputOperator;
 
 /**
  * This is the base implementation of memcached output operators.&nbsp;
@@ -31,8 +31,7 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  * @param <T> The tuple type.
  * @since 0.9.3
  */
-public abstract class AbstractMemcacheOutputOperator<T>
-        extends AbstractStoreOutputOperator<T, MemcacheStore>
+public abstract class AbstractMemcacheOutputOperator<T> extends AbstractStoreOutputOperator<T, MemcacheStore>
 {
   public AbstractMemcacheOutputOperator()
   {

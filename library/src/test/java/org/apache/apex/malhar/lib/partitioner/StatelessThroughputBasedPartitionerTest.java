@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.partitioner;
+package org.apache.apex.malhar.lib.partitioner;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,6 +24,8 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import org.apache.apex.malhar.lib.util.TestUtils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -35,7 +37,6 @@ import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StatsListener;
-import com.datatorrent.lib.util.TestUtils;
 
 /**
  * Test for {@link StatelessThroughputBasedPartitioner}

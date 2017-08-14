@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kinesis;
+package org.apache.apex.malhar.contrib.kinesis;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +33,7 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
 
 import com.datatorrent.api.Attribute;
@@ -42,9 +43,8 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class KinesisInputOperatorTest extends KinesisOperatorTestBase
 {
@@ -117,7 +117,7 @@ public class KinesisInputOperatorTest extends KinesisOperatorTestBase
     });
     testMeta.operator = inputOperator;
     Assert.assertTrue("Default behaviour of WindowDataManager changed",
-      (inputOperator.getWindowDataManager() instanceof WindowDataManager.NoopWindowDataManager));
+        (inputOperator.getWindowDataManager() instanceof WindowDataManager.NoopWindowDataManager));
   }
 
   /**

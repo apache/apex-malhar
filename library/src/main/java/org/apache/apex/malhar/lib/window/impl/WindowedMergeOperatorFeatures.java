@@ -18,13 +18,12 @@
  */
 package org.apache.apex.malhar.lib.window.impl;
 
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.apex.malhar.lib.window.ControlTuple;
 import org.apache.apex.malhar.lib.window.MergeAccumulation;
 import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.apex.malhar.lib.window.Window;
 import org.apache.apex.malhar.lib.window.WindowedStorage;
-
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * This class provides the features in a MergeWindowedOperator and is intended to be used only

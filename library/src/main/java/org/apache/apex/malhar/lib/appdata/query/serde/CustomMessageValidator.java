@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.query.serde;
+package org.apache.apex.malhar.lib.appdata.query.serde;
 
-import com.datatorrent.lib.appdata.schemas.Message;
+import org.apache.apex.malhar.lib.appdata.schemas.Message;
 
 /**
  * This interface defines a validator which validates the state of deserialized messages. Classes

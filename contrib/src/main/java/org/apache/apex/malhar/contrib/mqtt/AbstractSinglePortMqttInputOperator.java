@@ -16,10 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.mqtt;
+package org.apache.apex.malhar.contrib.mqtt;
 
-import com.datatorrent.api.DefaultOutputPort;
 import org.fusesource.mqtt.client.Message;
+import com.datatorrent.api.DefaultOutputPort;
 
 /**
  * This is the base implementation for a single port MQTT input operator.&nbsp;
@@ -50,7 +50,7 @@ public abstract class AbstractSinglePortMqttInputOperator<T> extends AbstractMqt
   /**
    * This output port emits tuples, which were extracted from MQTT messages.
    */
-  final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
+  public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**
    * Any concrete class derived from AbstractSinglePortMqttInputOperator has to implement this method

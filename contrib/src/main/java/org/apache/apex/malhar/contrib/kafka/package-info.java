@@ -19,4 +19,4 @@
 /**
  * Kafka operators and utilities.
  */
-package com.datatorrent.contrib.kafka;
+package org.apache.apex.malhar.contrib.kafka;

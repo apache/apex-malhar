@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.formatter;
+package org.apache.apex.malhar.lib.formatter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -32,17 +32,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.Description;
 
+import org.apache.apex.malhar.lib.io.fs.AbstractFileOutputOperatorTest.FSTestWatcher;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.KryoCloneUtils;
+import org.apache.apex.malhar.lib.util.TestUtils;
+import org.apache.apex.malhar.lib.util.TestUtils.TestInfo;
 import org.apache.commons.io.FileUtils;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
-
-import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest.FSTestWatcher;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.KryoCloneUtils;
-import com.datatorrent.lib.util.TestUtils;
-import com.datatorrent.lib.util.TestUtils.TestInfo;
 
 public class JsonFormatterTest
 {

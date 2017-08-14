@@ -19,4 +19,4 @@
 /**
  * Apex malhar performance demonstration application.
  */
-package com.datatorrent.benchmark;
+package org.apache.apex.benchmark;

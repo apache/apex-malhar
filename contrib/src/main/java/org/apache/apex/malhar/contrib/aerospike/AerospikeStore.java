@@ -16,15 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.aerospike;
+package org.apache.apex.malhar.contrib.aerospike;
 
 import javax.validation.constraints.NotNull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.db.Connectable;
+
 import com.aerospike.client.AerospikeClient;
 import com.aerospike.client.AerospikeException;
 import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.lib.db.Connectable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A {@link Connectable} that uses aerospike to connect to stores and implements Connectable interface.
@@ -34,8 +37,8 @@ import org.slf4j.LoggerFactory;
  * @tags store
  * @since 1.0.4
  */
-public class AerospikeStore implements Connectable {
-
+public class AerospikeStore implements Connectable
+{
   protected static final Logger logger = LoggerFactory.getLogger(AerospikeStore.class);
   private String userName;
   private String password;
@@ -49,7 +52,8 @@ public class AerospikeStore implements Connectable {
    *
    * @param userName user name.
    */
-  public void setUserName(String userName) {
+  public void setUserName(String userName)
+  {
     this.userName = userName;
   }
 
@@ -58,7 +62,8 @@ public class AerospikeStore implements Connectable {
    *
    * @param password password
    */
-  public void setPassword(String password) {
+  public void setPassword(String password)
+  {
     this.password = password;
   }
 
@@ -68,7 +73,8 @@ public class AerospikeStore implements Connectable {
    * @return The node
    */
   @NotNull
-  public String getNode() {
+  public String getNode()
+  {
     return node;
   }
 
@@ -77,7 +83,8 @@ public class AerospikeStore implements Connectable {
    *
    * @param node node
    */
-  public void setNode(@NotNull String node) {
+  public void setNode(@NotNull String node)
+  {
     this.node = node;
   }
 
@@ -86,7 +93,8 @@ public class AerospikeStore implements Connectable {
    *
    * @return The client
    */
-  public AerospikeClient getClient() {
+  public AerospikeClient getClient()
+  {
     return client;
   }
 
@@ -95,7 +103,8 @@ public class AerospikeStore implements Connectable {
    *
    * @param port port
    */
-  public void setPort(int port) {
+  public void setPort(int port)
+  {
     this.port = port;
   }
 
@@ -103,15 +112,14 @@ public class AerospikeStore implements Connectable {
    * Create connection with database.
    */
   @Override
-  public void connect() {
+  public void connect()
+  {
     try {
       client = new AerospikeClient(node, port);
       logger.debug("Aerospike connection Success");
-    }
-    catch (AerospikeException ex) {
+    } catch (AerospikeException ex) {
       throw new RuntimeException("closing database resource", ex);
-    }
-    catch (Throwable t) {
+    } catch (Throwable t) {
       DTThrowable.rethrow(t);
     }
   }
@@ -120,12 +128,14 @@ public class AerospikeStore implements Connectable {
    * Close connection.
    */
   @Override
-  public void disconnect() {
+  public void disconnect()
+  {
     client.close();
   }
 
   @Override
-  public boolean isConnected() {
+  public boolean isConnected()
+  {
     return !client.isConnected();
   }
 }

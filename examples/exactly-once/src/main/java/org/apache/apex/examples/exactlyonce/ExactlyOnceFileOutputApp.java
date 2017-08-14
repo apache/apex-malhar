@@ -19,6 +19,9 @@
 package org.apache.apex.examples.exactlyonce;
 
 import org.apache.apex.examples.exactlyonce.ExactlyOnceJdbcOutputApp.KafkaSinglePortStringInputOperator;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+import org.apache.apex.malhar.lib.io.fs.AbstractFileOutputOperator;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.hadoop.conf.Configuration;
 
@@ -26,9 +29,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
-import com.datatorrent.lib.util.KeyValPair;
 
 @ApplicationAnnotation(name = "ExactlyOnceFileOutput")
 /**

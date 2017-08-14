@@ -31,7 +31,7 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.common.util.BaseOperator;
-@Deprecated
+
 /**
  * <p>
  * This operator searches for a given pattern in the input stream.<br>
@@ -56,7 +56,7 @@ import com.datatorrent.common.util.BaseOperator;
  * @since 2.0.0
  * @deprecated
  */
-
+@Deprecated
 @OperatorAnnotation(partitionable = false)
 public abstract class AbstractStreamPatternMatcher<T> extends BaseOperator
 {

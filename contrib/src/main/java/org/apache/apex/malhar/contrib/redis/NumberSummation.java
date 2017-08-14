@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.redis;
+package org.apache.apex.malhar.contrib.redis;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,17 +42,13 @@ class NumberSummation<K, V>
   {
     if (o == null) {
       return null;
-    }
-    else if (o instanceof MutableDouble || o instanceof MutableLong) {
+    } else if (o instanceof MutableDouble || o instanceof MutableLong) {
       return (Number)o;
-    }
-    else if (o instanceof Double || o instanceof Float) {
+    } else if (o instanceof Double || o instanceof Float) {
       return new MutableDouble((Number)o);
-    }
-    else if (o instanceof Number) {
+    } else if (o instanceof Number) {
       return new MutableLong((Number)o);
-    }
-    else {
+    } else {
       return new MutableDouble(o.toString());
     }
   }
@@ -69,17 +65,14 @@ class NumberSummation<K, V>
           Object hvalue = entry1.getValue();
           if (hvalue instanceof Number) {
             operator.getStore().hincrByFloat(key.toString(), field, ((Number)hvalue).doubleValue());
-          }
-          else {
+          } else {
             operator.getStore().hincrByFloat(key.toString(), field, Double.parseDouble(hvalue.toString()));
           }
         }
-      }
-      else {
+      } else {
         if (value instanceof Number) {
           operator.getStore().incrByFloat(key.toString(), ((Number)value).doubleValue());
-        }
-        else {
+        } else {
           operator.getStore().incrByFloat(key.toString(), Double.parseDouble(value.toString()));
         }
       }
@@ -106,31 +99,24 @@ class NumberSummation<K, V>
         Number oldVal = (Number)map.get(field);
         if (oldVal == null) {
           map.put(field, convertToNumber(entry1.getValue()));
-        }
-        else if (oldVal instanceof MutableDouble) {
+        } else if (oldVal instanceof MutableDouble) {
           ((MutableDouble)oldVal).add(convertToNumber(entry1.getValue()));
-        }
-        else if (oldVal instanceof MutableLong) {
+        } else if (oldVal instanceof MutableLong) {
           ((MutableLong)oldVal).add(convertToNumber(entry1.getValue()));
-        }
-        else {
+        } else {
           throw new RuntimeException("Values of unexpected type in data map value field type. Expecting MutableLong or MutableDouble");
         }
       }
-    }
-    else {
+    } else {
       Number oldVal = convertToNumber(dataMap.get(key));
       if (oldVal == null) {
         dataMap.put(key, convertToNumber(value));
-      }
-      else {
+      } else {
         if (oldVal instanceof MutableDouble) {
           ((MutableDouble)oldVal).add(convertToNumber(value));
-        }
-        else if (oldVal instanceof MutableLong) {
+        } else if (oldVal instanceof MutableLong) {
           ((MutableLong)oldVal).add(convertToNumber(value));
-        }
-        else {
+        } else {
           // should not get here
           throw new RuntimeException("Values of unexpected type in data map value type. Expecting MutableLong or MutableDouble");
         }

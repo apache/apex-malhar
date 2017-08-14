@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.apachelog;
+package org.apache.apex.malhar.contrib.apachelog;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.logs.ApacheLogParseMapOutputOperator;
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+import org.apache.apex.malhar.lib.logs.ApacheLogParseMapOutputOperator;
 import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.StreamingApplication;
 
 /**
  * An implementation of Streaming Application that generates apache log file on the fly and dumps the parsed data to output.

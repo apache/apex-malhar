@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.cassandra;
+package org.apache.apex.benchmark.cassandra;
 
 import org.junit.Test;
 

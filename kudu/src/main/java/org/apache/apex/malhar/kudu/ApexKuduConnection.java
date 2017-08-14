@@ -35,8 +35,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * <p>Represents a connection to the Kudu cluster. An instance of this class is to be supplied (via a builder pattern to)
- * {@link AbstractKuduOutputOperator} to connect to a Kudu cluster.</p>
+ * <p>
+ * Represents a connection to the Kudu cluster. An instance of this class is to
+ * be supplied (via a builder pattern to) {@link AbstractKuduOutputOperator} to
+ * connect to a Kudu cluster.
+ * </p>
  *
  * @since 3.8.0
  */

@@ -24,10 +24,10 @@ import java.util.concurrent.Callable;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.stram.StramLocalCluster;
 
 /**

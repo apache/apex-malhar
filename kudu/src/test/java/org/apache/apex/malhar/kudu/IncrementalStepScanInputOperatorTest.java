@@ -32,15 +32,15 @@ import org.apache.apex.malhar.kudu.partitioner.KuduPartitionScanStrategy;
 import org.apache.apex.malhar.kudu.scanner.KuduScanOrderStrategy;
 import org.apache.apex.malhar.kudu.test.KuduClusterAvailabilityTestRule;
 import org.apache.apex.malhar.kudu.test.KuduClusterTestContext;
+import org.apache.apex.malhar.lib.helper.TestPortContext;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Partitioner;
-import com.datatorrent.lib.helper.TestPortContext;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class IncrementalStepScanInputOperatorTest extends KuduClientTestCommons
 {

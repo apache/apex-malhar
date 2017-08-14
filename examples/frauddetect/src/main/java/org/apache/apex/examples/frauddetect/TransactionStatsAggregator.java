@@ -25,12 +25,12 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.apex.examples.frauddetect.util.JsonUtils;
+import org.apache.apex.malhar.lib.util.HighLow;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.util.HighLow;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Operator to aggregate the min, max, sma, std-dev and variance for the given key.

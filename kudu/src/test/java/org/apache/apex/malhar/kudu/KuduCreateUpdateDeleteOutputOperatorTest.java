@@ -28,14 +28,14 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.apex.malhar.kudu.test.KuduClusterAvailabilityTestRule;
 import org.apache.apex.malhar.kudu.test.KuduClusterTestContext;
+import org.apache.apex.malhar.lib.helper.TestPortContext;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.TestPortContext;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 import static org.junit.Assert.assertEquals;
 
 public class KuduCreateUpdateDeleteOutputOperatorTest extends KuduClientTestCommons

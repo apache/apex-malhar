@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.zmq;
+package org.apache.apex.malhar.contrib.zmq;
 
 import org.junit.Test;
 
@@ -26,7 +26,8 @@ import org.junit.Test;
 public class ZeroMQInputOperatorBenchmark extends ZeroMQInputOperatorTest
 {
   @Test
-  public void testDag() throws Exception {
+  public void testDag() throws Exception
+  {
     testHelper(2000000);
   }
 }

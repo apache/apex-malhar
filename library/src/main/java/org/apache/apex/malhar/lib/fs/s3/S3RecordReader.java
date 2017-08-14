@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.apache.apex.malhar.lib.fs.FSRecordReader;
+import org.apache.apex.malhar.lib.io.block.BlockMetadata;
+import org.apache.apex.malhar.lib.io.block.ReaderContext;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.apache.hadoop.fs.FSDataInputStream;
 
@@ -35,9 +37,6 @@ import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.esotericsoftware.kryo.NotNull;
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
-
-import com.datatorrent.lib.io.block.BlockMetadata;
-import com.datatorrent.lib.io.block.ReaderContext;
 
 /**
  * This operator can be used for reading records/tuples from S3 in parallel

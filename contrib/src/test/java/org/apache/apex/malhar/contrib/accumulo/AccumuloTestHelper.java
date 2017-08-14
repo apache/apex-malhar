@@ -16,11 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.accumulo;
+package org.apache.apex.malhar.contrib.accumulo;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map.Entry;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
@@ -39,18 +42,18 @@ import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.io.Text;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.datatorrent.netlet.util.DTThrowable;
 
 
-public class AccumuloTestHelper {
+public class AccumuloTestHelper
+{
   static Connector con;
   public static final byte[] colfam0_bytes = "colfam0".getBytes();
   public static final byte[] col0_bytes = "col-0".getBytes();
   private static final Logger logger = LoggerFactory.getLogger(AccumuloTestHelper.class);
-  public static void createTable() {
+  public static void createTable()
+  {
     TableOperations tableoper = con.tableOperations();
     if (!tableoper.exists("tab1")) {
       try {
@@ -63,7 +66,8 @@ public class AccumuloTestHelper {
     }
   }
 
-  public static void clearTable() {
+  public static void clearTable()
+  {
     TableOperations tableoper = con.tableOperations();
     if (!tableoper.exists("tab1")) {
       try {
@@ -87,7 +91,8 @@ public class AccumuloTestHelper {
     }
   }
 
-  public static void populateAccumulo() throws IOException {
+  public static void populateAccumulo() throws IOException
+  {
     BatchWriterConfig config = new BatchWriterConfig();
     BatchWriter batchwriter = null;
     try {
@@ -98,11 +103,11 @@ public class AccumuloTestHelper {
     }
     try {
       for (int i = 0; i < 500; ++i) {
-        String rowstr="row" + i;
+        String rowstr = "row" + i;
         Mutation mutation = new Mutation(rowstr.getBytes());
         for (int j = 0; j < 500; ++j) {
-          String colstr="col" + "-" + j;
-          String valstr="val" + "-" + i + "-" + j;
+          String colstr = "col" + "-" + j;
+          String valstr = "val" + "-" + i + "-" + j;
           mutation.put(colfam0_bytes,colstr.getBytes(),
               System.currentTimeMillis(),
               valstr.getBytes());
@@ -117,7 +122,8 @@ public class AccumuloTestHelper {
   }
 
   public static AccumuloTuple findTuple(List<AccumuloTuple> tuples,
-      String row, String colFamily, String colName) {
+      String row, String colFamily, String colName)
+  {
     AccumuloTuple mtuple = null;
     for (AccumuloTuple tuple : tuples) {
       if (tuple.getRow().equals(row)
@@ -130,7 +136,8 @@ public class AccumuloTestHelper {
     return mtuple;
   }
 
-  public static void deleteTable() {
+  public static void deleteTable()
+  {
     TableOperations tableoper = con.tableOperations();
     if (tableoper.exists("tab1")) {
 
@@ -150,7 +157,8 @@ public class AccumuloTestHelper {
     }
   }
 
-  public static void getConnector() {
+  public static void getConnector()
+  {
     Instance instance = new ZooKeeperInstance("instance", "127.0.0.1");
     try {
       con = instance.getConnector("root", "pass");
@@ -165,7 +173,8 @@ public class AccumuloTestHelper {
   }
 
   public static AccumuloTuple getAccumuloTuple(String row, String colFam,
-      String colName) {
+      String colName)
+  {
     Authorizations auths = new Authorizations();
 
     Scanner scan = null;

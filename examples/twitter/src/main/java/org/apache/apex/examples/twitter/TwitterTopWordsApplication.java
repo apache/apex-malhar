@@ -18,14 +18,14 @@
  */
 package org.apache.apex.examples.twitter;
 
+import org.apache.apex.malhar.contrib.twitter.TwitterSampleInput;
+import org.apache.apex.malhar.lib.algo.UniqueCounter;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.contrib.twitter.TwitterSampleInput;
-import com.datatorrent.lib.algo.UniqueCounter;
 
 /**
  * This application is same as other twitter example

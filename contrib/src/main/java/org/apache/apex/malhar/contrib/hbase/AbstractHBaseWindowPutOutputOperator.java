@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
 import java.io.IOException;
 
@@ -30,7 +30,9 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
- * A base implementation of an AggregateTransactionableStoreOutputOperator operator for storing tuples in HBase rows and provides a batch put.Subclasses should provide implementation for put operation. <br>
+ * A base implementation of an AggregateTransactionableStoreOutputOperator
+ * operator for storing tuples in HBase rows and provides a batch put.Subclasses
+ * should provide implementation for put operation. <br>
  * <p>
  * <br>
  * This class provides a HBase output operator that can be used to store tuples
@@ -45,20 +47,20 @@ import com.datatorrent.netlet.util.DTThrowable;
  * guarantee each tuple is written only once to HBase in case the operator is
  * restarted from an earlier checkpoint. It only tries to minimize the number of
  * duplicates limiting it to the tuples that were processed in the window when
- * the operator shutdown.
- * It supports atleast once and atmost once processing modes.
- * Exactly once is not supported
+ * the operator shutdown. It supports atleast once and atmost once processing
+ * modes. Exactly once is not supported
+ *
  * @displayName Abstract HBase Window Put Output
  * @category Output
  * @tags hbase, put, transactionable, batch
- * @param <T>
- *            The tuple type
+ * @param <T> The tuple type
  * @since 1.0.2
  */
-public abstract class AbstractHBaseWindowPutOutputOperator<T> extends AbstractHBaseWindowOutputOperator<T> {
+public abstract class AbstractHBaseWindowPutOutputOperator<T> extends AbstractHBaseWindowOutputOperator<T>
+{
   private static final transient Logger logger = LoggerFactory.getLogger(AbstractHBaseWindowPutOutputOperator.class);
   private transient ProcessingMode mode;
-  
+
   @Deprecated
   public ProcessingMode getMode()
   {
@@ -71,12 +73,14 @@ public abstract class AbstractHBaseWindowPutOutputOperator<T> extends AbstractHB
     this.mode = mode;
   }
 
-  public AbstractHBaseWindowPutOutputOperator() {
+  public AbstractHBaseWindowPutOutputOperator()
+  {
     store = new HBaseWindowStore();
   }
 
   @Override
-  public void processTuple(T tuple, HTable table) {
+  public void processTuple(T tuple, HTable table)
+  {
     try {
       Put put = operationPut(tuple);
       table.put(put);
@@ -86,14 +90,13 @@ public abstract class AbstractHBaseWindowPutOutputOperator<T> extends AbstractHB
     }
   }
 
-
   public abstract Put operationPut(T t) throws IOException;
 
   @Override
   public void setup(OperatorContext context)
   {
-    mode=context.getValue(context.PROCESSING_MODE);
-    if(mode==ProcessingMode.EXACTLY_ONCE){
+    mode = context.getValue(context.PROCESSING_MODE);
+    if (mode == ProcessingMode.EXACTLY_ONCE) {
       throw new RuntimeException("This operator only supports atmost once and atleast once processing modes");
     }
     super.setup(context);

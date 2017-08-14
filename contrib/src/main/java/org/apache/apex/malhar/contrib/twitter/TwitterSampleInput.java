@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.twitter;
+package org.apache.apex.malhar.contrib.twitter;
 
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -26,13 +26,20 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import twitter4j.*;
-import twitter4j.conf.ConfigurationBuilder;
-
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator.ActivationListener;
+
+import twitter4j.HashtagEntity;
+import twitter4j.StallWarning;
+import twitter4j.Status;
+import twitter4j.StatusDeletionNotice;
+import twitter4j.StatusListener;
+import twitter4j.TwitterStream;
+import twitter4j.TwitterStreamFactory;
+import twitter4j.URLEntity;
+import twitter4j.conf.ConfigurationBuilder;
 
 /**
  * This is an input operator for Twitter.
@@ -141,8 +148,7 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
         statuses.put(status);
         count++;
       }
-    }
-    catch (InterruptedException ex) {
+    } catch (InterruptedException ex) {
       logger.debug("Streaming interrupted; Passing the inerruption to the operator", ex);
       operatorThread.interrupt();
     }
@@ -174,7 +180,8 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
     // do nothing
   }
 
-  @Override public void onStallWarning(StallWarning stallWarning)
+  @Override
+  public void onStallWarning(StallWarning stallWarning)
   {
     // do nothing
   }
@@ -188,12 +195,11 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
     if (reConnect) {
       try {
         Thread.sleep(1000);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
+         // ignore
       }
       setUpTwitterConnection();
-    }
-    else {
+    } else {
       operatorThread.interrupt();
     }
   }
@@ -204,11 +210,11 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   protected ConfigurationBuilder setupConfigurationBuilder()
   {
     ConfigurationBuilder cb = new ConfigurationBuilder();
-    cb.setDebugEnabled(debug).
-            setOAuthConsumerKey(consumerKey).
-            setOAuthConsumerSecret(consumerSecret).
-            setOAuthAccessToken(accessToken).
-            setOAuthAccessTokenSecret(accessTokenSecret);
+    cb.setDebugEnabled(debug)
+        .setOAuthConsumerKey(consumerKey)
+        .setOAuthConsumerSecret(consumerSecret)
+        .setOAuthAccessToken(accessToken)
+        .setOAuthAccessTokenSecret(accessTokenSecret);
     return cb;
   }
 
@@ -402,7 +408,7 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final TwitterSampleInput other = (TwitterSampleInput) obj;
+    final TwitterSampleInput other = (TwitterSampleInput)obj;
     if (this.debug != other.debug) {
       return false;
     }

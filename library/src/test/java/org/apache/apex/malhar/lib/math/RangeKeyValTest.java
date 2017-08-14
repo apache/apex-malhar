@@ -16,20 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.math;
+package org.apache.apex.malhar.lib.math;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.util.HighLow;
+import org.apache.apex.malhar.lib.util.KeyValPair;
+
 import com.datatorrent.api.Sink;
 
-import com.datatorrent.lib.util.HighLow;
-import com.datatorrent.lib.util.KeyValPair;
-
 /**
- * Functional tests for {@link com.datatorrent.lib.math.RangeKeyVal}<p>
+ * Functional tests for {@link org.apache.apex.malhar.lib.math.RangeKeyVal}<p>
  */
 public class RangeKeyValTest<V extends Number>
 {

@@ -16,11 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.query;
+package org.apache.apex.malhar.lib.appdata.query;
 
 import java.util.Map;
 
-import com.datatorrent.lib.appdata.schemas.Query;
+import org.apache.apex.malhar.lib.appdata.schemas.Query;
 
 public class MockQuery extends Query
 {

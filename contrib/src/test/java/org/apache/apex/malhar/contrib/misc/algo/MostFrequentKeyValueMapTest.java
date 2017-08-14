@@ -25,7 +25,7 @@ import org.junit.Assert;
 
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
 /**
  * @deprecated

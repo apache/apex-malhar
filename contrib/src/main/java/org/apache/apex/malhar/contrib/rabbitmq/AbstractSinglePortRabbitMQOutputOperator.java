@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.rabbitmq;
+package org.apache.apex.malhar.contrib.rabbitmq;
 
 import com.datatorrent.api.DefaultInputPort;
 
@@ -63,8 +63,7 @@ public abstract class AbstractSinglePortRabbitMQOutputOperator<T> extends Abstra
     @Override
     public void process(T tuple)
     {
-      if(!skipProcessingTuple)
-      {
+      if (!skipProcessingTuple) {
         processTuple(tuple); // This is an abstract call
       }
     }

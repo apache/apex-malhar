@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.datatorrent.lib.io.block;
+package org.apache.apex.malhar.lib.io.block;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -28,6 +28,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.counters.BasicCounters;
+import org.apache.apex.malhar.lib.io.fs.AbstractFileOutputOperator;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.fs.Path;
 
@@ -38,8 +40,6 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
-import com.datatorrent.lib.counters.BasicCounters;
-import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
 import com.datatorrent.netlet.util.Slice;
 
 /**

@@ -28,7 +28,6 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.experimental.AppData;
-import com.datatorrent.lib.appdata.StoreUtils;
 
 /**
  * This is an operator that lays the framework of serving data to queries coming from an embeddable query info provider,

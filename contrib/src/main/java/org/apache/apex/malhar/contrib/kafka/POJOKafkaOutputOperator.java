@@ -16,16 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
+package org.apache.apex.malhar.contrib.kafka;
 
 import java.lang.reflect.Field;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+
+import org.apache.apex.malhar.lib.util.PojoUtils;
 import org.apache.commons.lang3.ClassUtils;
 import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.lib.util.PojoUtils;
 
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
@@ -78,7 +79,8 @@ public class POJOKafkaOutputOperator extends AbstractKafkaOutputOperator<Object,
   protected transient PojoUtils.Getter keyMethod;
   protected transient Class<?> pojoClass;
 
-  public final transient DefaultInputPort<Object> inputPort = new DefaultInputPort<Object>() {
+  public final transient DefaultInputPort<Object> inputPort = new DefaultInputPort<Object>()
+  {
     @Override
     public void setup(Context.PortContext context)
     {

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.elasticsearch;
+package org.apache.apex.malhar.contrib.elasticsearch;
 
 import java.io.IOException;
 
@@ -24,9 +24,9 @@ import javax.validation.constraints.NotNull;
 
 import org.elasticsearch.action.percolate.PercolateResponse;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
@@ -50,8 +50,8 @@ public class ElasticSearchPercolatorOperator extends BaseOperator
   protected transient ElasticSearchPercolatorStore store;
   public final transient DefaultOutputPort<PercolateResponse> outputPort = new DefaultOutputPort<PercolateResponse>();
 
-  public final transient DefaultInputPort<Object> inputPort = new DefaultInputPort<Object>() {
-
+  public final transient DefaultInputPort<Object> inputPort = new DefaultInputPort<Object>()
+  {
     /*
      * (non-Javadoc)
      *
@@ -61,7 +61,7 @@ public class ElasticSearchPercolatorOperator extends BaseOperator
     public void process(Object tuple)
     {
 
-      PercolateResponse response = store.percolate(new String[] { indexName }, documentType, tuple);
+      PercolateResponse response = store.percolate(new String[] {indexName}, documentType, tuple);
       outputPort.emit(response);
     }
   };

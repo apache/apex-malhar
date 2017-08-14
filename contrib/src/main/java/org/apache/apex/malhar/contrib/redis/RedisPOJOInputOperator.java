@@ -16,26 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.redis;
+package org.apache.apex.malhar.contrib.redis;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.util.FieldInfo;
+import org.apache.apex.malhar.lib.util.FieldInfo.SupportType;
+import org.apache.apex.malhar.lib.util.KeyValPair;
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Setter;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterBoolean;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterDouble;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterFloat;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterInt;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterLong;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterShort;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.util.FieldInfo;
-import com.datatorrent.lib.util.FieldInfo.SupportType;
-import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Setter;
-import com.datatorrent.lib.util.PojoUtils.SetterBoolean;
-import com.datatorrent.lib.util.PojoUtils.SetterDouble;
-import com.datatorrent.lib.util.PojoUtils.SetterFloat;
-import com.datatorrent.lib.util.PojoUtils.SetterInt;
-import com.datatorrent.lib.util.PojoUtils.SetterLong;
-import com.datatorrent.lib.util.PojoUtils.SetterShort;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
@@ -81,25 +81,25 @@ public class RedisPOJOInputOperator extends AbstractRedisInputOperator<KeyValPai
           String value = tuple.get(columnName);
           switch (type) {
             case STRING:
-              ((Setter<Object, String>) setters.get(i)).set(mappedObject, value);
+              ((Setter<Object, String>)setters.get(i)).set(mappedObject, value);
               break;
             case BOOLEAN:
-              ((SetterBoolean) setters.get(i)).set(mappedObject, Boolean.parseBoolean(value));
+              ((SetterBoolean)setters.get(i)).set(mappedObject, Boolean.parseBoolean(value));
               break;
             case SHORT:
-              ((SetterShort) setters.get(i)).set(mappedObject, Short.parseShort(value));
+              ((SetterShort)setters.get(i)).set(mappedObject, Short.parseShort(value));
               break;
             case INTEGER:
-              ((SetterInt) setters.get(i)).set(mappedObject, Integer.parseInt(value));
+              ((SetterInt)setters.get(i)).set(mappedObject, Integer.parseInt(value));
               break;
             case LONG:
-              ((SetterLong) setters.get(i)).set(mappedObject, Long.parseLong(value));
+              ((SetterLong)setters.get(i)).set(mappedObject, Long.parseLong(value));
               break;
             case FLOAT:
-              ((SetterFloat) setters.get(i)).set(mappedObject, Float.parseFloat(value));
+              ((SetterFloat)setters.get(i)).set(mappedObject, Float.parseFloat(value));
               break;
             case DOUBLE:
-              ((SetterDouble) setters.get(i)).set(mappedObject, Double.parseDouble(value));
+              ((SetterDouble)setters.get(i)).set(mappedObject, Double.parseDouble(value));
               break;
             default:
               break;

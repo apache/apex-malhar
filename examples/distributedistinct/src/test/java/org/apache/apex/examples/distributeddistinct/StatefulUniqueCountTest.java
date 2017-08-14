@@ -31,6 +31,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.algo.UniqueValueCount;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context.OperatorContext;
@@ -41,9 +43,6 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.common.util.BaseOperator;
-
-import com.datatorrent.lib.algo.UniqueValueCount;
-import com.datatorrent.lib.util.KeyValPair;
 
 public class StatefulUniqueCountTest
 {

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.db.cache;
+package org.apache.apex.malhar.lib.db.cache;
 
 import java.io.IOException;
 
@@ -25,12 +25,13 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.db.Connectable;
+import org.apache.apex.malhar.lib.util.KeyValPair;
+
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
-import com.datatorrent.lib.db.Connectable;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * This is the base implementation of an operator that maintains a loading cache.&nbsp;

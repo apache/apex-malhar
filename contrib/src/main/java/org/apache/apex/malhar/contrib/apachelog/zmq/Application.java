@@ -16,21 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.apachelog.zmq;
+package org.apache.apex.malhar.contrib.apachelog.zmq;
 
 
+import org.apache.apex.malhar.contrib.zmq.SimpleSinglePortZeroMQPullStringInputOperator;
+import org.apache.apex.malhar.lib.algo.UniqueCounter;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+import org.apache.apex.malhar.lib.logs.ApacheLogParseOperator;
+import org.apache.apex.malhar.lib.math.Sum;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.contrib.zmq.SimpleSinglePortZeroMQPullStringInputOperator;
-import com.datatorrent.lib.algo.UniqueCounter;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.logs.ApacheLogParseOperator;
-import com.datatorrent.lib.math.Sum;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 /**
  * <p>An implementation of Streaming Application that populates the DAG. </p>
@@ -40,7 +40,7 @@ import com.datatorrent.lib.math.Sum;
  * @tag: streaming
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="ApacheLog")
+@ApplicationAnnotation(name = "ApacheLog")
 public class Application implements StreamingApplication
 {
   private Locality locality = null;

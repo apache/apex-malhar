@@ -16,11 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hive;
+package org.apache.apex.malhar.hive;
 
 import javax.validation.constraints.NotNull;
 
-import com.datatorrent.lib.db.jdbc.JdbcStore;
+import org.apache.apex.malhar.lib.db.jdbc.JdbcStore;
 
 /**
  * Hive Store that extends Jdbc Store and provides its own driver name.

@@ -16,10 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.testbench;
+package org.apache.apex.benchmark.testbench;
 
 import java.util.HashMap;
 
+import org.apache.apex.benchmark.WordCountOperator;
+import org.apache.apex.benchmark.stream.IntegerOperator;
+import org.apache.apex.malhar.lib.testbench.EventClassifierNumberToHashDouble;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context.PortContext;
@@ -27,9 +30,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.benchmark.WordCountOperator;
-import com.datatorrent.benchmark.stream.IntegerOperator;
-import com.datatorrent.lib.testbench.EventClassifierNumberToHashDouble;
 
 /**
  * Benchmark App for EventClassifierNumberToHashDouble Operator.

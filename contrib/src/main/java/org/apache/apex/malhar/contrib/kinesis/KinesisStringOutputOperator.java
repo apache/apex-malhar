@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kinesis;
+package org.apache.apex.malhar.contrib.kinesis;
 
 import com.datatorrent.common.util.Pair;
 
@@ -33,6 +33,7 @@ public class KinesisStringOutputOperator extends AbstractKinesisOutputOperator<S
   {
     return tuple.getBytes();
   }
+
   @Override
   protected Pair<String, String> tupleToKeyValue(String tuple)
   {

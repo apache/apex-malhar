@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.util;
+package org.apache.apex.malhar.lib.util;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,11 +24,11 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
+import org.apache.apex.malhar.lib.testbench.CountAndLastTupleTestSink;
 
 /**
  *
- * functional test for {@link com.datatorrent.lib.util.JavaScriptFilterOperator}.
+ * functional test for {@link org.apache.apex.malhar.lib.util.JavaScriptFilterOperator}.
  */
 public class JavaScriptFilterOperatorTest
 {

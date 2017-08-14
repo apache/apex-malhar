@@ -16,13 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.memsql;
+package org.apache.apex.malhar.contrib.memsql;
 
-import com.datatorrent.api.Context.OperatorContext;
-import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import javax.validation.constraints.NotNull;
+import com.datatorrent.api.Context.OperatorContext;
 
 public class MemsqlInputOperator extends AbstractMemsqlInputOperator<Object>
 {
@@ -82,8 +82,7 @@ public class MemsqlInputOperator extends AbstractMemsqlInputOperator<Object>
       resultSet.next();
       inputSize = resultSet.getInt(1);
       statement.close();
-    }
-    catch (SQLException ex) {
+    } catch (SQLException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -95,8 +94,7 @@ public class MemsqlInputOperator extends AbstractMemsqlInputOperator<Object>
 
     try {
       tuple = result.getInt(2);
-    }
-    catch (SQLException ex) {
+    } catch (SQLException ex) {
       throw new RuntimeException(ex);
     }
 

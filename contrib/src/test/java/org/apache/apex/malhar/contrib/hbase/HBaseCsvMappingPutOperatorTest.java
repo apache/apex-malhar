@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
 import java.io.IOException;
 
@@ -25,14 +25,16 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
-public class HBaseCsvMappingPutOperatorTest {
+public class HBaseCsvMappingPutOperatorTest
+{
   private static final Logger logger = LoggerFactory
       .getLogger(HBaseCsvMappingPutOperatorTest.class);
 
   @Test
-  public void testPut() throws Exception {
+  public void testPut() throws Exception
+  {
     try {
       HBaseTestHelper.startLocalCluster();
       HBaseTestHelper.clearHBase();
@@ -43,7 +45,7 @@ public class HBaseCsvMappingPutOperatorTest {
       csvMappingPutOperator.getStore().setZookeeperClientPort(2181);
       String s = "patrick,fremont,cali,milinda";
       String s1 = "gillett,santaclara,cali,milindas";
-      String s2= "aventferry,raleigh,nc,milind";
+      String s2 = "aventferry,raleigh,nc,milind";
       csvMappingPutOperator.setMappingString("colfam0.street,colfam0.city,colfam0.state,row");
       csvMappingPutOperator.setup(mockOperatorContext(0));
       csvMappingPutOperator.beginWindow(0);

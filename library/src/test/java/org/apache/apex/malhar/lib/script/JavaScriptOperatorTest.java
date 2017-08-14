@@ -16,18 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.script;
+package org.apache.apex.malhar.lib.script;
 
 import java.util.HashMap;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.TestUtils;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.TestUtils;
 
 /**
- * Functional tests for {@link com.datatorrent.lib.script.JavaScriptOperator}.
+ * Functional tests for {@link org.apache.apex.malhar.lib.script.JavaScriptOperator}.
  */
 public class JavaScriptOperatorTest
 {

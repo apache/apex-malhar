@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.datatorrent.lib.io.fs;
+package org.apache.apex.malhar.lib.io.fs;
 
 import java.io.IOException;
 
@@ -28,13 +28,12 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import org.apache.apex.malhar.lib.io.fs.FileStitcher.BlockNotFoundException;
+import org.apache.apex.malhar.lib.io.fs.HDFSFileMerger.FastMergerDecisionMaker;
+import org.apache.apex.malhar.lib.io.fs.Synchronizer.OutputFileMetadata;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-
-import com.datatorrent.lib.io.fs.FileStitcher.BlockNotFoundException;
-import com.datatorrent.lib.io.fs.HDFSFileMerger.FastMergerDecisionMaker;
-import com.datatorrent.lib.io.fs.Synchronizer.OutputFileMetadata;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;

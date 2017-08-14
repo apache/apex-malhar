@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.avro;
+package org.apache.apex.malhar.contrib.avro;
 
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.avro.generic.GenericRecord;

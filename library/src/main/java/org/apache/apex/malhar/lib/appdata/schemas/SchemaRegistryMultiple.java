@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.schemas;
+package org.apache.apex.malhar.lib.appdata.schemas;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -24,9 +24,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.base.Preconditions;
+import org.apache.apex.malhar.lib.appdata.datastructs.DimensionalTable;
 
-import com.datatorrent.lib.appdata.datastructs.DimensionalTable;
+import com.google.common.base.Preconditions;
 
 /**
  * This class is a schema registry which can hold multiple schemas. It is intended to be
@@ -64,7 +64,7 @@ public class SchemaRegistryMultiple implements SchemaRegistry, Serializable
    * The names of all the schema keys for all schemas in this registry.
    * @param schemaKeys The names of all the schema keys for all schemas in this registry.
    * @param schemaComparator The comparator used to order the schemas returned in the {@link SchemaResult} produced
-   * by {@link SchemaRegistryMultiple#getSchemaResult(com.datatorrent.lib.appdata.schemas.SchemaQuery)}
+   * by {@link SchemaRegistryMultiple#getSchemaResult(org.apache.apex.malhar.lib.appdata.schemas.SchemaQuery)}
    */
   public SchemaRegistryMultiple(List<String> schemaKeys, Comparator<Schema> schemaComparator)
   {

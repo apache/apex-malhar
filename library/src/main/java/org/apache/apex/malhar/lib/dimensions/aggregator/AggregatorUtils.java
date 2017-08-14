@@ -21,13 +21,13 @@ package org.apache.apex.malhar.lib.dimensions.aggregator;
 import java.util.Collections;
 import java.util.Map;
 
-import com.google.common.collect.Maps;
+import org.apache.apex.malhar.lib.appdata.gpo.Serde;
+import org.apache.apex.malhar.lib.appdata.gpo.SerdeMapPrimitive;
+import org.apache.apex.malhar.lib.appdata.schemas.Fields;
+import org.apache.apex.malhar.lib.appdata.schemas.FieldsDescriptor;
+import org.apache.apex.malhar.lib.appdata.schemas.Type;
 
-import com.datatorrent.lib.appdata.gpo.Serde;
-import com.datatorrent.lib.appdata.gpo.SerdeMapPrimitive;
-import com.datatorrent.lib.appdata.schemas.Fields;
-import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
-import com.datatorrent.lib.appdata.schemas.Type;
+import com.google.common.collect.Maps;
 
 /**
  * This class contains utility methods which are useful for aggregators.

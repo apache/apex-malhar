@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.memcache_whalin;
+package org.apache.apex.malhar.contrib.memcache_whalin;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -27,10 +27,10 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.db.KeyValueStore;
+
 import com.whalin.MemCached.MemCachedClient;
 import com.whalin.MemCached.SockIOPool;
-
-import com.datatorrent.lib.db.KeyValueStore;
 
 /**
  * Provides the implementation of a Memcache store.
@@ -81,8 +81,7 @@ public class MemcacheStore implements KeyValueStore
     pool = SockIOPool.getInstance();
     if (serverAddresses.isEmpty()) {
       pool.setServers(new String[]{"localhost:11211"});
-    }
-    else {
+    } else {
       pool.setServers(serverAddresses.toArray(new String[] {}));
     }
     pool.initialize();
@@ -121,7 +120,6 @@ public class MemcacheStore implements KeyValueStore
    * @param keys
    * @return All values for the given keys.
    */
-  @SuppressWarnings("unchecked")
   @Override
   public List<Object> getAll(List<Object> keys)
   {
@@ -132,14 +130,12 @@ public class MemcacheStore implements KeyValueStore
     return results;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public void put(Object key, Object value)
   {
     try {
       memcacheClient.set(key.toString(), value, keyExpiryTime);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
   }

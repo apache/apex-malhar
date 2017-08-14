@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io.jms;
+package org.apache.apex.malhar.lib.io.jms;
 
 import java.io.File;
 
@@ -31,6 +31,7 @@ import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 import org.apache.commons.io.FileUtils;
 
 import com.amazon.sqs.javamessaging.SQSConnectionFactory;
@@ -39,9 +40,8 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Tests for {@link JMSStringInputOperator} for AMZ SQS.
@@ -54,14 +54,14 @@ import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorC
      * which in-turn will impact the time on consumer close."
  *
  * Because of the above this test takes a long time due to consumer.close() in
- * com.datatorrent.lib.io.jms.AbstractJMSInputOperator.cleanup()
+ * org.apache.apex.malhar.lib.io.jms.AbstractJMSInputOperator.cleanup()
  *
  * NOTE: tests are automatically skipped if the secret key in sqstestCreds.properties
  * is missing or blank.
  *
  * NOTE: each test creates its own uniquely named queue in SQS and then deletes it afterwards.
  * Also we try to scrub any leftover queues from the previous runs just in case tests were
- * aborted (check com.datatorrent.lib.io.jms.SQSTestBase.generateCurrentQueueName(String))
+ * aborted (check org.apache.apex.malhar.lib.io.jms.SQSTestBase.generateCurrentQueueName(String))
  *
  */
 public class SQSStringInputOperatorTest

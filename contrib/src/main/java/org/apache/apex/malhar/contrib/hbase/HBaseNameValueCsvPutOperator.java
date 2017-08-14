@@ -16,45 +16,48 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.lib.util.ReusableStringReader;
-import org.apache.hadoop.hbase.client.Put;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.supercsv.io.CsvListReader;
-import org.supercsv.io.ICsvListReader;
-import org.supercsv.prefs.CsvPreference;
-
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import javax.validation.constraints.NotNull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.supercsv.io.CsvListReader;
+import org.supercsv.io.ICsvListReader;
+import org.supercsv.prefs.CsvPreference;
+import org.apache.apex.malhar.lib.util.ReusableStringReader;
+import org.apache.hadoop.hbase.client.Put;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
- * An implementation of HBase window put operator that inserts a string of key value pairs which are mapped to corresponding rows, columns.
+ * An implementation of HBase window put operator that inserts a string of key
+ * value pairs which are mapped to corresponding rows, columns.
  * <p>
  * Accepts a string of key value pairs containing the data to be inserted.These
  * are mapped to corresponding rows,column families and columns using a property
  * file and inserted into hbase Example: input string will be of the form
- * name="xyz", st="patrickhenry" ,ct="fremont", sa="california", the properties will contain
- * properties of form name=row, sa=address.street, ct=address.city, sa=address.state.
- * With the above mapping a row xyz is created. The value patrickhenry is inserted into
- * columnfamily address and column street of row xyz. Other values are inserted
- * similarly.
+ * name="xyz", st="patrickhenry" ,ct="fremont", sa="california", the properties
+ * will contain properties of form name=row, sa=address.street, ct=address.city,
+ * sa=address.state. With the above mapping a row xyz is created. The value
+ * patrickhenry is inserted into columnfamily address and column street of row
+ * xyz. Other values are inserted similarly.
  *
  * @displayName HBase Name Value Csv Put
  * @category Output
  * @tags csv, hbase, put
  * @since 1.0.2
  */
-public class HBaseNameValueCsvPutOperator extends AbstractHBaseWindowPutOutputOperator<String> {
-
-  private class ColDef {
+public class HBaseNameValueCsvPutOperator extends AbstractHBaseWindowPutOutputOperator<String>
+{
+  private class ColDef
+  {
     String colFam;
     String colName;
   }
@@ -66,26 +69,29 @@ public class HBaseNameValueCsvPutOperator extends AbstractHBaseWindowPutOutputOp
   private transient Map<String, ColDef> colMap = new HashMap<String, ColDef>();
   private transient Map<String, String> linemap = new HashMap<String, String>();
   private transient ICsvListReader lineListReader = null;
-  private transient ReusableStringReader lineSr=new ReusableStringReader();
+  private transient ReusableStringReader lineSr = new ReusableStringReader();
   private transient ArrayList<String> csvLineList = new ArrayList<String>();
 
-  public void setMapping(String mapping) {
+  public void setMapping(String mapping)
+  {
     this.mapping = mapping;
   }
 
   @Override
-  public Put operationPut(String t) {
+  public Put operationPut(String t)
+  {
     return parseLine(t);
   }
 
-  public void parseMapping() {
+  public void parseMapping()
+  {
     ICsvListReader listReader = null;
-    StringReader sr=null;
+    StringReader sr = null;
     ArrayList<String> csvList = new ArrayList<String>();
     try {
-      sr=new StringReader(mapping);
+      sr = new StringReader(mapping);
       listReader = new CsvListReader(sr,CsvPreference.STANDARD_PREFERENCE);
-      csvList = (ArrayList<String>) listReader.read();
+      csvList = (ArrayList<String>)listReader.read();
     } catch (IOException e) {
       logger.error("Cannot read the mapping string", e);
       DTThrowable.rethrow(e);
@@ -110,11 +116,12 @@ public class HBaseNameValueCsvPutOperator extends AbstractHBaseWindowPutOutputOp
     }
   }
 
-  public Put parseLine(String s) {
+  public Put parseLine(String s)
+  {
     Put put = null;
     try {
       lineSr.open(s);
-      csvLineList = (ArrayList<String>) lineListReader.read();
+      csvLineList = (ArrayList<String>)lineListReader.read();
     } catch (IOException e) {
       logger.error("Cannot read the property string", e);
       DTThrowable.rethrow(e);
@@ -144,14 +151,16 @@ public class HBaseNameValueCsvPutOperator extends AbstractHBaseWindowPutOutputOp
   }
 
   @Override
-  public void setup(OperatorContext context) {
+  public void setup(OperatorContext context)
+  {
     super.setup(context);
     parseMapping();
     lineListReader = new CsvListReader(lineSr,CsvPreference.STANDARD_PREFERENCE);
   }
 
   @Override
-  public void teardown() {
+  public void teardown()
+  {
     super.teardown();
     try {
       lineSr.close();

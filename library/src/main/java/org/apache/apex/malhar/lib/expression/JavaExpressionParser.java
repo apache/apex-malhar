@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.expression;
+package org.apache.apex.malhar.lib.expression;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.util.KeyValPair;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 
 /**
  * Defines how quasi-Java Expression should be parsed.

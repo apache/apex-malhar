@@ -16,20 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.memsql;
-
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Setter;
-import com.datatorrent.lib.util.PojoUtils.SetterBoolean;
-import com.datatorrent.lib.util.PojoUtils.SetterDouble;
-import com.datatorrent.lib.util.PojoUtils.SetterFloat;
-import com.datatorrent.lib.util.PojoUtils.SetterInt;
-import com.datatorrent.lib.util.PojoUtils.SetterLong;
-import com.datatorrent.lib.util.PojoUtils.SetterShort;
+package org.apache.apex.malhar.contrib.memsql;
 
 import java.math.BigDecimal;
-import java.sql.*;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,9 +33,18 @@ import java.util.Map;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Setter;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterBoolean;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterDouble;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterFloat;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterInt;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterLong;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterShort;
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * <p>
@@ -262,8 +266,7 @@ public class MemsqlPOJOInputOperator extends AbstractMemsqlInputOperator<Object>
         String javaType;
         if (memsqlType.contains("(")) {
           javaType = memsqlType.substring(0, memsqlType.indexOf('(')).toUpperCase();
-        }
-        else {
+        } else {
           javaType = memsqlType.toUpperCase();
         }
 
@@ -286,16 +289,14 @@ public class MemsqlPOJOInputOperator extends AbstractMemsqlInputOperator<Object>
       }
 
       statement.close();
-    }
-    catch (SQLException ex) {
+    } catch (SQLException ex) {
       throw new RuntimeException(ex);
     }
 
     try {
       // This code will be replaced after integration of creating POJOs on the fly utility.
       objectClass = Class.forName(outputClass);
-    }
-    catch (ClassNotFoundException ex) {
+    } catch (ClassNotFoundException ex) {
       throw new RuntimeException(ex);
     }
 
@@ -324,11 +325,9 @@ public class MemsqlPOJOInputOperator extends AbstractMemsqlInputOperator<Object>
     try {
       // This code will be replaced after integration of creating POJOs on the fly utility.
       obj = objectClass.newInstance();
-    }
-    catch (InstantiationException ex) {
+    } catch (InstantiationException ex) {
       throw new RuntimeException(ex);
-    }
-    catch (IllegalAccessException ex) {
+    } catch (IllegalAccessException ex) {
       throw new RuntimeException(ex);
     }
     final int size = columns.size();
@@ -339,35 +338,25 @@ public class MemsqlPOJOInputOperator extends AbstractMemsqlInputOperator<Object>
         Class<?> classType = columnNameToClassMapping.get(columnName);
         if (classType == String.class) {
           ((Setter<Object, String>)setters.get(i)).set(obj, result.getString(columnName));
-        }
-        else if (classType == int.class) {
+        } else if (classType == int.class) {
           ((SetterInt)setters.get(i)).set(obj, result.getInt(columnName));
-        }
-        else if (classType == Boolean.class) {
+        } else if (classType == Boolean.class) {
           ((SetterBoolean)setters.get(i)).set(obj, result.getBoolean(columnName));
-        }
-        else if (classType == Short.class) {
+        } else if (classType == Short.class) {
           ((SetterShort)setters.get(i)).set(obj, result.getShort(columnName));
-        }
-        else if (classType == Long.class) {
+        } else if (classType == Long.class) {
           ((SetterLong)setters.get(i)).set(obj, result.getLong(columnName));
-        }
-        else if (classType == Float.class) {
+        } else if (classType == Float.class) {
           ((SetterFloat)setters.get(i)).set(obj, result.getFloat(columnName));
-        }
-        else if (classType == Double.class) {
+        } else if (classType == Double.class) {
           ((SetterDouble)setters.get(i)).set(obj, result.getDouble(columnName));
-        }
-        else if (classType == BigDecimal.class) {
+        } else if (classType == BigDecimal.class) {
           ((Setter<Object, BigDecimal>)setters.get(i)).set(obj, result.getBigDecimal(columnName));
-        }
-        else if (classType == Date.class) {
+        } else if (classType == Date.class) {
           ((Setter<Object, Date>)setters.get(i)).set(obj, result.getDate(columnName));
-        }
-        else if (classType == Timestamp.class) {
+        } else if (classType == Timestamp.class) {
           ((Setter<Object, Timestamp>)setters.get(i)).set(obj, result.getTimestamp(columnName));
-        }
-        else {
+        } else {
           throw new RuntimeException("unsupported data type ");
         }
       }
@@ -375,28 +364,20 @@ public class MemsqlPOJOInputOperator extends AbstractMemsqlInputOperator<Object>
       if (result.isLast()) {
         logger.debug("last row is {}", lastRowKey);
         if (primaryKeyColumnType == int.class) {
-
           lastRowKey = result.getInt(primaryKeyColumn);
-        }
-        else if (primaryKeyColumnType == Long.class) {
-
+        } else if (primaryKeyColumnType == Long.class) {
           lastRowKey = result.getLong(primaryKeyColumn);
-        }
-        else if (primaryKeyColumnType == Float.class) {
+        } else if (primaryKeyColumnType == Float.class) {
           lastRowKey = result.getFloat(primaryKeyColumn);
-        }
-        else if (primaryKeyColumnType == Double.class) {
+        } else if (primaryKeyColumnType == Double.class) {
           lastRowKey = result.getDouble(primaryKeyColumn);
-        }
-        else if (primaryKeyColumnType == Short.class) {
+        } else if (primaryKeyColumnType == Short.class) {
           lastRowKey = result.getShort(primaryKeyColumn);
-        }
-        else {
+        } else {
           throw new RuntimeException("unsupported data type ");
         }
       }
-    }
-    catch (SQLException ex) {
+    } catch (SQLException ex) {
       throw new RuntimeException(ex);
     }
     return obj;
@@ -413,8 +394,7 @@ public class MemsqlPOJOInputOperator extends AbstractMemsqlInputOperator<Object>
     String parameterizedQuery;
     if (query.contains("%s")) {
       parameterizedQuery = query.replace("%s", startRow + "");
-    }
-    else {
+    } else {
       parameterizedQuery = query;
     }
     return parameterizedQuery;

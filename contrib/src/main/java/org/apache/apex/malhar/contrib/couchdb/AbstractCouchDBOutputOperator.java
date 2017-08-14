@@ -16,10 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchdb;
+package org.apache.apex.malhar.contrib.couchdb;
 
-import com.datatorrent.lib.db.AbstractStoreOutputOperator;
-import java.util.Map;
+import org.apache.apex.malhar.lib.db.AbstractStoreOutputOperator;
 
 /**
  * Generic base output adaptor which saves tuples in the CouchDb.&nbsp; Subclasses should provide implementation for getting Document Id. <br/>

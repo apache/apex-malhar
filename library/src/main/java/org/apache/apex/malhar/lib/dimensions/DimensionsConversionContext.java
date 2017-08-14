@@ -20,8 +20,8 @@ package org.apache.apex.malhar.lib.dimensions;
 
 import java.io.Serializable;
 
-import com.datatorrent.lib.appdata.gpo.GPOUtils.IndexSubset;
-import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
+import org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.IndexSubset;
+import org.apache.apex.malhar.lib.appdata.schemas.FieldsDescriptor;
 
 /**
  * This is a context object used to convert {@link InputEvent}s into aggregates

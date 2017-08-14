@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.avro;
+package org.apache.apex.malhar.contrib.avro;
 
 import java.util.List;
 import java.util.ListIterator;
@@ -28,14 +28,14 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.python.google.common.collect.Lists;
 
+import org.apache.apex.malhar.lib.helper.TestPortContext;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.helper.TestPortContext;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 
 public class AvroToPojoTest
 {

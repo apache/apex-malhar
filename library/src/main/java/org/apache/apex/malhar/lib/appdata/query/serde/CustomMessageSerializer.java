@@ -16,10 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.query.serde;
+package org.apache.apex.malhar.lib.appdata.query.serde;
 
-import com.datatorrent.lib.appdata.schemas.Message;
-import com.datatorrent.lib.appdata.schemas.ResultFormatter;
+import org.apache.apex.malhar.lib.appdata.schemas.Message;
+import org.apache.apex.malhar.lib.appdata.schemas.ResultFormatter;
 
 /**
  * This interface defines a Message serializer, which will be used to convert a result to JSON. Classes

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.script;
+package org.apache.apex.benchmark.script;
 
 import org.junit.Test;
 

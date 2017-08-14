@@ -49,6 +49,7 @@ import org.apache.apex.malhar.kudu.scanner.KuduRecordWithMeta;
 import org.apache.apex.malhar.kudu.scanner.KuduScanOrderStrategy;
 import org.apache.apex.malhar.kudu.sqltranslator.KuduSQLParseTreeListener;
 import org.apache.apex.malhar.kudu.sqltranslator.SQLToKuduPredicatesTranslator;
+import org.apache.apex.malhar.lib.util.PojoUtils;
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -66,7 +67,6 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.annotation.Stateless;
-import com.datatorrent.lib.util.PojoUtils;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

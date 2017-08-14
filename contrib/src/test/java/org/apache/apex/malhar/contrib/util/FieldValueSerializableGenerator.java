@@ -16,31 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.util;
+package org.apache.apex.malhar.contrib.util;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.util.FieldInfo;
+import org.apache.apex.malhar.lib.util.FieldValueGenerator;
+import org.apache.apex.malhar.lib.util.PojoUtils.Setter;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.datatorrent.lib.util.FieldInfo;
-import com.datatorrent.lib.util.FieldValueGenerator;
-import com.datatorrent.lib.util.PojoUtils.Setter;
-
-public class FieldValueSerializableGenerator< T extends FieldInfo> extends FieldValueGenerator<T>
+public class FieldValueSerializableGenerator<T extends FieldInfo> extends FieldValueGenerator<T>
 {
 
-  public static < T extends FieldInfo > FieldValueSerializableGenerator<T> getFieldValueGenerator(final Class<?> clazz, List<T> fieldInfos)
+  public static <T extends FieldInfo> FieldValueSerializableGenerator<T> getFieldValueGenerator(final Class<?> clazz, List<T> fieldInfos)
   {
     return new FieldValueSerializableGenerator(clazz, fieldInfos);
   }
-
 
   private static final Logger logger = LoggerFactory.getLogger( FieldValueGenerator.class );
   //it's better to same kryo instance for both de/serialize
@@ -68,8 +67,7 @@ public class FieldValueSerializableGenerator< T extends FieldInfo> extends Field
     Object convertObj = obj;
 
     //if fields are specified, convert to map and then convert map to byte[]
-    if( fieldGetterMap != null && !fieldGetterMap.isEmpty() )
-    {
+    if ( fieldGetterMap != null && !fieldGetterMap.isEmpty() ) {
       convertObj = getFieldsValueAsMap(obj);
     }
 
@@ -87,29 +85,24 @@ public class FieldValueSerializableGenerator< T extends FieldInfo> extends Field
   {
     Object obj = getKryo().readClassAndObject( new Input( bytes ) );
 
-
-    if( fieldGetterMap == null || fieldGetterMap.isEmpty() )
+    if ( fieldGetterMap == null || fieldGetterMap.isEmpty() ) {
       return obj;
+    }
 
     // the obj in fact is a map, convert from map to object
-    try
-    {
+    try {
       Map valueMap = (Map)obj;
       obj = clazz.newInstance();
 
-      for( Map.Entry< T, Setter<Object,Object>> entry : fieldSetterMap.entrySet() )
-      {
+      for ( Map.Entry<T, Setter<Object,Object>> entry : fieldSetterMap.entrySet() ) {
         T fieldInfo = entry.getKey();
         Setter<Object,Object> setter = entry.getValue();
-        if( setter != null )
-        {
+        if (setter != null ) {
           setter.set(obj, valueMap.get( fieldInfo.getColumnName() ) );
         }
       }
       return obj;
-    }
-    catch( Exception e )
-    {
+    } catch ( Exception e ) {
       logger.warn( "Coverting map to obj exception. ", e );
       return obj;
     }
@@ -117,12 +110,11 @@ public class FieldValueSerializableGenerator< T extends FieldInfo> extends Field
 
   protected Kryo getKryo()
   {
-    if( _kryo == null )
-    {
-      synchronized( this )
-      {
-        if( _kryo == null )
+    if ( _kryo == null ) {
+      synchronized ( this ) {
+        if ( _kryo == null ) {
           _kryo = new Kryo();
+        }
         _kryo.setClassLoader(clazz.getClassLoader());
       }
     }

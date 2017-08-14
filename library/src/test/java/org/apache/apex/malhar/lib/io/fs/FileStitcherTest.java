@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.datatorrent.lib.io.fs;
+package org.apache.apex.malhar.lib.io.fs;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +29,12 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import org.apache.apex.malhar.lib.io.block.BlockMetadata.FileBlockMetadata;
+import org.apache.apex.malhar.lib.io.block.BlockWriter;
+import org.apache.apex.malhar.lib.io.fs.AbstractFileSplitter.FileMetadata;
+import org.apache.apex.malhar.lib.io.fs.Synchronizer.OutputFileMetadata;
+import org.apache.apex.malhar.lib.io.fs.Synchronizer.StitchBlock;
+import org.apache.apex.malhar.lib.io.fs.Synchronizer.StitchBlockMetaData;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hadoop.fs.Path;
@@ -38,14 +44,8 @@ import com.google.common.collect.Lists;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.io.block.BlockMetadata.FileBlockMetadata;
-import com.datatorrent.lib.io.block.BlockWriter;
-import com.datatorrent.lib.io.fs.AbstractFileSplitter.FileMetadata;
-import com.datatorrent.lib.io.fs.Synchronizer.OutputFileMetadata;
-import com.datatorrent.lib.io.fs.Synchronizer.StitchBlock;
-import com.datatorrent.lib.io.fs.Synchronizer.StitchBlockMetaData;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Unit tests for {@link FileStitcher}

@@ -16,17 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.schemas;
+package org.apache.apex.malhar.lib.appdata.schemas;
 
 import java.util.Map;
 
-import com.google.common.base.Preconditions;
+import org.apache.apex.malhar.lib.appdata.query.serde.DataQuerySnapshotDeserializer;
+import org.apache.apex.malhar.lib.appdata.query.serde.DataQuerySnapshotValidator;
+import org.apache.apex.malhar.lib.appdata.query.serde.MessageDeserializerInfo;
+import org.apache.apex.malhar.lib.appdata.query.serde.MessageType;
+import org.apache.apex.malhar.lib.appdata.query.serde.MessageValidatorInfo;
 
-import com.datatorrent.lib.appdata.query.serde.DataQuerySnapshotDeserializer;
-import com.datatorrent.lib.appdata.query.serde.DataQuerySnapshotValidator;
-import com.datatorrent.lib.appdata.query.serde.MessageDeserializerInfo;
-import com.datatorrent.lib.appdata.query.serde.MessageType;
-import com.datatorrent.lib.appdata.query.serde.MessageValidatorInfo;
+import com.google.common.base.Preconditions;
 
 /**
  * This object represents queries issued against the {@link SnapshotSchema}.

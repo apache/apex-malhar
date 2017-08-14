@@ -16,31 +16,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.aerospike;
+package org.apache.apex.malhar.contrib.aerospike;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.db.AbstractStoreInputOperator;
 
 import com.aerospike.client.Record;
 import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.Statement;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.lib.db.AbstractStoreInputOperator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Base input adapter, which reads data from persistence database through its API and writes into output port(s).&nsbsp;
- * Subclasses should provide the implementation of getting the tuples and querying to retrieve data.
+ * Base input adapter, which reads data from persistence database through its
+ * API and writes into output port(s). Subclasses should provide the
+ * implementation of getting the tuples and querying to retrieve data.
  * <p>
- * This is an abstract class. Sub-classes need to implement {@link #queryToRetrieveData()} and {@link #getTuple(Record)}.
- * </p>
+ * This is an abstract class. Sub-classes need to implement
+ * {@link #queryToRetrieveData()} and {@link #getTuple(Record)}.
+ *
  * @displayName Abstract Aerospike Get
  * @category Input
  * @tags get
  * @since 1.0.4
  */
-public abstract class AbstractAerospikeGetOperator<T> extends AbstractStoreInputOperator<T, AerospikeStore> {
-
+public abstract class AbstractAerospikeGetOperator<T> extends AbstractStoreInputOperator<T, AerospikeStore>
+{
   private static final Logger logger = LoggerFactory.getLogger(AbstractAerospikeGetOperator.class);
 
   /**
@@ -69,20 +72,19 @@ public abstract class AbstractAerospikeGetOperator<T> extends AbstractStoreInput
    * It then converts each row into tuple and emit that into output port.
    */
   @Override
-  public void emitTuples() {
-
+  public void emitTuples()
+  {
     Statement query = queryToRetrieveData();
     logger.debug(String.format("select statement: %s", query.toString()));
     RecordSet rs;
     try {
       rs = store.getClient().query(null, query);
-      while(rs.next()){
+      while (rs.next()) {
         Record rec = rs.getRecord();
         T tuple = getTuple(rec);
         outputPort.emit(tuple);
       }
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       store.disconnect();
       DTThrowable.rethrow(ex);
     }

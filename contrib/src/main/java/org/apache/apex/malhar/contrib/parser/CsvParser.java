@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.parser;
+package org.apache.apex.malhar.contrib.parser;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,6 +32,10 @@ import org.supercsv.io.CsvBeanReader;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.prefs.CsvPreference;
 
+import org.apache.apex.malhar.contrib.parser.DelimitedSchema.Field;
+import org.apache.apex.malhar.lib.parser.Parser;
+import org.apache.apex.malhar.lib.util.KeyValPair;
+import org.apache.apex.malhar.lib.util.ReusableStringReader;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.classification.InterfaceStability;
 
@@ -40,10 +44,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.contrib.parser.DelimitedSchema.Field;
-import com.datatorrent.lib.parser.Parser;
-import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.lib.util.ReusableStringReader;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**

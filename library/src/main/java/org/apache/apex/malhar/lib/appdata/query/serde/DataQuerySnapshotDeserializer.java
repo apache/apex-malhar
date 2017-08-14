@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.query.serde;
+package org.apache.apex.malhar.lib.appdata.query.serde;
 
 import java.io.IOException;
 import java.util.Map;
@@ -27,12 +27,12 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
+import org.apache.apex.malhar.lib.appdata.schemas.DataQuerySnapshot;
+import org.apache.apex.malhar.lib.appdata.schemas.Fields;
+import org.apache.apex.malhar.lib.appdata.schemas.Message;
+import org.apache.apex.malhar.lib.appdata.schemas.SchemaUtils;
 
-import com.datatorrent.lib.appdata.schemas.DataQuerySnapshot;
-import com.datatorrent.lib.appdata.schemas.Fields;
-import com.datatorrent.lib.appdata.schemas.Message;
-import com.datatorrent.lib.appdata.schemas.SchemaUtils;
+import com.google.common.collect.Sets;
 
 /**
  * This class is a deserializer for {@link DataQuerySnapshot} objects.

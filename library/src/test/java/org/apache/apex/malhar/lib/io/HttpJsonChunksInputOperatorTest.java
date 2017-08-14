@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io;
+package org.apache.apex.malhar.lib.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -38,9 +38,8 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 import org.apache.commons.io.IOUtils;
-
-import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  * Functional test for {@linkcom.datatorrent.lib.io.HttpJsonChunksInputOperator }.

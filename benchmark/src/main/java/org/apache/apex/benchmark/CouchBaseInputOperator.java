@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark;
+package org.apache.apex.benchmark;
 
 import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.contrib.couchbase.AbstractCouchBaseInputOperator;
-import com.datatorrent.contrib.couchbase.CouchBaseWindowStore;
+import org.apache.apex.malhar.contrib.couchbase.AbstractCouchBaseInputOperator;
+import org.apache.apex.malhar.contrib.couchbase.CouchBaseWindowStore;
 
 /**
  * <p>CouchBaseInputOperator class.</p>

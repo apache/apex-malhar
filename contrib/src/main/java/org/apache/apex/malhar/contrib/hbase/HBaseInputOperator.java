@@ -16,10 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
+
+import org.apache.apex.malhar.lib.db.AbstractStoreInputOperator;
 
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.lib.db.AbstractStoreInputOperator;
 
 /**
  * A base implementation of hbase input operator which derives from HBaseOperatorBase. <br>

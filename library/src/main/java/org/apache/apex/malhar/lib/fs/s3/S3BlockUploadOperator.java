@@ -31,6 +31,8 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.io.block.AbstractBlockReader;
+import org.apache.apex.malhar.lib.io.block.BlockMetadata;
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -51,8 +53,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
-import com.datatorrent.lib.io.block.AbstractBlockReader;
-import com.datatorrent.lib.io.block.BlockMetadata;
 import com.datatorrent.netlet.util.Slice;
 
 /**

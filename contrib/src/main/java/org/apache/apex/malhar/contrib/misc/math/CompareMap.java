@@ -20,9 +20,10 @@ package org.apache.apex.malhar.contrib.misc.math;
 
 import java.util.HashMap;
 
+import org.apache.apex.malhar.lib.algo.MatchMap;
+
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.Stateless;
-import com.datatorrent.lib.algo.MatchMap;
 
 /**
  * This operator compares tuples subclassed from Number based on the property "key", "value", and "cmp", and matching tuples are emitted.

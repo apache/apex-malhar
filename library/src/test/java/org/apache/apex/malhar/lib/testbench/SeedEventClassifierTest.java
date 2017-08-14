@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.testbench;
+package org.apache.apex.malhar.lib.testbench;
 
 import java.util.HashMap;
 
@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.Sink;
 
 /**
- * Functional test for {@link com.datatorrent.lib.testbench.SeedEventClassifier}<br>
+ * Functional test for {@link org.apache.apex.malhar.lib.testbench.SeedEventClassifier}<br>
  */
 public class SeedEventClassifierTest
 {

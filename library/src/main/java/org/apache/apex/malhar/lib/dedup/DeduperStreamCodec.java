@@ -18,12 +18,12 @@
  */
 package org.apache.apex.malhar.lib.dedup;
 
+import org.apache.apex.malhar.lib.codec.KryoSerializableStreamCodec;
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Getter;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 
 import com.datatorrent.api.StreamCodec;
-import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Getter;
 
 /**
  * A {@link StreamCodec} for {@link AbstractDeduper}.

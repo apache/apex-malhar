@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.multiwindow;
+package org.apache.apex.malhar.lib.multiwindow;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,9 +24,10 @@ import java.util.Map;
 
 import javax.validation.constraints.Min;
 
+import org.apache.apex.malhar.lib.util.BaseNumberKeyValueOperator;
+import org.apache.apex.malhar.lib.util.KeyValPair;
+
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  *

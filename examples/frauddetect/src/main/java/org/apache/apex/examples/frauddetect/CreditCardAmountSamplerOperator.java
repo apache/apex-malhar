@@ -32,12 +32,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.apex.examples.frauddetect.util.JsonUtils;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.commons.lang.mutable.MutableLong;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * An operator to alert in case a transaction of a small lowAmount is followed by a transaction which is significantly larger for a given credit card number.

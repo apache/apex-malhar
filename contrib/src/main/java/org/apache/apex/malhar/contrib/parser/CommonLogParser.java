@@ -48,30 +48,30 @@ public class CommonLogParser extends LogParser
 {
   private static final Logger logger = LoggerFactory.getLogger(CommonLogParser.class);
 
-  private String schema="{\n" +
-    "  \"fields\": [{\n" +
-    "    \"field\": \"host\",\n" +
-    "    \"regex\": \"^([0-9.]+)\"\n" +
-    "  }, {\n" +
-    "    \"field\": \"rfc931\",\n" +
-    "    \"regex\": \"(\\\\S+)\"\n" +
-    "  }, {\n" +
-    "    \"field\": \"username\",\n" +
-    "    \"regex\": \"(\\\\S+)\"\n" +
-    "  }, {\n" +
-    "    \"field\": \"datetime\",\n" +
-    "    \"regex\": \"\\\\[(.*?)\\\\]\"\n" +
-    "  },{\n" +
-    "    \"field\": \"request\",\n" +
-    "    \"regex\": \"\\\"((?:[^\\\"]|\\\")+)\\\"\"\n" +
-    "  },{\n" +
-    "    \"field\": \"statusCode\",\n" +
-    "    \"regex\": \"(\\\\d{3})\"\n" +
-    "  },{\n" +
-    "    \"field\": \"bytes\",\n" +
-    "    \"regex\": \"(\\\\d+|-)\"\n" +
-    "  }]\n" +
-    "}";
+  private String schema = "{\n" +
+      "  \"fields\": [{\n" +
+      "    \"field\": \"host\",\n" +
+      "    \"regex\": \"^([0-9.]+)\"\n" +
+      "  }, {\n" +
+      "    \"field\": \"rfc931\",\n" +
+      "    \"regex\": \"(\\\\S+)\"\n" +
+      "  }, {\n" +
+      "    \"field\": \"username\",\n" +
+      "    \"regex\": \"(\\\\S+)\"\n" +
+      "  }, {\n" +
+      "    \"field\": \"datetime\",\n" +
+      "    \"regex\": \"\\\\[(.*?)\\\\]\"\n" +
+      "  },{\n" +
+      "    \"field\": \"request\",\n" +
+      "    \"regex\": \"\\\"((?:[^\\\"]|\\\")+)\\\"\"\n" +
+      "  },{\n" +
+      "    \"field\": \"statusCode\",\n" +
+      "    \"regex\": \"(\\\\d{3})\"\n" +
+      "  },{\n" +
+      "    \"field\": \"bytes\",\n" +
+      "    \"regex\": \"(\\\\d+|-)\"\n" +
+      "  }]\n" +
+      "}";
 
 
   @Override

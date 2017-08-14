@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.cassandra;
+package org.apache.apex.malhar.contrib.cassandra;
 
 
 /*
@@ -37,6 +37,7 @@ public class TestInputPojo
   {
     this.id = id;
   }
+
   private String lastname;
   private int age;
 

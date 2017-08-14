@@ -16,23 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.math;
+package org.apache.apex.malhar.lib.math;
 
 import java.util.ArrayList;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.testbench.CountAndLastTupleTestSink;
+import org.apache.apex.malhar.lib.util.KeyValPair;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  *
- * Functional tests for {@link com.datatorrent.lib.math.MaxKeyVal}. <p>
+ * Functional tests for {@link org.apache.apex.malhar.lib.math.MaxKeyVal}. <p>
  *
  */
 public class MaxKeyValTest

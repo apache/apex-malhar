@@ -16,12 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.query;
+package org.apache.apex.malhar.lib.appdata.query;
 
-import com.datatorrent.lib.appdata.query.serde.MessageSerializerInfo;
-import com.datatorrent.lib.appdata.query.serde.MessageType;
-import com.datatorrent.lib.appdata.schemas.Query;
-import com.datatorrent.lib.appdata.schemas.Result;
+import org.apache.apex.malhar.lib.appdata.query.serde.MessageSerializerInfo;
+import org.apache.apex.malhar.lib.appdata.query.serde.MessageType;
+import org.apache.apex.malhar.lib.appdata.schemas.Query;
+import org.apache.apex.malhar.lib.appdata.schemas.Result;
 
 @MessageType(type = MockResult.TYPE)
 @MessageSerializerInfo(clazz = MockResultSerializer.class)

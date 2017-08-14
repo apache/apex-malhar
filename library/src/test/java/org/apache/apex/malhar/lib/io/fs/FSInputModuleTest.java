@@ -17,15 +17,15 @@
  * under the License.
  */
 
-package com.datatorrent.lib.io.fs;
+package org.apache.apex.malhar.lib.io.fs;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.datatorrent.lib.io.block.BlockMetadata;
-import com.datatorrent.lib.io.fs.FSInputModule.SequentialFileBlockMetadataCodec;
+import org.apache.apex.malhar.lib.io.block.BlockMetadata;
+import org.apache.apex.malhar.lib.io.fs.FSInputModule.SequentialFileBlockMetadataCodec;
 
 import static org.mockito.Mockito.when;
 

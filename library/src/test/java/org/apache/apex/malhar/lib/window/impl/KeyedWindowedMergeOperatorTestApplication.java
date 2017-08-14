@@ -25,6 +25,8 @@ import java.util.Set;
 
 import org.joda.time.Duration;
 
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.apex.malhar.lib.window.ControlTuple;
 import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.Tuple;
@@ -44,8 +46,6 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Example application using {@link KeyedWindowedMergeOperatorImpl}. Generators send streams of key-value pairs of

@@ -16,17 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.apachelog.zmq;
+package org.apache.apex.malhar.contrib.apachelog.zmq;
+
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.LocalMode;
-import org.apache.hadoop.conf.Configuration;
-import org.junit.Test;
 
 /**
  *
  */
 public class ApplicationTest
 {
+  private static final Logger LOG = LoggerFactory.getLogger(ApplicationTest.class);
+
   public ApplicationTest()
   {
   }
@@ -42,7 +48,7 @@ public class ApplicationTest
     long start = System.currentTimeMillis();
     lc.run();
     long end = System.currentTimeMillis();
-    long time = end -start;
-    System.out.println("Test used "+time+" ms");
+    long time = end - start;
+    LOG.info("Test used " + time + " ms");
   }
 }

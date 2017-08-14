@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.multiwindow;
+package org.apache.apex.malhar.lib.multiwindow;
 
 import java.util.Map;
 
 import javax.validation.constraints.Min;
 
-import com.datatorrent.lib.math.RangeKeyVal;
-import com.datatorrent.lib.util.HighLow;
-import com.datatorrent.lib.util.KeyValPair;
+import org.apache.apex.malhar.lib.math.RangeKeyVal;
+import org.apache.apex.malhar.lib.util.HighLow;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 
 /**
  * A range operator of KeyValPair schema which calculates range across multiple streaming windows.

@@ -16,18 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.math;
+package org.apache.apex.malhar.lib.math;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.common.util.Pair;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.common.util.Pair;
 
 /**
  *
- * Functional tests for {@link com.datatorrent.lib.math.Average}.
+ * Functional tests for {@link org.apache.apex.malhar.lib.math.Average}.
  * <p> Sample values are processed after operator begin window.
  * Result is collected on output sink and compared.
  */

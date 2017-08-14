@@ -24,6 +24,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.io.fs.AbstractFileSplitter;
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.commons.lang.StringUtils;
@@ -42,7 +43,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
-import com.datatorrent.lib.io.fs.AbstractFileSplitter;
 
 /**
  * This is an S3 Initiate file upload operator which can be used to initiate file upload and emits the upload id.

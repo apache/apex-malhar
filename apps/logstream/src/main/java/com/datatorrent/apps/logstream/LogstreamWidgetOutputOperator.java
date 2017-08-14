@@ -26,10 +26,9 @@ import java.util.Map.Entry;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.io.WidgetOutputOperator;
+import org.apache.apex.malhar.lib.logs.DimensionObject;
 import org.apache.commons.lang3.tuple.MutablePair;
-
-import com.datatorrent.lib.io.WidgetOutputOperator;
-import com.datatorrent.lib.logs.DimensionObject;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;

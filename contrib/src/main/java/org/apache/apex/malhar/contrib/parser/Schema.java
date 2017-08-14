@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.datatorrent.contrib.parser;
+package org.apache.apex.malhar.contrib.parser;
 
 import java.util.Collections;
 import java.util.LinkedList;

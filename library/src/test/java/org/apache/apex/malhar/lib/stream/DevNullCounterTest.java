@@ -16,17 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.stream;
+package org.apache.apex.malhar.lib.stream;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.testbench.EventGenerator;
+import org.apache.apex.malhar.lib.testbench.EventGenerator;
 
 /**
  *
- * Functional tests for {@link com.datatorrent.lib.testbench.DevNullCounter}.
+ * Functional tests for {@link org.apache.apex.malhar.lib.testbench.DevNullCounter}.
  * <p>
  * <br>
  * oper.process is called a billion times<br>

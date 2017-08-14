@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.multiwindow;
+package org.apache.apex.malhar.lib.multiwindow;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,15 +24,15 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+
 import com.google.common.collect.Lists;
 
 import com.datatorrent.api.DefaultOutputPort;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
-
 /**
  * Unit tests for
- * {@link com.datatorrent.lib.multiwindow.AbstractSlidingWindow}.
+ * {@link org.apache.apex.malhar.lib.multiwindow.AbstractSlidingWindow}.
  */
 public class SlidingWindowTest
 {

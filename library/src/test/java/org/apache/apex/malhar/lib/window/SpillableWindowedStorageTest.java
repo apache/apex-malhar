@@ -24,11 +24,11 @@ import org.junit.Test;
 
 import org.apache.apex.malhar.lib.state.spillable.SpillableComplexComponentImpl;
 import org.apache.apex.malhar.lib.state.spillable.SpillableTestUtils;
+import org.apache.apex.malhar.lib.util.KryoCloneUtils;
 import org.apache.apex.malhar.lib.window.impl.SpillableWindowedKeyedStorage;
 import org.apache.apex.malhar.lib.window.impl.SpillableWindowedPlainStorage;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.util.KryoCloneUtils;
 
 /**
  * Unit tests for Spillable Windowed Storage

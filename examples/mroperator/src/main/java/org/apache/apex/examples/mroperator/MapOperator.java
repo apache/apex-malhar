@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.apex.examples.mroperator.ReporterImpl.ReporterType;
+import org.apache.apex.malhar.lib.util.KeyHashValPair;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.serializer.Deserializer;
@@ -58,8 +59,6 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Partitioner;
-
-import com.datatorrent.lib.util.KeyHashValPair;
 
 /**
  * <p>

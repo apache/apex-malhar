@@ -21,6 +21,7 @@ package org.apache.apex.malhar.lib.db.redshift;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
+import org.apache.apex.malhar.lib.db.jdbc.JdbcTransactionalStore;
 import org.apache.apex.malhar.lib.fs.FSRecordCompactionOperator;
 import org.apache.apex.malhar.lib.fs.GenericFileOutputOperator;
 import org.apache.apex.malhar.lib.fs.s3.S3TupleOutputModule;
@@ -31,7 +32,6 @@ import com.google.common.base.Preconditions;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Module;
-import com.datatorrent.lib.db.jdbc.JdbcTransactionalStore;
 
 import static org.apache.apex.malhar.lib.db.redshift.RedshiftJdbcTransactionableOutputOperator.DEFAULT_REDSHIFT_DELIMITER;
 import static org.apache.apex.malhar.lib.db.redshift.RedshiftOutputModule.READER_MODE.READ_FROM_S3;

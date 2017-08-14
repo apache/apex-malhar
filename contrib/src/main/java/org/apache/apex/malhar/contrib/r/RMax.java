@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.r;
+package org.apache.apex.malhar.contrib.r;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ import org.rosuda.REngine.REngineException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.util.BaseNumberValueOperator;
+import org.apache.apex.malhar.lib.util.BaseNumberValueOperator;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
@@ -61,7 +61,8 @@ public class RMax<V extends Number> extends BaseNumberValueOperator<Number> impl
   private static Logger log = LoggerFactory.getLogger(RMax.class);
   REngineConnectable connectable;
 
-  public final transient DefaultInputPort<Number> data = new DefaultInputPort<Number>() {
+  public final transient DefaultInputPort<Number> data = new DefaultInputPort<Number>()
+  {
     /**
      * Adds the tuple to the numList
      */
@@ -82,7 +83,8 @@ public class RMax<V extends Number> extends BaseNumberValueOperator<Number> impl
     numList.add(tuple);
   }
 
-  public final transient DefaultOutputPort<Number> max = new DefaultOutputPort<Number>() {
+  public final transient DefaultOutputPort<Number> max = new DefaultOutputPort<Number>()
+  {
     @Override
     public Unifier<Number> getUnifier()
     {
@@ -132,9 +134,9 @@ public class RMax<V extends Number> extends BaseNumberValueOperator<Number> impl
   @Override
   public void endWindow()
   {
-
-    if (numList.size() == 0)
+    if (numList.size() == 0) {
       return;
+    }
 
     double[] values = new double[numList.size()];
     for (int i = 0; i < numList.size(); i++) {

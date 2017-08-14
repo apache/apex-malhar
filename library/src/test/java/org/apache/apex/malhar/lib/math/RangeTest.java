@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.math;
+package org.apache.apex.malhar.lib.math;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,12 +24,12 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.util.HighLow;
+
 import com.datatorrent.api.Sink;
 
-import com.datatorrent.lib.util.HighLow;
-
 /**
- * Functional tests for {@link com.datatorrent.lib.math.Range}
+ * Functional tests for {@link org.apache.apex.malhar.lib.math.Range}
  */
 public class RangeTest<V extends Number>
 {

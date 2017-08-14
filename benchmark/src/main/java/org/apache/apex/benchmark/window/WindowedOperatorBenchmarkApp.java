@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.window;
+package org.apache.apex.benchmark.window;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -37,9 +37,9 @@ import org.apache.apex.malhar.kudu.UnitTestTablePojo;
 import org.apache.apex.malhar.kudu.scanner.KuduPartitionScanAssignmentMeta;
 import org.apache.apex.malhar.kudu.test.KuduClusterAvailabilityTestRule;
 import org.apache.apex.malhar.kudu.test.KuduClusterTestContext;
+import org.apache.apex.malhar.lib.util.KryoCloneUtils;
 
 import com.datatorrent.api.Partitioner;
-import com.datatorrent.lib.util.KryoCloneUtils;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.junit.MatcherAssert.assertThat;

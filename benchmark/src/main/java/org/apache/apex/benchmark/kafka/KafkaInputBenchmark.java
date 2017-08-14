@@ -16,11 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.kafka;
+package org.apache.apex.benchmark.kafka;
 
 import java.util.Properties;
 
-
+import org.apache.apex.malhar.contrib.kafka.HighlevelKafkaConsumer;
+import org.apache.apex.malhar.contrib.kafka.KafkaConsumer;
+import org.apache.apex.malhar.contrib.kafka.SimpleKafkaConsumer;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context.OperatorContext;
@@ -35,9 +37,6 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.contrib.kafka.HighlevelKafkaConsumer;
-import com.datatorrent.contrib.kafka.KafkaConsumer;
-import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
 
 /**
  * The stream app to test the benckmark of kafka

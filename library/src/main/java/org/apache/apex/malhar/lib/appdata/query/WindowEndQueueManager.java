@@ -16,11 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.query;
+package org.apache.apex.malhar.lib.appdata.query;
 
+import org.apache.apex.malhar.lib.appdata.query.QueueList.QueueListNode;
 import org.apache.commons.lang3.mutable.MutableLong;
-
-import com.datatorrent.lib.appdata.query.QueueList.QueueListNode;
 
 /**
  * The WindowEndQueueManager keeps a countdown representing the number of application windows a query should stay alive for. If

@@ -26,6 +26,11 @@ import java.util.Properties;
 import org.apache.apex.malhar.kafka.AbstractKafkaConsumer;
 import org.apache.apex.malhar.kafka.AbstractKafkaInputOperator;
 import org.apache.apex.malhar.kafka.KafkaConsumer09;
+import org.apache.apex.malhar.lib.algo.UniqueCounter;
+import org.apache.apex.malhar.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
+import org.apache.apex.malhar.lib.db.jdbc.JdbcTransactionalStore;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.apache.hadoop.conf.Configuration;
@@ -35,11 +40,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.algo.UniqueCounter;
-import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
-import com.datatorrent.lib.db.jdbc.JdbcTransactionalStore;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.util.KeyValPair;
 
 @ApplicationAnnotation(name = "ExactlyOnceJbdcOutput")
 /**

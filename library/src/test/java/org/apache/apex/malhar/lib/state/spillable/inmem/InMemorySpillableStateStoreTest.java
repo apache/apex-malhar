@@ -21,7 +21,7 @@ package org.apache.apex.malhar.lib.state.spillable.inmem;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.util.TestUtils;
+import org.apache.apex.malhar.lib.util.TestUtils;
 
 public class InMemorySpillableStateStoreTest
 {

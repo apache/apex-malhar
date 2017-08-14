@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.geode;
+package org.apache.apex.malhar.contrib.geode;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -27,7 +27,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.accumulo.core.client.impl.thrift.ThriftTest.Processor.throwsError;
+import org.apache.apex.malhar.lib.db.KeyValueStore;
 
 import com.gemstone.gemfire.cache.CacheClosedException;
 import com.gemstone.gemfire.cache.CacheWriterException;
@@ -42,8 +42,6 @@ import com.gemstone.gemfire.cache.query.NameResolutionException;
 import com.gemstone.gemfire.cache.query.QueryInvocationTargetException;
 import com.gemstone.gemfire.cache.query.SelectResults;
 import com.gemstone.gemfire.cache.query.TypeMismatchException;
-
-import com.datatorrent.lib.db.KeyValueStore;
 
 /**
  * Provides the implementation of a Geode store.
@@ -145,7 +143,7 @@ public class GeodeStore implements KeyValueStore, Serializable
     if (region == null) {
       region = clientCache.getRegion(regionName);
       if (region == null) {
-        region = clientCache.<Object, Object> createClientRegionFactory(ClientRegionShortcut.PROXY).create(regionName);
+        region = clientCache.<Object, Object>createClientRegionFactory(ClientRegionShortcut.PROXY).create(regionName);
       }
     }
 
@@ -164,7 +162,7 @@ public class GeodeStore implements KeyValueStore, Serializable
     region = clientCache.getRegion(getRegionName());
 
     if (region == null) {
-      region = clientCache.<Object, Object> createClientRegionFactory(ClientRegionShortcut.PROXY).create(
+      region = clientCache.<Object, Object>createClientRegionFactory(ClientRegionShortcut.PROXY).create(
           getRegionName());
     }
 

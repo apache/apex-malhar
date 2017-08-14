@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io.fs;
+package org.apache.apex.malhar.lib.io.fs;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -25,10 +25,10 @@ import java.io.FileWriter;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
 /**
- * Functional tests for {@link com.datatorrent.lib.io.fs.TailFsInputOperator}
+ * Functional tests for {@link org.apache.apex.malhar.lib.io.fs.TailFsInputOperator}
  * <p>
  */
 public class TailFsInputOperatorTest

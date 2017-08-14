@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.memcache;
+package org.apache.apex.malhar.contrib.memcache;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -25,11 +25,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import net.spy.memcached.MemcachedClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.apex.malhar.lib.db.KeyValueStore;
 
-import com.datatorrent.lib.db.KeyValueStore;
+import net.spy.memcached.MemcachedClient;
 
 /**
  * Provides the implementation of a Memcache store.
@@ -91,8 +91,7 @@ public class MemcacheStore implements KeyValueStore
   {
     if (serverAddresses.isEmpty()) {
       memcacheClient = new MemcachedClient(new InetSocketAddress("localhost", 11211));
-    }
-    else {
+    } else {
       memcacheClient = new MemcachedClient(serverAddresses);
     }
   }
@@ -140,14 +139,12 @@ public class MemcacheStore implements KeyValueStore
     return results;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public void put(Object key, Object value)
   {
     try {
       memcacheClient.set(key.toString(), keyExpiryTime, value).get();
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -162,8 +159,7 @@ public class MemcacheStore implements KeyValueStore
     for (Future<?> future : futures) {
       try {
         future.get();
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
         throw new RuntimeException(ex);
       }
     }

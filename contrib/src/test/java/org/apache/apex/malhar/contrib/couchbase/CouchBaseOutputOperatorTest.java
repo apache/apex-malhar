@@ -16,35 +16,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchbase;
+package org.apache.apex.malhar.contrib.couchbase;
 
-import com.couchbase.client.CouchbaseConnectionFactory;
-import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+
+import java.util.HashMap;
+import java.util.List;
+
+import org.couchbase.mock.Bucket.BucketType;
+import org.couchbase.mock.BucketConfiguration;
+import org.couchbase.mock.CouchbaseMock;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.couchbase.client.CouchbaseConnectionFactory;
+import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
+
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 
 import com.datatorrent.netlet.util.DTThrowable;
-import java.util.HashMap;
-import java.util.List;
-import org.couchbase.mock.Bucket.BucketType;
-import org.couchbase.mock.BucketConfiguration;
-import org.couchbase.mock.CouchbaseMock;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class CouchBaseOutputOperatorTest
 {
-
   private static final Logger logger = LoggerFactory.getLogger(CouchBaseOutputOperatorTest.class);
   private static final String APP_ID = "CouchBaseOutputOperatorTest";
   private static final String password = "";
@@ -159,8 +161,7 @@ public class CouchBaseOutputOperatorTest
     store.setUriString("localhost:" + port1 + "," + "localhost:" + port1);
     try {
       store.connect();
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       DTThrowable.rethrow(ex);
     }
     store.getInstance().flush();
@@ -201,8 +202,7 @@ public class CouchBaseOutputOperatorTest
     store.setUriString("localhost:" + port1 + "," + "localhost:" + port1);
     try {
       store.connect();
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       DTThrowable.rethrow(ex);
     }
     store.getInstance().flush();

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.r;
+package org.apache.apex.malhar.contrib.r;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +24,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
+import org.apache.apex.malhar.lib.testbench.CountAndLastTupleTestSink;
 
 public class RScriptOperatorDoubleArrayTest
 {
@@ -51,7 +51,7 @@ public class RScriptOperatorDoubleArrayTest
 
     HashMap<String, Object> map = new HashMap<String, Object>();
 
-    double dArr[] = new double[5];
+    double[] dArr = new double[5];
     dArr[0] = 0.0;
     dArr[1] = 1.1;
     dArr[2] = 2.2;
@@ -60,7 +60,7 @@ public class RScriptOperatorDoubleArrayTest
 
     map.put("num1", dArr);
 
-    double dArr1[] = new double[5];
+    double[] dArr1 = new double[5];
     dArr1[0] = 5.5;
     dArr1[1] = 6.6;
     dArr1[2] = 7.7;
@@ -74,6 +74,6 @@ public class RScriptOperatorDoubleArrayTest
     oper.teardown();
 
     Assert.assertEquals("Mismatch in number of integer arrays returned : ", 1, hashSink.count);
-    Assert.assertEquals("Mismatch in returned array length: ", 5, ((Double[]) hashSink.tuple).length);
+    Assert.assertEquals("Mismatch in returned array length: ", 5, ((Double[])hashSink.tuple).length);
   }
 }

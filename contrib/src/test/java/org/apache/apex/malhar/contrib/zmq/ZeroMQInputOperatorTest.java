@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.zmq;
+package org.apache.apex.malhar.contrib.zmq;
 
 import java.util.List;
 
@@ -24,8 +24,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.contrib.helper.CollectorModule;
-import com.datatorrent.contrib.helper.MessageQueueTestHelper;
+import org.apache.apex.malhar.contrib.helper.CollectorModule;
+import org.apache.apex.malhar.contrib.helper.MessageQueueTestHelper;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
@@ -41,7 +41,8 @@ public class ZeroMQInputOperatorTest
   protected static Logger logger = LoggerFactory.getLogger(ZeroMQInputOperatorTest.class);
 
   @Test
-  public void testDag() throws InterruptedException, Exception {
+  public void testDag() throws InterruptedException, Exception
+  {
     final int testNum = 3;
     testHelper(testNum);
   }
@@ -62,13 +63,14 @@ public class ZeroMQInputOperatorTest
     generator.setSyncUrl("tcp://localhost:5557");
 
     dag.addStream("Stream", generator.outputPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
-    new Thread() {
+    new Thread()
+    {
       @Override
-      public void run() {
+      public void run()
+      {
         try {
           publisher.generateMessages(testNum);
-        }
-        catch (InterruptedException ex) {
+        } catch (InterruptedException ex) {
           logger.debug(ex.toString());
         }
       }
@@ -98,8 +100,7 @@ public class ZeroMQInputOperatorTest
               break;
             }
           }
-        }
-        catch (InterruptedException ex) {
+        } catch (InterruptedException ex) {
           DTThrowable.rethrow(ex);
         } finally {
           logger.debug("Shutting down..");

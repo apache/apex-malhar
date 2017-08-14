@@ -19,12 +19,12 @@
 package org.apache.apex.examples.ftp;
 
 import org.apache.apex.malhar.lib.fs.GenericFileOutputOperator.StringFileOutputOperator;
+import org.apache.apex.malhar.lib.io.AbstractFTPInputOperator.FTPStringInputOperator;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.io.AbstractFTPInputOperator.FTPStringInputOperator;
 
 /**
  * This application demonstrates the FTPStringInputOperator. It uses the FTPStringInputOperator which reads

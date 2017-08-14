@@ -16,28 +16,44 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.cassandra;
+package org.apache.apex.malhar.contrib.cassandra;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
-import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-import com.datastax.driver.core.*;
+import org.apache.apex.malhar.lib.util.FieldInfo;
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Getter;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterBoolean;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterDouble;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterFloat;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterInt;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterLong;
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
+
+import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.ColumnDefinitions;
+import com.datastax.driver.core.DataType;
+import com.datastax.driver.core.LocalDate;
+import com.datastax.driver.core.PreparedStatement;
+import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.exceptions.DriverException;
+import com.google.common.collect.Lists;
 import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.FieldInfo;
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.*;
 
 /**
  * <p>
@@ -106,10 +122,11 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
   @Override
   public void activate(Context.OperatorContext context)
   {
-    com.datastax.driver.core.ResultSet rs = store.getSession().execute("select * from " + store.keyspace + "." + tablename);
+    com.datastax.driver.core.ResultSet rs
+        = store.getSession().execute("select * from " + store.keyspace + "." + tablename);
     final ColumnDefinitions rsMetaData = rs.getColumnDefinitions();
 
-    if(fieldInfos == null) {
+    if (fieldInfos == null) {
       populateFieldInfosFromPojo(rsMetaData);
     }
 
@@ -228,13 +245,12 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
       }
     }
     String statement
-            = "INSERT INTO " + store.keyspace + "."
-            + tablename
-            + " (" + queryfields.toString() + ") "
-            + "VALUES (" + values.toString() + ");";
+        = "INSERT INTO " + store.keyspace + "."
+        + tablename
+        + " (" + queryfields.toString() + ") "
+        + "VALUES (" + values.toString() + ");";
     LOG.debug("statement is {}", statement);
     return store.getSession().prepare(statement);
-
   }
 
   @Override
@@ -316,6 +332,7 @@ public class CassandraPOJOOutputOperator extends AbstractCassandraTransactionabl
       errorRecords++;
     }
   }
+
   /**
    * A list of {@link FieldInfo}s where each item maps a column name to a pojo field name.
    */

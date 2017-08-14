@@ -16,18 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.cassandra;
+package org.apache.apex.malhar.contrib.cassandra;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.db.AbstractStoreInputOperator;
 
 import com.datastax.driver.core.PagingState;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.SimpleStatement;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.datatorrent.lib.db.AbstractStoreInputOperator;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -43,8 +43,8 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @tags cassandra
  * @since 1.0.2
  */
-public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInputOperator<T, CassandraStore> {
-
+public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInputOperator<T, CassandraStore>
+{
   private static final Logger logger = LoggerFactory.getLogger(AbstractCassandraInputOperator.class);
   private PagingState nextPageState;
   private int fetchSize;

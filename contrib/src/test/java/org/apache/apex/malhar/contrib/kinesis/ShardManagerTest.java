@@ -16,19 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kinesis;
-
-import com.datatorrent.api.*;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.common.util.BaseOperator;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileContext;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Options.Rename;
-import org.apache.hadoop.fs.Path;
-import org.junit.Test;
-import org.slf4j.LoggerFactory;
+package org.apache.apex.malhar.contrib.kinesis;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -38,6 +26,22 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import org.junit.Test;
+import org.slf4j.LoggerFactory;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileContext;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Options.Rename;
+import org.apache.hadoop.fs.Path;
+
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.Operator;
+import com.datatorrent.common.util.BaseOperator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -56,10 +60,8 @@ public class ShardManagerTest extends KinesisOperatorTestBase
   static CountDownLatch latch;
   static final String OFFSET_FILE = ".offset";
 
-
-  public static class TestShardManager extends ShardManager {
-
-
+  public static class TestShardManager extends ShardManager
+  {
     private String filename = null;
 
     private transient FileSystem fs = FileSystem.get(new Configuration());
@@ -82,7 +84,7 @@ public class ShardManagerTest extends KinesisOperatorTestBase
         Path dataFile = new Path(filename);
         FSDataOutputStream out = fs.create(tmpFile, true);
         for (Entry<String, String> e : shardPos.entrySet()) {
-          out.writeBytes(e.getKey() +", " + e.getValue() + "\n");
+          out.writeBytes(e.getKey() + ", " + e.getValue() + "\n");
         }
         out.close();
         fc.rename(tmpFile, dataFile, Rename.OVERWRITE);
@@ -99,7 +101,7 @@ public class ShardManagerTest extends KinesisOperatorTestBase
         // when latch is 1, it means consumer has consumed all the records
         int count = 0;
         for (Entry<String, String> entry : shardPos.entrySet()) {
-          count ++;
+          count++;
         }
         if (count == totalCount + 2) {
           // wait until all offsets add up to totalCount + 2 control END_TUPLE
@@ -119,6 +121,7 @@ public class ShardManagerTest extends KinesisOperatorTestBase
     }
 
   }
+
   /**
    * Test Operator to collect tuples from KinesisSingleInputStringOperator.
    */
@@ -168,7 +171,7 @@ public class ShardManagerTest extends KinesisOperatorTestBase
   public void testConsumerUpdateShardPos() throws Exception
   {
     // Create template simple consumer
-    try{
+    try {
       KinesisConsumer consumer = new KinesisConsumer();
       testPartitionableInputOperator(consumer);
     } finally {
@@ -186,8 +189,8 @@ public class ShardManagerTest extends KinesisOperatorTestBase
     }
   }
 
-  public void testPartitionableInputOperator(KinesisConsumer consumer) throws Exception{
-
+  public void testPartitionableInputOperator(KinesisConsumer consumer) throws Exception
+  {
     // Set to 3 because we want to make sure all the tuples from both 2 partitions are received and offsets has been updated to 102
     latch = new CountDownLatch(3);
 
@@ -298,10 +301,10 @@ public class ShardManagerTest extends KinesisOperatorTestBase
 
     assertEquals("ShardPos Size", 2, node.getShardManager().loadInitialShardPositions().size());
     Iterator ite = node.getShardManager().loadInitialShardPositions().entrySet().iterator();
-    Entry e = (Entry) ite.next();
-    assertNotEquals("Record Seq No in Shard Id 1" , "", e.getValue());
-    e = (Entry) ite.next();
-    assertNotEquals("Record Seq No in Shard Id 2" , "", e.getValue());
+    Entry e = (Entry)ite.next();
+    assertNotEquals("Record Seq No in Shard Id 1", "", e.getValue());
+    e = (Entry)ite.next();
+    assertNotEquals("Record Seq No in Shard Id 2", "", e.getValue());
     // Check results
     assertEquals("Tuple count", totalCount, collectedTuples.size());
     logger.debug(String.format("Number of emitted tuples: %d -> %d", collectedTuples.size(), totalCount));

@@ -16,10 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
+package org.apache.apex.malhar.contrib.kafka;
 
 import java.util.Properties;
-import java.util.concurrent.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -90,8 +94,8 @@ public class KafkaExactlyOnceOutputOperatorTest extends KafkaOperatorTestBase
               stringBuffer.put((++i) + "###testString " + i);
             }
             stringBuffer.put((maxTuple + 1) + "###" + KafkaOperatorTestBase.END_TUPLE);
-          }
-          catch (InterruptedException ie) {
+          } catch (InterruptedException ie) {
+            //
           }
         }
       };
@@ -179,8 +183,8 @@ public class KafkaExactlyOnceOutputOperatorTest extends KafkaOperatorTestBase
 
   }
 
-  public static class SimpleKafkaExactOnceOutputOperator extends AbstractExactlyOnceKafkaOutputOperator<String, String, String>{
-
+  public static class SimpleKafkaExactOnceOutputOperator extends AbstractExactlyOnceKafkaOutputOperator<String, String, String>
+  {
     @Override
     protected int compareToLastMsg(Pair<String, String> tupleKeyValue, Pair<byte[], byte[]> lastReceivedKeyValue)
     {

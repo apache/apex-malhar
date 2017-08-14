@@ -16,19 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.accumulo;
+package org.apache.apex.malhar.contrib.accumulo;
 
 import java.util.List;
 
-import org.apache.accumulo.core.client.MutationsRejectedException;
-import org.apache.accumulo.core.data.Mutation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.accumulo.core.client.MutationsRejectedException;
+import org.apache.accumulo.core.data.Mutation;
+import org.apache.apex.malhar.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
+
+import com.google.common.collect.Lists;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
-import com.google.common.collect.Lists;
 
 /**
  * Base output operator that stores tuples in Accumulo rows.&nbsp; Subclasses should provide implementation of operationMutation method. <br>
@@ -56,7 +58,8 @@ import com.google.common.collect.Lists;
  *            The tuple type
  * @since 1.0.4
  */
-public abstract class AbstractAccumuloOutputOperator<T> extends AbstractAggregateTransactionableStoreOutputOperator<T, AccumuloWindowStore> {
+public abstract class AbstractAccumuloOutputOperator<T> extends AbstractAggregateTransactionableStoreOutputOperator<T, AccumuloWindowStore>
+{
   private static final transient Logger logger = LoggerFactory.getLogger(AbstractAccumuloOutputOperator.class);
   private final List<T> tuples;
   private transient ProcessingMode mode;
@@ -75,6 +78,7 @@ public abstract class AbstractAccumuloOutputOperator<T> extends AbstractAggregat
     tuples = Lists.newArrayList();
     store = new AccumuloWindowStore();
   }
+
   @Override
   public void processTuple(T tuple)
   {
@@ -82,7 +86,8 @@ public abstract class AbstractAccumuloOutputOperator<T> extends AbstractAggregat
   }
 
   @Override
-  public void storeAggregate() {
+  public void storeAggregate()
+  {
     try {
       for (T tuple : tuples) {
         Mutation mutation = operationMutation(tuple);
@@ -96,6 +101,7 @@ public abstract class AbstractAccumuloOutputOperator<T> extends AbstractAggregat
     }
     tuples.clear();
   }
+
   /**
    *
    * @param t
@@ -106,11 +112,11 @@ public abstract class AbstractAccumuloOutputOperator<T> extends AbstractAggregat
   @Override
   public void setup(OperatorContext context)
   {
-    mode=context.getValue(context.PROCESSING_MODE);
-    if(mode==ProcessingMode.EXACTLY_ONCE){
+    mode = context.getValue(context.PROCESSING_MODE);
+    if (mode == ProcessingMode.EXACTLY_ONCE) {
       throw new RuntimeException("This operator only supports atmost once and atleast once processing modes");
     }
-    if(mode==ProcessingMode.AT_MOST_ONCE){
+    if (mode == ProcessingMode.AT_MOST_ONCE) {
       tuples.clear();
     }
     super.setup(context);

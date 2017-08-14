@@ -16,19 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.util;
+package org.apache.apex.malhar.contrib.util;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.util.FieldInfo;
+import org.apache.apex.malhar.lib.util.FieldInfo.SupportType;
 import org.apache.hadoop.hbase.util.Bytes;
-
-import com.datatorrent.lib.util.FieldInfo;
-import com.datatorrent.lib.util.FieldInfo.SupportType;
-
-
 
 public class TestPOJO implements Serializable
 {
@@ -52,8 +49,7 @@ public class TestPOJO implements Serializable
   public static TestPOJO from( Map<String,byte[]> map )
   {
     TestPOJO testPOJO = new TestPOJO();
-    for( Map.Entry<String, byte[]> entry : map.entrySet() )
-    {
+    for ( Map.Entry<String, byte[]> entry : map.entrySet() ) {
       testPOJO.setValue(entry.getKey(), entry.getValue() );
     }
     return testPOJO;
@@ -68,7 +64,7 @@ public class TestPOJO implements Serializable
 
   public TestPOJO(long rowId)
   {
-    this(rowId, "name" + rowId, (int) rowId, "address" + rowId);
+    this(rowId, "name" + rowId, (int)rowId, "address" + rowId);
   }
 
   public TestPOJO(long rowId, String name, int age, String address)
@@ -81,23 +77,19 @@ public class TestPOJO implements Serializable
 
   public void setValue( String fieldName, byte[] value )
   {
-    if( "row".equalsIgnoreCase(fieldName) )
-    {
+    if ( "row".equalsIgnoreCase(fieldName) ) {
       setRow( Bytes.toString(value) );
       return;
     }
-    if( "name".equalsIgnoreCase(fieldName))
-    {
+    if ( "name".equalsIgnoreCase(fieldName)) {
       setName( Bytes.toString(value));
       return;
     }
-    if( "address".equalsIgnoreCase(fieldName))
-    {
+    if ( "address".equalsIgnoreCase(fieldName)) {
       setAddress( Bytes.toString(value));
       return;
     }
-    if( "age".equalsIgnoreCase(fieldName))
-    {
+    if ( "age".equalsIgnoreCase(fieldName)) {
       setAge( Bytes.toInt(value) );
       return;
     }
@@ -107,18 +99,22 @@ public class TestPOJO implements Serializable
   {
     return String.valueOf(rowId);
   }
+
   public void setRow( String row )
   {
     setRowId( Long.valueOf(row) );
   }
+
   public void setRowId( Long rowId )
   {
     this.rowId = rowId;
   }
+
   public Long getRowId()
   {
     return rowId;
   }
+
   public String getName()
   {
     return name;
@@ -152,44 +148,54 @@ public class TestPOJO implements Serializable
   @Override
   public boolean equals( Object obj )
   {
-    if( obj == null )
+    if ( obj == null ) {
       return false;
-    if( !( obj instanceof TestPOJO ) )
+    }
+    if ( !( obj instanceof TestPOJO ) ) {
       return false;
-
+    }
     return completeEquals( (TestPOJO)obj );
   }
 
   public boolean outputFieldsEquals( TestPOJO other )
   {
-    if( other == null )
+    if ( other == null ) {
       return false;
-    if( !fieldEquals( getName(), other.getName() ) )
+    }
+    if ( !fieldEquals( getName(), other.getName() ) ) {
       return false;
-    if( !fieldEquals( getAge(), other.getAge() ) )
+    }
+    if ( !fieldEquals( getAge(), other.getAge() ) ) {
       return false;
-    if( !fieldEquals( getAddress(), other.getAddress() ) )
+    }
+    if ( !fieldEquals( getAddress(), other.getAddress() ) ) {
       return false;
+    }
     return true;
   }
 
   public boolean completeEquals( TestPOJO other )
   {
-    if( other == null )
+    if ( other == null ) {
       return false;
-    if( !outputFieldsEquals( other ) )
+    }
+    if ( !outputFieldsEquals( other ) ) {
       return false;
-    if( !fieldEquals( getRow(), other.getRow() ) )
+    }
+    if ( !fieldEquals( getRow(), other.getRow() ) ) {
       return false;
+    }
     return true;
   }
 
   public <T> boolean fieldEquals( T v1, T v2 )
   {
-    if( v1 == null && v2 == null )
+    if ( v1 == null && v2 == null ) {
       return true;
-    if( v1 == null || v2 == null )
+    }
+    if ( v1 == null || v2 == null ) {
       return false;
+    }
     return v1.equals( v2 );
   }
 

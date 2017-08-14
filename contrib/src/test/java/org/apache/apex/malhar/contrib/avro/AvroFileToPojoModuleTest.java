@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.avro;
+package org.apache.apex.malhar.contrib.avro;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +32,8 @@ import org.junit.runner.Description;
 import org.python.google.common.collect.Lists;
 
 import org.apache.apex.engine.EmbeddedAppLauncherImpl;
+import org.apache.apex.malhar.lib.helper.TestPortContext;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericData;
@@ -49,10 +51,8 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.lib.helper.TestPortContext;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * <p>

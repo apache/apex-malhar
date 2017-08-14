@@ -20,14 +20,13 @@ package org.apache.apex.malhar.contrib.misc.math;
 
 import java.util.HashMap;
 
+import org.apache.apex.malhar.lib.util.BaseNumberKeyValueOperator;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.commons.lang.mutable.MutableDouble;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-
-import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Operator compares &lt;key,value&gt; pairs arriving at data and base input ports and stores &lt;key,value&gt; pairs arriving at base port in hash map across the windows.

@@ -16,12 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.schemas;
+package org.apache.apex.malhar.lib.appdata.schemas;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.appdata.schemas.SchemaRegistryMultipleTest.MockSchema;
+import org.apache.apex.malhar.lib.appdata.schemas.SchemaRegistryMultipleTest.MockSchema;
 
 public class SchemaRegistrySingleTest
 {

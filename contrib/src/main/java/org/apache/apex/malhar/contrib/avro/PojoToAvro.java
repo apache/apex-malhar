@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.avro;
+package org.apache.apex.malhar.contrib.avro;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,6 +25,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Getter;
 import org.apache.avro.AvroRuntimeException;
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
@@ -42,8 +44,6 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Getter;
 
 /**
  * <p>
@@ -63,7 +63,6 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
 @InterfaceStability.Evolving
 public class PojoToAvro extends BaseOperator
 {
-
   private List<Field> columnNames;
 
   private Class<?> cls;
@@ -155,7 +154,7 @@ public class PojoToAvro extends BaseOperator
    * @return Getter
    */
   private Getter<?, ?> generateGettersForField(Class<?> cls, String inputFieldName)
-      throws NoSuchFieldException, SecurityException
+    throws NoSuchFieldException, SecurityException
   {
     java.lang.reflect.Field f = cls.getDeclaredField(inputFieldName);
     Class<?> c = ClassUtils.primitiveToWrapper(f.getType());

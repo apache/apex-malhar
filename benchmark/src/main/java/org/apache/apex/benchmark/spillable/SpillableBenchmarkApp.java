@@ -16,8 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.spillable;
+package org.apache.apex.benchmark.spillable;
 
+import org.apache.apex.malhar.lib.fileaccess.TFileImpl;
 import org.apache.apex.malhar.lib.state.spillable.managed.ManagedStateSpillableStateStore;
 import org.apache.hadoop.conf.Configuration;
 
@@ -26,7 +27,6 @@ import com.google.common.base.Preconditions;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.fileaccess.TFileImpl;
 
 @ApplicationAnnotation(name = "SpillableBenchmarkApp")
 /**

@@ -24,12 +24,12 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.common.collect.Sets;
+import org.apache.apex.malhar.lib.appdata.schemas.CustomTimeBucket;
+import org.apache.apex.malhar.lib.appdata.schemas.Fields;
+import org.apache.apex.malhar.lib.appdata.schemas.TimeBucket;
+import org.apache.apex.malhar.lib.appdata.schemas.Type;
 
-import com.datatorrent.lib.appdata.schemas.CustomTimeBucket;
-import com.datatorrent.lib.appdata.schemas.Fields;
-import com.datatorrent.lib.appdata.schemas.TimeBucket;
-import com.datatorrent.lib.appdata.schemas.Type;
+import com.google.common.collect.Sets;
 
 public class DimensionsDescriptorTest
 {

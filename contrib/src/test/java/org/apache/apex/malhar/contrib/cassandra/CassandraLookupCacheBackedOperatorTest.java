@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.cassandra;
+package org.apache.apex.malhar.contrib.cassandra;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -30,11 +30,11 @@ import java.util.TimeZone;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
+import org.apache.apex.malhar.lib.db.jdbc.JDBCLookupCacheBackedOperatorTest;
+
 import com.datatorrent.api.Context.OperatorContext;
 
-import com.datatorrent.lib.db.jdbc.JDBCLookupCacheBackedOperatorTest;
-
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Tests for Cassandra backed lookup cache.
@@ -67,7 +67,7 @@ public class CassandraLookupCacheBackedOperatorTest extends JDBCLookupCacheBacke
       }
       if (!foundTest) {
         String createKeyspace = "CREATE KEYSPACE " + KEYSPACE_NAME +
-          " WITH REPLICATION = {'class':'SimpleStrategy', 'replication_factor':3}";
+            " WITH REPLICATION = {'class':'SimpleStrategy', 'replication_factor':3}";
         stmt.executeUpdate(createKeyspace);
       }
       String useKeyspace = "USE " + KEYSPACE_NAME;
@@ -96,8 +96,7 @@ public class CassandraLookupCacheBackedOperatorTest extends JDBCLookupCacheBacke
 
       OperatorContext context = mockOperatorContext(7);
       lookupCacheBackedOperator.setup(context);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       logger.error("cassandra setup", ex);
     }
 
@@ -112,8 +111,7 @@ public class CassandraLookupCacheBackedOperatorTest extends JDBCLookupCacheBacke
 
       String dropKeyspace = "DROP KEYSPACE " + KEYSPACE_NAME;
       stmt.executeUpdate(dropKeyspace);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       logger.error("cassandra teardown", ex);
     }
   }

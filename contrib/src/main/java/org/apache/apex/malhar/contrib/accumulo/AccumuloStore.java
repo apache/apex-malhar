@@ -16,9 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.accumulo;
+package org.apache.apex.malhar.contrib.accumulo;
 
 import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
@@ -30,11 +33,9 @@ import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.ZooKeeperInstance;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.apex.malhar.lib.db.Connectable;
 
 import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.lib.db.Connectable;
 
 /**
  * A {@link Connectable} for accumulo that implements Connectable interface.
@@ -45,7 +46,8 @@ import com.datatorrent.lib.db.Connectable;
  * @param <T>
  * @since 1.0.4
  */
-public class AccumuloStore implements Connectable {
+public class AccumuloStore implements Connectable
+{
   private static final transient Logger logger = LoggerFactory.getLogger(AccumuloStore.class);
   private String zookeeperHost;
   private String instanceName;
@@ -58,12 +60,13 @@ public class AccumuloStore implements Connectable {
 
   private long memoryLimit;
   private int numThreads;
-  private static final long DEFAULT_MEMORY=2147483648l;
-  private static final int DEFAULT_THREADS=1;
+  private static final long DEFAULT_MEMORY = 2147483648L;
+  private static final int DEFAULT_THREADS = 1;
 
-  public AccumuloStore(){
-    memoryLimit=DEFAULT_MEMORY;
-    numThreads=DEFAULT_THREADS;
+  public AccumuloStore()
+  {
+    memoryLimit = DEFAULT_MEMORY;
+    numThreads = DEFAULT_THREADS;
   }
 
   /**
@@ -71,7 +74,8 @@ public class AccumuloStore implements Connectable {
    *
    * @return Connector
    */
-  public Connector getConnector() {
+  public Connector getConnector()
+  {
     return connector;
   }
 
@@ -80,7 +84,8 @@ public class AccumuloStore implements Connectable {
    *
    * @return TableName
    */
-  public String getTableName() {
+  public String getTableName()
+  {
     return tableName;
   }
 
@@ -89,7 +94,8 @@ public class AccumuloStore implements Connectable {
    *
    * @param tableName
    */
-  public void setTableName(String tableName) {
+  public void setTableName(String tableName)
+  {
     this.tableName = tableName;
   }
 
@@ -98,7 +104,8 @@ public class AccumuloStore implements Connectable {
    *
    * @return ZookeeperHost
    */
-  public String getZookeeperHost() {
+  public String getZookeeperHost()
+  {
     return zookeeperHost;
   }
 
@@ -107,7 +114,8 @@ public class AccumuloStore implements Connectable {
    *
    * @param zookeeperHost
    */
-  public void setZookeeperHost(String zookeeperHost) {
+  public void setZookeeperHost(String zookeeperHost)
+  {
     this.zookeeperHost = zookeeperHost;
   }
 
@@ -116,7 +124,8 @@ public class AccumuloStore implements Connectable {
    *
    * @return instanceName
    */
-  public String getInstanceName() {
+  public String getInstanceName()
+  {
     return instanceName;
   }
 
@@ -125,7 +134,8 @@ public class AccumuloStore implements Connectable {
    *
    * @param instanceName
    */
-  public void setInstanceName(String instanceName) {
+  public void setInstanceName(String instanceName)
+  {
     this.instanceName = instanceName;
   }
 
@@ -134,7 +144,8 @@ public class AccumuloStore implements Connectable {
    *
    * @param userName
    */
-  public void setUserName(String userName) {
+  public void setUserName(String userName)
+  {
     this.userName = userName;
   }
 
@@ -143,23 +154,28 @@ public class AccumuloStore implements Connectable {
    *
    * @param password
    */
-  public void setPassword(String password) {
+  public void setPassword(String password)
+  {
     this.password = password;
   }
+
   /**
    * setter for memory limit
    *
    * @param memoryLimit
    */
-  public void setMemoryLimit(long memoryLimit) {
+  public void setMemoryLimit(long memoryLimit)
+  {
     this.memoryLimit = memoryLimit;
   }
+
   /**
    * setter for number of writer threads
    *
    * @param numThreads
    */
-  public void setNumThreads(int numThreads) {
+  public void setNumThreads(int numThreads)
+  {
     this.numThreads = numThreads;
   }
 
@@ -168,12 +184,14 @@ public class AccumuloStore implements Connectable {
    *
    * @return BatchWriter
    */
-  public BatchWriter getBatchwriter() {
+  public BatchWriter getBatchwriter()
+  {
     return batchwriter;
   }
 
   @Override
-  public void connect() throws IOException {
+  public void connect() throws IOException
+  {
     Instance instance = null;
     instance = new ZooKeeperInstance(instanceName, zookeeperHost);
     try {
@@ -198,7 +216,8 @@ public class AccumuloStore implements Connectable {
   }
 
   @Override
-  public void disconnect() throws IOException {
+  public void disconnect() throws IOException
+  {
     try {
       batchwriter.close();
     } catch (MutationsRejectedException e) {
@@ -208,7 +227,8 @@ public class AccumuloStore implements Connectable {
   }
 
   @Override
-  public boolean isConnected() {
+  public boolean isConnected()
+  {
     // Not applicable for accumulo
     return false;
   }

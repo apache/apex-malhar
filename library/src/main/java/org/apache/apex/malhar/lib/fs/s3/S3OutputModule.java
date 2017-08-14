@@ -21,6 +21,9 @@ package org.apache.apex.malhar.lib.fs.s3;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.io.block.AbstractBlockReader;
+import org.apache.apex.malhar.lib.io.block.BlockMetadata;
+import org.apache.apex.malhar.lib.io.fs.AbstractFileSplitter;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 
@@ -28,9 +31,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Module;
 import com.datatorrent.common.partitioner.StatelessPartitioner;
-import com.datatorrent.lib.io.block.AbstractBlockReader;
-import com.datatorrent.lib.io.block.BlockMetadata;
-import com.datatorrent.lib.io.fs.AbstractFileSplitter;
 import com.datatorrent.netlet.util.Slice;
 
 import static com.datatorrent.api.Context.OperatorContext.TIMEOUT_WINDOW_COUNT;

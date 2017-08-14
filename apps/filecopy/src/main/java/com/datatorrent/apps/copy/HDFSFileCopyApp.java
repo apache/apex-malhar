@@ -19,14 +19,14 @@
 
 package com.datatorrent.apps.copy;
 
+import org.apache.apex.malhar.lib.io.fs.FSInputModule;
+import org.apache.apex.malhar.lib.io.fs.HDFSFileCopyModule;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.io.fs.FSInputModule;
-import com.datatorrent.lib.io.fs.HDFSFileCopyModule;
 
 /**
  * Application for HDFS to HDFS file copy

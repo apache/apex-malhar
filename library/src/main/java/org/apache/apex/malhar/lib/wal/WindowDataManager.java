@@ -24,10 +24,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.apex.malhar.lib.io.fs.AbstractFileInputOperator;
+
 import com.datatorrent.api.Component;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.annotation.Stateless;
-import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
 
 /**
  * WindowDataManager manages the state of an operator every application window. It can be used to replay tuples in

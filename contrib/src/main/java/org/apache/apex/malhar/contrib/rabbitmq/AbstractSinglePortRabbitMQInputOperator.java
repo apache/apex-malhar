@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.rabbitmq;
+package org.apache.apex.malhar.contrib.rabbitmq;
 
 import com.datatorrent.api.DefaultOutputPort;
 
@@ -57,7 +57,7 @@ public abstract class AbstractSinglePortRabbitMQInputOperator<T> extends Abstrac
   /**
    * This is the output port on which tuples extracted from RabbitMQ messages are emitted.
    */
-  final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
+  public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**
    * Any concrete class derived from AbstractSinglePortRabbitMQInputOperator has to implement this method
@@ -67,10 +67,11 @@ public abstract class AbstractSinglePortRabbitMQInputOperator<T> extends Abstrac
    *
    * @param message
    */
-    public abstract T getTuple(byte[] message);
+  public abstract T getTuple(byte[] message);
 
-    @Override
-    public void emitTuple(byte[] message) {
-      outputPort.emit(getTuple(message));
-    }
+  @Override
+  public void emitTuple(byte[] message)
+  {
+    outputPort.emit(getTuple(message));
+  }
 }

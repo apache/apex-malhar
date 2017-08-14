@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.accumulo;
+package org.apache.apex.benchmark.accumulo;
 
 import org.junit.Test;
 

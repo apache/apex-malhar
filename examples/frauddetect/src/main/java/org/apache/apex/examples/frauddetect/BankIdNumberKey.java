@@ -20,7 +20,7 @@ package org.apache.apex.examples.frauddetect;
 
 import java.io.Serializable;
 
-import com.datatorrent.lib.util.TimeBucketKey;
+import org.apache.apex.malhar.lib.util.TimeBucketKey;
 
 /**
  * Bank Id Number Key

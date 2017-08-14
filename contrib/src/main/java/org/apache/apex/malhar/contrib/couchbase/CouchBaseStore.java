@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchbase;
+package org.apache.apex.malhar.contrib.couchbase;
 
 import java.io.IOException;
 import java.net.URI;
@@ -28,17 +28,16 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 import javax.validation.constraints.Min;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.apex.malhar.lib.db.Connectable;
+
 import com.couchbase.client.CouchbaseClient;
 import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
 import com.couchbase.client.vbucket.ConfigurationProvider;
 import com.couchbase.client.vbucket.ConfigurationProviderHTTP;
 import com.couchbase.client.vbucket.config.Bucket;
 import com.couchbase.client.vbucket.config.Config;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.datatorrent.lib.db.Connectable;
 
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -108,6 +107,7 @@ public class CouchBaseStore implements Connectable
   {
     this.queueSize = queueSize;
   }
+
   protected Integer maxTuples = 1000;
   protected int blockTime = 1000;
   protected long timeout = 10000;
@@ -192,8 +192,7 @@ public class CouchBaseStore implements Connectable
   {
     try {
       connect();
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       DTThrowable.rethrow(ex);
     }
     ConfigurationProvider configurationProvider = new ConfigurationProviderHTTP(baseURIs, userConfig, passwordConfig);
@@ -201,8 +200,7 @@ public class CouchBaseStore implements Connectable
     Config conf = configBucket.getConfig();
     try {
       disconnect();
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       DTThrowable.rethrow(ex);
     }
     return conf;
@@ -216,8 +214,7 @@ public class CouchBaseStore implements Connectable
     for (String url : tokens) {
       try {
         uri = new URI("http", url, "/pools", null, null);
-      }
-      catch (URISyntaxException ex) {
+      } catch (URISyntaxException ex) {
         DTThrowable.rethrow(ex);
       }
       baseURIs.add(uri);
@@ -228,9 +225,8 @@ public class CouchBaseStore implements Connectable
       cfb.setOpQueueMaxBlockTime(blockTime); // wait up to 10 second when trying to enqueue an operation
       client = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs, bucket, password));
       //client = new CouchbaseClient(baseURIs, "default", "");
-    }
-    catch (IOException e) {
-      logger.error("Error connecting to Couchbase:" , e);
+    } catch (IOException e) {
+      logger.error("Error connecting to Couchbase:", e);
       DTThrowable.rethrow(e);
     }
   }
@@ -241,15 +237,13 @@ public class CouchBaseStore implements Connectable
     CouchbaseClient clientPartition = null;
     try {
       nodes.add(new URI("http",urlString,"/pools", null, null));
-    }
-    catch (URISyntaxException ex) {
+    } catch (URISyntaxException ex) {
       DTThrowable.rethrow(ex);
     }
     try {
       clientPartition = new CouchbaseClient(nodes, bucket, password);
-    }
-    catch (IOException e) {
-     logger.error("Error connecting to Couchbase:" , e);
+    } catch (IOException e) {
+      logger.error("Error connecting to Couchbase:", e);
       DTThrowable.rethrow(e);
     }
     return clientPartition;

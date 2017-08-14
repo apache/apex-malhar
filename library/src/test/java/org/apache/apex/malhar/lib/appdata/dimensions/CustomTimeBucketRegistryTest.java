@@ -16,15 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.dimensions;
+package org.apache.apex.malhar.lib.appdata.dimensions;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.appdata.schemas.CustomTimeBucket;
+import org.apache.apex.malhar.lib.appdata.schemas.TimeBucket;
 import org.apache.apex.malhar.lib.dimensions.CustomTimeBucketRegistry;
-
-import com.datatorrent.lib.appdata.schemas.CustomTimeBucket;
-import com.datatorrent.lib.appdata.schemas.TimeBucket;
 
 public class CustomTimeBucketRegistryTest
 {

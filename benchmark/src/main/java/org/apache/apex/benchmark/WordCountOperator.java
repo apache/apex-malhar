@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark;
+package org.apache.apex.benchmark;
 
 /*
  * To change this template, choose Tools | Templates and open the template in the editor.

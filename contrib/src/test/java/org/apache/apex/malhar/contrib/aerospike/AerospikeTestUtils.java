@@ -16,7 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.aerospike;
+package org.apache.apex.malhar.contrib.aerospike;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,17 +33,16 @@ import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.Statement;
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
+
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+
 import com.datatorrent.api.DAG;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Utility class encapsulating code used by several tests
  */
-public class AerospikeTestUtils {
+public class AerospikeTestUtils
+{
   private static final Logger LOG = LoggerFactory.getLogger(AerospikeTestUtils.class);
 
   public static final String NODE = "127.0.0.1";
@@ -53,7 +55,8 @@ public class AerospikeTestUtils {
   public static final int NUM_TUPLES = 10;
 
   // removes all records from set SET_NAME in namespace NAMESPACE
-  static void cleanTable() {
+  static void cleanTable()
+  {
     AerospikeClient client = null;
     try {
       client = new AerospikeClient(NODE, PORT);
@@ -63,23 +66,24 @@ public class AerospikeTestUtils {
       stmnt.setSetName(SET_NAME);
 
       RecordSet rs = client.query(null, stmnt);
-      while(rs.next()){
+      while (rs.next()) {
         client.delete(null, rs.getKey());
       }
-    }
-    catch (AerospikeException e) {
+    } catch (AerospikeException e) {
       LOG.error("cleanTable failed: {}", e);
       throw e;
-    }
-    finally {
-      if (null != client) client.close();
+    } finally {
+      if (null != client) {
+        client.close();
+      }
     }
   }
 
   // removes all records from set AerospikeTransactionalStore.DEFAULT_META_SET (used to store
   // committed window ids) in namespace NAMESPACE
   //
-  static void cleanMetaTable() {
+  static void cleanMetaTable()
+  {
     AerospikeClient client = null;
     try {
       client = new AerospikeClient(NODE, PORT);
@@ -89,21 +93,22 @@ public class AerospikeTestUtils {
       stmnt.setSetName(AerospikeTransactionalStore.DEFAULT_META_SET);
 
       RecordSet rs = client.query(null, stmnt);
-      while(rs.next()){
+      while (rs.next()) {
         client.delete(null, rs.getKey());
       }
-    }
-    catch (AerospikeException e) {
+    } catch (AerospikeException e) {
       LOG.error("cleanMetaTable failed: {}", e);
       throw e;
-    }
-    finally {
-      if (null != client) client.close();
+    } finally {
+      if (null != client) {
+        client.close();
+      }
     }
   }
 
   // returns the number of records in set SET_NAME in namespace NAMESPACE
-  static long getNumOfEventsInStore() {
+  static long getNumOfEventsInStore()
+  {
     AerospikeClient client = null;
     try {
       long count = 0;
@@ -113,17 +118,17 @@ public class AerospikeTestUtils {
       stmnt.setSetName(SET_NAME);
 
       RecordSet rs = client.query(null, stmnt);
-      while(rs.next()){
+      while (rs.next()) {
         count++;
       }
       return count;
-    }
-    catch (AerospikeException e) {
+    } catch (AerospikeException e) {
       LOG.error("getNumOfEventsInStore failed: {}", e);
       throw e;
-    }
-    finally {
-      if (null != client) client.close();
+    } finally {
+      if (null != client) {
+        client.close();
+      }
     }
   }
 
@@ -174,49 +179,57 @@ public class AerospikeTestUtils {
     long count = 0;
     AerospikeClient client = null;
     try {
-        client = new AerospikeClient(NODE, PORT);
-        Statement stmnt = new Statement();
-        stmnt.setNamespace(NAMESPACE);
-        stmnt.setSetName(SET_NAME);
+      client = new AerospikeClient(NODE, PORT);
+      Statement stmnt = new Statement();
+      stmnt.setNamespace(NAMESPACE);
+      stmnt.setSetName(SET_NAME);
 
-        RecordSet rs = client.query(null, stmnt);
-        while ( rs.next() ) {
-          Record record = rs.getRecord();
-          Key key = rs.getKey();
-          if (! TestPOJO.check(key, record)) return false;
-          count++;
+      RecordSet rs = client.query(null, stmnt);
+      while ( rs.next() ) {
+        Record record = rs.getRecord();
+        Key key = rs.getKey();
+        if (!TestPOJO.check(key, record)) {
+          return false;
         }
-    }
-    catch (AerospikeException e) {
+        count++;
+      }
+    } catch (AerospikeException e) {
       throw new RuntimeException("Error fetching records: ", e);
-    }
-    finally {
-      if (null != client) client.close();
+    } finally {
+      if (null != client) {
+        client.close();
+      }
     }
 
     return NUM_TUPLES == count;
   }
 
   // needs to be public for PojoUtils to work
-  public static class TestPOJO {
-    public static final String ID = "ID", VAL = "VALUE";
-    final int id, value;
+  public static class TestPOJO
+  {
+    public static final String ID = "ID";
+    public static final String VAL = "VALUE";
+    final int id;
+    final int value;
 
-    TestPOJO(int i) {
-      id = i; value = id * id;
+    TestPOJO(int i)
+    {
+      id = i;
+      value = id * id;
     }
 
-    public Key getKey() {
+    public Key getKey()
+    {
       try {
         Key key = new Key(NAMESPACE, SET_NAME, String.valueOf(id));
         return key;
-      }
-      catch (AerospikeException e) {
+      } catch (AerospikeException e) {
         throw new RuntimeException("getKey failed: ", e);
       }
     }
 
-    public List<Bin> getBins() {
+    public List<Bin> getBins()
+    {
       List<Bin> list = new ArrayList<Bin>();
       list.add(new Bin(ID, id));
       list.add(new Bin(VAL, value));
@@ -224,8 +237,10 @@ public class AerospikeTestUtils {
     }
 
     // check record key and values
-    public static boolean check(Key key, Record record) {
-      final int binId = record.getInt(ID), binVal = record.getInt(VAL);
+    public static boolean check(Key key, Record record)
+    {
+      final int binId = record.getInt(ID);
+      final int binVal = record.getInt(VAL);
       final Key rKey = new Key(NAMESPACE, SET_NAME, String.valueOf(binId));
       LOG.debug("Checking id = {}", binId);
       return binVal == binId * binId && rKey.equals(key);

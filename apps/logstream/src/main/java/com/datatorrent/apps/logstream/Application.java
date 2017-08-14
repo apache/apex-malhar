@@ -28,25 +28,26 @@ import java.util.Set;
 import org.apache.apex.malhar.contrib.misc.streamquery.SelectOperator;
 import org.apache.apex.malhar.contrib.misc.streamquery.condition.EqualValueCondition;
 import org.apache.apex.malhar.lib.utils.PubSubHelper;
+import org.apache.apex.malhar.contrib.redis.RedisKeyValPairOutputOperator;
+import org.apache.apex.malhar.contrib.redis.RedisMapOutputOperator;
+import org.apache.apex.malhar.contrib.redis.RedisNumberSummationMapOutputOperator;
+import org.apache.apex.malhar.lib.algo.TopN;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+import org.apache.apex.malhar.lib.io.PubSubWebSocketOutputOperator;
+import org.apache.apex.malhar.lib.logs.DimensionObject;
+import org.apache.apex.malhar.lib.logs.MultiWindowDimensionAggregation;
+import org.apache.apex.malhar.lib.logs.MultiWindowDimensionAggregation.AggregateOperation;
+import org.apache.apex.malhar.lib.stream.Counter;
+import org.apache.apex.malhar.lib.stream.JsonByteArrayOperator;
+import org.apache.apex.malhar.lib.streamquery.index.ColumnIndex;
+import org.apache.apex.malhar.lib.util.AbstractDimensionTimeBucketOperator;
+import org.apache.apex.malhar.lib.util.DimensionTimeBucketSumOperator;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.contrib.redis.RedisKeyValPairOutputOperator;
-import com.datatorrent.contrib.redis.RedisMapOutputOperator;
-import com.datatorrent.contrib.redis.RedisNumberSummationMapOutputOperator;
-import com.datatorrent.lib.algo.TopN;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
-import com.datatorrent.lib.logs.DimensionObject;
-import com.datatorrent.lib.logs.MultiWindowDimensionAggregation;
-import com.datatorrent.lib.logs.MultiWindowDimensionAggregation.AggregateOperation;
-import com.datatorrent.lib.stream.Counter;
-import com.datatorrent.lib.stream.JsonByteArrayOperator;
-import com.datatorrent.lib.streamquery.index.ColumnIndex;
-import com.datatorrent.lib.util.AbstractDimensionTimeBucketOperator;
-import com.datatorrent.lib.util.DimensionTimeBucketSumOperator;
 
 /**
  * Log stream processing application based on Apex platform.<br>

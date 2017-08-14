@@ -20,7 +20,14 @@ package org.apache.apex.malhar.stream.sample.cookbook;
 
 import java.util.List;
 
+import org.apache.apex.malhar.lib.db.jdbc.JdbcFieldInfo;
+import org.apache.apex.malhar.lib.db.jdbc.JdbcPOJOInputOperator;
+import org.apache.apex.malhar.lib.db.jdbc.JdbcPOJOInsertOutputOperator;
+import org.apache.apex.malhar.lib.db.jdbc.JdbcStore;
+import org.apache.apex.malhar.lib.db.jdbc.JdbcTransactionalStore;
 import org.apache.apex.malhar.lib.function.Function;
+import org.apache.apex.malhar.lib.util.FieldInfo;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.apex.malhar.lib.window.Window;
@@ -39,13 +46,6 @@ import com.google.common.collect.Lists;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.db.jdbc.JdbcFieldInfo;
-import com.datatorrent.lib.db.jdbc.JdbcPOJOInputOperator;
-import com.datatorrent.lib.db.jdbc.JdbcPOJOInsertOutputOperator;
-import com.datatorrent.lib.db.jdbc.JdbcStore;
-import com.datatorrent.lib.db.jdbc.JdbcTransactionalStore;
-import com.datatorrent.lib.util.FieldInfo;
-import com.datatorrent.lib.util.KeyValPair;
 
 import static org.apache.apex.malhar.stream.api.Option.Options.name;
 

@@ -21,6 +21,9 @@ package org.apache.apex.examples.enricher;
 
 import java.util.ArrayList;
 
+import org.apache.apex.malhar.contrib.enrich.JsonFSLoader;
+import org.apache.apex.malhar.contrib.enrich.POJOEnricher;
+import org.apache.apex.malhar.contrib.parser.JsonParser;
 import org.apache.apex.malhar.lib.function.Function;
 import org.apache.apex.malhar.lib.function.FunctionOperator.MapFunctionOperator;
 import org.apache.apex.malhar.lib.function.FunctionOperatorUtil;
@@ -31,9 +34,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.contrib.enrich.JsonFSLoader;
-import com.datatorrent.contrib.enrich.POJOEnricher;
-import com.datatorrent.contrib.parser.JsonParser;
 
 @ApplicationAnnotation(name = "EnricherAppWithJSONFile")
 /**

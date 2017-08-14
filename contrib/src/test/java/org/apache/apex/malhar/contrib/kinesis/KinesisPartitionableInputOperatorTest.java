@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kinesis;
+package org.apache.apex.malhar.contrib.kinesis;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,9 +29,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.*;
+import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
-
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.LocalMode;
 import com.datatorrent.common.util.BaseOperator;
 
 /**
@@ -116,8 +117,8 @@ public class KinesisPartitionableInputOperatorTest extends KinesisOperatorTestBa
     testPartitionableInputOperator(consumer);
   }
 
-  public void testPartitionableInputOperator(KinesisConsumer consumer) throws Exception{
-
+  public void testPartitionableInputOperator(KinesisConsumer consumer) throws Exception
+  {
     // Set to 2 because we want to make sure END_TUPLE from both 2 partitions are received
     latch = new CountDownLatch(2);
 

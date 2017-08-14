@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.logs;
+package org.apache.apex.malhar.lib.logs;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -37,7 +37,7 @@ import com.datatorrent.common.util.BaseOperator;
  * status code (outputStatusCode), bytes (outputBytes), referer (outputReferer),
  * and agent (outputAgent).&nbsp;Each of the fields are emitted to a separate output port.
  * <p>
- * Please refer to docs for {@link com.datatorrent.lib.logs.ApacheLogParseOperator} documentation.
+ * Please refer to docs for {@link org.apache.apex.malhar.lib.logs.ApacheLogParseOperator} documentation.
  * More output ports in this operator.
  * </p>
  * @displayName Apache Virtual Log Parse

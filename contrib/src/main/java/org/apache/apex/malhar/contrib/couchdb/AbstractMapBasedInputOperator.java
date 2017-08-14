@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchdb;
-
-import org.codehaus.jackson.map.ObjectMapper;
-import org.ektorp.ViewResult;
+package org.apache.apex.malhar.contrib.couchdb;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.codehaus.jackson.map.ObjectMapper;
+import org.ektorp.ViewResult;
 
 /**
  * A base CouchDb input adaptor that emits a map. <br/>

@@ -20,10 +20,11 @@ package org.apache.apex.malhar.contrib.misc.streamquery;
 
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.streamquery.condition.Condition;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.streamquery.condition.Condition;
 
 /**
  * An implementation of BaseOperator that provides sql delete query semantic on live data stream. <br>

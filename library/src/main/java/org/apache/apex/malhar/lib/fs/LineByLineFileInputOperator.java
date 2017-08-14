@@ -23,11 +23,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.apache.apex.malhar.lib.io.fs.AbstractFileInputOperator;
 import org.apache.hadoop.fs.Path;
 
 import com.datatorrent.api.DefaultOutputPort;
-
-import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
 
 /**
  * This is an extension of the {@link AbstractFileInputOperator} that outputs the contents of a file line by line.&nbsp;

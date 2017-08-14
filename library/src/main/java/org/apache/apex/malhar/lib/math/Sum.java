@@ -16,17 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.math;
+package org.apache.apex.malhar.lib.math;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.apex.malhar.lib.util.BaseNumberValueOperator;
+import org.apache.apex.malhar.lib.util.UnifierSumNumber;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.BaseNumberValueOperator;
-import com.datatorrent.lib.util.UnifierSumNumber;
 
 /**
  * This operator implements Unifier interface and emits the sum of values at the end of window.

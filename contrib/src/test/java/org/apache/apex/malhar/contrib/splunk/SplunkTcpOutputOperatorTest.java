@@ -16,12 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.splunk;
+package org.apache.apex.malhar.contrib.splunk;
 
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
-import com.datatorrent.lib.testbench.CollectorTestSink;
+
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+
 import com.google.common.collect.Lists;
 
 /**
@@ -30,8 +32,8 @@ import com.google.common.collect.Lists;
  * queries it for last 10 rows to check if the values are same or not.
  *
  */
-public class SplunkTcpOutputOperatorTest {
-
+public class SplunkTcpOutputOperatorTest
+{
   public static final String HOST = "127.0.0.1";
   public static final int PORT = 8089;
   private static final String USER_NAME = "admin";
@@ -57,8 +59,8 @@ public class SplunkTcpOutputOperatorTest {
   }
 
   @Test
-  public void TestSplunkTcpOutputOperator() {
-
+  public void TestSplunkTcpOutputOperator()
+  {
     int flag = 1;
     SplunkStore store = new SplunkStore();
     store.setHost(HOST);
@@ -95,23 +97,21 @@ public class SplunkTcpOutputOperatorTest {
     inputOperator.endWindow();
 
     List<Object> collectedEvents = sink.collectedTuples;
-    if(events.size()!=collectedEvents.size()) {
+    if (events.size() != collectedEvents.size()) {
       flag = 0;
     }
 
-    if(flag==1) {
-      if(collectedEvents.get(0).toString().length() == 1) {
-        for(int i =0; i<collectedEvents.size();i++) {
-          System.out.println(collectedEvents.get(i).toString());
-          if(!events.contains(Integer.parseInt(collectedEvents.get(i).toString()))) {
+    if (flag == 1) {
+      if (collectedEvents.get(0).toString().length() == 1) {
+        for (int i = 0; i < collectedEvents.size(); i++) {
+          if (!events.contains(Integer.parseInt(collectedEvents.get(i).toString()))) {
             flag = 0;
             break;
           }
         }
-      }
-      else if(collectedEvents.get(0).toString().length() == 10) {
-        for(int i=0; i<10; i++) {
-          if(!collectedEvents.get(0).toString().contains(events.get(i).toString())) {
+      } else if (collectedEvents.get(0).toString().length() == 10) {
+        for (int i = 0; i < 10; i++) {
+          if (!collectedEvents.get(0).toString().contains(events.get(i).toString())) {
             flag = 0;
             break;
           }

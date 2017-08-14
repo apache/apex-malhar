@@ -36,13 +36,13 @@ import org.apache.apex.api.Launcher;
 import org.apache.apex.api.Launcher.AppHandle;
 import org.apache.apex.api.Launcher.LaunchMode;
 import org.apache.apex.api.Launcher.ShutdownMode;
+import org.apache.apex.malhar.lib.db.jdbc.JdbcTransactionalStore;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.net.NetUtils;
 
 import com.google.common.collect.Sets;
 
 import com.datatorrent.api.Attribute;
-import com.datatorrent.lib.db.jdbc.JdbcTransactionalStore;
 
 import info.batey.kafka.unit.KafkaUnit;
 import info.batey.kafka.unit.KafkaUnitRule;

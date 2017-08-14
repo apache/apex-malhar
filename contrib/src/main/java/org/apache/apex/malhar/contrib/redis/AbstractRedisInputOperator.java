@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.redis;
+package org.apache.apex.malhar.contrib.redis;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -25,16 +25,16 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.db.AbstractKeyValueStoreInputOperator;
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
 
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Operator.CheckpointNotificationListener;
+import com.datatorrent.netlet.util.DTThrowable;
+
 import redis.clients.jedis.ScanParams;
 import redis.clients.jedis.ScanResult;
-
-import com.datatorrent.api.Operator.CheckpointNotificationListener;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.lib.db.AbstractKeyValueStoreInputOperator;
 
 /**
  * This is the base implementation of a Redis input operator.
@@ -76,7 +76,8 @@ public abstract class AbstractRedisInputOperator<T> extends AbstractKeyValueStor
    */
   public static class RecoveryState implements Serializable
   {
-    public Integer scanOffsetAtBeginWindow, numberOfScanCallsInWindow;
+    public Integer scanOffsetAtBeginWindow;
+    public Integer numberOfScanCallsInWindow;
   }
 
   public AbstractRedisInputOperator()
@@ -107,11 +108,11 @@ public abstract class AbstractRedisInputOperator<T> extends AbstractKeyValueStor
       if (!skipOffsetRecovery) {
         // Begin offset for this window is recovery offset stored for the last
         // window
-        RecoveryState recoveryStateForLastWindow = (RecoveryState) getWindowDataManager().retrieve(windowId - 1);
+        RecoveryState recoveryStateForLastWindow = (RecoveryState)getWindowDataManager().retrieve(windowId - 1);
         recoveryState.scanOffsetAtBeginWindow = recoveryStateForLastWindow.scanOffsetAtBeginWindow;
       }
       skipOffsetRecovery = false;
-      RecoveryState recoveryStateForCurrentWindow = (RecoveryState) getWindowDataManager().retrieve(windowId);
+      RecoveryState recoveryStateForCurrentWindow = (RecoveryState)getWindowDataManager().retrieve(windowId);
       recoveryState.numberOfScanCallsInWindow = recoveryStateForCurrentWindow.numberOfScanCallsInWindow;
       if (recoveryState.scanOffsetAtBeginWindow != null) {
         scanOffset = recoveryState.scanOffsetAtBeginWindow;
@@ -222,7 +223,7 @@ public abstract class AbstractRedisInputOperator<T> extends AbstractKeyValueStor
     processTuples();
   }
 
-  abstract public void processTuples();
+  public abstract void processTuples();
 
   @Override
   public void beforeCheckpoint(long windowId)

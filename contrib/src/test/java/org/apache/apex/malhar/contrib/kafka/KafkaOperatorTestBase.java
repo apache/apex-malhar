@@ -16,16 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
+package org.apache.apex.malhar.contrib.kafka;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Properties;
 
-import kafka.admin.TopicCommand;
-import kafka.server.KafkaConfig;
-import kafka.server.KafkaServerStartable;
+import org.junit.After;
+import org.junit.Before;
+import org.slf4j.LoggerFactory;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.zookeeper.server.NIOServerCnxnFactory;
@@ -33,9 +33,10 @@ import org.apache.zookeeper.server.ServerCnxnFactory;
 import org.apache.zookeeper.server.ZKDatabase;
 import org.apache.zookeeper.server.ZooKeeperServer;
 import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
-import org.junit.After;
-import org.junit.Before;
-import org.slf4j.LoggerFactory;
+
+import kafka.admin.TopicCommand;
+import kafka.server.KafkaConfig;
+import kafka.server.KafkaServerStartable;
 
 /**
  * This is a base class setup/clean Kafka testing environment for all the input/output test If it's a multipartition
@@ -45,8 +46,8 @@ public class KafkaOperatorTestBase
 {
 
   public static final String END_TUPLE = "END_TUPLE";
-  public static final int[] TEST_ZOOKEEPER_PORT = new int[] { 2182, 2183 };
-  public static final int[][] TEST_KAFKA_BROKER_PORT = new int[][] { new int[] { 9092, 9093 }, new int[] { 9094, 9095 } };
+  public static final int[] TEST_ZOOKEEPER_PORT = new int[] {2182, 2183};
+  public static final int[][] TEST_KAFKA_BROKER_PORT = new int[][] {new int[] {9092, 9093}, new int[] {9094, 9095}};
   public static final String TEST_TOPIC = "test_topic";
 
   static final org.slf4j.Logger logger = LoggerFactory.getLogger(KafkaOperatorTestBase.class);
@@ -62,8 +63,8 @@ public class KafkaOperatorTestBase
 
   private final String zkBaseDir = "zookeeper-server-data";
   private final String kafkaBaseDir = "kafka-server-data";
-  private final String[] zkdir = new String[] { "zookeeper-server-data/1", "zookeeper-server-data/2" };
-  private final String[][] kafkadir = new String[][] { new String[] { "kafka-server-data/1/1", "kafka-server-data/1/2" }, new String[] { "kafka-server-data/2/1", "kafka-server-data/2/2" } };
+  private final String[] zkdir = new String[] {"zookeeper-server-data/1", "zookeeper-server-data/2"};
+  private final String[][] kafkadir = new String[][] {new String[] {"kafka-server-data/1/1", "kafka-server-data/1/2"}, new String[] {"kafka-server-data/2/1", "kafka-server-data/2/2"}};
   protected boolean hasMultiPartition = false;
   protected boolean hasMultiCluster = false;
 
@@ -125,11 +126,12 @@ public class KafkaOperatorTestBase
 
   public void startKafkaServer()
   {
-    boolean[][] startable = new boolean[][] { new boolean[] { true, hasMultiPartition }, new boolean[] { hasMultiCluster, hasMultiCluster && hasMultiPartition } };
+    boolean[][] startable = new boolean[][] {new boolean[] {true, hasMultiPartition }, new boolean[] {hasMultiCluster, hasMultiCluster && hasMultiPartition}};
     for (int i = 0; i < startable.length; i++) {
       for (int j = 0; j < startable[i].length; j++) {
-        if (startable[i][j])
+        if (startable[i][j]) {
           startKafkaServer(i, j, hasMultiPartition ? 2 : 1);
+        }
       }
     }
 

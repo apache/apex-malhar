@@ -25,13 +25,13 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.apache.apex.malhar.lib.fs.FSRecordReader.RECORD_READER_MODE;
+import org.apache.apex.malhar.lib.io.fs.FSInputModule.SequentialFileBlockMetadataCodec;
+import org.apache.apex.malhar.lib.io.fs.FileSplitterInput;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Module;
-import com.datatorrent.lib.io.fs.FSInputModule.SequentialFileBlockMetadataCodec;
-import com.datatorrent.lib.io.fs.FileSplitterInput;
 
 /**
  * This module is used for reading records/tuples from FileSystem. Records can

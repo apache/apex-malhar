@@ -16,15 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.geode;
+package org.apache.apex.malhar.contrib.geode;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.datatorrent.contrib.util.TestPOJO;
-import com.datatorrent.contrib.util.TupleGenerator;
-import com.datatorrent.lib.util.TableInfo;
+import org.apache.apex.malhar.contrib.util.TestPOJO;
+import org.apache.apex.malhar.contrib.util.TupleGenerator;
+import org.apache.apex.malhar.lib.util.TableInfo;
+
 import com.datatorrent.netlet.util.DTThrowable;
 
 @SuppressWarnings("rawtypes")

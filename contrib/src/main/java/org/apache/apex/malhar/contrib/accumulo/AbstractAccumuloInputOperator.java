@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.accumulo;
+package org.apache.apex.malhar.contrib.accumulo;
 
 import java.util.Map.Entry;
 
@@ -24,8 +24,8 @@ import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
+import org.apache.apex.malhar.lib.db.AbstractStoreInputOperator;
 
-import com.datatorrent.lib.db.AbstractStoreInputOperator;
 /**
  * Base input adapter, which reads data from persistence database and writes into output port(s).&nbsp; Subclasses should provide the
  * implementation of getting the tuples and scanner methods.
@@ -38,18 +38,21 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * @tags key value, accumulo
  * @since 1.0.4
  */
-public abstract class AbstractAccumuloInputOperator<T> extends AbstractStoreInputOperator<T, AccumuloStore> {
+public abstract class AbstractAccumuloInputOperator<T> extends AbstractStoreInputOperator<T, AccumuloStore>
+{
 
   public abstract T getTuple(Entry<Key, Value> entry);
 
   public abstract Scanner getScanner(Connector conn);
 
-  public AbstractAccumuloInputOperator() {
+  public AbstractAccumuloInputOperator()
+  {
     store = new AccumuloStore();
   }
 
   @Override
-  public void emitTuples() {
+  public void emitTuples()
+  {
     Connector conn = store.getConnector();
     Scanner scan = getScanner(conn);
 

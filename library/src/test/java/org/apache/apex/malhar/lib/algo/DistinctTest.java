@@ -16,17 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.algo;
+package org.apache.apex.malhar.lib.algo;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.HashTestSink;
-import com.datatorrent.lib.util.TestUtils;
+import org.apache.apex.malhar.lib.testbench.HashTestSink;
+import org.apache.apex.malhar.lib.util.TestUtils;
 
 /**
  *
- * Functional tests for {@link com.datatorrent.lib.algo.Distinct}
+ * Functional tests for {@link org.apache.apex.malhar.lib.algo.Distinct}
  *
  */
 public class DistinctTest

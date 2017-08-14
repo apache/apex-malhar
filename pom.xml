@@ -30,7 +30,7 @@
 
   <groupId>org.apache.apex</groupId>
   <artifactId>malhar</artifactId>
-  <version>3.9.0-SNAPSHOT</version>
+  <version>4.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Apache Apex Malhar</name>
   <url>http://apex.apache.org</url>
@@ -139,7 +139,6 @@
               <excludes>
                 <exclude>@org.apache.hadoop.classification.InterfaceStability$Evolving</exclude>
                 <exclude>@org.apache.hadoop.classification.InterfaceStability$Unstable</exclude>
-                <exclude>com.datatorrent.contrib.parquet</exclude>
               </excludes>
             </parameter>
             <skip>${semver.plugin.skip}</skip>
@@ -206,7 +205,6 @@
         <module>stream</module>
         <module>benchmark</module>
         <module>apps</module>
-        <module>samples</module>
         <module>sql</module>
         <module>flume</module>
       </modules>

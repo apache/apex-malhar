@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io;
+package org.apache.apex.malhar.lib.io;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -27,7 +27,7 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.common.experimental.AppData.ConnectionInfoProvider;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class PubSubWebSocketAppDataQueryTest extends PubSubWebSocketAppDataOperatorTest
 {

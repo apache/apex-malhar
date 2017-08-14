@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.cassandra;
+package org.apache.apex.malhar.contrib.cassandra;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,6 +36,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.helper.TestPortContext;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.FieldInfo;
+
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Configuration;
@@ -52,12 +56,9 @@ import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.TestPortContext;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.netlet.util.DTThrowable;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Tests for {@link AbstractCassandraTransactionableOutputOperator} and {@link AbstractCassandraInputOperator}
@@ -91,25 +92,25 @@ public class CassandraOperatorTest
   @BeforeClass
   public static void setup()
   {
-    @SuppressWarnings("UnusedDeclaration") Class<?> clazz = org.codehaus.janino.CompilerFactory.class;
+    @SuppressWarnings("UnusedDeclaration")
+    Class<?> clazz = org.codehaus.janino.CompilerFactory.class;
     try {
       cluster = Cluster.builder()
               .addContactPoint(NODE).build();
       session = cluster.connect(KEYSPACE);
 
       String createMetaTable = "CREATE TABLE IF NOT EXISTS " + CassandraTransactionalStore.DEFAULT_META_TABLE + " ( "
-              + CassandraTransactionalStore.DEFAULT_APP_ID_COL + " TEXT, "
-              + CassandraTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT, "
-              + CassandraTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT, "
-              + "PRIMARY KEY (" + CassandraTransactionalStore.DEFAULT_APP_ID_COL + ", " + CassandraTransactionalStore.DEFAULT_OPERATOR_ID_COL + ") "
-              + ");";
+          + CassandraTransactionalStore.DEFAULT_APP_ID_COL + " TEXT, "
+          + CassandraTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT, "
+          + CassandraTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT, "
+          + "PRIMARY KEY (" + CassandraTransactionalStore.DEFAULT_APP_ID_COL + ", " + CassandraTransactionalStore.DEFAULT_OPERATOR_ID_COL + ") "
+          + ");";
       session.execute(createMetaTable);
       String createTable = "CREATE TABLE IF NOT EXISTS " + KEYSPACE + "." + TABLE_NAME + " (id uuid PRIMARY KEY,age int,lastname text,test boolean,floatvalue float,doubleValue double,set1 set<int>,list1 list<int>,map1 map<text,int>,last_visited timestamp);";
       session.execute(createTable);
       createTable = "CREATE TABLE IF NOT EXISTS " + KEYSPACE + "." + TABLE_NAME_INPUT + " (id int PRIMARY KEY,lastname text,age int);";
       session.execute(createTable);
-    }
-    catch (Throwable e) {
+    } catch (Throwable e) {
       DTThrowable.rethrow(e);
     }
   }
@@ -221,8 +222,7 @@ public class CassandraOperatorTest
     public void insertEventsInTable(int numEvents)
     {
       try {
-        Cluster cluster = Cluster.builder()
-                .addContactPoint(NODE).build();
+        Cluster cluster = Cluster.builder().addContactPoint(NODE).build();
         Session session = cluster.connect(KEYSPACE);
 
         String insert = "INSERT INTO " + TABLE_NAME_INPUT + " (ID,lastname,age)" + " VALUES (?,?,?);";
@@ -234,8 +234,7 @@ public class CassandraOperatorTest
           mapAge.put(i, i + 10);
           session.execute(boundStatement.bind(i, "test" + i, i + 10));
         }
-      }
-      catch (DriverException e) {
+      } catch (DriverException e) {
         throw new RuntimeException(e);
       }
     }

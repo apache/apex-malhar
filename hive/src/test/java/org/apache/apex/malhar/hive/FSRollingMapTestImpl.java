@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hive;
+package org.apache.apex.malhar.hive;
 
 import java.util.ArrayList;
 import java.util.Iterator;

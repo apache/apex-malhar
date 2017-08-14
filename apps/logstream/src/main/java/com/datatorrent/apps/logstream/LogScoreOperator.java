@@ -20,9 +20,11 @@ package com.datatorrent.apps.logstream;
 
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.lib.logs.DimensionObject;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.apex.malhar.lib.logs.DimensionObject;
 
 /**
  * Log Score

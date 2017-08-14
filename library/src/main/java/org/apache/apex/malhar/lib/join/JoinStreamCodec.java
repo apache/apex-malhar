@@ -18,8 +18,8 @@
  */
 package org.apache.apex.malhar.lib.join;
 
-import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
-import com.datatorrent.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.codec.KryoSerializableStreamCodec;
+import org.apache.apex.malhar.lib.util.PojoUtils;
 
 /**
  * Stream codec based on keyExpression for POJO Inner Join Operator.

@@ -16,13 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.rabbitmq;
-
-import com.datatorrent.api.*;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.netlet.util.DTThrowable;
-import com.rabbitmq.client.*;
+package org.apache.apex.malhar.contrib.rabbitmq;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -37,7 +31,21 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
+
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.DefaultConsumer;
+import com.rabbitmq.client.Envelope;
+import com.rabbitmq.client.ShutdownSignalException;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * This is the base implementation of a RabbitMQ input operator.&nbsp;
@@ -93,7 +101,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
 //  QueueingConsumer consumer = null;
 
   private static final int DEFAULT_BLAST_SIZE = 1000;
-  private static final int DEFAULT_BUFFER_SIZE = 1024*1024;
+  private static final int DEFAULT_BUFFER_SIZE = 1024 * 1024;
   private int tuple_blast = DEFAULT_BLAST_SIZE;
   protected int bufferSize = DEFAULT_BUFFER_SIZE;
 
@@ -105,8 +113,8 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
   protected transient ArrayBlockingQueue<KeyValPair<Long,byte[]>> holdingBuffer;
   private WindowDataManager windowDataManager;
   protected final transient Map<Long, byte[]> currentWindowRecoveryState;
-  private transient final Set<Long> pendingAck;
-  private transient final Set<Long> recoveredTags;
+  private final transient Set<Long> pendingAck;
+  private final transient Set<Long> recoveredTags;
   private transient long currentWindowId;
   private transient int operatorContextId;
 
@@ -123,7 +131,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
  * define a consumer which can asynchronously receive data,
  * and added to holdingBuffer
  */
- public class TracingConsumer extends DefaultConsumer
+  public class TracingConsumer extends DefaultConsumer
   {
     public TracingConsumer(Channel ch)
     {
@@ -155,9 +163,8 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
     public void handleDelivery(String consumer_Tag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException
     {
       long tag = envelope.getDeliveryTag();
-      if(envelope.isRedeliver() && (recoveredTags.contains(tag) || pendingAck.contains(tag)))
-      {
-        if(recoveredTags.contains(tag)) {
+      if (envelope.isRedeliver() && (recoveredTags.contains(tag) || pendingAck.contains(tag))) {
+        if (recoveredTags.contains(tag)) {
           pendingAck.add(tag);
         }
         return;
@@ -196,7 +203,8 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
   }
 
   @SuppressWarnings("unchecked")
-  private void replay(long windowId) {
+  private void replay(long windowId)
+  {
     Map<Long, byte[]> recoveredData;
     try {
       recoveredData = (Map<Long, byte[]>)this.windowDataManager.retrieve(windowId);
@@ -263,7 +271,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
     try {
       connFactory = new ConnectionFactory();
       connFactory.setHost(host);
-      if (port != 0){
+      if (port != 0) {
         connFactory.setPort(port);
       }
 
@@ -272,7 +280,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
 
       channel.exchangeDeclare(exchange, exchangeType);
       boolean resetQueueName = false;
-      if (queueName == null){
+      if (queueName == null) {
         // unique queuename is generated
         // used in case of fanout exchange
         queueName = channel.queueDeclare().getQueue();
@@ -289,12 +297,10 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
 //      channel.basicConsume(queueName, true, consumer);
       tracingConsumer = new TracingConsumer(channel);
       cTag = channel.basicConsume(queueName, false, tracingConsumer);
-      if(resetQueueName)
-      {
+      if (resetQueueName) {
         queueName = null;
       }
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       throw new RuntimeException("Connection Failure", ex);
     }
   }
@@ -305,8 +311,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
     try {
       channel.close();
       connection.close();
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       logger.debug(ex.toString());
     }
   }
@@ -326,8 +331,7 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
   {
     try {
       windowDataManager.committed(windowId);
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException("committing", e);
     }
   }
@@ -397,14 +401,14 @@ public abstract class AbstractRabbitMQInputOperator<T> implements
     this.routingKey = routingKey;
   }
 
-  public WindowDataManager getWindowDataManager() {
+  public WindowDataManager getWindowDataManager()
+  {
     return windowDataManager;
   }
 
-  public void setWindowDataManager(WindowDataManager windowDataManager) {
+  public void setWindowDataManager(WindowDataManager windowDataManager)
+  {
     this.windowDataManager = windowDataManager;
   }
-
-
 
 }

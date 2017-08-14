@@ -19,15 +19,15 @@
 
 package org.apache.apex.examples.csvformatter;
 
+import org.apache.apex.malhar.contrib.formatter.CsvFormatter;
+import org.apache.apex.malhar.contrib.parser.JsonParser;
+import org.apache.apex.malhar.lib.appdata.schemas.SchemaUtils;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.contrib.formatter.CsvFormatter;
-import com.datatorrent.contrib.parser.JsonParser;
-import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 
 @ApplicationAnnotation(name = "CustomOutputFormatter")
 /**

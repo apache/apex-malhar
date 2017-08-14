@@ -16,8 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.nifi.demo;
+package org.apache.apex.malhar.contrib.nifi.demo;
 
+import org.apache.apex.malhar.contrib.nifi.NiFiSinglePortInputOperator;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nifi.remote.client.SiteToSiteClient;
@@ -26,8 +28,6 @@ import org.apache.nifi.remote.client.SiteToSiteClientConfig;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.contrib.nifi.NiFiSinglePortInputOperator;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 /**
  * A sample application that shows how to receive data to a NiFi Output Port.

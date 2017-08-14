@@ -28,11 +28,12 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.converter.Converter;
+import org.apache.apex.malhar.lib.io.fs.AbstractSingleFileOutputOperator;
+
 import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.StreamCodec;
-import com.datatorrent.lib.converter.Converter;
-import com.datatorrent.lib.io.fs.AbstractSingleFileOutputOperator;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**

@@ -29,6 +29,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import org.apache.apex.malhar.lib.helper.OperatorContextTestHelper;
+import org.apache.apex.malhar.lib.io.fs.FSInputModule;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -47,8 +49,6 @@ import com.amazonaws.services.s3.model.UploadPartResult;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.fs.FSInputModule;
 import com.datatorrent.stram.StramLocalCluster;
 
 import static org.mockito.Matchers.any;

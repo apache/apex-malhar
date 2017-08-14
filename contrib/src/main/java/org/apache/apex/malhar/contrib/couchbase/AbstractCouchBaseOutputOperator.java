@@ -16,22 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchbase;
+package org.apache.apex.malhar.contrib.couchbase;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
-import net.spy.memcached.internal.OperationCompletionListener;
-import net.spy.memcached.internal.OperationFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
+import org.apache.apex.malhar.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
 
 import com.datatorrent.api.Context.OperatorContext;
-
 import com.datatorrent.netlet.util.DTThrowable;
+
+import net.spy.memcached.internal.OperationCompletionListener;
+import net.spy.memcached.internal.OperationFuture;
+
 
 /**
  * AbstractCouchBaseOutputOperator which extends Transactionable Store Output Operator.
@@ -108,10 +109,10 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
     id++;
     String key = getKey(tuple);
     Object value = getValue(tuple);
-    if(!(value instanceof Boolean) && !(value instanceof Integer) && !(value instanceof String) && !(value instanceof Float) && !(value instanceof Double) && !(value instanceof Character) && !(value instanceof Long) && !(value instanceof Short) && !(value instanceof Byte)){
-    if (serializer != null) {
-      value = serializer.serialize(value);
-    }
+    if (!(value instanceof Boolean) && !(value instanceof Integer) && !(value instanceof String) && !(value instanceof Float) && !(value instanceof Double) && !(value instanceof Character) && !(value instanceof Long) && !(value instanceof Short) && !(value instanceof Byte)) {
+      if (serializer != null) {
+        value = serializer.serialize(value);
+      }
     }
     OperationFuture<Boolean> future = processKeyValue(key, value);
     synchronized (syncObj) {
@@ -135,7 +136,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   public void waitForQueueSize(int sizeOfQueue)
   {
     long startTms = System.currentTimeMillis();
-    long elapsedTime ;
+    long elapsedTime;
     while (numTuples > sizeOfQueue) {
       synchronized (syncObj) {
         if (numTuples > sizeOfQueue) {
@@ -143,12 +144,10 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
             elapsedTime = System.currentTimeMillis() - startTms;
             if (elapsedTime >= store.timeout) {
               throw new RuntimeException("Timed out waiting for space in queue");
-            }
-            else {
+            } else {
               syncObj.wait(store.timeout - elapsedTime);
             }
-          }
-          catch (InterruptedException ex) {
+          } catch (InterruptedException ex) {
             DTThrowable.rethrow(ex);
           }
         }
@@ -167,7 +166,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
     public void onComplete(OperationFuture<?> f) throws Exception
     {
       if (!((Boolean)f.get())) {
-        logger.error("Operation failed {}" , f);
+        logger.error("Operation failed {}", f);
         failure = true;
         return;
       }

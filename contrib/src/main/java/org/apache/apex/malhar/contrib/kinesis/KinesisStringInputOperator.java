@@ -16,11 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kinesis;
-
-import com.amazonaws.services.kinesis.model.Record;
+package org.apache.apex.malhar.contrib.kinesis;
 
 import java.nio.ByteBuffer;
+import com.amazonaws.services.kinesis.model.Record;
 
 /**
  * Kinesis input adapter which consumes string data from Kinesis
@@ -41,8 +40,7 @@ public class KinesisStringInputOperator extends AbstractKinesisInputOperator<Str
       byte[] bytes = new byte[bb.remaining() ];
       bb.get(bytes);
       return new String(bytes);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
   }

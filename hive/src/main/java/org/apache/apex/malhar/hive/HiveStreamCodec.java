@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hive;
+package org.apache.apex.malhar.hive;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Externalizable;
@@ -25,10 +25,10 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 
+import org.apache.apex.malhar.lib.codec.KryoSerializableStreamCodec;
+
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-
-import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 
 /**
  * Stream codec for uniform distribution of tuples on upstream operator. This is

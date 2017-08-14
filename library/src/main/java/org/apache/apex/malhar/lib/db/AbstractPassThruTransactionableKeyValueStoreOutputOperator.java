@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.db;
+package org.apache.apex.malhar.lib.db;
 
 /**
  * This is the base implementation for a pass-through output adapter of a transactional key value store.&nbsp;

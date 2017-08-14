@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.memcache;
+package org.apache.apex.malhar.contrib.memcache;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.datatorrent.lib.util.TableInfo;
-import com.datatorrent.contrib.util.TestPOJO;
-import com.datatorrent.contrib.util.TupleGenerator;
+import org.apache.apex.malhar.contrib.util.TestPOJO;
+import org.apache.apex.malhar.contrib.util.TupleGenerator;
+import org.apache.apex.malhar.lib.util.TableInfo;
 
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -46,14 +46,10 @@ public class MemcachePOJOOperatorTest
 
   public void cleanup()
   {
-    if( store != null )
-    {
-      try
-      {
+    if ( store != null ) {
+      try {
         store.disconnect();
-      }
-      catch( Exception e )
-      {
+      } catch ( Exception e ) {
         DTThrowable.rethrow(e);
       }
     }
@@ -77,8 +73,7 @@ public class MemcachePOJOOperatorTest
 
     TupleGenerator<TestPOJO> generator = new TupleGenerator<TestPOJO>( TestPOJO.class );
 
-    for( int i=0; i<TUPLE_SIZE; ++i )
-    {
+    for ( int i = 0; i < TUPLE_SIZE; ++i ) {
       operator.processTuple( generator.getNextTuple() );
     }
 
@@ -89,8 +84,7 @@ public class MemcachePOJOOperatorTest
   {
     generator.reset();
 
-    for( int i=0; i<TUPLE_SIZE; ++i )
-    {
+    for ( int i = 0; i < TUPLE_SIZE; ++i ) {
       TestPOJO expected = generator.getNextTuple();
       TestPOJO read = (TestPOJO)store.get( expected.getRow() );
       Assert.assertTrue( String.format( "expected={%s}, actually={%s}", expected.toString(), read.toString() ), expected.completeEquals(read) );

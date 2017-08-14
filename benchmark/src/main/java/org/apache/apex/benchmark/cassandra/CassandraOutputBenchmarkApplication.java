@@ -16,8 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.cassandra;
+package org.apache.apex.benchmark.cassandra;
 
+import org.apache.apex.malhar.contrib.cassandra.CassandraTransactionalStore;
+import org.apache.apex.malhar.lib.testbench.RandomEventGenerator;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
@@ -25,10 +27,6 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-
-import com.datatorrent.contrib.cassandra.CassandraTransactionalStore;
-
-import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 /**
  * Application to benchmark the performance of cassandra output operator.

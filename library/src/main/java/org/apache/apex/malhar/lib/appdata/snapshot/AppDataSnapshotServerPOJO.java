@@ -16,18 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.snapshot;
+package org.apache.apex.malhar.lib.appdata.snapshot;
 
 import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.appdata.gpo.GPOGetters;
+import org.apache.apex.malhar.lib.appdata.gpo.GPOMutable;
+import org.apache.apex.malhar.lib.appdata.gpo.GPOUtils;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 
 import com.google.common.base.Preconditions;
-import com.datatorrent.lib.appdata.gpo.GPOGetters;
-import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.gpo.GPOUtils;
 
 /**
  * This operator accepts a list of POJOs, and serves the data under the {@link SnapshotSchema}.

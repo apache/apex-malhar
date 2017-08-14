@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.redis;
+package org.apache.apex.malhar.contrib.redis;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,12 +25,13 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.db.TransactionableKeyValueStore;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.ScanParams;
 import redis.clients.jedis.ScanResult;
 import redis.clients.jedis.Transaction;
-
-import com.datatorrent.lib.db.TransactionableKeyValueStore;
 
 /**
  * Provides the implementation of a Redis store.
@@ -220,7 +221,7 @@ public class RedisStore implements TransactionableKeyValueStore
     if (isInTransaction()) {
       throw new RuntimeException("Cannot call get when in redis transaction");
     }
-    return (List<Object>) (List<?>) jedis.mget(keys.toArray(new String[]{}));
+    return (List<Object>)(List<?>)jedis.mget(keys.toArray(new String[]{}));
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
@@ -229,20 +230,17 @@ public class RedisStore implements TransactionableKeyValueStore
   {
     if (isInTransaction()) {
       if (value instanceof Map) {
-        transaction.hmset(key.toString(), (Map) value);
-      }
-      else {
+        transaction.hmset(key.toString(), (Map)value);
+      } else {
         transaction.set(key.toString(), value.toString());
       }
       if (keyExpiryTime != -1) {
         transaction.expire(key.toString(), keyExpiryTime);
       }
-    }
-    else {
+    } else {
       if (value instanceof Map) {
-        jedis.hmset(key.toString(), (Map) value);
-      }
-      else {
+        jedis.hmset(key.toString(), (Map)value);
+      } else {
         jedis.set(key.toString(), value.toString());
       }
       if (keyExpiryTime != -1) {
@@ -263,8 +261,7 @@ public class RedisStore implements TransactionableKeyValueStore
     }
     if (isInTransaction()) {
       transaction.mset(params.toArray(new String[]{}));
-    }
-    else {
+    } else {
       jedis.mset(params.toArray(new String[]{}));
     }
   }
@@ -274,8 +271,7 @@ public class RedisStore implements TransactionableKeyValueStore
   {
     if (isInTransaction()) {
       transaction.del(key.toString());
-    }
-    else {
+    } else {
       jedis.del(key.toString());
     }
   }
@@ -299,8 +295,7 @@ public class RedisStore implements TransactionableKeyValueStore
       if (keyExpiryTime != -1) {
         transaction.expire(key, keyExpiryTime);
       }
-    }
-    else {
+    } else {
       jedis.hincrByFloat(key, field, doubleValue);
       if (keyExpiryTime != -1) {
         jedis.expire(key, keyExpiryTime);
@@ -321,8 +316,7 @@ public class RedisStore implements TransactionableKeyValueStore
       if (keyExpiryTime != -1) {
         transaction.expire(key, keyExpiryTime);
       }
-    }
-    else {
+    } else {
       jedis.incrByFloat(key, doubleValue);
       if (keyExpiryTime != -1) {
         jedis.expire(key, keyExpiryTime);

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.codec;
+package org.apache.apex.malhar.lib.codec;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

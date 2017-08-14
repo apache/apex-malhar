@@ -16,12 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.mongodb;
+package org.apache.apex.malhar.contrib.mongodb;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.Operator;
-import com.mongodb.*;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -36,6 +32,16 @@ import javax.validation.constraints.Min;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.Operator;
 
 /**
  * This is the base implementation for a non transactional output operator for MongoDB.&nbsp;
@@ -124,8 +130,7 @@ public abstract class MongoDBOutputOperator<T> extends MongoDBConnectable implem
 
       try {
         processTuple(tuple);
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
         throw new RuntimeException("Exception during process tuple", ex);
       }
     }
@@ -145,8 +150,7 @@ public abstract class MongoDBOutputOperator<T> extends MongoDBConnectable implem
     if (cursor.hasNext()) {
       Object obj = cursor.next().get(windowIdColumnName);
       lastWindowId = (Long)obj;
-    }
-    else {
+    } else {
       BasicDBObject doc = new BasicDBObject();
       doc.put(windowIdColumnName, (long)0);
 //      doc.put(applicationIdName, 0);
@@ -154,7 +158,7 @@ public abstract class MongoDBOutputOperator<T> extends MongoDBConnectable implem
       maxWindowCollection.save(doc);
     }
 
-    logger.debug("last windowid: {}" , lastWindowId);
+    logger.debug("last windowid: {}", lastWindowId);
   }
 
   /**
@@ -172,8 +176,7 @@ public abstract class MongoDBOutputOperator<T> extends MongoDBConnectable implem
     tupleId = 1;
     if (windowId < lastWindowId) {
       ignoreWindow = true;
-    }
-    else if (windowId == lastWindowId) {
+    } else if (windowId == lastWindowId) {
       ignoreWindow = false;
       BasicDBObject query = new BasicDBObject();
 //      query.put(windowIdColumnName, windowId);
@@ -184,14 +187,11 @@ public abstract class MongoDBOutputOperator<T> extends MongoDBConnectable implem
       StringBuilder high = new StringBuilder();
       if (queryFunction == 1) {
         queryFunction1(bb, high, low);
-      }
-      else if (queryFunction == 2) {
+      } else if (queryFunction == 2) {
         queryFunction2(bb, high, low);
-      }
-      else if (queryFunction == 3) {
+      } else if (queryFunction == 3) {
         queryFunction3(bb, high, low);
-      }
-      else {
+      } else {
         throw new RuntimeException("unknown queryFunction type:" + queryFunction);
       }
 
@@ -200,8 +200,7 @@ public abstract class MongoDBOutputOperator<T> extends MongoDBConnectable implem
       for (String table : tableList) {
         db.getCollection(table).remove(query);
       }
-    }
-    else {
+    } else {
       ignoreWindow = false;
     }
   }
@@ -249,13 +248,12 @@ public abstract class MongoDBOutputOperator<T> extends MongoDBConnectable implem
         tableToDocumentList.put(table, new ArrayList<DBObject>());
         tableToDocument.put(table, new BasicDBObject());
       }
-    }
-    catch (UnknownHostException ex) {
+    } catch (UnknownHostException ex) {
       logger.debug(ex.toString());
     }
   }
 
-  abstract public void setColumnMapping(String[] mapping);
+  public abstract void setColumnMapping(String[] mapping);
 
   @Override
   public void teardown()
@@ -271,14 +269,11 @@ public abstract class MongoDBOutputOperator<T> extends MongoDBConnectable implem
     bb.order(ByteOrder.BIG_ENDIAN);
     if (queryFunction == 1) {
       insertFunction1(bb);
-    }
-    else if (queryFunction == 2) {
+    } else if (queryFunction == 2) {
       insertFunction2(bb);
-    }
-    else if (queryFunction == 3) {
+    } else if (queryFunction == 3) {
       insertFunction3(bb);
-    }
-    else {
+    } else {
       throw new RuntimeException("unknown insertFunction type:" + queryFunction);
     }
 //    String str = Hex.encodeHexString(bb.array());
@@ -304,8 +299,7 @@ public abstract class MongoDBOutputOperator<T> extends MongoDBConnectable implem
 
         db.getCollection(table).insert(docList);
         tableToDocumentList.put(table, new ArrayList<DBObject>());
-      }
-      else {
+      } else {
         tableToDocumentList.put(table, docList);
       }
     }

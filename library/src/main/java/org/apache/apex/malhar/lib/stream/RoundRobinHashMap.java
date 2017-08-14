@@ -16,13 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.stream;
+package org.apache.apex.malhar.lib.stream;
 
 import java.util.HashMap;
 
+import org.apache.apex.malhar.lib.util.BaseKeyValueOperator;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.util.BaseKeyValueOperator;
 
 /**
  * <p>

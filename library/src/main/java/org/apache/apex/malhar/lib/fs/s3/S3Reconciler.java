@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.apex.malhar.lib.fs.FSRecordCompactionOperator;
+import org.apache.apex.malhar.lib.io.fs.AbstractReconciler;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileStatus;
@@ -48,7 +49,6 @@ import com.google.common.base.Preconditions;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.io.fs.AbstractReconciler;
 
 /**
  * This operator uploads files to Amazon S3 after files are finalized and

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.snapshot;
+package org.apache.apex.malhar.lib.appdata.snapshot;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,6 +29,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.apex.malhar.lib.appdata.AbstractAppDataServer;
+import org.apache.apex.malhar.lib.appdata.gpo.GPOMutable;
+import org.apache.apex.malhar.lib.appdata.query.AppDataWindowEndQueueManager;
+import org.apache.apex.malhar.lib.appdata.query.QueryExecutor;
+import org.apache.apex.malhar.lib.appdata.query.QueryManagerSynchronous;
+import org.apache.apex.malhar.lib.appdata.query.serde.MessageDeserializerFactory;
+import org.apache.apex.malhar.lib.appdata.query.serde.MessageSerializerFactory;
+import org.apache.apex.malhar.lib.appdata.schemas.DataQuerySnapshot;
+import org.apache.apex.malhar.lib.appdata.schemas.DataResultSnapshot;
+import org.apache.apex.malhar.lib.appdata.schemas.Message;
+import org.apache.apex.malhar.lib.appdata.schemas.Query;
+import org.apache.apex.malhar.lib.appdata.schemas.Result;
+import org.apache.apex.malhar.lib.appdata.schemas.ResultFormatter;
+import org.apache.apex.malhar.lib.appdata.schemas.SchemaQuery;
+import org.apache.apex.malhar.lib.appdata.schemas.SchemaRegistry;
+import org.apache.apex.malhar.lib.appdata.schemas.SchemaRegistrySingle;
+import org.apache.apex.malhar.lib.appdata.schemas.SchemaResult;
+import org.apache.apex.malhar.lib.appdata.schemas.SnapshotSchema;
 import org.apache.commons.lang3.mutable.MutableLong;
 
 import com.google.common.base.Preconditions;
@@ -40,23 +57,6 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.experimental.AppData;
 import com.datatorrent.common.experimental.AppData.EmbeddableQueryInfoProvider;
-import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.query.AppDataWindowEndQueueManager;
-import com.datatorrent.lib.appdata.query.QueryExecutor;
-import com.datatorrent.lib.appdata.query.QueryManagerSynchronous;
-import com.datatorrent.lib.appdata.query.serde.MessageDeserializerFactory;
-import com.datatorrent.lib.appdata.query.serde.MessageSerializerFactory;
-import com.datatorrent.lib.appdata.schemas.DataQuerySnapshot;
-import com.datatorrent.lib.appdata.schemas.DataResultSnapshot;
-import com.datatorrent.lib.appdata.schemas.Message;
-import com.datatorrent.lib.appdata.schemas.Query;
-import com.datatorrent.lib.appdata.schemas.Result;
-import com.datatorrent.lib.appdata.schemas.ResultFormatter;
-import com.datatorrent.lib.appdata.schemas.SchemaQuery;
-import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
-import com.datatorrent.lib.appdata.schemas.SchemaRegistrySingle;
-import com.datatorrent.lib.appdata.schemas.SchemaResult;
-import com.datatorrent.lib.appdata.schemas.SnapshotSchema;
 
 /**
  * This is an abstract operator for the {@link SnapshotSchema}. This operator is designed to accept input data

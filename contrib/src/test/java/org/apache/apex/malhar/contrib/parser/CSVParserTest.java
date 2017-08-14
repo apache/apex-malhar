@@ -16,22 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.parser;
+package org.apache.apex.malhar.contrib.parser;
 
-import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.contrib.parser.AbstractCsvParser.Field;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.ReusableStringReader;
-import com.datatorrent.lib.util.TestUtils.TestInfo;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
-import org.apache.commons.io.FileUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,6 +33,18 @@ import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.io.ICsvMapReader;
 import org.supercsv.prefs.CsvPreference;
+
+import org.apache.apex.malhar.contrib.parser.AbstractCsvParser.Field;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.ReusableStringReader;
+import org.apache.apex.malhar.lib.util.TestUtils.TestInfo;
+import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+
+import com.datatorrent.netlet.util.DTThrowable;
 
 public class CSVParserTest
 {
@@ -171,8 +174,7 @@ public class CSVParserTest
     try {
       hdfs = FileSystem.get(new Configuration());
       hdfs.createNewFile(newFilePath);
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       DTThrowable.rethrow(ex);
     }
     //Writing data to a HDFS file
@@ -194,8 +196,7 @@ public class CSVParserTest
       FSDataOutputStream fsOutStream = hdfs.create(newFilePath);
       fsOutStream.write(byt);
       fsOutStream.close();
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       DTThrowable.rethrow(ex);
 
     }
@@ -231,8 +232,7 @@ public class CSVParserTest
       Map<String, Object> fieldValueMapping = null;
       try {
         fieldValueMapping = csvReader.read(properties, processors);
-      }
-      catch (IOException ex) {
+      } catch (IOException ex) {
         DTThrowable.rethrow(ex);
       }
       return fieldValueMapping;

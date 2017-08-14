@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.multiwindow;
+package org.apache.apex.malhar.lib.multiwindow;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -26,12 +26,11 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 import org.apache.commons.lang.ObjectUtils.Null;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-
-import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  * A unit test to test SortedMovingWindow operator can either:

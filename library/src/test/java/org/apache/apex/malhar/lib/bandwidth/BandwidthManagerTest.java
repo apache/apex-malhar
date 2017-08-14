@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.datatorrent.lib.bandwidth;
+package org.apache.apex.malhar.lib.bandwidth;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,13 +36,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
+
 import org.apache.commons.io.FileUtils;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class BandwidthManagerTest
 {

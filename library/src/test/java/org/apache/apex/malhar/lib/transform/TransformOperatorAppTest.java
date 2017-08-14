@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.transform;
+package org.apache.apex.malhar.lib.transform;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +24,8 @@ import javax.validation.ConstraintViolationException;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context;
@@ -32,7 +34,6 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 /**
  * Application Test for Transform Operator.

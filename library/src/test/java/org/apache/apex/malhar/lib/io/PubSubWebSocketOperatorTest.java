@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io;
+package org.apache.apex.malhar.lib.io;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -30,13 +30,12 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.helper.SamplePubSubWebSocketServlet;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 import org.apache.apex.malhar.lib.utils.PubSubHelper;
 
-import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-
 /**
- * Tests for {@link com.datatorrent.lib.io.PubSubWebSocketOutputOperator}
+ * Tests for {@link org.apache.apex.malhar.lib.io.PubSubWebSocketOutputOperator}
  */
 public class PubSubWebSocketOperatorTest
 {

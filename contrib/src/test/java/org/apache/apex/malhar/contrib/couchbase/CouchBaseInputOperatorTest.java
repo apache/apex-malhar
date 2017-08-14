@@ -16,18 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchbase;
+package org.apache.apex.malhar.contrib.couchbase;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
-import com.couchbase.client.CouchbaseClient;
-import com.couchbase.client.CouchbaseConnectionFactory;
-import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
-import com.google.common.collect.Lists;
 
 import org.couchbase.mock.Bucket.BucketType;
 import org.couchbase.mock.BucketConfiguration;
@@ -37,8 +32,13 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.partitioner.StatelessPartitionerTest.PartitioningContextImpl;
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.partitioner.StatelessPartitionerTest.PartitioningContextImpl;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+
+import com.couchbase.client.CouchbaseClient;
+import com.couchbase.client.CouchbaseConnectionFactory;
+import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
+import com.google.common.collect.Lists;
 
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.DAG;
@@ -139,11 +139,11 @@ public class CouchBaseInputOperatorTest
       wid++;
     }
     Assert.assertEquals("Tuples read should be same ", 10, sink.collectedTuples.size());
-    for (AbstractCouchBaseInputOperator<String> o: opers){
-     o.teardown();
+    for (AbstractCouchBaseInputOperator<String> o: opers) {
+      o.teardown();
     }
-      mockCouchbase1.stop();
-      mockCouchbase2.stop();
+    mockCouchbase1.stop();
+    mockCouchbase2.stop();
 
   }
 
@@ -176,11 +176,9 @@ public class CouchBaseInputOperatorTest
         value = i * 100;
         try {
           client.set(key, value).get();
-        }
-        catch (InterruptedException ex) {
+        } catch (InterruptedException ex) {
           DTThrowable.rethrow(ex);
-        }
-        catch (ExecutionException ex) {
+        } catch (ExecutionException ex) {
           DTThrowable.rethrow(ex);
         }
       }

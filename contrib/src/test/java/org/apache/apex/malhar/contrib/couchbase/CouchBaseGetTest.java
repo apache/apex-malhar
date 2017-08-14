@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchbase;
+package org.apache.apex.malhar.contrib.couchbase;
 
 import java.io.IOException;
 import java.net.URI;
@@ -24,12 +24,16 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.couchbase.client.CouchbaseClient;
-import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
-
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.couchbase.client.CouchbaseClient;
+import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
 
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -71,8 +75,7 @@ public class CouchBaseGetTest
     URI uri = null;
     try {
       uri = new URI("http://localhost:8091/pools");
-    }
-    catch (URISyntaxException ex) {
+    } catch (URISyntaxException ex) {
       logger.error("Error connecting to Couchbase: " + ex.getMessage());
       DTThrowable.rethrow(ex.getCause());
     }
@@ -84,8 +87,7 @@ public class CouchBaseGetTest
       cfb.setOpTimeout(10000);  // wait up to 10 seconds for an operation to succeed
       cfb.setOpQueueMaxBlockTime(5000); // wait up to 5 second when trying to enqueue an operation
       client = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs, "default", "default"));
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       logger.error("Error connecting to Couchbase: " + ex.getMessage());
       DTThrowable.rethrow(ex.getCause());
     }

@@ -33,13 +33,11 @@ import org.apache.apex.examples.machinedata.data.MachineInfo;
 import org.apache.apex.examples.machinedata.data.MachineKey;
 import org.apache.apex.examples.machinedata.data.ResourceType;
 import org.apache.apex.examples.machinedata.operator.CalculatorOperator;
-
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.KeyValPair;
+import org.apache.apex.malhar.lib.util.TimeBucketKey;
 
 import com.google.common.collect.ImmutableList;
-
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.lib.util.TimeBucketKey;
 
 /**
  * @since 0.3.5

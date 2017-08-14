@@ -20,9 +20,10 @@ package org.apache.apex.examples.frauddetect.operator;
 
 import java.io.File;
 
+import org.apache.apex.malhar.lib.io.fs.AbstractFileOutputOperator;
+
 import com.datatorrent.api.Context.DAGContext;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
 
 /**
  * Adapter for writing Strings to HDFS

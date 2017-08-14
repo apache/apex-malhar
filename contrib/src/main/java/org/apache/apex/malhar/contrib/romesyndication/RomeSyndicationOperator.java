@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.romesyndication;
+package org.apache.apex.malhar.contrib.romesyndication;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,15 +25,15 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.io.SimpleSinglePortInputOperator;
+
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndEntryImpl;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.SyndFeedInput;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
 
 /**
  * Input operator for getting syndication feeds processed using Rome.
@@ -151,8 +151,7 @@ public class RomeSyndicationOperator extends SimpleSinglePortInputOperator<RomeF
     InputStream is;
     if (streamProvider != null) {
       is = streamProvider.getInputStream();
-    }
-    else {
+    } else {
       URL url = new URL(location);
       is = url.openStream();
     }
@@ -181,32 +180,27 @@ public class RomeSyndicationOperator extends SimpleSinglePortInputOperator<RomeF
             if (!oldEntries) {
               if (!feedItems.contains(romeFeedEntry)) {
                 outputPort.emit(romeFeedEntry);
-              }
-              else if (orderedUpdate) {
+              } else if (orderedUpdate) {
                 oldEntries = true;
               }
             }
             nfeedItems.add(romeFeedEntry);
           }
           feedItems = nfeedItems;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
           logger.error(e.getMessage());
-        }
-        finally {
+        } finally {
           if (isr != null) {
             try {
               isr.close();
-            }
-            catch (Exception ce) {
+            } catch (Exception ce) {
               logger.error(ce.getMessage());
             }
           }
         }
         Thread.sleep(interval);
       }
-    }
-    catch (InterruptedException ie) {
+    } catch (InterruptedException ie) {
       logger.error("Interrupted: " + ie.getMessage());
     }
   }

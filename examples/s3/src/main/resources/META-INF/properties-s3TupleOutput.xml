@@ -62,6 +62,6 @@
   </property>
   <!--property>
     <name>dt.loggers.level</name>
-    <value>org.apache.apex.malhar.lib.fs.s3.*:DEBUG,org.apache.apex.*:DEBUG,com.datatorrent.stram.plan.physical.*:DEBUG,com.datatorrent.lib.*:DEBUG</value>
+    <value>org.apache.apex.malhar.lib.fs.s3.*:DEBUG,org.apache.apex.*:DEBUG,com.datatorrent.stram.plan.physical.*:DEBUG,org.apache.apex.malhar.lib.*:DEBUG</value>
   </property-->
 </configuration>

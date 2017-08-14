@@ -16,10 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.accumulo;
+package org.apache.apex.malhar.contrib.accumulo;
 
 import java.util.List;
 import java.util.Map.Entry;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.Scanner;
@@ -28,21 +33,19 @@ import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 
 import com.datatorrent.netlet.util.DTThrowable;
 
-public class AccumuloInputOperatorTest {
+public class AccumuloInputOperatorTest
+{
   private static final Logger logger = LoggerFactory.getLogger(AccumuloInputOperatorTest.class);
 
   @Test
-  public void testScan() {
+  public void testScan()
+  {
     try {
       AccumuloTestHelper.getConnector();
       AccumuloTestHelper.deleteTable();
@@ -86,11 +89,12 @@ public class AccumuloInputOperatorTest {
     }
   }
 
-  public static class TestAccumuloInputOperator extends
-  AbstractAccumuloInputOperator<AccumuloTuple> {
+  public static class TestAccumuloInputOperator extends AbstractAccumuloInputOperator<AccumuloTuple>
+  {
 
     @Override
-    public AccumuloTuple getTuple(Entry<Key, Value> entry) {
+    public AccumuloTuple getTuple(Entry<Key, Value> entry)
+    {
       AccumuloTuple tuple = new AccumuloTuple();
       tuple.setRow(entry.getKey().getRow().toString());
       tuple.setColFamily(entry.getKey().getColumnFamily().toString());
@@ -100,7 +104,8 @@ public class AccumuloInputOperatorTest {
     }
 
     @Override
-    public Scanner getScanner(Connector conn) {
+    public Scanner getScanner(Connector conn)
+    {
       Authorizations auths = new Authorizations();
       Scanner scan = null;
       try {

@@ -16,32 +16,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.aerospike;
+package org.apache.apex.malhar.contrib.aerospike;
 
 import java.util.List;
+
+import org.apache.apex.malhar.lib.db.AbstractStoreOutputOperator;
 
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Bin;
 import com.aerospike.client.Key;
 import com.google.common.collect.Lists;
 
-import com.datatorrent.lib.db.AbstractStoreOutputOperator;
-
 
 /**
- * <p>
- * Generic base output adaptor which writes tuples as they come without providing any transactional support.&nbsp; Subclasses should provide implementation for getting updated bins.
- * </p>
+ * Generic base output adaptor which writes tuples as they come without
+ * providing any transactional support. Subclasses should provide implementation
+ * for getting updated bins.
+ *
  * @displayName Abstract Aerospike Non Transactional Put
  * @category Output
  * @tags put, non transactional
  * @param <T> type of tuple
  * @since 1.0.4
  */
-public abstract class AbstractAerospikeNonTransactionalPutOperator<T> extends AbstractStoreOutputOperator<T,AerospikeStore> {
+public abstract class AbstractAerospikeNonTransactionalPutOperator<T>
+    extends AbstractStoreOutputOperator<T,AerospikeStore>
+{
+  private final transient List<Bin> bins;
 
-  private transient final List<Bin> bins;
-  public AbstractAerospikeNonTransactionalPutOperator() {
+  public AbstractAerospikeNonTransactionalPutOperator()
+  {
     super();
     bins = Lists.newArrayList();
   }
@@ -58,8 +62,8 @@ public abstract class AbstractAerospikeNonTransactionalPutOperator<T> extends Ab
   protected abstract Key getUpdatedBins(T tuple, List<Bin> bins) throws AerospikeException;
 
   @Override
-  public void processTuple(T tuple) {
-
+  public void processTuple(T tuple)
+  {
     Key key;
     Bin[] binsArray;
     try {
@@ -68,11 +72,9 @@ public abstract class AbstractAerospikeNonTransactionalPutOperator<T> extends Ab
       binsArray = bins.toArray(binsArray);
       store.getClient().put(null, key, binsArray);
       bins.clear();
-    }
-    catch (AerospikeException e) {
+    } catch (AerospikeException e) {
       throw new RuntimeException(e);
     }
-
   }
 
 }

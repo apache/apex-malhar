@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
 import java.io.IOException;
 
@@ -29,7 +29,7 @@ import org.apache.hadoop.hbase.client.HTable;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
- * A base implementation of a StoreOutputOperator operator that stores tuples in HBase columns and offers 
+ * A base implementation of a StoreOutputOperator operator that stores tuples in HBase columns and offers
  * non-transactional append.&nbsp; Subclasses should provide implementation for appending operations. <br>
  * <p>
  * <br>
@@ -49,16 +49,19 @@ import com.datatorrent.netlet.util.DTThrowable;
  *            The tuple type
  * @since 1.0.2
  */
-public abstract class AbstractHBaseAppendOutputOperator<T> extends AbstractHBaseOutputOperator<T> {
+public abstract class AbstractHBaseAppendOutputOperator<T> extends AbstractHBaseOutputOperator<T>
+{
   private static final transient Logger logger = LoggerFactory
       .getLogger(AbstractHBaseAppendOutputOperator.class);
 
-  public AbstractHBaseAppendOutputOperator() {
+  public AbstractHBaseAppendOutputOperator()
+  {
     store = new HBaseStore();
   }
 
   @Override
-  public void processTuple(T tuple, HTable table) {
+  public void processTuple(T tuple, HTable table)
+  {
     Append append = operationAppend(tuple);
     try {
       table.append(append);

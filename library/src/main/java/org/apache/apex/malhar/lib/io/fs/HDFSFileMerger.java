@@ -17,13 +17,14 @@
  * under the License.
  */
 
-package com.datatorrent.lib.io.fs;
+package org.apache.apex.malhar.lib.io.fs;
 
 import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.io.fs.Synchronizer.OutputFileMetadata;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -31,7 +32,6 @@ import org.apache.hadoop.fs.Path;
 import com.google.common.annotations.VisibleForTesting;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.io.fs.Synchronizer.OutputFileMetadata;
 
 /**
  * HDFS file merger extends file merger to optimize for HDFS file copy usecase.

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.db.jdbc;
+package org.apache.apex.malhar.lib.db.jdbc;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +36,11 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import org.apache.apex.malhar.lib.db.jdbc.AbstractJdbcPollInputOperator.WindowData;
+import org.apache.apex.malhar.lib.helper.TestPortContext;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.FieldInfo;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.commons.io.FileUtils;
 
@@ -46,13 +51,8 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Partitioner;
-import com.datatorrent.lib.db.jdbc.AbstractJdbcPollInputOperator.WindowData;
-import com.datatorrent.lib.helper.TestPortContext;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.FieldInfo;
-import com.datatorrent.lib.util.KeyValPair;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.times;

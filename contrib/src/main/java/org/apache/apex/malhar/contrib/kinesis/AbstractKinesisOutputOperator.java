@@ -16,9 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kinesis;
+package org.apache.apex.malhar.contrib.kinesis;
+
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.amazonaws.AmazonClientException;
+
 import com.amazonaws.services.kinesis.AmazonKinesisClient;
 import com.amazonaws.services.kinesis.model.PutRecordRequest;
 import com.amazonaws.services.kinesis.model.PutRecordsRequest;
@@ -28,16 +40,6 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.common.util.Pair;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
 /**
  * Base implementation of Kinesis Output Operator. Convert tuples to records and emits to Kinesis.<br/>
  *
@@ -92,7 +94,8 @@ public abstract class AbstractKinesisOutputOperator<V, T> implements Operator, O
   }
 
   @Override
-  public void endWindow() {
+  public void endWindow()
+  {
   }
 
   /**
@@ -138,13 +141,11 @@ public abstract class AbstractKinesisOutputOperator<V, T> implements Operator, O
   {
     try {
       KinesisUtil.getInstance().createKinesisClient(accessKey, secretKey, endPoint);
-    } catch(Exception e)
-    {
+    } catch (Exception e) {
       throw new RuntimeException("Unable to load Credentials", e);
     }
     this.setClient(KinesisUtil.getInstance().getClient());
-    if(isBatchProcessing)
-    {
+    if (isBatchProcessing) {
       putRecordsRequestEntryList.clear();
     }
   }
@@ -166,24 +167,19 @@ public abstract class AbstractKinesisOutputOperator<V, T> implements Operator, O
   {
     // Send out single data
     try {
-      if(isBatchProcessing)
-      {
-        if(putRecordsRequestEntryList.size() == batchSize)
-        {
+      if (isBatchProcessing) {
+        if (putRecordsRequestEntryList.size() == batchSize) {
           flushRecords();
           logger.debug( "flushed {} records.", batchSize );
         }
         addRecord(tuple);
-
       } else {
         Pair<String, V> keyValue = tupleToKeyValue(tuple);
         PutRecordRequest requestRecord = new PutRecordRequest();
         requestRecord.setStreamName(streamName);
         requestRecord.setPartitionKey(keyValue.first);
         requestRecord.setData(ByteBuffer.wrap(getRecord(keyValue.second)));
-
         client.putRecord(requestRecord);
-
       }
       sendCount++;
     } catch (AmazonClientException e) {
@@ -219,6 +215,7 @@ public abstract class AbstractKinesisOutputOperator<V, T> implements Operator, O
       throw new RuntimeException(e);
     }
   }
+
   public void setClient(AmazonKinesisClient _client)
   {
     client = _client;

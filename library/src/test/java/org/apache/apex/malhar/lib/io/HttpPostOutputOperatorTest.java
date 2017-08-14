@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io;
+package org.apache.apex.malhar.lib.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -42,7 +42,7 @@ import org.junit.Test;
 import org.apache.commons.io.IOUtils;
 
 /**
- * Functional test for {@link com.datatorrent.lib.io.HttpPostOutputOperator}.
+ * Functional test for {@link org.apache.apex.malhar.lib.io.HttpPostOutputOperator}.
  */
 public class HttpPostOutputOperatorTest
 {

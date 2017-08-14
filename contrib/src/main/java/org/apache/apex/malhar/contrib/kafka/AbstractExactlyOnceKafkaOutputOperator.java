@@ -16,12 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
+package org.apache.apex.malhar.contrib.kafka;
 
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Sets;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.common.util.Pair;
-import com.google.common.collect.Sets;
 import kafka.api.FetchRequest;
 import kafka.api.FetchRequestBuilder;
 import kafka.javaapi.FetchResponse;
@@ -32,13 +39,6 @@ import kafka.message.Message;
 import kafka.message.MessageAndOffset;
 import kafka.producer.KeyedMessage;
 import kafka.producer.Partitioner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
-
 
 /**
  * This is a base implementation of a Kafka output operator,
@@ -82,7 +82,6 @@ import java.util.Map;
  */
 public abstract class AbstractExactlyOnceKafkaOutputOperator<T, K, V> extends AbstractKafkaOutputOperator<K, V>
 {
-
   private Map<Integer, Pair<byte[], byte[]>>  lastMsgs;
 
   private transient  Partitioner partitioner;
@@ -94,9 +93,9 @@ public abstract class AbstractExactlyOnceKafkaOutputOperator<T, K, V> extends Ab
   {
     super.setup(context);
     try {
-      String className = (String) getConfigProperties().get(KafkaMetadataUtil.PRODUCER_PROP_PARTITIONER);
+      String className = (String)getConfigProperties().get(KafkaMetadataUtil.PRODUCER_PROP_PARTITIONER);
       if (className != null) {
-        partitioner = (Partitioner) Class.forName(className).newInstance();
+        partitioner = (Partitioner)Class.forName(className).newInstance();
       }
     } catch (Exception e) {
       throw new RuntimeException("Failed to initialize partitioner", e);
@@ -108,22 +107,22 @@ public abstract class AbstractExactlyOnceKafkaOutputOperator<T, K, V> extends Ab
   /**
    * This input port receives tuples that will be written out to Kafka.
    */
-  public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>() {
+  public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()
+  {
     @Override
     public void process(T tuple)
     {
       Pair<K, V> keyValue = tupleToKeyValue(tuple);
       int pid = 0;
 
-      if(partitioner!=null){
+      if (partitioner != null) {
         pid = partitioner.partition(keyValue.first, partitionNum);
       }
 
       Pair<byte[], byte[]> lastMsg = lastMsgs.get(pid);
-
-      if(lastMsg == null || compareToLastMsg(keyValue, lastMsg) > 0){
+      if (lastMsg == null || compareToLastMsg(keyValue, lastMsg) > 0) {
         getProducer().send(new KeyedMessage<K, V>(getTopic(), keyValue.first, keyValue.second));
-        sendCount ++;
+        sendCount++;
       } else {
         // ignore tuple because kafka has already had the tuple
         logger.debug("Ingore tuple " + tuple);
@@ -134,7 +133,6 @@ public abstract class AbstractExactlyOnceKafkaOutputOperator<T, K, V> extends Ab
 
   private void initializeLastProcessingOffset()
   {
-
     // read last received kafka message
     TopicMetadata tm = KafkaMetadataUtil.getTopicMetadata(Sets.newHashSet((String)getConfigProperties().get(KafkaMetadataUtil.PRODUCER_PROP_BROKERLIST)), this.getTopic());
 
@@ -170,9 +168,7 @@ public abstract class AbstractExactlyOnceKafkaOutputOperator<T, K, V> extends Ab
         key.get(keyBytes);
         lastMsgs.put(pm.partitionId(), new Pair<byte[], byte[]>(keyBytes, valueBytes));
       }
-
     }
-
   }
 
   /**

@@ -21,7 +21,7 @@ package org.apache.apex.malhar.contrib.misc.streamquery.condition;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.datatorrent.lib.streamquery.condition.Condition;
+import org.apache.apex.malhar.lib.streamquery.condition.Condition;
 
 /**
  * An implementation of condition on column equality.

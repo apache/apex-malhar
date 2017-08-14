@@ -20,6 +20,8 @@ package org.apache.apex.examples.twitter;
 
 import java.nio.ByteBuffer;
 
+import org.apache.apex.malhar.contrib.hbase.AbstractHBasePutOutputOperator;
+import org.apache.apex.malhar.contrib.twitter.TwitterSampleInput;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Put;
 
@@ -27,9 +29,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-
-import com.datatorrent.contrib.hbase.AbstractHBasePutOutputOperator;
-import com.datatorrent.contrib.twitter.TwitterSampleInput;
 
 import twitter4j.Status;
 

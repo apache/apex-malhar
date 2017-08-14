@@ -28,6 +28,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.io.SimpleSinglePortInputOperator;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
@@ -35,7 +36,6 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.DefaultHttpParams;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
 
 import au.com.bytecode.opencsv.CSVReader;
 

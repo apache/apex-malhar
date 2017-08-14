@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
+package org.apache.apex.malhar.contrib.kafka;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,8 +29,6 @@ import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Joiner;
 
 import kafka.consumer.ConsumerConfig;
 import kafka.consumer.ConsumerIterator;
@@ -158,8 +156,8 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
       Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap = standardConsumer.get(e.getKey()).createMessageStreams(topicCountMap);
 
       for (final KafkaStream<byte[], byte[]> stream : consumerMap.get(topic)) {
-        consumerThreadExecutor.submit(new Runnable() {
-
+        consumerThreadExecutor.submit(new Runnable()
+        {
           KafkaPartition kp = new KafkaPartition(e.getKey(), topic, -1);
 
           public void run()

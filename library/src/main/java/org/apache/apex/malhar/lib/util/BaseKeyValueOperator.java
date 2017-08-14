@@ -16,14 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.util;
+package org.apache.apex.malhar.lib.util;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.codec.JavaSerializationStreamCodec;
+
 import com.datatorrent.api.StreamCodec;
-import com.datatorrent.lib.codec.JavaSerializationStreamCodec;
 
 /**
  * This is an abstract operator that allows cloneKey and cloneValue to allow users to use mutable objects.

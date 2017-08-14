@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.cassandra;
+package org.apache.apex.malhar.contrib.cassandra;
 
 import com.datastax.driver.core.ConsistencyLevel;
 
@@ -122,7 +122,7 @@ public class UpsertExecutionContext<T>
 
   /**
    * This decides if we want to override the default TTL if at all set in the
-   * {@link com.datatorrent.contrib.cassandra.ConnectionStateManager.ConnectionBuilder} that is used to execute a
+   * {@link org.apache.apex.malhar.contrib.cassandra.ConnectionStateManager.ConnectionBuilder} that is used to execute a
    * mutation. Note that TTLs are not mandatory for mutations.
    * Also it is supported to have TTLs only for the current execution context but not set a default at the
    * connection state manager level

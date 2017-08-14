@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.cassandra;
+package org.apache.apex.malhar.contrib.cassandra;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -25,11 +25,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.apex.malhar.lib.util.PojoUtils;
+
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.DataType;
 import com.datastax.driver.core.LocalDate;
 import com.datastax.driver.core.TypeCodec;
-import com.datatorrent.lib.util.PojoUtils;
 
 /**
  * Used to manage simple data type based getters for given cassandra columns

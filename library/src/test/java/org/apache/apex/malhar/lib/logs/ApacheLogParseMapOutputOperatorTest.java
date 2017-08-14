@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.logs;
+package org.apache.apex.malhar.lib.logs;
 
 import java.util.Map;
 
@@ -25,10 +25,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
 /**
- * Functional tests for {@link com.datatorrent.lib.logs.ApacheLogParseMapOutputOperator}.
+ * Functional tests for {@link org.apache.apex.malhar.lib.logs.ApacheLogParseMapOutputOperator}.
  */
 public class ApacheLogParseMapOutputOperatorTest
 {

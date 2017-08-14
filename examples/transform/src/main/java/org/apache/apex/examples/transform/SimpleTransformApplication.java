@@ -25,6 +25,7 @@ import java.util.Map;
 import org.apache.apex.malhar.lib.function.Function;
 import org.apache.apex.malhar.lib.function.FunctionOperator;
 import org.apache.apex.malhar.lib.function.FunctionOperatorUtil;
+import org.apache.apex.malhar.lib.transform.TransformOperator;
 import org.apache.hadoop.conf.Configuration;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -34,7 +35,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.common.partitioner.StatelessPartitioner;
-import com.datatorrent.lib.transform.TransformOperator;
 
 @ApplicationAnnotation(name = "TransformExample")
 /**

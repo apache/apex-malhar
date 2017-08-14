@@ -16,20 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.sqlite;
+package org.apache.apex.malhar.contrib.sqlite;
 
-import com.almworks.sqlite4java.SQLiteConnection;
-import com.almworks.sqlite4java.SQLiteException;
-import com.almworks.sqlite4java.SQLiteStatement;
-import org.apache.apex.malhar.contrib.misc.streamquery.AbstractSqlStreamOperator;
-import org.apache.apex.malhar.contrib.misc.streamquery.AbstractSqlStreamOperator.InputSchema.ColumnInfo;
-import com.datatorrent.api.Context.OperatorContext;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.apex.malhar.contrib.misc.streamquery.AbstractSqlStreamOperator;
+import org.apache.apex.malhar.contrib.misc.streamquery.AbstractSqlStreamOperator.InputSchema.ColumnInfo;
+import com.almworks.sqlite4java.SQLiteConnection;
+import com.almworks.sqlite4java.SQLiteException;
+import com.almworks.sqlite4java.SQLiteStatement;
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * This is an SQLite input operator.
@@ -105,8 +105,7 @@ public class SqliteStreamOperator extends AbstractSqlStreamOperator
       beginStatement = db.prepare("BEGIN");
       commitStatement = db.prepare("COMMIT");
       execStatement = db.prepare(statement);
-    }
-    catch (SQLiteException ex) {
+    } catch (SQLiteException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -117,8 +116,7 @@ public class SqliteStreamOperator extends AbstractSqlStreamOperator
     try {
       beginStatement.step();
       beginStatement.reset();
-    }
-    catch (SQLiteException ex) {
+    } catch (SQLiteException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -133,15 +131,13 @@ public class SqliteStreamOperator extends AbstractSqlStreamOperator
       for (Map.Entry<String, Object> entry : tuple.entrySet()) {
         ColumnInfo t = inputSchema.columnInfoMap.get(entry.getKey());
         if (t != null && t.bindIndex != 0) {
-          //System.out.println("Binding: "+entry.getValue().toString()+" to "+t.bindIndex);
           insertStatement.bind(t.bindIndex, entry.getValue().toString());
         }
       }
 
       insertStatement.step();
       insertStatement.reset();
-    }
-    catch (SQLiteException ex) {
+    } catch (SQLiteException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -171,8 +167,7 @@ public class SqliteStreamOperator extends AbstractSqlStreamOperator
         st.step();
         st.reset();
       }
-    }
-    catch (SQLiteException ex) {
+    } catch (SQLiteException ex) {
       throw new RuntimeException(ex);
     }
     bindings = null;

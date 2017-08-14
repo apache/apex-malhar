@@ -24,6 +24,8 @@ import java.util.Properties;
 
 import org.junit.Test;
 
+import org.apache.apex.malhar.contrib.formatter.CsvFormatter;
+import org.apache.apex.malhar.contrib.parser.CsvParser;
 import org.apache.apex.malhar.kafka.KafkaSinglePortInputOperator;
 import org.apache.apex.malhar.kafka.KafkaSinglePortOutputOperator;
 import org.apache.apex.malhar.sql.table.CSVMessageFormat;
@@ -37,8 +39,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
-import com.datatorrent.contrib.formatter.CsvFormatter;
-import com.datatorrent.contrib.parser.CsvParser;
 import com.datatorrent.stram.plan.logical.LogicalPlan;
 
 public class SerDeTest

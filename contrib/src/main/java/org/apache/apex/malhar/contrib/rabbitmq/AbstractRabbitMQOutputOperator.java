@@ -16,15 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.rabbitmq;
-
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.api.Context.OperatorContext;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.QueueingConsumer;
+package org.apache.apex.malhar.contrib.rabbitmq;
 
 import java.io.IOException;
 
@@ -32,6 +24,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
+
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.QueueingConsumer;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * This is the base implementation of a RabbitMQ output operator.&nbsp;
@@ -73,7 +74,7 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
   transient Connection connection = null;
   transient Channel channel = null;
   transient String exchange = "testEx";
-  transient String queueName="testQ";
+  transient String queueName = "testQ";
 
   private WindowDataManager windowDataManager;
   private transient long currentWindowId;
@@ -98,8 +99,7 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
 
       this.windowDataManager.setup(context);
 
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       logger.debug(ex.toString());
       DTThrowable.rethrow(ex);
     }
@@ -113,9 +113,7 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
     if (windowId <= largestRecoveryWindowId) {
       // Do not resend already sent tuples
       skipProcessingTuple = true;
-    }
-    else
-    {
+    } else {
       skipProcessingTuple = false;
     }
   }
@@ -126,8 +124,7 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
   @Override
   public void endWindow()
   {
-    if(currentWindowId < largestRecoveryWindowId)
-    {
+    if (currentWindowId < largestRecoveryWindowId) {
       // ignore
       return;
     }
@@ -138,14 +135,16 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
     }
   }
 
-
-  public void setQueueName(String queueName) {
+  public void setQueueName(String queueName)
+  {
     this.queueName = queueName;
   }
 
-  public void setExchange(String exchange) {
+  public void setExchange(String exchange)
+  {
     this.exchange = exchange;
   }
+
   @Override
   public void teardown()
   {
@@ -153,17 +152,18 @@ public class AbstractRabbitMQOutputOperator extends BaseOperator
       channel.close();
       connection.close();
       this.windowDataManager.teardown();
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       logger.debug(ex.toString());
     }
   }
 
-  public WindowDataManager getWindowDataManager() {
+  public WindowDataManager getWindowDataManager()
+  {
     return windowDataManager;
   }
 
-  public void setWindowDataManager(WindowDataManager windowDataManager) {
+  public void setWindowDataManager(WindowDataManager windowDataManager)
+  {
     this.windowDataManager = windowDataManager;
   }
 

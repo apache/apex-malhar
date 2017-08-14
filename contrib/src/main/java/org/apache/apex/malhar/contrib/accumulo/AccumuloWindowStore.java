@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.accumulo;
+package org.apache.apex.malhar.contrib.accumulo;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -24,6 +24,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Map.Entry;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.client.Scanner;
@@ -33,12 +36,10 @@ import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
+import org.apache.apex.malhar.lib.db.TransactionableStore;
 import org.apache.hadoop.io.Text;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.lib.db.TransactionableStore;
 
 /**
  * Provides transactional support by implementing TransactionableStore abstract methods.
@@ -53,7 +54,8 @@ import com.datatorrent.lib.db.TransactionableStore;
  * @tags accumulo, key value
  * @since 1.0.4
  */
-public class AccumuloWindowStore extends AccumuloStore implements TransactionableStore {
+public class AccumuloWindowStore extends AccumuloStore implements TransactionableStore
+{
   private static final transient Logger logger = LoggerFactory.getLogger(AccumuloWindowStore.class);
   private static final String DEFAULT_ROW_NAME = "AccumuloOperator_row";
   private static final String DEFAULT_COLUMN_FAMILY_NAME = "AccumuloOutputOperator_cf";
@@ -67,7 +69,8 @@ public class AccumuloWindowStore extends AccumuloStore implements Transactionabl
   private transient String lastWindowColumnName;
   private transient byte[] lastWindowColumnBytes;
 
-  public AccumuloWindowStore() {
+  public AccumuloWindowStore()
+  {
     rowName = DEFAULT_ROW_NAME;
     columnFamilyName = DEFAULT_COLUMN_FAMILY_NAME;
     lastWindowColumnName = DEFAULT_LAST_WINDOW_PREFIX_COLUMN_NAME;
@@ -78,54 +81,64 @@ public class AccumuloWindowStore extends AccumuloStore implements Transactionabl
    * the values are stored as byte arrays.This method converts string to byte
    * arrays. uses util class in hbase library to do so.
    */
-  private void constructKeys() {
+  private void constructKeys()
+  {
     rowBytes = rowName.getBytes();
     columnFamilyBytes = columnFamilyName.getBytes();
   }
 
-  public String getRowName() {
+  public String getRowName()
+  {
     return rowName;
   }
 
-  public void setRowName(String rowName) {
+  public void setRowName(String rowName)
+  {
     this.rowName = rowName;
     constructKeys();
   }
 
-  public String getColumnFamilyName() {
+  public String getColumnFamilyName()
+  {
     return columnFamilyName;
   }
 
-  public void setColumnFamilyName(String columnFamilyName) {
+  public void setColumnFamilyName(String columnFamilyName)
+  {
     this.columnFamilyName = columnFamilyName;
     constructKeys();
   }
 
   @Override
-  public void beginTransaction() {
+  public void beginTransaction()
+  {
     // accumulo does not support transactions
   }
 
   @Override
-  public void commitTransaction() {
-    // accumulo does not support transactions
-
-  }
-
-  @Override
-  public void rollbackTransaction() {
+  public void commitTransaction()
+  {
     // accumulo does not support transactions
 
   }
 
   @Override
-  public boolean isInTransaction() {
+  public void rollbackTransaction()
+  {
+    // accumulo does not support transactions
+
+  }
+
+  @Override
+  public boolean isInTransaction()
+  {
     // accumulo does not support transactions
     return false;
   }
 
   @Override
-  public long getCommittedWindowId(String appId, int operatorId) {
+  public long getCommittedWindowId(String appId, int operatorId)
+  {
     byte[] value = null;
     Authorizations auths = new Authorizations();
     Scanner scan = null;
@@ -150,7 +163,8 @@ public class AccumuloWindowStore extends AccumuloStore implements Transactionabl
   }
 
   @Override
-  public void storeCommittedWindowId(String appId, int operatorId,long windowId) {
+  public void storeCommittedWindowId(String appId, int operatorId,long windowId)
+  {
     byte[] WindowIdBytes = toBytes(windowId);
     String columnKey = appId + "_" + operatorId + "_" + lastWindowColumnName;
     lastWindowColumnBytes = columnKey.getBytes();
@@ -166,19 +180,19 @@ public class AccumuloWindowStore extends AccumuloStore implements Transactionabl
   }
 
   @Override
-  public void removeCommittedWindowId(String appId, int operatorId) {
+  public void removeCommittedWindowId(String appId, int operatorId)
+  {
     // accumulo does not support transactions
-
   }
 
   public static byte[] toBytes(long l)
   {
-    ByteArrayOutputStream baos=new ByteArrayOutputStream(Long.SIZE/8);
-    DataOutputStream dos=new DataOutputStream(baos);
-    byte[] result=null;
+    ByteArrayOutputStream baos = new ByteArrayOutputStream(Long.SIZE / 8);
+    DataOutputStream dos = new DataOutputStream(baos);
+    byte[] result = null;
     try {
       dos.writeLong(l);
-      result=baos.toByteArray();
+      result = baos.toByteArray();
       dos.close();
     } catch (IOException e) {
       logger.error("error converting to byte array");
@@ -187,11 +201,11 @@ public class AccumuloWindowStore extends AccumuloStore implements Transactionabl
     return result;
   }
 
-
-  public static long toLong(byte[] b){
-    ByteArrayInputStream baos=new ByteArrayInputStream(b);
-    DataInputStream dos=new DataInputStream(baos);
-    long result=0;
+  public static long toLong(byte[] b)
+  {
+    ByteArrayInputStream baos = new ByteArrayInputStream(b);
+    DataInputStream dos = new DataInputStream(baos);
+    long result = 0;
     try {
       result = dos.readLong();
       dos.close();
@@ -201,6 +215,5 @@ public class AccumuloWindowStore extends AccumuloStore implements Transactionabl
     }
     return result;
   }
-
 
 }

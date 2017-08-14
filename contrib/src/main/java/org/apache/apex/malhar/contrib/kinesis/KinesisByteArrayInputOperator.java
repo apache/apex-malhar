@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kinesis;
+package org.apache.apex.malhar.contrib.kinesis;
 
 import java.nio.ByteBuffer;
 
@@ -44,8 +44,7 @@ public class KinesisByteArrayInputOperator extends AbstractKinesisInputOperator<
       byte[] bytes = new byte[bb.remaining()];
       bb.get(bytes);
       return bytes;
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
   }

@@ -16,27 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.aerospike;
+package org.apache.apex.malhar.contrib.aerospike;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Getter;
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
+
 import com.aerospike.client.Bin;
 import com.aerospike.client.Key;
-
-import org.apache.hadoop.classification.InterfaceStability.Evolving;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Getter;
 
 /**
  * <p>
  * A generic implementation of
- * {@link com.datatorrent.contrib.aerospike.AbstractAerospikeTransactionalPutOperator} which can
+ * {@link org.apache.apex.malhar.contrib.aerospike.AbstractAerospikeTransactionalPutOperator} which can
  * take a POJO.
  * </p>
  * @displayName Aerospike Transactional Put Operator
@@ -45,12 +42,8 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
  * @since 2.1.0
  */
 @Evolving
-public class AerospikePOJOTransactionalPutOperator
-  extends AbstractAerospikeTransactionalPutOperator<Object>
+public class AerospikePOJOTransactionalPutOperator extends AbstractAerospikeTransactionalPutOperator<Object>
 {
-  private static transient final Logger LOG
-    = LoggerFactory.getLogger(AerospikePOJOTransactionalPutOperator.class);
-
   // Two element list; first retrieves the record key and second the list of bins in this tuple
   @NotNull
   private ArrayList<String> expressions;
@@ -92,11 +85,10 @@ public class AerospikePOJOTransactionalPutOperator
     }
     Key key = keyGetter.get(tuple);
     List<Bin> binList = binsGetter.get(tuple);
-    if ( ! (null == binList || binList.isEmpty()) ) {
+    if ( !(null == binList || binList.isEmpty()) ) {
       list.addAll(binList);
     }
     return key;
   }
-
 
 }

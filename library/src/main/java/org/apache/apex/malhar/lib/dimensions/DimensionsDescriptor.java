@@ -28,16 +28,16 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.appdata.schemas.CustomTimeBucket;
+import org.apache.apex.malhar.lib.appdata.schemas.Fields;
+import org.apache.apex.malhar.lib.appdata.schemas.FieldsDescriptor;
+import org.apache.apex.malhar.lib.appdata.schemas.TimeBucket;
+import org.apache.apex.malhar.lib.appdata.schemas.Type;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import com.datatorrent.lib.appdata.schemas.CustomTimeBucket;
-import com.datatorrent.lib.appdata.schemas.Fields;
-import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
-import com.datatorrent.lib.appdata.schemas.TimeBucket;
-import com.datatorrent.lib.appdata.schemas.Type;
 
 /**
  * <p>
@@ -162,7 +162,7 @@ public class DimensionsDescriptor implements Serializable, Comparable<Dimensions
    * @param fields
    *          The key fields included in this dimensions combination.
    * @deprecated use
-   *             {@link #DimensionsDescriptor(com.datatorrent.lib.appdata.schemas.CustomTimeBucket, com.datatorrent.lib.appdata.schemas.Fields)}
+   *             {@link #DimensionsDescriptor(org.apache.apex.malhar.lib.appdata.schemas.CustomTimeBucket, org.apache.apex.malhar.lib.appdata.schemas.Fields)}
    *             instead.
    */
   @Deprecated

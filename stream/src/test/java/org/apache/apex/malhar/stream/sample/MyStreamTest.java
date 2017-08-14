@@ -29,13 +29,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import org.apache.apex.malhar.lib.function.Function;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.apex.malhar.lib.window.WindowOption;
 import org.apache.apex.malhar.stream.api.impl.ApexStreamImpl;
 import org.apache.apex.malhar.stream.api.impl.StreamFactory;
-
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * A test class which test your own stream implementation build on default one

@@ -23,6 +23,7 @@ import java.util.Arrays;
 import org.joda.time.Duration;
 
 import org.apache.apex.malhar.lib.function.Function;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.apex.malhar.lib.window.WindowOption;
@@ -33,7 +34,6 @@ import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Word count with streaming API

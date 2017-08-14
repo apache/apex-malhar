@@ -16,11 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.parquet;
+package org.apache.apex.malhar.contrib.parquet;
 
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.apex.malhar.lib.io.fs.AbstractFileInputOperator;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.example.data.Group;
@@ -30,7 +31,6 @@ import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.MessageTypeParser;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
 
 /**
  * Base implementation of ParquetFileReader. Reads Parquet files from input
@@ -48,7 +48,7 @@ public abstract class AbstractParquetFileReader<T> extends AbstractFileInputOper
   protected transient MessageType schema;
   /**
    * Parquet Schema as a string. E.g: message
-   * com.datatorrent.contrib.parquet.eventsEventRecord {required INT32
+   * org.apache.apex.malhar.contrib.parquet.eventsEventRecord {required INT32
    * event_id;required BINARY org_id (UTF8);required INT64 long_id;optional
    * BOOLEAN css_file_loaded;optional FLOAT float_val;optional DOUBLE
    * double_val;}

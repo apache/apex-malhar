@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchdb;
+package org.apache.apex.malhar.contrib.couchdb;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -32,7 +32,7 @@ import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;
 import org.ektorp.impl.StdCouchDbInstance;
 
-import com.datatorrent.lib.db.Connectable;
+import org.apache.apex.malhar.lib.db.Connectable;
 
 /**
  * Implements a CouchDb store. <br/>
@@ -141,8 +141,7 @@ public class CouchDbStore implements Connectable
   {
     if (docId != null && dbConnector.contains(docId)) {
       dbConnector.update(document);
-    }
-    else {
+    } else {
       //create a document & if docId is null then couch db will generate a random id.
       dbConnector.create(document);
     }
@@ -166,8 +165,7 @@ public class CouchDbStore implements Connectable
     if (dbUrl != null) {
       try {
         builder.url(dbUrl);
-      }
-      catch (MalformedURLException e) {
+      } catch (MalformedURLException e) {
         throw new IllegalArgumentException(e.getMessage());
       }
     }

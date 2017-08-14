@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.cassandra;
+package org.apache.apex.malhar.contrib.cassandra;
 
 import java.io.Serializable;
 import java.net.InetAddress;
@@ -64,7 +64,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * </p>
  * <p> A typical implementation of the ConnectionBuilder would like this:
  * <pre>
- *     
+ *
  *     public ConnectionStateManager.ConnectionBuilder withConnectionBuilder()
  *     {
  *       return ConnectionStateManager.withNewBuilder()

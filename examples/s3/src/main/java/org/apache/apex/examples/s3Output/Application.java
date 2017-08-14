@@ -19,12 +19,12 @@
 package org.apache.apex.examples.s3Output;
 
 import org.apache.apex.malhar.lib.fs.s3.S3OutputModule;
+import org.apache.apex.malhar.lib.io.fs.FSInputModule;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.io.fs.FSInputModule;
 
 /**
  * Application illustrating copy files from HDFS to S3 bucket.

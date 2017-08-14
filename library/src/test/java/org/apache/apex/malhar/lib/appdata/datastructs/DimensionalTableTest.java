@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.datastructs;
+package org.apache.apex.malhar.lib.appdata.datastructs;
 
 import java.util.Map;
 import java.util.Set;
@@ -24,11 +24,11 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.util.KryoCloneUtils;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import com.datatorrent.lib.util.KryoCloneUtils;
 
 public class DimensionalTableTest
 {

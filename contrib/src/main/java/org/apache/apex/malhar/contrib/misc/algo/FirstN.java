@@ -21,12 +21,11 @@ package org.apache.apex.malhar.contrib.misc.algo;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.util.AbstractBaseNOperatorMap;
 import org.apache.commons.lang.mutable.MutableInt;
 
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-
-import com.datatorrent.lib.util.AbstractBaseNOperatorMap;
 
 /**
  * This operator filters the incoming stream of key value pairs by emitting the first N key value pairs with a specified key in each window.

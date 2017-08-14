@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 import org.joda.time.Duration;
 
 import org.apache.apex.malhar.lib.function.Function;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.apex.malhar.lib.window.WindowOption;
@@ -50,7 +51,6 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.util.KeyValPair;
 
 import static org.apache.apex.malhar.stream.api.Option.Options.name;
 

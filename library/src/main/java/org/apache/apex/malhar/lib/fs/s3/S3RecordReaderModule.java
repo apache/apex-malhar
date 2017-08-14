@@ -22,8 +22,7 @@ package org.apache.apex.malhar.lib.fs.s3;
 import javax.validation.constraints.Min;
 
 import org.apache.apex.malhar.lib.fs.FSRecordReaderModule;
-
-import com.datatorrent.lib.io.fs.S3BlockReader;
+import org.apache.apex.malhar.lib.io.fs.S3BlockReader;
 
 /**
  * This module is used for reading records/tuples from S3. Records can be read

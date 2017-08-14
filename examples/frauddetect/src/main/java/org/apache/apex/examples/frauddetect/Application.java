@@ -23,6 +23,13 @@ import java.net.URI;
 
 import org.apache.apex.examples.frauddetect.operator.HdfsStringOutputOperator;
 import org.apache.apex.examples.frauddetect.operator.MongoDBOutputOperator;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+import org.apache.apex.malhar.lib.io.PubSubWebSocketInputOperator;
+import org.apache.apex.malhar.lib.io.PubSubWebSocketOutputOperator;
+import org.apache.apex.malhar.lib.math.RangeKeyVal;
+import org.apache.apex.malhar.lib.multiwindow.SimpleMovingAverage;
+import org.apache.apex.malhar.lib.util.BaseKeyValueOperator;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.apex.malhar.lib.utils.PubSubHelper;
 import org.apache.hadoop.conf.Configuration;
 
@@ -30,13 +37,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
-import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
-import com.datatorrent.lib.math.RangeKeyVal;
-import com.datatorrent.lib.multiwindow.SimpleMovingAverage;
-import com.datatorrent.lib.util.BaseKeyValueOperator;
-import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.netlet.util.DTThrowable;
 
 

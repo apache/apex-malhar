@@ -29,9 +29,8 @@ import org.apache.apex.malhar.contrib.misc.streamquery.condition.HavingCompareVa
 import org.apache.apex.malhar.contrib.misc.streamquery.condition.HavingCondition;
 import org.apache.apex.malhar.contrib.misc.streamquery.function.FunctionIndex;
 import org.apache.apex.malhar.contrib.misc.streamquery.function.SumFunction;
-
-import com.datatorrent.lib.streamquery.index.ColumnIndex;
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.streamquery.index.ColumnIndex;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
 /**
  * Functional test for {@link org.apache.apex.malhar.contrib.misc.streamquery.HavingOperatorTest}.

@@ -27,14 +27,12 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.io.fs.AbstractFileSplitter;
 import org.apache.commons.lang3.tuple.MutablePair;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Operator;
-import com.datatorrent.lib.io.block.AbstractBlockReader;
-import com.datatorrent.lib.io.block.BlockWriter;
-import com.datatorrent.lib.io.fs.AbstractFileSplitter;
 import com.datatorrent.netlet.util.Slice;
 
 /**

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.datatorrent.contrib.parser;
+package org.apache.apex.malhar.contrib.parser;
 
 import java.lang.reflect.Field;
 import java.text.DateFormat;
@@ -32,6 +32,9 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.parser.Parser;
+import org.apache.apex.malhar.lib.util.KeyValPair;
+import org.apache.apex.malhar.lib.util.PojoUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ClassUtils;
 
@@ -44,9 +47,6 @@ import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
-import com.datatorrent.lib.parser.Parser;
-import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.lib.util.PojoUtils;
 
 /**
  * Operator that parses a fixed width record against a specified schema <br>
@@ -144,7 +144,7 @@ public class FixedWidthParser extends Parser<byte[], KeyValPair<String, String>>
         err.emit(new KeyValPair<>(incomingString, "Record length mis-match/shorter tuple"));
       }
       logger.error("Tuple could not be parsed. Reason Record length mis-match/shorter tuple. " +
-        "Expected length " + recordLength + " Actual length " + incomingString.length());
+          "Expected length " + recordLength + " Actual length " + incomingString.length());
       errorTupleCount++;
       return;
     }
@@ -153,7 +153,7 @@ public class FixedWidthParser extends Parser<byte[], KeyValPair<String, String>>
         err.emit(new KeyValPair<>(incomingString, "Record length mis-match/longer tuple"));
       }
       logger.error("Tuple could not be parsed. Reason Record length mis-match/longer tuple. " +
-        "Expected length " + recordLength + " Actual length " + incomingString.length());
+          "Expected length " + recordLength + " Actual length " + incomingString.length());
       errorTupleCount++;
       return;
     }
@@ -272,7 +272,7 @@ public class FixedWidthParser extends Parser<byte[], KeyValPair<String, String>>
     try {
       Field f = clazz.getDeclaredField(fieldName);
       FixedWidthParser.TypeInfo t = new FixedWidthParser.TypeInfo(f.getName(),
-        ClassUtils.primitiveToWrapper(f.getType()));
+          ClassUtils.primitiveToWrapper(f.getType()));
       t.setter = PojoUtils.createSetter(clazz, t.name, t.type);
       setters.add(t);
     } catch (NoSuchFieldException e) {
@@ -304,7 +304,7 @@ public class FixedWidthParser extends Parser<byte[], KeyValPair<String, String>>
         FixedWidthSchema.Field currentField = fields.get(i);
         FixedWidthParser.TypeInfo typeInfo = setters.get(i);
         validateAndSetCurrentField(currentField,
-          values[i], typeInfo, pojoObject, toEmit);
+            values[i], typeInfo, pojoObject, toEmit);
       }
     } catch (StringIndexOutOfBoundsException e) {
       throw new RuntimeException("Record length and tuple length mismatch ", e);
@@ -325,7 +325,7 @@ public class FixedWidthParser extends Parser<byte[], KeyValPair<String, String>>
    * @param toEmit the map to be emitted
    */
   private void validateAndSetCurrentField(FixedWidthSchema.Field currentField,
-    String value, FixedWidthParser.TypeInfo typeInfo, Object pojoObject, HashMap toEmit)
+      String value, FixedWidthParser.TypeInfo typeInfo, Object pojoObject, HashMap toEmit)
   {
     try {
       String fieldName = currentField.getName();
@@ -381,7 +381,7 @@ public class FixedWidthParser extends Parser<byte[], KeyValPair<String, String>>
       throw new RuntimeException("Error parsing" + value + " to Integer type", e);
     } catch (ParseException e) {
       throw new RuntimeException("Error parsing" + value, e);
-    }catch (Exception e) {
+    } catch (Exception e) {
       throw new RuntimeException("Error setting " + value + " in the given class" + typeInfo.toString(), e);
     }
   }

@@ -16,18 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
+package org.apache.apex.malhar.contrib.kafka;
+
+import java.util.Properties;
+import javax.validation.constraints.NotNull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.ProducerConfig;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.validation.constraints.NotNull;
-import java.util.Properties;
 
 /**
  * This is the base implementation of a Kafka output operator, which writes data to the Kafka message bus.
@@ -86,7 +87,8 @@ public abstract class AbstractKafkaOutputOperator<K, V> implements Operator
    * setup producer configuration.
    * @return ProducerConfig
    */
-  protected ProducerConfig createKafkaProducerConfig(){
+  protected ProducerConfig createKafkaProducerConfig()
+  {
     Properties prop = new Properties();
     for (String propString : producerProperties.split(",")) {
       if (!propString.contains("=")) {

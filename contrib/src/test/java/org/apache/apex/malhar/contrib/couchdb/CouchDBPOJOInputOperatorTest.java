@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchdb;
+package org.apache.apex.malhar.contrib.couchdb;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +26,9 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class CouchDBPOJOInputOperatorTest
 {
@@ -68,7 +68,7 @@ public class CouchDBPOJOInputOperatorTest
     operatorTest.setStore(store);
 
     CollectorTestSink sink = new CollectorTestSink();
-    operatorTest.setOutputClass("com.datatorrent.contrib.couchdb.TestInputPOJO");
+    operatorTest.setOutputClass("org.apache.apex.malhar.contrib.couchdb.TestInputPOJO");
     operatorTest.setExpressionForDocId("id");
 
     ArrayList<String> expressions = new ArrayList<String>();

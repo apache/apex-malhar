@@ -16,16 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.helper;
+package org.apache.apex.malhar.contrib.helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Operator;
-
+import com.datatorrent.common.util.BaseOperator;
 
 public class CollectorModule<T> extends BaseOperator
 {
@@ -33,7 +32,7 @@ public class CollectorModule<T> extends BaseOperator
 
   public static class CollectorInputPort<T> extends DefaultInputPort<T>
   {
-    public volatile static HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
+    public static volatile HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
     ArrayList<T> list;
 
     final String id;
@@ -47,7 +46,6 @@ public class CollectorModule<T> extends BaseOperator
     @Override
     public void process(T tuple)
     {
-  //    System.out.print("collector process:"+tuple);
       list.add(tuple);
     }
 

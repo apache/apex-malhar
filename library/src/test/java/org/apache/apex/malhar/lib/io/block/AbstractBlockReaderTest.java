@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io.block;
+package org.apache.apex.malhar.lib.io.block;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,6 +24,8 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.counters.BasicCounters;
+import org.apache.apex.malhar.lib.util.TestUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.fs.FSDataInputStream;
 
@@ -33,8 +35,6 @@ import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.Stats;
 import com.datatorrent.api.StatsListener;
-import com.datatorrent.lib.counters.BasicCounters;
-import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.netlet.util.Slice;
 
 /**

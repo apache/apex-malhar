@@ -20,7 +20,7 @@ package org.apache.apex.malhar.contrib.misc.streamquery.index;
 
 import javax.validation.constraints.NotNull;
 
-import com.datatorrent.lib.streamquery.index.Index;
+import org.apache.apex.malhar.lib.streamquery.index.Index;
 
 /**
  * Abstract class to filter row by binary expression index.

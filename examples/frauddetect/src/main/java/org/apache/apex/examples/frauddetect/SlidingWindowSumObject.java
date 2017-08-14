@@ -19,9 +19,8 @@
 package org.apache.apex.examples.frauddetect;
 
 
+import org.apache.apex.malhar.lib.multiwindow.SimpleMovingAverageObject;
 import org.apache.commons.lang.mutable.MutableDouble;
-
-import com.datatorrent.lib.multiwindow.SimpleMovingAverageObject;
 
 /**
  * State object for sliding window sum

@@ -16,12 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  *
@@ -39,7 +39,7 @@ public class HBaseColTupleGenerator extends BaseOperator implements InputOperato
     HBaseTuple tuple = new HBaseTuple();
     tuple.setRow("row0");
     tuple.setColFamily("colfam0");
-    tuple.setColName("col" + "-" +colCount);
+    tuple.setColName("col" + "-" + colCount);
     tuple.setColValue("val" + "-" + "0" + "-" + colCount);
     ++colCount;
     outputPort.emit(tuple);

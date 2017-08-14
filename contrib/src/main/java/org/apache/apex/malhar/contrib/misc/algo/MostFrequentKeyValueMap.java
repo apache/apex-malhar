@@ -20,10 +20,10 @@ package org.apache.apex.malhar.contrib.misc.algo;
 
 import java.util.HashMap;
 
+import org.apache.apex.malhar.lib.util.AbstractBaseFrequentKeyValueMap;
+
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-
-import com.datatorrent.lib.util.AbstractBaseFrequentKeyValueMap;
 
 /**
  * This operator filters the incoming stream of key value pairs by finding the value or values (if there is a tie),

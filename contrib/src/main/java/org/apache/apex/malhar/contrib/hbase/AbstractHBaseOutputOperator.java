@@ -16,34 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.apache.apex.malhar.lib.db.AbstractStoreOutputOperator;
 import org.apache.hadoop.hbase.client.HTable;
 
 import com.datatorrent.api.Operator;
-import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator;
 
 /**
- * A base implementation of an AggregateTransactionableStoreOutputOperator that stores tuples in HBase
- * and provides batch insert.&nbsp; Subclasses should provide implementation for specific Hbase operations. <br>
+ * A base implementation of a HBase output operator that stores tuples in HBase and offers
+ * non-transactional Insert.&nbsp; Subclasses should provide implementation for specific Hbase operations.
  *
  * @since 3.8.0
  */
-public abstract class AbstractHBaseWindowOutputOperator<T> extends AbstractPassThruTransactionableStoreOutputOperator<T, HBaseWindowStore> implements OutputAdapter.Driver<T>,  Operator.CheckpointNotificationListener
+public abstract class AbstractHBaseOutputOperator<T> extends AbstractStoreOutputOperator<T, HBaseStore> implements OutputAdapter.Driver<T>, Operator.CheckpointNotificationListener
 {
-  /**
-   * Both at checkpoint window and end window, flush the tuples as application window may not align with
-   * end window especially when it is more than one streaming window
-   */
-  
-  private static final Logger logger = LoggerFactory.getLogger(AbstractHBaseWindowOutputOperator.class);
-
   private transient OutputAdapter<T> outputAdapter;
 
-  public AbstractHBaseWindowOutputOperator()
+  public AbstractHBaseOutputOperator()
   {
     outputAdapter = new OutputAdapter<T>(store, this);
   }

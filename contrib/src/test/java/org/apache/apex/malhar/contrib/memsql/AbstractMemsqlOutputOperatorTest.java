@@ -16,18 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.memsql;
+package org.apache.apex.malhar.contrib.memsql;
 
-import com.datatorrent.api.Attribute.AttributeMap;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.Operator.ProcessingMode;
-
-import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.APP_ID;
-import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.OPERATOR_ID;
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
-
-import com.datatorrent.lib.db.jdbc.JdbcTransactionalStore;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -37,9 +27,20 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.db.jdbc.JdbcTransactionalStore;
+
+import com.datatorrent.api.Attribute.AttributeMap;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.Operator.ProcessingMode;
+
+import static org.apache.apex.malhar.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.APP_ID;
+import static org.apache.apex.malhar.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.OPERATOR_ID;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+
 public class AbstractMemsqlOutputOperatorTest
 {
-  private static transient final Logger LOG = LoggerFactory.getLogger(AbstractMemsqlOutputOperatorTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractMemsqlOutputOperatorTest.class);
 
   public static final String HOST_PREFIX = "jdbc:mysql://";
   public static final String HOST = "localhost";
@@ -99,17 +100,17 @@ public class AbstractMemsqlOutputOperatorTest
 
     statement = memsqlStore.getConnection().createStatement();
     statement.executeUpdate("create table "
-            + FQ_TABLE
-            + "(" + DATA_COLUMN1
-            + " INTEGER PRIMARY KEY, "
-            + DATA_COLUMN2
-            + " VARCHAR(256))");
+        + FQ_TABLE
+        + "(" + DATA_COLUMN1
+        + " INTEGER PRIMARY KEY, "
+        + DATA_COLUMN2
+        + " VARCHAR(256))");
     String createMetaTable = "CREATE TABLE IF NOT EXISTS " + DATABASE + "." + JdbcTransactionalStore.DEFAULT_META_TABLE + " ( "
-            + JdbcTransactionalStore.DEFAULT_APP_ID_COL + " VARCHAR(100) NOT NULL, "
-            + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT NOT NULL, "
-            + JdbcTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT NOT NULL, "
-            + "PRIMARY KEY (" + JdbcTransactionalStore.DEFAULT_APP_ID_COL + ", " + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + ") "
-            + ")";
+        + JdbcTransactionalStore.DEFAULT_APP_ID_COL + " VARCHAR(100) NOT NULL, "
+        + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT NOT NULL, "
+        + JdbcTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT NOT NULL, "
+        + "PRIMARY KEY (" + JdbcTransactionalStore.DEFAULT_APP_ID_COL + ", " + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + ") "
+        + ")";
 
     statement.executeUpdate(createMetaTable);
 
@@ -149,9 +150,7 @@ public class AbstractMemsqlOutputOperatorTest
 
     outputOperator.setup(context);
 
-    for (int wid = 0;
-            wid < NUM_WINDOWS;
-            wid++) {
+    for (int wid = 0; wid < NUM_WINDOWS; wid++) {
       outputOperator.beginWindow(wid);
       innerObj.setIntVal(wid + 1);
       outputOperator.input.put(innerObj);
@@ -163,7 +162,7 @@ public class AbstractMemsqlOutputOperatorTest
 
     memsqlStore.connect();
 
-    int databaseSize ;
+    int databaseSize;
 
     Statement statement = memsqlStore.getConnection().createStatement();
     ResultSet resultSet = statement.executeQuery("select count(*) from " + FQ_TABLE);
@@ -172,9 +171,7 @@ public class AbstractMemsqlOutputOperatorTest
 
     memsqlStore.disconnect();
 
-    Assert.assertEquals("Numer of tuples in database",
-                        DATABASE_SIZE,
-                        databaseSize);
+    Assert.assertEquals("Numer of tuples in database", DATABASE_SIZE, databaseSize);
   }
 
   public InnerObj innerObj = new InnerObj();

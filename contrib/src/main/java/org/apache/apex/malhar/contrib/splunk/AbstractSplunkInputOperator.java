@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.splunk;
+package org.apache.apex.malhar.contrib.splunk;
 
 import java.io.InputStream;
 
@@ -25,15 +25,14 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.db.AbstractStoreInputOperator;
+
 import com.splunk.Event;
 import com.splunk.JobExportArgs;
 import com.splunk.MultiResultsReaderXml;
 import com.splunk.SearchResults;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultOutputPort;
-
-import com.datatorrent.lib.db.AbstractStoreInputOperator;
 
 /**
  * This is the base implementation of a Splunk input adapter.&nbsp;
@@ -47,8 +46,8 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  *
  * @since 1.0.4
  */
-public abstract class AbstractSplunkInputOperator<T> extends AbstractStoreInputOperator<T, SplunkStore> {
-
+public abstract class AbstractSplunkInputOperator<T> extends AbstractStoreInputOperator<T, SplunkStore>
+{
   private static final Logger logger = LoggerFactory.getLogger(AbstractSplunkInputOperator.class);
   @NotNull
   protected String earliestTime;
@@ -57,11 +56,13 @@ public abstract class AbstractSplunkInputOperator<T> extends AbstractStoreInputO
   protected transient InputStream exportSearch;
   protected transient MultiResultsReaderXml multiResultsReader;
 
-  public void setEarliestTime(@NotNull String earliestTime) {
+  public void setEarliestTime(@NotNull String earliestTime)
+  {
     this.earliestTime = earliestTime;
   }
 
-  public void setLatestTime(@NotNull String latestTime) {
+  public void setLatestTime(@NotNull String latestTime)
+  {
     this.latestTime = latestTime;
   }
 
@@ -104,11 +105,10 @@ public abstract class AbstractSplunkInputOperator<T> extends AbstractStoreInputO
     try {
       exportSearch = store.getService().export(queryToRetrieveData(), exportArgs);
       multiResultsReader = new MultiResultsReaderXml(exportSearch);
-      for (SearchResults searchResults : multiResultsReader)
-      {
+      for (SearchResults searchResults : multiResultsReader) {
         for (Event event : searchResults) {
-          for (String key: event.keySet()){
-            if(key.contains("raw")){
+          for (String key: event.keySet()) {
+            if (key.contains("raw")) {
               T tuple = getTuple(event.get(key));
               outputPort.emit(tuple);
             }

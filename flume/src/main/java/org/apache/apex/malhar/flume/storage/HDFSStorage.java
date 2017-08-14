@@ -534,7 +534,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         }
         logger.info("deleted file {}", cleanedFileCounter);
         ++cleanedFileCounter;
-      } while (cleanedFileCounter < cleanFileIndex);
+      }
+      while (cleanedFileCounter < cleanFileIndex);
       // writeData(cleanFileCounterFile, String.valueOf(cleanedFileCounter).getBytes()).close();
 
     } catch (IOException e) {

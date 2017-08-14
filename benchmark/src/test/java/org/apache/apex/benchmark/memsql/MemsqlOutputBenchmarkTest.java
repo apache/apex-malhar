@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.memsql;
+package org.apache.apex.benchmark.memsql;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -27,12 +27,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.contrib.memsql.AbstractMemsqlOutputOperatorTest;
+import org.apache.apex.malhar.contrib.memsql.MemsqlStore;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest;
-import com.datatorrent.contrib.memsql.MemsqlStore;
 import com.datatorrent.netlet.util.DTThrowable;
 
 public class MemsqlOutputBenchmarkTest

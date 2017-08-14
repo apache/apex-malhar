@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.db.jdbc;
+package org.apache.apex.malhar.lib.db.jdbc;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,11 +26,11 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.db.cache.AbstractDBLookupCacheBackedOperator;
+
 import com.google.common.collect.Lists;
 
 import com.datatorrent.api.Context;
-
-import com.datatorrent.lib.db.cache.AbstractDBLookupCacheBackedOperator;
 
 /**
  * This is the base implementation of an operator that maintains a loading cache.&nbsp;

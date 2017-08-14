@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.elasticsearch;
+package org.apache.apex.malhar.contrib.elasticsearch;
 
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -27,9 +27,10 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 
+import org.apache.apex.malhar.lib.db.AbstractStoreOutputOperator;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
 /**
  * This is the base implementation for a non-transactional batch output operator for ElasticSearch.
@@ -70,7 +71,7 @@ public abstract class AbstractElasticSearchOutputOperator<T, S extends ElasticSe
   /**
    * Initialize transient fields such as {@code tupleBatch}
    *
-   * @see com.datatorrent.lib.db.AbstractStoreOutputOperator#setup(com.datatorrent.api.Context.OperatorContext)
+   * @see org.apache.apex.malhar.lib.db.AbstractStoreOutputOperator#setup(com.datatorrent.api.Context.OperatorContext)
    */
   @Override
   public void setup(OperatorContext context)
@@ -83,7 +84,7 @@ public abstract class AbstractElasticSearchOutputOperator<T, S extends ElasticSe
    * Adds tuple to the queue.
    * Calls {@link #processBatch()} if queue is full
    *
-   * @see com.datatorrent.lib.db.AbstractStoreOutputOperator#processTuple(java.lang.Object)
+   * @see org.apache.apex.malhar.lib.db.AbstractStoreOutputOperator#processTuple(java.lang.Object)
    */
   public void processTuple(T tuple)
   {
@@ -128,7 +129,8 @@ public abstract class AbstractElasticSearchOutputOperator<T, S extends ElasticSe
    * @param tuple
    * @return
    */
-  protected IndexRequestBuilder getIndexRequestBuilder(T tuple){
+  protected IndexRequestBuilder getIndexRequestBuilder(T tuple)
+  {
     IndexRequestBuilder indexRequestBuilder = new IndexRequestBuilder(store.client, getIndexName(tuple));
     String id = getId(tuple);
     if (id != null) {
@@ -176,22 +178,22 @@ public abstract class AbstractElasticSearchOutputOperator<T, S extends ElasticSe
    * @param tuple
    * @return
    */
-    protected abstract String getType(T tuple);
+  protected abstract String getType(T tuple);
 
     /**
      * @return the batchSize
      */
-    public int getBatchSize()
-    {
-      return batchSize;
-    }
+  public int getBatchSize()
+  {
+    return batchSize;
+  }
 
     /**
      * @param batchSize the batchSize to set
      */
-    public void setBatchSize(int batchSize)
-    {
-      this.batchSize = batchSize;
-    }
+  public void setBatchSize(int batchSize)
+  {
+    this.batchSize = batchSize;
+  }
 
 }

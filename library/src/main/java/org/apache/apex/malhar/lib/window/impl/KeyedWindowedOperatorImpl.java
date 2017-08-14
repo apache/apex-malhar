@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.apex.malhar.lib.state.spillable.SpillableSetMultimapImpl;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.apex.malhar.lib.window.Accumulation;
 import org.apache.apex.malhar.lib.window.SessionWindowedStorage;
 import org.apache.apex.malhar.lib.window.TriggerOption;
@@ -35,7 +36,6 @@ import org.apache.apex.malhar.lib.window.WindowedStorage;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * This is an implementation of WindowedOperator that takes in key value pairs as input and gives out key value pairs

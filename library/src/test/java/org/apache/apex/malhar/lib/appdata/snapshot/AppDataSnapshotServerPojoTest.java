@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.snapshot;
+package org.apache.apex.malhar.lib.appdata.snapshot;
 
 import java.util.List;
 import java.util.Map;
@@ -27,14 +27,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.appdata.schemas.DataQuerySnapshot;
+import org.apache.apex.malhar.lib.appdata.schemas.SchemaUtils;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.TestObjAllTypes;
+import org.apache.apex.malhar.lib.util.TestUtils;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import com.datatorrent.lib.appdata.schemas.DataQuerySnapshot;
-import com.datatorrent.lib.appdata.schemas.SchemaUtils;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.TestObjAllTypes;
-import com.datatorrent.lib.util.TestUtils;
 
 public class AppDataSnapshotServerPojoTest
 {

@@ -16,11 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.redis;
+package org.apache.apex.malhar.contrib.redis;
 
 import java.util.Map;
 
-import com.datatorrent.lib.util.KeyValPair;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 
 /**
  * This is the an implementation of a Redis input operator It takes in keys to

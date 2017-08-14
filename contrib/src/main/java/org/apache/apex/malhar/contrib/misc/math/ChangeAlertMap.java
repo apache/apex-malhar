@@ -23,11 +23,11 @@ import java.util.Map;
 
 import javax.validation.constraints.Min;
 
+import org.apache.apex.malhar.lib.util.BaseNumberKeyValueOperator;
 import org.apache.commons.lang.mutable.MutableDouble;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 
 /**
  * Operator stores  &lt;key,value&gt; pair in hash map across the windows for comparison and emits hash map of &lt;key,percent change in value for each key&gt; if percent change

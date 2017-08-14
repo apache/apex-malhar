@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.elasticsearch;
+package org.apache.apex.malhar.contrib.elasticsearch;
 
 import java.util.Map;
 
@@ -50,7 +50,7 @@ public class ElasticSearchMapOutputOperator<T extends Map<String, Object>> exten
    * (non-Javadoc)
    *
    * @see
-   * com.datatorrent.contrib.elasticsearch.AbstractElasticSearchOutputOperator#setSource(org.elasticsearch.action.index
+   * org.apache.apex.malhar.contrib.elasticsearch.AbstractElasticSearchOutputOperator#setSource(org.elasticsearch.action.index
    * .IndexRequestBuilder, java.lang.Object)
    */
   @Override
@@ -62,7 +62,7 @@ public class ElasticSearchMapOutputOperator<T extends Map<String, Object>> exten
   /*
    * (non-Javadoc)
    *
-   * @see com.datatorrent.contrib.elasticsearch.AbstractElasticSearchOutputOperator#getId(java.lang.Object)
+   * @see org.apache.apex.malhar.contrib.elasticsearch.AbstractElasticSearchOutputOperator#getId(java.lang.Object)
    */
   @Override
   protected String getId(T tuple)
@@ -104,7 +104,7 @@ public class ElasticSearchMapOutputOperator<T extends Map<String, Object>> exten
   /*
    * (non-Javadoc)
    *
-   * @see com.datatorrent.contrib.elasticsearch.AbstractElasticSearchOutputOperator#getIndexName(java.lang.Object)
+   * @see org.apache.apex.malhar.contrib.elasticsearch.AbstractElasticSearchOutputOperator#getIndexName(java.lang.Object)
    */
   @Override
   protected String getIndexName(T tuple)
@@ -122,7 +122,7 @@ public class ElasticSearchMapOutputOperator<T extends Map<String, Object>> exten
   }
 
   /* (non-Javadoc)
-   * @see com.datatorrent.contrib.elasticsearch.AbstractElasticSearchOutputOperator#getType(java.lang.Object)
+   * @see org.apache.apex.malhar.contrib.elasticsearch.AbstractElasticSearchOutputOperator#getType(java.lang.Object)
    */
   @Override
   protected String getType(T tuple)

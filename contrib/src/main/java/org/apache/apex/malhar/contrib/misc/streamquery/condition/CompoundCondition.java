@@ -22,7 +22,7 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
-import com.datatorrent.lib.streamquery.condition.Condition;
+import org.apache.apex.malhar.lib.streamquery.condition.Condition;
 
 /**
  * A derivation of Condition index that implements logical AND/OR select expression. <br>

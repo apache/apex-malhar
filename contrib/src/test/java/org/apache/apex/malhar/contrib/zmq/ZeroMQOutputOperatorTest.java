@@ -16,8 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.zmq;
-
+package org.apache.apex.malhar.contrib.zmq;
 
 import java.util.Map;
 
@@ -25,7 +24,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.contrib.helper.SourceModule;
+import org.apache.apex.malhar.contrib.helper.SourceModule;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
@@ -33,10 +32,6 @@ import com.datatorrent.api.LocalMode;
 
 import com.datatorrent.netlet.util.DTThrowable;
 
-
-/**
- *
- */
 public class ZeroMQOutputOperatorTest
 {
   protected static org.slf4j.Logger logger = LoggerFactory.getLogger(ZeroMQOutputOperatorTest.class);
@@ -51,7 +46,8 @@ public class ZeroMQOutputOperatorTest
     logger.debug("end of test");
   }
 
-  protected void runTest(final int testNum) {
+  protected void runTest(final int testNum)
+  {
     LocalMode lma = LocalMode.newInstance();
     DAG dag = lma.getDAG();
     SourceModule source = dag.addOperator("source", new SourceModule());
@@ -86,8 +82,7 @@ public class ZeroMQOutputOperatorTest
               break;
             }
           }
-        }
-        catch (InterruptedException ex) {
+        } catch (InterruptedException ex) {
           DTThrowable.rethrow(ex);
         } finally {
           logger.debug("done...");
@@ -110,11 +105,9 @@ public class ZeroMQOutputOperatorTest
     for (Map.Entry<String, Integer> e : receiver.dataMap.entrySet()) {
       if (e.getKey().equals("a")) {
         Assert.assertEquals("emitted value for 'a' was ", new Integer(2), e.getValue());
-      }
-      else if (e.getKey().equals("b")) {
+      } else if (e.getKey().equals("b")) {
         Assert.assertEquals("emitted value for 'b' was ", new Integer(20), e.getValue());
-      }
-      else if (e.getKey().equals("c")) {
+      } else if (e.getKey().equals("c")) {
         Assert.assertEquals("emitted value for 'c' was ", new Integer(1000), e.getValue());
       }
     }

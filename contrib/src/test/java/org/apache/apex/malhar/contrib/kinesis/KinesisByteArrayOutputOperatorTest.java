@@ -16,24 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kinesis;
+package org.apache.apex.malhar.contrib.kinesis;
 
 import java.nio.ByteBuffer;
-
-import com.amazonaws.services.kinesis.model.Record;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.contrib.util.*;
+import org.apache.apex.malhar.contrib.util.FieldValueSerializableGenerator;
+import org.apache.apex.malhar.contrib.util.POJOTupleGenerateOperator;
+import org.apache.apex.malhar.contrib.util.TestPOJO;
+import org.apache.apex.malhar.contrib.util.TupleGenerator;
+import org.apache.apex.malhar.lib.util.FieldInfo;
+
+import com.amazonaws.services.kinesis.model.Record;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultOutputPort;
 
 import com.datatorrent.common.util.Pair;
-import com.datatorrent.lib.util.FieldInfo;
 
 @SuppressWarnings("rawtypes")
 public class KinesisByteArrayOutputOperatorTest extends KinesisOutputOperatorTest<KinesisByteArrayOutputOperator, POJOTupleGenerateOperator>
@@ -65,20 +68,20 @@ public class KinesisByteArrayOutputOperatorTest extends KinesisOutputOperatorTes
     String iterator = listener.prepareIterator();
     // save the tuples
     for (int i = 0; i < maxTuple; ++i) {
-      if (i % 2 == 0)
+      if (i % 2 == 0) {
         iterator = listener.processNextIterator(iterator);
-
+      }
       operator.processTuple(getNextTuple(generator));
     }
     listener.processNextIterator(iterator);
   }
 
-  @SuppressWarnings("unchecked")
   protected Pair<String, byte[]> getNextTuple(TupleGenerator<TestPOJO> generator)
   {
     TestPOJO obj = generator.getNextTuple();
-    if (fieldValueGenerator == null)
+    if (fieldValueGenerator == null) {
       fieldValueGenerator = FieldValueSerializableGenerator.getFieldValueGenerator(TestPOJO.class, null);
+    }
     return new Pair<String, byte[]>(obj.getRow(), fieldValueGenerator.serializeObject(obj));
   }
 
@@ -132,7 +135,7 @@ public class KinesisByteArrayOutputOperatorTest extends KinesisOutputOperatorTes
       long key = Long.valueOf(partitionKey);
       TestPOJO expected = new TestPOJO(key);
 
-      TestPOJO read = (TestPOJO) fieldValueGenerator.deserializeObject(dataBytes);
+      TestPOJO read = (TestPOJO)fieldValueGenerator.deserializeObject(dataBytes);
 
       if (!read.outputFieldsEquals(expected)) {
         logger.error("read is not same as expected. read={}, expected={}", read, expected);

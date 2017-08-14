@@ -21,12 +21,13 @@ package org.apache.apex.examples.distributeddistinct;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.util.KeyValPair;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * An operator that takes two streams of Integer to Integer KeyValPairs and verifies that the two streams output the

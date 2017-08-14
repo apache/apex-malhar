@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.util;
+package org.apache.apex.malhar.contrib.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,10 +35,10 @@ public class TupleCacheOutputOperator<T>  extends BaseOperator
   private static final Logger logger = LoggerFactory.getLogger( TupleCacheOutputOperator.class );
 
   //one instance of TupleCacheOutputOperator map to one
-  private static Map< String, List<?> > receivedTuplesMap = new HashMap< String, List<?>>();
+  private static Map<String, List<?>> receivedTuplesMap = new HashMap<>();
 
-  public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>() {
-
+  public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()
+  {
     @Override
     public void process(T tuple)
     {
@@ -61,8 +61,7 @@ public class TupleCacheOutputOperator<T>  extends BaseOperator
   public void processTuple( T tuple )
   {
     List<T> receivedTuples = (List<T>)receivedTuplesMap.get(uuid);
-    if( receivedTuples == null )
-    {
+    if ( receivedTuples == null ) {
       receivedTuples = new ArrayList<T>();
       receivedTuplesMap.put(uuid, receivedTuples);
     }

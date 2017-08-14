@@ -20,11 +20,11 @@ package org.apache.apex.examples.frauddetect;
 
 import java.util.ArrayList;
 
+import org.apache.apex.malhar.lib.multiwindow.AbstractSlidingWindowKeyVal;
+import org.apache.apex.malhar.lib.util.KeyValPair;
+
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-
-import com.datatorrent.lib.multiwindow.AbstractSlidingWindowKeyVal;
-import com.datatorrent.lib.util.KeyValPair;
 
 
 /**

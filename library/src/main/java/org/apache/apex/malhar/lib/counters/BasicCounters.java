@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.counters;
+package org.apache.apex.malhar.lib.counters;
 
 import java.io.IOException;
 import java.io.Serializable;

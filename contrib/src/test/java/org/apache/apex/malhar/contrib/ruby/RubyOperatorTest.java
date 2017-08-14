@@ -16,25 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.ruby;
+package org.apache.apex.malhar.contrib.ruby;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import java.util.HashMap;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.HashMap;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
 /**
  * Unit test for RubyOperator.
  *
  */
-public class RubyOperatorTest {
-
+public class RubyOperatorTest
+{
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
-  public void TestRubyOperatorInvoke() {
-
+  public void TestRubyOperatorInvoke()
+  {
     RubyOperator oper = new RubyOperator();
     String setupScript = "def square(val)\n";
     setupScript += "  return val*val\nend\n";
@@ -60,8 +60,8 @@ public class RubyOperatorTest {
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
-  public void TestRubyOperatorEval() {
-
+  public void TestRubyOperatorEval()
+  {
     RubyOperator oper = new RubyOperator();
     String setupScript1 = "b=0";
     String setupScript2 = "c=0";

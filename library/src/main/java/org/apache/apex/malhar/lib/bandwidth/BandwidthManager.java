@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.bandwidth;
+package org.apache.apex.malhar.lib.bandwidth;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

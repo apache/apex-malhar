@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.util;
+package org.apache.apex.malhar.lib.util;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.datatorrent.lib.util.PojoUtils.Getter;
-import com.datatorrent.lib.util.PojoUtils.Setter;
+import org.apache.apex.malhar.lib.util.PojoUtils.Getter;
+import org.apache.apex.malhar.lib.util.PojoUtils.Setter;
 
 /**
  * @since 3.3.0

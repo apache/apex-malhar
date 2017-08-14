@@ -16,17 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.query;
+package org.apache.apex.malhar.lib.appdata.query;
 
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
+import org.apache.apex.malhar.lib.appdata.schemas.Query;
+import org.apache.apex.malhar.lib.appdata.schemas.Result;
 
-import com.datatorrent.lib.appdata.schemas.Query;
-import com.datatorrent.lib.appdata.schemas.Result;
+import com.google.common.collect.Lists;
 
 public class QueryManagerSynchronousTest
 {

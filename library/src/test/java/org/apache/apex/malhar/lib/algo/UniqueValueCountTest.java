@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.algo;
+package org.apache.apex.malhar.lib.algo;
 
 import java.util.Set;
 
@@ -25,14 +25,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.KeyValPair;
+import org.apache.apex.malhar.lib.util.TestUtils;
+
 import com.google.common.collect.ImmutableMap;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.lib.util.TestUtils;
-
 /**
- * Test for {@link com.datatorrent.lib.algo.UniqueValueCount} operator
+ * Test for {@link org.apache.apex.malhar.lib.algo.UniqueValueCount} operator
  *
  * @since 0.3.5
  */

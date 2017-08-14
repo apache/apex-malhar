@@ -16,12 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.util.FieldValueGenerator;
+import org.apache.apex.malhar.lib.util.FieldValueGenerator.ValueConverter;
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Setter;
+import org.apache.apex.malhar.lib.util.TableInfo;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -29,14 +35,8 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.datatorrent.lib.util.FieldValueGenerator;
-import com.datatorrent.lib.util.FieldValueGenerator.ValueConverter;
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Setter;
-import com.datatorrent.lib.util.TableInfo;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * HBasePOJOInputOperator reads data from a HBase store, converts it to a POJO and puts it on the output port.
@@ -96,20 +96,20 @@ public class HBasePOJOInputOperator extends HBaseScanOperator<Object>
   {
     try {
       String readRow = Bytes.toString(result.getRow());
-      if( readRow.equals( getLastReadRow() )) {
+      if ( readRow.equals( getLastReadRow() )) {
         return null;
       }
 
       Object instance = pojoType.newInstance();
       rowSetter.set(instance, readRow);
 
-       List<Cell> cells = result.listCells();
-       for (Cell cell : cells) {
-         String columnName = Bytes.toString(CellUtil.cloneQualifier(cell));
-         String columnFamily = Bytes.toString(CellUtil.cloneFamily(cell));
+      List<Cell> cells = result.listCells();
+      for (Cell cell : cells) {
+        String columnName = Bytes.toString(CellUtil.cloneQualifier(cell));
+        String columnFamily = Bytes.toString(CellUtil.cloneFamily(cell));
         byte[] value = CellUtil.cloneValue(cell);
-         ((HBaseFieldValueGenerator)fieldValueGenerator).setColumnValue(instance, columnName, columnFamily, value,
-             valueConverter);
+        ((HBaseFieldValueGenerator)fieldValueGenerator).setColumnValue(instance, columnName, columnFamily, value,
+            valueConverter);
       }
 
       setLastReadRow(readRow);

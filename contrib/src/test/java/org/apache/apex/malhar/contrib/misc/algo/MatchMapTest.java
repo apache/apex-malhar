@@ -24,12 +24,12 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.algo.MatchMap;
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
+import org.apache.apex.malhar.lib.algo.MatchMap;
+import org.apache.apex.malhar.lib.testbench.CountAndLastTupleTestSink;
 
 /**
  * @deprecated
- * Functional tests for {@link com.datatorrent.lib.algo.MatchMap}<p>
+ * Functional tests for {@link org.apache.apex.malhar.lib.algo.MatchMap}<p>
  *
  */
 @Deprecated

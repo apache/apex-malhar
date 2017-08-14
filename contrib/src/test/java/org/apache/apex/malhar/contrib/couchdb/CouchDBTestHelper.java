@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchdb;
+package org.apache.apex.malhar.contrib.couchdb;
 
 import java.util.Map;
 
@@ -49,8 +49,8 @@ public class CouchDBTestHelper
     if (!connector.contains(DESIGN_DOC_ID)) {
       //The design document doesn't exist in the database so we create it.
       JsonNode rootNode = mapper.createObjectNode();
-      ((ObjectNode) rootNode).put("language", "javascript");
-      ((ObjectNode) rootNode).putObject("views").putObject(TEST_VIEW).put("map", "function(doc) {\n  emit(doc._id, doc);\n}");
+      ((ObjectNode)rootNode).put("language", "javascript");
+      ((ObjectNode)rootNode).putObject("views").putObject(TEST_VIEW).put("map", "function(doc) {\n  emit(doc._id, doc);\n}");
       connector.create(DESIGN_DOC_ID, rootNode);
     }
     return new ViewQuery().designDocId(DESIGN_DOC_ID).viewName(TEST_VIEW);
@@ -61,7 +61,7 @@ public class CouchDBTestHelper
     connector.create(dbTuple);
   }
 
-   public static void insertDocument(Object dbTuple)
+  public static void insertDocument(Object dbTuple)
   {
     connector.create(dbTuple);
   }

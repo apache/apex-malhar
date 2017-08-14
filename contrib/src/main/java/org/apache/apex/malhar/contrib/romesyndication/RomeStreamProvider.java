@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.romesyndication;
+package org.apache.apex.malhar.contrib.romesyndication;
 
 import java.io.IOException;
 import java.io.InputStream;

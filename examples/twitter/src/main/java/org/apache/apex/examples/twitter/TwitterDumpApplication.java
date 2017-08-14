@@ -23,14 +23,13 @@ import java.sql.SQLException;
 
 import javax.annotation.Nonnull;
 
+import org.apache.apex.malhar.contrib.twitter.TwitterSampleInput;
+import org.apache.apex.malhar.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-
-import com.datatorrent.contrib.twitter.TwitterSampleInput;
-import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
 
 import twitter4j.Status;
 

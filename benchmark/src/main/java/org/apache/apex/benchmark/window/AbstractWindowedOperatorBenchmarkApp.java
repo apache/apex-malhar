@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.window;
+package org.apache.apex.benchmark.window;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -25,10 +25,13 @@ import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.benchmark.window.WindowedOperatorBenchmarkApp.WindowedGenerator;
+import org.apache.apex.malhar.lib.fileaccess.TFileImpl;
 import org.apache.apex.malhar.lib.state.managed.UnboundedTimeBucketAssigner;
 import org.apache.apex.malhar.lib.state.spillable.SpillableComplexComponentImpl;
 import org.apache.apex.malhar.lib.state.spillable.SpillableStateStore;
 import org.apache.apex.malhar.lib.state.spillable.managed.ManagedTimeUnifiedStateSpillableStateStore;
+import org.apache.apex.malhar.lib.stream.DevNull;
 import org.apache.apex.malhar.lib.window.Accumulation;
 import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.WindowOption;
@@ -47,9 +50,6 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.benchmark.window.WindowedOperatorBenchmarkApp.WindowedGenerator;
-import com.datatorrent.lib.fileaccess.TFileImpl;
-import com.datatorrent.lib.stream.DevNull;
 
 /**
  * @since 3.7.0

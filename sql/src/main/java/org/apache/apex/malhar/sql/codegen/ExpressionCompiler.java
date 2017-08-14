@@ -46,7 +46,7 @@ import com.google.common.collect.ImmutableList;
 
 /**
  * Converts calcite expression of type {@link RexNode} to quasi-Java expression which can be used
- * with {@link com.datatorrent.lib.util.PojoUtils}
+ * with {@link org.apache.apex.malhar.lib.util.PojoUtils}
  *
  * @since 3.6.0
  */

@@ -31,6 +31,7 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.fileaccess.FileAccess;
 import org.apache.apex.malhar.lib.state.BucketedState;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.RemoteIterator;
@@ -41,7 +42,6 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.Futures;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.fileaccess.FileAccess;
 import com.datatorrent.netlet.util.Slice;
 
 /**

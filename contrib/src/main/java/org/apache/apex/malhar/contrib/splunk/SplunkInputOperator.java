@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.splunk;
+package org.apache.apex.malhar.contrib.splunk;
 
 import javax.validation.constraints.NotNull;
 

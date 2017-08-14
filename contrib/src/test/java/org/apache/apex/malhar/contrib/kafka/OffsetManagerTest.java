@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
+package org.apache.apex.malhar.contrib.kafka;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -28,27 +28,30 @@ import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.contrib.kafka.AbstractKafkaInputOperator.PartitionStrategy;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Options.Rename;
 import org.apache.hadoop.fs.Path;
-import org.junit.Test;
-import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.contrib.kafka.AbstractKafkaInputOperator.PartitionStrategy;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.SetMultimap;
+import com.datatorrent.common.util.BaseOperator;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class OffsetManagerTest extends KafkaOperatorTestBase
 {
@@ -64,12 +67,12 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
   static final int totalCount = 100;
   static CountDownLatch latch;
   static final String OFFSET_FILE = ".offset";
-  static long initialPos = 10l;
+  static long initialPos = 10L;
   static Path baseFolder = new Path("target");
 
 
-  public static class TestOffsetManager implements OffsetManager{
-
+  public static class TestOffsetManager implements OffsetManager
+  {
     private final transient Map<KafkaPartition, Long> offsets = Collections.synchronizedMap(new HashMap<KafkaPartition, Long>());
 
     private String filename = null;
@@ -96,22 +99,19 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
     @Override
     public void updateOffsets(Map<KafkaPartition, Long> offsetsOfPartitions)
     {
-
       offsets.putAll(offsetsOfPartitions);
-
       try {
         Path tmpFile = new Path(baseFolder, filename + ".tmp");
         Path dataFile = new Path(baseFolder, filename);
         FSDataOutputStream out = fs.create(tmpFile, true);
         for (Entry<KafkaPartition, Long> e : offsets.entrySet()) {
-          out.writeBytes(e.getKey() +", " + e.getValue() + "\n");
+          out.writeBytes(e.getKey() + ", " + e.getValue() + "\n");
         }
         out.close();
         fc.rename(tmpFile, dataFile, Rename.OVERWRITE);
       } catch (Exception e) {
-
+        //
       }
-
       countdownLatch();
     }
 
@@ -141,6 +141,7 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
     }
 
   }
+
   /**
    * Test Operator to collect tuples from KafkaSingleInputStringOperator.
    *
@@ -191,9 +192,9 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
   @Test
   public void testSimpleConsumerUpdateOffsets() throws Exception
   {
-    initialPos = 10l;
+    initialPos = 10L;
     // Create template simple consumer
-    try{
+    try {
       SimpleKafkaConsumer consumer = new SimpleKafkaConsumer();
       testPartitionableInputOperator(consumer, totalCount - (int)initialPos - (int)initialPos);
     } finally {
@@ -214,9 +215,9 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
   @Test
   public void testSimpleConsumerInvalidInitialOffsets() throws Exception
   {
-    initialPos = 1000l;
+    initialPos = 1000L;
     // Create template simple consumer
-    try{
+    try {
       SimpleKafkaConsumer consumer = new SimpleKafkaConsumer();
       testPartitionableInputOperator(consumer, totalCount);
     } finally {
@@ -230,12 +231,12 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
     try {
       FileSystem.get(new Configuration()).delete(new Path(baseFolder, TEST_TOPIC + OFFSET_FILE), true);
     } catch (IOException e) {
-
+      //
     }
   }
 
-  public void testPartitionableInputOperator(KafkaConsumer consumer, int expectedCount) throws Exception{
-
+  public void testPartitionableInputOperator(KafkaConsumer consumer, int expectedCount) throws Exception
+  {
     // Set to 3 because we want to make sure END_TUPLE from both 2 partitions are received and offsets has been updated to 102
     latch = new CountDownLatch(3);
 

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchdb;
+package org.apache.apex.malhar.contrib.couchdb;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,14 +24,18 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ektorp.ViewQuery;
 import org.ektorp.ViewResult.Row;
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Setter;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterBoolean;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterDouble;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterInt;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterLong;
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
 
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.*;
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
@@ -184,8 +188,7 @@ public class CouchDBPOJOInputOperator extends AbstractCouchDBInputOperator<Objec
     try {
       // This code will be replaced after integration of creating POJOs on the fly utility.
       objectClass = Class.forName(outputClass);
-    }
-    catch (ClassNotFoundException ex) {
+    } catch (ClassNotFoundException ex) {
       throw new RuntimeException(ex);
     }
 
@@ -197,18 +200,15 @@ public class CouchDBPOJOInputOperator extends AbstractCouchDBInputOperator<Objec
       Class<?> type = null;
       try {
         type = objectClass.getDeclaredField(columns.get(i)).getType();
-      }
-      catch (NoSuchFieldException ex) {
+      } catch (NoSuchFieldException ex) {
         throw new RuntimeException(ex);
-      }
-      catch (SecurityException ex) {
+      } catch (SecurityException ex) {
         throw new RuntimeException(ex);
       }
       fieldType.add(type);
       if (type.isPrimitive()) {
         setterDoc.add(PojoUtils.constructSetter(objectClass, expressions.get(i), type));
-      }
-      else {
+      } else {
         setterDoc.add(PojoUtils.createSetter(objectClass, expressions.get(i), type));
       }
     }
@@ -222,11 +222,9 @@ public class CouchDBPOJOInputOperator extends AbstractCouchDBInputOperator<Objec
     Object obj;
     try {
       obj = objectClass.newInstance();
-    }
-    catch (InstantiationException ex) {
+    } catch (InstantiationException ex) {
       throw new RuntimeException(ex);
-    }
-    catch (IllegalAccessException ex) {
+    } catch (IllegalAccessException ex) {
       throw new RuntimeException(ex);
     }
 
@@ -240,21 +238,16 @@ public class CouchDBPOJOInputOperator extends AbstractCouchDBInputOperator<Objec
       if (type.isPrimitive()) {
         if (type == int.class) {
           ((SetterInt)setterDoc.get(i)).set(obj, val.get(columns.get(i)).getIntValue());
-        }
-        else if (type == boolean.class) {
+        } else if (type == boolean.class) {
           ((SetterBoolean)setterDoc.get(i)).set(obj, val.get(columns.get(i)).getBooleanValue());
-        }
-        else if (type == long.class) {
+        } else if (type == long.class) {
           ((SetterLong)setterDoc.get(i)).set(obj, val.get(columns.get(i)).getLongValue());
-        }
-        else if (type == double.class) {
+        } else if (type == double.class) {
           ((SetterDouble)setterDoc.get(i)).set(obj, val.get(columns.get(i)).getDoubleValue());
-        }
-        else {
+        } else {
           throw new RuntimeException("Type is not supported");
         }
-      }
-      else {
+      } else {
         ((Setter<Object, Object>)setterDoc.get(i)).set(obj, mapper.readValue(val.get(columns.get(i)), type));
       }
     }

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.db.jdbc;
+package org.apache.apex.malhar.lib.db.jdbc;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -35,18 +35,20 @@ import javax.annotation.Nonnull;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.helper.TestPortContext;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.FieldInfo;
+import org.apache.apex.malhar.lib.util.TestUtils;
+
 import com.google.common.collect.Lists;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.TestPortContext;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.FieldInfo;
-import com.datatorrent.lib.util.TestUtils;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+
+import com.datatorrent.api.DAG;
 
 /**
  * Tests for {@link AbstractJdbcTransactionableOutputOperator} and

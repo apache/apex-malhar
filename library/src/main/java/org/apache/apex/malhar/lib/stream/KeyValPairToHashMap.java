@@ -16,15 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.stream;
+package org.apache.apex.malhar.lib.stream;
 
 import java.util.HashMap;
+
+import org.apache.apex.malhar.lib.util.BaseKeyValueOperator;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.Stateless;
-import com.datatorrent.lib.util.BaseKeyValueOperator;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * An implementation of BaseKeyValueOperator that converts Key Value Pair to a HashMap tuple.

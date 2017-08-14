@@ -35,11 +35,13 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DAG;
-import com.datatorrent.lib.algo.UniqueValueCount.InternalCountOutput;
+import org.apache.apex.malhar.lib.algo.UniqueValueCount.InternalCountOutput;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import com.datatorrent.api.Context.OperatorContext;
+
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+
+import com.datatorrent.api.DAG;
 
 /**
  * Test for {@link IntegerUniqueValueCountAppender} and {@link UniqueValueCountAppender}

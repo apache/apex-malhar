@@ -20,10 +20,11 @@ package org.apache.apex.malhar.contrib.misc.math;
 
 import javax.validation.constraints.Min;
 
+import org.apache.apex.malhar.lib.util.BaseNumberValueOperator;
+import org.apache.apex.malhar.lib.util.KeyValPair;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.util.BaseNumberValueOperator;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Compares consecutive input data values, emits &lt;value,percent change value&gt; pair on alert output port, if percent change exceeds certain thresh hold value.

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.elasticsearch;
+package org.apache.apex.malhar.contrib.elasticsearch;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
 /**
  * Test class for percolate operator
@@ -65,11 +65,10 @@ public class ElasticSearchPercolateTest
   @Test
   public void testPercolate() throws IOException
   {
-    try{
+    try {
       registerPercolateQueries();
       checkPercolateResponse();
-    }
-    catch(NoNodeAvailableException e){
+    } catch (NoNodeAvailableException e) {
       //This indicates that elasticsearch is not running on a particular machine.
       //Silently ignore in this case.
     }
@@ -100,30 +99,30 @@ public class ElasticSearchPercolateTest
     oper.documentType = DOCUMENT_TYPE;
     oper.setup(null);
 
-    String[] messages = { "{content:'This will match only with malhar'}",
+    String[] messages = {"{content:'This will match only with malhar'}",
 
-    "{content:'This will match only with github'}",
+      "{content:'This will match only with github'}",
 
-    "{content:'This will match with both github and malhar'}",
+      "{content:'This will match with both github and malhar'}",
 
-    "{content:'This will not match with any of them'}"
+      "{content:'This will not match with any of them'}"
 
     };
 
     String[][] matches = {
 
-    { MALHAR_TOPIC },
+      {MALHAR_TOPIC},
 
-    { GITHUB_TOPIC },
+      {GITHUB_TOPIC},
 
-    { GITHUB_TOPIC, MALHAR_TOPIC },
+      {GITHUB_TOPIC, MALHAR_TOPIC},
 
-    {}
+      {}
 
     };
 
     CollectorTestSink<PercolateResponse> sink = new CollectorTestSink<PercolateResponse>();
-    oper.outputPort.setSink((CollectorTestSink) sink);
+    oper.outputPort.setSink((CollectorTestSink)sink);
 
     for (String message : messages) {
       oper.inputPort.process(message);
@@ -145,15 +144,14 @@ public class ElasticSearchPercolateTest
   @After
   public void cleanup() throws IOException
   {
-    try{
+    try {
       DeleteIndexResponse delete = store.client.admin().indices().delete(new DeleteIndexRequest(INDEX_NAME)).actionGet();
       if (!delete.isAcknowledged()) {
         logger.error("Index wasn't deleted");
       }
 
       store.disconnect();
-    }
-    catch(NoNodeAvailableException e){
+    } catch (NoNodeAvailableException e) {
       //This indicates that elasticsearch is not running on a particular machine.
       //Silently ignore in this case.
     }

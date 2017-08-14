@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io.jms;
+package org.apache.apex.malhar.lib.io.jms;
 
 import java.io.File;
 
@@ -27,15 +27,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 
+import org.apache.apex.malhar.lib.io.jms.JMSOutputOperatorTest.JMSStringSinglePortOutputOperator;
+import org.apache.apex.malhar.lib.util.ActiveMQMultiTypeMessageListener;
 import org.apache.commons.io.FileUtils;
 
 import com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DAG;
-import com.datatorrent.lib.io.jms.JMSOutputOperatorTest.JMSStringSinglePortOutputOperator;
-import com.datatorrent.lib.util.ActiveMQMultiTypeMessageListener;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+
+import com.datatorrent.api.DAG;
 
 /**
  * Base testing class for testing transactionable store implementations.

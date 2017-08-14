@@ -36,6 +36,8 @@ import org.junit.runners.Parameterized;
 
 import org.apache.apex.malhar.lib.state.spillable.SpillableComplexComponentImpl;
 import org.apache.apex.malhar.lib.state.spillable.SpillableTestUtils;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.apex.malhar.lib.window.impl.FixedDiffEventTimeWatermarkGen;
 import org.apache.apex.malhar.lib.window.impl.InMemorySessionWindowedStorage;
 import org.apache.apex.malhar.lib.window.impl.InMemoryWindowedKeyedStorage;
@@ -49,8 +51,6 @@ import org.apache.apex.malhar.lib.window.impl.WindowedOperatorImpl;
 import org.apache.commons.lang3.mutable.MutableLong;
 
 import com.datatorrent.api.Sink;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Unit tests for WindowedOperator

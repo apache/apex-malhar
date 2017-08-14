@@ -23,12 +23,12 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.util.BaseKeyOperator;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
-
-import com.datatorrent.lib.util.BaseKeyOperator;
 
 /**
  * This operator filters the incoming stream of tuples using a set of specified key value pairs.&nbsp;

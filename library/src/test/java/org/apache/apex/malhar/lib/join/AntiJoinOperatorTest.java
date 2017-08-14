@@ -16,18 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.join;
+package org.apache.apex.malhar.lib.join;
 
 import java.util.HashMap;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.streamquery.condition.Condition;
-import com.datatorrent.lib.streamquery.condition.JoinColumnEqualCondition;
-import com.datatorrent.lib.streamquery.index.ColumnIndex;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.TestUtils;
+import org.apache.apex.malhar.lib.streamquery.condition.Condition;
+import org.apache.apex.malhar.lib.streamquery.condition.JoinColumnEqualCondition;
+import org.apache.apex.malhar.lib.streamquery.index.ColumnIndex;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.TestUtils;
 
 /**
  *

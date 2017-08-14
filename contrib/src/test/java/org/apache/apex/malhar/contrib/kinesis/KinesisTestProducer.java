@@ -16,16 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kinesis;
-
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.services.kinesis.AmazonKinesisClient;
-import com.amazonaws.services.kinesis.model.*;
+package org.apache.apex.malhar.contrib.kinesis;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.services.kinesis.AmazonKinesisClient;
+import com.amazonaws.services.kinesis.model.PutRecordRequest;
+import com.amazonaws.services.kinesis.model.PutRecordsRequest;
+import com.amazonaws.services.kinesis.model.PutRecordsRequestEntry;
+
 /**
  * A kinesis producer for testing
  */
@@ -40,7 +43,8 @@ public class KinesisTestProducer implements Runnable
   private boolean hasPartition = false;
   private List<String> records;
 
-  public void setRecords(List<String> records) {
+  public void setRecords(List<String> records)
+  {
     this.records = records;
   }
 
@@ -72,8 +76,7 @@ public class KinesisTestProducer implements Runnable
       putRecordsEntry.setData(ByteBuffer.wrap(dataStr.getBytes()));
       putRecordsEntry.setPartitionKey(dataStr);
       putRecordsRequestEntryList.add(putRecordsEntry);
-      if( (putRecordsRequestEntryList.size() == batchSize) || (recordNo == sendCount ))
-      {
+      if ( (putRecordsRequestEntryList.size() == batchSize) || (recordNo == sendCount )) {
         PutRecordsRequest putRecordsRequest = new PutRecordsRequest();
         putRecordsRequest.setStreamName(streamName);
         putRecordsRequest.setRecords(putRecordsRequestEntryList);

@@ -18,16 +18,16 @@
  */
 package org.apache.apex.examples.distributeddistinct;
 
+import org.apache.apex.malhar.lib.algo.UniqueValueCount;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+import org.apache.apex.malhar.lib.stream.Counter;
+import org.apache.apex.malhar.lib.stream.StreamDuplicater;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.algo.UniqueValueCount;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.stream.Counter;
-import com.datatorrent.lib.stream.StreamDuplicater;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * This application demonstrates the UniqueValueCount operator. It uses an input operator which generates random key

@@ -35,13 +35,13 @@ import org.junit.runner.Description;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import org.apache.apex.malhar.lib.db.jdbc.JdbcTransactionalStore;
 import org.apache.apex.malhar.lib.fs.FSRecordCompactionOperator;
 import org.apache.commons.io.FileUtils;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.db.jdbc.JdbcTransactionalStore;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 import static org.mockito.Mockito.when;
 
 public class RedshiftJdbcTransactionalOperatorTest

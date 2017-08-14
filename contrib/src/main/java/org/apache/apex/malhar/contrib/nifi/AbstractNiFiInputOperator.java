@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.nifi;
+package org.apache.apex.malhar.contrib.nifi;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -152,7 +152,8 @@ public abstract class AbstractNiFiInputOperator<T> implements InputOperator
       do {
         tuples.add(createTuple(dataPacket));
         dataPacket = transaction.receive();
-      } while (dataPacket != null);
+      }
+      while (dataPacket != null);
 
       // confirm all of the expected data was received by comparing check-sums, does not complete the transaction
       transaction.confirm();

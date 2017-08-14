@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.zmq;
+package org.apache.apex.malhar.contrib.zmq;
 
 import java.util.HashMap;
 
@@ -58,14 +58,12 @@ final class ZeroMQMessageReceiver implements Runnable
   {
     logger.debug("receiver running");
     while (!Thread.currentThread().isInterrupted() && !shutDown) {
-    	//logger.debug("receiver running in loop");
       byte[] msg = subscriber.recv(ZMQ.NOBLOCK);
       // convert to HashMap and save the values for each key
       // then expect c to be 1000, b=20, a=2
       // and do count++ (where count now would be 30)
-      if(msg == null || msg.length ==0)
-      {
-    	  continue;
+      if (msg == null || msg.length == 0) {
+        continue;
       }
       String str = new String(msg);
 
@@ -84,9 +82,8 @@ final class ZeroMQMessageReceiver implements Runnable
 
   public void teardown()
   {
-	shutDown=true;
-
-	syncclient.close();
+    shutDown = true;
+    syncclient.close();
     subscriber.close();
     context.term();
   }

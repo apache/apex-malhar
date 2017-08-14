@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.zmq;
+package org.apache.apex.malhar.contrib.zmq;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This is the base implementation of a ZeroMQ output adapter.&nbsp;
@@ -61,9 +61,9 @@ import com.datatorrent.api.Context.OperatorContext;
 public abstract class AbstractBaseZeroMQOutputOperator extends BaseOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractBaseZeroMQInputOperator.class);
-  transient protected ZMQ.Context context;
-  transient protected ZMQ.Socket publisher;
-  transient protected ZMQ.Socket syncservice;
+  protected transient ZMQ.Context context;
+  protected transient ZMQ.Socket publisher;
+  protected transient ZMQ.Socket syncservice;
   protected int SUBSCRIBERS_EXPECTED = 1;
   private String url;
   private String syncUrl;

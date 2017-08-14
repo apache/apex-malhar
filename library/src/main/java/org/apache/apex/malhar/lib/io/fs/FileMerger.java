@@ -17,15 +17,15 @@
  * under the License.
  */
 
-package com.datatorrent.lib.io.fs;
+package org.apache.apex.malhar.lib.io.fs;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.apex.malhar.lib.io.fs.Synchronizer.OutputFileMetadata;
 import org.apache.hadoop.fs.Path;
 
 import com.datatorrent.api.AutoMetric;
-import com.datatorrent.lib.io.fs.Synchronizer.OutputFileMetadata;
 
 /**
  * This operator merges the blocks into a file. The list of blocks is obtained

@@ -16,8 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.fs;
+package org.apache.apex.benchmark.fs;
 
+import org.apache.apex.malhar.lib.counters.BasicCounters;
+import org.apache.apex.malhar.lib.testbench.RandomWordGenerator;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 
@@ -28,10 +30,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-
-import com.datatorrent.lib.counters.BasicCounters;
-
-import com.datatorrent.lib.testbench.RandomWordGenerator;
 
 /**
  * Application used to benchmark HDFS output operator

@@ -18,6 +18,7 @@
  */
 package org.apache.apex.malhar.lib.window.impl;
 
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.apex.malhar.lib.window.ControlTuple;
 import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.apex.malhar.lib.window.WindowedMergeOperator;
@@ -26,7 +27,6 @@ import com.google.common.base.Function;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.lib.util.KeyValPair;
 
 
 /**

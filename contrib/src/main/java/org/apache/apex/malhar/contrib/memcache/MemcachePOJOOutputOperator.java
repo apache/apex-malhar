@@ -16,17 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.memcache;
+package org.apache.apex.malhar.contrib.memcache;
 
 import java.util.List;
 
+import org.apache.apex.malhar.lib.util.FieldInfo;
+import org.apache.apex.malhar.lib.util.FieldValueGenerator;
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Getter;
+import org.apache.apex.malhar.lib.util.TableInfo;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
-
-import com.datatorrent.lib.util.FieldInfo;
-import com.datatorrent.lib.util.FieldValueGenerator;
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Getter;
-import com.datatorrent.lib.util.TableInfo;
 
 /**
  *
@@ -36,7 +35,7 @@ import com.datatorrent.lib.util.TableInfo;
  * @since 3.0.0
  */
 @Evolving
-public class MemcachePOJOOutputOperator extends AbstractMemcacheOutputOperator< Object >
+public class MemcachePOJOOutputOperator extends AbstractMemcacheOutputOperator<Object>
 {
   private static final long serialVersionUID = 5290158463990158290L;
   private TableInfo<FieldInfo> tableInfo;
@@ -53,8 +52,7 @@ public class MemcachePOJOOutputOperator extends AbstractMemcacheOutputOperator< 
 
     final List<FieldInfo> fieldsInfo = tableInfo.getFieldsInfo();
     Object value = tuple;
-    if( fieldsInfo != null )
-    {
+    if ( fieldsInfo != null ) {
       if (fieldValueGenerator == null) {
         fieldValueGenerator = FieldValueGenerator.getFieldValueGenerator(tuple.getClass(), fieldsInfo);
       }

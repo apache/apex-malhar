@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.datatorrent.lib.io.fs;
+package org.apache.apex.malhar.lib.io.fs;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -28,15 +28,15 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import org.apache.apex.malhar.lib.counters.BasicCounters;
+import org.apache.apex.malhar.lib.io.fs.AbstractFileInputOperator.FailedFile;
+import org.apache.apex.malhar.lib.io.fs.AbstractFileInputOperator.FileCounters;
 import org.apache.commons.lang.mutable.MutableLong;
 
 import com.datatorrent.api.Partitioner.Partition;
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.StatsListener.BatchedOperatorStats;
 import com.datatorrent.api.StatsListener.Response;
-import com.datatorrent.lib.counters.BasicCounters;
-import com.datatorrent.lib.io.fs.AbstractFileInputOperator.FailedFile;
-import com.datatorrent.lib.io.fs.AbstractFileInputOperator.FileCounters;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;

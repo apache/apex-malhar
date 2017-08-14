@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
+package org.apache.apex.malhar.contrib.kafka;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,9 +37,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.collections.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -138,59 +139,58 @@ public class SimpleKafkaConsumer extends KafkaConsumer
         // stop consuming only when the consumer container is stopped or the metadata can not be refreshed
         while (consumer.isAlive && (consumer.metadataRefreshRetryLimit == -1 || consumer.retryCounter.get() < consumer.metadataRefreshRetryLimit)) {
 
-            if (kpS == null || kpS.isEmpty()) {
-              return;
-            }
+          if (kpS == null || kpS.isEmpty()) {
+            return;
+          }
 
-            FetchRequestBuilder frb = new FetchRequestBuilder().clientId(clientName);
-            // add all partition request in one Fretch request together
-            for (KafkaPartition kpForConsumer : kpS) {
-              frb.addFetch(consumer.topic, kpForConsumer.getPartitionId(), consumer.offsetTrack.get(kpForConsumer), consumer.bufferSize);
-            }
+          FetchRequestBuilder frb = new FetchRequestBuilder().clientId(clientName);
+          // add all partition request in one Fretch request together
+          for (KafkaPartition kpForConsumer : kpS) {
+            frb.addFetch(consumer.topic, kpForConsumer.getPartitionId(), consumer.offsetTrack.get(kpForConsumer), consumer.bufferSize);
+          }
 
-            FetchRequest req = frb.build();
-            if (ksc == null) {
-              if (consumer.metadataRefreshInterval > 0) {
-                Thread.sleep(consumer.metadataRefreshInterval + 1000);
-              } else {
-                Thread.sleep(100);
-              }
+          FetchRequest req = frb.build();
+          if (ksc == null) {
+            if (consumer.metadataRefreshInterval > 0) {
+              Thread.sleep(consumer.metadataRefreshInterval + 1000);
+            } else {
+              Thread.sleep(100);
             }
-            FetchResponse fetchResponse = ksc.fetch(req);
-            for (Iterator<KafkaPartition> iterator = kpS.iterator(); iterator.hasNext();) {
-              KafkaPartition kafkaPartition = iterator.next();
-              short errorCode = fetchResponse.errorCode(consumer.topic, kafkaPartition.getPartitionId());
-              if (fetchResponse.hasError() && errorCode != ErrorMapping.NoError()) {
-                // Kick off partition(s) which has error when fetch from this broker temporarily
-                // Monitor will find out which broker it goes in monitor thread
-                logger.warn("Error when consuming topic {} from broker {} with error {} ", kafkaPartition, broker,
+          }
+          FetchResponse fetchResponse = ksc.fetch(req);
+          for (Iterator<KafkaPartition> iterator = kpS.iterator(); iterator.hasNext();) {
+            KafkaPartition kafkaPartition = iterator.next();
+            short errorCode = fetchResponse.errorCode(consumer.topic, kafkaPartition.getPartitionId());
+            if (fetchResponse.hasError() && errorCode != ErrorMapping.NoError()) {
+              // Kick off partition(s) which has error when fetch from this broker temporarily
+              // Monitor will find out which broker it goes in monitor thread
+              logger.warn("Error when consuming topic {} from broker {} with error {} ", kafkaPartition, broker,
                   ErrorMapping.exceptionFor(errorCode));
-                if (errorCode == ErrorMapping.OffsetOutOfRangeCode()) {
-                  long seekTo = consumer.initialOffset.toLowerCase().equals("earliest") ? OffsetRequest.EarliestTime()
+              if (errorCode == ErrorMapping.OffsetOutOfRangeCode()) {
+                long seekTo = consumer.initialOffset.toLowerCase().equals("earliest") ? OffsetRequest.EarliestTime()
                     : OffsetRequest.LatestTime();
-                  seekTo = KafkaMetadataUtil.getLastOffset(ksc, consumer.topic, kafkaPartition.getPartitionId(), seekTo, clientName);
-                  logger.warn("Offset out of range error, reset offset to {}", seekTo);
-                  consumer.offsetTrack.put(kafkaPartition, seekTo);
-                  continue;
-                }
-                iterator.remove();
-                consumer.partitionToBroker.remove(kafkaPartition);
-                consumer.stats.updatePartitionStats(kafkaPartition, -1, "");
+                seekTo = KafkaMetadataUtil.getLastOffset(ksc, consumer.topic, kafkaPartition.getPartitionId(), seekTo, clientName);
+                logger.warn("Offset out of range error, reset offset to {}", seekTo);
+                consumer.offsetTrack.put(kafkaPartition, seekTo);
                 continue;
               }
-              // If the fetchResponse either has no error or the no error for $kafkaPartition get the data
-              long offset = -1l;
-              for (MessageAndOffset msg : fetchResponse.messageSet(consumer.topic, kafkaPartition.getPartitionId())) {
-                offset = msg.nextOffset();
-                consumer.putMessage(kafkaPartition, msg.message(), msg.offset());
-              }
-              if (offset != -1) {
-                consumer.offsetTrack.put(kafkaPartition, offset);
-              }
-
+              iterator.remove();
+              consumer.partitionToBroker.remove(kafkaPartition);
+              consumer.stats.updatePartitionStats(kafkaPartition, -1, "");
+              continue;
             }
+            // If the fetchResponse either has no error or the no error for $kafkaPartition get the data
+            long offset = -1L;
+            for (MessageAndOffset msg : fetchResponse.messageSet(consumer.topic, kafkaPartition.getPartitionId())) {
+              offset = msg.nextOffset();
+              consumer.putMessage(kafkaPartition, msg.message(), msg.offset());
+            }
+            if (offset != -1) {
+              consumer.offsetTrack.put(kafkaPartition, offset);
+            }
+          }
         }
-      } catch (Exception e){
+      } catch (Exception e) {
         logger.error("The consumer encounters an unrecoverable exception. Close the connection to broker {} \n Caused by {}", broker, e);
       } finally {
         if (ksc != null) {
@@ -304,7 +304,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
   private Set<KafkaPartition> kps = new HashSet<KafkaPartition>();
 
   // This map maintains mapping between kafka partition and it's leader broker in realtime monitored by a thread
-  private transient final ConcurrentHashMap<KafkaPartition, Broker> partitionToBroker = new ConcurrentHashMap<KafkaPartition, Broker>();
+  private final transient ConcurrentHashMap<KafkaPartition, Broker> partitionToBroker = new ConcurrentHashMap<KafkaPartition, Broker>();
 
   /**
    * Track offset for each partition, so operator could start from the last serialized state Use ConcurrentHashMap to
@@ -326,7 +326,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
     // thread to consume the kafka data
     kafkaConsumerExecutor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("kafka-consumer-" + topic + "-%d").build());
 
-    if(metadataRefreshInterval <= 0 || CollectionUtils.isEmpty(kps)) {
+    if (metadataRefreshInterval <= 0 || CollectionUtils.isEmpty(kps)) {
       return;
     }
 
@@ -334,7 +334,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
     metadataRefreshExecutor = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("kafka-consumer-monitor-" + topic + "-%d").setDaemon(true).build());
 
     // start one monitor thread to monitor the leader broker change and trigger some action
-    metadataRefreshExecutor.scheduleAtFixedRate(new MetaDataMonitorTask(this) , 0, metadataRefreshInterval, TimeUnit.MILLISECONDS);
+    metadataRefreshExecutor.scheduleAtFixedRate(new MetaDataMonitorTask(this), 0, metadataRefreshInterval, TimeUnit.MILLISECONDS);
   }
 
   @Override
@@ -462,17 +462,20 @@ public class SimpleKafkaConsumer extends KafkaConsumer
    * and restart failed consumer threads for the partitions.
    * Monitoring is disabled after metadataRefreshRetryLimit number of failure.
    */
-  private class MetaDataMonitorTask implements Runnable {
-
+  private class MetaDataMonitorTask implements Runnable
+  {
     private final SimpleKafkaConsumer ref;
 
-    private transient final SetMultimap<Broker, KafkaPartition> deltaPositive = HashMultimap.create();
+    private final transient SetMultimap<Broker, KafkaPartition> deltaPositive = HashMultimap.create();
 
-    private MetaDataMonitorTask(SimpleKafkaConsumer ref) {
+    private MetaDataMonitorTask(SimpleKafkaConsumer ref)
+    {
       this.ref = ref;
     }
 
-    @Override public void run() {
+    @Override
+    public void run()
+    {
       try {
         monitorMetadata();
         monitorException.set(null);
@@ -499,8 +502,9 @@ public class SimpleKafkaConsumer extends KafkaConsumer
         }
 
         for (Entry<String, List<PartitionMetadata>> pmLEntry : pms.entrySet()) {
-          if (pmLEntry.getValue() == null)
+          if (pmLEntry.getValue() == null) {
             continue;
+          }
           for (PartitionMetadata pm : pmLEntry.getValue()) {
             KafkaPartition kp = new KafkaPartition(pmLEntry.getKey(), topic, pm.partitionId());
             if (!kps.contains(kp)) {

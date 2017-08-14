@@ -16,12 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.math;
+package org.apache.apex.malhar.lib.math;
+
+import org.apache.apex.malhar.lib.util.BaseNumberValueOperator;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.Pair;
-import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
  *

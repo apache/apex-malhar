@@ -16,17 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.apachelog;
+package org.apache.apex.malhar.contrib.apachelog;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.Context.OperatorContext;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+import java.util.StringTokenizer;
 import java.util.concurrent.ArrayBlockingQueue;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator;
 
 /**
  * An implementation of input operator and activation listener that simulates the apache logs.
@@ -38,7 +50,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ApacheLogInputGenerator implements InputOperator, Operator.ActivationListener<OperatorContext>
 {
-  private final static String delimiter = ";";
+  private static final String delimiter = ";";
 
   private transient Random random;
   private transient int ipAddressCount;
@@ -99,13 +111,12 @@ public class ApacheLogInputGenerator implements InputOperator, Operator.Activati
 
   private List<String> readLines(String file) throws IOException
   {
-    List<String> lines = new ArrayList<String>();
+    List<String> lines = new ArrayList<>();
     InputStream in;
     File f = new File(file);
     if (f.exists()) {
       in = new FileInputStream(f);
-    }
-    else {
+    } else {
       in = getClass().getResourceAsStream(file);
     }
     BufferedReader br = new BufferedReader(new InputStreamReader(in));
@@ -114,8 +125,7 @@ public class ApacheLogInputGenerator implements InputOperator, Operator.Activati
       while ((line = br.readLine()) != null) {
         lines.add(line);
       }
-    }
-    finally {
+    } finally {
       br.close();
     }
     return lines;
@@ -150,8 +160,7 @@ public class ApacheLogInputGenerator implements InputOperator, Operator.Activati
         bytes.add(Integer.parseInt(token.nextToken().trim()));
         status.add(Integer.parseInt(token.nextToken().trim()));
       }
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException(e);
     }
 
@@ -214,8 +223,7 @@ public class ApacheLogInputGenerator implements InputOperator, Operator.Activati
           if (maxDelay > 0) {
             try {
               Thread.sleep(random.nextInt(maxDelay));
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
               return;
             }
           }
@@ -232,8 +240,8 @@ public class ApacheLogInputGenerator implements InputOperator, Operator.Activati
     try {
       thread.interrupt();
       thread.join();
-    }
-    catch (InterruptedException ex) {
+    } catch (InterruptedException ex) {
+      // ignore
     }
   }
 

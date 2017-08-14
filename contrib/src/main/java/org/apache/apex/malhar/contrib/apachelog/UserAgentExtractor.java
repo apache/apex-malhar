@@ -16,20 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.apachelog;
+package org.apache.apex.malhar.contrib.apachelog;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import com.datatorrent.lib.logs.InformationExtractor;
+import org.apache.apex.malhar.lib.logs.InformationExtractor;
+
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
-import java.util.concurrent.TimeUnit;
-
 import net.sf.uadetector.ReadableUserAgent;
-import net.sf.uadetector.service.UADetectorServiceFactory;
 import net.sf.uadetector.UserAgentStringParser;
+import net.sf.uadetector.service.UADetectorServiceFactory;
 
 /**
  * An implementation of Information Extractor that extracts the browser and the OS from a user-agent string.

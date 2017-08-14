@@ -16,17 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.mqtt;
+package org.apache.apex.malhar.contrib.mqtt;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.Operator.ActivationListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
-import org.fusesource.mqtt.client.*;
+
+import org.fusesource.mqtt.client.BlockingConnection;
+import org.fusesource.mqtt.client.MQTT;
+import org.fusesource.mqtt.client.Message;
+import org.fusesource.mqtt.client.QoS;
+import org.fusesource.mqtt.client.Topic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator.ActivationListener;
 
 /**
  * This is the base implementation for and MQTT input operator.&nbsp;
@@ -196,8 +201,7 @@ public abstract class AbstractMqttInputOperator implements InputOperator, Activa
             try {
               Message msg = connection.receive();
               holdingBuffer.add(msg);
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
               LOG.error("Trouble receiving", ex);
             }
           }
@@ -205,8 +209,7 @@ public abstract class AbstractMqttInputOperator implements InputOperator, Activa
 
       });
       thread.start();
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       LOG.error("Caught exception during activation: ", ex);
       throw new RuntimeException(ex);
     }
@@ -219,15 +222,12 @@ public abstract class AbstractMqttInputOperator implements InputOperator, Activa
     try {
       thread.interrupt();
       thread.join();
-    }
-    catch (InterruptedException ex) {
+    } catch (InterruptedException ex) {
       LOG.error("interrupted");
-    }
-    finally {
+    } finally {
       try {
         connection.disconnect();
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
         LOG.error("Caught exception during disconnect", ex);
       }
     }

@@ -19,4 +19,4 @@
 /**
  * This package contains simple physical metrics aggregators.
  */
-package com.datatorrent.lib.metric;
+package org.apache.apex.malhar.lib.metric;

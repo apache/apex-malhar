@@ -16,24 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.accumulo;
+package org.apache.apex.malhar.contrib.accumulo;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.common.util.BaseOperator;
 
-public class AccumuloTupleCollector extends BaseOperator {
+public class AccumuloTupleCollector extends BaseOperator
+{
 
   public static List<AccumuloTuple> tuples;
 
-  public AccumuloTupleCollector() {
+  public AccumuloTupleCollector()
+  {
     tuples = new ArrayList<AccumuloTuple>();
   }
 
-  public final transient DefaultInputPort<AccumuloTuple> inputPort = new DefaultInputPort<AccumuloTuple>() {
-    public void process(AccumuloTuple tuple) {
+  public final transient DefaultInputPort<AccumuloTuple> inputPort = new DefaultInputPort<AccumuloTuple>()
+  {
+    public void process(AccumuloTuple tuple)
+    {
       tuples.add(tuple);
     }
   };

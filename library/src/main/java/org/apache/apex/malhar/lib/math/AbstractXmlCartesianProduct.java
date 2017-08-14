@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.math;
+package org.apache.apex.malhar.lib.math;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +32,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.apache.apex.malhar.lib.xml.AbstractXmlDOMOperator;
+
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.xml.AbstractXmlDOMOperator;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**

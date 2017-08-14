@@ -16,15 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.multiwindow;
+package org.apache.apex.malhar.lib.multiwindow;
 
 import java.util.Map;
 
 import javax.validation.constraints.Min;
 
+import org.apache.apex.malhar.lib.math.SumKeyVal;
+import org.apache.apex.malhar.lib.util.KeyValPair;
+
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.lib.math.SumKeyVal;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * A sum operator of KeyValPair schema which accumulates sum across multiple

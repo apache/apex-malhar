@@ -16,13 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.memsql;
+package org.apache.apex.malhar.contrib.memsql;
 
-import com.datatorrent.api.Attribute;
-import com.datatorrent.api.Context;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.db.jdbc.JdbcTransactionalStore;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -32,7 +27,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import org.apache.apex.malhar.lib.db.jdbc.JdbcTransactionalStore;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+
+import com.datatorrent.api.Attribute;
+import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
+
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class AbstractMemsqlInputOperatorTest
 {
@@ -57,11 +59,9 @@ public class AbstractMemsqlInputOperatorTest
     memsqlStore.connect();
 
     try {
-      String insert = "insert into " + FQ_TABLE + " (" + INDEX_COLUMN + "," +DATA_COLUMN2 + ") " + "VALUES (" + "?,?" + ")";
+      String insert = "insert into " + FQ_TABLE + " (" + INDEX_COLUMN + "," + DATA_COLUMN2 + ") " + "VALUES (" + "?,?" + ")";
       PreparedStatement stmt = memsqlStore.getConnection().prepareStatement(insert);
-      for (int counter = 0;
-              counter < DATABASE_SIZE;
-              counter++) {
+      for (int counter = 0; counter < DATABASE_SIZE; counter++) {
         String test = "Testname" + counter;
         stmt.setInt(1, counter);
         stmt.setString(2, test);
@@ -69,8 +69,7 @@ public class AbstractMemsqlInputOperatorTest
       }
 
       stmt.close();
-    }
-    catch (SQLException ex) {
+    } catch (SQLException ex) {
       LOG.error(null, ex);
     }
 
@@ -91,16 +90,16 @@ public class AbstractMemsqlInputOperatorTest
 
     statement = memsqlStore.getConnection().createStatement();
     statement.executeUpdate("create table "
-            + FQ_TABLE
-            + "(" + INDEX_COLUMN + " INTEGER PRIMARY KEY, "
-            + DATA_COLUMN2
-            + " VARCHAR(256))");
+        + FQ_TABLE
+        + "(" + INDEX_COLUMN + " INTEGER PRIMARY KEY, "
+        + DATA_COLUMN2
+        + " VARCHAR(256))");
     String createMetaTable = "CREATE TABLE IF NOT EXISTS " + DATABASE + "." + JdbcTransactionalStore.DEFAULT_META_TABLE + " ( "
-            + JdbcTransactionalStore.DEFAULT_APP_ID_COL + " VARCHAR(100) NOT NULL, "
-            + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT NOT NULL, "
-            + JdbcTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT NOT NULL, "
-            + "PRIMARY KEY (" + JdbcTransactionalStore.DEFAULT_APP_ID_COL + ", " + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + ") "
-            + ")";
+        + JdbcTransactionalStore.DEFAULT_APP_ID_COL + " VARCHAR(100) NOT NULL, "
+        + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT NOT NULL, "
+        + JdbcTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT NOT NULL, "
+        + "PRIMARY KEY (" + JdbcTransactionalStore.DEFAULT_APP_ID_COL + ", " + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + ") "
+        + ")";
 
     statement.executeUpdate(createMetaTable);
 
@@ -160,9 +159,7 @@ public class AbstractMemsqlInputOperatorTest
 
     inputOperator.setup(null);
 
-    for (int wid = 0;
-            wid < NUM_WINDOWS + 1;
-            wid++) {
+    for (int wid = 0; wid < NUM_WINDOWS + 1; wid++) {
       inputOperator.beginWindow(wid);
       inputOperator.emitTuples();
       inputOperator.endWindow();
@@ -195,8 +192,8 @@ public class AbstractMemsqlInputOperatorTest
     columns.add("data_index");
     columns.add("data2");
     inputOperator.setColumns(columns);
-    inputOperator.setQuery("select * from " + FQ_TABLE +";");
-    inputOperator.setOutputClass("com.datatorrent.contrib.memsql.TestInputPojo");
+    inputOperator.setQuery("select * from " + FQ_TABLE + ";");
+    inputOperator.setOutputClass("org.apache.apex.malhar.contrib.memsql.TestInputPojo");
     CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
     inputOperator.outputPort.setSink(sink);
 
@@ -209,11 +206,11 @@ public class AbstractMemsqlInputOperatorTest
     Assert.assertEquals("rows from db", 100, sink.collectedTuples.size());
     for (int i = 0; i < 10; i++) {
       TestInputPojo object = (TestInputPojo)sink.collectedTuples.get(i);
-      Assert.assertEquals("id set in testpojo", i , object.getId());
+      Assert.assertEquals("id set in testpojo", i, object.getId());
       Assert.assertEquals("name set in testpojo", "Testname" + i, object.getName());
     }
     sink.clear();
-    inputOperator.setQuery("select * from " + FQ_TABLE + " where " + "%p " + ">= " + "%s"+";");
+    inputOperator.setQuery("select * from " + FQ_TABLE + " where " + "%p " + ">= " + "%s" + ";");
     inputOperator.setStartRow(10);
     inputOperator.setup(context);
 
@@ -222,7 +219,7 @@ public class AbstractMemsqlInputOperatorTest
     inputOperator.endWindow();
     Assert.assertEquals("rows from db", 90, sink.collectedTuples.size());
     sink.clear();
-    inputOperator.setQuery("select * from " + FQ_TABLE + " where " + "%p " + ">= " + "%s" + " LIMIT " + "%l" +";");
+    inputOperator.setQuery("select * from " + FQ_TABLE + " where " + "%p " + ">= " + "%s" + " LIMIT " + "%l" + ";");
     inputOperator.setStartRow(1);
 
     inputOperator.setBatchSize(10);

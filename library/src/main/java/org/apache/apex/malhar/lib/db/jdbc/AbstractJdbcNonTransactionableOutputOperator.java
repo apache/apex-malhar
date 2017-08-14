@@ -16,13 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.db.jdbc;
+package org.apache.apex.malhar.lib.db.jdbc;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import org.apache.apex.malhar.lib.db.AbstractStoreOutputOperator;
+
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
 /**
  * This is a base implementation of a JDBC non transactionable output operator.&nbsp;

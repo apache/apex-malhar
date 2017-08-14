@@ -24,13 +24,14 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.contrib.rabbitmq.AbstractSinglePortRabbitMQInputOperator;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Partitioner.PartitioningContext;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.apps.logstream.PropertyRegistry.LogstreamPropertyRegistry;
 import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.contrib.rabbitmq.AbstractSinglePortRabbitMQInputOperator;
 
 /**
  *

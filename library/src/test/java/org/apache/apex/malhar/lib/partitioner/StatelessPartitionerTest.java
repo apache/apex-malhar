@@ -16,13 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.partitioner;
+package org.apache.apex.malhar.lib.partitioner;
 
 import java.util.Collection;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import org.apache.apex.malhar.lib.util.TestUtils;
 
 import com.google.common.collect.Lists;
 
@@ -35,7 +37,6 @@ import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.Partitioner.Partition;
 import com.datatorrent.api.StringCodec.Object2String;
 import com.datatorrent.common.partitioner.StatelessPartitioner;
-import com.datatorrent.lib.util.TestUtils;
 
 public class StatelessPartitionerTest
 {

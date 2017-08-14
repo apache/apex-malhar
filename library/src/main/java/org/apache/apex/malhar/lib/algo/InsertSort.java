@@ -16,17 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.algo;
+package org.apache.apex.malhar.lib.algo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import org.apache.apex.malhar.lib.util.AbstractBaseSortOperator;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-
-import com.datatorrent.lib.util.AbstractBaseSortOperator;
 
 /**
  * This operator takes the values it receives each window and outputs them in ascending order at the end of each window.

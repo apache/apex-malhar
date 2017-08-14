@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.formatter;
+package org.apache.apex.malhar.contrib.formatter;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -34,14 +34,15 @@ import org.supercsv.io.CsvBeanWriter;
 import org.supercsv.io.ICsvBeanWriter;
 import org.supercsv.prefs.CsvPreference;
 
+import org.apache.apex.malhar.contrib.parser.DelimitedSchema;
+import org.apache.apex.malhar.contrib.parser.DelimitedSchema.Field;
+import org.apache.apex.malhar.contrib.parser.Schema.FieldType;
+import org.apache.apex.malhar.lib.formatter.Formatter;
+
 import com.google.common.annotations.VisibleForTesting;
 
 import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
-import com.datatorrent.contrib.parser.DelimitedSchema;
-import com.datatorrent.contrib.parser.DelimitedSchema.Field;
-import com.datatorrent.contrib.parser.Schema.FieldType;
-import com.datatorrent.lib.formatter.Formatter;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**

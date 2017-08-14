@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.nifi.mock;
+package org.apache.apex.malhar.contrib.nifi.mock;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -18,7 +18,7 @@
  */
 package org.apache.apex.examples.JdbcIngest;
 
-import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
+import org.apache.apex.malhar.lib.io.fs.AbstractFileOutputOperator;
 
 /**
  * @since 3.8.0

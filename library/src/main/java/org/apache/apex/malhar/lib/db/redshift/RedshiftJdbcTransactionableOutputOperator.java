@@ -29,6 +29,7 @@ import javax.validation.constraints.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
 import org.apache.apex.malhar.lib.fs.FSRecordCompactionOperator;
 import org.apache.hadoop.classification.InterfaceStability;
 
@@ -36,7 +37,6 @@ import com.google.common.base.Preconditions;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
 
 /**
  *  A concrete implementation of AbstractJdbcTransactionableOutputOperator for Redshift which takes FSRecordCompactionOperator.OutputMetaData.

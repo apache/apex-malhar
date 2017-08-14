@@ -20,6 +20,11 @@ package org.apache.apex.examples.FileToJdbcApp;
 
 import java.util.List;
 
+import org.apache.apex.malhar.contrib.parser.CsvParser;
+import org.apache.apex.malhar.lib.appdata.schemas.SchemaUtils;
+import org.apache.apex.malhar.lib.db.jdbc.JdbcFieldInfo;
+import org.apache.apex.malhar.lib.db.jdbc.JdbcPOJOInsertOutputOperator;
+import org.apache.apex.malhar.lib.db.jdbc.JdbcTransactionalStore;
 import org.apache.hadoop.conf.Configuration;
 
 import com.google.common.collect.Lists;
@@ -27,11 +32,6 @@ import com.google.common.collect.Lists;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.contrib.parser.CsvParser;
-import com.datatorrent.lib.appdata.schemas.SchemaUtils;
-import com.datatorrent.lib.db.jdbc.JdbcFieldInfo;
-import com.datatorrent.lib.db.jdbc.JdbcPOJOInsertOutputOperator;
-import com.datatorrent.lib.db.jdbc.JdbcTransactionalStore;
 
 import static java.sql.Types.INTEGER;
 import static java.sql.Types.VARCHAR;

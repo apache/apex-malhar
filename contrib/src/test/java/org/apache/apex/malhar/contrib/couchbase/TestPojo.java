@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchbase;
+package org.apache.apex.malhar.contrib.couchbase;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -55,6 +55,7 @@ public class TestPojo implements Serializable
   {
     this.phone = phone;
   }
+
   private HashMap<String,Integer> map;
   private Integer phone;
 

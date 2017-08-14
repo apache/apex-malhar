@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
+package org.apache.apex.malhar.contrib.kafka;
 
 import java.nio.ByteBuffer;
 import kafka.message.Message;
@@ -24,28 +24,26 @@ import kafka.message.Message;
   /**
    * @since 2.1.0
    */
-  public class KafkaSinglePortByteArrayInputOperator extends AbstractKafkaSinglePortInputOperator<byte[]>
-  {
-
+public class KafkaSinglePortByteArrayInputOperator extends AbstractKafkaSinglePortInputOperator<byte[]>
+{
     /**
      * Implement abstract method of AbstractKafkaSinglePortInputOperator
      *
      * @param message
      * @return byte Array
      */
-    @Override
-    public byte[] getTuple(Message message)
-    {
-      byte[] bytes = null;
-      try {
-        ByteBuffer buffer = message.payload();
-        bytes = new byte[buffer.remaining()];
-        buffer.get(bytes);
-      }
-      catch (Exception ex) {
-        return bytes;
-      }
+  @Override
+  public byte[] getTuple(Message message)
+  {
+    byte[] bytes = null;
+    try {
+      ByteBuffer buffer = message.payload();
+      bytes = new byte[buffer.remaining()];
+      buffer.get(bytes);
+    } catch (Exception ex) {
       return bytes;
     }
-
+    return bytes;
   }
+
+}

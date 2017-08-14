@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.datatorrent.lib.projection;
+package org.apache.apex.malhar.lib.projection;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -26,6 +26,8 @@ import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.util.PojoUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.hadoop.classification.InterfaceStability;
 
@@ -40,7 +42,6 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.util.PojoUtils;
 
 /**
  * <b>ProjectionOperator</b>

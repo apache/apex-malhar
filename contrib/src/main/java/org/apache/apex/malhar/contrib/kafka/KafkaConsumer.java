@@ -16,21 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
+package org.apache.apex.malhar.contrib.kafka;
 
-import com.datatorrent.api.Context;
-import com.esotericsoftware.kryo.serializers.FieldSerializer.Bind;
-import com.esotericsoftware.kryo.serializers.JavaSerializer;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.SetMultimap;
-import kafka.message.Message;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Pattern.Flag;
 import java.io.Closeable;
 import java.io.Serializable;
 import java.util.Collection;
@@ -44,6 +31,19 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Pattern.Flag;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import com.esotericsoftware.kryo.serializers.FieldSerializer.Bind;
+import com.esotericsoftware.kryo.serializers.JavaSerializer;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.SetMultimap;
+import com.datatorrent.api.Context;
+import kafka.message.Message;
 
 /**
  * Base Kafka Consumer class used by kafka input operator
@@ -52,9 +52,9 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class KafkaConsumer implements Closeable
 {
-  protected final static String HIGHLEVEL_CONSUMER_ID_SUFFIX = "_stream_";
+  protected static final String HIGHLEVEL_CONSUMER_ID_SUFFIX = "_stream_";
 
-  protected final static String SIMPLE_CONSUMER_ID_SUFFIX = "_partition_";
+  protected static final String SIMPLE_CONSUMER_ID_SUFFIX = "_partition_";
   private String zookeeper;
 
   public KafkaConsumer()
@@ -111,7 +111,7 @@ public abstract class KafkaConsumer implements Closeable
    * This setting is case_insensitive
    * By default it always consume from the beginning of the queue
    */
-  @Pattern(flags={Flag.CASE_INSENSITIVE}, regexp = "earliest|latest")
+  @Pattern(flags = {Flag.CASE_INSENSITIVE}, regexp = "earliest|latest")
   protected String initialOffset = "latest";
 
 
@@ -122,17 +122,18 @@ public abstract class KafkaConsumer implements Closeable
   /**
    * This method is called in setup method of the operator
    */
-  public void create(){
+  public void create()
+  {
     initBrokers();
     holdingBuffer = new ArrayBlockingQueue<KafkaMessage>(cacheSize);
   }
 
   public void initBrokers()
   {
-    if(brokers!=null){
-      return ;
+    if (brokers != null) {
+      return;
     }
-    if(zookeeperMap !=null){
+    if (zookeeperMap != null) {
       brokers = HashMultimap.create();
       for (String clusterId: zookeeperMap.keySet()) {
         try {
@@ -158,12 +159,13 @@ public abstract class KafkaConsumer implements Closeable
   /**
    * The method is called in the deactivate method of the operator
    */
-  public void stop() {
+  public void stop()
+  {
     isAlive = false;
     statsSnapShot.stop();
     holdingBuffer.clear();
     IOUtils.closeQuietly(this);
-  };
+  }
 
   /**
    * This method is called in teardown method of the operator
@@ -227,7 +229,8 @@ public abstract class KafkaConsumer implements Closeable
   }
 
 
-  final protected void putMessage(KafkaPartition partition, Message msg, long offset) throws InterruptedException{
+  protected final void putMessage(KafkaPartition partition, Message msg, long offset) throws InterruptedException
+  {
     // block from receiving more message
     holdingBuffer.put(new KafkaMessage(partition, msg, offset));
     statsSnapShot.mark(partition, msg.payloadSize());
@@ -300,7 +303,8 @@ public abstract class KafkaConsumer implements Closeable
       totalBytesPerSec = _1minAvg[1];
     }
 
-    public void updateOffsets(Map<KafkaPartition, Long> offsets){
+    public void updateOffsets(Map<KafkaPartition, Long> offsets)
+    {
       for (Entry<KafkaPartition, Long> os : offsets.entrySet()) {
         PartitionStats ps = putPartitionStatsIfNotPresent(os.getKey());
         ps.offset = os.getValue();
@@ -325,7 +329,8 @@ public abstract class KafkaConsumer implements Closeable
       ps.brokerId = brokerId;
     }
 
-    private synchronized PartitionStats putPartitionStatsIfNotPresent(KafkaPartition kp){
+    private synchronized PartitionStats putPartitionStatsIfNotPresent(KafkaPartition kp)
+    {
       PartitionStats ps = partitionStats.get(kp);
 
       if (ps == null) {
@@ -347,6 +352,7 @@ public abstract class KafkaConsumer implements Closeable
       this.msg = msg;
       this.offSet = offset;
     }
+
     public KafkaPartition getKafkaPart()
     {
       return kafkaPart;
@@ -363,8 +369,8 @@ public abstract class KafkaConsumer implements Closeable
     }
   }
 
-  public static class KafkaMeterStatsUtil {
-
+  public static class KafkaMeterStatsUtil
+  {
     public static Map<KafkaPartition, Long> getOffsetsForPartitions(List<KafkaMeterStats> kafkaMeterStats)
     {
       Map<KafkaPartition, Long> result = Maps.newHashMap();
@@ -387,11 +393,8 @@ public abstract class KafkaConsumer implements Closeable
 
   }
 
-  public static class KafkaMeterStatsAggregator implements Context.CountersAggregator, Serializable{
-
-    /**
-     *
-     */
+  public static class KafkaMeterStatsAggregator implements Context.CountersAggregator, Serializable
+  {
     private static final long serialVersionUID = 729987800215151678L;
 
     @Override
@@ -399,7 +402,7 @@ public abstract class KafkaConsumer implements Closeable
     {
       KafkaMeterStats kms = new KafkaMeterStats();
       for (Object o : countersList) {
-        if (o instanceof KafkaMeterStats){
+        if (o instanceof KafkaMeterStats) {
           KafkaMeterStats subKMS = (KafkaMeterStats)o;
           kms.partitionStats.putAll(subKMS.partitionStats);
           kms.totalBytesPerSec += subKMS.totalBytesPerSec;
@@ -411,12 +414,8 @@ public abstract class KafkaConsumer implements Closeable
 
   }
 
-  public static class PartitionStats implements Serializable {
-
-
-    /**
-     *
-     */
+  public static class PartitionStats implements Serializable
+  {
     private static final long serialVersionUID = -6572690643487689766L;
 
     public int brokerId = -1;
@@ -431,13 +430,11 @@ public abstract class KafkaConsumer implements Closeable
 
   }
 
-
-
   /**
    * A snapshot of consuming rate within 1 min
    */
-  static class SnapShot {
-
+  static class SnapShot
+  {
     // msgs/s and bytes/s for each partition
 
     /**
@@ -485,35 +482,41 @@ public abstract class KafkaConsumer implements Closeable
     }
 
 
-    public void start(){
-      if(service==null){
+    public void start()
+    {
+      if (service == null) {
         service = Executors.newScheduledThreadPool(1);
       }
-      service.scheduleAtFixedRate(new Runnable() {
+      service.scheduleAtFixedRate(new Runnable()
+      {
         @Override
         public void run()
         {
           moveNext();
-          if(last<60)last++;
+          if (last < 60) {
+            last++;
+          }
         }
       }, 1, 1, TimeUnit.SECONDS);
 
     }
 
-    public void stop(){
-      if(service!=null){
+    public void stop()
+    {
+      if (service != null) {
         service.shutdown();
       }
     }
 
-    public synchronized void mark(KafkaPartition partition, long bytes){
+    public synchronized void mark(KafkaPartition partition, long bytes)
+    {
       msgSec[cursor]++;
       msgSec[60]++;
       bytesSec[cursor] += bytes;
       bytesSec[60] += bytes;
       long[] msgv = _1_min_msg_sum_par.get(partition);
       long[] bytev = _1_min_byte_sum_par.get(partition);
-      if(msgv == null){
+      if (msgv == null) {
         msgv = new long[61];
         bytev = new long[61];
         _1_min_msg_sum_par.put(partition, msgv);
@@ -525,12 +528,13 @@ public abstract class KafkaConsumer implements Closeable
       bytev[60] += bytes;
     }
 
-    public synchronized void setupStats(KafkaMeterStats stat){
-      long[] _1minAvg = {msgSec[60]/last, bytesSec[60]/last};
+    public synchronized void setupStats(KafkaMeterStats stat)
+    {
+      long[] _1minAvg = {msgSec[60] / last, bytesSec[60] / last};
       for (Entry<KafkaPartition, long[]> item : _1_min_msg_sum_par.entrySet()) {
-        long[] msgv =item.getValue();
+        long[] msgv = item.getValue();
         long[] bytev = _1_min_byte_sum_par.get(item.getKey());
-        long[] _1minAvgPar = {msgv[60]/last, bytev[60]/last};
+        long[] _1minAvgPar = {msgv[60] / last, bytev[60] / last};
         stat.set_1minMovingAvgPerPartition(item.getKey(), _1minAvgPar);
       }
       stat.set_1minMovingAvg(_1minAvg);

@@ -25,6 +25,9 @@ import java.net.UnknownHostException;
 
 import org.joda.time.Duration;
 
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+import org.apache.apex.malhar.lib.io.PubSubWebSocketAppDataQuery;
+import org.apache.apex.malhar.lib.io.PubSubWebSocketAppDataResult;
 import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.WindowOption;
 import org.apache.apex.malhar.lib.window.WindowState;
@@ -40,9 +43,6 @@ import com.google.common.base.Throwables;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
-import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
 
 /**
  * The DAG definition of the example that illustrates New York City taxi ride data processing.

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.util;
+package org.apache.apex.malhar.contrib.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +26,7 @@ import java.util.Map;
 public class TupleGenerateCacheOperator<T> extends POJOTupleGenerateOperator<T>
 {
   //one instance of TupleCacheOutputOperator map to one
-  private static Map< String, List<?> > emittedTuplesMap = new HashMap< String, List<?>>();
+  private static Map<String, List<?>> emittedTuplesMap = new HashMap<>();
 
   private String uuid;
 
@@ -39,8 +39,7 @@ public class TupleGenerateCacheOperator<T> extends POJOTupleGenerateOperator<T>
   protected void tupleEmitted( T tuple )
   {
     List<T> emittedTuples = (List<T>)emittedTuplesMap.get(uuid);
-    if( emittedTuples == null )
-    {
+    if ( emittedTuples == null ) {
       emittedTuples = new ArrayList<T>();
       emittedTuplesMap.put(uuid, emittedTuples);
     }

@@ -26,8 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.apex.malhar.contrib.misc.streamquery.SelectFunctionOperator;
 import org.apache.apex.malhar.contrib.misc.streamquery.function.AverageFunction;
-
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
 /**
  * Functional test for {@link org.apache.apex.malhar.contrib.misc.streamquery.SelectOperatorTest}.

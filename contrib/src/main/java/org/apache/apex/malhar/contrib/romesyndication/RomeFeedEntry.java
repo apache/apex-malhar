@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.romesyndication;
+package org.apache.apex.malhar.contrib.romesyndication;
 
 import java.io.Serializable;
+
+import org.apache.apex.malhar.lib.codec.KryoJdkContainer;
 
 import com.esotericsoftware.kryo.DefaultSerializer;
 import com.esotericsoftware.kryo.serializers.JavaSerializer;
 import com.sun.syndication.feed.synd.SyndEntry;
-
-import com.datatorrent.lib.codec.KryoJdkContainer;
 
 /**
  * RomeFeedEntry that wraps a Rome syndication entry.<p><br>

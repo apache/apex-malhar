@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io;
+package org.apache.apex.malhar.lib.io;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,13 +30,13 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.io.fs.AbstractFileInputOperator;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.ftp.FTPFileSystem;
 
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
 
 /**
  * An {@link AbstractFileInputOperator} that scans a remote directory via FTP for new files.<br/>

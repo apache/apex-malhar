@@ -16,23 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
+package org.apache.apex.malhar.contrib.kafka;
 
 import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.*;
+import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator.ActivationListener;
+import com.datatorrent.api.StreamingApplication;
 
 /**
  *
@@ -88,8 +92,8 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
               tupleCount++;
             }
             stringBuffer.put(KafkaOperatorTestBase.END_TUPLE);
-          }
-          catch (InterruptedException ie) {
+          } catch (InterruptedException ie) {
+            //
           }
         }
       };
@@ -133,8 +137,8 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
 
     // Create DAG for testing.
     LocalMode lma = LocalMode.newInstance();
-
-    StreamingApplication app = new StreamingApplication() {
+    StreamingApplication app = new StreamingApplication()
+    {
       @Override
       public void populateDAG(DAG dag, Configuration conf)
       {
@@ -205,8 +209,8 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
 
     // Create DAG for testing.
     LocalMode lma = LocalMode.newInstance();
-
-    StreamingApplication app = new StreamingApplication() {
+    StreamingApplication app = new StreamingApplication()
+    {
       @Override
       public void populateDAG(DAG dag, Configuration conf)
       {

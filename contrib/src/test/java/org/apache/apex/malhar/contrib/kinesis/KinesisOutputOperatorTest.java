@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kinesis;
+package org.apache.apex.malhar.contrib.kinesis;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -29,14 +29,18 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.api.*;
+import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.StreamingApplication;
 
 /**
  *
  */
 @SuppressWarnings("rawtypes")
-public abstract class KinesisOutputOperatorTest< O extends AbstractKinesisOutputOperator, G extends Operator > extends KinesisOperatorTestBase
+public abstract class KinesisOutputOperatorTest<O extends AbstractKinesisOutputOperator, G extends Operator> extends KinesisOperatorTestBase
 {
   private static final Logger logger = LoggerFactory.getLogger(KinesisOutputOperatorTest.class);
   //protected static int tupleCount = 0;
@@ -68,11 +72,9 @@ public abstract class KinesisOutputOperatorTest< O extends AbstractKinesisOutput
   {
     // Setup a message listener to receive the message
     KinesisTestConsumer listener = null;
-    if( enableConsumer )
-    {
+    if ( enableConsumer ) {
       listener = createConsumerListener(streamName);
-      if( listener != null )
-      {
+      if ( listener != null ) {
         //initialize the latch to synchronize the threads
         doneLatch = new CountDownLatch(maxTuple);
         listener.setDoneLatch(doneLatch);
@@ -82,8 +84,8 @@ public abstract class KinesisOutputOperatorTest< O extends AbstractKinesisOutput
     }
     // Create DAG for testing.
     LocalMode lma = LocalMode.newInstance();
-
-    StreamingApplication app = new StreamingApplication() {
+    StreamingApplication app = new StreamingApplication()
+    {
       @Override
       public void populateDAG(DAG dag, Configuration conf)
       {
@@ -109,33 +111,33 @@ public abstract class KinesisOutputOperatorTest< O extends AbstractKinesisOutput
     lc.runAsync();
 
     int waitTime = 300000;
-    if( doneLatch != null )
+    if ( doneLatch != null ) {
       doneLatch.await(waitTime, TimeUnit.MILLISECONDS);
-    else
-    {
-      try
-      {
+    } else {
+      try {
         Thread.sleep(waitTime);
+      } catch ( Exception e ) {
+        //
       }
-      catch( Exception e ){}
     }
 
-    if( listener != null )
+    if ( listener != null ) {
       listener.setIsAlive(false);
+    }
 
-    if( listenerThread != null )
+    if ( listenerThread != null ) {
       listenerThread.join( 1000 );
-
+    }
     lc.shutdown();
 
     // Check values send vs received
-    if( listener != null )
-    {
+    if ( listener != null ) {
       Assert.assertEquals("Number of emitted tuples", maxTuple, listener.holdingBuffer.size());
       logger.debug(String.format("Number of emitted tuples: %d", listener.holdingBuffer.size()));
     }
-    if( listener != null )
+    if ( listener != null ) {
       listener.close();
+    }
   }
 
   protected KinesisTestConsumer createConsumerListener( String streamName )
@@ -154,7 +156,9 @@ public abstract class KinesisOutputOperatorTest< O extends AbstractKinesisOutput
   }
 
   protected abstract G addGenerateOperator( DAG dag );
+
   protected abstract DefaultOutputPort getOutputPortOfGenerator( G generator );
+
   protected abstract O addTestingOperator( DAG dag );
 
 }

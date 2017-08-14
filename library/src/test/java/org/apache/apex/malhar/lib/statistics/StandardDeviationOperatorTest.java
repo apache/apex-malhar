@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.statistics;
+package org.apache.apex.malhar.lib.statistics;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
 /**
- * Functional Test for {@link com.datatorrent.lib.statistics.WeightedMeanOperator}. <br>
+ * Functional Test for {@link org.apache.apex.malhar.lib.statistics.WeightedMeanOperator}. <br>
  */
 public class StandardDeviationOperatorTest
 {

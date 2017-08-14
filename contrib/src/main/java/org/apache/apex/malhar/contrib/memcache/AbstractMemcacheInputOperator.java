@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.memcache;
+package org.apache.apex.malhar.contrib.memcache;
 
-import com.datatorrent.lib.db.AbstractKeyValueStoreInputOperator;
+import org.apache.apex.malhar.lib.db.AbstractKeyValueStoreInputOperator;
 
 /**
  * This is the base implementation used for memcached input adapters.&nbsp;

@@ -23,12 +23,11 @@ import java.util.Map;
 
 import org.apache.apex.examples.machinedata.data.AverageData;
 import org.apache.apex.examples.machinedata.data.MachineKey;
+import org.apache.apex.malhar.lib.util.KeyHashValPair;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
-
-import com.datatorrent.lib.util.KeyHashValPair;
 
 /**
  * This class calculates the partial sum and count for a given key

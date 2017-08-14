@@ -16,10 +16,5 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/**
- * <b>com.datatorrent.lib.samplecode.math</b> is a library examples of usages of operators from math library<p>
- * <br>
- * <br>
- */
-
-package com.datatorrent.samples.lib.math;
+@org.apache.hadoop.classification.InterfaceStability.Evolving
+package org.apache.apex.malhar.contrib.misc.math;

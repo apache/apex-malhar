@@ -16,12 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.romesyndication;
+package org.apache.apex.malhar.contrib.romesyndication;
 
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.common.util.BaseOperator;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -31,10 +32,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  *
@@ -101,8 +102,7 @@ public class RomeSyndicationOperatorTest
       if (index == 0) {
         is = getClass().getResourceAsStream("/com/datatorrent/contrib/romesyndication/datatorrent_feed.rss");
         ++index;
-      }
-      else {
+      } else {
         is = getClass().getResourceAsStream("/com/datatorrent/contrib/romesyndication/datatorrent_feed_updated.rss");
       }
       return is;
@@ -140,8 +140,7 @@ public class RomeSyndicationOperatorTest
       // Check last entry
       Assert.assertEquals("Last entry title", entries.get(9).getSyndEntry().getTitle(), "Dimensions Computation (Aggregate Navigator) Part 2: Implementation");
       Assert.assertEquals("Last entry URI", entries.get(9).getSyndEntry().getUri(), "https://www.datatorrent.com/?p=2401");
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       logger.error(ex.getMessage());
       Assert.assertFalse(true);
     }

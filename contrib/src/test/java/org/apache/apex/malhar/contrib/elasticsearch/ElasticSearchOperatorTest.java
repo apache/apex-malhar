@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.elasticsearch;
+package org.apache.apex.malhar.contrib.elasticsearch;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -86,11 +86,12 @@ public class ElasticSearchOperatorTest
   private List<String> writeToES()
   {
 
-    ElasticSearchMapOutputOperator<Map<String, Object>> operator = new ElasticSearchMapOutputOperator<Map<String, Object>>() {
+    ElasticSearchMapOutputOperator<Map<String, Object>> operator = new ElasticSearchMapOutputOperator<Map<String, Object>>()
+    {
       /*
        * (non-Javadoc)
        *
-       * @see com.datatorrent.contrib.elasticsearch. AbstractElasticSearchOutputOperator #processTuple(java.lang.Object)
+       * @see org.apache.apex.malhar.contrib.elasticsearch. AbstractElasticSearchOutputOperator #processTuple(java.lang.Object)
        */
       @Override
       public void processTuple(Map<String, Object> tuple)
@@ -134,11 +135,12 @@ public class ElasticSearchOperatorTest
    */
   private List<String> readFromES(List<String> writtenTupleIDs, final long testStartTime)
   {
-    ElasticSearchMapInputOperator<Map<String, Object>> operator = new ElasticSearchMapInputOperator<Map<String, Object>>() {
+    ElasticSearchMapInputOperator<Map<String, Object>> operator = new ElasticSearchMapInputOperator<Map<String, Object>>()
+    {
       /**
        * Set SearchRequestBuilder parameters specific to current window.
        *
-       * @see com.datatorrent.contrib.elasticsearch.ElasticSearchMapInputOperator#getSearchRequestBuilder()
+       * @see org.apache.apex.malhar.contrib.elasticsearch.ElasticSearchMapInputOperator#getSearchRequestBuilder()
        */
       @Override
       protected SearchRequestBuilder getSearchRequestBuilder()
@@ -155,8 +157,8 @@ public class ElasticSearchOperatorTest
 
     final List<String> tupleIDsRead = new ArrayList<String>();
 
-    Sink sink = new Sink<Map<String, Object>>() {
-
+    Sink sink = new Sink<Map<String, Object>>()
+    {
       @Override
       public void put(Map<String, Object> tuple)
       {

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hive;
+package org.apache.apex.malhar.hive;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -28,6 +28,9 @@ import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.hive.AbstractFSRollingOutputOperator.FilePartitionMapping;
+import org.apache.apex.malhar.lib.counters.BasicCounters;
+import org.apache.apex.malhar.lib.db.AbstractStoreOutputOperator;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -35,9 +38,6 @@ import org.apache.hadoop.fs.Path;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.contrib.hive.AbstractFSRollingOutputOperator.FilePartitionMapping;
-import com.datatorrent.lib.counters.BasicCounters;
-import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
 /**
  * Hive operator which can insert data in txt format in tables/partitions from a

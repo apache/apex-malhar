@@ -26,16 +26,17 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.apex.malhar.contrib.misc.streamquery.condition.HavingCondition;
 import org.apache.apex.malhar.contrib.misc.streamquery.function.FunctionIndex;
+import org.apache.apex.malhar.lib.streamquery.condition.Condition;
+import org.apache.apex.malhar.lib.streamquery.index.ColumnIndex;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.streamquery.index.ColumnIndex;
-import com.datatorrent.lib.streamquery.condition.Condition;
-@Deprecated
+
 /**
  * @since 3.6.0
  */
+@Deprecated
 public class GroupByHavingOperator extends BaseOperator
 {
 

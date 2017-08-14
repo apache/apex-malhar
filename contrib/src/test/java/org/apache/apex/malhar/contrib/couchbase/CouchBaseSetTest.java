@@ -16,15 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchbase;
+package org.apache.apex.malhar.contrib.couchbase;
 
-import com.couchbase.client.CouchbaseClient;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import net.spy.memcached.internal.OperationFuture;
-import net.spy.memcached.internal.OperationCompletionListener;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -33,6 +30,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.couchbase.client.CouchbaseClient;
+import net.spy.memcached.internal.OperationCompletionListener;
+import net.spy.memcached.internal.OperationFuture;
 
 /**
  * CouchBaseSetTest class which implements unit tests for Couchbase set functionality.
@@ -85,10 +86,8 @@ public class CouchBaseSetTest
     // Try to connect to the client
     try {
       client = new CouchbaseClient(nodes, "default", "");
-    }
-    catch (Exception e) {
-      System.err.println("Error connecting to Couchbase: " + e.getMessage());
-      System.exit(1);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
 
     TestPojo obj = new TestPojo();
@@ -97,7 +96,7 @@ public class CouchBaseSetTest
     HashMap<String, Integer> map = new HashMap<String, Integer>();
     map.put("test", 12345);
     obj.setMap(map);
-    future = processKeyValue("key" , obj);
+    future = processKeyValue("key", obj);
     future.addListener(listener);
 
   }

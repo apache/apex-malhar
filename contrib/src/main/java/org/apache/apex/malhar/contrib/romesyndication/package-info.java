@@ -20,4 +20,4 @@
  * Rome operators and utilities.
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-package com.datatorrent.contrib.romesyndication;
+package org.apache.apex.malhar.contrib.romesyndication;

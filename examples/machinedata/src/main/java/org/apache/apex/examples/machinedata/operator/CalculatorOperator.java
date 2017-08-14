@@ -31,6 +31,8 @@ import org.apache.apex.examples.machinedata.data.MachineInfo;
 import org.apache.apex.examples.machinedata.data.MachineKey;
 import org.apache.apex.examples.machinedata.data.ResourceType;
 import org.apache.apex.examples.machinedata.util.DataTable;
+import org.apache.apex.malhar.lib.codec.KryoSerializableStreamCodec;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
@@ -40,9 +42,6 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.common.util.BaseOperator;
-
-import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * <p>
