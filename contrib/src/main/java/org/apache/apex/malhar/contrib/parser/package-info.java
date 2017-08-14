@@ -17,4 +17,4 @@
  * under the License.
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-package org.apache.apex.malhar.contrib.parser;
+package com.datatorrent.contrib.parser;
