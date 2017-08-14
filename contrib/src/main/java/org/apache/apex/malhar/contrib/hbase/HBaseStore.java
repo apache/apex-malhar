@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -27,6 +27,7 @@ import javax.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.db.Connectable;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -41,7 +42,6 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 
-import com.datatorrent.lib.db.Connectable;
 /**
  * A {@link Connectable} that uses HBase to connect to stores and implements Connectable interface.
  * <p>
@@ -50,15 +50,15 @@ import com.datatorrent.lib.db.Connectable;
  * @tags store, hbase
  * @since 1.0.2
  */
-public class HBaseStore implements Connectable {
-
+public class HBaseStore implements Connectable
+{
   public static final String USER_NAME_SPECIFIER = "%USER_NAME%";
 
   private static final Logger logger = LoggerFactory.getLogger(HBaseStore.class);
 
   private String zookeeperQuorum;
   private int zookeeperClientPort;
-  
+
   // Default table name if specified
   protected String tableName;
 
@@ -67,7 +67,7 @@ public class HBaseStore implements Connectable {
   // Default interval 30 min
   protected long reloginCheckInterval = 30 * 60 * 1000;
   protected transient Thread loginRenewer;
-  private volatile transient boolean doRelogin;
+  private transient volatile boolean doRelogin;
 
   protected transient HTable table;
   // Multi - table
@@ -76,13 +76,14 @@ public class HBaseStore implements Connectable {
 
   @Min(1)
   protected int maxOpenTables = Integer.MAX_VALUE;
-  
+
   /**
    * Get the zookeeper quorum location.
    *
    * @return The zookeeper quorum location
    */
-  public String getZookeeperQuorum() {
+  public String getZookeeperQuorum()
+  {
     return zookeeperQuorum;
   }
 
@@ -92,7 +93,8 @@ public class HBaseStore implements Connectable {
    * @param zookeeperQuorum
    *            The zookeeper quorum location
    */
-  public void setZookeeperQuorum(String zookeeperQuorum) {
+  public void setZookeeperQuorum(String zookeeperQuorum)
+  {
     this.zookeeperQuorum = zookeeperQuorum;
   }
 
@@ -101,7 +103,8 @@ public class HBaseStore implements Connectable {
    *
    * @return The zookeeper client port
    */
-  public int getZookeeperClientPort() {
+  public int getZookeeperClientPort()
+  {
     return zookeeperClientPort;
   }
 
@@ -111,7 +114,8 @@ public class HBaseStore implements Connectable {
    * @param zookeeperClientPort
    *            The zookeeper client port
    */
-  public void setZookeeperClientPort(int zookeeperClientPort) {
+  public void setZookeeperClientPort(int zookeeperClientPort)
+  {
     this.zookeeperClientPort = zookeeperClientPort;
   }
 
@@ -120,7 +124,8 @@ public class HBaseStore implements Connectable {
    *
    * @return The HBase table name
    */
-  public String getTableName() {
+  public String getTableName()
+  {
     return tableName;
   }
 
@@ -130,7 +135,8 @@ public class HBaseStore implements Connectable {
    * @param tableName
    *            The HBase table name
    */
-  public void setTableName(String tableName) {
+  public void setTableName(String tableName)
+  {
     this.tableName = tableName;
   }
 
@@ -199,8 +205,8 @@ public class HBaseStore implements Connectable {
 
   /**
    * Gets the allowedtableNames
-   * 
-   * @return  allowedTableNames 
+   *
+   * @return  allowedTableNames
    */
   public String[] getAllowedTableNames()
   {
@@ -211,14 +217,15 @@ public class HBaseStore implements Connectable {
   {
     this.allowedTableNames = allowedTableNames;
   }
-  
+
   /**
    * Get the HBase table .
    *
    * @return The HBase table
    * @omitFromUI
    */
-  public HTable getTable() {
+  public HTable getTable()
+  {
     return table;
   }
 
@@ -230,16 +237,18 @@ public class HBaseStore implements Connectable {
    * @return The HBase table
    * @omitFromUI
    */
-  public HTable getTable(String tableName) {
-    if ((tableName == null) || tableName.equals(this.tableName))
+  public HTable getTable(String tableName)
+  {
+    if ((tableName == null) || tableName.equals(this.tableName)) {
       return getTable();
+    }
     try {
       return tableCache.get(tableName);
     } catch (Exception e) {
       throw Throwables.propagate(e);
     }
   }
-  
+
   public void flushTables() throws InterruptedIOException, RetriesExhaustedWithDetailsException
   {
     if (table != null) {
@@ -249,7 +258,7 @@ public class HBaseStore implements Connectable {
       flushTable(entry.getValue());
     }
   }
-  
+
   protected void flushTable(HTable table) throws InterruptedIOException, RetriesExhaustedWithDetailsException
   {
     table.flushCommits();
@@ -260,7 +269,8 @@ public class HBaseStore implements Connectable {
    *
    * @return The configuration
    */
-  public Configuration getConfiguration() {
+  public Configuration getConfiguration()
+  {
     return configuration;
   }
 
@@ -270,14 +280,16 @@ public class HBaseStore implements Connectable {
    * @param configuration
    *            The configuration
    */
-  public void setConfiguration(Configuration configuration) {
+  public void setConfiguration(Configuration configuration)
+  {
     this.configuration = configuration;
   }
 
   protected transient Configuration configuration;
 
   @Override
-  public void connect() throws IOException {
+  public void connect() throws IOException
+  {
     if ((principal != null) && (keytabPath != null)) {
       String lprincipal = evaluateProperty(principal);
       String lkeytabPath = evaluateProperty(keytabPath);
@@ -317,12 +329,12 @@ public class HBaseStore implements Connectable {
     if (zookeeperClientPort != 0) {
       configuration.set("hbase.zookeeper.property.clientPort", "" + zookeeperClientPort);
     }
-    
+
     // Connect to default table if specified
     if (tableName != null) {
       table = connectTable(tableName);
     }
-    
+
     CacheLoader<String, HTable> cacheLoader = new CacheLoader<String, HTable>()
     {
       @Override
@@ -331,7 +343,7 @@ public class HBaseStore implements Connectable {
         return loadTable(key);
       }
     };
-    
+
     RemovalListener<String, HTable> removalListener = new RemovalListener<String, HTable>()
     {
       @Override
@@ -340,9 +352,9 @@ public class HBaseStore implements Connectable {
         unloadTable(notification.getValue());
       }
     };
-    
+
     int maxCacheSize = (tableName == null) ? maxOpenTables : (maxOpenTables - 1);
-    
+
     tableCache = CacheBuilder.<String, HTable>newBuilder().maximumSize(maxCacheSize).removalListener(removalListener).build(cacheLoader);
   }
 
@@ -362,7 +374,7 @@ public class HBaseStore implements Connectable {
       logger.warn("Could not close table", e);
     }
   }
-  
+
   protected HTable connectTable(String tableName) throws IOException
   {
     HTable table = new HTable(configuration, tableName);
@@ -373,13 +385,14 @@ public class HBaseStore implements Connectable {
   private String evaluateProperty(String property) throws IOException
   {
     if (property.contains(USER_NAME_SPECIFIER)) {
-     property = property.replaceAll(USER_NAME_SPECIFIER, UserGroupInformation.getLoginUser().getShortUserName());
+      property = property.replaceAll(USER_NAME_SPECIFIER, UserGroupInformation.getLoginUser().getShortUserName());
     }
     return property;
   }
 
   @Override
-  public void disconnect() throws IOException {
+  public void disconnect() throws IOException
+  {
     if (loginRenewer != null) {
       doRelogin = false;
       loginRenewer.interrupt();
@@ -392,7 +405,8 @@ public class HBaseStore implements Connectable {
   }
 
   @Override
-  public boolean isConnected() {
+  public boolean isConnected()
+  {
     // not applicable to hbase
     return false;
   }

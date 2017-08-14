@@ -25,6 +25,8 @@ import java.util.concurrent.CountDownLatch;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.fileaccess.FileAccessFSImpl;
+import org.apache.apex.malhar.lib.fileaccess.TFileImpl;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.AutoMetric;
@@ -38,8 +40,6 @@ import com.datatorrent.api.Stats;
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.fileaccess.FileAccessFSImpl;
-import com.datatorrent.lib.fileaccess.TFileImpl;
 
 public class DeduperOrderingTest
 {

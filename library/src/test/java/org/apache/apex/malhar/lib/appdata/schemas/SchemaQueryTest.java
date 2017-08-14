@@ -16,16 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.schemas;
+package org.apache.apex.malhar.lib.appdata.schemas;
 
 import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.common.collect.Maps;
+import org.apache.apex.malhar.lib.appdata.query.serde.MessageDeserializerFactory;
 
-import com.datatorrent.lib.appdata.query.serde.MessageDeserializerFactory;
+import com.google.common.collect.Maps;
 
 public class SchemaQueryTest
 {

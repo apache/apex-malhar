@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io.fs;
+package org.apache.apex.malhar.lib.io.fs;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -30,6 +30,11 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.io.block.AbstractBlockReader.ReaderRecord;
+import org.apache.apex.malhar.lib.io.block.BlockMetadata.FileBlockMetadata;
+import org.apache.apex.malhar.lib.io.fs.AbstractFileSplitter.FileMetadata;
+import org.apache.apex.malhar.lib.stream.DevNull;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.hadoop.conf.Configuration;
@@ -39,10 +44,6 @@ import org.apache.hadoop.fs.Path;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.lib.io.block.AbstractBlockReader.ReaderRecord;
-import com.datatorrent.lib.io.block.BlockMetadata.FileBlockMetadata;
-import com.datatorrent.lib.io.fs.AbstractFileSplitter.FileMetadata;
-import com.datatorrent.lib.stream.DevNull;
 import com.datatorrent.netlet.util.Slice;
 
 public class FSInputModuleAppTest

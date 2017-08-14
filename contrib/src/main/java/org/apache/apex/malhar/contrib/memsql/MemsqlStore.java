@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.memsql;
+package org.apache.apex.malhar.contrib.memsql;
 
-import com.datatorrent.lib.db.jdbc.JdbcNonTransactionalStore;
+import org.apache.apex.malhar.lib.db.jdbc.JdbcNonTransactionalStore;
 
 /**
  * A connection store for memsql which has the default connection driver set

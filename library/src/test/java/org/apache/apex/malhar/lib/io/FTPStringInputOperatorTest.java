@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io;
+package org.apache.apex.malhar.lib.io;
 
 import org.junit.Assert;
 import org.junit.Rule;
@@ -29,12 +29,12 @@ import org.mockftpserver.fake.filesystem.DirectoryEntry;
 import org.mockftpserver.fake.filesystem.FileEntry;
 import org.mockftpserver.fake.filesystem.UnixFakeFileSystem;
 
+import org.apache.apex.malhar.lib.io.AbstractFTPInputOperator.FTPStringInputOperator;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+
 import com.datatorrent.api.Attribute;
 
-import com.datatorrent.lib.io.AbstractFTPInputOperator.FTPStringInputOperator;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Tests for {@link FTPStringInputOperator}

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hive;
+package org.apache.apex.malhar.hive;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +32,7 @@ import javax.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.io.fs.AbstractFileOutputOperator;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.datatorrent.api.Context.OperatorContext;
@@ -39,7 +40,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.CheckpointNotificationListener;
 import com.datatorrent.api.annotation.Stateless;
-import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**

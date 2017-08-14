@@ -21,6 +21,7 @@ package org.apache.apex.malhar.sql.sample;
 import java.util.Date;
 import java.util.Map;
 
+import org.apache.apex.malhar.contrib.parser.CsvParser;
 import org.apache.apex.malhar.kafka.KafkaSinglePortInputOperator;
 import org.apache.apex.malhar.sql.SQLExecEnvironment;
 import org.apache.apex.malhar.sql.table.CSVMessageFormat;
@@ -36,7 +37,6 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.contrib.parser.CsvParser;
 
 
 @ApplicationAnnotation(name = "FusionStyleSQLApplication")

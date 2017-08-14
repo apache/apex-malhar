@@ -16,22 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.rabbitmq;
+package org.apache.apex.malhar.contrib.rabbitmq;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.rabbitmq.client.*;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.contrib.helper.SourceModule;
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 
-import com.datatorrent.contrib.helper.SourceModule;
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.DefaultConsumer;
+import com.rabbitmq.client.Envelope;
+import com.rabbitmq.client.ShutdownSignalException;
+
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.LocalMode;

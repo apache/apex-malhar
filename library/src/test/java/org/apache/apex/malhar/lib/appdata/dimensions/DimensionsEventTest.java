@@ -16,20 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.dimensions;
+package org.apache.apex.malhar.lib.appdata.dimensions;
 
 import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.appdata.gpo.GPOMutable;
+import org.apache.apex.malhar.lib.appdata.schemas.FieldsDescriptor;
+import org.apache.apex.malhar.lib.appdata.schemas.Type;
 import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.EventKey;
 
 import com.google.common.collect.Maps;
-
-import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
-import com.datatorrent.lib.appdata.schemas.Type;
 
 public class DimensionsEventTest
 {

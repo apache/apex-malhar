@@ -18,10 +18,11 @@
  */
 package org.apache.apex.malhar.contrib.misc.math;
 
+import org.apache.apex.malhar.lib.util.BaseNumberValueOperator;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
  * Operator compares data values arriving on input port with base value input operator.

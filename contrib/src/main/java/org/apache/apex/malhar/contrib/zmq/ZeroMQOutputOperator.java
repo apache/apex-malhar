@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.zmq;
+package org.apache.apex.malhar.contrib.zmq;
 
 /**
  * Output adapter operator with a single input port which consumes byte array and emits the same to the ZeroMQ port.
@@ -29,10 +29,11 @@ package com.datatorrent.contrib.zmq;
  * @since 3.0.0
  */
 
-public class ZeroMQOutputOperator extends AbstractSinglePortZeroMQOutputOperator<byte[]>{
-
-	@Override
-	public void processTuple(byte[] tuple) {
-		publisher.send(tuple, 0);
-	}
+public class ZeroMQOutputOperator extends AbstractSinglePortZeroMQOutputOperator<byte[]>
+{
+  @Override
+  public void processTuple(byte[] tuple)
+  {
+    publisher.send(tuple, 0);
+  }
 }

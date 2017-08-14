@@ -16,14 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchdb;
+package org.apache.apex.malhar.contrib.couchdb;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Getter;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
-
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Getter;
 
 /**
  * Implementation of {@link AbstractCouchDBOutputOperator} that saves a POJO in the couch database. <br/>

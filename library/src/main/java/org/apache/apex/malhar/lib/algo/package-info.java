@@ -20,4 +20,4 @@
  * Library of algorithmic operators
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-package com.datatorrent.lib.algo;
+package org.apache.apex.malhar.lib.algo;

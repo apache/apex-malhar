@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.formatter;
+package org.apache.apex.malhar.lib.formatter;
 
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
@@ -36,12 +36,12 @@ import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.TestUtils;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.TestUtils;
 
 public class XmlFormatterTest
 {

@@ -20,4 +20,4 @@
  * Library of test bench modules.
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-package com.datatorrent.lib.testbench;
+package org.apache.apex.malhar.lib.testbench;

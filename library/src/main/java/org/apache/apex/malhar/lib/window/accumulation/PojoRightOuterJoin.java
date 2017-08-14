@@ -22,13 +22,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.util.KeyValPair;
+import org.apache.apex.malhar.lib.util.PojoUtils;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Multimap;
-
-import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.lib.util.PojoUtils;
 
 /**
  * Right outer join Accumulation for Pojo Streams.

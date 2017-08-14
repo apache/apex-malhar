@@ -21,13 +21,12 @@ package org.apache.apex.malhar.lib.dimensions;
 import java.io.Serializable;
 import java.util.List;
 
+import org.apache.apex.malhar.lib.appdata.gpo.GPOMutable;
+import org.apache.apex.malhar.lib.appdata.gpo.GPOUtils;
 import org.apache.apex.malhar.lib.dimensions.aggregator.AggregateEvent;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-
-import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.gpo.GPOUtils;
 
 /**
  * <p>

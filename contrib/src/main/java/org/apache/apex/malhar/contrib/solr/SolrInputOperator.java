@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.solr;
+package org.apache.apex.malhar.contrib.solr;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.servlet.SolrRequestParsers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Default Implementation of AbstractSolrInputOperator. Reads query from properties file <br>

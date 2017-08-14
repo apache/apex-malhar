@@ -20,6 +20,9 @@ package org.apache.apex.malhar.sql.table;
 
 import java.util.Map;
 
+import org.apache.apex.malhar.contrib.formatter.CsvFormatter;
+import org.apache.apex.malhar.contrib.parser.CsvParser;
+import org.apache.apex.malhar.contrib.parser.DelimitedSchema;
 import org.apache.apex.malhar.sql.operators.OperatorUtils;
 import org.apache.apex.malhar.sql.planner.RelInfo;
 import org.apache.calcite.adapter.java.JavaTypeFactory;
@@ -33,9 +36,6 @@ import com.google.common.collect.Lists;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator;
-import com.datatorrent.contrib.formatter.CsvFormatter;
-import com.datatorrent.contrib.parser.CsvParser;
-import com.datatorrent.contrib.parser.DelimitedSchema;
 
 @InterfaceStability.Evolving
 /**

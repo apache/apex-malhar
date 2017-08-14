@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.query.serde;
+package org.apache.apex.malhar.lib.appdata.query.serde;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.avro;
+package org.apache.apex.malhar.contrib.avro;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +24,7 @@ import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.io.fs.AbstractFileInputOperator;
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.avro.AvroRuntimeException;
 import org.apache.avro.file.DataFileStream;
@@ -37,7 +38,6 @@ import com.google.common.annotations.VisibleForTesting;
 
 import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
 
 /**
  * <p>

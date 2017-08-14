@@ -24,10 +24,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
 /**
- *  Functional test for {@link com.datatorrent.lib.streamquery.OrderByOperatorTest}.
+ *  Functional test for {@link org.apache.apex.malhar.lib.streamquery.OrderByOperatorTest}.
  *  @deprecated
  */
 @Deprecated

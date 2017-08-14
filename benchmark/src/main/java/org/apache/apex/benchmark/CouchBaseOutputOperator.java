@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark;
+package org.apache.apex.benchmark;
 
-import com.datatorrent.contrib.couchbase.AbstractCouchBaseSetOperator;
+import org.apache.apex.malhar.contrib.couchbase.AbstractCouchBaseSetOperator;
 
 /**
  * <p>CouchBaseOutputOperator class.</p>

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.logs;
+package org.apache.apex.malhar.lib.logs;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,11 +24,11 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.HashTestSink;
+import org.apache.apex.malhar.lib.testbench.HashTestSink;
 
 /**
  *
- * Functional tests for {@link com.datatorrent.lib.logs.FilteredLineTokenizerKeyVal}<p>
+ * Functional tests for {@link org.apache.apex.malhar.lib.logs.FilteredLineTokenizerKeyVal}<p>
  *
  */
 public class FilteredLineTokenizerKeyValTest

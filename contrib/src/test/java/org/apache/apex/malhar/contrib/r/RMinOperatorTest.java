@@ -16,12 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.r;
+package org.apache.apex.malhar.contrib.r;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
+import org.apache.apex.malhar.lib.testbench.CountAndLastTupleTestSink;
 
 public class RMinOperatorTest
 {

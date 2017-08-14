@@ -17,19 +17,19 @@
  * under the License.
  */
 
-package com.datatorrent.lib.io.fs;
+package org.apache.apex.malhar.lib.io.fs;
 
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
+import org.apache.apex.malhar.lib.io.block.BlockMetadata.FileBlockMetadata;
+import org.apache.apex.malhar.lib.io.fs.AbstractFileSplitter.FileMetadata;
+import org.apache.apex.malhar.lib.io.fs.Synchronizer.OutputFileMetadata;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
-import com.datatorrent.lib.io.block.BlockMetadata.FileBlockMetadata;
-import com.datatorrent.lib.io.fs.AbstractFileSplitter.FileMetadata;
-import com.datatorrent.lib.io.fs.Synchronizer.OutputFileMetadata;
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.google.common.collect.Lists;
 
 /**
  * Unit tests for {@link Synchronizer}

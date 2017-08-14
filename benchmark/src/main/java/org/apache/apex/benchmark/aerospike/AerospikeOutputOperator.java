@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.aerospike;
+package org.apache.apex.benchmark.aerospike;
 
 import java.util.List;
+
+import org.apache.apex.malhar.contrib.aerospike.AbstractAerospikeTransactionalPutOperator;
 
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Bin;
 import com.aerospike.client.Key;
-
-import com.datatorrent.contrib.aerospike.AbstractAerospikeTransactionalPutOperator;
 
 /**
  * <p>AerospikeOutputOperator class.</p>

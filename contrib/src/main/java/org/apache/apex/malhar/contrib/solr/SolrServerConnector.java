@@ -16,14 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.solr;
+package org.apache.apex.malhar.contrib.solr;
 
 import java.io.Closeable;
 import java.io.IOException;
 
+import org.apache.apex.malhar.lib.db.Connectable;
 import org.apache.solr.client.solrj.SolrServer;
-
-import com.datatorrent.lib.db.Connectable;
 
 /**
  * SolrServerConnector

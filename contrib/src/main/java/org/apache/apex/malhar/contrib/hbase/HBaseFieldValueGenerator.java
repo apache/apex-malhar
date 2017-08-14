@@ -16,12 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
 import java.util.List;
 
-import com.datatorrent.lib.util.FieldValueGenerator;
-import com.datatorrent.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.FieldValueGenerator;
+import org.apache.apex.malhar.lib.util.PojoUtils;
 
 /**
  * A {@link FieldValueGenerator} implementation for {@link HBaseFieldInfo}

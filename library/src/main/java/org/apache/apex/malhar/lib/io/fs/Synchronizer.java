@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.datatorrent.lib.io.fs;
+package org.apache.apex.malhar.lib.io.fs;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +32,10 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.io.block.BlockMetadata;
+import org.apache.apex.malhar.lib.io.block.BlockMetadata.FileBlockMetadata;
+import org.apache.apex.malhar.lib.io.fs.AbstractFileSplitter.FileMetadata;
+import org.apache.apex.malhar.lib.io.fs.FileStitcher.BlockNotFoundException;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
@@ -42,10 +46,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.io.block.BlockMetadata;
-import com.datatorrent.lib.io.block.BlockMetadata.FileBlockMetadata;
-import com.datatorrent.lib.io.fs.AbstractFileSplitter.FileMetadata;
-import com.datatorrent.lib.io.fs.FileStitcher.BlockNotFoundException;
 
 /**
  * Synchronizer waits for all data blocks for a file to be written to disk. It

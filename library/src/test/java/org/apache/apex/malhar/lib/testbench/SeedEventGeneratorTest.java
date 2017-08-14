@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.testbench;
+package org.apache.apex.malhar.lib.testbench;
 
 import org.junit.Test;
 
@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  *
- * Functional test for {@link com.datatorrent.lib.testbench.SeedEventGenerator}<p>
+ * Functional test for {@link org.apache.apex.malhar.lib.testbench.SeedEventGenerator}<p>
  * <br>
  * Four keys are sent in at a high throughput rate and the classification is expected to be cover all combinations<br>
  * <br>

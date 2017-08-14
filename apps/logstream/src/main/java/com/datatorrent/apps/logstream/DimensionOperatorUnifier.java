@@ -26,9 +26,8 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.logs.DimensionObject;
 import org.apache.commons.lang.mutable.MutableDouble;
-
-import com.datatorrent.lib.logs.DimensionObject;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;

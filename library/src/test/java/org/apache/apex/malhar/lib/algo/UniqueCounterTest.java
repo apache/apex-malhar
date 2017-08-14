@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.algo;
+package org.apache.apex.malhar.lib.algo;
 
 import java.util.HashMap;
 
@@ -24,11 +24,11 @@ import org.junit.Assert;
 
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
+import org.apache.apex.malhar.lib.testbench.CountAndLastTupleTestSink;
 
 /**
  *
- * Functional tests for {@link com.datatorrent.lib.algo.UniqueCounter}<p>
+ * Functional tests for {@link org.apache.apex.malhar.lib.algo.UniqueCounter}<p>
  *
  */
 public class UniqueCounterTest

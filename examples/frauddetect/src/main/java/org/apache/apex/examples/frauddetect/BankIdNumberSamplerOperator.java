@@ -31,14 +31,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.apex.examples.frauddetect.util.JsonUtils;
-
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.commons.lang.mutable.MutableLong;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.BaseOperator;
-
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Count the transactions for the underlying aggregation window if the same BIN is

@@ -20,4 +20,4 @@
  * Library of input operators for writing into jms broker and output operators for reading from jms broker.
  * The jms operators interact with entities outside of DAG, and at times outside of Hadoop
  */
-package com.datatorrent.lib.io.jms;
+package org.apache.apex.malhar.lib.io.jms;

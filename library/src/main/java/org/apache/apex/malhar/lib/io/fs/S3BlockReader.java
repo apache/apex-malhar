@@ -16,10 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io.fs;
+package org.apache.apex.malhar.lib.io.fs;
 
 import java.io.IOException;
 
+import org.apache.apex.malhar.lib.io.block.BlockMetadata;
+import org.apache.apex.malhar.lib.io.block.FSSliceReader;
+import org.apache.apex.malhar.lib.io.block.ReaderContext;
 import org.apache.hadoop.fs.FSDataInputStream;
 
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -31,9 +34,6 @@ import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.google.common.io.ByteStreams;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.io.block.BlockMetadata;
-import com.datatorrent.lib.io.block.FSSliceReader;
-import com.datatorrent.lib.io.block.ReaderContext;
 
 /**
  * S3BlockReader extends from BlockReader and serves the functionality of read objects and

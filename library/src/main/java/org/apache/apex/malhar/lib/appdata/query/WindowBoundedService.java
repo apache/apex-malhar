@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.query;
+package org.apache.apex.malhar.lib.appdata.query;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;

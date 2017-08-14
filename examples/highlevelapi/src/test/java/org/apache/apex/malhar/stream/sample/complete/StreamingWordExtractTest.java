@@ -30,11 +30,11 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.db.jdbc.JdbcTransactionalStore;
 import org.apache.hadoop.conf.Configuration;
 
 import com.google.common.base.Throwables;
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.lib.db.jdbc.JdbcTransactionalStore;
 import com.datatorrent.stram.StramLocalCluster;
 
 /**

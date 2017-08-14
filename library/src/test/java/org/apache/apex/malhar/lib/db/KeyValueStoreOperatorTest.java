@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.db;
+package org.apache.apex.malhar.lib.db;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -29,7 +29,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.common.util.BaseOperator;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * @param <S>

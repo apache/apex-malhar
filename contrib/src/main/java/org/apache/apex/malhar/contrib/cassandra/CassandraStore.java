@@ -16,19 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.cassandra;
+package org.apache.apex.malhar.contrib.cassandra;
 
 import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.db.Connectable;
+
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ProtocolVersion;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.exceptions.DriverException;
 import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.lib.db.Connectable;
 
 /**
  * A {@link Connectable} that uses cassandra to connect to stores and implements Connectable interface.
@@ -67,7 +68,8 @@ public class CassandraStore implements Connectable
    *
    * @param keyspace keyspace.
    */
-  public void setKeyspace(String keyspace) {
+  public void setKeyspace(String keyspace)
+  {
     this.keyspace = keyspace;
   }
 
@@ -106,7 +108,8 @@ public class CassandraStore implements Connectable
   }
 
   @NotNull
-  public String getNode() {
+  public String getNode()
+  {
     return node;
   }
 
@@ -115,15 +118,18 @@ public class CassandraStore implements Connectable
    *
    * @param node node
    */
-  public void setNode(@NotNull String node) {
+  public void setNode(@NotNull String node)
+  {
     this.node = node;
   }
 
-  public Cluster getCluster() {
+  public Cluster getCluster()
+  {
     return cluster;
   }
 
-  public Session getSession() {
+  public Session getSession()
+  {
     return session;
   }
 
@@ -167,19 +173,17 @@ public class CassandraStore implements Connectable
   public void connect()
   {
     try {
-      if(cluster==null)
+      if (cluster == null) {
         buildCluster();
+      }
       session = cluster.connect();
       logger.debug("Cassandra connection Success");
-    }
-    catch (DriverException ex) {
+    } catch (DriverException ex) {
       throw new RuntimeException("closing database resource", ex);
-    }
-    catch (Throwable t) {
+    } catch (Throwable t) {
       DTThrowable.rethrow(t);
     }
   }
-
 
   /**
    * Close connection.
@@ -190,11 +194,9 @@ public class CassandraStore implements Connectable
     try {
       session.close();
       cluster.close();
-    }
-    catch (DriverException ex) {
+    } catch (DriverException ex) {
       throw new RuntimeException("closing database resource", ex);
-    }
-    catch (Throwable t) {
+    } catch (Throwable t) {
       DTThrowable.rethrow(t);
     }
   }
@@ -204,8 +206,7 @@ public class CassandraStore implements Connectable
   {
     try {
       return !session.isClosed();
-    }
-    catch (DriverException ex) {
+    } catch (DriverException ex) {
       throw new RuntimeException("closing database resource", ex);
     }
   }

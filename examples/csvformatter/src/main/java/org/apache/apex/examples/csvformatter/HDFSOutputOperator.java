@@ -21,8 +21,9 @@ package org.apache.apex.examples.csvformatter;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.io.fs.AbstractFileOutputOperator;
+
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
 
 /**
  * HDFSoutput operator with implementation to write Objects to HDFS

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.schemas;
+package org.apache.apex.malhar.lib.appdata.schemas;
 
 import java.io.IOException;
 import java.util.Map;
@@ -27,11 +27,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 
+import org.apache.apex.malhar.lib.appdata.query.serde.DataQuerySnapshotDeserializer;
+import org.apache.apex.malhar.lib.appdata.query.serde.MessageDeserializerFactory;
+
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import com.datatorrent.lib.appdata.query.serde.DataQuerySnapshotDeserializer;
-import com.datatorrent.lib.appdata.query.serde.MessageDeserializerFactory;
 
 public class DataQuerySnapshotDeserializerTest
 {

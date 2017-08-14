@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.query.serde;
+package org.apache.apex.malhar.lib.appdata.query.serde;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -28,11 +28,11 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.appdata.schemas.Message;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import com.datatorrent.lib.appdata.schemas.Message;
 
 /**
  * This is a utility class which simplifies deserializing AppData messages. The factory is configured by specifying the {@link Message} Classes

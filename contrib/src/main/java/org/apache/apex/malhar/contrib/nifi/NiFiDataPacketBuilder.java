@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.nifi;
+package org.apache.apex.malhar.contrib.nifi;
 
 import java.io.Serializable;
 

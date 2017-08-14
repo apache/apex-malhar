@@ -20,11 +20,11 @@ package org.apache.apex.malhar.contrib.misc.algo;
 
 import java.util.HashMap;
 
+import org.apache.apex.malhar.lib.util.BaseMatchOperator;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-
-import com.datatorrent.lib.util.BaseMatchOperator;
 
 /**
  * This operator filters the incoming stream of key value pairs by obtaining the values corresponding to a specified key,

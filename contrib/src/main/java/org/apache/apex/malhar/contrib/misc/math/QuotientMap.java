@@ -23,12 +23,12 @@ import java.util.Map;
 
 import javax.validation.constraints.Min;
 
+import org.apache.apex.malhar.lib.util.BaseNumberKeyValueOperator;
 import org.apache.commons.lang.mutable.MutableDouble;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 
 /**
  * Add all the values for each key on "numerator" and "denominator" and emits quotient at end of window for all keys in the denominator.

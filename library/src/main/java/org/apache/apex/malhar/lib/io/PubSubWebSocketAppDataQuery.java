@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io;
+package org.apache.apex.malhar.lib.io;
 
 import java.net.URI;
 import javax.validation.constraints.Min;
@@ -25,6 +25,9 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.appdata.StoreUtils.BufferingOutputPortFlusher;
+import org.apache.apex.malhar.lib.appdata.query.WindowBoundedService;
 import org.apache.apex.malhar.lib.utils.PubSubHelper;
 
 import com.datatorrent.api.Context.OperatorContext;
@@ -33,8 +36,6 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.experimental.AppData;
 import com.datatorrent.common.experimental.AppData.EmbeddableQueryInfoProvider;
 import com.datatorrent.common.util.PubSubMessage;
-import com.datatorrent.lib.appdata.StoreUtils.BufferingOutputPortFlusher;
-import com.datatorrent.lib.appdata.query.WindowBoundedService;
 
 /**
  * This is an App Data pub sub query operator. This operator is used to receive queries from

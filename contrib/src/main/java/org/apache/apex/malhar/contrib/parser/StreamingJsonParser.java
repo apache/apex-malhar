@@ -31,6 +31,11 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.parser.Parser;
+import org.apache.apex.malhar.lib.util.FieldInfo;
+import org.apache.apex.malhar.lib.util.FieldInfo.SupportType;
+import org.apache.apex.malhar.lib.util.KeyValPair;
+import org.apache.apex.malhar.lib.util.PojoUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.hadoop.classification.InterfaceStability;
 
@@ -40,11 +45,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.parser.Parser;
-import com.datatorrent.lib.util.FieldInfo;
-import com.datatorrent.lib.util.FieldInfo.SupportType;
-import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.lib.util.PojoUtils;
 
 /**
  * Operator that parses a JSON string tuple and emits a POJO on the output port

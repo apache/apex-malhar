@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io.fs;
+package org.apache.apex.malhar.lib.io.fs;
 
 import java.io.File;
 import java.io.IOException;

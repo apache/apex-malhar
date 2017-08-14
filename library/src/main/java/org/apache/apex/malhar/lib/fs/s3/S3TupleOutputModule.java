@@ -24,9 +24,11 @@ import java.util.Arrays;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.converter.Converter;
 import org.apache.apex.malhar.lib.fs.FSRecordCompactionOperator;
 import org.apache.apex.malhar.lib.fs.GenericFileOutputOperator.NoOpConverter;
 import org.apache.apex.malhar.lib.fs.GenericFileOutputOperator.StringToBytesConverter;
+import org.apache.apex.malhar.lib.partitioner.StatelessThroughputBasedPartitioner;
 import org.apache.hadoop.conf.Configuration;
 
 import com.google.common.base.Preconditions;
@@ -35,8 +37,6 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Module;
 import com.datatorrent.api.StatsListener;
-import com.datatorrent.lib.converter.Converter;
-import com.datatorrent.lib.partitioner.StatelessThroughputBasedPartitioner;
 
 /**
  * S3TupleOutputModule writes incoming tuples into files and uploads these files on Amazon S3.

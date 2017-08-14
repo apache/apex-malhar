@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io.fs;
+package org.apache.apex.malhar.lib.io.fs;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -39,6 +39,10 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
 import org.apache.apex.malhar.lib.fs.LineByLineFileInputOperator;
+import org.apache.apex.malhar.lib.io.fs.AbstractFileInputOperator.DirectoryScanner;
+import org.apache.apex.malhar.lib.partitioner.StatelessPartitionerTest.PartitioningContextImpl;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.TestUtils;
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -59,14 +63,11 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Partitioner.Partition;
+
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+
 import com.datatorrent.api.Sink;
 import com.datatorrent.api.StatsListener;
-import com.datatorrent.lib.io.fs.AbstractFileInputOperator.DirectoryScanner;
-import com.datatorrent.lib.partitioner.StatelessPartitionerTest.PartitioningContextImpl;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.TestUtils;
-
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class AbstractFileInputOperatorTest
 {

@@ -16,15 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.mongodb;
+package org.apache.apex.malhar.contrib.mongodb;
 
 import java.net.UnknownHostException;
 
 import javax.validation.constraints.NotNull;
 
-import com.mongodb.*;
+import org.apache.apex.malhar.lib.db.Connectable;
 
-import com.datatorrent.lib.db.Connectable;
+import com.mongodb.DB;
+import com.mongodb.MongoClient;
 
 /**
  * MongoDB base operator, which has basic information for an i/o operator.<p><br>
@@ -111,8 +112,7 @@ public class MongoDBConnectable implements Connectable
       if (userName != null && passWord != null) {
         db.authenticate(userName, passWord.toCharArray());
       }
-    }
-    catch (UnknownHostException ex) {
+    } catch (UnknownHostException ex) {
       throw new RuntimeException("creating mongodb client", ex);
     }
   }
@@ -128,8 +128,7 @@ public class MongoDBConnectable implements Connectable
   {
     try {
       mongoClient.getConnector().getDBPortPool(mongoClient.getAddress()).get().ensureOpen();
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       return false;
     }
     return true;

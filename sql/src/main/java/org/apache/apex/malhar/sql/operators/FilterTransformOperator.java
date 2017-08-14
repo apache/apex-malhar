@@ -18,12 +18,12 @@
  */
 package org.apache.apex.malhar.sql.operators;
 
+import org.apache.apex.malhar.lib.expression.Expression;
+import org.apache.apex.malhar.lib.transform.TransformOperator;
+import org.apache.apex.malhar.lib.util.PojoUtils;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.expression.Expression;
-import com.datatorrent.lib.transform.TransformOperator;
-import com.datatorrent.lib.util.PojoUtils;
 
 /**
  * This is an extension of {@link TransformOperator} which also takes care of filtering tuples.

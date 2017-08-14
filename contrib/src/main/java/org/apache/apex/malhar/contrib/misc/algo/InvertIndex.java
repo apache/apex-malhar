@@ -22,12 +22,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.util.BaseKeyValueOperator;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-
-import com.datatorrent.lib.util.BaseKeyValueOperator;
 
 /**
  * This operator takes a stream of key value pairs each window,

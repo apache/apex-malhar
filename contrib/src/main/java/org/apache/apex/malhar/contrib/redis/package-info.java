@@ -20,4 +20,4 @@
  * Redis operators and utilities.
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-package com.datatorrent.contrib.redis;
+package org.apache.apex.malhar.contrib.redis;

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.parser;
+package org.apache.apex.malhar.contrib.parser;
 
 import java.util.Map;
 
@@ -38,9 +38,8 @@ import org.supercsv.cellprocessor.ift.DoubleCellProcessor;
 import org.supercsv.cellprocessor.ift.LongCellProcessor;
 import org.supercsv.util.CsvContext;
 
+import org.apache.apex.malhar.contrib.parser.Schema.FieldType;
 import org.apache.commons.lang3.StringUtils;
-
-import com.datatorrent.contrib.parser.Schema.FieldType;
 
 /**
  * Helper class with methods to generate CellProcessor objects. Cell processors

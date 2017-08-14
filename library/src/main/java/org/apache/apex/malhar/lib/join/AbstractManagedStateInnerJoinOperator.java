@@ -25,6 +25,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.joda.time.Duration;
+
+import org.apache.apex.malhar.lib.fileaccess.FileAccessFSImpl;
 import org.apache.apex.malhar.lib.state.managed.ManagedTimeStateImpl;
 import org.apache.apex.malhar.lib.state.managed.ManagedTimeStateMultiValue;
 import org.apache.apex.malhar.lib.state.managed.MovingBoundaryTimeBucketAssigner;
@@ -34,7 +36,6 @@ import com.google.common.collect.Maps;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator;
-import com.datatorrent.lib.fileaccess.FileAccessFSImpl;
 
 /**
  * An abstract implementation of inner join operator over Managed state which extends from

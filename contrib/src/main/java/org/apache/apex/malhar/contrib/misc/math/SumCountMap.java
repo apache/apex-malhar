@@ -21,15 +21,15 @@ package org.apache.apex.malhar.contrib.misc.math;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.util.BaseNumberKeyValueOperator;
+import org.apache.apex.malhar.lib.util.UnifierHashMapInteger;
+import org.apache.apex.malhar.lib.util.UnifierHashMapSumKeys;
 import org.apache.commons.lang.mutable.MutableDouble;
 import org.apache.commons.lang.mutable.MutableInt;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
-import com.datatorrent.lib.util.UnifierHashMapInteger;
-import com.datatorrent.lib.util.UnifierHashMapSumKeys;
 
 /**
  * Emits the sum and count of values for each key at the end of window.

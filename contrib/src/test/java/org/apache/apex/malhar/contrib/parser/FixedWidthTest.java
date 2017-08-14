@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.parser;
+package org.apache.apex.malhar.contrib.parser;
 
 import java.util.Date;
 
@@ -26,9 +26,9 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-import com.datatorrent.lib.appdata.schemas.SchemaUtils;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.KeyValPair;
+import org.apache.apex.malhar.lib.appdata.schemas.SchemaUtils;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 
 public class FixedWidthTest
 {
@@ -310,7 +310,7 @@ public class FixedWidthTest
     Assert.assertEquals(0, parser.getErrorTupleCount());
     Assert.assertEquals(0, parser.getEmittedObjectCount());
     parser.in.process("123982_____adxyz0.22015-03-08 03:37:1211/12/201212___y_CAMP_AD123Yyes       Extra_stuff"
-      .getBytes());
+        .getBytes());
     parser.endWindow();
     Assert.assertEquals(0, parser.getParsedOutputCount());
     Assert.assertEquals(1, parser.getIncomingTuplesCount());

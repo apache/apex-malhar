@@ -19,7 +19,7 @@
 
 package org.apache.apex.examples.partition;
 
-import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
+import org.apache.apex.malhar.lib.codec.KryoSerializableStreamCodec;
 
 /**
  * @since 3.7.0

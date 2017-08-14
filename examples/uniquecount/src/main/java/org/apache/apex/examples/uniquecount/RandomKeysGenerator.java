@@ -23,13 +23,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.apex.malhar.lib.util.KeyHashValPair;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.KeyHashValPair;
 
 /*
     Generate random keys.

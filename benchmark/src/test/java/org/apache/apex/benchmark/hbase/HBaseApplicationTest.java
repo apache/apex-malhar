@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.hbase;
+package org.apache.apex.benchmark.hbase;
 
 import org.junit.Test;
 

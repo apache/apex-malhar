@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.util;
+package org.apache.apex.malhar.contrib.util;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -87,31 +87,27 @@ public class POJOTupleGenerateOperator<T> implements InputOperator, ActivationLi
   public void emitTuples()
   {
     final int theTupleNum = getTupleNum();
-    if( emitedTuples.get() >= theTupleNum )
-    {
-      try
-      {
+    if ( emitedTuples.get() >= theTupleNum ) {
+      try {
         Thread.sleep(10);
+      } catch ( Exception e ) {
+        //
       }
-      catch( Exception e ){}
       return;
     }
 
 
-    for( int i=0; i<batchNum; ++i )
-    {
+    for ( int i = 0; i < batchNum; ++i ) {
       int count = emitedTuples.get();
-      if( count >= theTupleNum )
+      if ( count >= theTupleNum ) {
         return;
-
-      if( emitedTuples.compareAndSet(count, count+1) )
-      {
+      }
+      if ( emitedTuples.compareAndSet(count, count + 1) ) {
         T tuple = getNextTuple();
-        outputPort.emit ( tuple );
+        outputPort.emit( tuple );
         tupleEmitted( tuple );
 
-        if( count+1 == theTupleNum )
-        {
+        if ( count + 1 == theTupleNum ) {
           tupleEmitDone();
           return;
         }
@@ -122,7 +118,8 @@ public class POJOTupleGenerateOperator<T> implements InputOperator, ActivationLi
 
 
   protected void tupleEmitted( T tuple ){}
-  protected void tupleEmitDone(){}
+
+  protected void tupleEmitDone() {}
 
   public int getEmitedTupleCount()
   {
@@ -133,6 +130,7 @@ public class POJOTupleGenerateOperator<T> implements InputOperator, ActivationLi
   {
     return tupleNum;
   }
+
   public void setTupleNum( int tupleNum )
   {
     this.tupleNum = tupleNum;
@@ -140,9 +138,9 @@ public class POJOTupleGenerateOperator<T> implements InputOperator, ActivationLi
 
   protected T getNextTuple()
   {
-    if( tupleGenerator == null )
+    if ( tupleGenerator == null ) {
       tupleGenerator = createTupleGenerator();
-
+    }
     return tupleGenerator.getNextTuple();
   }
 

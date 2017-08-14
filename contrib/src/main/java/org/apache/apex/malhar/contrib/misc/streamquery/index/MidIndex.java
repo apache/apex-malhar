@@ -22,7 +22,7 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
-import com.datatorrent.lib.streamquery.index.ColumnIndex;
+import org.apache.apex.malhar.lib.streamquery.index.ColumnIndex;
 
 /**
  * <p>An implementation of Column Index that implements filter method based on mid index. </p>

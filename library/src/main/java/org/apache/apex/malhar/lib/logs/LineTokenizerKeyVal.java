@@ -16,15 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.logs;
+package org.apache.apex.malhar.lib.logs;
 
 import java.util.HashMap;
+
+import org.apache.apex.malhar.lib.util.BaseLineTokenizer;
+import org.apache.apex.malhar.lib.util.UnifierHashMap;
 
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
-import com.datatorrent.lib.util.BaseLineTokenizer;
-import com.datatorrent.lib.util.UnifierHashMap;
 
 /**
  * This operator splits lines into tokens, and tokens into sub-tokens.&nbsp;

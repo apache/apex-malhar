@@ -25,9 +25,11 @@ import org.junit.Assert;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import org.apache.apex.malhar.lib.fileaccess.FileAccessFSImpl;
 import org.apache.apex.malhar.lib.state.managed.ManagedStateTestUtils;
 import org.apache.apex.malhar.lib.state.spillable.managed.ManagedStateSpillableStateStore;
 import org.apache.apex.malhar.lib.state.spillable.managed.ManagedTimeUnifiedStateSpillableStateStore;
+import org.apache.apex.malhar.lib.util.TestUtils;
 import org.apache.apex.malhar.lib.utils.serde.CollectionSerde;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
 import org.apache.apex.malhar.lib.utils.serde.SerializationBuffer;
@@ -37,8 +39,6 @@ import org.apache.apex.malhar.lib.utils.serde.WindowedBlockStream;
 import com.esotericsoftware.kryo.io.Input;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.fileaccess.FileAccessFSImpl;
-import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.netlet.util.Slice;
 
 /**

@@ -16,8 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.parser;
+package org.apache.apex.malhar.lib.parser;
 
+import org.apache.apex.malhar.lib.converter.Converter;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.api.AutoMetric;
@@ -27,7 +28,6 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.converter.Converter;
 
 /**
  * Abstract class that implements Converter interface. This is a schema enabled

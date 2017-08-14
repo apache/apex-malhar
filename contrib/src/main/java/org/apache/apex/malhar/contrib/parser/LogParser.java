@@ -23,6 +23,9 @@ import javax.validation.constraints.NotNull;
 import org.codehaus.jettison.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.parser.Parser;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -30,8 +33,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.parser.Parser;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Operator that parses a log string tuple against the
@@ -203,7 +204,8 @@ public class LogParser extends Parser<byte[], KeyValPair<String, String>>
    * Get log schema details (field, regex etc)
    * @return logSchemaDetails
    */
-  public LogSchemaDetails getLogSchemaDetails() {
+  public LogSchemaDetails getLogSchemaDetails()
+  {
     return logSchemaDetails;
   }
 
@@ -211,7 +213,8 @@ public class LogParser extends Parser<byte[], KeyValPair<String, String>>
    * Set log schema details like (fields and regex)
    * @param logSchemaDetails
    */
-  public void setLogSchemaDetails(LogSchemaDetails logSchemaDetails) {
+  public void setLogSchemaDetails(LogSchemaDetails logSchemaDetails)
+  {
     this.logSchemaDetails = logSchemaDetails;
   }
 

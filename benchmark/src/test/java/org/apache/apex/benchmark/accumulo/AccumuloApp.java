@@ -16,17 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.accumulo;
+package org.apache.apex.benchmark.accumulo;
 
 import org.apache.accumulo.core.data.Mutation;
+import org.apache.apex.malhar.contrib.accumulo.AbstractAccumuloOutputOperator;
+import org.apache.apex.malhar.contrib.accumulo.AccumuloRowTupleGenerator;
+import org.apache.apex.malhar.contrib.accumulo.AccumuloTestHelper;
+import org.apache.apex.malhar.contrib.accumulo.AccumuloTuple;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.contrib.accumulo.AbstractAccumuloOutputOperator;
-import com.datatorrent.contrib.accumulo.AccumuloRowTupleGenerator;
-import com.datatorrent.contrib.accumulo.AccumuloTestHelper;
-import com.datatorrent.contrib.accumulo.AccumuloTuple;
 
 /**
  * BenchMark Results

@@ -16,9 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -26,25 +30,30 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.contrib.util.TestPOJO;
+import org.apache.apex.malhar.contrib.util.TupleGenerator;
+import org.apache.apex.malhar.lib.util.FieldInfo.SupportType;
+import org.apache.apex.malhar.lib.util.TableInfo;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.datatorrent.lib.util.FieldInfo.SupportType;
-import com.datatorrent.lib.util.TableInfo;
-import com.datatorrent.contrib.util.TestPOJO;
-import com.datatorrent.contrib.util.TupleGenerator;
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.ProcessingMode;
 
-import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.APP_ID;
-import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.OPERATOR_ID;
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.APP_ID;
+import static org.apache.apex.malhar.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.OPERATOR_ID;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 
 public class HBasePOJOPutOperatorTest
@@ -90,27 +99,20 @@ public class HBasePOJOPutOperatorTest
   protected void writeRecords()
   {
     long windowId = startWindowId;
-    try
-    {
+    try {
       int countInWindow = 0;
-      for (int i = 0; i < TEST_SIZE; ++i)
-      {
-        if( countInWindow == 0 )
+      for (int i = 0; i < TEST_SIZE; ++i) {
+        if ( countInWindow == 0 ) {
           operator.beginWindow(windowId++);
+        }
         operator.processTuple(getNextTuple());
-        if( ++countInWindow == WINDOW_SIZE )
-        {
+        if ( ++countInWindow == WINDOW_SIZE ) {
           operator.endWindow();
           countInWindow = 0;
         }
       }
-
       Thread.sleep(30000);
-
-
-    }
-    catch (Exception e)
-    {
+    } catch (Exception e) {
       logger.error("testPutInternal() exception.", e);
       Assert.fail(e.getMessage());
     }
@@ -119,40 +121,28 @@ public class HBasePOJOPutOperatorTest
   protected void createOrDeleteTable(HBaseStore store, boolean isDelete ) throws Exception
   {
     HBaseAdmin admin = null;
-    try
-    {
+    try {
       admin = new HBaseAdmin(store.getConfiguration());
       final String tableName = store.getTableName();
 
-      if (!admin.isTableAvailable(tableName) && !isDelete )
-      {
+      if (!admin.isTableAvailable(tableName) && !isDelete ) {
         HTableDescriptor tableDescriptor = new HTableDescriptor(tableName);
         tableDescriptor.addFamily(new HColumnDescriptor("f0"));
         tableDescriptor.addFamily(new HColumnDescriptor("f1"));
 
         admin.createTable(tableDescriptor);
-      }
-      else if( isDelete )
-      {
+      } else if ( isDelete ) {
         admin.disableTable(tableName);
         admin.deleteTable( tableName );
       }
-    }
-    catch (Exception e)
-    {
+    } catch (Exception e) {
       logger.error("exception", e);
       throw e;
-    }
-    finally
-    {
-      if (admin != null)
-      {
-        try
-        {
+    } finally {
+      if (admin != null) {
+        try {
           admin.close();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
           logger.warn("close admin exception. ", e);
         }
       }
@@ -179,7 +169,7 @@ public class HBasePOJOPutOperatorTest
 
     tableInfo.setRowOrIdExpression("row");
 
-    List<HBaseFieldInfo> fieldsInfo = new ArrayList<HBaseFieldInfo>();
+    List<HBaseFieldInfo> fieldsInfo = new ArrayList<>();
     fieldsInfo.add( new HBaseFieldInfo( "name", "name", SupportType.STRING, "f0") );
     fieldsInfo.add( new HBaseFieldInfo( "age", "age", SupportType.INTEGER, "f1") );
     fieldsInfo.add( new HBaseFieldInfo( "address", "address", SupportType.STRING, "f1") );
@@ -200,48 +190,47 @@ public class HBasePOJOPutOperatorTest
 
   protected Object getNextTuple()
   {
-    if( tupleGenerator == null )
+    if ( tupleGenerator == null ) {
       tupleGenerator = new TupleGenerator<TestPOJO>( TestPOJO.class );
-
+    }
     return tupleGenerator.getNextTuple();
   }
 
   protected void resetTupleGenerator()
   {
-    if( tupleGenerator == null )
+    if ( tupleGenerator == null ) {
       tupleGenerator = new TupleGenerator<TestPOJO>( TestPOJO.class );
-    else
+    } else {
       tupleGenerator.reset();
+    }
   }
 
   protected void readRecordsAndVerify()
   {
     int[] rowIds = new int[ TEST_SIZE ];
-    for( int i=1; i<=TEST_SIZE; ++i )
-      rowIds[i-1] = 1;
-    try
-    {
+    for ( int i = 1; i <= TEST_SIZE; ++i ) {
+      rowIds[i - 1] = 1;
+    }
+    try {
       HTable table = operator.getStore().getTable();
       Scan scan = new Scan();
       ResultScanner resultScanner = table.getScanner(scan);
 
       int recordCount = 0;
-      while( true )
-      {
+      while ( true ) {
         Result result = resultScanner.next();
-        if( result == null )
+        if ( result == null ) {
           break;
-
+        }
         int rowId = Integer.valueOf( Bytes.toString( result.getRow() ) );
-        Assert.assertTrue( "rowId="+rowId+" aut of range" , ( rowId > 0 && rowId <= TEST_SIZE ) );
-        Assert.assertTrue( "the rowId="+rowId+" already processed.", rowIds[rowId-1] == 1 );
-        rowIds[rowId-1]=0;
+        Assert.assertTrue( "rowId=" + rowId + " aut of range", ( rowId > 0 && rowId <= TEST_SIZE ) );
+        Assert.assertTrue( "the rowId=" + rowId + " already processed.", rowIds[rowId - 1] == 1 );
+        rowIds[rowId - 1] = 0;
 
         List<Cell> cells = result.listCells();
 
-        Map<String, byte[]> map = new HashMap<String,byte[]>();
-        for( Cell cell : cells )
-        {
+        Map<String, byte[]> map = new HashMap<>();
+        for ( Cell cell : cells ) {
           String columnName = Bytes.toString( CellUtil.cloneQualifier(cell) );
           byte[] value = CellUtil.cloneValue(cell);
           map.put(columnName, value);
@@ -255,20 +244,15 @@ public class HBasePOJOPutOperatorTest
       }
 
       int missedCount = 0;
-      if( recordCount != TEST_SIZE )
-      {
+      if ( recordCount != TEST_SIZE ) {
         logger.error( "unsaved records: " );
         StringBuilder sb = new StringBuilder();
-
-        for( int i=0; i<TEST_SIZE; ++i )
-        {
-          if( rowIds[i] != 0 )
-          {
-            sb.append(i+1).append(", ");
+        for ( int i = 0; i < TEST_SIZE; ++i ) {
+          if ( rowIds[i] != 0 ) {
+            sb.append(i + 1).append(", ");
             missedCount++;
           }
-          if( missedCount>0 && ( missedCount%20 == 0 ) )
-          {
+          if ( missedCount > 0 && ( missedCount % 20 == 0 ) ) {
             logger.error( sb.toString() );
             sb.delete( 0, sb.length() );
           }
@@ -276,10 +260,8 @@ public class HBasePOJOPutOperatorTest
         logger.error( sb.toString() );
         logger.error( "End of unsaved records" );
       }
-      Assert.assertTrue( "expected total records = " + TEST_SIZE + ", got " + recordCount + ", missed " + missedCount, recordCount==TEST_SIZE );
-    }
-    catch( Exception e )
-    {
+      Assert.assertTrue( "expected total records = " + TEST_SIZE + ", got " + recordCount + ", missed " + missedCount, recordCount == TEST_SIZE );
+    } catch ( Exception e ) {
       throw new RuntimeException( "exception", e );
     }
   }

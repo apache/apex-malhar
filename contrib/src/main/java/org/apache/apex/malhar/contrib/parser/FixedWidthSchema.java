@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.datatorrent.contrib.parser;
+package org.apache.apex.malhar.contrib.parser;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -67,11 +67,11 @@ public class FixedWidthSchema extends Schema
   /**
    * Default Alignment
    */
-  public static final String DEFAULT_ALIGNMENT= "left";
+  public static final String DEFAULT_ALIGNMENT = "left";
   /**
    * JSON key string for Field Alignment
    */
-  public static final String FIELD_ALIGNMENT ="alignment";
+  public static final String FIELD_ALIGNMENT = "alignment";
 
   public static final Logger logger = LoggerFactory.getLogger(FixedWidthSchema.class);
   /**
@@ -160,13 +160,13 @@ public class FixedWidthSchema extends Schema
     for (int i = 0; i < fieldArray.length(); i++) {
       JSONObject obj = fieldArray.getJSONObject(i);
       Field field = new Field(obj.getString(NAME),
-        obj.getString(TYPE).toUpperCase(), obj.getInt(FIELD_LENGTH));
-      if(obj.has(FIELD_PADDING_CHARACTER)) {
+          obj.getString(TYPE).toUpperCase(), obj.getInt(FIELD_LENGTH));
+      if (obj.has(FIELD_PADDING_CHARACTER)) {
         field.setPadding(obj.getString(FIELD_PADDING_CHARACTER).charAt(0));
       } else {
         field.setPadding(globalPadding);
       }
-      if(obj.has(FIELD_ALIGNMENT)) {
+      if (obj.has(FIELD_ALIGNMENT)) {
         field.setAlignment(obj.getString(FIELD_ALIGNMENT));
       } else {
         field.setAlignment(globalAlignment);
@@ -255,8 +255,8 @@ public class FixedWidthSchema extends Schema
       this.dateFormat = DEFAULT_DATE_FORMAT;
       this.trueValue = DEFAULT_TRUE_VALUE;
       this.falseValue = DEFAULT_FALSE_VALUE;
-      this.padding=' ';
-      this.alignment=DEFAULT_ALIGNMENT;
+      this.padding = ' ';
+      this.alignment = DEFAULT_ALIGNMENT;
     }
 
     /**
@@ -335,6 +335,7 @@ public class FixedWidthSchema extends Schema
     {
       this.falseValue = falseValue;
     }
+
     /**
      * Get the field padding
      * @return padding gets the padding for the individual field.

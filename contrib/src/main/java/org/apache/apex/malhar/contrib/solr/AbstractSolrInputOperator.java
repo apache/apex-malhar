@@ -16,23 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.solr;
+package org.apache.apex.malhar.contrib.solr;
 
 import java.io.IOException;
 
 import javax.validation.constraints.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.apex.malhar.lib.db.AbstractStoreInputOperator;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.SolrParams;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.db.AbstractStoreInputOperator;
 
 /**
  * This is a base implementation of a Solr input operator, which consumes data from solr search operations.&nbsp;

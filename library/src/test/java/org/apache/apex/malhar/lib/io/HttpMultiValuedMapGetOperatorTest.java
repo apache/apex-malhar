@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io;
+package org.apache.apex.malhar.lib.io;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,11 +35,11 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.TestUtils;
+
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
-
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.TestUtils;
 
 /**
  * Tests {@link AbstractHttpGetMultiValuedMapOperator} for sending get requests to specified url

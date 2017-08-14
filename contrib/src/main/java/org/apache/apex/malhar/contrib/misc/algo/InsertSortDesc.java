@@ -22,13 +22,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 
+import org.apache.apex.malhar.lib.util.AbstractBaseSortOperator;
+import org.apache.apex.malhar.lib.util.ReversibleComparator;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.AbstractBaseSortOperator;
-import com.datatorrent.lib.util.ReversibleComparator;
 
 /**
  * This operator takes the values it receives each window and outputs them in ascending order at the end of each window.

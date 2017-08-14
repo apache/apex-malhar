@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.elasticsearch;
+package org.apache.apex.malhar.contrib.elasticsearch;
 
 import java.util.Map;
 
@@ -50,7 +50,7 @@ public abstract class ElasticSearchMapInputOperator<T extends Map<String, Object
   /**
    * {@link SearchRequestBuilder} properties which do not change for each window are set during operator initialization.
    *
-   * @see com.datatorrent.contrib.elasticsearch.AbstractElasticSearchInputOperator#setup(com.datatorrent.api.Context.OperatorContext)
+   * @see org.apache.apex.malhar.contrib.elasticsearch.AbstractElasticSearchInputOperator#setup(com.datatorrent.api.Context.OperatorContext)
    */
   @Override
   public void setup(OperatorContext t1)
@@ -63,14 +63,14 @@ public abstract class ElasticSearchMapInputOperator<T extends Map<String, Object
    * (non-Javadoc)
    *
    * @see
-   * com.datatorrent.contrib.elasticsearch.AbstractElasticSearchInputOperator#convertToTuple(org.elasticsearch.search
+   * org.apache.apex.malhar.contrib.elasticsearch.AbstractElasticSearchInputOperator#convertToTuple(org.elasticsearch.search
    * .SearchHit)
    */
   @Override
   protected T convertToTuple(SearchHit hit)
   {
     Map<String, Object> tuple = hit.getSource();
-    return (T) tuple;
+    return (T)tuple;
   }
 
   /**

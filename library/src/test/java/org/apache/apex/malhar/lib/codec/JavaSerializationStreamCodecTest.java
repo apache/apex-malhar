@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.codec;
+package org.apache.apex.malhar.lib.codec;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -27,7 +27,7 @@ import org.junit.Test;
 import com.datatorrent.netlet.util.Slice;
 
 /**
- * functional test for {@link com.datatorrent.lib.util.JavaSerializationStreamCodec}.
+ * functional test for {@link org.apache.apex.malhar.lib.util.JavaSerializationStreamCodec}.
  */
 public class JavaSerializationStreamCodecTest
 {

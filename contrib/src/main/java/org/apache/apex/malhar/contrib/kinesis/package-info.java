@@ -17,4 +17,4 @@
  * under the License.
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-package com.datatorrent.contrib.kinesis;
+package org.apache.apex.malhar.contrib.kinesis;

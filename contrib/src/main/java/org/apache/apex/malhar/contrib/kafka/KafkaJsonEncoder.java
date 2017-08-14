@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
+package org.apache.apex.malhar.contrib.kafka;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;

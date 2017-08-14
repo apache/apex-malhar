@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchdb;
+package org.apache.apex.malhar.contrib.couchdb;
 
 import java.io.IOException;
 import java.util.Map;
@@ -29,11 +29,11 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+
 import com.google.common.collect.Maps;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
-
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Test for {@link PagedCouchDBInputOperatorTest}
@@ -59,8 +59,7 @@ public class PagedCouchDBInputOperatorTest
       Map<Object, Object> valueMap = Maps.newHashMap();
       try {
         valueMap = mapper.readValue(row.getValueAsNode(), valueMap.getClass());
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         e.printStackTrace();
       }
       return valueMap;

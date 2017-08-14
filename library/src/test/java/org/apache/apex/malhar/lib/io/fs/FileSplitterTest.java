@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io.fs;
+package org.apache.apex.malhar.lib.io.fs;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +35,9 @@ import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.io.block.BlockMetadata;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.TestUtils;
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -45,11 +48,8 @@ import com.google.common.collect.Sets;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.io.block.BlockMetadata;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.TestUtils;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class FileSplitterTest
 {

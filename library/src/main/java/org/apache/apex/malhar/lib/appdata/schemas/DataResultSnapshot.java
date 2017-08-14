@@ -16,16 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.schemas;
+package org.apache.apex.malhar.lib.appdata.schemas;
 
 import java.util.List;
 
-import com.google.common.base.Preconditions;
+import org.apache.apex.malhar.lib.appdata.gpo.GPOMutable;
+import org.apache.apex.malhar.lib.appdata.query.serde.DataResultSnapshotSerializer;
+import org.apache.apex.malhar.lib.appdata.query.serde.MessageSerializerInfo;
+import org.apache.apex.malhar.lib.appdata.query.serde.MessageType;
 
-import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.query.serde.DataResultSnapshotSerializer;
-import com.datatorrent.lib.appdata.query.serde.MessageSerializerInfo;
-import com.datatorrent.lib.appdata.query.serde.MessageType;
+import com.google.common.base.Preconditions;
 
 /**
  * This class represents the result sent in response to a {@link DataQuerySnapshot}.

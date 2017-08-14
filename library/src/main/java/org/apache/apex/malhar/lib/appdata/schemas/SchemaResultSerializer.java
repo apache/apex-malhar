@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.schemas;
+package org.apache.apex.malhar.lib.appdata.schemas;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -24,7 +24,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.appdata.query.serde.CustomMessageSerializer;
+import org.apache.apex.malhar.lib.appdata.query.serde.CustomMessageSerializer;
 
 /**
  * This is the serializer class for {@link SchemaResult} objects.

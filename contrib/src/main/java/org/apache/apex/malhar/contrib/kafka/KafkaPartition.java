@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
+package org.apache.apex.malhar.contrib.kafka;
 
 import java.io.Serializable;
 
@@ -25,7 +25,7 @@ import java.io.Serializable;
  */
 public class KafkaPartition implements Serializable
 {
-  protected static final String DEFAULT_CLUSTERID = "com.datatorrent.contrib.kafka.defaultcluster";
+  protected static final String DEFAULT_CLUSTERID = "org.apache.apex.malhar.contrib.kafka.defaultcluster";
 
   @SuppressWarnings("unused")
   private KafkaPartition()
@@ -101,25 +101,33 @@ public class KafkaPartition implements Serializable
   @Override
   public boolean equals(Object obj)
   {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
-    KafkaPartition other = (KafkaPartition) obj;
+    }
+    KafkaPartition other = (KafkaPartition)obj;
     if (clusterId == null) {
-      if (other.clusterId != null)
+      if (other.clusterId != null) {
         return false;
-    } else if (!clusterId.equals(other.clusterId))
+      }
+    } else if (!clusterId.equals(other.clusterId)) {
       return false;
-    if (partitionId != other.partitionId)
+    }
+    if (partitionId != other.partitionId) {
       return false;
+    }
     if (topic == null) {
-      if (other.topic != null)
+      if (other.topic != null) {
         return false;
-    } else if (!topic.equals(other.topic))
+      }
+    } else if (!topic.equals(other.topic)) {
       return false;
+    }
     return true;
   }
 
@@ -128,7 +136,5 @@ public class KafkaPartition implements Serializable
   {
     return "KafkaPartition [clusterId=" + clusterId + ", partitionId=" + partitionId + ", topic=" + topic + "]";
   }
-
-
 
 }

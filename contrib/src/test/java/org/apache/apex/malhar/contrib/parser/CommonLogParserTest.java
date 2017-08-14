@@ -28,8 +28,7 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
 import org.apache.apex.malhar.contrib.parser.log.CommonLog;
-
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
 public class CommonLogParserTest
 {

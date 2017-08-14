@@ -16,16 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.logs;
+package org.apache.apex.malhar.lib.logs;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.HashTestSink;
+import org.apache.apex.malhar.lib.testbench.HashTestSink;
 
 /**
  *
- * Functional tests for {@link com.datatorrent.lib.logs.LineTokenizer}<p>
+ * Functional tests for {@link org.apache.apex.malhar.lib.logs.LineTokenizer}<p>
  *
  */
 public class LineTokenizerTest

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.algo;
+package org.apache.apex.malhar.lib.algo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,10 +24,11 @@ import java.util.Map;
 
 import javax.validation.constraints.Min;
 
+import org.apache.apex.malhar.lib.util.TopNSort;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
-import com.datatorrent.lib.util.TopNSort;
 
 /**
  * This unifier takes an input stream of key value pairs is ordered by key,

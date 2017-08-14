@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.query;
+package org.apache.apex.malhar.lib.appdata.query;
 
 /**
  * This is a container object to be used by Queue Managers. It is a container for a query, the query's meta data,

@@ -35,6 +35,10 @@ import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.fileaccess.FileAccess;
+import org.apache.apex.malhar.lib.fileaccess.TFileImpl;
+import org.apache.apex.malhar.lib.util.comparator.SliceComparator;
+
 import com.esotericsoftware.kryo.serializers.FieldSerializer;
 import com.esotericsoftware.kryo.serializers.JavaSerializer;
 import com.google.common.annotations.VisibleForTesting;
@@ -51,9 +55,6 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.NameableThreadFactory;
-import com.datatorrent.lib.fileaccess.FileAccess;
-import com.datatorrent.lib.fileaccess.TFileImpl;
-import com.datatorrent.lib.util.comparator.SliceComparator;
 import com.datatorrent.netlet.util.Slice;
 
 /**

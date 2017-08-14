@@ -16,17 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.cassandra;
+package org.apache.apex.malhar.contrib.cassandra;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.apex.malhar.lib.util.FieldInfo;
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Setter;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterBoolean;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterDouble;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterFloat;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterInt;
+import org.apache.apex.malhar.lib.util.PojoUtils.SetterLong;
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
 
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.ColumnDefinitions;
@@ -39,9 +52,6 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.FieldInfo;
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.*;
 
 /**
  * <p>
@@ -287,8 +297,7 @@ public class CassandraPOJOInputOperator extends AbstractCassandraInputOperator<O
     try {
       // This code will be replaced after integration of creating POJOs on the fly utility.
       obj = pojoClass.newInstance();
-    }
-    catch (InstantiationException | IllegalAccessException ex) {
+    } catch (InstantiationException | IllegalAccessException ex) {
       throw new RuntimeException(ex);
     }
 

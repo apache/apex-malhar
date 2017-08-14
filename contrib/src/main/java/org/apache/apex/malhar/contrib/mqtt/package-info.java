@@ -20,4 +20,4 @@
  * MQTT operators and utilities.
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-package com.datatorrent.contrib.mqtt;
+package org.apache.apex.malhar.contrib.mqtt;

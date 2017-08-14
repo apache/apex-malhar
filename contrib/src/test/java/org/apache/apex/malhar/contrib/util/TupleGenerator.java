@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.util;
+package org.apache.apex.malhar.contrib.util;
 
 import java.lang.reflect.Constructor;
 
@@ -34,7 +34,7 @@ public class TupleGenerator<T>
   private volatile long rowId = 0;
   private Constructor<T> constructor;
 
-  private static Class<?>[] paramTypes = new Class<?>[]{ Long.class, long.class, Integer.class, int.class };
+  private static Class<?>[] paramTypes = new Class<?>[]{Long.class, long.class, Integer.class, int.class };
 
   public TupleGenerator()
   {
@@ -47,14 +47,13 @@ public class TupleGenerator<T>
 
   public void useTupleClass( Class<T> tupleClass )
   {
-    for( Class<?> paramType : paramTypes )
-    {
+    for ( Class<?> paramType : paramTypes ) {
       constructor = tryGetConstructor( tupleClass, paramType );
-      if( constructor != null )
+      if ( constructor != null ) {
         break;
+      }
     }
-    if( constructor == null )
-    {
+    if ( constructor == null ) {
       logger.error( "Not found proper constructor." );
       throw new RuntimeException( "Not found proper constructor." );
     }
@@ -62,12 +61,9 @@ public class TupleGenerator<T>
 
   protected Constructor<T> tryGetConstructor( Class<T> tupleClass, Class<?> parameterType )
   {
-    try
-    {
+    try {
       return tupleClass.getConstructor( parameterType );
-    }
-    catch( Exception e )
-    {
+    } catch ( Exception e ) {
       return null;
     }
   }
@@ -79,16 +75,13 @@ public class TupleGenerator<T>
 
   public T getNextTuple()
   {
-    if( constructor == null )
+    if ( constructor == null ) {
       throw new RuntimeException( "Not found proper constructor." );
-
-    long curRowId = ++rowId;
-    try
-    {
-      return constructor.newInstance( curRowId );
     }
-    catch( Exception e)
-    {
+    long curRowId = ++rowId;
+    try {
+      return constructor.newInstance( curRowId );
+    } catch ( Exception e) {
       logger.error( "newInstance failed.", e );
       return null;
     }

@@ -16,8 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.stream;
+package org.apache.apex.benchmark.stream;
 
+import org.apache.apex.malhar.lib.stream.DevNullCounter;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context.PortContext;
@@ -25,11 +26,10 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.stream.DevNullCounter;
 
 /**
  *
- * Functional tests for {@link com.datatorrent.lib.testbench.DevNullCounter}.
+ * Functional tests for {@link org.apache.apex.malhar.lib.testbench.DevNullCounter}.
  * <p>
  * <br>
  * oper.process is called a billion times<br>

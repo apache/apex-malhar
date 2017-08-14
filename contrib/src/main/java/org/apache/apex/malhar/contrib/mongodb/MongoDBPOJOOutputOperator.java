@@ -16,11 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.mongodb;
-
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Getter;
-import com.mongodb.BasicDBObject;
+package org.apache.apex.malhar.contrib.mongodb;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +24,11 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Getter;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
+
+import com.mongodb.BasicDBObject;
 
 /**
  * Implementation of {@link MongoDBOutputOperator} that saves a POJO in the mongodb database. <br/>
@@ -114,8 +114,7 @@ public class MongoDBPOJOOutputOperator extends MongoDBOutputOperator<Object>
     nestedKeys = new HashMap<String, String[]>();
   }
 
-  static
-  {
+  static {
     mapPrimitives.put("boolean", boolean.class);
     mapPrimitives.put("char", char.class);
     mapPrimitives.put("short", short.class);
@@ -131,12 +130,10 @@ public class MongoDBPOJOOutputOperator extends MongoDBOutputOperator<Object>
     for (String fieldType: fieldTypes) {
       if (mapPrimitives.containsKey(fieldType)) {
         classTypes.add(mapPrimitives.get(fieldType));
-      }
-      else {
+      } else {
         try {
           classTypes.add(Class.forName(fieldType));
-        }
-        catch (ClassNotFoundException ex) {
+        } catch (ClassNotFoundException ex) {
           throw new RuntimeException(ex);
         }
       }
@@ -149,7 +146,7 @@ public class MongoDBPOJOOutputOperator extends MongoDBOutputOperator<Object>
         nestedKeys.put(key, key.split("[.]"));
       }
       String table = tablenames.get(i);
-      if(!tableList.contains(table)){
+      if (!tableList.contains(table)) {
         tableList.add(table);
       }
     }
@@ -182,12 +179,10 @@ public class MongoDBPOJOOutputOperator extends MongoDBOutputOperator<Object>
         }
         if (doc.containsField(subKeys[0])) {
           doc.append(subKeys[0], nestedDoc);
-        }
-        else {
+        } else {
           doc.put(subKeys[0], nestedDoc);
         }
-      }
-      else {
+      } else {
         if ((doc = tableToDocument.get(table)) == null) {
           doc = new BasicDBObject();
         }

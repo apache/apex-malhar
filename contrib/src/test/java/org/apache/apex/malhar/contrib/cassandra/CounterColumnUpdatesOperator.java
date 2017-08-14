@@ -16,9 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.cassandra;
+package org.apache.apex.malhar.contrib.cassandra;
 
 import java.util.Map;
+
 import com.datastax.driver.core.TypeCodec;
 
 public class CounterColumnUpdatesOperator extends AbstractUpsertOutputOperator

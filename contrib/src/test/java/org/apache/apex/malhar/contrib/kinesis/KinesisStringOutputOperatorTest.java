@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kinesis;
+package org.apache.apex.malhar.contrib.kinesis;
 
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -26,7 +26,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator.ActivationListener;
 
-public class KinesisStringOutputOperatorTest extends KinesisOutputOperatorTest< KinesisStringOutputOperator, KinesisStringOutputOperatorTest.StringGeneratorInputOperator >
+public class KinesisStringOutputOperatorTest extends KinesisOutputOperatorTest<KinesisStringOutputOperator, KinesisStringOutputOperatorTest.StringGeneratorInputOperator>
 {
   @Override
   protected StringGeneratorInputOperator addGenerateOperator( DAG dag )
@@ -90,8 +90,7 @@ public class KinesisStringOutputOperatorTest extends KinesisOutputOperatorTest< 
             while (dataGeneratorThread != null && i < maxTuple) {
               stringBuffer.put("testString " + (++i));
             }
-          }
-          catch (Exception ie) {
+          } catch (Exception ie) {
             throw new RuntimeException(ie);
           }
         }

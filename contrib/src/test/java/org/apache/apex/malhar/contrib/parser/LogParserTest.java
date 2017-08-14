@@ -26,11 +26,8 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-import org.apache.apex.malhar.contrib.parser.LogParser;
-import org.apache.apex.malhar.contrib.parser.LogSchemaDetails;
-
-import com.datatorrent.lib.appdata.schemas.SchemaUtils;
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.appdata.schemas.SchemaUtils;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
 public class LogParserTest
 {
@@ -101,7 +98,7 @@ public class LogParserTest
     Assert.assertEquals(0, error.collectedTuples.size());
     Object obj = pojoPort.collectedTuples.get(0);
     Assert.assertNotNull(obj);
-    LogSchema pojo = (LogSchema) obj;
+    LogSchema pojo = (LogSchema)obj;
     Assert.assertEquals("125.125.125.125", pojo.getHost());
     Assert.assertEquals("smith", pojo.getUserName());
     Assert.assertEquals("200", pojo.getStatusCode());
@@ -123,41 +120,50 @@ public class LogParserTest
     Assert.assertEquals(1, error.collectedTuples.size());
   }
 
-  public static class LogSchema {
+  public static class LogSchema
+  {
     private String host;
     private String userName;
     private String statusCode;
     private String bytes;
 
-    public String getHost() {
+    public String getHost()
+    {
       return host;
     }
 
-    public void setHost(String host) {
+    public void setHost(String host)
+    {
       this.host = host;
     }
 
-    public String getUserName() {
+    public String getUserName()
+    {
       return userName;
     }
 
-    public void setUserName(String username) {
+    public void setUserName(String username)
+    {
       this.userName = username;
     }
 
-    public String getStatusCode() {
+    public String getStatusCode()
+    {
       return statusCode;
     }
 
-    public void setStatusCode(String statusCode) {
+    public void setStatusCode(String statusCode)
+    {
       this.statusCode = statusCode;
     }
 
-    public String getBytes() {
+    public String getBytes()
+    {
       return bytes;
     }
 
-    public void setBytes(String bytes) {
+    public void setBytes(String bytes)
+    {
       this.bytes = bytes;
     }
 

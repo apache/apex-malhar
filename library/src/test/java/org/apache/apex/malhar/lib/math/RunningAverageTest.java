@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.math;
+package org.apache.apex.malhar.lib.math;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Functional tests for {@link com.datatorrent.lib.math.RunningAverage}
+ * Functional tests for {@link org.apache.apex.malhar.lib.math.RunningAverage}
  */
 public class RunningAverageTest
 {

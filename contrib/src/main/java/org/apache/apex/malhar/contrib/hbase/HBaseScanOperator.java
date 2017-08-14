@@ -16,36 +16,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
 import java.io.IOException;
 import java.util.Queue;
-import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.client.Scan;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.datatorrent.api.AutoMetric;
-import com.datatorrent.api.Context;
-import com.datatorrent.api.Operator;
-import com.datatorrent.api.Context.OperatorContext;
-import com.google.common.collect.Queues;
-
-import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
+
+import com.google.common.collect.Queues;
+import com.datatorrent.api.AutoMetric;
+import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Operator;
 
 /**
- * A base implementation of hbase input operator that retrieves tuples from HBase columns and provides scan operation. <br>
+ * A base implementation of hbase input operator that retrieves tuples from
+ * HBase columns and provides scan operation. <br>
  * <p>
  * <br>
- * This class provides a HBase input operator that can be used to retrieve tuples from rows in a
- * HBase table. The class should be extended by the end-operator developer. The extending class should
- * implement operationScan and getTuple methods. The operationScan method should provide a HBase Scan
- * metric object that specifies where to retrieve the tuple information from the table. The getTuple method
- * should map the contents of a Result from the Scan result to a tuple.<br>
+ * This class provides a HBase input operator that can be used to retrieve
+ * tuples from rows in a HBase table. The class should be extended by the
+ * end-operator developer. The extending class should implement operationScan
+ * and getTuple methods. The operationScan method should provide a HBase Scan
+ * metric object that specifies where to retrieve the tuple information from the
+ * table. The getTuple method should map the contents of a Result from the Scan
+ * result to a tuple.<br>
  *
  * <br>
+ *
  * @displayName HBase Scan
  * @category Output
  * @tags hbase, scan, input operator

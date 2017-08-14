@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.stream;
+package org.apache.apex.malhar.lib.stream;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,11 +24,11 @@ import java.util.HashMap;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.KeyValPair;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 
 /**
- * Functional test for {@link com.datatorrent.lib.stream.ArrayListAggregator}
+ * Functional test for {@link org.apache.apex.malhar.lib.stream.ArrayListAggregator}
  */
 public class ConsolidatorKeyValTest
 {

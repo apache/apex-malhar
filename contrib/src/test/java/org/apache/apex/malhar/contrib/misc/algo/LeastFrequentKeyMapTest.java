@@ -24,7 +24,7 @@ import java.util.HashMap;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
+import org.apache.apex.malhar.lib.testbench.CountAndLastTupleTestSink;
 
 /**
  * @deprecated

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.mqtt;
+package org.apache.apex.malhar.contrib.mqtt;
 
 import org.fusesource.mqtt.client.QoS;
 
@@ -40,7 +40,7 @@ public class MqttClientConfig
   private int connectionTimeout = 500;
   private int connectAttemptsMax = 1;
   private String host = "localhost";
-  private int port= 1883;
+  private int port = 1883;
 
   /**
    * Gets the MQTT client ID

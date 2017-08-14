@@ -16,42 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
-
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultPartition;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.Operator;
-import com.datatorrent.api.Operator.ActivationListener;
-import com.datatorrent.api.Partitioner;
-import com.datatorrent.api.Stats;
-import com.datatorrent.api.StatsListener;
-import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.Stateless;
-import com.datatorrent.lib.util.KryoCloneUtils;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
-import kafka.api.FetchRequest;
-import kafka.api.FetchRequestBuilder;
-import kafka.cluster.Broker;
-import kafka.javaapi.FetchResponse;
-import kafka.javaapi.PartitionMetadata;
-import kafka.javaapi.consumer.SimpleConsumer;
-import kafka.message.Message;
-import kafka.message.MessageAndOffset;
-
-import org.apache.apex.malhar.lib.wal.WindowDataManager;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+package org.apache.apex.malhar.contrib.kafka;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -65,7 +30,43 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.getOffsetsForPartitions;
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.apex.malhar.lib.util.KryoCloneUtils;
+import org.apache.apex.malhar.lib.wal.WindowDataManager;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.Operator.ActivationListener;
+import com.datatorrent.api.Partitioner;
+import com.datatorrent.api.Stats;
+import com.datatorrent.api.StatsListener;
+import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.api.annotation.Stateless;
+
+import kafka.api.FetchRequest;
+import kafka.api.FetchRequestBuilder;
+import kafka.cluster.Broker;
+import kafka.javaapi.FetchResponse;
+import kafka.javaapi.PartitionMetadata;
+import kafka.javaapi.consumer.SimpleConsumer;
+import kafka.message.Message;
+import kafka.message.MessageAndOffset;
+
+import static org.apache.apex.malhar.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.getOffsetsForPartitions;
 
 /**
  * This is a base implementation of a Kafka input operator, which consumes data from Kafka message bus.&nbsp;
@@ -226,7 +227,8 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
    * processing of messages doesn't get stuck.
    * @return The maximum for the total size
      */
-  public long getMaxTotalMsgSizePerWindow() {
+  public long getMaxTotalMsgSizePerWindow()
+  {
     return maxTotalMsgSizePerWindow;
   }
 
@@ -236,7 +238,8 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
    *
    * @param maxTotalMsgSizePerWindow The maximum for the total size
      */
-  public void setMaxTotalMsgSizePerWindow(long maxTotalMsgSizePerWindow) {
+  public void setMaxTotalMsgSizePerWindow(long maxTotalMsgSizePerWindow)
+  {
     this.maxTotalMsgSizePerWindow = maxTotalMsgSizePerWindow;
   }
 
@@ -256,7 +259,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     }
     this.context = context;
     operatorId = context.getId();
-    if(consumer instanceof HighlevelKafkaConsumer && !(windowDataManager instanceof WindowDataManager.NoopWindowDataManager)) {
+    if (consumer instanceof HighlevelKafkaConsumer && !(windowDataManager instanceof WindowDataManager.NoopWindowDataManager)) {
       throw new RuntimeException("Idempotency is not supported for High Level Kafka Consumer");
     }
     windowDataManager.setup(context);
@@ -289,7 +292,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
       if (recoveredData != null) {
         Map<String, List<PartitionMetadata>> pms = KafkaMetadataUtil.getPartitionsForTopic(getConsumer().brokers, getConsumer().topic);
         if (pms != null) {
-          SimpleKafkaConsumer cons = (SimpleKafkaConsumer) getConsumer();
+          SimpleKafkaConsumer cons = (SimpleKafkaConsumer)getConsumer();
           // add all partition request in one Fretch request together
           FetchRequestBuilder frb = new FetchRequestBuilder().clientId(cons.getClientId());
           for (Map.Entry<KafkaPartition, MutablePair<Long, Integer>> rc : recoveredData.entrySet()) {
@@ -299,13 +302,14 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
             Iterator<PartitionMetadata> pmIterator = pmsVal.iterator();
             PartitionMetadata pm = pmIterator.next();
             while (pm.partitionId() != kp.getPartitionId()) {
-              if (!pmIterator.hasNext())
+              if (!pmIterator.hasNext()) {
                 break;
+              }
               pm = pmIterator.next();
             }
-            if (pm.partitionId() != kp.getPartitionId())
+            if (pm.partitionId() != kp.getPartitionId()) {
               continue;
-
+            }
             Broker bk = pm.leader();
 
             frb.addFetch(consumer.topic, rc.getKey().getPartitionId(), rc.getValue().left, cons.getBufferSize());
@@ -319,13 +323,14 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
               emitTuple(kafkaMessage);
               offsetStats.put(kp, msg.offset());
               count = count + 1;
-              if (count.equals(rc.getValue().right))
+              if (count.equals(rc.getValue().right)) {
                 break;
+              }
             }
           }
         }
       }
-      if(windowId == windowDataManager.getLargestCompletedWindow()) {
+      if (windowId == windowDataManager.getLargestCompletedWindow()) {
         // Start the consumer at the largest recovery window
         SimpleKafkaConsumer cons = (SimpleKafkaConsumer)getConsumer();
         // Set the offset positions to the consumer
@@ -337,8 +342,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
         cons.resetOffset(currentOffsets);
         cons.start();
       }
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException("replay", e);
     }
   }
@@ -354,8 +358,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     if (currentWindowId > windowDataManager.getLargestCompletedWindow()) {
       try {
         windowDataManager.save(currentWindowRecoveryState, currentWindowId);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         throw new RuntimeException("saving recovery", e);
       }
     }
@@ -397,8 +400,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
 
     try {
       windowDataManager.committed(windowId);
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException("deleting state", e);
     }
   }
@@ -453,10 +455,10 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
       emitTotalMsgSize += message.msg.size();
       offsetStats.put(message.kafkaPart, message.offSet);
       MutablePair<Long, Integer> offsetAndCount = currentWindowRecoveryState.get(message.kafkaPart);
-      if(offsetAndCount == null) {
+      if (offsetAndCount == null) {
         currentWindowRecoveryState.put(message.kafkaPart, new MutablePair<Long, Integer>(message.offSet, 1));
       } else {
-        offsetAndCount.setRight(offsetAndCount.right+1);
+        offsetAndCount.setRight(offsetAndCount.right + 1);
       }
     }
   }
@@ -507,7 +509,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
 
     boolean isInitialParitition = true;
     // check if it's the initial partition
-    if(partitions.iterator().hasNext()) {
+    if (partitions.iterator().hasNext()) {
       isInitialParitition = partitions.iterator().next().getStats() == null;
     }
 
@@ -516,7 +518,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
 
     // initialize the offset
     Map<KafkaPartition, Long> initOffset = null;
-    if(isInitialParitition && offsetManager !=null){
+    if (isInitialParitition && offsetManager != null) {
       initOffset = offsetManager.loadInitialOffsets();
       logger.info("Initial offsets: {} ", "{ " + Joiner.on(", ").useForNull("").withKeyValueSeparator(": ").join(initOffset) + " }");
     }
@@ -527,95 +529,92 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
 
     switch (strategy) {
 
-    // For the 1 to 1 mapping The framework will create number of operator partitions based on kafka topic partitions
-    // Each operator partition will consume from only one kafka partition
-    case ONE_TO_ONE:
+      // For the 1 to 1 mapping The framework will create number of operator partitions based on kafka topic partitions
+      // Each operator partition will consume from only one kafka partition
+      case ONE_TO_ONE:
 
-      if (isInitialParitition) {
-        lastRepartitionTime = System.currentTimeMillis();
-        logger.info("[ONE_TO_ONE]: Initializing partition(s)");
-        // get partition metadata for topics.
-        // Whatever operator is using high-level or simple kafka consumer, the operator always create a temporary simple kafka consumer to get the metadata of the topic
-        // The initial value of brokerList of the KafkaConsumer is used to retrieve the topic metadata
-        Map<String, List<PartitionMetadata>> kafkaPartitions = KafkaMetadataUtil.getPartitionsForTopic(getConsumer().brokers, getConsumer().getTopic());
+        if (isInitialParitition) {
+          lastRepartitionTime = System.currentTimeMillis();
+          logger.info("[ONE_TO_ONE]: Initializing partition(s)");
+          // get partition metadata for topics.
+          // Whatever operator is using high-level or simple kafka consumer, the operator always create a temporary simple kafka consumer to get the metadata of the topic
+          // The initial value of brokerList of the KafkaConsumer is used to retrieve the topic metadata
+          Map<String, List<PartitionMetadata>> kafkaPartitions = KafkaMetadataUtil.getPartitionsForTopic(getConsumer().brokers, getConsumer().getTopic());
 
-        // initialize the number of operator partitions according to number of kafka partitions
+          // initialize the number of operator partitions according to number of kafka partitions
 
-        newPartitions = new LinkedList<Partitioner.Partition<AbstractKafkaInputOperator<K>>>();
-        for (Map.Entry<String, List<PartitionMetadata>> kp : kafkaPartitions.entrySet()) {
-          String clusterId = kp.getKey();
-          for (PartitionMetadata pm : kp.getValue()) {
-            logger.info("[ONE_TO_ONE]: Create operator partition for cluster {}, topic {}, kafka partition {} ", clusterId, getConsumer().topic, pm.partitionId());
-            newPartitions.add(createPartition(Sets.newHashSet(new KafkaPartition(clusterId, consumer.topic, pm.partitionId())), initOffset));
-          }
-        }
-        resultPartitions = newPartitions;
-        numPartitionsChanged = true;
-      }
-      else if (newWaitingPartition.size() != 0) {
-        // add partition for new kafka partition
-        for (KafkaPartition newPartition : newWaitingPartition) {
-          logger.info("[ONE_TO_ONE]: Add operator partition for cluster {}, topic {}, partition {}", newPartition.getClusterId(), getConsumer().topic, newPartition.getPartitionId());
-          partitions.add(createPartition(Sets.newHashSet(newPartition), null));
-        }
-        newWaitingPartition.clear();
-        resultPartitions = partitions;
-        numPartitionsChanged = true;
-      }
-      break;
-    // For the 1 to N mapping The initial partition number is defined by stream application
-    // Afterwards, the framework will dynamically adjust the partition and allocate consumers to as less operator partitions as it can
-    //  and guarantee the total intake rate for each operator partition is below some threshold
-    case ONE_TO_MANY:
-
-      if (getConsumer() instanceof HighlevelKafkaConsumer) {
-        throw new UnsupportedOperationException("[ONE_TO_MANY]: The high-level consumer is not supported for ONE_TO_MANY partition strategy.");
-      }
-
-      if (isInitialParitition || newWaitingPartition.size() != 0) {
-        lastRepartitionTime = System.currentTimeMillis();
-        logger.info("[ONE_TO_MANY]: Initializing partition(s)");
-        // get partition metadata for topics.
-        // Whatever operator is using high-level or simple kafka consumer, the operator always create a temporary simple kafka consumer to get the metadata of the topic
-        // The initial value of brokerList of the KafkaConsumer is used to retrieve the topic metadata
-        Map<String, List<PartitionMetadata>> kafkaPartitions = KafkaMetadataUtil.getPartitionsForTopic(getConsumer().brokers, getConsumer().getTopic());
-
-        int size = initialPartitionCount;
-        @SuppressWarnings("unchecked")
-        Set<KafkaPartition>[] kps = (Set<KafkaPartition>[]) Array.newInstance((new HashSet<KafkaPartition>()).getClass(), size);
-        int i = 0;
-        for (Map.Entry<String, List<PartitionMetadata>> en : kafkaPartitions.entrySet()) {
-          String clusterId = en.getKey();
-          for (PartitionMetadata pm : en.getValue()) {
-            if (kps[i % size] == null) {
-              kps[i % size] = new HashSet<KafkaPartition>();
+          newPartitions = new LinkedList<Partitioner.Partition<AbstractKafkaInputOperator<K>>>();
+          for (Map.Entry<String, List<PartitionMetadata>> kp : kafkaPartitions.entrySet()) {
+            String clusterId = kp.getKey();
+            for (PartitionMetadata pm : kp.getValue()) {
+              logger.info("[ONE_TO_ONE]: Create operator partition for cluster {}, topic {}, kafka partition {} ", clusterId, getConsumer().topic, pm.partitionId());
+              newPartitions.add(createPartition(Sets.newHashSet(new KafkaPartition(clusterId, consumer.topic, pm.partitionId())), initOffset));
             }
-            kps[i % size].add(new KafkaPartition(clusterId, consumer.topic, pm.partitionId()));
-            i++;
           }
+          resultPartitions = newPartitions;
+          numPartitionsChanged = true;
+        } else if (newWaitingPartition.size() != 0) {
+          // add partition for new kafka partition
+          for (KafkaPartition newPartition : newWaitingPartition) {
+            logger.info("[ONE_TO_ONE]: Add operator partition for cluster {}, topic {}, partition {}", newPartition.getClusterId(), getConsumer().topic, newPartition.getPartitionId());
+            partitions.add(createPartition(Sets.newHashSet(newPartition), null));
+          }
+          newWaitingPartition.clear();
+          resultPartitions = partitions;
+          numPartitionsChanged = true;
         }
-        size = i > size ? size : i;
-        newPartitions = new ArrayList<Partitioner.Partition<AbstractKafkaInputOperator<K>>>(size);
-        for (i = 0; i < size; i++) {
-          logger.info("[ONE_TO_MANY]: Create operator partition for kafka partition(s): {} ", StringUtils.join(kps[i], ", "));
-          newPartitions.add(createPartition(kps[i], initOffset));
-        }
-        // Add the existing partition Ids to the deleted operators
-        for (Partition<AbstractKafkaInputOperator<K>> op : partitions)
-        {
-          deletedOperators.add(op.getPartitionedInstance().operatorId);
+        break;
+      // For the 1 to N mapping The initial partition number is defined by stream application
+      // Afterwards, the framework will dynamically adjust the partition and allocate consumers to as less operator partitions as it can
+      //  and guarantee the total intake rate for each operator partition is below some threshold
+      case ONE_TO_MANY:
+
+        if (getConsumer() instanceof HighlevelKafkaConsumer) {
+          throw new UnsupportedOperationException("[ONE_TO_MANY]: The high-level consumer is not supported for ONE_TO_MANY partition strategy.");
         }
 
-        newWaitingPartition.clear();
-        resultPartitions = newPartitions;
-        numPartitionsChanged = true;
-      }
-      break;
+        if (isInitialParitition || newWaitingPartition.size() != 0) {
+          lastRepartitionTime = System.currentTimeMillis();
+          logger.info("[ONE_TO_MANY]: Initializing partition(s)");
+          // get partition metadata for topics.
+          // Whatever operator is using high-level or simple kafka consumer, the operator always create a temporary simple kafka consumer to get the metadata of the topic
+          // The initial value of brokerList of the KafkaConsumer is used to retrieve the topic metadata
+          Map<String, List<PartitionMetadata>> kafkaPartitions = KafkaMetadataUtil.getPartitionsForTopic(getConsumer().brokers, getConsumer().getTopic());
 
-    case ONE_TO_MANY_HEURISTIC:
-      throw new UnsupportedOperationException("[ONE_TO_MANY_HEURISTIC]: Not implemented yet");
-    default:
-      break;
+          int size = initialPartitionCount;
+          @SuppressWarnings("unchecked")
+          Set<KafkaPartition>[] kps = (Set<KafkaPartition>[])Array.newInstance((new HashSet<KafkaPartition>()).getClass(), size);
+          int i = 0;
+          for (Map.Entry<String, List<PartitionMetadata>> en : kafkaPartitions.entrySet()) {
+            String clusterId = en.getKey();
+            for (PartitionMetadata pm : en.getValue()) {
+              if (kps[i % size] == null) {
+                kps[i % size] = new HashSet<KafkaPartition>();
+              }
+              kps[i % size].add(new KafkaPartition(clusterId, consumer.topic, pm.partitionId()));
+              i++;
+            }
+          }
+          size = i > size ? size : i;
+          newPartitions = new ArrayList<Partitioner.Partition<AbstractKafkaInputOperator<K>>>(size);
+          for (i = 0; i < size; i++) {
+            logger.info("[ONE_TO_MANY]: Create operator partition for kafka partition(s): {} ", StringUtils.join(kps[i], ", "));
+            newPartitions.add(createPartition(kps[i], initOffset));
+          }
+          // Add the existing partition Ids to the deleted operators
+          for (Partition<AbstractKafkaInputOperator<K>> op : partitions) {
+            deletedOperators.add(op.getPartitionedInstance().operatorId);
+          }
+          newWaitingPartition.clear();
+          resultPartitions = newPartitions;
+          numPartitionsChanged = true;
+        }
+        break;
+
+      case ONE_TO_MANY_HEURISTIC:
+        throw new UnsupportedOperationException("[ONE_TO_MANY_HEURISTIC]: Not implemented yet");
+      default:
+        break;
     }
 
     if (numPartitionsChanged) {
@@ -689,7 +688,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     List<KafkaConsumer.KafkaMeterStats> kmsList = new LinkedList<KafkaConsumer.KafkaMeterStats>();
     for (Stats.OperatorStats os : stats.getLastWindowedStats()) {
       if (os != null && os.counters instanceof KafkaConsumer.KafkaMeterStats) {
-        kmsList.add((KafkaConsumer.KafkaMeterStats) os.counters);
+        kmsList.add((KafkaConsumer.KafkaMeterStats)os.counters);
       }
     }
     return kmsList;
@@ -719,12 +718,12 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
       return false;
     }
 
-    if(repartitionInterval < 0){
+    if (repartitionInterval < 0) {
       // if repartition is disabled
       return false;
     }
 
-    if(t - lastRepartitionTime < repartitionInterval) {
+    if (t - lastRepartitionTime < repartitionInterval) {
       // return false if it's still within repartitionInterval since last (re)partition
       return false;
     }
@@ -747,18 +746,18 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
         }
 
         Map<String, List<PartitionMetadata>> partitionsMeta = KafkaMetadataUtil.getPartitionsForTopic(consumer.brokers, consumer.getTopic());
-        if(partitionsMeta == null){
+        if (partitionsMeta == null) {
           //broker(s) has temporary issue to get metadata
           return false;
         }
         for (Map.Entry<String, List<PartitionMetadata>> en : partitionsMeta.entrySet()) {
-          if(en.getValue() == null){
+          if (en.getValue() == null) {
             //broker(s) has temporary issue to get metadata
             continue;
           }
           for (PartitionMetadata pm : en.getValue()) {
             KafkaPartition pa = new KafkaPartition(en.getKey(), consumer.topic, pm.partitionId());
-            if(!existingIds.contains(pa)){
+            if (!existingIds.contains(pa)) {
               newWaitingPartition.add(pa);
             }
           }

@@ -16,12 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.db.cache;
+package org.apache.apex.malhar.lib.db.cache;
 
 import java.io.IOException;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
+
 import com.google.common.collect.Maps;
 
 /**

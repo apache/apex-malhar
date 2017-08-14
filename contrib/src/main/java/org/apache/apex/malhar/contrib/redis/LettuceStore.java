@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.redis;
+package org.apache.apex.malhar.contrib.redis;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,11 +25,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.db.TransactionableKeyValueStore;
+
 import com.google.common.collect.Maps;
 import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.RedisConnection;
-
-import com.datatorrent.lib.db.TransactionableKeyValueStore;
 
 /**
  * Provides the implementation of a Redis store using Lettuce java client. <br/>
@@ -197,7 +197,7 @@ public class LettuceStore implements TransactionableKeyValueStore
     if (isInTransaction()) {
       throw new RuntimeException("Cannot call get when in redis transaction");
     }
-    return (List<Object>) (List<?>) connection.mget(keys.toArray(new String[]{}));
+    return (List<Object>)(List<?>)connection.mget(keys.toArray(new String[]{}));
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
@@ -205,9 +205,8 @@ public class LettuceStore implements TransactionableKeyValueStore
   public void put(Object key, Object value)
   {
     if (value instanceof Map) {
-      connection.hmset(key.toString(), (Map) value);
-    }
-    else {
+      connection.hmset(key.toString(), (Map)value);
+    } else {
       connection.set(key.toString(), value.toString());
     }
     if (keyExpiryTime != -1) {

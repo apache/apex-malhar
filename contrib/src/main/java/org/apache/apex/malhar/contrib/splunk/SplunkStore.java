@@ -16,22 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.splunk;
-
-import com.splunk.*;
+package org.apache.apex.malhar.contrib.splunk;
 
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.datatorrent.lib.db.Connectable;
+
+import org.apache.apex.malhar.lib.db.Connectable;
+
+import com.splunk.Service;
+import com.splunk.ServiceArgs;
 
 /**
  * A {@link Connectable} that uses splunk to connect to stores.
  *
  * @since 1.0.4
  */
-public class SplunkStore implements Connectable{
-
+public class SplunkStore implements Connectable
+{
   protected static final Logger logger = LoggerFactory.getLogger(SplunkStore.class);
   private String userName;
   private String password;
@@ -67,7 +69,8 @@ public class SplunkStore implements Connectable{
    *
    * @param host host
    */
-  public void setHost(@NotNull String host) {
+  public void setHost(@NotNull String host)
+  {
     this.host = host;
   }
 
@@ -76,11 +79,13 @@ public class SplunkStore implements Connectable{
    *
    * @param port port
    */
-  public void setPort(@NotNull int port) {
+  public void setPort(@NotNull int port)
+  {
     this.port = port;
   }
 
-  public Service getService() {
+  public Service getService()
+  {
     return service;
   }
 
@@ -90,7 +95,7 @@ public class SplunkStore implements Connectable{
   @Override
   public void connect()
   {
-    try{
+    try {
       ServiceArgs loginArgs = new ServiceArgs();
       loginArgs.setUsername(userName);
       loginArgs.setPassword(password);
@@ -98,8 +103,7 @@ public class SplunkStore implements Connectable{
       loginArgs.setPort(port);
 
       service = Service.connect(loginArgs);
-    }
-    catch(Exception e){
+    } catch (Exception e) {
       throw new RuntimeException("closing connection", e);
     }
   }
@@ -110,10 +114,9 @@ public class SplunkStore implements Connectable{
   @Override
   public void disconnect()
   {
-    try{
+    try {
       service.logout();
-    }
-    catch(Exception e){
+    } catch (Exception e) {
       throw new RuntimeException("closing connection", e);
     }
 
@@ -122,9 +125,10 @@ public class SplunkStore implements Connectable{
   @Override
   public boolean isConnected()
   {
-    if(service.getToken() == null)
+    if (service.getToken() == null) {
       return false;
-    else
+    } else {
       return true;
+    }
   }
 }

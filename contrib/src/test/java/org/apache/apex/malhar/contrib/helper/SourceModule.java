@@ -16,21 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.helper;
+package org.apache.apex.malhar.contrib.helper;
 
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator.ActivationListener;
+import com.datatorrent.common.util.BaseOperator;
 
 public class SourceModule extends BaseOperator
-implements InputOperator, ActivationListener<OperatorContext>
+    implements InputOperator, ActivationListener<OperatorContext>
 {
   public final transient DefaultOutputPort<byte[]> outPort = new DefaultOutputPort<byte[]>();
   transient ArrayBlockingQueue<byte[]> holdingBuffer;

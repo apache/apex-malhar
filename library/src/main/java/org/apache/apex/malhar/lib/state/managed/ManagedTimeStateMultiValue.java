@@ -31,6 +31,7 @@ import java.util.concurrent.TimeoutException;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.codec.KryoSerializableStreamCodec;
 import org.apache.apex.malhar.lib.state.spillable.Spillable;
 
 import com.google.common.base.Preconditions;
@@ -38,7 +39,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Multiset;
 
 import com.datatorrent.api.StreamCodec;
-import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.netlet.util.Slice;
 
 /**

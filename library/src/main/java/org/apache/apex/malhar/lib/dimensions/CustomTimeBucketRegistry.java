@@ -22,9 +22,9 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.common.base.Preconditions;
+import org.apache.apex.malhar.lib.appdata.schemas.CustomTimeBucket;
 
-import com.datatorrent.lib.appdata.schemas.CustomTimeBucket;
+import com.google.common.base.Preconditions;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;

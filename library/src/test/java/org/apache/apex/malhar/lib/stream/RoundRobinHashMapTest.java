@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.stream;
+package org.apache.apex.malhar.lib.stream;
 
 import java.util.HashMap;
 
@@ -25,10 +25,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
 /**
- * Functional test for {@link com.datatorrent.lib.stream.RoundRobinHashMap}.
+ * Functional test for {@link org.apache.apex.malhar.lib.stream.RoundRobinHashMap}.
  */
 public class RoundRobinHashMapTest
 {

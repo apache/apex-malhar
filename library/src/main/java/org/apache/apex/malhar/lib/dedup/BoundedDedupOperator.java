@@ -25,7 +25,8 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.apex.malhar.lib.state.managed.ManagedTimeStateImpl;
 import org.apache.apex.malhar.lib.state.managed.MovingBoundaryTimeBucketAssigner;
-
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Getter;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 
 import com.datatorrent.api.Context;
@@ -34,8 +35,6 @@ import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.datatorrent.netlet.util.Slice;
 
 /**

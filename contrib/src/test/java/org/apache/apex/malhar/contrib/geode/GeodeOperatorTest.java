@@ -16,12 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.geode;
+package org.apache.apex.malhar.contrib.geode;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import com.datatorrent.lib.db.KeyValueStoreOperatorTest;
+import org.apache.apex.malhar.lib.db.KeyValueStoreOperatorTest;
 
 public class GeodeOperatorTest
 {

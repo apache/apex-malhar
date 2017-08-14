@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.gpo;
+package org.apache.apex.malhar.lib.appdata.gpo;
 
 import java.util.List;
 import java.util.Map;
@@ -28,15 +28,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.appdata.schemas.FieldsDescriptor;
+import org.apache.apex.malhar.lib.appdata.schemas.SchemaUtils;
+import org.apache.apex.malhar.lib.appdata.schemas.Type;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
-import com.datatorrent.lib.appdata.schemas.SchemaUtils;
-import com.datatorrent.lib.appdata.schemas.Type;
 
 public class GPOUtilsTest
 {

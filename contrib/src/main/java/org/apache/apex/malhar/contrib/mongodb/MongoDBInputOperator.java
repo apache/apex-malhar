@@ -16,20 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.mongodb;
+package org.apache.apex.malhar.contrib.mongodb;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.Operator.ActivationListener;
+import java.net.UnknownHostException;
+
+import org.slf4j.LoggerFactory;
 
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 
-import java.net.UnknownHostException;
-
-import org.slf4j.LoggerFactory;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator.ActivationListener;
 
 /**
  * This is the base implementation of a MongoDB input operator.&nbsp;
@@ -69,7 +69,7 @@ public abstract class MongoDBInputOperator<T> extends MongoDBConnectable impleme
   /**
    * This is the output port which emits tuples read from MongoDB.
    */
-  final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
+  public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**
    * Any concrete class derived from this has to implement this method
@@ -100,8 +100,7 @@ public abstract class MongoDBInputOperator<T> extends MongoDBConnectable impleme
       if (userName != null && passWord != null) {
         db.authenticate(userName, passWord.toCharArray());
       }
-    }
-    catch (UnknownHostException ex) {
+    } catch (UnknownHostException ex) {
       logger.debug(ex.toString());
     }
 

@@ -26,6 +26,9 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.helper.OperatorContextTestHelper;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.TestUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -33,12 +36,9 @@ import org.apache.hadoop.fs.Path;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.stram.engine.PortContext;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 @Ignore
 public class POJOInnerJoinOperatorTest

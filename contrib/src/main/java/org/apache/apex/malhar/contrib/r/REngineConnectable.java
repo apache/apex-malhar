@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.r;
+package org.apache.apex.malhar.contrib.r;
 
 import java.io.IOException;
 
@@ -25,7 +25,7 @@ import org.rosuda.REngine.REngineCallbacks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.db.Connectable;
+import org.apache.apex.malhar.lib.db.Connectable;
 
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -44,7 +44,7 @@ public class REngineConnectable implements Connectable
   // Parameters to R while creating workspace. Default as
   // --vanilla => Combine --no-save, --no-restore, --no-site-file, --no-init-file and --no-environ
   // Read man page of R for details.
-  String[] args = { "--vanilla" };
+  String[] args = {"--vanilla"};
 
   // No callbacks used, can use REngineStdOutput
   // (http://www.rforge.net/org/doc/org/rosuda/REngine/REngineStdOutput.html)
@@ -58,7 +58,7 @@ public class REngineConnectable implements Connectable
   /*
    * (non-Javadoc)
    *
-   * @see com.datatorrent.lib.db.Connectable#connect()
+   * @see org.apache.apex.malhar.lib.db.Connectable#connect()
    */
   @Override
   public void connect() throws IOException
@@ -83,7 +83,7 @@ public class REngineConnectable implements Connectable
   /*
    * (non-Javadoc)
    *
-   * @see com.datatorrent.lib.db.Connectable#disconnect()
+   * @see org.apache.apex.malhar.lib.db.Connectable#disconnect()
    */
   @Override
   public void disconnect() throws IOException
@@ -96,7 +96,7 @@ public class REngineConnectable implements Connectable
   /*
    * (non-Javadoc)
    *
-   * @see com.datatorrent.lib.db.Connectable#isConnected()
+   * @see org.apache.apex.malhar.lib.db.Connectable#isConnected()
    */
   @Override
   public boolean isConnected()

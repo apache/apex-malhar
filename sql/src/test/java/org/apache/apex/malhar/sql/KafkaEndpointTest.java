@@ -30,6 +30,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import org.apache.apex.malhar.contrib.formatter.CsvFormatter;
+import org.apache.apex.malhar.contrib.parser.CsvParser;
 import org.apache.apex.malhar.kafka.EmbeddedKafka;
 import org.apache.apex.malhar.kafka.KafkaSinglePortInputOperator;
 import org.apache.apex.malhar.kafka.KafkaSinglePortOutputOperator;
@@ -45,8 +47,6 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.contrib.formatter.CsvFormatter;
-import com.datatorrent.contrib.parser.CsvParser;
 
 public class KafkaEndpointTest
 {

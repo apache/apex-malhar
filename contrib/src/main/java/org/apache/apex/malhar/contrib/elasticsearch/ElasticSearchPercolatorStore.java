@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.elasticsearch;
+package org.apache.apex.malhar.contrib.elasticsearch;
 
 import java.io.IOException;
 
@@ -58,7 +58,8 @@ public class ElasticSearchPercolatorStore extends ElasticSearchConnectable
     }
   }
 
-  public PercolateResponse percolate(String[] indexNames, String documentType, Object tuple){
+  public PercolateResponse percolate(String[] indexNames, String documentType, Object tuple)
+  {
     XContentBuilder docBuilder;
     try {
 

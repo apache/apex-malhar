@@ -43,18 +43,13 @@ import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.io.RawComparator;
 import org.apache.hadoop.io.WritableComparator;
-import org.apache.hadoop.io.file.tfile.ByteArray;
-import org.apache.hadoop.io.file.tfile.MetaBlockAlreadyExists;
-import org.apache.hadoop.io.file.tfile.MetaBlockDoesNotExist;
-import org.apache.hadoop.io.file.tfile.RawComparable;
-import org.apache.hadoop.io.file.tfile.Utils;
 import org.apache.hadoop.io.file.tfile.DTBCFile.Reader.BlockReader;
 import org.apache.hadoop.io.file.tfile.DTBCFile.Writer.BlockAppender;
-import org.apache.hadoop.io.file.tfile.Utils.Version;
 import org.apache.hadoop.io.file.tfile.Chunk.ChunkDecoder;
 import org.apache.hadoop.io.file.tfile.Chunk.ChunkEncoder;
 import org.apache.hadoop.io.file.tfile.CompareUtils.BytesComparator;
 import org.apache.hadoop.io.file.tfile.CompareUtils.MemcmpRawComparator;
+import org.apache.hadoop.io.file.tfile.Utils.Version;
 import org.apache.hadoop.io.serializer.JavaSerializationComparator;
 
 /**

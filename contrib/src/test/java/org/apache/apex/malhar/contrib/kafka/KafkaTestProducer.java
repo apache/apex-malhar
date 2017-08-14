@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
+package org.apache.apex.malhar.contrib.kafka;
 
 import java.util.List;
 import java.util.Properties;
@@ -25,6 +25,7 @@ import java.util.Random;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
+
 /**
  * A kafka producer for testing
  */
@@ -53,7 +54,8 @@ public class KafkaTestProducer implements Runnable
     this.sendCount = sendCount;
   }
 
-  public void setMessages(List<String> messages) {
+  public void setMessages(List<String> messages)
+  {
     this.messages = messages;
   }
 
@@ -63,11 +65,11 @@ public class KafkaTestProducer implements Runnable
     props.setProperty("serializer.class", "kafka.serializer.StringEncoder");
     props.setProperty("key.serializer.class", "kafka.serializer.StringEncoder");
 //    props.put("metadata.broker.list", "localhost:"+KafkaOperatorTestBase.TEST_KAFKA_BROKER1_PORT );
-    if(hasPartition){
-      props.put("metadata.broker.list", "localhost:"+KafkaOperatorTestBase.TEST_KAFKA_BROKER_PORT[cid][0] + ",localhost:" + KafkaOperatorTestBase.TEST_KAFKA_BROKER_PORT[cid][1]);
+    if (hasPartition) {
+      props.put("metadata.broker.list", "localhost:" + KafkaOperatorTestBase.TEST_KAFKA_BROKER_PORT[cid][0] + ",localhost:" + KafkaOperatorTestBase.TEST_KAFKA_BROKER_PORT[cid][1]);
       props.setProperty("partitioner.class", KafkaTestPartitioner.class.getCanonicalName());
     } else {
-      props.put("metadata.broker.list", "localhost:"+KafkaOperatorTestBase.TEST_KAFKA_BROKER_PORT[cid][0] );
+      props.put("metadata.broker.list", "localhost:" + KafkaOperatorTestBase.TEST_KAFKA_BROKER_PORT[cid][0] );
     }
     props.setProperty("topic.metadata.refresh.interval.ms", "20000");
 
@@ -89,14 +91,15 @@ public class KafkaTestProducer implements Runnable
     this.hasPartition = hasPartition;
     this.hasMultiCluster = hasMultiCluster;
     producer = new Producer<String, String>(createProducerConfig(0));
-    if(hasMultiCluster){
+    if (hasMultiCluster) {
       producer1 = new Producer<String, String>(createProducerConfig(1));
     } else {
       producer1 = null;
     }
   }
 
-  public KafkaTestProducer(String topic, boolean hasPartition) {
+  public KafkaTestProducer(String topic, boolean hasPartition)
+  {
     this(topic, hasPartition, false);
   }
 
@@ -108,7 +111,7 @@ public class KafkaTestProducer implements Runnable
       String messageStr = "Message_" + messageNo;
       int k = rand.nextInt(100);
       producer.send(new KeyedMessage<String, String>(topic, "" + k, "c1" + messageStr));
-      if(hasMultiCluster){
+      if (hasMultiCluster) {
         messageNo++;
         producer1.send(new KeyedMessage<String, String>(topic, "" + k, "c2" + messageStr));
       }
@@ -117,13 +120,13 @@ public class KafkaTestProducer implements Runnable
     }
     // produce the end tuple to let the test input operator know it's done produce messages
     producer.send(new KeyedMessage<String, String>(topic, "" + 0, KafkaOperatorTestBase.END_TUPLE));
-    if(hasMultiCluster) {
+    if (hasMultiCluster) {
       producer1.send(new KeyedMessage<String, String>(topic, "" + 0, KafkaOperatorTestBase.END_TUPLE));
     }
-    if(hasPartition){
+    if (hasPartition) {
       // Send end_tuple to other partition if it exist
       producer.send(new KeyedMessage<String, String>(topic, "" + 1, KafkaOperatorTestBase.END_TUPLE));
-      if(hasMultiCluster) {
+      if (hasMultiCluster) {
         producer1.send(new KeyedMessage<String, String>(topic, "" + 1, KafkaOperatorTestBase.END_TUPLE));
       }
     }

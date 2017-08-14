@@ -30,18 +30,18 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import org.apache.apex.malhar.lib.fileaccess.FileAccessFSImpl;
 import org.apache.apex.malhar.lib.state.managed.Bucket.DefaultBucket;
+import org.apache.apex.malhar.lib.util.KryoCloneUtils;
+import org.apache.apex.malhar.lib.util.TestUtils;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.fileaccess.FileAccessFSImpl;
-import com.datatorrent.lib.util.KryoCloneUtils;
-import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.netlet.util.Slice;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class ManagedTimeStateImplTest
 {

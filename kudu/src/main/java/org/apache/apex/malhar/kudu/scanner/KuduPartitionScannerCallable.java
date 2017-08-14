@@ -31,6 +31,7 @@ import org.apache.apex.malhar.kudu.AbstractKuduInputOperator;
 import org.apache.apex.malhar.kudu.ApexKuduConnection;
 import org.apache.apex.malhar.kudu.InputOperatorControlTuple;
 import org.apache.apex.malhar.kudu.sqltranslator.SQLToKuduPredicatesTranslator;
+import org.apache.apex.malhar.lib.util.PojoUtils;
 import org.apache.kudu.ColumnSchema;
 import org.apache.kudu.Common;
 import org.apache.kudu.client.KuduClient;
@@ -38,8 +39,6 @@ import org.apache.kudu.client.KuduScanToken;
 import org.apache.kudu.client.KuduScanner;
 import org.apache.kudu.client.RowResult;
 import org.apache.kudu.client.RowResultIterator;
-
-import com.datatorrent.lib.util.PojoUtils;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

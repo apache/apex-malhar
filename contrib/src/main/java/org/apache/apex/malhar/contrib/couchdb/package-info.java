@@ -17,4 +17,4 @@
  * under the License.
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-package com.datatorrent.contrib.couchdb;
+package org.apache.apex.malhar.contrib.couchdb;

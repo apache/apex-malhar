@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.streamquery.index;
+package org.apache.apex.malhar.lib.streamquery.index;
 
 import java.util.Map;
 

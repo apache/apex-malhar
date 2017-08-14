@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.transform;
+package org.apache.apex.malhar.lib.transform;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.expression.Expression;
+import org.apache.apex.malhar.lib.util.PojoUtils;
 import org.apache.commons.lang3.ClassUtils;
 
 import com.datatorrent.api.Context;
@@ -34,8 +36,6 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.expression.Expression;
-import com.datatorrent.lib.util.PojoUtils;
 
 /**
  * This operator can transform given POJO using provided expressions and

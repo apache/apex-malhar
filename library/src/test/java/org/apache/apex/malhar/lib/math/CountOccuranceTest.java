@@ -16,13 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.math;
+package org.apache.apex.malhar.lib.math;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.testbench.CountOccurance;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.testbench.CountOccurance;
 
 /**
  */

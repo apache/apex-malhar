@@ -16,20 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kinesis;
+package org.apache.apex.malhar.contrib.kinesis;
 
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.kinesis.AmazonKinesisClient;
-import com.amazonaws.services.kinesis.model.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.amazonaws.services.kinesis.model.DescribeStreamRequest;
+import com.amazonaws.services.kinesis.model.DescribeStreamResult;
+import com.amazonaws.services.kinesis.model.GetRecordsRequest;
+import com.amazonaws.services.kinesis.model.GetRecordsResult;
+import com.amazonaws.services.kinesis.model.GetShardIteratorRequest;
+import com.amazonaws.services.kinesis.model.GetShardIteratorResult;
+import com.amazonaws.services.kinesis.model.Record;
+import com.amazonaws.services.kinesis.model.Shard;
 
 /**
  * A kinesis consumer for testing
@@ -93,15 +100,13 @@ public class KinesisTestConsumer implements Runnable
   {
     String iterator = prepareIterator();
 
-    while (isAlive )
-    {
+    while (isAlive ) {
       iterator = processNextIterator(iterator);
 
       //sleep at least 1 second to avoid exceeding the limit on getRecords frequency
-      try
-      {
+      try {
         Thread.sleep(1000);
-      }catch( Exception e ){
+      } catch ( Exception e ) {
         throw new RuntimeException(e);
       }
     }
@@ -120,8 +125,9 @@ public class KinesisTestConsumer implements Runnable
         shards = describeResponse.getStreamDescription().getShards();
         if (shards.isEmpty()) {
           logger.warn("shards is empty");
-        } else
+        } else {
           break;
+        }
       } catch (Exception e) {
         logger.error("get Stream description exception: ", e);
         throw new RuntimeException(e);
@@ -129,6 +135,7 @@ public class KinesisTestConsumer implements Runnable
       try {
         Thread.sleep(1000);
       } catch (Exception e) {
+        //
       }
     }
 
@@ -163,23 +170,22 @@ public class KinesisTestConsumer implements Runnable
   protected boolean shouldProcessRecord = true;
   protected void processResponseRecords( List<Record> records )
   {
-    if( records == null || records.isEmpty() )
+    if ( records == null || records.isEmpty() ) {
       return;
+    }
     receiveCount += records.size();
     logger.debug("ReceiveCount= {}", receiveCount);
 
-    for( Record record : records )
-    {
+    for ( Record record : records ) {
       holdingBuffer.add(record);
-      if( shouldProcessRecord )
-      {
+      if ( shouldProcessRecord ) {
         processRecord( record );
       }
 
-      if( doneLatch != null )
+      if ( doneLatch != null ) {
         doneLatch.countDown();
+      }
     }
-
   }
 
   protected void processRecord( Record record )

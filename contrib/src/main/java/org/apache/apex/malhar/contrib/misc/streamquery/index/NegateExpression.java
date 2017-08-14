@@ -48,7 +48,7 @@ public class NegateExpression extends UnaryExpression
   }
 
   /* (non-Javadoc)
-   * @see com.datatorrent.lib.streamquery.index.Index#filter(java.util.Map, java.util.Map)
+   * @see org.apache.apex.malhar.lib.streamquery.index.Index#filter(java.util.Map, java.util.Map)
    */
   @Override
   public void filter(Map<String, Object> row, Map<String, Object> collect)

@@ -16,11 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchdb;
+package org.apache.apex.malhar.contrib.couchdb;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
-
-import com.google.common.collect.Maps;
+import java.util.Map;
 
 import org.ektorp.ViewQuery;
 import org.junit.AfterClass;
@@ -29,10 +27,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
-import java.util.Map;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import com.google.common.collect.Maps;
+
 
 /**
  * @since 0.3.5
@@ -78,7 +78,7 @@ public class CouchDBInputOperatorTest
     boolean found = false;
     for (Object o : sink.collectedTuples) {
       LOG.debug(o.toString());
-      Map<Object, Object> document = (Map<Object, Object>) o;
+      Map<Object, Object> document = (Map<Object, Object>)o;
       if (document.get("_id").equals(testDocumentId)) {
         found = true;
         Assert.assertEquals("name in document", "TD1", document.get("name"));

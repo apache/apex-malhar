@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.cassandra;
+package org.apache.apex.malhar.contrib.cassandra;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -949,7 +949,7 @@ public abstract class AbstractUpsertOutputOperator extends BaseOperator implemen
 
   /**
    * Implementing concrete Operator instances define the Connection Builder properties by implementing this method
-   * Please refer to {@link com.datatorrent.contrib.cassandra.ConnectionStateManager.ConnectionBuilder} for
+   * Please refer to {@link org.apache.apex.malhar.contrib.cassandra.ConnectionStateManager.ConnectionBuilder} for
    * an example implementation of the ConnectionStateManager instantiation.
    * Note that if this method is returning null, the connection properties are
    * fetched from a properties file loaded from the classpath.

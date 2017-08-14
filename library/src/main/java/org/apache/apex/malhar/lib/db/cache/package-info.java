@@ -17,4 +17,4 @@
  * under the License.
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-package com.datatorrent.lib.db.cache;
+package org.apache.apex.malhar.lib.db.cache;

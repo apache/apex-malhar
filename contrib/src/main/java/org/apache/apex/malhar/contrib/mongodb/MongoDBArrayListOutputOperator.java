@@ -16,12 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.mongodb;
+package org.apache.apex.malhar.contrib.mongodb;
 
-import com.mongodb.BasicDBObject;
 import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.mongodb.BasicDBObject;
 
 /**
  * This is a MongoDB Output Operator, which uses HashMaps to map tuples to appropriate tables and columns in MongoDB,
@@ -94,8 +94,7 @@ public class MongoDBArrayListOutputOperator extends MongoDBOutputOperator<ArrayL
       if ((doc = tableToDocument.get(table)) == null) {
         doc = new BasicDBObject();
         doc.put(columnList.get(i), tuple.get(i));
-      }
-      else {
+      } else {
         doc.put(columnList.get(i), tuple.get(i));
       }
       tableToDocument.put(table, doc);

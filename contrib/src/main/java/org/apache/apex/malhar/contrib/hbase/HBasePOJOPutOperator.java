@@ -16,19 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
 import java.util.List;
 
+import org.apache.apex.malhar.lib.util.FieldValueGenerator;
+import org.apache.apex.malhar.lib.util.FieldValueGenerator.FieldValueHandler;
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Getter;
+import org.apache.apex.malhar.lib.util.TableInfo;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
-
-import com.datatorrent.lib.util.FieldValueGenerator;
-import com.datatorrent.lib.util.FieldValueGenerator.FieldValueHandler;
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Getter;
-import com.datatorrent.lib.util.TableInfo;
 
 /**
  * @displayName HBase Output Operator

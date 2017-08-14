@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.cassandra;
+package org.apache.apex.benchmark.cassandra;
+
+import org.apache.apex.malhar.contrib.cassandra.AbstractCassandraTransactionableOutputOperator;
 
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.exceptions.DriverException;
-
-import com.datatorrent.contrib.cassandra.AbstractCassandraTransactionableOutputOperator;
 
 /**
  * <p>CassandraOutputOperator class.</p>

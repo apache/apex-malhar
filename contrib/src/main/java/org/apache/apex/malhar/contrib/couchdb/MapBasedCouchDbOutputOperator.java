@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchdb;
+package org.apache.apex.malhar.contrib.couchdb;
 
 import java.util.Map;
 
@@ -34,7 +34,7 @@ public class MapBasedCouchDbOutputOperator extends AbstractCouchDBOutputOperator
   @Override
   public String getDocumentId(Map<Object, Object> tuple)
   {
-    return (String) tuple.get("_id");
+    return (String)tuple.get("_id");
   }
 
 }

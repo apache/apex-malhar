@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kinesis;
+package org.apache.apex.malhar.contrib.kinesis;
 
 import java.io.Closeable;
 import java.io.Serializable;
@@ -34,15 +34,15 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Pattern.Flag;
 
-import com.amazonaws.services.kinesis.model.Record;
-import com.amazonaws.services.kinesis.model.Shard;
-import com.amazonaws.services.kinesis.model.ShardIteratorType;
-import com.google.common.collect.Maps;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.commons.io.IOUtils;
+
+import com.amazonaws.services.kinesis.model.Record;
+import com.amazonaws.services.kinesis.model.Shard;
+import com.amazonaws.services.kinesis.model.ShardIteratorType;
+import com.google.common.collect.Maps;
 
 import com.datatorrent.common.util.Pair;
 
@@ -76,7 +76,7 @@ public class KinesisConsumer implements Closeable
    * Latest means the current record to consume from the shard
    * By default it always consume from the beginning of the shard
    */
-  @Pattern(flags={Flag.CASE_INSENSITIVE}, regexp = "earliest|latest")
+  @Pattern(flags = {Flag.CASE_INSENSITIVE}, regexp = "earliest|latest")
   protected String initialOffset = "latest";
 
   protected transient ExecutorService consumerThreadExecutor = null;
@@ -104,15 +104,17 @@ public class KinesisConsumer implements Closeable
     this(streamName);
     shardIds = newShardIds;
   }
+
   /**
    * This method is called in setup method of the operator
    */
-  public void create(){
+  public void create()
+  {
     holdingBuffer = new ArrayBlockingQueue<Pair<String, Record>>(bufferSize);
     boolean defaultSelect = (shardIds == null) || (shardIds.size() == 0);
     final List<Shard> pms = KinesisUtil.getInstance().getShardList(streamName);
     for (final Shard shId: pms) {
-      if((shardIds.contains(shId.getShardId()) || defaultSelect) && !closedShards.contains(shId)) {
+      if ((shardIds.contains(shId.getShardId()) || defaultSelect) && !closedShards.contains(shId)) {
         simpleConsumerThreads.add(shId);
       }
     }
@@ -123,7 +125,7 @@ public class KinesisConsumer implements Closeable
    */
   public ShardIteratorType getIteratorType(String shardId)
   {
-    if(shardPosition.containsKey(shardId)) {
+    if (shardPosition.containsKey(shardId)) {
       return ShardIteratorType.AFTER_SEQUENCE_NUMBER;
     }
     return initialOffset.equalsIgnoreCase("earliest") ? ShardIteratorType.TRIM_HORIZON : ShardIteratorType.LATEST;
@@ -132,15 +134,18 @@ public class KinesisConsumer implements Closeable
   /**
    * This method is called in the activate method of the operator
    */
-  public void start(){
+  public void start()
+  {
     isAlive = true;
     int realNumStream =  simpleConsumerThreads.size();
-    if(realNumStream == 0)
+    if (realNumStream == 0) {
       return;
+    }
 
     consumerThreadExecutor = Executors.newFixedThreadPool(realNumStream);
     for (final Shard shd : simpleConsumerThreads) {
-      consumerThreadExecutor.submit(new Runnable() {
+      consumerThreadExecutor.submit(new Runnable()
+      {
         @Override
         public void run()
         {
@@ -164,13 +169,12 @@ public class KinesisConsumer implements Closeable
               } else {
                 String seqNo = "";
                 for (Record rc : records) {
-                    seqNo = rc.getSequenceNumber();
-                    putRecord(shd.getShardId(), rc);
+                  seqNo = rc.getSequenceNumber();
+                  putRecord(shd.getShardId(), rc);
                 }
                 shardPosition.put(shard.getShardId(), seqNo);
               }
-            } catch(Exception e)
-            {
+            } catch (Exception e) {
               throw new RuntimeException(e);
             }
           }
@@ -183,7 +187,7 @@ public class KinesisConsumer implements Closeable
   @Override
   public void close()
   {
-    if(consumerThreadExecutor!=null) {
+    if (consumerThreadExecutor != null) {
       consumerThreadExecutor.shutdown();
     }
     simpleConsumerThreads.clear();
@@ -192,15 +196,16 @@ public class KinesisConsumer implements Closeable
   /**
    * The method is called in the deactivate method of the operator
    */
-  public void stop() {
+  public void stop()
+  {
     isAlive = false;
     holdingBuffer.clear();
     IOUtils.closeQuietly(this);
   }
 
-  public void resetShardPositions(Map<String, String> shardPositions){
-
-    if(shardPositions == null){
+  public void resetShardPositions(Map<String, String> shardPositions)
+  {
+    if (shardPositions == null) {
       return;
     }
     shardPosition.clear();
@@ -233,6 +238,7 @@ public class KinesisConsumer implements Closeable
     stats.updateShardStats(shardStats);
     return stats;
   }
+
   /**
    * This method is called in teardown method of the operator
    */
@@ -281,9 +287,10 @@ public class KinesisConsumer implements Closeable
     return initialOffset;
   }
 
-  final protected void putRecord(String shardId, Record msg) throws InterruptedException{
+  protected final void putRecord(String shardId, Record msg) throws InterruptedException
+  {
     holdingBuffer.put(new Pair<String, Record>(shardId, msg));
-  };
+  }
 
   public Integer getRecordsLimit()
   {
@@ -322,15 +329,18 @@ public class KinesisConsumer implements Closeable
     public KinesisShardStats()
     {
     }
+
     //important API for update
-    public void updateShardStats(Map<String, String> shardStats){
+    public void updateShardStats(Map<String, String> shardStats)
+    {
       for (Entry<String, String> ss : shardStats.entrySet()) {
         partitionStats.put(ss.getKey(), ss.getValue());
       }
     }
   }
 
-  public static class KinesisShardStatsUtil {
+  public static class KinesisShardStatsUtil
+  {
     public static Map<String, String> getShardStatsForPartitions(List<KinesisShardStats> kinesisshardStats)
     {
       Map<String, String> result = Maps.newHashMap();

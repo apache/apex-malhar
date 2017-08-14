@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata;
+package org.apache.apex.malhar.lib.appdata;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

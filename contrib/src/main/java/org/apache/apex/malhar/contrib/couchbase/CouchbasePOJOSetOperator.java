@@ -16,18 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchbase;
+package org.apache.apex.malhar.contrib.couchbase;
 
 import java.util.ArrayList;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Getter;
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Getter;
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
 
 /**
  * An implementation of Couchbase Output Operator which takes a POJO,serializes it into key,value

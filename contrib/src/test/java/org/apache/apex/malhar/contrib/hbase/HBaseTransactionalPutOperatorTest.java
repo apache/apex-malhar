@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
 import java.io.IOException;
 
@@ -31,18 +31,16 @@ import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.ProcessingMode;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
-/**
- *
- */
-public class HBaseTransactionalPutOperatorTest {
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+
+public class HBaseTransactionalPutOperatorTest
+{
   private static final Logger logger = LoggerFactory
       .getLogger(HBaseTransactionalPutOperatorTest.class);
 
-  public HBaseTransactionalPutOperatorTest() {
-  }
   @Test
-  public void testAtleastOnce() throws Exception {
+  public void testAtleastOnce() throws Exception
+  {
     try {
       //   HBaseTestHelper.startLocalCluster();
       HBaseTestHelper.clearHBase();
@@ -51,10 +49,16 @@ public class HBaseTransactionalPutOperatorTest {
       thop.getStore().setTableName("table1");
       thop.getStore().setZookeeperQuorum("127.0.0.1");
       thop.getStore().setZookeeperClientPort(2181);
-      HBaseTuple t1=new HBaseTuple();
-      t1.setColFamily("colfam0");t1.setColName("street");t1.setRow("row1");t1.setColValue("ts");
-      HBaseTuple t2=new HBaseTuple();
-      t2.setColFamily("colfam0");t2.setColName("city");t2.setRow("row2");t2.setColValue("tc");
+      HBaseTuple t1 = new HBaseTuple();
+      t1.setColFamily("colfam0");
+      t1.setColName("street");
+      t1.setRow("row1");
+      t1.setColValue("ts");
+      HBaseTuple t2 = new HBaseTuple();
+      t2.setColFamily("colfam0");
+      t2.setColName("city");
+      t2.setRow("row2");
+      t2.setColValue("tc");
       AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
       attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
       thop.setup(mockOperatorContext(0, attributeMap));
@@ -77,8 +81,10 @@ public class HBaseTransactionalPutOperatorTest {
       logger.error(e.getMessage());
     }
   }
+
   @Test
-  public void testAtmostOnce1() throws Exception {
+  public void testAtmostOnce1() throws Exception
+  {
     try {
       //   HBaseTestHelper.startLocalCluster();
       HBaseTestHelper.clearHBase();
@@ -86,10 +92,16 @@ public class HBaseTransactionalPutOperatorTest {
       thop.getStore().setTableName("table1");
       thop.getStore().setZookeeperQuorum("127.0.0.1");
       thop.getStore().setZookeeperClientPort(2181);
-      HBaseTuple t1=new HBaseTuple();
-      t1.setColFamily("colfam0");t1.setColName("street");t1.setRow("row1");t1.setColValue("ts");
-      HBaseTuple t2=new HBaseTuple();
-      t2.setColFamily("colfam0");t2.setColName("city");t2.setRow("row2");t2.setColValue("tc");
+      HBaseTuple t1 = new HBaseTuple();
+      t1.setColFamily("colfam0");
+      t1.setColName("street");
+      t1.setRow("row1");
+      t1.setColValue("ts");
+      HBaseTuple t2 = new HBaseTuple();
+      t2.setColFamily("colfam0");
+      t2.setColName("city");
+      t2.setRow("row2");
+      t2.setColValue("tc");
       AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
       attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_MOST_ONCE);
       thop.setup(mockOperatorContext(0, attributeMap));
@@ -114,8 +126,10 @@ public class HBaseTransactionalPutOperatorTest {
       logger.error(e.getMessage());
     }
   }
+
   @Test
-  public void testAtmostOnce2() throws Exception {
+  public void testAtmostOnce2() throws Exception
+  {
     try {
       //   HBaseTestHelper.startLocalCluster();
       HBaseTestHelper.clearHBase();
@@ -123,10 +137,16 @@ public class HBaseTransactionalPutOperatorTest {
       thop.getStore().setTableName("table1");
       thop.getStore().setZookeeperQuorum("127.0.0.1");
       thop.getStore().setZookeeperClientPort(2181);
-      HBaseTuple t1=new HBaseTuple();
-      t1.setColFamily("colfam0");t1.setColName("street");t1.setRow("row1");t1.setColValue("ts");
-      HBaseTuple t2=new HBaseTuple();
-      t2.setColFamily("colfam0");t2.setColName("city");t2.setRow("row2");t2.setColValue("tc");
+      HBaseTuple t1 = new HBaseTuple();
+      t1.setColFamily("colfam0");
+      t1.setColName("street");
+      t1.setRow("row1");
+      t1.setColValue("ts");
+      HBaseTuple t2 = new HBaseTuple();
+      t2.setColFamily("colfam0");
+      t2.setColName("city");
+      t2.setRow("row2");
+      t2.setColValue("tc");
       thop.beginWindow(0);
       thop.input.process(t1);
       AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
@@ -135,10 +155,11 @@ public class HBaseTransactionalPutOperatorTest {
 
       thop.input.process(t2);
       thop.endWindow();
-      HBaseTuple tuple,tuple2;
+      HBaseTuple tuple;
+      HBaseTuple tuple2;
 
       tuple = HBaseTestHelper.getHBaseTuple("row1", "colfam0", "street");
-      tuple2= HBaseTestHelper.getHBaseTuple("row2", "colfam0", "city");
+      tuple2 = HBaseTestHelper.getHBaseTuple("row2", "colfam0", "city");
       Assert.assertNull("Tuple", tuple);
       Assert.assertNotNull("Tuple2", tuple2);
       Assert.assertEquals("Tuple row", tuple2.getRow(), "row2");
@@ -151,11 +172,11 @@ public class HBaseTransactionalPutOperatorTest {
     }
   }
 
-  public static class TestHBasePutOperator extends
-  AbstractHBaseWindowPutOutputOperator<HBaseTuple> {
-
+  public static class TestHBasePutOperator extends AbstractHBaseWindowPutOutputOperator<HBaseTuple>
+  {
     @Override
-    public Put operationPut(HBaseTuple t) throws IOException {
+    public Put operationPut(HBaseTuple t) throws IOException
+    {
       Put put = new Put(t.getRow().getBytes());
       put.add(t.getColFamily().getBytes(), t.getColName().getBytes(), t.getColValue().getBytes());
       return put;

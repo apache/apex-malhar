@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.algo;
+package org.apache.apex.malhar.lib.algo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.apache.apex.malhar.lib.util.AbstractBaseNUniqueOperatorMap;
+
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-
-import com.datatorrent.lib.util.AbstractBaseNUniqueOperatorMap;
 
 /**
  * This operator orders tuples per key and emits the top N unique values per key at the end of the window.

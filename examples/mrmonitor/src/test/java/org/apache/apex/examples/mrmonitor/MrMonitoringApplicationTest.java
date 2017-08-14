@@ -26,10 +26,10 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.helper.SamplePubSubWebSocketServlet;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
 
 /**
  * <p>MapReduceDebuggerApplicationTest class.</p>

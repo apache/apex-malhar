@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.schemas;
+package org.apache.apex.malhar.lib.appdata.schemas;
 
 /**
  * This is an enum type which contains entries for each unique JSONType.

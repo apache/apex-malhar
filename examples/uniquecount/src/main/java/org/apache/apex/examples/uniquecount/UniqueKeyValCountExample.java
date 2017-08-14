@@ -18,6 +18,10 @@
  */
 package org.apache.apex.examples.uniquecount;
 
+import org.apache.apex.malhar.lib.algo.UniqueCounter;
+import org.apache.apex.malhar.lib.converter.MapToKeyHashValuePairConverter;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context;
@@ -27,11 +31,6 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 import com.datatorrent.common.partitioner.StatelessPartitioner;
-
-import com.datatorrent.lib.algo.UniqueCounter;
-import com.datatorrent.lib.converter.MapToKeyHashValuePairConverter;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * <p>UniqueKeyValCountExample class.</p>

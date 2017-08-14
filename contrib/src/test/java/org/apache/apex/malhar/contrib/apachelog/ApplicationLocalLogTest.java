@@ -16,20 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.apachelog;
+package org.apache.apex.malhar.contrib.apachelog;
+
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.LocalMode;
-import org.apache.hadoop.conf.Configuration;
-import org.junit.Test;
 
 /**
  *
  */
 public class ApplicationLocalLogTest
 {
-  public ApplicationLocalLogTest()
-  {
-  }
+  private static final Logger LOG = LoggerFactory.getLogger(ApplicationLocalLogTest.class);
 
   @Test
   public void testSomeMethod() throws Exception
@@ -42,7 +44,7 @@ public class ApplicationLocalLogTest
     long start = System.currentTimeMillis();
     lc.run();
     long end = System.currentTimeMillis();
-    long time = end -start;
-    System.out.println("Test used "+time+" ms");
+    long time = end - start;
+    LOG.info("Test used " + time + " ms");
   }
 }

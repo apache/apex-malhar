@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.state;
+package org.apache.apex.benchmark.state;
 
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.apex.malhar.lib.state.managed.ManagedTimeUnifiedStateImpl;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 
 import com.google.common.collect.Maps;
 
@@ -35,7 +36,6 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.netlet.util.Slice;
 
 /**

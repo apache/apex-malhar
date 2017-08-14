@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.gpo;
+package org.apache.apex.malhar.lib.appdata.gpo;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -30,26 +30,25 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
+import org.apache.apex.malhar.lib.appdata.schemas.Fields;
+import org.apache.apex.malhar.lib.appdata.schemas.FieldsDescriptor;
+import org.apache.apex.malhar.lib.appdata.schemas.ResultFormatter;
+import org.apache.apex.malhar.lib.appdata.schemas.Type;
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Getter;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterBoolean;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterByte;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterChar;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterDouble;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterFloat;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterInt;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterLong;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterShort;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import com.datatorrent.lib.appdata.schemas.Fields;
-import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
-import com.datatorrent.lib.appdata.schemas.ResultFormatter;
-import com.datatorrent.lib.appdata.schemas.Type;
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Getter;
-import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
-import com.datatorrent.lib.util.PojoUtils.GetterByte;
-import com.datatorrent.lib.util.PojoUtils.GetterChar;
-import com.datatorrent.lib.util.PojoUtils.GetterDouble;
-import com.datatorrent.lib.util.PojoUtils.GetterFloat;
-import com.datatorrent.lib.util.PojoUtils.GetterInt;
-import com.datatorrent.lib.util.PojoUtils.GetterLong;
-import com.datatorrent.lib.util.PojoUtils.GetterShort;
 
 /**
  * This class holds utility methods for serializing and deserializing {@link GPOMutable} objects to/from bytes and JSON.

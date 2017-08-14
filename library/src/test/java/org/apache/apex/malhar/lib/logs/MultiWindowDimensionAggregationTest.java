@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.logs;
+package org.apache.apex.malhar.lib.logs;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,10 +28,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.logs.MultiWindowDimensionAggregation.AggregateOperation;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 import org.apache.commons.lang.mutable.MutableDouble;
-
-import com.datatorrent.lib.logs.MultiWindowDimensionAggregation.AggregateOperation;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  * <p>

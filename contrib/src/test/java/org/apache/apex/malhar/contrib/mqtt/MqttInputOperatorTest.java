@@ -16,14 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.mqtt;
+package org.apache.apex.malhar.contrib.mqtt;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.lib.util.KeyValPair;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import org.fusesource.mqtt.client.Message;
@@ -32,9 +26,14 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
+import org.apache.apex.malhar.lib.util.KeyValPair;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.common.util.BaseOperator;
+
 public class MqttInputOperatorTest
 {
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MqttInputOperatorTest.class);
@@ -50,14 +49,12 @@ public class MqttInputOperatorTest
       return new KeyValPair<String, String>(msg.getTopic(), new String(msg.getPayload()));
     }
 
-    @SuppressWarnings("UseOfSystemOutOrSystemErr")
     public void generateData() throws Exception
     {
       HashMap<String, Integer> map = new HashMap<String, Integer>();
       map.put("a", 10);
       map.put("b", 200);
       map.put("c", 3000);
-      System.out.println("Data generator map:" + map.toString());
       for (Entry<String, Integer> entry : map.entrySet()) {
         connection.publish(entry.getKey(), entry.getValue().toString().getBytes(), QoS.AT_MOST_ONCE, false);
       }
@@ -89,7 +86,6 @@ public class MqttInputOperatorTest
   }
 
   @Test
-  @SuppressWarnings("UseOfSystemOutOrSystemErr")
   public void testInputOperator() throws InterruptedException, Exception
   {
     String host = "localhost";
@@ -133,13 +129,12 @@ public class MqttInputOperatorTest
         if (resultCount == 0) {
           Thread.sleep(10);
           Assert.assertTrue("timeout without getting any data", System.currentTimeMillis() < timeout1);
-        }
-        else {
+        } else {
           break;
         }
       }
-    }
-    catch (InterruptedException ex) {
+    } catch (InterruptedException ex) {
+      // ignore
     }
     lc.shutdown();
 
@@ -147,7 +142,7 @@ public class MqttInputOperatorTest
     Assert.assertEquals("value of a is ", "10", resultMap.get("a"));
     Assert.assertEquals("value of b is ", "200", resultMap.get("b"));
     Assert.assertEquals("value of c is ", "3000", resultMap.get("c"));
-    System.out.println("resultCount:" + resultCount);
+    logger.debug("resultCount:" + resultCount);
   }
 
 }

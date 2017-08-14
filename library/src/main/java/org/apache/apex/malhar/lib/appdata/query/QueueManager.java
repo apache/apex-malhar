@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.query;
+package org.apache.apex.malhar.lib.appdata.query;
 
 import com.datatorrent.api.Component;
 import com.datatorrent.api.Context.OperatorContext;

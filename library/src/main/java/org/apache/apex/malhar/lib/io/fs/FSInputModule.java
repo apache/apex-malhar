@@ -16,20 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io.fs;
+package org.apache.apex.malhar.lib.io.fs;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import org.apache.apex.malhar.lib.codec.KryoSerializableStreamCodec;
+import org.apache.apex.malhar.lib.io.block.AbstractBlockReader;
+import org.apache.apex.malhar.lib.io.block.BlockMetadata;
+import org.apache.apex.malhar.lib.io.block.FSSliceReader;
+import org.apache.apex.malhar.lib.io.block.ReaderContext;
 import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Module;
-import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
-import com.datatorrent.lib.io.block.AbstractBlockReader;
-import com.datatorrent.lib.io.block.BlockMetadata;
-import com.datatorrent.lib.io.block.FSSliceReader;
-import com.datatorrent.lib.io.block.ReaderContext;
 import com.datatorrent.netlet.util.Slice;
 
 /**

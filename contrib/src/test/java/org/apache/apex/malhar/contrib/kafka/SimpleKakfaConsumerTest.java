@@ -16,11 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
+package org.apache.apex.malhar.contrib.kafka;
 
-import com.datatorrent.lib.util.KryoCloneUtils;
 import org.junit.Assert;
 import org.junit.Test;
+
+import org.apache.apex.malhar.lib.util.KryoCloneUtils;
 
 public class SimpleKakfaConsumerTest
 {

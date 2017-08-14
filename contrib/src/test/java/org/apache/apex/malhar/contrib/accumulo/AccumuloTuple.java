@@ -16,45 +16,54 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.accumulo;
+package org.apache.apex.malhar.contrib.accumulo;
 
 import java.io.Serializable;
 
-public class AccumuloTuple implements Serializable {
+public class AccumuloTuple implements Serializable
+{
   private String row;
   private String colFamily;
   private String colName;
   private String colValue;
 
-  public String getRow() {
+  public String getRow()
+  {
     return row;
   }
 
-  public void setRow(String row) {
+  public void setRow(String row)
+  {
     this.row = row;
   }
 
-  public String getColFamily() {
+  public String getColFamily()
+  {
     return colFamily;
   }
 
-  public void setColFamily(String colFamily) {
+  public void setColFamily(String colFamily)
+  {
     this.colFamily = colFamily;
   }
 
-  public String getColName() {
+  public String getColName()
+  {
     return colName;
   }
 
-  public void setColName(String colName) {
+  public void setColName(String colName)
+  {
     this.colName = colName;
   }
 
-  public String getColValue() {
+  public String getColValue()
+  {
     return colValue;
   }
 
-  public void setColValue(String colValue) {
+  public void setColValue(String colValue)
+  {
     this.colValue = colValue;
   }
 

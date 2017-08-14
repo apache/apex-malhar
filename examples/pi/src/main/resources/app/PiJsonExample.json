@@ -3,7 +3,7 @@
   "operators": [
     {
       "name": "rand",
-      "class": "com.datatorrent.lib.testbench.RandomEventGenerator",
+      "class": "org.apache.apex.malhar.lib.testbench.RandomEventGenerator",
       "properties": {
         "minvalue": 0,
         "maxvalue": 30000
@@ -18,7 +18,7 @@
     },
     {
       "name": "console",
-      "class": "com.datatorrent.lib.io.ConsoleOutputOperator"
+      "class": "org.apache.apex.malhar.lib.io.ConsoleOutputOperator"
     }
   ],
   "streams": [

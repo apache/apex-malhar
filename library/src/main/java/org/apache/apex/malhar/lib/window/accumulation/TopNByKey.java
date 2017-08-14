@@ -24,8 +24,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.apex.malhar.lib.window.Accumulation;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Generalized TopNByKey accumulation

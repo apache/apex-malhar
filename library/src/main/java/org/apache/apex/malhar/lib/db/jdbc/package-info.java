@@ -19,4 +19,4 @@
 /**
  * JDBC operators and utilities.
  */
-package com.datatorrent.lib.db.jdbc;
+package org.apache.apex.malhar.lib.db.jdbc;

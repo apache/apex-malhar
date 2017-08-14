@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.gpo;
+package org.apache.apex.malhar.lib.appdata.gpo;
 
 import java.util.List;
 import java.util.Map;
@@ -25,36 +25,35 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
+import org.apache.apex.malhar.lib.appdata.schemas.ResultFormatter;
+import org.apache.apex.malhar.lib.appdata.schemas.Type;
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterBoolean;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterByte;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterChar;
 import org.apache.commons.lang3.mutable.MutableInt;
 
-import com.datatorrent.lib.appdata.schemas.ResultFormatter;
-import com.datatorrent.lib.appdata.schemas.Type;
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
-import com.datatorrent.lib.util.PojoUtils.GetterByte;
-import com.datatorrent.lib.util.PojoUtils.GetterChar;
-
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.createGetters;
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.createGettersObject;
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.createGettersString;
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.deserializeBoolean;
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.deserializeByte;
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.deserializeChar;
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.deserializeDouble;
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.deserializeFloat;
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.deserializeInt;
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.deserializeLong;
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.deserializeShort;
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.deserializeString;
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.serializeBoolean;
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.serializeByte;
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.serializeChar;
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.serializeDouble;
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.serializeFloat;
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.serializeInt;
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.serializeLong;
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.serializeShort;
-import static com.datatorrent.lib.appdata.gpo.GPOUtils.serializeString;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.createGetters;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.createGettersObject;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.createGettersString;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.deserializeBoolean;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.deserializeByte;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.deserializeChar;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.deserializeDouble;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.deserializeFloat;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.deserializeInt;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.deserializeLong;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.deserializeShort;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.deserializeString;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.serializeBoolean;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.serializeByte;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.serializeChar;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.serializeDouble;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.serializeFloat;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.serializeInt;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.serializeLong;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.serializeShort;
+import static org.apache.apex.malhar.lib.appdata.gpo.GPOUtils.serializeString;
 
 /**
  * This is a helper class that reduces the need for switch statements in may utility method in {@link GPOUtils}.
@@ -121,7 +120,7 @@ abstract class GPOType
   public abstract void setFieldFromJSON(GPOMutable gpo, String field, JSONArray jo, int index);
 
   public abstract void serializeJSONObject(JSONObject jo, GPOMutable gpo, String field, ResultFormatter resultFormatter)
-      throws JSONException;
+    throws JSONException;
 
   public abstract void serialize(GPOMutable gpo, String field, byte[] sbytes, MutableInt offset);
 
@@ -158,7 +157,7 @@ abstract class GPOType
 
     @Override
     public void serializeJSONObject(JSONObject jo, GPOMutable gpo, String field, ResultFormatter resultFormatter)
-        throws JSONException
+      throws JSONException
     {
       jo.put(field, gpo.getFieldBool(field));
     }

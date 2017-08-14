@@ -22,7 +22,15 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.apex.malhar.contrib.twitter.TwitterSampleInput;
+import org.apache.apex.malhar.lib.algo.UniqueCounter;
+import org.apache.apex.malhar.lib.appdata.schemas.SchemaUtils;
+import org.apache.apex.malhar.lib.appdata.snapshot.AppDataSnapshotServerMap;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+import org.apache.apex.malhar.lib.io.PubSubWebSocketAppDataQuery;
+import org.apache.apex.malhar.lib.io.PubSubWebSocketAppDataResult;
 import org.apache.apex.malhar.lib.utils.PubSubHelper;
+
 import org.apache.hadoop.conf.Configuration;
 
 import com.google.common.collect.Maps;
@@ -33,13 +41,6 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.OutputPort;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.contrib.twitter.TwitterSampleInput;
-import com.datatorrent.lib.algo.UniqueCounter;
-import com.datatorrent.lib.appdata.schemas.SchemaUtils;
-import com.datatorrent.lib.appdata.snapshot.AppDataSnapshotServerMap;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
-import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
 
 /**
  * Twitter Example Application: <br>
@@ -129,12 +130,12 @@ import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
  * </li>
  * <li><b>The uniqueCounter operator : </b> This operator aggregates count for each
  * url extracted from random samples. <br>
- * Class : {@link com.datatorrent.lib.algo.UniqueCounter} <br>
+ * Class : {@link org.apache.apex.malhar.lib.algo.UniqueCounter} <br>
  * StateFull : No, window count 1 <br>
  * </li>
  * <li><b> The topCounts operator : </b> This operator caluculates top url in last 1
  * min sliding window count 1. <br>
- * Class : com.datatorrent.lib.algo.WindowedTopCounter <br>
+ * Class : org.apache.apex.malhar.lib.algo.WindowedTopCounter <br>
  * StateFull : Yes, sliding window count 120 (1 min) <br>
  * </li>
  * <li><b>The operator Console: </b> This operator just outputs the input tuples

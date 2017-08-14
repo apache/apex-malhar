@@ -21,6 +21,10 @@ package org.apache.apex.malhar.lib.dimensions.aggregator;
 import java.util.Collections;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.appdata.gpo.GPOMutable;
+import org.apache.apex.malhar.lib.appdata.gpo.GPOUtils;
+import org.apache.apex.malhar.lib.appdata.schemas.FieldsDescriptor;
+import org.apache.apex.malhar.lib.appdata.schemas.Type;
 import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.Aggregate;
 import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.EventKey;
 import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.InputEvent;
@@ -28,10 +32,6 @@ import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.InputEvent;
 import com.google.common.collect.Maps;
 
 import com.datatorrent.api.annotation.Name;
-import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.gpo.GPOUtils;
-import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
-import com.datatorrent.lib.appdata.schemas.Type;
 
 /**
  * This {@link IncrementalAggregator} performs a count of the number of times an input is encountered.

@@ -16,10 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.algo;
+package org.apache.apex.malhar.lib.algo;
 
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.apex.malhar.lib.util.KeyValPair;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -30,7 +32,6 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * This operator counts the number of unique values corresponding to a key within a window.&nbsp;

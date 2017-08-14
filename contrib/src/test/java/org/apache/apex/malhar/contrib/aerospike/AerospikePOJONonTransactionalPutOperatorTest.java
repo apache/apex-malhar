@@ -16,17 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.aerospike;
+package org.apache.apex.malhar.contrib.aerospike;
 
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.contrib.aerospike.AerospikeTestUtils.*;
-
-import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.*;
-
+import org.apache.apex.malhar.contrib.aerospike.AerospikeTestUtils.TestPOJO;
 
 /**
  * Tests {@link AerospikePOJONonTransactionalPutOperator}
@@ -37,16 +34,16 @@ public class AerospikePOJONonTransactionalPutOperatorTest
   private static final String APP_ID = "AerospikeNonTransactionalPutOperatorTest";
 
   @Test
-  public void TestAerospikeNonTransactionalPutOperator() {
-
-    cleanTable();
+  public void TestAerospikeNonTransactionalPutOperator()
+  {
+    AerospikeTestUtils.cleanTable();
 
     AerospikePOJONonTransactionalPutOperator outputOperator = new AerospikePOJONonTransactionalPutOperator();
-    outputOperator.setStore(getStore());
-    outputOperator.setExpressions(getExpressions());
-    outputOperator.setup(getOperatorContext(APP_ID));
+    outputOperator.setStore(AerospikeTestUtils.getStore());
+    outputOperator.setExpressions(AerospikeTestUtils.getExpressions());
+    outputOperator.setup(AerospikeTestUtils.getOperatorContext(APP_ID));
 
-    List<TestPOJO> events = getEvents();
+    List<TestPOJO> events = AerospikeTestUtils.getEvents();
 
     outputOperator.beginWindow(0);
     for (TestPOJO event : events) {
@@ -55,7 +52,7 @@ public class AerospikePOJONonTransactionalPutOperatorTest
     outputOperator.endWindow();
 
     // check records
-    Assert.assertTrue("key and value check", checkEvents());
+    Assert.assertTrue("key and value check", AerospikeTestUtils.checkEvents());
   }
 
 }

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.zmq;
+package org.apache.apex.malhar.contrib.zmq;
 
 import org.junit.Test;
 import org.slf4j.Logger;

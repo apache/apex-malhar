@@ -23,13 +23,13 @@ import java.io.IOException;
 
 import javax.validation.constraints.Pattern;
 
+import org.apache.apex.malhar.lib.io.block.BlockMetadata;
+import org.apache.apex.malhar.lib.io.block.FSSliceReader;
+import org.apache.apex.malhar.lib.io.block.ReaderContext;
 import org.apache.hadoop.fs.FSDataInputStream;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.io.block.BlockMetadata;
-import com.datatorrent.lib.io.block.FSSliceReader;
-import com.datatorrent.lib.io.block.ReaderContext;
 
 /**
  * This operator can be used for reading records/tuples from Filesystem in

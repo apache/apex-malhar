@@ -22,6 +22,12 @@ import java.net.URI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.appdata.schemas.SchemaUtils;
+import org.apache.apex.malhar.lib.appdata.snapshot.AppDataSnapshotServerMap;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+import org.apache.apex.malhar.lib.io.PubSubWebSocketAppDataQuery;
+import org.apache.apex.malhar.lib.io.PubSubWebSocketAppDataResult;
 import org.apache.apex.malhar.lib.utils.PubSubHelper;
 import org.apache.hadoop.conf.Configuration;
 
@@ -29,11 +35,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.appdata.schemas.SchemaUtils;
-import com.datatorrent.lib.appdata.snapshot.AppDataSnapshotServerMap;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
-import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
 
 /**
  * Simple example that computes word frequencies from any file dropped into a

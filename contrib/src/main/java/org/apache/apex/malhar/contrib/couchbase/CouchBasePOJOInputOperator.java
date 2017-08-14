@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchbase;
+package org.apache.apex.malhar.contrib.couchbase;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -24,12 +24,16 @@ import java.util.Iterator;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import com.couchbase.client.protocol.views.*;
-
-import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.apache.apex.malhar.lib.db.AbstractStoreInputOperator;
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
 
-import com.datatorrent.lib.db.AbstractStoreInputOperator;
+import com.couchbase.client.protocol.views.Query;
+import com.couchbase.client.protocol.views.Stale;
+import com.couchbase.client.protocol.views.View;
+import com.couchbase.client.protocol.views.ViewResponse;
+import com.couchbase.client.protocol.views.ViewRow;
+
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
@@ -167,8 +171,7 @@ public class CouchBasePOJOInputOperator extends AbstractStoreInputOperator<Objec
     super.setup(context);
     try {
       className = Class.forName(outputClass);
-    }
-    catch (ClassNotFoundException ex) {
+    } catch (ClassNotFoundException ex) {
       throw new RuntimeException(ex);
     }
     view = store.getInstance().getView(designDocumentName, viewName);
@@ -198,8 +201,7 @@ public class CouchBasePOJOInputOperator extends AbstractStoreInputOperator<Objec
       Object outputObj = null;
       try {
         outputObj = objectMapper.readValue(document.toString(), className);
-      }
-      catch (IOException ex) {
+      } catch (IOException ex) {
         throw new RuntimeException(ex);
       }
       outputPort.emit(outputObj);

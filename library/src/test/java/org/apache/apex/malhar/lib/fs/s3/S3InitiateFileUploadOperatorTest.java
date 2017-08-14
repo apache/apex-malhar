@@ -27,6 +27,9 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import org.apache.apex.malhar.lib.helper.OperatorContextTestHelper;
+import org.apache.apex.malhar.lib.io.fs.AbstractFileSplitter;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -38,11 +41,8 @@ import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.fs.AbstractFileSplitter;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 

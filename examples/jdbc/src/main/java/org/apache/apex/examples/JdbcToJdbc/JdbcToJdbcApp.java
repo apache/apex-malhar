@@ -20,6 +20,12 @@ package org.apache.apex.examples.JdbcToJdbc;
 
 import java.util.List;
 
+import org.apache.apex.malhar.lib.db.jdbc.JdbcPOJOInputOperator;
+import org.apache.apex.malhar.lib.db.jdbc.JdbcPOJOInsertOutputOperator;
+import org.apache.apex.malhar.lib.db.jdbc.JdbcStore;
+import org.apache.apex.malhar.lib.db.jdbc.JdbcTransactionalStore;
+import org.apache.apex.malhar.lib.util.FieldInfo;
+import org.apache.apex.malhar.lib.util.FieldInfo.SupportType;
 import org.apache.hadoop.conf.Configuration;
 
 import com.google.common.collect.Lists;
@@ -28,12 +34,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.db.jdbc.JdbcPOJOInputOperator;
-import com.datatorrent.lib.db.jdbc.JdbcPOJOInsertOutputOperator;
-import com.datatorrent.lib.db.jdbc.JdbcStore;
-import com.datatorrent.lib.db.jdbc.JdbcTransactionalStore;
-import com.datatorrent.lib.util.FieldInfo;
-import com.datatorrent.lib.util.FieldInfo.SupportType;
 
 @ApplicationAnnotation(name = "JdbcToJdbcApp")
 /**
@@ -79,12 +79,12 @@ public class JdbcToJdbcApp implements StreamingApplication
    * class<br>
    * User can choose to have a SQL support type as an additional paramter
    */
-  private List<com.datatorrent.lib.db.jdbc.JdbcFieldInfo> addJdbcFieldInfos()
+  private List<org.apache.apex.malhar.lib.db.jdbc.JdbcFieldInfo> addJdbcFieldInfos()
   {
-    List<com.datatorrent.lib.db.jdbc.JdbcFieldInfo> fieldInfos = Lists.newArrayList();
-    fieldInfos.add(new com.datatorrent.lib.db.jdbc.JdbcFieldInfo("ACCOUNT_NO", "accountNumber", SupportType.INTEGER,0));
-    fieldInfos.add(new com.datatorrent.lib.db.jdbc.JdbcFieldInfo("NAME", "name", SupportType.STRING,0));
-    fieldInfos.add(new com.datatorrent.lib.db.jdbc.JdbcFieldInfo("AMOUNT", "amount", SupportType.INTEGER,0));
+    List<org.apache.apex.malhar.lib.db.jdbc.JdbcFieldInfo> fieldInfos = Lists.newArrayList();
+    fieldInfos.add(new org.apache.apex.malhar.lib.db.jdbc.JdbcFieldInfo("ACCOUNT_NO", "accountNumber", SupportType.INTEGER,0));
+    fieldInfos.add(new org.apache.apex.malhar.lib.db.jdbc.JdbcFieldInfo("NAME", "name", SupportType.STRING,0));
+    fieldInfos.add(new org.apache.apex.malhar.lib.db.jdbc.JdbcFieldInfo("AMOUNT", "amount", SupportType.INTEGER,0));
     return fieldInfos;
   }
 

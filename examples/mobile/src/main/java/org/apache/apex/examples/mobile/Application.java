@@ -26,6 +26,11 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.counters.BasicCounters;
+import org.apache.apex.malhar.lib.io.PubSubWebSocketInputOperator;
+import org.apache.apex.malhar.lib.io.PubSubWebSocketOutputOperator;
+import org.apache.apex.malhar.lib.partitioner.StatelessThroughputBasedPartitioner;
+import org.apache.apex.malhar.lib.testbench.RandomEventGenerator;
 import org.apache.apex.malhar.lib.utils.PubSubHelper;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.commons.lang3.Range;
@@ -36,11 +41,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.counters.BasicCounters;
-import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
-import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
-import com.datatorrent.lib.partitioner.StatelessThroughputBasedPartitioner;
-import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 /**
  * Mobile Example Application:

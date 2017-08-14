@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.r;
+package org.apache.apex.malhar.contrib.r;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,11 +25,15 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
-import org.rosuda.REngine.*;
+import org.rosuda.REngine.REXP;
+import org.rosuda.REngine.REXPDouble;
+import org.rosuda.REngine.REXPInteger;
+import org.rosuda.REngine.REXPLogical;
+import org.rosuda.REngine.REXPString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.script.ScriptOperator;
+import org.apache.apex.malhar.lib.script.ScriptOperator;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
@@ -89,7 +93,8 @@ public class RScript extends ScriptOperator
   @SuppressWarnings("unused")
   private static final long serialVersionUID = 201401161205L;
 
-  public enum REXP_TYPE {
+  public enum REXP_TYPE
+  {
     REXP_INT(1), REXP_DOUBLE(2), REXP_STR(3), REXP_BOOL(6), REXP_ARRAY_INT(32), REXP_ARRAY_DOUBLE(33), REXP_ARRAY_STR(34), REXP_ARRAY_BOOL(36);
 
     private int value;
@@ -264,7 +269,7 @@ public class RScript extends ScriptOperator
     try {
       connectable = new REngineConnectable();
       connectable.connect();
-      REXP result = connectable.getRengine().parseAndEval(super.script);
+      connectable.getRengine().parseAndEval(super.script);
     } catch (Exception e) {
       log.error("Exception: ", e);
       DTThrowable.rethrow(e);
@@ -329,40 +334,40 @@ public class RScript extends ScriptOperator
         Object value = entry.getValue();
 
         switch (argTypeMap.get(key)) {
-        case REXP_INT:
-          int[] iArr = new int[1];
-          iArr[0] = (Integer) value;
-          connectable.getRengine().assign(key, new REXPInteger(iArr));
-          break;
-        case REXP_DOUBLE:
-          double[] dArr = new double[1];
-          dArr[0] = (Double) value;
-          connectable.getRengine().assign(key, new REXPDouble(dArr));
-          break;
-        case REXP_STR:
-          String[] sArr = new String[1];
-          sArr[0] = (String) value;
-          connectable.getRengine().assign(key, new REXPString(sArr));
-          break;
-        case REXP_BOOL:
-          Boolean[] bArr = new Boolean[1];
-          bArr[0] = (Boolean) value;
-          connectable.getRengine().assign(key, new REXPLogical(bArr[0]));
-          break;
-        case REXP_ARRAY_INT:
-          connectable.getRengine().assign(key, new REXPInteger((int[]) value));
-          break;
-        case REXP_ARRAY_DOUBLE:
-          connectable.getRengine().assign(key, new REXPDouble((double[]) value));
-          break;
-        case REXP_ARRAY_STR:
-          connectable.getRengine().assign(key, new REXPString((String[]) value));
-          break;
-        case REXP_ARRAY_BOOL:
-          connectable.getRengine().assign(key, new REXPLogical((boolean[]) value));
-          break;
-        default:
-          throw new IllegalArgumentException("Unsupported data type ... ");
+          case REXP_INT:
+            int[] iArr = new int[1];
+            iArr[0] = (Integer)value;
+            connectable.getRengine().assign(key, new REXPInteger(iArr));
+            break;
+          case REXP_DOUBLE:
+            double[] dArr = new double[1];
+            dArr[0] = (Double)value;
+            connectable.getRengine().assign(key, new REXPDouble(dArr));
+            break;
+          case REXP_STR:
+            String[] sArr = new String[1];
+            sArr[0] = (String)value;
+            connectable.getRengine().assign(key, new REXPString(sArr));
+            break;
+          case REXP_BOOL:
+            Boolean[] bArr = new Boolean[1];
+            bArr[0] = (Boolean)value;
+            connectable.getRengine().assign(key, new REXPLogical(bArr[0]));
+            break;
+          case REXP_ARRAY_INT:
+            connectable.getRengine().assign(key, new REXPInteger((int[])value));
+            break;
+          case REXP_ARRAY_DOUBLE:
+            connectable.getRengine().assign(key, new REXPDouble((double[])value));
+            break;
+          case REXP_ARRAY_STR:
+            connectable.getRengine().assign(key, new REXPString((String[])value));
+            break;
+          case REXP_ARRAY_BOOL:
+            connectable.getRengine().assign(key, new REXPLogical((boolean[])value));
+            break;
+          default:
+            throw new IllegalArgumentException("Unsupported data type ... ");
         }
       }
 
@@ -416,12 +421,12 @@ public class RScript extends ScriptOperator
         if (len > 1) {
           Boolean[] bAList = new Boolean[len];
           for (int i = 0; i < len; i++) {
-            bAList[i] = ((REXPLogical) retVal).isTRUE()[i];
+            bAList[i] = ((REXPLogical)retVal).isTRUE()[i];
           }
 
           boolArrayOutput.emit(bAList);
         } else {
-          bData = (((REXPLogical) retVal).isTRUE());
+          bData = (((REXPLogical)retVal).isTRUE());
           boolOutput.emit(bData[0]);
         }
 

@@ -26,11 +26,11 @@ import java.io.InputStreamReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.io.fs.AbstractFileInputOperator;
 import org.apache.hadoop.fs.Path;
 
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
 
 /**
  * Reads lines from input file and returns them. If EOF is reached, a control tuple

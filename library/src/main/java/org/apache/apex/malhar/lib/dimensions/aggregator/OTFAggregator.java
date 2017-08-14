@@ -22,8 +22,8 @@ import java.io.Serializable;
 
 import java.util.List;
 
-import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.schemas.Type;
+import org.apache.apex.malhar.lib.appdata.gpo.GPOMutable;
+import org.apache.apex.malhar.lib.appdata.schemas.Type;
 
 /**
  * <p>

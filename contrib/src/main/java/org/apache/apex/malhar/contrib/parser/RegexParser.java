@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.parser;
+package org.apache.apex.malhar.contrib.parser;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -29,6 +29,8 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.parser.Parser;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.ConvertUtils;
@@ -40,8 +42,6 @@ import org.apache.hadoop.classification.InterfaceStability;
 import com.google.common.annotations.VisibleForTesting;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.parser.Parser;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Operator parses tuple based on regex pattern and populates POJO matching the user defined schema <br>
@@ -117,13 +117,13 @@ public class RegexParser extends Parser<byte[], KeyValPair<String, String>>
         Object object = ctor.newInstance();
 
         if (matcher.find()) {
-          for (int i = 0; i <= matcher.groupCount()-1; i++) {
+          for (int i = 0; i <= matcher.groupCount() - 1; i++) {
             if (delimitedParserSchema.getFields().get(i).getType() == DelimitedSchema.FieldType.DATE) {
               DateTimeConverter dtConverter = new DateConverter();
               dtConverter.setPattern((String)delimitedParserSchema.getFields().get(i).getConstraints().get(DelimitedSchema.DATE_FORMAT));
               ConvertUtils.register(dtConverter, Date.class);
             }
-            BeanUtils.setProperty(object, delimitedParserSchema.getFields().get(i).getName(), matcher.group(i+1));
+            BeanUtils.setProperty(object, delimitedParserSchema.getFields().get(i).getName(), matcher.group(i + 1));
           }
           patternMatched = true;
         }

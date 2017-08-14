@@ -16,12 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchdb;
+package org.apache.apex.malhar.contrib.couchdb;
 
 import java.net.MalformedURLException;
 import java.util.Map;
-
-import com.google.common.collect.Maps;
 
 import org.codehaus.jackson.JsonNode;
 import org.junit.AfterClass;
@@ -29,7 +27,9 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import com.google.common.collect.Maps;
+
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * Test for {@link MapBasedCouchDbOutputOperator}
@@ -111,6 +111,7 @@ public class CouchDBOutputOperatorTest
     Assert.assertEquals("City is ","chandigarh",docNode.get("address").get("city").getTextValue());
 
   }
+
   public class TestPOJO
   {
     private String _id;
@@ -232,10 +233,8 @@ public class CouchDBOutputOperatorTest
     {
       this.city = city;
     }
+
     private String city;
-
-
-
   }
 
   @BeforeClass

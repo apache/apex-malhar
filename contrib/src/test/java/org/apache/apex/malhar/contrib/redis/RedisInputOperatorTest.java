@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.redis;
+package org.apache.apex.malhar.contrib.redis;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,9 +25,13 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 
 import redis.clients.jedis.ScanParams;
+
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context.OperatorContext;
@@ -35,10 +39,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.KeyValPair;
-
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class RedisInputOperatorTest
 {
@@ -47,7 +47,7 @@ public class RedisInputOperatorTest
 
   public static class CollectorModule extends BaseOperator
   {
-    volatile static List<KeyValPair<String, String>> resultMap = new ArrayList<KeyValPair<String, String>>();
+    static volatile List<KeyValPair<String, String>> resultMap = new ArrayList<KeyValPair<String, String>>();
     static long resultCount = 0;
 
     public final transient DefaultInputPort<KeyValPair<String, String>> inputPort = new DefaultInputPort<KeyValPair<String, String>>()
@@ -103,6 +103,7 @@ public class RedisInputOperatorTest
               }
             }
           } catch (InterruptedException ex) {
+            //
           }
           lc.shutdown();
         }
@@ -186,7 +187,7 @@ public class RedisInputOperatorTest
       Assert.assertEquals("num of messages in window 2",numberOfMessagesInWindow2, sink.collectedTuples.size());
     } finally {
       for (Object e : sink.collectedTuples) {
-        KeyValPair<String, String> entry = (KeyValPair<String, String>) e;
+        KeyValPair<String, String> entry = (KeyValPair<String, String>)e;
         testStore.remove(entry.getKey());
       }
       sink.collectedTuples.clear();

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.solr;
+package org.apache.apex.malhar.contrib.solr;
 
 import java.io.IOException;
 import java.util.Queue;
@@ -24,17 +24,17 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import javax.validation.constraints.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.apex.malhar.lib.db.AbstractStoreOutputOperator;
+import org.apache.apex.malhar.lib.db.Connectable;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.db.AbstractStoreOutputOperator;
-import com.datatorrent.lib.db.Connectable;
 
 /**
  * This is a base implementation of a Solr output operator, which adds data to Solr Server.&nbsp; Subclasses should
@@ -80,7 +80,7 @@ public abstract class AbstractSolrOutputOperator<T, S extends Connectable> exten
     if (solrDocument != null) {
       docBuffer.add(solrDocument);
     }
-  };
+  }
 
   /**
    * Converts the object into Solr document format

@@ -17,19 +17,19 @@
  * under the License.
  */
 
-package com.datatorrent.lib.io.fs;
+package org.apache.apex.malhar.lib.io.fs;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.lib.io.block.AbstractBlockReader.ReaderRecord;
+import org.apache.apex.malhar.lib.io.block.BlockMetadata;
+import org.apache.apex.malhar.lib.io.block.BlockWriter;
+import org.apache.apex.malhar.lib.io.fs.AbstractFileSplitter.FileMetadata;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Module;
-import com.datatorrent.lib.io.block.AbstractBlockReader.ReaderRecord;
-import com.datatorrent.lib.io.block.BlockMetadata;
-import com.datatorrent.lib.io.block.BlockWriter;
-import com.datatorrent.lib.io.fs.AbstractFileSplitter.FileMetadata;
 import com.datatorrent.netlet.util.Slice;
 
 /**

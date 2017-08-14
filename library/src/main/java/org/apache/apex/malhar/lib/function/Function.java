@@ -18,10 +18,9 @@
  */
 package org.apache.apex.malhar.lib.function;
 
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.hadoop.classification.InterfaceStability;
-
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * The top level function interface <br>

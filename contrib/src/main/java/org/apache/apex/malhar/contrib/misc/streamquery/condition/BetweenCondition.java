@@ -22,7 +22,7 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
-import com.datatorrent.lib.streamquery.condition.Condition;
+import org.apache.apex.malhar.lib.streamquery.condition.Condition;
 
 /**
  *  A derivation of Condition that validates row by checking if the given column name value lies between given left,right range. <br>

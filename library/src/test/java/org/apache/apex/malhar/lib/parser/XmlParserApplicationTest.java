@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.parser;
+package org.apache.apex.malhar.lib.parser;
 
 import java.util.concurrent.Callable;
 
@@ -25,6 +25,8 @@ import javax.validation.ConstraintViolationException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
@@ -32,7 +34,6 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.stram.StramLocalCluster;
 
 /**
@@ -41,8 +42,9 @@ import com.datatorrent.stram.StramLocalCluster;
  */
 public class XmlParserApplicationTest
 {
-  public static volatile int TupleCount;
-  public static com.datatorrent.lib.parser.XmlParserTest.EmployeeBean obj;
+  public static int TupleCount;
+  public static org.apache.apex.malhar.lib.parser.XmlParserTest.EmployeeBean obj;
+
   @Test
   public void testApplication()
   {
@@ -52,7 +54,7 @@ public class XmlParserApplicationTest
       XmlDataEmitterOperator input = dag.addOperator("data", new XmlDataEmitterOperator());
       XmlParser parser = dag.addOperator("xmlparser", new XmlParser());
       ResultCollector rc = dag.addOperator("rc", new ResultCollector());
-      dag.getMeta(parser).getMeta(parser.out).getAttributes().put(Context.PortContext.TUPLE_CLASS, com.datatorrent.lib.parser.XmlParserTest.EmployeeBean.class);
+      dag.getMeta(parser).getMeta(parser.out).getAttributes().put(Context.PortContext.TUPLE_CLASS, org.apache.apex.malhar.lib.parser.XmlParserTest.EmployeeBean.class);
       ConsoleOutputOperator xmlObjectOp = dag.addOperator("xmlObjectOp", new ConsoleOutputOperator());
       xmlObjectOp.setDebug(true);
       dag.addStream("input", input.output, parser.in);

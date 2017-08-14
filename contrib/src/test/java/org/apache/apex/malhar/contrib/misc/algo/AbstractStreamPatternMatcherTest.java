@@ -31,8 +31,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 
 
 @Deprecated

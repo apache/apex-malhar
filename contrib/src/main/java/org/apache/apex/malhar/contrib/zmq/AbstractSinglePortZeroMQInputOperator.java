@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.zmq;
+package org.apache.apex.malhar.contrib.zmq;
 
 import com.datatorrent.api.DefaultOutputPort;
 
@@ -56,7 +56,7 @@ public abstract class AbstractSinglePortZeroMQInputOperator<T> extends AbstractB
   /**
    * This is the ouput port on which tuples extracted from ZeroMQ are emitted.
    */
-  final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
+  public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**
    * Any concrete class derived from AbstractSinglePortZeroMQInputOperator has to implement this method
@@ -66,10 +66,11 @@ public abstract class AbstractSinglePortZeroMQInputOperator<T> extends AbstractB
    *
    * @param message
    */
-    public abstract T getTuple(byte[] message);
+  public abstract T getTuple(byte[] message);
 
-    @Override
-    public void emitTuple(byte[] message) {
-      outputPort.emit(getTuple(message));
-    }
+  @Override
+  public void emitTuple(byte[] message)
+  {
+    outputPort.emit(getTuple(message));
+  }
 }

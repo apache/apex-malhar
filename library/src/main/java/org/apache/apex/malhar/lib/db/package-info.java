@@ -20,4 +20,4 @@
  * Library of interface for database adapters
  */
 
-package com.datatorrent.lib.db;
+package org.apache.apex.malhar.lib.db;

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.helper;
+package org.apache.apex.malhar.contrib.helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,11 +24,11 @@ import java.util.List;
 
 import org.junit.Assert;
 
-public class MessageQueueTestHelper {
-
+public class MessageQueueTestHelper
+{
   public static void validateResults(int testNum, HashMap<String, List<?>> collections )
   {
-    ArrayList<byte[]> byteList =(ArrayList<byte[]>) collections.get("collector");
+    ArrayList<byte[]> byteList = (ArrayList<byte[]>)collections.get("collector");
     Assert.assertEquals("emitted value for testNum was ", testNum * 3, byteList.size());
     for (int i = 0; i < byteList.size(); i++) {
       String str = new String(byteList.get(i));
@@ -37,8 +37,7 @@ public class MessageQueueTestHelper {
       Integer value = Integer.parseInt(str.substring(eq + 1, str.length() - 1));
       if (key.equals("a")) {
         Assert.assertEquals("emitted value for 'a' was ", new Integer(2), value);
-      }
-      else if (key.equals("b")) {
+      } else if (key.equals("b")) {
         Assert.assertEquals("emitted value for 'b' was ", new Integer(20), value);
       }
       if (key.equals("c")) {

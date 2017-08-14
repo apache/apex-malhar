@@ -28,9 +28,8 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import org.apache.apex.malhar.lib.util.KryoCloneUtils;
 import org.apache.commons.lang3.mutable.MutableLong;
-
-import com.datatorrent.lib.util.KryoCloneUtils;
 
 public class MovingBoundaryTimeBucketAssignerTest
 {

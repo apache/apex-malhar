@@ -18,10 +18,11 @@
  */
 package org.apache.apex.malhar.contrib.misc.math;
 
+import org.apache.apex.malhar.lib.util.BaseNumberValueOperator;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
  * This operator adds all the values on "numerator" and "denominator" and emits quotient at end of window.

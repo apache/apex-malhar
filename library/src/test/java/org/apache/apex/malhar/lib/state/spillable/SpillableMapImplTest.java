@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 
 import org.apache.apex.malhar.lib.state.managed.TimeExtractor;
 import org.apache.apex.malhar.lib.state.spillable.inmem.InMemSpillableStateStore;
+import org.apache.apex.malhar.lib.util.KryoCloneUtils;
 import org.apache.apex.malhar.lib.utils.serde.AffixKeyValueSerdeManager;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
 import org.apache.apex.malhar.lib.utils.serde.SerializationBuffer;
@@ -36,12 +37,11 @@ import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.util.KryoCloneUtils;
 
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 @RunWith(JUnitParamsRunner.class)
 public class SpillableMapImplTest

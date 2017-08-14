@@ -16,16 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.testbench;
+package org.apache.apex.malhar.lib.testbench;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.util.KeyValPair;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Creates a random movement by taking in a seed stream and incrementing this data.

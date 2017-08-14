@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.parser;
+package org.apache.apex.malhar.contrib.parser;
 
 import java.util.Date;
 import java.util.List;
@@ -30,11 +30,11 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import org.apache.apex.malhar.lib.appdata.schemas.SchemaUtils;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 
-import com.datatorrent.lib.appdata.schemas.SchemaUtils;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.KeyValPair;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class JsonParserTest
 {

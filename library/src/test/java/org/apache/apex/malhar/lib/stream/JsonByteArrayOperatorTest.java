@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.stream;
+package org.apache.apex.malhar.lib.stream;
 
 import java.util.Map;
 
@@ -24,7 +24,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
 /**
  * Tests JsonByteArrayOperator operator

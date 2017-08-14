@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
 import java.io.InterruptedIOException;
 
@@ -75,7 +75,9 @@ public class OutputAdapter<T>
   interface Driver<T>
   {
     void processTuple(T tuple, HTable table);
+
     String getTableName(T tuple);
+
     void errorTuple(T tuple);
   }
 

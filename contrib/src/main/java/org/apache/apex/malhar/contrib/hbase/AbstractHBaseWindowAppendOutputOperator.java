@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
 import java.io.IOException;
 
@@ -30,7 +30,9 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
- * A base implementation of an AggregateTransactionableStoreOutputOperator operator that stores tuples in HBase columns and provides batch append.&nbsp; Subclasses should provide implementation for appending operations. <br>
+ * A base implementation of an AggregateTransactionableStoreOutputOperator
+ * operator that stores tuples in HBase columns and provides batch append.&nbsp;
+ * Subclasses should provide implementation for appending operations. <br>
  * <p>
  * <br>
  * This class provides a HBase output operator that can be used to store tuples
@@ -45,17 +47,17 @@ import com.datatorrent.netlet.util.DTThrowable;
  * guarantee each tuple is written only once to HBase in case the operator is
  * restarted from an earlier checkpoint. It only tries to minimize the number of
  * duplicates limiting it to the tuples that were processed in the window when
- * the operator shutdown.
- * It supports atleast once and atmost once processing modes.
- * Exactly once is not supported
+ * the operator shutdown. It supports atleast once and atmost once processing
+ * modes. Exactly once is not supported
+ *
  * @displayName Abstract HBase Window Append Output
  * @category Output
  * @tags hbase, append, transactionable, batch
- * @param <T>
- *            The tuple type
+ * @param <T> The tuple type
  * @since 1.0.2
  */
-public abstract class AbstractHBaseWindowAppendOutputOperator<T> extends AbstractHBaseWindowOutputOperator<T> {
+public abstract class AbstractHBaseWindowAppendOutputOperator<T> extends AbstractHBaseWindowOutputOperator<T>
+{
   private static final transient Logger logger = LoggerFactory.getLogger(AbstractHBaseWindowAppendOutputOperator.class);
   private transient ProcessingMode mode;
 
@@ -74,12 +76,14 @@ public abstract class AbstractHBaseWindowAppendOutputOperator<T> extends Abstrac
     this.mode = mode;
   }
 
-  public AbstractHBaseWindowAppendOutputOperator() {
+  public AbstractHBaseWindowAppendOutputOperator()
+  {
     store = new HBaseWindowStore();
   }
 
   @Override
-  public void processTuple(T tuple, HTable table) {
+  public void processTuple(T tuple, HTable table)
+  {
     try {
       Append append = operationAppend(tuple);
       table.append(append);
@@ -103,8 +107,8 @@ public abstract class AbstractHBaseWindowAppendOutputOperator<T> extends Abstrac
   @Override
   public void setup(OperatorContext context)
   {
-    mode=context.getValue(OperatorContext.PROCESSING_MODE);
-    if(mode==ProcessingMode.EXACTLY_ONCE){
+    mode = context.getValue(OperatorContext.PROCESSING_MODE);
+    if (mode == ProcessingMode.EXACTLY_ONCE) {
       throw new RuntimeException("This operator only supports atmost once and atleast once processing modes");
     }
     super.setup(context);

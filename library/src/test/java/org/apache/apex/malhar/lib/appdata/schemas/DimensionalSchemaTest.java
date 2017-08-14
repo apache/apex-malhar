@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.schemas;
+package org.apache.apex.malhar.lib.appdata.schemas;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,13 +32,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.appdata.query.serde.MessageSerializerFactory;
 import org.apache.apex.malhar.lib.dimensions.aggregator.AggregatorRegistry;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import com.datatorrent.lib.appdata.query.serde.MessageSerializerFactory;
 
 public class DimensionalSchemaTest
 {

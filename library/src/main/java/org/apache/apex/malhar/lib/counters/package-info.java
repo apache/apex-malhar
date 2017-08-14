@@ -20,4 +20,4 @@
  * Basic counters and aggregates implementations.
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-package com.datatorrent.lib.counters;
+package org.apache.apex.malhar.lib.counters;

@@ -16,36 +16,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.rabbitmq;
+package org.apache.apex.malhar.contrib.rabbitmq;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.QueueingConsumer;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.contrib.helper.CollectorModule;
+import org.apache.apex.malhar.contrib.helper.MessageQueueTestHelper;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 
-import com.datatorrent.contrib.helper.CollectorModule;
-import com.datatorrent.contrib.helper.MessageQueueTestHelper;
-import com.datatorrent.api.Context.OperatorContext;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.QueueingConsumer;
+
 import com.datatorrent.api.Attribute;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.netlet.util.DTThrowable;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  *

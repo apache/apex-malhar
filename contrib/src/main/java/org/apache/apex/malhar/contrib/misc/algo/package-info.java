@@ -16,10 +16,5 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/**
- * <b>com.datatorrent.lib.samplecode.algo</b> is a library of examples of usage of algorithmic operators<p>
- * <br>
- * <br>
- */
-
-package com.datatorrent.samples.lib.algo;
+@org.apache.hadoop.classification.InterfaceStability.Evolving
+package org.apache.apex.malhar.contrib.misc.algo;

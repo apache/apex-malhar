@@ -21,14 +21,14 @@ package org.apache.apex.examples.transform;
 
 import java.util.Arrays;
 
+import org.apache.apex.malhar.lib.partitioner.StatelessThroughputBasedPartitioner;
+import org.apache.apex.malhar.lib.transform.TransformOperator;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.partitioner.StatelessThroughputBasedPartitioner;
-import com.datatorrent.lib.transform.TransformOperator;
 
 @ApplicationAnnotation(name = "DynamicTransformApp")
 /**

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hive;
+package org.apache.apex.malhar.hive;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,11 +33,15 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.hive.AbstractFSRollingOutputOperator.FilePartitionMapping;
+import org.apache.apex.malhar.hive.FSPojoToHiveOperator.FIELD_TYPE;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.thrift.TException;
 
 import io.teknek.hiveunit.HiveTestService;
+
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.serializers.FieldSerializer;
@@ -46,10 +50,6 @@ import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.ProcessingMode;
-import com.datatorrent.contrib.hive.AbstractFSRollingOutputOperator.FilePartitionMapping;
-import com.datatorrent.contrib.hive.FSPojoToHiveOperator.FIELD_TYPE;
-
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class HiveMockTest extends HiveTestService
 {

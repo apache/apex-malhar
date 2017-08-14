@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io.block;
+package org.apache.apex.malhar.lib.io.block;
 
 import java.io.IOException;
 import java.net.URI;

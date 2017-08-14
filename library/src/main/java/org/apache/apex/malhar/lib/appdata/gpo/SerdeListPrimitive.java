@@ -16,15 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.gpo;
+package org.apache.apex.malhar.lib.appdata.gpo;
 
 import java.util.List;
 
+import org.apache.apex.malhar.lib.appdata.schemas.Type;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.google.common.collect.Lists;
-
-import com.datatorrent.lib.appdata.schemas.Type;
 
 /**
  * @since 3.1.0

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.testbench;
+package org.apache.apex.malhar.lib.testbench;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.Sink;
 
 /**
- * Functional test for {@link com.datatorrent.lib.testbench.EventClassifier} for three configuration><p>
+ * Functional test for {@link org.apache.apex.malhar.lib.testbench.EventClassifier} for three configuration><p>
  * <br>
  * Configuration 1: Provide values and weights<br>
  * Configuration 2: Provide values but no weights (even weights)<br>

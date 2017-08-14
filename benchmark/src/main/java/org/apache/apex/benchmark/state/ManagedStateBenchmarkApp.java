@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.state;
+package org.apache.apex.benchmark.state;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -27,7 +27,9 @@ import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.fileaccess.TFileImpl;
 import org.apache.apex.malhar.lib.state.managed.ManagedTimeUnifiedStateImpl;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.hadoop.conf.Configuration;
 
 import com.google.common.collect.Lists;
@@ -43,8 +45,6 @@ import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.fileaccess.TFileImpl;
-import com.datatorrent.lib.util.KeyValPair;
 
 @ApplicationAnnotation(name = "ManagedStateBenchmark")
 /**

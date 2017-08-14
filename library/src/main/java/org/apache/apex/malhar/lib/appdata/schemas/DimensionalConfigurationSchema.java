@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.schemas;
+package org.apache.apex.malhar.lib.appdata.schemas;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,7 +60,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
  * <p>
  * This is a configuration schema which defines the configuration for any dimensions computation operation.
  * Users of this configuration schema include the
- * {@link com.datatorrent.lib.dimensions.AbstractDimensionsComputationFlexibleSingleSchema}
+ * {@link org.apache.apex.malhar.lib.dimensions.AbstractDimensionsComputationFlexibleSingleSchema}
  * operator as well as the {@link DimensionalSchema}, which represents dimensions information for App Data. The
  * schema is created by defining a configuration JSON schema like the example provided below.
  * The information from the JSON schema, is extracted and used to create metadata which is required by

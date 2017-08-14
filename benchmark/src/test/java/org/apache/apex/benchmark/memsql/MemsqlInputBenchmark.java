@@ -16,18 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.memsql;
+package org.apache.apex.benchmark.memsql;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.contrib.memsql.MemsqlInputOperator;
+import org.apache.apex.malhar.lib.stream.DevNull;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.contrib.memsql.MemsqlInputOperator;
-import com.datatorrent.lib.stream.DevNull;
 
 /**
  * BenchMark Results

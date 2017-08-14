@@ -26,13 +26,13 @@ import org.slf4j.LoggerFactory;
 import org.apache.apex.examples.machinedata.data.MachineKey;
 import org.apache.apex.examples.machinedata.operator.MachineInfoAveragingOperator;
 import org.apache.apex.examples.machinedata.operator.MachineInfoAveragingPrerequisitesOperator;
+import org.apache.apex.malhar.contrib.redis.RedisKeyValPairOutputOperator;
+import org.apache.apex.malhar.lib.io.SmtpOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.contrib.redis.RedisKeyValPairOutputOperator;
-import com.datatorrent.lib.io.SmtpOutputOperator;
 
 /**
  * <p>

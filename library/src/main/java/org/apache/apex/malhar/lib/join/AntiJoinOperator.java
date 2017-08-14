@@ -16,13 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.join;
+package org.apache.apex.malhar.lib.join;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.streamquery.condition.Condition;
+import org.apache.apex.malhar.lib.streamquery.index.Index;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 
 import com.datatorrent.api.Context.OperatorContext;
@@ -30,8 +32,6 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.lib.streamquery.condition.Condition;
-import com.datatorrent.lib.streamquery.index.Index;
 
 /**
  * An implementation of Operator that reads table row data from two table data input ports. <br>

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.spillable;
+package org.apache.apex.benchmark.spillable;
 
 import java.util.Random;
 
@@ -27,13 +27,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.fileaccess.TFileImpl;
 import org.apache.apex.malhar.lib.state.spillable.SpillableMapImpl;
 import org.apache.apex.malhar.lib.state.spillable.SpillableTestUtils;
 import org.apache.apex.malhar.lib.state.spillable.managed.ManagedStateSpillableStateStore;
 import org.apache.apex.malhar.lib.utils.serde.Serde;
 import org.apache.apex.malhar.lib.utils.serde.StringSerde;
-
-import com.datatorrent.lib.fileaccess.TFileImpl;
 
 public class SpillableDSBenchmarkTest
 {

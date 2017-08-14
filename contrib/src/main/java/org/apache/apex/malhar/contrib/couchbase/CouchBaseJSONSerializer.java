@@ -16,11 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchbase;
+package org.apache.apex.malhar.contrib.couchbase;
 
-import com.datatorrent.netlet.util.DTThrowable;
 import java.io.IOException;
 import org.codehaus.jackson.map.ObjectMapper;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  * <p>CouchBaseJSONSerializer</p>
@@ -43,8 +43,7 @@ public class CouchBaseJSONSerializer implements CouchBaseSerializer
     String value = null;
     try {
       value = mapper.writeValueAsString(o);
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       DTThrowable.rethrow(ex);
     }
     return value;

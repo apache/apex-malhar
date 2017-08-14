@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.util;
+package org.apache.apex.malhar.lib.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -31,14 +31,13 @@ import org.codehaus.commons.compiler.IScriptEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.expression.Expression;
+import org.apache.apex.malhar.lib.expression.JavaExpressionParser;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-
-import com.datatorrent.lib.expression.Expression;
-import com.datatorrent.lib.expression.JavaExpressionParser;
 
 /**
  * @since 2.1.0
@@ -686,7 +685,7 @@ public class PojoUtils
 
   /**
    * This method takes in expression, compiles the expression to provide a executable form of expression.
-   * This method uses {@link com.datatorrent.lib.expression.JavaExpressionParser} as expression parser.
+   * This method uses {@link org.apache.apex.malhar.lib.expression.JavaExpressionParser} as expression parser.
    *
    * @param inputType  Type of input object
    * @param expr       expression to be compiled.

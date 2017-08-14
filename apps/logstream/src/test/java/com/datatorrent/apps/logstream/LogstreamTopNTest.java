@@ -26,10 +26,9 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.logs.DimensionObject;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 import org.apache.commons.lang.mutable.MutableDouble;
-
-import com.datatorrent.lib.logs.DimensionObject;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 
 import com.datatorrent.apps.logstream.PropertyRegistry.LogstreamPropertyRegistry;
 

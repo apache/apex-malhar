@@ -16,21 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchbase;
+package org.apache.apex.malhar.contrib.couchbase;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
-
-import com.couchbase.client.protocol.views.DesignDocument;
-import com.couchbase.client.protocol.views.ViewDesign;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+
+import com.couchbase.client.protocol.views.DesignDocument;
+import com.couchbase.client.protocol.views.ViewDesign;
 
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
@@ -38,7 +38,7 @@ import com.datatorrent.api.DAG;
 
 import com.datatorrent.netlet.util.DTThrowable;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class CouchBasePOJOTest
 {
@@ -63,8 +63,7 @@ public class CouchBasePOJOTest
     store.setUriString(uri);
     try {
       store.connect();
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       DTThrowable.rethrow(ex);
     }
     store.getInstance().flush();
@@ -74,20 +73,18 @@ public class CouchBasePOJOTest
     OperatorContext context = mockOperatorContext(OPERATOR_ID, attributeMap);
     TestInputOperator inputOperator = new TestInputOperator();
     inputOperator.setStore(store);
-    inputOperator.setOutputClass("com.datatorrent.contrib.couchbase.TestComplexPojoInput");
+    inputOperator.setOutputClass("org.apache.apex.malhar.contrib.couchbase.TestComplexPojoInput");
     inputOperator.insertEventsInTable(2);
     try {
       Thread.sleep(10000);
-    }
-    catch (InterruptedException ex) {
+    } catch (InterruptedException ex) {
       throw new RuntimeException(ex);
     }
     inputOperator.createAndFetchViewQuery1();
 
     try {
       Thread.sleep(1000);
-    }
-    catch (InterruptedException ex) {
+    } catch (InterruptedException ex) {
       throw new RuntimeException(ex);
     }
     CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
@@ -132,11 +129,9 @@ public class CouchBasePOJOTest
         store.client.set("Key1", 431);
         store.client.set("Key2", "{\"name\":\"test\",\"map\":{\"test\":12345},\"age\":23}").get();
         store.client.set("Key3", "{\"name\":\"test1\",\"map\":{\"test2\":12345},\"age\":12}").get();
-      }
-      catch (InterruptedException ex) {
+      } catch (InterruptedException ex) {
         DTThrowable.rethrow(ex);
-      }
-      catch (ExecutionException ex) {
+      } catch (ExecutionException ex) {
         DTThrowable.rethrow(ex);
       }
 
@@ -147,11 +142,11 @@ public class CouchBasePOJOTest
       DesignDocument designDoc = new DesignDocument(DESIGN_DOC_ID1);
       String viewName = TEST_VIEW1;
       String mapFunction
-              = "function (doc, meta) {\n"
-              + "  if( meta.type == \"json\") {\n"
-              + "    emit(doc.key,doc);\n"
-              + "  }\n"
-              + " }";
+          = "function (doc, meta) {\n"
+          + "  if( meta.type == \"json\") {\n"
+          + "    emit(doc.key,doc);\n"
+          + "  }\n"
+          + " }";
 
       ViewDesign viewDesign = new ViewDesign(viewName, mapFunction);
       designDoc.getViews().add(viewDesign);

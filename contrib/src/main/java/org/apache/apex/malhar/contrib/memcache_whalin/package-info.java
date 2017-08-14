@@ -20,4 +20,4 @@
  * Memcache operators and utilities using whalin library.
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-package com.datatorrent.contrib.memcache_whalin;
+package org.apache.apex.malhar.contrib.memcache_whalin;

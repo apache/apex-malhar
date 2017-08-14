@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.schemas;
+package org.apache.apex.malhar.lib.appdata.schemas;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -29,13 +29,13 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.appdata.gpo.Serde;
+import org.apache.apex.malhar.lib.appdata.gpo.SerdeObjectPayloadFix;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import com.datatorrent.lib.appdata.gpo.Serde;
-import com.datatorrent.lib.appdata.gpo.SerdeObjectPayloadFix;
 
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 

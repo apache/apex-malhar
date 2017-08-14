@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
@@ -103,7 +103,8 @@ public class HBaseOperatorBase
    * Get the configuration.
    * @return The configuration
    */
-  public Configuration getConfiguration() {
+  public Configuration getConfiguration()
+  {
     return configuration;
   }
 
@@ -113,7 +114,8 @@ public class HBaseOperatorBase
    * should be called before using the configuration or table.
    * @throws IOException
    */
-  protected void setupConfiguration() throws IOException {
+  protected void setupConfiguration() throws IOException
+  {
     configuration = HBaseConfiguration.create();
     configuration.set("hbase.zookeeper.quorum", zookeeperQuorum);
     configuration.set("hbase.zookeeper.property.clientPort", "" + zookeeperClientPort);
@@ -127,7 +129,8 @@ public class HBaseOperatorBase
    * @return The HBase table if configuration setup was successful, null otherwise
    * @throws IOException
    */
-  protected HTable getTable() throws IOException {
+  protected HTable getTable() throws IOException
+  {
     return table;
   }
 

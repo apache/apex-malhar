@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io.block;
+package org.apache.apex.malhar.lib.io.block;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +32,8 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.counters.BasicCounters;
+import org.apache.apex.malhar.lib.util.KryoCloneUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.fs.PositionedReadable;
 
@@ -48,8 +50,6 @@ import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.Stats;
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.counters.BasicCounters;
-import com.datatorrent.lib.util.KryoCloneUtils;
 
 /**
  * AbstractBlockReader processes a block of data from a stream.<br/>

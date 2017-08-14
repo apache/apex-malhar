@@ -16,17 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.gpo;
+package org.apache.apex.malhar.lib.appdata.gpo;
 
 import java.io.Serializable;
 
 import java.util.Arrays;
 
-import com.google.common.base.Preconditions;
+import org.apache.apex.malhar.lib.appdata.schemas.Fields;
+import org.apache.apex.malhar.lib.appdata.schemas.FieldsDescriptor;
+import org.apache.apex.malhar.lib.appdata.schemas.Type;
 
-import com.datatorrent.lib.appdata.schemas.Fields;
-import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
-import com.datatorrent.lib.appdata.schemas.Type;
+import com.google.common.base.Preconditions;
 
 /**
  * {@link GPOMutable} is an object which stores primitive fields.

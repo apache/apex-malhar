@@ -16,16 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.splunk;
-
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Operator;
-import com.datatorrent.lib.db.AbstractStoreOutputOperator;
-import com.splunk.TcpInput;
+package org.apache.apex.malhar.contrib.splunk;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+
+import org.apache.apex.malhar.lib.db.AbstractStoreOutputOperator;
+
+import com.splunk.TcpInput;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Operator;
 
 /**
  * The output operator for Splunk, which writes to a TCP port on which splunk server is configured.
@@ -35,27 +36,28 @@ import java.net.Socket;
  * @tags splunk
  * @since 1.0.4
  */
-public class SplunkTcpOutputOperator<T> extends AbstractStoreOutputOperator<T, SplunkStore> implements Operator.CheckpointNotificationListener {
-
+public class SplunkTcpOutputOperator<T> extends AbstractStoreOutputOperator<T, SplunkStore> implements Operator.CheckpointNotificationListener
+{
   private String tcpPort;
   private transient Socket socket;
   private transient TcpInput tcpInput;
   private transient DataOutputStream stream;
 
-  public String getTcpPort() {
-
+  public String getTcpPort()
+  {
     return tcpPort;
   }
-  public void setTcpPort(String tcpPort) {
 
+  public void setTcpPort(String tcpPort)
+  {
     this.tcpPort = tcpPort;
   }
 
   @Override
-  public void setup(OperatorContext context) {
-
+  public void setup(OperatorContext context)
+  {
     super.setup(context);
-    tcpInput = (TcpInput) store.getService().getInputs().get(tcpPort);
+    tcpInput = (TcpInput)store.getService().getInputs().get(tcpPort);
     try {
       socket = tcpInput.attach();
       stream = new DataOutputStream(socket.getOutputStream());
@@ -65,8 +67,8 @@ public class SplunkTcpOutputOperator<T> extends AbstractStoreOutputOperator<T, S
   }
 
   @Override
-  public void processTuple(T tuple) {
-
+  public void processTuple(T tuple)
+  {
     try {
       stream.writeBytes(tuple.toString());
 
@@ -96,8 +98,8 @@ public class SplunkTcpOutputOperator<T> extends AbstractStoreOutputOperator<T, S
   }
 
   @Override
-  public void teardown() {
-
+  public void teardown()
+  {
     super.teardown();
     try {
       stream.close();

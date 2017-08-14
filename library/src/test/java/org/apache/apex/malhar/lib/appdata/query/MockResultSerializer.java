@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.query;
+package org.apache.apex.malhar.lib.appdata.query;
 
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
-import com.datatorrent.lib.appdata.query.serde.CustomMessageSerializer;
-import com.datatorrent.lib.appdata.schemas.Message;
-import com.datatorrent.lib.appdata.schemas.Result;
-import com.datatorrent.lib.appdata.schemas.ResultFormatter;
+import org.apache.apex.malhar.lib.appdata.query.serde.CustomMessageSerializer;
+import org.apache.apex.malhar.lib.appdata.schemas.Message;
+import org.apache.apex.malhar.lib.appdata.schemas.Result;
+import org.apache.apex.malhar.lib.appdata.schemas.ResultFormatter;
 
 public class MockResultSerializer implements CustomMessageSerializer
 {

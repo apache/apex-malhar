@@ -20,4 +20,4 @@
  * MongoDB operators and utilities.
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-package com.datatorrent.contrib.mongodb;
+package org.apache.apex.malhar.contrib.mongodb;

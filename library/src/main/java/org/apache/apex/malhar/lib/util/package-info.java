@@ -20,4 +20,4 @@
  * Library of shared operators and utilities.
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-package com.datatorrent.lib.util;
+package org.apache.apex.malhar.lib.util;

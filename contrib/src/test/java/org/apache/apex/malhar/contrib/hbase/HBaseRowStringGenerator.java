@@ -16,19 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  *
  */
 public class HBaseRowStringGenerator extends BaseOperator implements InputOperator
 {
-
   int rowCount;
 
   public final transient DefaultOutputPort<String> outputPort = new DefaultOutputPort<String>();
@@ -37,14 +36,15 @@ public class HBaseRowStringGenerator extends BaseOperator implements InputOperat
   public void emitTuples()
   {
 
-    StringBuffer s=new StringBuffer();
-    s.append("street"+rowCount+",");
-    s.append("city"+rowCount+",");
-    s.append("state"+rowCount+",");
-    s.append("row"+rowCount);
+    StringBuffer s = new StringBuffer();
+    s.append("street" + rowCount + ",");
+    s.append("city" + rowCount + ",");
+    s.append("state" + rowCount + ",");
+    s.append("row" + rowCount);
     ++rowCount;
-    if(rowCount==100000)
-      rowCount=0;
+    if (rowCount == 100000) {
+      rowCount = 0;
+    }
     outputPort.emit(s.toString());
   }
 

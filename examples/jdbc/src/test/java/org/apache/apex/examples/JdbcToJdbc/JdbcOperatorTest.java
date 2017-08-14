@@ -31,12 +31,12 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.db.jdbc.AbstractJdbcInputOperator;
+import org.apache.apex.malhar.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
+import org.apache.apex.malhar.lib.db.jdbc.JdbcTransactionalStore;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.lib.db.jdbc.AbstractJdbcInputOperator;
-import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
-import com.datatorrent.lib.db.jdbc.JdbcTransactionalStore;
 
 /**
  * Tests for {@link AbstractJdbcTransactionableOutputOperator} and

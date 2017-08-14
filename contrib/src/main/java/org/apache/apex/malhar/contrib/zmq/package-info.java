@@ -20,4 +20,4 @@
  * ZeroMQ operators and utilities.
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-package com.datatorrent.contrib.zmq;
+package org.apache.apex.malhar.contrib.zmq;

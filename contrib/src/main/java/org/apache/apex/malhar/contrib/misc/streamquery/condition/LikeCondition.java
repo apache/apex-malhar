@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 
 import javax.validation.constraints.NotNull;
 
-import com.datatorrent.lib.streamquery.condition.Condition;
+import org.apache.apex.malhar.lib.streamquery.condition.Condition;
 
 /**
  * An implementation of condition class to filter rows for which given column name value matches given regular expression. <br>

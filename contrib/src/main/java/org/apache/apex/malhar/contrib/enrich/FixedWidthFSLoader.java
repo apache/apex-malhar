@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.enrich;
+package org.apache.apex.malhar.contrib.enrich;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,6 +30,8 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.contrib.parser.AbstractCsvParser.FIELD_TYPE;
+import org.apache.apex.malhar.contrib.parser.AbstractCsvParser.Field;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.classification.InterfaceStability;
 
@@ -38,9 +40,6 @@ import com.google.common.primitives.Ints;
 import com.univocity.parsers.fixed.FixedWidthFields;
 import com.univocity.parsers.fixed.FixedWidthParser;
 import com.univocity.parsers.fixed.FixedWidthParserSettings;
-
-import com.datatorrent.contrib.parser.AbstractCsvParser.FIELD_TYPE;
-import com.datatorrent.contrib.parser.AbstractCsvParser.Field;
 
 /**
  * This implementation of {@link FSLoader} is used to load data from fixed width

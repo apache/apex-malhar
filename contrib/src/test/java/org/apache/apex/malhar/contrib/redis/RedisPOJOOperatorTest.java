@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.redis;
+package org.apache.apex.malhar.contrib.redis;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,18 +26,19 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.contrib.redis.RedisInputOperatorTest.CollectorModule;
+import org.apache.apex.malhar.lib.util.FieldInfo;
+import org.apache.apex.malhar.lib.util.FieldInfo.SupportType;
+import org.apache.apex.malhar.lib.util.KeyValPair;
+
 import redis.clients.jedis.ScanParams;
+
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.contrib.redis.RedisInputOperatorTest.CollectorModule;
-import com.datatorrent.lib.util.FieldInfo;
-import com.datatorrent.lib.util.FieldInfo.SupportType;
-import com.datatorrent.lib.util.KeyValPair;
-
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class RedisPOJOOperatorTest
 {
@@ -130,7 +131,7 @@ public class RedisPOJOOperatorTest
 
   public static class ObjectCollectorModule extends BaseOperator
   {
-    volatile static Map<String, Object> resultMap = new HashMap<String, Object>();
+    static volatile Map<String, Object> resultMap = new HashMap<String, Object>();
     static long resultCount = 0;
 
     public final transient DefaultInputPort<KeyValPair<String, Object>> inputPort = new DefaultInputPort<KeyValPair<String, Object>>()
@@ -209,6 +210,7 @@ public class RedisPOJOOperatorTest
               }
             }
           } catch (InterruptedException ex) {
+            //
           }
           lc.shutdown();
         }
@@ -220,7 +222,7 @@ public class RedisPOJOOperatorTest
       Assert.assertTrue(ObjectCollectorModule.resultMap.containsKey("test_def_in"));
       Assert.assertTrue(ObjectCollectorModule.resultMap.containsKey("test_ghi_in"));
 
-      TestClass a = (TestClass) ObjectCollectorModule.resultMap.get("test_abc_in");
+      TestClass a = (TestClass)ObjectCollectorModule.resultMap.get("test_abc_in");
       Assert.assertNotNull(a);
       Assert.assertEquals("abc", a.stringValue);
       Assert.assertEquals("1", a.intValue.toString());

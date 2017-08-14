@@ -16,7 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.formatter;
+package org.apache.apex.malhar.lib.formatter;
+
+import org.apache.apex.malhar.lib.converter.Converter;
 
 import com.google.common.annotations.VisibleForTesting;
 
@@ -28,7 +30,6 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.converter.Converter;
 
 /**
  * Abstract class that implements Converter interface. This is a schema enabled

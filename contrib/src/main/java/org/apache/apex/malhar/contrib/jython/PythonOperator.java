@@ -16,16 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.jython;
-
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.script.ScriptOperator;
-import org.python.core.*;
-import org.python.util.PythonInterpreter;
+package org.apache.apex.malhar.contrib.jython;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import org.python.core.PyCode;
+import org.python.core.PyIterator;
+import org.python.core.PyObject;
+import org.python.core.PyStringMap;
+import org.python.core.PyTuple;
+import org.python.util.PythonInterpreter;
+
+import org.apache.apex.malhar.lib.script.ScriptOperator;
+
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * An operator that executes a python script and passes the input as bindings.

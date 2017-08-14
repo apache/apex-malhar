@@ -16,13 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.query;
+package org.apache.apex.malhar.lib.appdata.query;
 
 import java.util.concurrent.Semaphore;
 
+import org.apache.apex.malhar.lib.appdata.query.QueueList.QueueListNode;
 import org.apache.commons.lang3.mutable.MutableBoolean;
-
-import com.datatorrent.lib.appdata.query.QueueList.QueueListNode;
 
 /**
  * This is simple queue whose queue context is a {@link MutableBoolean} which determines whether or not to keep the query in the queue. If the

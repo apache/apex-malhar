@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.cassandra;
+package org.apache.apex.malhar.contrib.cassandra;
 
 /**
  A pojo that represents the table row in which a row key is a composite

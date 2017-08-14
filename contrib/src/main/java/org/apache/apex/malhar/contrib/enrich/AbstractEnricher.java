@@ -16,12 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.enrich;
+package org.apache.apex.malhar.contrib.enrich;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.apex.malhar.lib.db.cache.CacheManager;
+import org.apache.apex.malhar.lib.db.cache.CacheStore;
+import org.apache.apex.malhar.lib.db.cache.CacheStore.ExpiryType;
+import org.apache.apex.malhar.lib.util.FieldInfo;
+import org.apache.apex.malhar.lib.util.FieldInfo.SupportType;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.esotericsoftware.kryo.NotNull;
@@ -29,11 +34,6 @@ import com.esotericsoftware.kryo.NotNull;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Operator;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.db.cache.CacheManager;
-import com.datatorrent.lib.db.cache.CacheStore;
-import com.datatorrent.lib.db.cache.CacheStore.ExpiryType;
-import com.datatorrent.lib.util.FieldInfo;
-import com.datatorrent.lib.util.FieldInfo.SupportType;
 
 /**
  * Base class for Enrichment Operator.&nbsp; Subclasses should provide implementation to getKey and convert.

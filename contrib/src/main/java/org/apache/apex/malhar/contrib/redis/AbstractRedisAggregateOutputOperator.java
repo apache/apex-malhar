@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.redis;
+package org.apache.apex.malhar.contrib.redis;
 
-import com.datatorrent.lib.db.AbstractAggregateTransactionableKeyValueStoreOutputOperator;
+import org.apache.apex.malhar.lib.db.AbstractAggregateTransactionableKeyValueStoreOutputOperator;
 
 /**
  * This is the base implementation of a Redis aggregate output operator.
@@ -31,7 +31,7 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableKeyValueStoreOutpu
  * @since 0.9.3
  */
 public abstract class AbstractRedisAggregateOutputOperator<T>
-        extends AbstractAggregateTransactionableKeyValueStoreOutputOperator<T, RedisStore>
+    extends AbstractAggregateTransactionableKeyValueStoreOutputOperator<T, RedisStore>
 {
   public AbstractRedisAggregateOutputOperator()
   {

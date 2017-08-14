@@ -21,12 +21,12 @@ package org.apache.apex.examples.r.oldfaithful;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 /**
  * The application attempts to simulate 'Old Faithful Geyser" eruption.

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.streamquery.condition;
+package org.apache.apex.malhar.lib.streamquery.condition;
 
 
 import java.util.Map;

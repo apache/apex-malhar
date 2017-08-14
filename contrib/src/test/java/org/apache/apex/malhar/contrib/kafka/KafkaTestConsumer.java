@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
+package org.apache.apex.malhar.contrib.kafka;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -26,14 +26,14 @@ import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kafka.consumer.ConsumerConfig;
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.message.Message;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A kafka consumer for testing
@@ -45,7 +45,7 @@ public class KafkaTestConsumer implements Runnable
   protected static final int BUFFER_SIZE_DEFAULT = 1024 * 1024; // 1M
   // Config parameters that user can set.
   private final int bufferSize = BUFFER_SIZE_DEFAULT;
-  public transient ArrayBlockingQueue<Message> holdingBuffer = new ArrayBlockingQueue<Message>(bufferSize);;
+  public transient ArrayBlockingQueue<Message> holdingBuffer = new ArrayBlockingQueue<Message>(bufferSize);
   private final String topic;
   private String zkaddress = "localhost:2182";
   private boolean isAlive = true;
@@ -112,7 +112,7 @@ public class KafkaTestConsumer implements Runnable
       if (latch != null) {
         latch.countDown();
       }
-      if(getMessage(msg).equals(KafkaOperatorTestBase.END_TUPLE)){
+      if (getMessage(msg).equals(KafkaOperatorTestBase.END_TUPLE)) {
         break;
       }
       holdingBuffer.add(msg);

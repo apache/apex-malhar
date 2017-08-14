@@ -16,16 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.datastructs;
+package org.apache.apex.malhar.lib.appdata.datastructs;
 
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
+import org.apache.apex.malhar.lib.appdata.datastructs.CacheLRUSynchronousFlush.CacheFlushListener;
 
-import com.datatorrent.lib.appdata.datastructs.CacheLRUSynchronousFlush.CacheFlushListener;
+import com.google.common.collect.Lists;
 
 public class CacheLRUSynchronousFlushTest
 {

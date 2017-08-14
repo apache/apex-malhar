@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.enrich;
+package org.apache.apex.malhar.contrib.enrich;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,6 +28,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.db.cache.CacheManager;
+import org.apache.apex.malhar.lib.util.FieldInfo;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -38,8 +40,6 @@ import com.esotericsoftware.kryo.NotNull;
 import com.google.common.collect.Maps;
 
 import com.datatorrent.api.Component;
-import com.datatorrent.lib.db.cache.CacheManager;
-import com.datatorrent.lib.util.FieldInfo;
 
 /**
  * This implementation of {@link BackendLoader} loads the data from a given file

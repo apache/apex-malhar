@@ -16,17 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata;
+package org.apache.apex.malhar.lib.appdata;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.io.SimpleSinglePortInputOperator.BufferingOutputPort;
 
 import com.google.common.base.Preconditions;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Sink;
-import com.datatorrent.lib.io.SimpleSinglePortInputOperator.BufferingOutputPort;
 
 /**
  * @since 3.3.0

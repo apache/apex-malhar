@@ -16,16 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.aerospike;
+package org.apache.apex.benchmark.aerospike;
 
+import org.apache.apex.malhar.contrib.aerospike.AerospikeTransactionalStore;
+import org.apache.apex.malhar.lib.testbench.RandomEventGenerator;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.contrib.aerospike.AerospikeTransactionalStore;
-import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 /**
  * Application to benchmark the performance of aerospike output operator.

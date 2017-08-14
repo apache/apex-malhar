@@ -16,11 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.cassandra;
+package org.apache.apex.malhar.contrib.cassandra;
 
 import java.util.Collection;
 
 import javax.annotation.Nonnull;
+
+import org.apache.apex.malhar.lib.db.AbstractBatchTransactionableStoreOutputOperator;
 
 import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.PreparedStatement;
@@ -29,7 +31,6 @@ import com.datastax.driver.core.exceptions.DriverException;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.ActivationListener;
-import com.datatorrent.lib.db.AbstractBatchTransactionableStoreOutputOperator;
 
 /**
  * <p>
@@ -86,8 +87,7 @@ public abstract class AbstractCassandraTransactionableOutputOperator<T> extends 
   public void processBatch(Collection<T> tuples)
   {
     BatchStatement batchCommand = store.getBatchCommand();
-    for(T tuple: tuples)
-    {
+    for (T tuple: tuples) {
       batchCommand.add(setStatementParameters(updateCommand, tuple));
     }
   }

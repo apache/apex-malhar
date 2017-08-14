@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.geode;
+package org.apache.apex.malhar.contrib.geode;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -99,7 +99,7 @@ public class GeodeCheckpointStoreTest
 
   @Test
   public void testDelete() throws IOException, FunctionDomainException, TypeMismatchException, NameResolutionException,
-      QueryInvocationTargetException
+    QueryInvocationTargetException
   {
     testLoad();
 

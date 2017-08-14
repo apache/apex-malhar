@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.geode;
+package org.apache.apex.malhar.contrib.geode;
 
 import java.io.File;
 import java.io.IOException;
@@ -167,7 +167,7 @@ public class  GeodeKeyValueStorageAgentTest
 
   @Test
   public void testDelete() throws IOException, FunctionDomainException, TypeMismatchException, NameResolutionException,
-      QueryInvocationTargetException
+    QueryInvocationTargetException
   {
     testLoad();
 

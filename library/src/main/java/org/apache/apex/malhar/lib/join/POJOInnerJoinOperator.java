@@ -22,6 +22,7 @@ import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.util.PojoUtils;
 import org.apache.apex.malhar.lib.window.impl.KeyedWindowedMergeOperatorImpl;
 import org.apache.apex.malhar.lib.window.impl.WindowedMergeOperatorImpl;
 import org.apache.commons.lang3.ClassUtils;
@@ -33,7 +34,6 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.PojoUtils;
 
 /**
  * Concrete implementation of AbstractManagedStateInnerJoinOperator and receives objects from both streams.

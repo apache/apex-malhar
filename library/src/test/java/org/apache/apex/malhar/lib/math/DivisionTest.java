@@ -16,16 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.math;
+package org.apache.apex.malhar.lib.math;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
 /**
  *
- * Functional tests for {@link com.datatorrent.lib.math.Division}
+ * Functional tests for {@link org.apache.apex.malhar.lib.math.Division}
  * <p>
  *
  */

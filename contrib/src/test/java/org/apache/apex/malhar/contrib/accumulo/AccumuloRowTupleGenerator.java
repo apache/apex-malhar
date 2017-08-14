@@ -16,38 +16,41 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.accumulo;
+package org.apache.apex.malhar.contrib.accumulo;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  *
  */
-public class AccumuloRowTupleGenerator extends BaseOperator implements
-InputOperator {
+public class AccumuloRowTupleGenerator extends BaseOperator implements InputOperator
+{
 
   int rowCount;
 
   public final transient DefaultOutputPort<AccumuloTuple> outputPort = new DefaultOutputPort<AccumuloTuple>();
 
   @Override
-  public void emitTuples() {
+  public void emitTuples()
+  {
     AccumuloTuple tuple = new AccumuloTuple();
     tuple.setRow("row" + rowCount);
     tuple.setColFamily("colfam0");
     tuple.setColName("col" + "-" + 0);
     tuple.setColValue("val" + "-" + rowCount + "-" + 0);
     ++rowCount;
-    if(rowCount==99999)
-      rowCount=0;
+    if (rowCount == 99999) {
+      rowCount = 0;
+    }
     outputPort.emit(tuple);
   }
 
   @Override
-  public void setup(OperatorContext context) {
+  public void setup(OperatorContext context)
+  {
     super.setup(context);
     rowCount = 0;
   }

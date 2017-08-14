@@ -19,9 +19,10 @@
 package org.apache.apex.examples.twitter;
 
 import org.junit.Test;
+
+import org.apache.apex.malhar.contrib.twitter.TwitterSampleInput;
 import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.contrib.twitter.TwitterSampleInput;
 
 /**
  * Test the DAG declaration in local mode.

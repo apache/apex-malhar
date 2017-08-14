@@ -28,13 +28,13 @@ import org.junit.Test;
 
 import org.apache.apex.malhar.lib.fs.GenericFileOutputOperator.BytesFileOutputOperator;
 import org.apache.apex.malhar.lib.fs.GenericFileOutputOperator.StringFileOutputOperator;
+import org.apache.apex.malhar.lib.io.fs.AbstractFileOutputOperatorTest;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest;
 import com.datatorrent.netlet.util.DTThrowable;
 
 public class GenericFileOutputOperatorTest extends AbstractFileOutputOperatorTest

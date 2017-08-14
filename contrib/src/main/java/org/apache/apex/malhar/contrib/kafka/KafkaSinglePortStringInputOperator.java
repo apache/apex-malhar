@@ -16,11 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
-
-import kafka.message.Message;
+package org.apache.apex.malhar.contrib.kafka;
 
 import java.nio.ByteBuffer;
+import kafka.message.Message;
 
 /**
  * Kafka input adapter operator with a single output port, which consumes String data from the Kafka message bus.
@@ -48,8 +47,7 @@ public class KafkaSinglePortStringInputOperator extends AbstractKafkaSinglePortI
       buffer.get(bytes);
       data = new String(bytes);
       //logger.debug("Consuming {}", data);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       return data;
     }
     return data;

@@ -26,6 +26,7 @@ import javax.annotation.Nonnull;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import org.apache.apex.malhar.hive.FSPojoToHiveOperator.FIELD_TYPE;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.converters.AbstractConverter;
 import org.apache.commons.beanutils.converters.ArrayConverter;
@@ -33,10 +34,6 @@ import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Module;
-import com.datatorrent.contrib.hive.FSPojoToHiveOperator;
-import com.datatorrent.contrib.hive.FSPojoToHiveOperator.FIELD_TYPE;
-import com.datatorrent.contrib.hive.HiveOperator;
-import com.datatorrent.contrib.hive.HiveStore;
 
 /**
  * HiveOutputModule provides abstraction for the operators needed for writing

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.avro;
+package org.apache.apex.malhar.contrib.avro;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +32,11 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.python.google.common.collect.Lists;
 
+import org.apache.apex.malhar.lib.helper.TestPortContext;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+import org.apache.apex.malhar.lib.io.fs.AbstractFileInputOperatorTest;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.TestUtils;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericData;
@@ -52,16 +57,12 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
+
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Sink;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.lib.helper.TestPortContext;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.fs.AbstractFileInputOperatorTest;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.TestUtils;
-
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 /**
  * <p>
@@ -152,7 +153,7 @@ public class AvroFileInputOperatorTest
     avroFileInput.teardown();
 
   }
-  
+
   @Test
   public void testIdempotencyWithCheckPoint() throws Exception
   {
@@ -162,7 +163,7 @@ public class AvroFileInputOperatorTest
       public void writeFile(int count, String fileName) throws IOException
       {
         recordList = Lists.newArrayList();
-        
+
         while (count > 0) {
           GenericRecord rec = new GenericData.Record(new Schema.Parser().parse(AVRO_SCHEMA));
           rec.put("orderId", count * 1L);
@@ -172,7 +173,7 @@ public class AvroFileInputOperatorTest
           count--;
           recordList.add(rec);
         }
-        
+
         writeAvroFile(new File(fileName));
       }
 
@@ -195,8 +196,8 @@ public class AvroFileInputOperatorTest
       }
     });
   }
-  
-  
+
+
   @Test
   public void testMultipleFileAvroReads() throws Exception
   {

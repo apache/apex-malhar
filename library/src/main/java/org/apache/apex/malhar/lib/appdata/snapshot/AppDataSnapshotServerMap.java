@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.snapshot;
+package org.apache.apex.malhar.lib.appdata.snapshot;
 
 import java.util.List;
 import java.util.Map;
@@ -26,11 +26,11 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.appdata.gpo.GPOMutable;
+import org.apache.apex.malhar.lib.appdata.schemas.FieldsDescriptor;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-
-import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 
 /**
  * This operator accepts a list of Map&lt;String,Object&gt; objects, and serves the data under the {@link SnapshotSchema}.

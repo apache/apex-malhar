@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.mqtt;
+package org.apache.apex.malhar.contrib.mqtt;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.Context.OperatorContext;
 import javax.validation.constraints.NotNull;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This is the base implementation of an MQTT output operator.&nbsp;
@@ -69,8 +69,7 @@ public class AbstractMqttOutputOperator extends BaseOperator
       }
       connection = client.blockingConnection();
       connection.connect();
-    }
-    catch (Throwable t) {
+    } catch (Throwable t) {
       throw new RuntimeException(t);
     }
   }
@@ -80,8 +79,8 @@ public class AbstractMqttOutputOperator extends BaseOperator
   {
     try {
       connection.disconnect();
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
+      //ignore
     }
   }
 

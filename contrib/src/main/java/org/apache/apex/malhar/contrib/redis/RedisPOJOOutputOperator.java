@@ -16,18 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.redis;
+package org.apache.apex.malhar.contrib.redis;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.datatorrent.lib.util.FieldInfo;
-import com.datatorrent.lib.util.FieldInfo.SupportType;
-import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Getter;
+import org.apache.apex.malhar.lib.util.FieldInfo;
+import org.apache.apex.malhar.lib.util.FieldInfo.SupportType;
+import org.apache.apex.malhar.lib.util.KeyValPair;
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Getter;
 
 /**
  * This is a Redis output operator, which takes a Key and corresponding Plain
@@ -80,7 +80,7 @@ public class RedisPOJOOutputOperator extends AbstractRedisAggregateOutputOperato
       final String columnName = dataColumns.get(i).getColumnName();
 
       if (i < getters.size()) {
-        Getter<Object, Object> obj = (Getter<Object, Object>) (getters.get(i));
+        Getter<Object, Object> obj = (Getter<Object, Object>)(getters.get(i));
 
         Object value = obj.get(tuple);
         mappedObject.put(columnName, value.toString());

@@ -16,19 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.apachelog;
+package org.apache.apex.malhar.contrib.apachelog;
 
-import java.util.Map;
-
-import com.datatorrent.lib.logs.InformationExtractor;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.logs.InformationExtractor;
 
 /**
  * An implementation of InformationExtractor that extracts the time stamp in milliseconds from epoch from an arbitrary date string.
@@ -69,8 +69,7 @@ public class TimestampExtractor implements InformationExtractor
     try {
       Date date = dateFormat.parse((String)value);
       m.put("timestamp", date.getTime());
-    }
-    catch (ParseException ex) {
+    } catch (ParseException ex) {
       LOG.error("Error parsing \"{}\" to timestamp using \"{}\":", value, dateFormatString, ex);
     }
     return m;

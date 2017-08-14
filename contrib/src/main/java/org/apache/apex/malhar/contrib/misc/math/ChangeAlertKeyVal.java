@@ -22,12 +22,12 @@ import java.util.HashMap;
 
 import javax.validation.constraints.Min;
 
+import org.apache.apex.malhar.lib.util.BaseNumberKeyValueOperator;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.commons.lang.mutable.MutableDouble;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Operator compares consecutive values arriving at input port mapped by keys, emits &lt;key,percent change&gt; pair on output alert port if percent change exceeds percentage threshold set in operator.

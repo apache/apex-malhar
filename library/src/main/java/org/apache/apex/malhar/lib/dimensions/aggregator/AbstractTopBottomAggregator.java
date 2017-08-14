@@ -24,15 +24,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
+import org.apache.apex.malhar.lib.appdata.gpo.GPOMutable;
+import org.apache.apex.malhar.lib.appdata.schemas.Type;
 import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.Aggregate;
 import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.EventKey;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.schemas.Type;
 
 
 /**

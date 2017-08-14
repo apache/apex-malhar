@@ -16,14 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.geode;
+package org.apache.apex.malhar.contrib.geode;
 
+import org.apache.apex.malhar.lib.util.FieldInfo;
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Getter;
+import org.apache.apex.malhar.lib.util.TableInfo;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
-
-import com.datatorrent.lib.util.FieldInfo;
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Getter;
-import com.datatorrent.lib.util.TableInfo;
 
 /**
  *

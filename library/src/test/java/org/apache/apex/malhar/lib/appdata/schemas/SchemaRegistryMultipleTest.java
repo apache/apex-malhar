@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.schemas;
+package org.apache.apex.malhar.lib.appdata.schemas;
 
 import java.util.Collections;
 import java.util.Map;
@@ -24,10 +24,10 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.util.KryoCloneUtils;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import com.datatorrent.lib.util.KryoCloneUtils;
 
 public class SchemaRegistryMultipleTest
 {

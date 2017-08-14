@@ -16,13 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.fs;
+package org.apache.apex.benchmark.fs;
 
 import java.util.Arrays;
 
 import javax.validation.constraints.Min;
 
-import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
+import org.apache.apex.malhar.lib.io.fs.AbstractFileOutputOperator;
 
 /**
  * This output operator receives

@@ -33,6 +33,7 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.fileaccess.FileAccess;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.RemoteIterator;
 
@@ -42,7 +43,6 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 
-import com.datatorrent.lib.fileaccess.FileAccess;
 import com.datatorrent.netlet.util.Slice;
 
 /**

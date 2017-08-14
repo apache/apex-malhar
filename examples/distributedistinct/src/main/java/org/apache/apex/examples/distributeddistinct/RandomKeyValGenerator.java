@@ -27,12 +27,13 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.util.KeyHashValPair;
+import org.apache.apex.malhar.lib.util.KeyValPair;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.KeyHashValPair;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Generates random KeyValPairs and optionally, keeps track of the number of unique values per pair to emit to the

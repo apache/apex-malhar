@@ -16,33 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.mongodb;
+package org.apache.apex.malhar.contrib.mongodb;
 
-import com.datatorrent.api.Attribute.AttributeMap;
-import com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+
+import com.datatorrent.api.Attribute.AttributeMap;
+import com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap;
 import com.datatorrent.api.DAG;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class MongoDBOutputOperatorTest
 {
   private static final Logger logger = LoggerFactory.getLogger(MongoDBOutputOperatorTest.class);
   public String[] hashMapping1 = new String[columnNum];
   public String[] arrayMapping1 = new String[columnNum];
-  public final static int maxTuple = 20;
-  public final static int columnNum = 5;
+  public static final int maxTuple = 20;
+  public static final int columnNum = 5;
   public AttributeMap attrmap = new DefaultAttributeMap();
   private static final int inputCount = 6;
 
@@ -75,11 +75,9 @@ public class MongoDBOutputOperatorTest
       String type = tokens[2];
       if (type.contains("INT")) {
         hm.put(prop, j * columnNum + i);
-      }
-      else if (type.equals("STRING")) {
+      } else if (type.equals("STRING")) {
         hm.put(prop, String.valueOf(j * columnNum + i));
-      }
-      else if (type.equals("DATE")) {
+      } else if (type.equals("DATE")) {
         hm.put(prop, new Date());
       }
       oper.propTableMap.put(prop, table);
@@ -98,11 +96,9 @@ public class MongoDBOutputOperatorTest
       String type = tokens[1];
       if (type.contains("INT")) {
         al.add(j * columnNum + i);
-      }
-      else if (type.equals("STRING")) {
+      } else if (type.equals("STRING")) {
         al.add(String.valueOf(j * columnNum + i));
-      }
-      else if (type.equals("DATE")) {
+      } else if (type.equals("DATE")) {
         al.add(new Date());
       }
 
@@ -116,7 +112,7 @@ public class MongoDBOutputOperatorTest
       String table = (String)o;
       DBCursor cursor = oper.db.getCollection(table).find();
       while (cursor.hasNext()) {
-        System.out.println(cursor.next());
+        logger.debug("{}", cursor.next());
       }
     }
   }

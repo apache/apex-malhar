@@ -32,15 +32,16 @@ import javax.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.algo.UniqueValueCount;
+import org.apache.apex.malhar.lib.algo.UniqueValueCount.InternalCountOutput;
+import org.apache.apex.malhar.lib.db.jdbc.JDBCLookupCacheBackedOperator;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
-import com.datatorrent.lib.algo.UniqueValueCount;
-import com.datatorrent.lib.algo.UniqueValueCount.InternalCountOutput;
-import com.datatorrent.lib.db.jdbc.JDBCLookupCacheBackedOperator;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**

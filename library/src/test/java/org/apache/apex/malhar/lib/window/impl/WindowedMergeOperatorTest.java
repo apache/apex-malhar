@@ -24,6 +24,8 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.apex.malhar.lib.window.Window;
 import org.apache.apex.malhar.lib.window.WindowOption;
@@ -31,9 +33,6 @@ import org.apache.apex.malhar.lib.window.WindowState;
 import org.apache.apex.malhar.lib.window.accumulation.CoGroup;
 
 import com.google.common.base.Function;
-
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Unit tests for Windowed Join Operator

@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io.fs;
+package org.apache.apex.malhar.lib.io.fs;
 
-import com.datatorrent.lib.io.block.FSSliceReader;
+import org.apache.apex.malhar.lib.io.block.FSSliceReader;
 
 /**
  * S3InputModule is used to read files/list of files (or directory) from S3 bucket. <br/>

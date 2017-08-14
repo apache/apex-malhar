@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.datatorrent.lib.filter;
+package org.apache.apex.malhar.lib.filter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +26,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.expression.Expression;
+import org.apache.apex.malhar.lib.util.PojoUtils;
 import org.apache.hadoop.classification.InterfaceStability;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -40,8 +42,6 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.expression.Expression;
-import com.datatorrent.lib.util.PojoUtils;
 
 /**
  * <b>FilterOperator</b>

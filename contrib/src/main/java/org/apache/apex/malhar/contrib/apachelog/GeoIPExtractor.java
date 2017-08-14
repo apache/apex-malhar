@@ -16,19 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.apachelog;
+package org.apache.apex.malhar.contrib.apachelog;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.io.IOException;
 import javax.validation.constraints.NotNull;
-
-import com.datatorrent.lib.logs.InformationExtractor;
-import com.maxmind.geoip.Location;
-import com.maxmind.geoip.LookupService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.apex.malhar.lib.logs.InformationExtractor;
+
+import com.maxmind.geoip.Location;
+import com.maxmind.geoip.LookupService;
 
 /**
  * An implementation of InformationExtractor that extracts Geo information from an IP address using maxmind API .
@@ -67,8 +67,7 @@ public class GeoIPExtractor implements InformationExtractor
   {
     try {
       reader = new LookupService(databasePath, LookupService.GEOIP_MEMORY_CACHE | LookupService.GEOIP_CHECK_CACHE);
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -90,8 +89,7 @@ public class GeoIPExtractor implements InformationExtractor
         m.put("ipRegion", location.region);
         m.put("ipCity", location.city);
       }
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       LOG.error("Caught exception when looking up Geo IP for {}:", value, ex);
     }
     return m;

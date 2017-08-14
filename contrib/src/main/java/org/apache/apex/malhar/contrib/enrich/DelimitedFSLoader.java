@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.enrich;
+package org.apache.apex.malhar.contrib.enrich;
 
 import java.io.IOException;
 import java.util.List;
@@ -30,13 +30,12 @@ import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.prefs.CsvPreference;
 
+import org.apache.apex.malhar.contrib.parser.CellProcessorBuilder;
+import org.apache.apex.malhar.contrib.parser.DelimitedSchema;
+import org.apache.apex.malhar.contrib.parser.DelimitedSchema.Field;
+import org.apache.apex.malhar.lib.util.ReusableStringReader;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.classification.InterfaceStability;
-
-import com.datatorrent.contrib.parser.CellProcessorBuilder;
-import com.datatorrent.contrib.parser.DelimitedSchema;
-import com.datatorrent.contrib.parser.DelimitedSchema.Field;
-import com.datatorrent.lib.util.ReusableStringReader;
 
 /**
  * This implementation of {@link FSLoader} is used to load data from delimited

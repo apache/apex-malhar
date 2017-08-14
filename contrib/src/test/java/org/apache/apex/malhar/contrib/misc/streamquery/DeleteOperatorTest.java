@@ -25,8 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.apex.malhar.contrib.misc.streamquery.condition.EqualValueCondition;
-
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
 /**
  * Functional test for {@link org.apache.apex.malhar.contrib.misc.streamquery.DeleteOperator}.

@@ -16,23 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.splunk;
+package org.apache.apex.malhar.contrib.splunk;
 
 import java.io.IOException;
 import java.util.Properties;
 
-public class SplunkInputFromForwarderTest {
-
-  private static class InputFromForwarder extends SplunkInputFromForwarder<String> {
-
+public class SplunkInputFromForwarderTest
+{
+  private static class InputFromForwarder extends SplunkInputFromForwarder<String>
+  {
     @Override
-    public String getMessage(String line) {
+    public String getMessage(String line)
+    {
       return line;
     }
-
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args)
+  {
     InputFromForwarder iff = new InputFromForwarder();
     Properties props = new Properties();
 

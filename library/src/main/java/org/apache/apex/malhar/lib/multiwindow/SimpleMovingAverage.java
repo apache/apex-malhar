@@ -16,14 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.multiwindow;
+package org.apache.apex.malhar.lib.multiwindow;
 
 import java.util.ArrayList;
+
+import org.apache.apex.malhar.lib.util.KeyValPair;
 
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Calculates simple moving average (SMA) of last N window. <br>

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.nifi;
+package org.apache.apex.malhar.contrib.nifi;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +33,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.apache.apex.malhar.contrib.nifi.mock.MockDataPacket;
+import org.apache.apex.malhar.contrib.nifi.mock.MockSiteToSiteClient;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.nifi.remote.protocol.DataPacket;
@@ -42,11 +45,8 @@ import org.apache.nifi.util.file.FileUtils;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-import com.datatorrent.contrib.nifi.mock.MockDataPacket;
-import com.datatorrent.contrib.nifi.mock.MockSiteToSiteClient;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class NiFiSinglePortInputOperatorTest
 {
@@ -80,7 +80,8 @@ public class NiFiSinglePortInputOperatorTest
   }
 
   @After
-  public void teardown() {
+  public void teardown()
+  {
     if (operator != null) {
       operator.teardown();
     }
@@ -156,7 +157,7 @@ public class NiFiSinglePortInputOperatorTest
   {
     List<DataPacket> dataPackets = new ArrayList<>();
 
-    for (int i=1; i <= size; i++) {
+    for (int i = 1; i <= size; i++) {
       dataPackets.add(getDataPacket(String.valueOf(i)));
     }
     return dataPackets;

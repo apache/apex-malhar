@@ -29,15 +29,14 @@ import java.util.Map;
 import org.apache.apex.examples.machinedata.data.AverageData;
 import org.apache.apex.examples.machinedata.data.MachineInfo;
 import org.apache.apex.examples.machinedata.data.MachineKey;
+import org.apache.apex.malhar.lib.util.KeyHashValPair;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 
 import com.google.common.collect.Maps;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.BaseOperator;
-
-import com.datatorrent.lib.util.KeyHashValPair;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * This class calculates the average for various resources across different devices for a given key

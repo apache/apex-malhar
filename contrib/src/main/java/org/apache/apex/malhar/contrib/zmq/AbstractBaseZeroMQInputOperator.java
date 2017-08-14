@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.zmq;
+package org.apache.apex.malhar.contrib.zmq;
 
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -25,10 +25,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator.ActivationListener;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  * This is the base implementation of a ZeroMQ input operator.&nbsp;
@@ -70,15 +70,15 @@ public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator imple
 {
   @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(AbstractBaseZeroMQInputOperator.class);
-  transient protected ZMQ.Context context;
-  transient protected ZMQ.Socket subscriber;
-  transient protected ZMQ.Socket syncclient;
+  protected transient ZMQ.Context context;
+  protected transient ZMQ.Socket subscriber;
+  protected transient ZMQ.Socket syncclient;
   private String url;
   private String syncUrl;
-  private String filter="";
+  private String filter = "";
 
   private static final int DEFAULT_BLAST_SIZE = 1000;
-  private static final int DEFAULT_BUFFER_SIZE = 1024*1024;
+  private static final int DEFAULT_BUFFER_SIZE = 1024 * 1024;
   private int tuple_blast = DEFAULT_BLAST_SIZE;
   private int bufferSize = DEFAULT_BUFFER_SIZE;
   private volatile boolean running = false;
@@ -104,9 +104,12 @@ public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator imple
   {
     this.tuple_blast = i;
   }
-  public void setBufferSize(int size) {
+
+  public void setBufferSize(int size)
+  {
     this.bufferSize = size;
   }
+
   @Override
   public void setup(OperatorContext ctx)
   {
@@ -132,8 +135,8 @@ public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator imple
  * and add into holdingBuffer
  * @param ctx
  */
-@Override
-public void activate(OperatorContext ctx)
+  @Override
+  public void activate(OperatorContext ctx)
   {
     new Thread()
     {
@@ -147,8 +150,7 @@ public void activate(OperatorContext ctx)
             if (message != null) {
               holdingBuffer.add(message);
             }
-          }
-          catch (Exception e) {
+          } catch (Exception e) {
 //        logger.debug(e.toString());
             break;
           }

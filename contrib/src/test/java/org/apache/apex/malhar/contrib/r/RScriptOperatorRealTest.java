@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.r;
+package org.apache.apex.malhar.contrib.r;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +24,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
+import org.apache.apex.malhar.lib.testbench.CountAndLastTupleTestSink;
 
 public class RScriptOperatorRealTest
 {
@@ -55,7 +55,7 @@ public class RScriptOperatorRealTest
 
     oper.inBindings.process(map);
     Assert.assertEquals("Mismatch in number of elements emitted : ", 1, hashSink.count);
-    Assert.assertEquals("Mismatch in number of elements emitted : ", (Double) 17.6, (Double) hashSink.tuple);
+    Assert.assertEquals("Mismatch in number of elements emitted : ", (Double)17.6, (Double)hashSink.tuple);
 
     map = new HashMap<String, Object>();
 
@@ -67,6 +67,6 @@ public class RScriptOperatorRealTest
     oper.teardown();
 
     Assert.assertEquals("Mismatch in number of elements emitted : ", 2, hashSink.count);
-    Assert.assertEquals("Mismatch in number of elements emitted : ", (Double) 22.7, (Double) hashSink.tuple);
+    Assert.assertEquals("Mismatch in number of elements emitted : ", (Double)22.7, (Double)hashSink.tuple);
   }
 }

@@ -16,18 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kinesis;
+package org.apache.apex.malhar.contrib.kinesis;
+
+import org.junit.After;
+import org.junit.Before;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.kinesis.AmazonKinesisClient;
 import com.amazonaws.services.kinesis.model.CreateStreamRequest;
 import com.amazonaws.services.kinesis.model.ResourceInUseException;
-
-import org.junit.After;
-import org.junit.Before;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This is a base class setup/clean Kinesis testing environment for all the input/output test
@@ -37,8 +37,8 @@ public class KinesisOperatorTestBase
 {
   public static final String END_TUPLE = "END_TUPLE";
   protected boolean hasMultiPartition = false;
-  protected String streamNamePrefix= "StreamName-";
-  protected String streamName = null ;
+  protected String streamNamePrefix = "StreamName-";
+  protected String streamName = null;
   protected int shardCount = 1;
   protected transient AmazonKinesisClient client = null;
   protected transient AWSCredentialsProvider credentials = null;
@@ -57,10 +57,8 @@ public class KinesisOperatorTestBase
     CreateStreamRequest streamRequest = null;
     createClient();
 
-    for( int i=0; i<100; ++i )
-    {
-      try
-      {
+    for (int i = 0; i < 100; ++i) {
+      try {
         streamName = streamNamePrefix + i;
         streamRequest = new CreateStreamRequest();
         streamRequest.setStreamName(streamName);
@@ -71,13 +69,9 @@ public class KinesisOperatorTestBase
         Thread.sleep(30000);
 
         break;
-      }
-      catch( ResourceInUseException riue )
-      {
+      } catch ( ResourceInUseException riue ) {
         logger.warn( "Resource is in use.", riue.getMessage() );
-      }
-      catch (Exception e)
-      {
+      } catch (Exception e) {
         logger.error( "Got exception.", e );
         throw new RuntimeException(e);
       }

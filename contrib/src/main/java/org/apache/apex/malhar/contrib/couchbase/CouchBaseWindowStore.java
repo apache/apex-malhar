@@ -16,19 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchbase;
+package org.apache.apex.malhar.contrib.couchbase;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-
-import com.couchbase.client.CouchbaseClient;
-import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.db.TransactionableStore;
+import org.apache.apex.malhar.lib.db.TransactionableStore;
+
+import com.couchbase.client.CouchbaseClient;
+import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
 
 import com.datatorrent.netlet.util.DTThrowable;
 
@@ -92,9 +96,8 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
       cfb.setOpTimeout(timeout);  // wait up to 10 seconds for an operation to succeed
       cfb.setOpQueueMaxBlockTime(blockTime); // wait up to 10 second when trying to enqueue an operation
       clientMeta = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs, bucketMeta, passwordMeta));
-    }
-    catch (IOException e) {
-      logger.error("Error connecting to Couchbase: " , e);
+    } catch (IOException e) {
+      logger.error("Error connecting to Couchbase: ", e);
       DTThrowable.rethrow(e);
     }
   }
@@ -119,11 +122,9 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
     String key = appId + "_" + operatorId + "_" + lastWindowValue;
     try {
       clientMeta.set(key, WindowIdBytes).get();
-    }
-    catch (InterruptedException ex) {
+    } catch (InterruptedException ex) {
       DTThrowable.rethrow(ex);
-    }
-    catch (ExecutionException ex) {
+    } catch (ExecutionException ex) {
       DTThrowable.rethrow(ex);
     }
 
@@ -163,8 +164,7 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
     try {
       result = dos.readLong();
       dos.close();
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       DTThrowable.rethrow(e);
     }
     return result;
@@ -179,8 +179,7 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
       dos.writeLong(l);
       result = baos.toByteArray();
       dos.close();
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       DTThrowable.rethrow(e);
     }
     return result;

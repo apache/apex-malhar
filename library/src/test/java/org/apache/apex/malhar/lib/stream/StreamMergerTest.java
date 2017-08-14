@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.stream;
+package org.apache.apex.malhar.lib.stream;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.CountTestSink;
+import org.apache.apex.malhar.lib.testbench.CountTestSink;
 
 /**
- * Performance test for {@link com.datatorrent.lib.stream.StreamMerger}<p>
+ * Performance test for {@link org.apache.apex.malhar.lib.stream.StreamMerger}<p>
  * Benchmarks: Currently does about 3 Million tuples/sec in debugging environment. Need to test on larger nodes<br>
  * <br>
  */

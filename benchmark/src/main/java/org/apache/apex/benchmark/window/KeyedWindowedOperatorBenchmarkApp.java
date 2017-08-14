@@ -16,14 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.window;
+package org.apache.apex.benchmark.window;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.fileaccess.TFileImpl;
 import org.apache.apex.malhar.lib.state.spillable.SpillableComplexComponentImpl;
 import org.apache.apex.malhar.lib.state.spillable.SpillableSetMultimapImpl;
 import org.apache.apex.malhar.lib.state.spillable.managed.ManagedStateSpillableStateStore;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.apex.malhar.lib.utils.serde.GenericSerde;
 import org.apache.apex.malhar.lib.window.Accumulation;
 import org.apache.apex.malhar.lib.window.Tuple;
@@ -39,8 +41,6 @@ import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.fileaccess.TFileImpl;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * @since 3.7.0

@@ -16,16 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.memcache;
-
-import java.net.InetSocketAddress;
-
-import net.spy.memcached.AddrUtil;
+package org.apache.apex.malhar.contrib.memcache;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import com.datatorrent.lib.db.KeyValueStoreOperatorTest;
+import org.apache.apex.malhar.lib.db.KeyValueStoreOperatorTest;
+
+import net.spy.memcached.AddrUtil;
 
 /**
  *

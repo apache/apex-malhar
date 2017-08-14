@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.partitioner;
+package org.apache.apex.malhar.lib.partitioner;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

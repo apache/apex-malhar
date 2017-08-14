@@ -16,15 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.converter;
+package org.apache.apex.malhar.lib.converter;
 
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.apex.malhar.lib.util.KeyHashValPair;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.util.KeyHashValPair;
 
 /**
  *

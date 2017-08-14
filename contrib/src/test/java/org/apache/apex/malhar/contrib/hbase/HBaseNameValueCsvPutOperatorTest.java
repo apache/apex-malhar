@@ -16,17 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
 import java.io.IOException;
-import java.util.Collection;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class HBaseNameValueCsvPutOperatorTest
 {
@@ -58,9 +57,7 @@ public class HBaseNameValueCsvPutOperatorTest
       Assert.assertEquals("Tuple column family", tuple.getColFamily(), "colfam0");
       Assert.assertEquals("Tuple column name", tuple.getColName(), "street");
       Assert.assertEquals("Tuple column value", tuple.getColValue(), "patrick");
-    }
-    catch (IOException e) {
-
+    } catch (IOException e) {
       logger.error(e.getMessage());
     }
   }

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.solr;
+package org.apache.apex.malhar.contrib.solr;
 
 import java.io.IOException;
 

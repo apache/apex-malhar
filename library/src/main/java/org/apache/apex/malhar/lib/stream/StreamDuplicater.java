@@ -16,12 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.stream;
+package org.apache.apex.malhar.lib.stream;
+
+import org.apache.apex.malhar.lib.util.BaseKeyOperator;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.Stateless;
-import com.datatorrent.lib.util.BaseKeyOperator;
 
 /**
  * An implementation of BaseKeyValueOperator that duplicates an input stream as is into two output streams.

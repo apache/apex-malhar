@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -25,27 +25,31 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.io.ICsvListReader;
 import org.supercsv.prefs.CsvPreference;
+import org.apache.apex.malhar.lib.util.ReusableStringReader;
+import org.apache.hadoop.hbase.client.Put;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.lib.util.ReusableStringReader;
 
 /**
- * Takes a configuration string which tells us about the position of the row, or column.&nbsp; The incoming tuples are inserted accordingly.
+ * Takes a configuration string which tells us about the position of the row, or
+ * column.&nbsp; The incoming tuples are inserted accordingly.
  * <p>
+ *
  * @displayName HBase Csv Mapping Put
  * @category Output
  * @tags hbase, csv, put, String
  * @since 1.0.4
  */
-public class HBaseCsvMappingPutOperator extends AbstractHBaseWindowPutOutputOperator<String> {
-  private class ColDef {
+public class HBaseCsvMappingPutOperator extends AbstractHBaseWindowPutOutputOperator<String>
+{
+  private class ColDef
+  {
     String colFam;
     String colName;
   }
@@ -58,23 +62,26 @@ public class HBaseCsvMappingPutOperator extends AbstractHBaseWindowPutOutputOper
   private transient ArrayList<String> csvLineList = new ArrayList<String>();
   private String mappingString;
 
-  public void setMappingString(String mappingString) {
+  public void setMappingString(String mappingString)
+  {
     this.mappingString = mappingString;
   }
 
   @Override
-  public Put operationPut(String t) throws IOException {
+  public Put operationPut(String t) throws IOException
+  {
     return parseLine(t);
   }
 
-  public void parseMapping() {
+  public void parseMapping()
+  {
     ICsvListReader listReader = null;
     StringReader sr = null;
     ArrayList<String> csvList = new ArrayList<String>();
     try {
       sr = new StringReader(mappingString);
       listReader = new CsvListReader(sr,CsvPreference.STANDARD_PREFERENCE);
-      csvList = (ArrayList<String>) listReader.read();
+      csvList = (ArrayList<String>)listReader.read();
     } catch (IOException e) {
       logger.error("Cannot read the mapping string", e);
       DTThrowable.rethrow(e);
@@ -89,9 +96,9 @@ public class HBaseCsvMappingPutOperator extends AbstractHBaseWindowPutOutputOper
     }
     for (int index = 0; index < csvList.size(); index++) {
       String value = csvList.get(index);
-      if (value.equals("row"))
+      if (value.equals("row")) {
         rowIndex = index;
-      else {
+      } else {
         ColDef c = new ColDef();
         c.colFam = value.substring(0, value.indexOf('.'));
         c.colName = value.substring(value.indexOf('.') + 1);
@@ -100,11 +107,12 @@ public class HBaseCsvMappingPutOperator extends AbstractHBaseWindowPutOutputOper
     }
   }
 
-  public Put parseLine(String s) {
+  public Put parseLine(String s)
+  {
     Put put = null;
     try {
       lineSr.open(s);
-      csvLineList = (ArrayList<String>) lineListReader.read();
+      csvLineList = (ArrayList<String>)lineListReader.read();
     } catch (IOException e) {
       logger.error("Cannot read the property string", e);
       DTThrowable.rethrow(e);
@@ -120,15 +128,17 @@ public class HBaseCsvMappingPutOperator extends AbstractHBaseWindowPutOutputOper
   }
 
   @Override
-  public void setup(OperatorContext context) {
+  public void setup(OperatorContext context)
+  {
     super.setup(context);
     parseMapping();
     lineListReader = new CsvListReader(lineSr,
-        CsvPreference.STANDARD_PREFERENCE);
+    CsvPreference.STANDARD_PREFERENCE);
   }
 
   @Override
-  public void teardown() {
+  public void teardown()
+  {
     super.teardown();
     try {
       lineSr.close();

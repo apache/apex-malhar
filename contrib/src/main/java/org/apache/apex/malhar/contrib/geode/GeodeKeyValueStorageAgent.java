@@ -16,13 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.geode;
+package org.apache.apex.malhar.contrib.geode;
 
 import java.io.Serializable;
 
+import org.apache.apex.malhar.lib.util.AbstractKeyValueStorageAgent;
 import org.apache.hadoop.conf.Configuration;
-
-import com.datatorrent.lib.util.AbstractKeyValueStorageAgent;
 
 /**
  * Storage Agent implementation which uses {@link GeodeCheckpointStore} for operator

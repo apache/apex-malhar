@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.Random;
 
 import org.apache.apex.malhar.lib.dedup.TimeBasedDedupOperator;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context;
@@ -31,7 +32,6 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 @ApplicationAnnotation(name = "DedupExample")
 /**

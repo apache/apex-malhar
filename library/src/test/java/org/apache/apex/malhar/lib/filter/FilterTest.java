@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.datatorrent.lib.filter;
+package org.apache.apex.malhar.lib.filter;
 
 import java.util.Arrays;
 
@@ -25,9 +25,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.testbench.CountTestSink;
+
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.testbench.CountTestSink;
 import com.datatorrent.stram.engine.PortContext;
 
 /**

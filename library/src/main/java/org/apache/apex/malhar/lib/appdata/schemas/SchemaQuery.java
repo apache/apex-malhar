@@ -16,18 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.schemas;
+package org.apache.apex.malhar.lib.appdata.schemas;
 
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.appdata.query.serde.MessageDeserializerInfo;
-import com.datatorrent.lib.appdata.query.serde.MessageType;
-import com.datatorrent.lib.appdata.query.serde.MessageValidatorInfo;
-import com.datatorrent.lib.appdata.query.serde.SchemaQueryDeserializer;
-import com.datatorrent.lib.appdata.query.serde.SimpleDataValidator;
+import org.apache.apex.malhar.lib.appdata.query.serde.MessageDeserializerInfo;
+import org.apache.apex.malhar.lib.appdata.query.serde.MessageType;
+import org.apache.apex.malhar.lib.appdata.query.serde.MessageValidatorInfo;
+import org.apache.apex.malhar.lib.appdata.query.serde.SchemaQueryDeserializer;
+import org.apache.apex.malhar.lib.appdata.query.serde.SimpleDataValidator;
 
 /**
  * This class represents a schema query.

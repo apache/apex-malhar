@@ -16,22 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
-
-import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.OPERATOR_ID;
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+package org.apache.apex.malhar.contrib.hbase;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.hadoop.conf.Configuration;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.internal.runners.statements.Fail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.apex.malhar.contrib.util.TestPOJO;
+import org.apache.apex.malhar.contrib.util.TupleCacheOutputOperator;
+import org.apache.apex.malhar.contrib.util.TupleGenerateCacheOperator;
+import org.apache.apex.malhar.lib.util.FieldInfo.SupportType;
+import org.apache.apex.malhar.lib.util.TableInfo;
+import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context;
@@ -39,11 +40,9 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.contrib.util.TestPOJO;
-import com.datatorrent.contrib.util.TupleCacheOutputOperator;
-import com.datatorrent.contrib.util.TupleGenerateCacheOperator;
-import com.datatorrent.lib.util.FieldInfo.SupportType;
-import com.datatorrent.lib.util.TableInfo;
+
+import static org.apache.apex.malhar.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.OPERATOR_ID;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class HBasePOJOInputOperatorTest
 {
@@ -53,7 +52,7 @@ public class HBasePOJOInputOperatorTest
     HBASEOUTPUT,
     HBASEINPUT,
     OUTPUT
-  };
+  }
 
   public static class MyGenerator extends TupleGenerateCacheOperator<TestPOJO>
   {
@@ -71,7 +70,7 @@ public class HBasePOJOInputOperatorTest
       try {
         // Added to let the output operator insert data into hbase table before input operator can read it
         Thread.sleep(1000);
-      } catch(InterruptedException e) {
+      } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
       super.setup(context);
@@ -107,7 +106,8 @@ public class HBasePOJOInputOperatorTest
     // Create DAG for testing.
     LocalMode lma = LocalMode.newInstance();
 
-    StreamingApplication app = new StreamingApplication() {
+    StreamingApplication app = new StreamingApplication()
+    {
       @Override
       public void populateDAG(DAG dag, Configuration conf)
       {
@@ -142,26 +142,19 @@ public class HBasePOJOInputOperatorTest
 
     long start = System.currentTimeMillis();
     //generator.doneLatch.await();
-    while(true)
-    {
-      try
-      {
-        Thread.sleep(1000);
-      }
-      catch( Exception e ){}
+    while (true) {
+      Thread.sleep(1000);
       logger.info("Tuple row key: ", output.getReceivedTuples());
       logger.info( "Received tuple number {}, instance is {}.", output.getReceivedTuples() == null ? 0 : output.getReceivedTuples().size(), System.identityHashCode( output ) );
-      if( output.getReceivedTuples() != null && output.getReceivedTuples().size() == TUPLE_NUM ) {
+      if ( output.getReceivedTuples() != null && output.getReceivedTuples().size() == TUPLE_NUM ) {
         break;
       }
-      if(System.currentTimeMillis() - start > RUN_DURATION) {
+      if (System.currentTimeMillis() - start > RUN_DURATION) {
         throw new RuntimeException("Testcase taking too long");
       }
     }
 
     lc.shutdown();
-
-
     validate( generator.getTuples(), output.getReceivedTuples() );
   }
 
@@ -169,7 +162,7 @@ public class HBasePOJOInputOperatorTest
   {
     logger.info( "expected size: " + expected.size() );
     logger.info( "actual size: " + actual.size() );
-    Assert.assertTrue( String.format( "The expected size {%d} is different from actual size {%d}.", expected.size(), actual.size()  ), expected.size()==actual.size() );
+    Assert.assertTrue( String.format( "The expected size {%d} is different from actual size {%d}.", expected.size(), actual.size()  ), expected.size() == actual.size() );
     actual.removeAll(expected);
     Assert.assertTrue( "content not same.", actual.isEmpty() );
   }

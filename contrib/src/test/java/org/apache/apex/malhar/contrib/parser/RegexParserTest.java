@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.parser;
+package org.apache.apex.malhar.contrib.parser;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -29,9 +29,9 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-import com.datatorrent.lib.appdata.schemas.SchemaUtils;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.KeyValPair;
+import org.apache.apex.malhar.lib.appdata.schemas.SchemaUtils;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 
 public class RegexParserTest
 {
@@ -70,8 +70,8 @@ public class RegexParserTest
   {
     regex.beginWindow(0);
     String line = "2015-10-01T03:14:49.000-07:00 lvn-d1-dev DevServer[9876]: INFO: [EVENT][SEQ=248717]" +
-      " 2015:10:01:03:14:49 101 sign-in_id=11111@psop.com ip_address=1.1.1.1  service_id=IP1234-NPB12345_00 " +
-      "result=RESULT_SUCCESconsole_id=0000000138e91b4e58236bf32besdafasdfasdfasdfsadf  account_id=11111  platform=pik";
+        " 2015:10:01:03:14:49 101 sign-in_id=11111@psop.com ip_address=1.1.1.1  service_id=IP1234-NPB12345_00 " +
+        "result=RESULT_SUCCESconsole_id=0000000138e91b4e58236bf32besdafasdfasdfasdfsadf  account_id=11111  platform=pik";
     regex.in.process(line.getBytes());
     regex.endWindow();
     Assert.assertEquals(1, pojoPort.collectedTuples.size());
@@ -85,8 +85,8 @@ public class RegexParserTest
     Date date = sdf.parse("2015:10:01:03:14:49");
     Assert.assertEquals(date, pojo.getDate());
     Assert.assertEquals("sign-in_id=11111@psop.com ip_address=1.1.1.1  service_id=IP1234-NPB12345_00"
-      + " result=RESULT_SUCCESconsole_id=0000000138e91b4e58236bf32besdafasdfasdfasdfsadf  account_id=11111  " +
-      "platform=pik", pojo.getMessage());
+        + " result=RESULT_SUCCESconsole_id=0000000138e91b4e58236bf32besdafasdfasdfasdfsadf  account_id=11111  " +
+        "platform=pik", pojo.getMessage());
     Assert.assertEquals(1, regex.getIncomingTuplesCount());
     Assert.assertEquals(1, regex.getEmittedObjectCount());
   }
@@ -109,8 +109,8 @@ public class RegexParserTest
   {
     regex.beginWindow(0);
     String line = "2015-10-01T03:14:49.000-07:00 lvn-d1-dev DevServer[9876]: INFO: [EVENT][SEQ=248717]"
-      + " qwerty 101 sign-in_id=11111@psop.com ip_address=1.1.1.1  service_id=IP1234-NPB12345_00"
-      + " result=RESULT_SUCCESconsole_id=0000000138e91b4e58236bf32besdafasdfasdfasdfsadf  account_id=11111  platform=pik";
+        + " qwerty 101 sign-in_id=11111@psop.com ip_address=1.1.1.1  service_id=IP1234-NPB12345_00"
+        + " result=RESULT_SUCCESconsole_id=0000000138e91b4e58236bf32besdafasdfasdfasdfsadf  account_id=11111  platform=pik";
     regex.in.process(line.getBytes());
     regex.endWindow();
     Assert.assertEquals(0, pojoPort.collectedTuples.size());
@@ -119,8 +119,7 @@ public class RegexParserTest
     Assert.assertNotNull(obj);
     Assert.assertEquals("2015-10-01T03:14:49.000-07:00 lvn-d1-dev DevServer[9876]: INFO: [EVENT][SEQ=248717]" +
         " qwerty 101 sign-in_id=11111@psop.com ip_address=1.1.1.1  service_id=IP1234-NPB12345_00 " +
-        "result=RESULT_SUCCESconsole_id=0000000138e91b4e58236bf32besdafasdfasdfasdfsadf  account_id=11111  platform=pik"
-      , obj.getKey());
+        "result=RESULT_SUCCESconsole_id=0000000138e91b4e58236bf32besdafasdfasdfasdfsadf  account_id=11111  platform=pik", obj.getKey());
     Assert.assertEquals("The incoming tuple do not match with the Regex pattern defined.", obj.getValue());
     Assert.assertEquals(1, regex.getIncomingTuplesCount());
     Assert.assertEquals(0, regex.getEmittedObjectCount());
@@ -132,16 +131,15 @@ public class RegexParserTest
   {
     regex.beginWindow(0);
     String line = "2015-10-01T03:14:49.000-07:00 lvn-d1-dev DevServer[9876]: INFO: [EVENT][SEQ=248717] " +
-      "2015:10:01:03:14:46 hskhhskfk sign-in_id=11111@psop.com ip_address=1.1.1.1  service_id=IP1234-NPB12345_00 " +
-      "result=RESULT_SUCCESconsole_id=0000000138e91b4e58236bf32besdafasdfasdfasdfsadf  account_id=11111  platform=pik";
+        "2015:10:01:03:14:46 hskhhskfk sign-in_id=11111@psop.com ip_address=1.1.1.1  service_id=IP1234-NPB12345_00 " +
+        "result=RESULT_SUCCESconsole_id=0000000138e91b4e58236bf32besdafasdfasdfasdfsadf  account_id=11111  platform=pik";
     regex.in.process(line.getBytes());
     regex.endWindow();
     KeyValPair<String, String> obj = (KeyValPair<String, String>)error.collectedTuples.get(0);
     Assert.assertNotNull(obj);
     Assert.assertEquals("2015-10-01T03:14:49.000-07:00 lvn-d1-dev DevServer[9876]: INFO: [EVENT][SEQ=248717] " +
         "2015:10:01:03:14:46 hskhhskfk sign-in_id=11111@psop.com ip_address=1.1.1.1  service_id=IP1234-NPB12345_00 " +
-        "result=RESULT_SUCCESconsole_id=0000000138e91b4e58236bf32besdafasdfasdfasdfsadf  account_id=11111  platform=pik",
-      obj.getKey());
+        "result=RESULT_SUCCESconsole_id=0000000138e91b4e58236bf32besdafasdfasdfasdfsadf  account_id=11111  platform=pik", obj.getKey());
     Assert.assertEquals("The incoming tuple do not match with the Regex pattern defined.", obj.getValue());
     Assert.assertEquals(0, pojoPort.collectedTuples.size());
     Assert.assertEquals(1, error.collectedTuples.size());
@@ -170,8 +168,8 @@ public class RegexParserTest
     Assert.assertEquals(0, regex.getErrorTupleCount());
     Assert.assertEquals(0, regex.getEmittedObjectCount());
     String tuple = "2015-10-01T03:14:49.000-07:00 lvn-d1-dev DevServer[9876]: INFO: [EVENT][SEQ=248717] " +
-      "2015:10:01:03:14:49 101 sign-in_id=11111@psop.com ip_address=1.1.1.1  service_id=IP1234-NPB12345_00 " +
-      "result=RESULT_SUCCESconsole_id=0000000138e91b4e58236bf32besdafasdfasdfasdfsadf  account_id=11111  platform=pik";
+        "2015:10:01:03:14:49 101 sign-in_id=11111@psop.com ip_address=1.1.1.1  service_id=IP1234-NPB12345_00 " +
+        "result=RESULT_SUCCESconsole_id=0000000138e91b4e58236bf32besdafasdfasdfasdfsadf  account_id=11111  platform=pik";
     regex.in.process(tuple.getBytes());
     regex.endWindow();
     Assert.assertEquals(1, regex.getIncomingTuplesCount());
@@ -201,8 +199,8 @@ public class RegexParserTest
     Assert.assertEquals(0, regex.getErrorTupleCount());
     Assert.assertEquals(0, regex.getEmittedObjectCount());
     String tuple = "2015-10-01T03:14:49.000-07:00 lvn-d1-dev DevServer[9876]: INFO: [EVENT][SEQ=248717] " +
-      "2015:10:01:03:14:49 101 sign-in_id=11111@psop.com ip_address=1.1.1.1  service_id=IP1234-NPB12345_00 " +
-      "result=RESULT_SUCCESconsole_id=0000000138e91b4e58236bf32besdafasdfasdfasdfsadf  account_id=11111  platform=pik";
+        "2015:10:01:03:14:49 101 sign-in_id=11111@psop.com ip_address=1.1.1.1  service_id=IP1234-NPB12345_00 " +
+        "result=RESULT_SUCCESconsole_id=0000000138e91b4e58236bf32besdafasdfasdfasdfsadf  account_id=11111  platform=pik";
     regex.beginWindow(0);
     regex.in.process(tuple.getBytes());
     regex.endWindow();

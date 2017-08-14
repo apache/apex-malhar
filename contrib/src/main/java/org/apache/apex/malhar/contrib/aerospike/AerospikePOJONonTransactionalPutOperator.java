@@ -16,22 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.aerospike;
+package org.apache.apex.malhar.contrib.aerospike;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import com.aerospike.client.Bin;
-import com.aerospike.client.Key;
-
-import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Getter;
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Getter;
+import org.apache.hadoop.classification.InterfaceStability.Evolving;
+
+import com.aerospike.client.Bin;
+import com.aerospike.client.Key;
 
 /**
  * <p>
@@ -47,8 +47,8 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
 @Evolving
 public class AerospikePOJONonTransactionalPutOperator extends AbstractAerospikeNonTransactionalPutOperator<Object>
 {
-  private static transient final Logger LOG
-    = LoggerFactory.getLogger(AerospikePOJONonTransactionalPutOperator.class);
+  private static final Logger LOG =
+      LoggerFactory.getLogger(AerospikePOJONonTransactionalPutOperator.class);
 
   // Two element list; first retrieves the record key and second the list of bins in this tuple
   @NotNull
@@ -91,7 +91,7 @@ public class AerospikePOJONonTransactionalPutOperator extends AbstractAerospikeN
     }
     Key key = keyGetter.get(tuple);
     List<Bin> binList = binsGetter.get(tuple);
-    if ( ! (null == binList || binList.isEmpty()) ) {
+    if (!(null == binList || binList.isEmpty())) {
       list.addAll(binList);
     }
     return key;

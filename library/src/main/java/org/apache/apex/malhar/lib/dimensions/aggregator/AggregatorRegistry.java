@@ -35,7 +35,7 @@ import com.google.common.collect.Maps;
  * This registry is used by generic dimensions computation operators and dimension stores in order to support
  * plugging different
  * aggregators into the operator. Subclasses of
- * {@link com.datatorrent.lib.dimensions.AbstractDimensionsComputationFlexibleSingleSchema} use this registry
+ * {@link org.apache.apex.malhar.lib.dimensions.AbstractDimensionsComputationFlexibleSingleSchema} use this registry
  * to support pluggable aggregators when doing dimensions computation, and Subclasses of
  * AppDataSingleSchemaDimensionStoreHDHT use this class as well.
  * </p>

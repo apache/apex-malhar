@@ -18,6 +18,14 @@
  */
 package org.apache.apex.examples.twitter;
 
+import org.apache.apex.malhar.contrib.kinesis.AbstractKinesisInputOperator;
+import org.apache.apex.malhar.contrib.kinesis.KinesisStringInputOperator;
+import org.apache.apex.malhar.contrib.kinesis.KinesisStringOutputOperator;
+import org.apache.apex.malhar.contrib.kinesis.ShardManager;
+import org.apache.apex.malhar.contrib.twitter.TwitterSampleInput;
+import org.apache.apex.malhar.lib.algo.UniqueCounter;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+import org.apache.apex.malhar.lib.io.PubSubWebSocketOutputOperator;
 import org.apache.apex.malhar.lib.utils.PubSubHelper;
 import org.apache.hadoop.conf.Configuration;
 
@@ -26,14 +34,6 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.contrib.kinesis.AbstractKinesisInputOperator;
-import com.datatorrent.contrib.kinesis.KinesisStringInputOperator;
-import com.datatorrent.contrib.kinesis.KinesisStringOutputOperator;
-import com.datatorrent.contrib.kinesis.ShardManager;
-import com.datatorrent.contrib.twitter.TwitterSampleInput;
-import com.datatorrent.lib.algo.UniqueCounter;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 
 /**
  * Twitter Example Application: <br>
@@ -144,20 +144,20 @@ import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
  * StateFull : No, window count 1 <br>
  * </li>
  * <li><b>The outputOp operator : </b> This operator sent the tags into the kinesis. <br>
- * Class : {@link com.datatorrent.contrib.kinesis.KinesisStringOutputOperator} <br>
+ * Class : {@link org.apache.apex.malhar.contrib.kinesis.KinesisStringOutputOperator} <br>
  * </li>
  * <li><b>The inputOp operator : </b> This operator fetches the records from kinesis and
  * converts into hastags and emits them. <br>
- * Class : {@link com.datatorrent.contrib.kinesis.KinesisStringOutputOperator} <br>
+ * Class : {@link org.apache.apex.malhar.contrib.kinesis.KinesisStringOutputOperator} <br>
  * </li>
  * <li><b>The uniqueCounter operator : </b> This operator aggregates count for each
  * Hashtag extracted from random samples. <br>
- * Class : {@link com.datatorrent.lib.algo.UniqueCounter} <br>
+ * Class : {@link org.apache.apex.malhar.lib.algo.UniqueCounter} <br>
  * StateFull : No, window count 1 <br>
  * </li>
  * <li><b> The topCounts operator : </b> This operator caluculates top Hashtag in last 1
  * min sliding window count 1. <br>
- * Class : com.datatorrent.lib.algo.WindowedTopCounter <br>
+ * Class : org.apache.apex.malhar.lib.algo.WindowedTopCounter <br>
  * StateFull : Yes, sliding window count 120 (1 min) <br>
  * </li>
  * <li><b>The operator Console: </b> This operator just outputs the input tuples

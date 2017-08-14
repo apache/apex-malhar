@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.enrich;
+package org.apache.apex.malhar.contrib.enrich;
 
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -32,7 +32,8 @@ import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.util.FieldInfo;
+import org.apache.apex.malhar.lib.util.FieldInfo;
+
 import com.datatorrent.netlet.util.DTThrowable;
 
 public class JDBCLoaderTest

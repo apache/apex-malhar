@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
 import java.io.InterruptedIOException;
 
@@ -48,7 +48,8 @@ import com.datatorrent.netlet.util.DTThrowable;
  *            The tuple type
  * @since 1.0.2
  */
-public abstract class AbstractHBasePutOutputOperator<T> extends AbstractHBaseOutputOperator<T> {
+public abstract class AbstractHBasePutOutputOperator<T> extends AbstractHBaseOutputOperator<T>
+{
   private static final transient Logger logger = LoggerFactory.getLogger(AbstractHBasePutOutputOperator.class);
 
   public AbstractHBasePutOutputOperator()
@@ -56,7 +57,6 @@ public abstract class AbstractHBasePutOutputOperator<T> extends AbstractHBaseOut
     store = new HBaseStore();
   }
 
-  @Override
   public void processTuple(T tuple, HTable table)
   {
     Put put = operationPut(tuple);
@@ -72,5 +72,5 @@ public abstract class AbstractHBasePutOutputOperator<T> extends AbstractHBaseOut
   }
 
   public abstract Put operationPut(T t);
-  
+
 }

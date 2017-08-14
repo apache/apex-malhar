@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchbase;
+package org.apache.apex.malhar.contrib.couchbase;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -24,21 +24,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.apex.malhar.lib.db.AbstractStoreInputOperator;
+import org.apache.apex.malhar.lib.util.KryoCloneUtils;
+
 import com.couchbase.client.CouchbaseClient;
 import com.couchbase.client.vbucket.config.Config;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.datatorrent.lib.db.AbstractStoreInputOperator;
-
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
-
-import com.datatorrent.lib.util.KryoCloneUtils;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
@@ -94,8 +93,7 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
       }
       try {
         clientPartition = store.connectServer(serverURIString);
-      }
-      catch (IOException ex) {
+      } catch (IOException ex) {
         DTThrowable.rethrow(ex);
       }
     }
@@ -116,16 +114,16 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
     List<String> keys = getKeys();
     Object result = null;
     for (String key: keys) {
-        int master = conf.getMaster(conf.getVbucketByKey(key));
-        if (master == getServerIndex()) {
-          result = clientPartition.get(key);
-        }
+      int master = conf.getMaster(conf.getVbucketByKey(key));
+      if (master == getServerIndex()) {
+        result = clientPartition.get(key);
       }
+    }
 
-      if (result != null) {
-        T tuple = getTuple(result);
-        outputPort.emit(tuple);
-      }
+    if (result != null) {
+      T tuple = getTuple(result);
+      outputPort.emit(tuple);
+    }
   }
 
   public abstract T getTuple(Object object);

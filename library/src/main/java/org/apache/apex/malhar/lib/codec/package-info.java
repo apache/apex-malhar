@@ -20,5 +20,5 @@
  *  Shared codec implementations.
  */
 @org.apache.hadoop.classification.InterfaceStability.Evolving
-package com.datatorrent.lib.codec;
+package org.apache.apex.malhar.lib.codec;
 

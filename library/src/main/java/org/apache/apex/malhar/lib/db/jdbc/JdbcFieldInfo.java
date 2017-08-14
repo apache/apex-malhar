@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.db.jdbc;
+package org.apache.apex.malhar.lib.db.jdbc;
 
-import com.datatorrent.lib.util.FieldInfo;
+import org.apache.apex.malhar.lib.util.FieldInfo;
 
 /**
  * A {@link FieldInfo} object for Jdbc. <br/>

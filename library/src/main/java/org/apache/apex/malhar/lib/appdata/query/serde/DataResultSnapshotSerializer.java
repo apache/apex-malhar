@@ -16,20 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.query.serde;
+package org.apache.apex.malhar.lib.appdata.query.serde;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.gpo.GPOUtils;
-import com.datatorrent.lib.appdata.schemas.DataQuerySnapshot;
-import com.datatorrent.lib.appdata.schemas.DataResultSnapshot;
-import com.datatorrent.lib.appdata.schemas.Message;
-import com.datatorrent.lib.appdata.schemas.Result;
-import com.datatorrent.lib.appdata.schemas.ResultFormatter;
+import org.apache.apex.malhar.lib.appdata.gpo.GPOMutable;
+import org.apache.apex.malhar.lib.appdata.gpo.GPOUtils;
+import org.apache.apex.malhar.lib.appdata.schemas.DataQuerySnapshot;
+import org.apache.apex.malhar.lib.appdata.schemas.DataResultSnapshot;
+import org.apache.apex.malhar.lib.appdata.schemas.Message;
+import org.apache.apex.malhar.lib.appdata.schemas.Result;
+import org.apache.apex.malhar.lib.appdata.schemas.ResultFormatter;
 
 /**
  * This class is used to serialize {@link DataResultSnapshot} objects.

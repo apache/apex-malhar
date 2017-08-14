@@ -21,6 +21,14 @@ package org.apache.apex.malhar.lib.dimensions.aggregator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.appdata.gpo.GPOMutable;
+import org.apache.apex.malhar.lib.appdata.gpo.GPOUtils;
+import org.apache.apex.malhar.lib.appdata.gpo.Serde;
+import org.apache.apex.malhar.lib.appdata.gpo.SerdeFieldsDescriptor;
+import org.apache.apex.malhar.lib.appdata.gpo.SerdeListGPOMutable;
+import org.apache.apex.malhar.lib.appdata.gpo.SerdeObjectPayloadFix;
+import org.apache.apex.malhar.lib.appdata.schemas.FieldsDescriptor;
+import org.apache.apex.malhar.lib.appdata.schemas.Type;
 import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.Aggregate;
 import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.InputEvent;
 
@@ -28,14 +36,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import com.datatorrent.api.annotation.Name;
-import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.gpo.GPOUtils;
-import com.datatorrent.lib.appdata.gpo.Serde;
-import com.datatorrent.lib.appdata.gpo.SerdeFieldsDescriptor;
-import com.datatorrent.lib.appdata.gpo.SerdeListGPOMutable;
-import com.datatorrent.lib.appdata.gpo.SerdeObjectPayloadFix;
-import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
-import com.datatorrent.lib.appdata.schemas.Type;
 
 @Name("CUM_SUM")
 /**

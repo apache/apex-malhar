@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.query.serde;
+package org.apache.apex.malhar.lib.appdata.query.serde;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
@@ -24,11 +24,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.appdata.schemas.Result;
+import org.apache.apex.malhar.lib.appdata.schemas.ResultFormatter;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-
-import com.datatorrent.lib.appdata.schemas.Result;
-import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 
 /**
  * This class simplifies serializing Messages. This is done by placing an annotation on the Message

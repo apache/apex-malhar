@@ -16,18 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.math;
+package org.apache.apex.malhar.lib.math;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
 
 /**
  *
  * Functional tests for
- * {@link com.datatorrent.lib.math.LogicalCompareToConstant}
+ * {@link org.apache.apex.malhar.lib.math.LogicalCompareToConstant}
  *
  */
 public class LogicalCompareToConstantTest

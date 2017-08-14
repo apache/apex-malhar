@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
+import org.apache.apex.malhar.lib.testbench.CountAndLastTupleTestSink;
 
 /**
  * @deprecated

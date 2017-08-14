@@ -20,6 +20,10 @@ package org.apache.apex.examples.distributeddistinct;
 
 import java.io.Serializable;
 
+import org.apache.apex.malhar.lib.algo.UniqueValueCount;
+import org.apache.apex.malhar.lib.algo.UniqueValueCount.InternalCountOutput;
+import org.apache.apex.malhar.lib.codec.KryoSerializableStreamCodec;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context;
@@ -27,10 +31,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.algo.UniqueValueCount;
-import com.datatorrent.lib.algo.UniqueValueCount.InternalCountOutput;
-import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 /**
  * This application demonstrates the UniqueValueCount operator. It uses an input operator which generates random key

@@ -32,6 +32,7 @@ import org.apache.apex.malhar.kudu.ApexKuduConnection;
 import org.apache.apex.malhar.kudu.scanner.AbstractKuduPartitionScanner;
 import org.apache.apex.malhar.kudu.scanner.KuduPartitionScanAssignmentMeta;
 import org.apache.apex.malhar.kudu.sqltranslator.SQLToKuduPredicatesTranslator;
+import org.apache.apex.malhar.lib.util.KryoCloneUtils;
 import org.apache.kudu.ColumnSchema;
 import org.apache.kudu.client.KuduClient;
 import org.apache.kudu.client.KuduScanToken;
@@ -39,7 +40,6 @@ import org.apache.kudu.client.KuduTable;
 
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
-import com.datatorrent.lib.util.KryoCloneUtils;
 
 /**
  * An abstract class that contains logic that is common across all partitioners available for the Kudu input operator.

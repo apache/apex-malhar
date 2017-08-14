@@ -16,12 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.memcache_whalin;
+package org.apache.apex.malhar.contrib.memcache_whalin;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import com.datatorrent.lib.db.KeyValueStoreOperatorTest;
+import org.apache.apex.malhar.lib.db.KeyValueStoreOperatorTest;
 
 /**
  *

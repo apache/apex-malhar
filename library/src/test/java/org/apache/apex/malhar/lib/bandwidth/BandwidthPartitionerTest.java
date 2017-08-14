@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.datatorrent.lib.bandwidth;
+package org.apache.apex.malhar.lib.bandwidth;
 
 import java.util.Collection;
 import java.util.Iterator;

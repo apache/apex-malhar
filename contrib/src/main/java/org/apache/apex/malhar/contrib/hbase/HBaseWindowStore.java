@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -24,6 +24,7 @@ import java.io.InterruptedIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.db.TransactionableStore;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.KeyValue;
@@ -36,8 +37,8 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import com.google.common.base.Throwables;
 
-import com.datatorrent.lib.db.TransactionableStore;
 import com.datatorrent.netlet.util.DTThrowable;
+
 /**
  * <p>Provides transaction support to the operators by implementing TransactionableStore abstract methods. </p>
  * <p>
@@ -49,7 +50,8 @@ import com.datatorrent.netlet.util.DTThrowable;
  * @tags store, transactional
  * @since 1.0.2
  */
-public class HBaseWindowStore extends HBaseStore implements TransactionableStore {
+public class HBaseWindowStore extends HBaseStore implements TransactionableStore
+{
   private static final transient Logger logger = LoggerFactory.getLogger(HBaseWindowStore.class);
   private static final String DEFAULT_ROW_NAME = "HBaseOperator_row";
   private static final String DEFAULT_COLUMN_FAMILY_NAME = "HBaseOutputOperator_cf";
@@ -63,14 +65,16 @@ public class HBaseWindowStore extends HBaseStore implements TransactionableStore
   private transient String lastWindowColumnName;
   private transient byte[] lastWindowColumnBytes;
 
-  public HBaseWindowStore() {
+  public HBaseWindowStore()
+  {
     rowName = DEFAULT_ROW_NAME;
     columnFamilyName = DEFAULT_COLUMN_FAMILY_NAME;
     lastWindowColumnName = DEFAULT_LAST_WINDOW_PREFIX_COLUMN_NAME;
     constructKeys();
   }
 
-  private void constructKeys() {
+  private void constructKeys()
+  {
     rowBytes = Bytes.toBytes(rowName);
     columnFamilyBytes = Bytes.toBytes(columnFamilyName);
   }
@@ -80,7 +84,8 @@ public class HBaseWindowStore extends HBaseStore implements TransactionableStore
    *
    * @return The row name
    */
-  public String getRowName() {
+  public String getRowName()
+  {
     return rowName;
   }
 
@@ -90,7 +95,8 @@ public class HBaseWindowStore extends HBaseStore implements TransactionableStore
    * @param rowName
    *            The row name
    */
-  public void setRowName(String rowName) {
+  public void setRowName(String rowName)
+  {
     this.rowName = rowName;
     constructKeys();
   }
@@ -100,7 +106,8 @@ public class HBaseWindowStore extends HBaseStore implements TransactionableStore
    *
    * @return The column family name
    */
-  public String getColumnFamilyName() {
+  public String getColumnFamilyName()
+  {
     return columnFamilyName;
   }
 
@@ -110,13 +117,15 @@ public class HBaseWindowStore extends HBaseStore implements TransactionableStore
    * @param columnFamilyName
    *            The column family name
    */
-  public void setColumnFamilyName(String columnFamilyName) {
+  public void setColumnFamilyName(String columnFamilyName)
+  {
     this.columnFamilyName = columnFamilyName;
     constructKeys();
   }
 
   @Override
-  public void connect() throws IOException {
+  public void connect() throws IOException
+  {
     super.connect();
     HTableDescriptor tdesc = table.getTableDescriptor();
     if (!tdesc.hasFamily(columnFamilyBytes)) {
@@ -133,13 +142,14 @@ public class HBaseWindowStore extends HBaseStore implements TransactionableStore
   }
 
   @Override
-  public void beginTransaction() {
+  public void beginTransaction()
+  {
     // HBase does not support transactions so this method left empty
-
   }
 
   @Override
-  public void commitTransaction() {
+  public void commitTransaction()
+  {
     try {
       flushTables();
     } catch (InterruptedIOException | RetriesExhaustedWithDetailsException e) {
@@ -148,19 +158,21 @@ public class HBaseWindowStore extends HBaseStore implements TransactionableStore
   }
 
   @Override
-  public void rollbackTransaction() {
+  public void rollbackTransaction()
+  {
     // HBase does not support transactions so this method left empty
-
   }
 
   @Override
-  public boolean isInTransaction() {
+  public boolean isInTransaction()
+  {
     // HBase does not support transactions so this method left empty
     return false;
   }
 
   @Override
-  public long getCommittedWindowId(String appId, int operatorId) {
+  public long getCommittedWindowId(String appId, int operatorId)
+  {
     byte[] value = null;
     try {
       String columnKey = appId + "_" + operatorId + "_" + lastWindowColumnName;
@@ -183,12 +195,14 @@ public class HBaseWindowStore extends HBaseStore implements TransactionableStore
     if (value != null) {
       long longval = Bytes.toLong(value);
       return longval;
-    } else
+    } else {
       return -1;
+    }
   }
 
   @Override
-  public void storeCommittedWindowId(String appId, int operatorId,long windowId) {
+  public void storeCommittedWindowId(String appId, int operatorId,long windowId)
+  {
     byte[] WindowIdBytes = Bytes.toBytes(windowId);
     String columnKey = appId + "_" + operatorId + "_" + lastWindowColumnName;
     lastWindowColumnBytes = Bytes.toBytes(columnKey);
@@ -206,7 +220,8 @@ public class HBaseWindowStore extends HBaseStore implements TransactionableStore
   }
 
   @Override
-  public void removeCommittedWindowId(String appId, int operatorId) {
+  public void removeCommittedWindowId(String appId, int operatorId)
+  {
     // Not applicable to hbase
   }
 

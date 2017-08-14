@@ -18,13 +18,13 @@
  */
 package org.apache.apex.examples.wordcount;
 
+import org.apache.apex.malhar.lib.algo.UniqueCounter;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.algo.UniqueCounter;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 /**
  * Simple Word Count Example : <br>
@@ -64,7 +64,7 @@ import com.datatorrent.lib.io.ConsoleOutputOperator;
  * </pre> <br> <br>
  *
  * Scaling Options : <br>
- * This operator app can not be scaled, please look at implementation {@link com.datatorrent.lib.algo.UniqueCounterEach}  <br> <br>
+ * This operator app can not be scaled, please look at implementation {@link org.apache.apex.malhar.lib.algo.UniqueCounterEach}  <br> <br>
  *
  * Application DAG : <br>
  * <img src="doc-files/UniqueWordCounter.jpg" width=600px > <br>
@@ -81,7 +81,7 @@ import com.datatorrent.lib.io.ConsoleOutputOperator;
  *  </li>
  *  <li>
  *     <p><b> The operator count : </b>  This operator aggregates unique key count  over one window count(app). <br>
- *     Class : {@link com.datatorrent.lib.algo.UniqueCounterEach}  <br>
+ *     Class : {@link org.apache.apex.malhar.lib.algo.UniqueCounterEach}  <br>
  *     Operator Application Window Count : 1 <br>
  *     StateFull : No
  *  </li>

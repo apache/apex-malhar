@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.parser;
+package org.apache.apex.malhar.contrib.parser;
 
 import java.io.IOException;
 
@@ -25,6 +25,9 @@ import javax.validation.ConstraintViolationException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.contrib.parser.JsonParserTest.Product;
+import org.apache.apex.malhar.lib.appdata.schemas.SchemaUtils;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context;
@@ -34,9 +37,6 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.contrib.parser.JsonParserTest.Product;
-import com.datatorrent.lib.appdata.schemas.SchemaUtils;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 public class JsonParserApplicationTest
 {

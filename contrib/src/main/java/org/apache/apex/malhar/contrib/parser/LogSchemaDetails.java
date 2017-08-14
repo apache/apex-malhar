@@ -18,16 +18,16 @@
  */
 package org.apache.apex.malhar.contrib.parser;
 
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -87,7 +87,7 @@ public class LogSchemaDetails
     JSONObject jsonObject = new JSONObject(json);
     JSONArray fieldArray = jsonObject.getJSONArray("fields");
 
-    for(int i = 0; i < fieldArray.length(); i++) {
+    for (int i = 0; i < fieldArray.length(); i++) {
       JSONObject obj = fieldArray.getJSONObject(i);
       Field field = new Field(obj.getString("field"), obj.getString("regex"));
       this.fields.add(field);
@@ -101,7 +101,7 @@ public class LogSchemaDetails
   public void createPattern()
   {
     StringBuffer pattern = new StringBuffer();
-    for(Field field: this.getFields()) {
+    for (Field field: this.getFields()) {
       pattern.append(field.getRegex()).append(" ");
     }
     logger.info("Created pattern for parsing the log {}", pattern.toString().trim());
@@ -123,7 +123,7 @@ public class LogSchemaDetails
       if (m.find()) {
         int i = 1;
         logObject  = new JSONObject();
-        for(String field: this.getFieldNames()) {
+        for (String field: this.getFieldNames()) {
           if (i > count) {
             break;
           }
@@ -228,7 +228,7 @@ public class LogSchemaDetails
     @Override
     public String toString()
     {
-      return "Fields [name=" + name + ", regex=" + regex +"]";
+      return "Fields [name=" + name + ", regex=" + regex + "]";
     }
   }
 

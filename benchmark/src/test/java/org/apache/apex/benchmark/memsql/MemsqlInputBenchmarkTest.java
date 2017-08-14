@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.memsql;
+package org.apache.apex.benchmark.memsql;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -28,6 +28,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.contrib.memsql.AbstractMemsqlOutputOperatorTest;
+import org.apache.apex.malhar.contrib.memsql.MemsqlPOJOOutputOperator;
+import org.apache.apex.malhar.contrib.memsql.MemsqlStore;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 
@@ -35,15 +38,12 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator.ProcessingMode;
-import com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest;
-import com.datatorrent.contrib.memsql.MemsqlPOJOOutputOperator;
-import com.datatorrent.contrib.memsql.MemsqlStore;
 import com.datatorrent.netlet.util.DTThrowable;
 
-import static com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest.BATCH_SIZE;
-import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.APP_ID;
-import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.OPERATOR_ID;
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.contrib.memsql.AbstractMemsqlOutputOperatorTest.BATCH_SIZE;
+import static org.apache.apex.malhar.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.APP_ID;
+import static org.apache.apex.malhar.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.OPERATOR_ID;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class MemsqlInputBenchmarkTest
 {

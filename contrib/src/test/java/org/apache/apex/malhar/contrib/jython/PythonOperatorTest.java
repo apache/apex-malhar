@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.jython;
+package org.apache.apex.malhar.contrib.jython;
 
 import java.util.HashMap;
 
@@ -24,7 +24,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.python.core.PyInteger;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
 /**
  * Unit test for PythonOperator.
@@ -57,7 +57,7 @@ public class PythonOperatorTest
     for (Object o : sink.collectedTuples) {
       PyInteger val = (PyInteger)o;
       Assert.assertEquals("emitted should be 4", new Integer(4),
-                          (Integer)val.__tojava__(Integer.class));
+          (Integer)val.__tojava__(Integer.class));
     }
   }
 

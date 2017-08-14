@@ -16,9 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
+package org.apache.apex.malhar.contrib.kafka;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,8 +34,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.*;
+import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.Operator;
 import com.datatorrent.common.util.BaseOperator;
 
 /**
@@ -46,10 +54,10 @@ public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
   @Parameterized.Parameters(name = "multi-cluster: {0}, multi-partition: {1}")
   public static Collection<Boolean[]> testScenario()
   {
-    return Arrays.asList(new Boolean[][] { { true, false }, // multi cluster with single partition
-        { true, true }, // multi cluster with multi partitions
-        { false, true }, // single cluster with multi partitions
-        { false, false } // single cluster with single partition
+    return Arrays.asList(new Boolean[][] {{true, false}, // multi cluster with single partition
+        {true, true}, // multi cluster with multi partitions
+        {false, true}, // single cluster with multi partitions
+        {false, false} // single cluster with single partition
         });
   }
 

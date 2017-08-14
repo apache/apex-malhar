@@ -26,7 +26,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
+import org.apache.apex.malhar.lib.io.fs.AbstractFileOutputOperator;
 
 /**
  * Write top N words and their frequencies to a file

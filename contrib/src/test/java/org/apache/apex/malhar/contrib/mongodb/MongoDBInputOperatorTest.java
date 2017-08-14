@@ -16,40 +16,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.mongodb;
+package org.apache.apex.malhar.contrib.mongodb;
 
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+
 import com.mongodb.DBCursor;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
-/**
- *
- */
 public class MongoDBInputOperatorTest
 {
   private static final Logger logger = LoggerFactory.getLogger(MongoDBInputOperatorTest.class);
   public String[] hashMapping1 = new String[columnNum];
   public String[] arrayMapping1 = new String[columnNum];
-  public final static int maxTuple = 20;
-  public final static int columnNum = 5;
+  public static final int maxTuple = 20;
+  public static final int columnNum = 5;
 
   public class MyMongoDBInputOperator extends MongoDBInputOperator<Object>
   {
     @Override
     public Object getTuple(DBCursor result)
     {
-      while(result.hasNext()) {
-        System.out.println(result.next().toString());
+      while (result.hasNext()) {
+        logger.debug(result.next().toString());
       }
       return result;
     }
-  };
+  }
 
   @Test
   public void MongoDBInputOperatorTest()

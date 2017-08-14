@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.db.jdbc;
+package org.apache.apex.malhar.lib.db.jdbc;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,9 +25,9 @@ import java.sql.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.Context.OperatorContext;
+import org.apache.apex.malhar.lib.db.AbstractStoreInputOperator;
 
-import com.datatorrent.lib.db.AbstractStoreInputOperator;
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * This is a base implementation of a JDBC input operator.&nbsp;

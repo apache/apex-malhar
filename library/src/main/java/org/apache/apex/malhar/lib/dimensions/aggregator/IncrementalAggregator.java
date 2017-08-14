@@ -18,13 +18,12 @@
  */
 package org.apache.apex.malhar.lib.dimensions.aggregator;
 
+import org.apache.apex.malhar.lib.appdata.schemas.FieldsDescriptor;
+import org.apache.apex.malhar.lib.appdata.schemas.Type;
 import org.apache.apex.malhar.lib.dimensions.DimensionsConversionContext;
 import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.Aggregate;
 import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.InputEvent;
 import org.apache.apex.malhar.lib.dimensions.aggregator.AggregateEvent.Aggregator;
-
-import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
-import com.datatorrent.lib.appdata.schemas.Type;
 
 /**
  * <p>
@@ -35,7 +34,7 @@ import com.datatorrent.lib.appdata.schemas.Type;
  * </p>
  * <p>
  * {@link IncrementalAggregator}s are intended to be used with subclasses of
- * {@link com.datatorrent.lib.dimensions.AbstractDimensionsComputationFlexibleSingleSchema}. The way in which
+ * {@link org.apache.apex.malhar.lib.dimensions.AbstractDimensionsComputationFlexibleSingleSchema}. The way in which
  * {@link IncrementalAggregator}s are used in this context is that a batch of fields to be aggregated by the aggregator
  * are provided in the form of an {@link InputEvent}. For example, if there are two fields (cost and revenue), which
  * will be aggregated by a sum aggregator, both of those fields will be included in the {@link InputEvent} passed to

@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.apex.malhar.kudu.partitioner.KuduPartitionScanStrategy;
 import org.apache.apex.malhar.kudu.scanner.AbstractKuduPartitionScanner;
 import org.apache.apex.malhar.kudu.scanner.KuduScanOrderStrategy;
+import org.apache.apex.malhar.lib.helper.TestPortContext;
 import org.apache.kudu.client.Delete;
 import org.apache.kudu.client.KuduScanToken;
 import org.apache.kudu.client.KuduScanner;
@@ -45,9 +46,8 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Partitioner;
-import com.datatorrent.lib.helper.TestPortContext;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class KuduInputOperatorCommons extends KuduClientTestCommons
 {

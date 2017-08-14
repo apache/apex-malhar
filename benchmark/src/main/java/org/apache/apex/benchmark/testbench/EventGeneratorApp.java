@@ -16,10 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.testbench;
+package org.apache.apex.benchmark.testbench;
 
 import java.util.HashMap;
 
+import org.apache.apex.malhar.lib.stream.DevNull;
+import org.apache.apex.malhar.lib.testbench.EventGenerator;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context.PortContext;
@@ -27,8 +29,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.stream.DevNull;
-import com.datatorrent.lib.testbench.EventGenerator;
 
 /**
  * Benchmark App for EventGenerator Operator.

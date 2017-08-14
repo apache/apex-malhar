@@ -28,6 +28,8 @@ import javax.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.counters.BasicCounters;
+import org.apache.apex.malhar.lib.util.HighLow;
 import org.apache.commons.lang.mutable.MutableLong;
 
 import com.google.common.base.Strings;
@@ -39,8 +41,6 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.counters.BasicCounters;
-import com.datatorrent.lib.util.HighLow;
 
 /**
  * <p>

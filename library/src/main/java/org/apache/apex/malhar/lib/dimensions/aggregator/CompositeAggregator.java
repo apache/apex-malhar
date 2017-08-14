@@ -21,11 +21,10 @@ package org.apache.apex.malhar.lib.dimensions.aggregator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.apex.malhar.lib.appdata.schemas.FieldsDescriptor;
+import org.apache.apex.malhar.lib.appdata.schemas.Type;
 import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.Aggregate;
 import org.apache.apex.malhar.lib.dimensions.DimensionsEvent.EventKey;
-
-import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
-import com.datatorrent.lib.appdata.schemas.Type;
 
 /**
  * @since 3.4.0

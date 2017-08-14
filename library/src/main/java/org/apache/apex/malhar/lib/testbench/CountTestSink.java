@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.testbench;
+package org.apache.apex.malhar.lib.testbench;
 
 /**
  * A sink implementation to count expected test results.

@@ -37,6 +37,10 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.python.google.common.collect.Lists;
 
+import org.apache.apex.malhar.lib.helper.TestPortContext;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+import org.apache.apex.malhar.lib.io.fs.AbstractFileInputOperator;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileContext;
@@ -49,10 +53,6 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.lib.helper.TestPortContext;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 
 public class StreamingJsonParserTest
 {

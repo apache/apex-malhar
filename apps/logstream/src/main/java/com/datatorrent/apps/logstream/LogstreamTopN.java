@@ -28,9 +28,9 @@ import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.algo.TopN;
-import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
-import com.datatorrent.lib.logs.DimensionObject;
+import org.apache.apex.malhar.lib.algo.TopN;
+import org.apache.apex.malhar.lib.codec.KryoSerializableStreamCodec;
+import org.apache.apex.malhar.lib.logs.DimensionObject;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;

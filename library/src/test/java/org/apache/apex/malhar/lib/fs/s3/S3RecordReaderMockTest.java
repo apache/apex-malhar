@@ -36,6 +36,9 @@ import org.slf4j.LoggerFactory;
 import org.apache.apex.malhar.lib.fs.FSRecordReaderModule;
 import org.apache.apex.malhar.lib.fs.FSRecordReaderTest.DelimitedValidator;
 import org.apache.apex.malhar.lib.fs.FSRecordReaderTest.FixedWidthValidator;
+import org.apache.apex.malhar.lib.io.block.BlockMetadata.FileBlockMetadata;
+import org.apache.apex.malhar.lib.io.block.ReaderContext;
+import org.apache.apex.malhar.lib.io.fs.S3BlockReader;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -47,9 +50,6 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.lib.io.block.BlockMetadata.FileBlockMetadata;
-import com.datatorrent.lib.io.block.ReaderContext;
-import com.datatorrent.lib.io.fs.S3BlockReader;
 
 import static org.mockito.Mockito.mock;
 

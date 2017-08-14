@@ -16,14 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.elasticsearch;
+package org.apache.apex.malhar.contrib.elasticsearch;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 
+import org.apache.apex.malhar.lib.db.AbstractStoreInputOperator;
+
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.db.AbstractStoreInputOperator;
 
 /**
  * This is the base implementation for a non transactional input operator for ElasticSearch
@@ -53,7 +54,7 @@ public abstract class AbstractElasticSearchInputOperator<T, S extends ElasticSea
   /**
    * Initializing transient fields such as ElasticSearchConnectable, SearchRequestBuilder
    *
-   * @see com.datatorrent.lib.db.AbstractStoreInputOperator#setup(com.datatorrent.api.Context.OperatorContext)
+   * @see org.apache.apex.malhar.lib.db.AbstractStoreInputOperator#setup(com.datatorrent.api.Context.OperatorContext)
    */
   @Override
   public void setup(OperatorContext t1)

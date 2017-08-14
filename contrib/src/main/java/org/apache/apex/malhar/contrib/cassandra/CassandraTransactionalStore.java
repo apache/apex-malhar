@@ -16,14 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.cassandra;
+package org.apache.apex.malhar.contrib.cassandra;
 
 import javax.annotation.Nonnull;
 
-import com.datastax.driver.core.*;
-import com.datastax.driver.core.exceptions.DriverException;
+import org.apache.apex.malhar.lib.db.TransactionableStore;
 
-import com.datatorrent.lib.db.TransactionableStore;
+import com.datastax.driver.core.BatchStatement;
+import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.PreparedStatement;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Statement;
+import com.datastax.driver.core.exceptions.DriverException;
 
 /**
  * <p>Provides transaction support to the operators by implementing TransactionableStore abstract methods. </p>
@@ -34,8 +38,8 @@ import com.datatorrent.lib.db.TransactionableStore;
  * @tags cassandra, transactional
  * @since 1.0.2
  */
-public class CassandraTransactionalStore extends CassandraStore implements TransactionableStore {
-
+public class CassandraTransactionalStore extends CassandraStore implements TransactionableStore
+{
   public static String DEFAULT_APP_ID_COL = "dt_app_id";
   public static String DEFAULT_OPERATOR_ID_COL = "dt_operator_id";
   public static String DEFAULT_WINDOW_COL = "dt_window";
@@ -116,7 +120,8 @@ public class CassandraTransactionalStore extends CassandraStore implements Trans
     this.metaTableWindowColumn = windowColumn;
   }
 
-  public Statement getLastWindowUpdateStatement() {
+  public Statement getLastWindowUpdateStatement()
+  {
     return lastWindowUpdateStatement;
   }
 
@@ -130,26 +135,24 @@ public class CassandraTransactionalStore extends CassandraStore implements Trans
   {
     super.connect();
     try {
-      String command = "SELECT " + metaTableWindowColumn + " FROM " + keyspace +"."+ metaTable + " WHERE " + metaTableAppIdColumn +
+      String command = "SELECT " + metaTableWindowColumn + " FROM " + keyspace + "." + metaTable +
+          " WHERE " + metaTableAppIdColumn +
           " = ? AND " + metaTableOperatorIdColumn + " = ?";
       logger.debug(command);
       lastWindowFetchCommand = session.prepare(command);
 
-      command = "UPDATE " + keyspace +"."+ metaTable + " SET " + metaTableWindowColumn + " = ? where " + metaTableAppIdColumn + " = ? " +
+      command = "UPDATE " + keyspace + "." + metaTable + " SET " + metaTableWindowColumn + " = ? where " + metaTableAppIdColumn + " = ? " +
           " and " + metaTableOperatorIdColumn + " = ?";
       logger.debug(command);
       lastWindowUpdateCommand = session.prepare(command);
 
-      command = "DELETE FROM " + keyspace +"."+ metaTable + " where " + metaTableAppIdColumn + " = ? and " +
+      command = "DELETE FROM " + keyspace + "." + metaTable + " where " + metaTableAppIdColumn + " = ? and " +
           metaTableOperatorIdColumn + " = ?";
       logger.debug(command);
       lastWindowDeleteCommand = session.prepare(command);
-    }
-    catch (DriverException e) {
+    } catch (DriverException e) {
       throw new RuntimeException(e);
-    }
-    catch (Exception e)
-    {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
@@ -160,8 +163,7 @@ public class CassandraTransactionalStore extends CassandraStore implements Trans
     if (lastWindowUpdateCommand != null) {
       try {
         lastWindowUpdateCommand.disableTracing();
-      }
-      catch (DriverException e) {
+      } catch (DriverException e) {
         throw new RuntimeException(e);
       }
     }
@@ -208,8 +210,7 @@ public class CassandraTransactionalStore extends CassandraStore implements Trans
       }
       lastWindowFetchCommand.disableTracing();
       return lastWindow;
-    }
-    catch (DriverException ex) {
+    } catch (DriverException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -221,8 +222,7 @@ public class CassandraTransactionalStore extends CassandraStore implements Trans
       BoundStatement boundStatement = new BoundStatement(lastWindowUpdateCommand);
       lastWindowUpdateStatement = boundStatement.bind(windowId,appId,operatorId);
       batchCommand.add(lastWindowUpdateStatement);
-    }
-    catch (DriverException e) {
+    } catch (DriverException e) {
       throw new RuntimeException(e);
     }
   }
@@ -235,8 +235,7 @@ public class CassandraTransactionalStore extends CassandraStore implements Trans
       lastWindowDeleteStatement = boundStatement.bind(appId,operatorId);
       session.execute(lastWindowDeleteStatement);
       lastWindowDeleteCommand.disableTracing();
-    }
-    catch (DriverException e) {
+    } catch (DriverException e) {
       throw new RuntimeException(e);
     }
   }

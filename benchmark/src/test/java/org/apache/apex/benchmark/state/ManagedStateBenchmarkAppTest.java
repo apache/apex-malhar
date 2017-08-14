@@ -16,20 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.state;
+package org.apache.apex.benchmark.state;
 
 import java.io.File;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import org.apache.apex.benchmark.state.StoreOperator.ExecMode;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileUtil;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.benchmark.state.StoreOperator.ExecMode;
 
 /**
  * This is not a really unit test, but in fact a benchmark runner.

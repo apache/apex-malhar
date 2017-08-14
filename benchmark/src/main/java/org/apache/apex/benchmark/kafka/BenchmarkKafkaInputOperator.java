@@ -16,10 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.kafka;
+package org.apache.apex.benchmark.kafka;
+
+import org.apache.apex.malhar.contrib.kafka.AbstractKafkaInputOperator;
 
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.contrib.kafka.AbstractKafkaInputOperator;
 
 import kafka.message.Message;
 

@@ -16,32 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.DefaultInputPort;
 import java.util.ArrayList;
 import java.util.List;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.common.util.BaseOperator;
 
 /**
  *
  */
 public class HBaseTupleCollector extends BaseOperator
 {
+  public static List<HBaseTuple> tuples;
 
-    public static List<HBaseTuple> tuples;
+  public HBaseTupleCollector()
+  {
+    tuples = new ArrayList<HBaseTuple>();
+  }
 
-    public HBaseTupleCollector()
+  public final transient DefaultInputPort<HBaseTuple> inputPort = new DefaultInputPort<HBaseTuple>()
+  {
+    public void process(HBaseTuple tuple)
     {
-      tuples = new ArrayList<HBaseTuple>();
+      tuples.add(tuple);
     }
-
-    public final transient DefaultInputPort<HBaseTuple> inputPort = new DefaultInputPort<HBaseTuple>()
-    {
-      public void process(HBaseTuple tuple)
-      {
-        tuples.add(tuple);
-      }
-    };
+  };
 
 }

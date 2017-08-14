@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.joda.time.Duration;
 
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
 import org.apache.apex.malhar.lib.window.ControlTuple;
 import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.Tuple;
@@ -43,7 +44,6 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 /**
  * Example application to show usage of Windowed Merge Operator. Two generators send out two streams of integers,

@@ -16,13 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.query;
+package org.apache.apex.malhar.lib.appdata.query;
 
 import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 
+import org.apache.apex.malhar.lib.appdata.QueueUtils.ConditionBarrier;
+
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.appdata.QueueUtils.ConditionBarrier;
 
 /**
  * This {@link QueueManager} functions like a standard {@link QueueManager}. Queries can be enqueued and when they are dequeued they are

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.parquet;
+package org.apache.apex.malhar.contrib.parquet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +24,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.util.FieldInfo.SupportType;
+import org.apache.apex.malhar.lib.util.PojoUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.parquet.example.data.Group;
@@ -34,8 +36,6 @@ import org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.FieldInfo.SupportType;
-import com.datatorrent.lib.util.PojoUtils;
 
 /**
  * <p>

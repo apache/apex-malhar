@@ -21,11 +21,12 @@ package org.apache.apex.malhar.contrib.misc.math;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.algo.MatchMap;
+import org.apache.apex.malhar.lib.util.UnifierHashMap;
+
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.annotation.Stateless;
-import com.datatorrent.lib.algo.MatchMap;
-import com.datatorrent.lib.util.UnifierHashMap;
 
 /**
  * Operator compares based on the property "key", "value", and "compare".

@@ -16,23 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hive;
+package org.apache.apex.malhar.hive;
 
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
-import com.google.common.collect.Lists;
+import org.apache.apex.malhar.lib.util.PojoUtils;
+import org.apache.apex.malhar.lib.util.PojoUtils.Getter;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterBoolean;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterChar;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterDouble;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterFloat;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterInt;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterLong;
+import org.apache.apex.malhar.lib.util.PojoUtils.GetterShort;
 
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Getter;
-import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
-import com.datatorrent.lib.util.PojoUtils.GetterChar;
-import com.datatorrent.lib.util.PojoUtils.GetterDouble;
-import com.datatorrent.lib.util.PojoUtils.GetterFloat;
-import com.datatorrent.lib.util.PojoUtils.GetterInt;
-import com.datatorrent.lib.util.PojoUtils.GetterLong;
-import com.datatorrent.lib.util.PojoUtils.GetterShort;
+import com.google.common.collect.Lists;
 
 /**
  * An Implementation of AbstractFSRollingOutputOperator which takes any POJO as

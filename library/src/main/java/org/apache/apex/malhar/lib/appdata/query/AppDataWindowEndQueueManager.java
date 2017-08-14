@@ -16,16 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.query;
+package org.apache.apex.malhar.lib.appdata.query;
 
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.appdata.query.QueueList.QueueListNode;
+import org.apache.apex.malhar.lib.appdata.schemas.Query;
 import org.apache.commons.lang3.mutable.MutableLong;
 
 import com.google.common.collect.Maps;
-
-import com.datatorrent.lib.appdata.query.QueueList.QueueListNode;
-import com.datatorrent.lib.appdata.schemas.Query;
 
 /**
  * This {@link QueueManager} behaves like {@link WindowEndQueueManager} except that if another query is added to the queue with

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.algo;
+package org.apache.apex.malhar.lib.algo;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -24,13 +24,13 @@ import java.util.Random;
 
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 
 import static org.junit.Assert.assertTrue;
 
 /**
  * @deprecated
- * Functional tests for {@link com.datatorrent.lib.algo.MergeSort}<p>
+ * Functional tests for {@link org.apache.apex.malhar.lib.algo.MergeSort}<p>
  *   (Deprecating inclass) Comment: MergeSortNumber is deprecated.
  */
 @Deprecated

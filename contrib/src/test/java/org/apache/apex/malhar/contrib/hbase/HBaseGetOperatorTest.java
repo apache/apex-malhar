@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
 import java.util.List;
 
+import org.junit.Assert;
+import org.junit.Test;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.junit.Assert;
-import org.junit.Test;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
@@ -93,8 +93,7 @@ public class HBaseGetOperatorTest
       Assert.assertEquals("Tuple column family", tuple.getColFamily(), "colfam0");
       Assert.assertEquals("Tuple column name", tuple.getColName(), "col-499");
       Assert.assertEquals("Tuple column value", tuple.getColValue(), "val-0-499");
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       ex.printStackTrace();
       //logger.error(ex.getMessage());
       assert false;

@@ -16,11 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.enrich;
+package org.apache.apex.malhar.contrib.enrich;
 
+import org.apache.apex.malhar.lib.db.cache.CacheManager;
 import org.apache.hadoop.classification.InterfaceStability;
-
-import com.datatorrent.lib.db.cache.CacheManager;
 
 /**
  * Null Values Cache Manager. Using this NULL entries can be specified explicitly.

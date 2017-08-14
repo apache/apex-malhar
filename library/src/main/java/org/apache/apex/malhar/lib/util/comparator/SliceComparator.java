@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.util.comparator;
+package org.apache.apex.malhar.lib.util.comparator;
 
 import java.util.Comparator;
 

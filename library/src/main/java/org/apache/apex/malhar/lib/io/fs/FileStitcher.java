@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.datatorrent.lib.io.fs;
+package org.apache.apex.malhar.lib.io.fs;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -28,6 +28,9 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.io.block.BlockWriter;
+import org.apache.apex.malhar.lib.io.fs.Synchronizer.StitchBlock;
+import org.apache.apex.malhar.lib.io.fs.Synchronizer.StitchedFileMetaData;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -40,9 +43,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.DAGContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.io.block.BlockWriter;
-import com.datatorrent.lib.io.fs.Synchronizer.StitchBlock;
-import com.datatorrent.lib.io.fs.Synchronizer.StitchedFileMetaData;
 
 /**
  * This is generic File Stitcher which can be used to merge data from one or

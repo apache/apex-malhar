@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io.block;
+package org.apache.apex.malhar.lib.io.block;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,6 +32,7 @@ import org.junit.runner.Description;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -39,10 +40,9 @@ import org.apache.hadoop.fs.Path;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.netlet.util.Slice;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 import static org.mockito.Mockito.when;
 
 /**

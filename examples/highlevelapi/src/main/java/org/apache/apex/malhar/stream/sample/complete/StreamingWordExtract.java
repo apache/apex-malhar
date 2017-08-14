@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.apex.malhar.lib.db.jdbc.JdbcFieldInfo;
+import org.apache.apex.malhar.lib.db.jdbc.JdbcPOJOInsertOutputOperator;
+import org.apache.apex.malhar.lib.db.jdbc.JdbcTransactionalStore;
 import org.apache.apex.malhar.lib.function.Function;
 import org.apache.apex.malhar.stream.api.ApexStream;
 import org.apache.apex.malhar.stream.api.Option;
@@ -31,9 +34,6 @@ import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.db.jdbc.JdbcFieldInfo;
-import com.datatorrent.lib.db.jdbc.JdbcPOJOInsertOutputOperator;
-import com.datatorrent.lib.db.jdbc.JdbcTransactionalStore;
 
 import static java.sql.Types.VARCHAR;
 

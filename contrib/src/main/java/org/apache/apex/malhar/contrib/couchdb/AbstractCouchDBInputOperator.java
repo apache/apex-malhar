@@ -16,20 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.couchdb;
+package org.apache.apex.malhar.contrib.couchdb;
 
 import java.io.IOException;
 import java.util.List;
 
 import javax.validation.constraints.Min;
 
-import com.google.common.base.Throwables;
-
 import org.ektorp.ViewQuery;
 import org.ektorp.ViewResult;
 
-import com.datatorrent.lib.db.AbstractStoreInputOperator;
+import org.apache.apex.malhar.lib.db.AbstractStoreInputOperator;
 
+import com.google.common.base.Throwables;
 import com.datatorrent.api.Context;
 
 
@@ -92,8 +91,7 @@ public abstract class AbstractCouchDBInputOperator<T> extends AbstractStoreInput
         T tuple = getTuple(row);
         outputPort.emit(tuple);
       }
-    }
-    catch (Throwable cause) {
+    } catch (Throwable cause) {
       Throwables.propagate(cause);
     }
     if (rows.size() > 0) {

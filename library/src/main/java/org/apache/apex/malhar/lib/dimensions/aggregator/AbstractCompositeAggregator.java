@@ -20,11 +20,10 @@ package org.apache.apex.malhar.lib.dimensions.aggregator;
 
 import java.util.Set;
 
+import org.apache.apex.malhar.lib.appdata.schemas.FieldsDescriptor;
 import org.apache.apex.malhar.lib.dimensions.DimensionsConversionContext;
 
 import com.google.common.collect.Sets;
-
-import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 
 /**
  * SimpleCompositAggregator is the aggregator which embed other aggregator

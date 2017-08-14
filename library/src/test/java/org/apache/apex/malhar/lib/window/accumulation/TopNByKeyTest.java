@@ -24,7 +24,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.util.KeyValPair;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 
 /**
  * Unit test for TopNByKey accumulation

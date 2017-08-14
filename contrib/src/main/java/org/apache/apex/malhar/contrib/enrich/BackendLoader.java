@@ -16,14 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.enrich;
+package org.apache.apex.malhar.contrib.enrich;
 
 import java.util.List;
 
+import org.apache.apex.malhar.lib.db.cache.CacheManager;
+import org.apache.apex.malhar.lib.util.FieldInfo;
 import org.apache.hadoop.classification.InterfaceStability;
-
-import com.datatorrent.lib.db.cache.CacheManager;
-import com.datatorrent.lib.util.FieldInfo;
 
 /**
  * Interface for store to be used in enrichment

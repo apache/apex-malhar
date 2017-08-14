@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.testbench;
+package org.apache.apex.benchmark.testbench;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,10 +24,11 @@ import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.testbench.EventGenerator;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.lib.testbench.EventGenerator;
 
 /**
  * HashMap Input Operator used as a helper in testbench benchmarking apps.

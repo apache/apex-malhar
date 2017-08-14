@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.mqtt;
+package org.apache.apex.malhar.contrib.mqtt;
 
 import com.datatorrent.api.DefaultInputPort;
 

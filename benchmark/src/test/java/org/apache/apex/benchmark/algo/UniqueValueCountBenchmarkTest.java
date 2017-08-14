@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.algo;
+package org.apache.apex.benchmark.algo;
 
 import org.junit.Test;
 

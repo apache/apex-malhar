@@ -18,8 +18,8 @@
  */
 package org.apache.apex.examples.mroperator;
 
-import com.datatorrent.lib.io.fs.AbstractSingleFileOutputOperator;
-import com.datatorrent.lib.util.KeyHashValPair;
+import org.apache.apex.malhar.lib.io.fs.AbstractSingleFileOutputOperator;
+import org.apache.apex.malhar.lib.util.KeyHashValPair;
 
 /**
  * Adapter for writing KeyHashValPair objects to HDFS

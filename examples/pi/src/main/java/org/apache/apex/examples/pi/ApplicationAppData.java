@@ -18,6 +18,12 @@
  */
 package org.apache.apex.examples.pi;
 
+import org.apache.apex.malhar.lib.appdata.schemas.SchemaUtils;
+import org.apache.apex.malhar.lib.appdata.snapshot.AppDataSnapshotServerMap;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+import org.apache.apex.malhar.lib.io.PubSubWebSocketAppDataQuery;
+import org.apache.apex.malhar.lib.io.PubSubWebSocketAppDataResult;
+import org.apache.apex.malhar.lib.testbench.RandomEventGenerator;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
@@ -25,12 +31,6 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.appdata.schemas.SchemaUtils;
-import com.datatorrent.lib.appdata.snapshot.AppDataSnapshotServerMap;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
-import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
-import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 /**
  * Monte Carlo PI estimation example : <br>
@@ -68,7 +68,7 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
  * <ul>
  * <li><b>The rand Operator : </b> This operator generates random integer
  * between 0-30k. <br>
- * Class : {@link com.datatorrent.lib.testbench.RandomEventGenerator}<br>
+ * Class : {@link org.apache.apex.malhar.lib.testbench.RandomEventGenerator}<br>
  * StateFull : No</li>
  * <li><b>The calc operator : </b> This operator computes value of pi using
  * monte carlo estimation. <br>

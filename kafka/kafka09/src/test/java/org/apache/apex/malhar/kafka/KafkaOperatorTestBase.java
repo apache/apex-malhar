@@ -258,7 +258,7 @@ public class KafkaOperatorTestBase
     }
 
     public TestZookeeperServer(FileTxnSnapLog txnLogFactory, int tickTime, DataTreeBuilder treeBuilder)
-        throws IOException
+      throws IOException
     {
       super(txnLogFactory, tickTime, treeBuilder);
       // TODO Auto-generated constructor stub

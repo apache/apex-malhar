@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.r;
+package org.apache.apex.malhar.contrib.r;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,12 +26,12 @@ import org.rosuda.REngine.REngineException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**
@@ -65,7 +65,8 @@ public class RStandardDeviation extends BaseOperator
   /**
    * Input data port.
    */
-  public final transient DefaultInputPort<Number> data = new DefaultInputPort<Number>() {
+  public final transient DefaultInputPort<Number> data = new DefaultInputPort<Number>()
+  {
     /**
      * Computes sum and count with each tuple
      */
@@ -123,10 +124,9 @@ public class RStandardDeviation extends BaseOperator
   @Override
   public void endWindow()
   {
-
-    if (values.size() == 0)
+    if (values.size() == 0) {
       return;
-
+    }
     double[] vector = new double[values.size()];
     for (int i = 0; i < values.size(); i++) {
       vector[i] = values.get(i).doubleValue();

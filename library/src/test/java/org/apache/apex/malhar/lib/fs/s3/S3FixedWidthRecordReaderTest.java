@@ -39,6 +39,10 @@ import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.io.block.AbstractFSBlockReader;
+import org.apache.apex.malhar.lib.io.block.BlockMetadata;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
+
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -50,12 +54,9 @@ import com.google.common.collect.Lists;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.io.block.AbstractFSBlockReader;
-import com.datatorrent.lib.io.block.BlockMetadata;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.netlet.util.Slice;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 @Ignore
 public class S3FixedWidthRecordReaderTest

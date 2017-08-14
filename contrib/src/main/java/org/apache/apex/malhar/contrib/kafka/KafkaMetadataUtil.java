@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kafka;
+package org.apache.apex.malhar.contrib.kafka;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,11 +28,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.I0Itec.zkclient.ZkClient;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import scala.collection.JavaConversions;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Maps.EntryTransformer;
@@ -49,6 +46,8 @@ import kafka.javaapi.TopicMetadataResponse;
 import kafka.javaapi.consumer.SimpleConsumer;
 import kafka.utils.ZKStringSerializer$;
 import kafka.utils.ZkUtils;
+
+import scala.collection.JavaConversions;
 
 /**
  * A util class used to retrieve all the metadatas for partitions/topics
@@ -69,7 +68,7 @@ public class KafkaMetadataUtil
   // A temporary client used to retrieve the metadata of topic/partition etc
   private static final String mdClientId = "Kafka_Metadata_Lookup_Client";
 
-  private static final int timeout=10000;
+  private static final int timeout = 10000;
 
   //buffer size for MD lookup client is 128k should be enough for most cases
   private static final int bufferSize = 128 * 1024;
@@ -97,12 +96,14 @@ public class KafkaMetadataUtil
    */
   public static Map<String, List<PartitionMetadata>> getPartitionsForTopic(SetMultimap<String, String> brokers, final String topic)
   {
-    return Maps.transformEntries(brokers.asMap(), new EntryTransformer<String, Collection<String>, List<PartitionMetadata>>(){
+    return Maps.transformEntries(brokers.asMap(), new EntryTransformer<String, Collection<String>, List<PartitionMetadata>>()
+    {
       @Override
       public List<PartitionMetadata> transformEntry(String key, Collection<String> bs)
       {
         return getPartitionsForTopic(new HashSet<String>(bs), topic);
-      }});
+      }
+    });
   }
 
   /**
@@ -110,8 +111,8 @@ public class KafkaMetadataUtil
    * @param zkHost
    * @return
    */
-  public static Set<String> getBrokers(Set<String> zkHost){
-
+  public static Set<String> getBrokers(Set<String> zkHost)
+  {
     ZkClient zkclient = new ZkClient(zkHost.iterator().next(), 30000, 30000, ZKStringSerializer$.MODULE$);
     Set<String> brokerHosts = new HashSet<String>();
     for (Broker b : JavaConversions.asJavaIterable(ZkUtils.getAllBrokersInCluster(zkclient))) {
@@ -120,7 +121,6 @@ public class KafkaMetadataUtil
     zkclient.close();
     return brokerHosts;
   }
-
 
   /**
    * @param brokerList
@@ -188,7 +188,6 @@ public class KafkaMetadataUtil
     }
   }
 
-
   /**
    * @param consumer
    * @param topic
@@ -215,6 +214,5 @@ public class KafkaMetadataUtil
     long[] offsets = response.offsets(topic, partition);
     return offsets[0];
   }
-
 
 }

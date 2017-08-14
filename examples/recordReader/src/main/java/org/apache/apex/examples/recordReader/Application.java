@@ -18,6 +18,8 @@
  */
 package org.apache.apex.examples.recordReader;
 
+import org.apache.apex.malhar.contrib.formatter.CsvFormatter;
+import org.apache.apex.malhar.contrib.parser.CsvParser;
 import org.apache.apex.malhar.lib.fs.FSRecordReaderModule;
 import org.apache.apex.malhar.lib.fs.GenericFileOutputOperator.StringFileOutputOperator;
 import org.apache.hadoop.conf.Configuration;
@@ -25,8 +27,6 @@ import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.contrib.formatter.CsvFormatter;
-import com.datatorrent.contrib.parser.CsvParser;
 
 @ApplicationAnnotation(name = "RecordReaderExample")
 /**

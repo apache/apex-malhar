@@ -32,6 +32,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import org.apache.apex.malhar.lib.fs.FSRecordCompactionOperator;
+import org.apache.apex.malhar.lib.testbench.CollectorTestSink;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.Path;
 
@@ -42,9 +43,8 @@ import com.amazonaws.services.s3.model.PutObjectResult;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 

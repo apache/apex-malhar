@@ -18,10 +18,9 @@
  */
 package com.datatorrent.apps.logstream;
 
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+import org.apache.apex.malhar.lib.stream.JsonByteArrayOperator;
 import org.apache.hadoop.conf.Configuration;
-
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.stream.JsonByteArrayOperator;
 
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;

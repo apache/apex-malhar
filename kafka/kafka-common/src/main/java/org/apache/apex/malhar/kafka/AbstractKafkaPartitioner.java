@@ -34,6 +34,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.util.KryoCloneUtils;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
@@ -45,7 +46,6 @@ import com.google.common.base.Joiner;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StatsListener;
-import com.datatorrent.lib.util.KryoCloneUtils;
 
 /**
  * Abstract partitioner used to manage the partitions of kafka input operator.

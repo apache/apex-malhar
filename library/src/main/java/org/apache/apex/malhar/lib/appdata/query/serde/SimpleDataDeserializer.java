@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.query.serde;
+package org.apache.apex.malhar.lib.appdata.query.serde;
 
 import java.io.IOException;
 
@@ -24,7 +24,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.appdata.schemas.Message;
+import org.apache.apex.malhar.lib.appdata.schemas.Message;
 
 /**
  * This is a simple Message deserializer which deserializes messages using Jackson.

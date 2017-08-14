@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.db.jdbc;
+package org.apache.apex.malhar.lib.db.jdbc;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,7 +27,7 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.db.TransactionableStore;
+import org.apache.apex.malhar.lib.db.TransactionableStore;
 
 /**
  * <p>JdbcTransactionalStore class.</p>

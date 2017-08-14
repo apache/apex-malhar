@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.zmq;
+package org.apache.apex.malhar.contrib.zmq;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,10 +25,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
-import com.datatorrent.contrib.helper.MessageQueueTestHelper;
+import org.apache.apex.malhar.contrib.helper.MessageQueueTestHelper;
 
-class ZeroMQMessageGenerator {
-
+class ZeroMQMessageGenerator
+{
   private static final Logger logger = LoggerFactory.getLogger(ZeroMQMessageGenerator.class);
 
   private ZMQ.Context context;
@@ -68,10 +68,8 @@ class ZeroMQMessageGenerator {
       syncservice.send("".getBytes(), 0);
     }
     for (int i = 0; i < msgCount; i++) {
-
       ArrayList<HashMap<String, Integer>>  dataMaps = MessageQueueTestHelper.getMessages();
-      for(int j =0; j < dataMaps.size(); j++)
-      {
+      for (int j = 0; j < dataMaps.size(); j++) {
         send(dataMaps.get(j));
       }
     }

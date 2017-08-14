@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.join;
+package org.apache.apex.malhar.lib.join;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -24,10 +24,9 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.apex.malhar.lib.util.PojoUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.hadoop.classification.InterfaceStability;
-
-import com.datatorrent.lib.util.PojoUtils;
 
 /**
  * This class takes a POJO as input from each of the input port. Operator joines the input tuples

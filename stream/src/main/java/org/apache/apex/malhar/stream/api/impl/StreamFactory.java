@@ -18,6 +18,7 @@
  */
 package org.apache.apex.malhar.stream.api.impl;
 
+import org.apache.apex.malhar.contrib.kafka.KafkaSinglePortStringInputOperator;
 import org.apache.apex.malhar.kafka.KafkaSinglePortInputOperator;
 import org.apache.apex.malhar.kafka.PartitionStrategy;
 import org.apache.apex.malhar.lib.fs.LineByLineFileInputOperator;
@@ -27,7 +28,6 @@ import org.apache.hadoop.classification.InterfaceStability;
 
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator;
-import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
 
 import static org.apache.apex.malhar.stream.api.Option.Options.name;
 

@@ -16,17 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.io.fs;
+package org.apache.apex.malhar.lib.io.fs;
 
 import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.counters.BasicCounters;
 import org.apache.commons.lang.mutable.MutableLong;
 
 import com.datatorrent.api.Stats.OperatorStats;
-import com.datatorrent.lib.counters.BasicCounters;
 
 /**
  * This is the base implementation for a file input operator, which scans a directory for files.&nbsp;

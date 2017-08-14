@@ -16,8 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.script;
+package org.apache.apex.benchmark.script;
 
+import org.apache.apex.benchmark.RandomMapOutput;
+import org.apache.apex.malhar.contrib.ruby.RubyOperator;
+import org.apache.apex.malhar.lib.io.ConsoleOutputOperator;
+import org.apache.apex.malhar.lib.testbench.RandomEventGenerator;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context.PortContext;
@@ -26,12 +30,6 @@ import com.datatorrent.api.DAG.Locality;
 
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-
-import com.datatorrent.benchmark.RandomMapOutput;
-import com.datatorrent.contrib.ruby.RubyOperator;
-
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 /**
  *

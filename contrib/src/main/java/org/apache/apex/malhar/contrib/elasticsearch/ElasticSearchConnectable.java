@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.elasticsearch;
+package org.apache.apex.malhar.contrib.elasticsearch;
 
 import java.io.IOException;
 
@@ -25,7 +25,7 @@ import javax.validation.constraints.NotNull;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
-import com.datatorrent.lib.db.Connectable;
+import org.apache.apex.malhar.lib.db.Connectable;
 
 /**
  * Elastic search base connector which has basic information for an operator <br>
@@ -91,7 +91,7 @@ public class ElasticSearchConnectable implements Connectable
   /*
    * (non-Javadoc)
    *
-   * @see com.datatorrent.lib.db.Connectable#connect()
+   * @see org.apache.apex.malhar.lib.db.Connectable#connect()
    */
   @Override
   public void connect() throws IOException
@@ -103,7 +103,7 @@ public class ElasticSearchConnectable implements Connectable
   /*
    * (non-Javadoc)
    *
-   * @see com.datatorrent.lib.db.Connectable#disconnect()
+   * @see org.apache.apex.malhar.lib.db.Connectable#disconnect()
    */
   @Override
   public void disconnect() throws IOException
@@ -116,7 +116,7 @@ public class ElasticSearchConnectable implements Connectable
   /*
    * (non-Javadoc)
    *
-   * @see com.datatorrent.lib.db.Connectable#isConnected()
+   * @see org.apache.apex.malhar.lib.db.Connectable#isConnected()
    */
   @Override
   public boolean isConnected()

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.benchmark.hive;
+package org.apache.apex.benchmark.hive;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

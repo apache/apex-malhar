@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.statistics;
+package org.apache.apex.malhar.lib.statistics;
+
+import org.apache.apex.malhar.lib.util.BaseNumberValueOperator;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-
-import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
  * An implementation of BaseOperator that computes weighted mean of incoming data. <br>

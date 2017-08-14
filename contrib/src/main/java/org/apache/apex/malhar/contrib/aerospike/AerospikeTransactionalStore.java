@@ -16,9 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.aerospike;
+package org.apache.apex.malhar.contrib.aerospike;
 
 import javax.annotation.Nonnull;
+
+import org.apache.apex.malhar.lib.db.TransactionableStore;
 
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Bin;
@@ -28,7 +30,6 @@ import com.aerospike.client.query.IndexType;
 import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.Statement;
 import com.aerospike.client.task.IndexTask;
-import com.datatorrent.lib.db.TransactionableStore;
 
 /**
  * <p>Provides transaction support to the operators by implementing TransactionableStore abstract methods. </p>
@@ -38,8 +39,8 @@ import com.datatorrent.lib.db.TransactionableStore;
  * @tags store, transactional
  * @since 1.0.4
  */
-public class AerospikeTransactionalStore extends AerospikeStore implements TransactionableStore {
-
+public class AerospikeTransactionalStore extends AerospikeStore implements TransactionableStore
+{
   public static String DEFAULT_APP_ID_COL = "dt_app_id";
   public static String DEFAULT_OPERATOR_ID_COL = "dt_operator_id";
   public static String DEFAULT_WINDOW_COL = "dt_window";
@@ -59,8 +60,8 @@ public class AerospikeTransactionalStore extends AerospikeStore implements Trans
   private transient boolean inTransaction;
   private transient Statement lastWindowFetchCommand;
 
-  public AerospikeTransactionalStore() {
-
+  public AerospikeTransactionalStore()
+  {
     super();
     metaSet = DEFAULT_META_SET;
     metaTableAppIdColumn = DEFAULT_APP_ID_COL;
@@ -75,8 +76,8 @@ public class AerospikeTransactionalStore extends AerospikeStore implements Trans
    *
    * @param metaSet meta set name.
    */
-  public void setMetaSet(@Nonnull String metaSet) {
-
+  public void setMetaSet(@Nonnull String metaSet)
+  {
     this.metaSet = metaSet;
   }
 
@@ -86,8 +87,8 @@ public class AerospikeTransactionalStore extends AerospikeStore implements Trans
    *
    * @param appIdColumn application id column name.
    */
-  public void setMetaTableAppIdColumn(@Nonnull String appIdColumn) {
-
+  public void setMetaTableAppIdColumn(@Nonnull String appIdColumn)
+  {
     this.metaTableAppIdColumn = appIdColumn;
   }
 
@@ -97,8 +98,8 @@ public class AerospikeTransactionalStore extends AerospikeStore implements Trans
    *
    * @param operatorIdColumn operator id column name.
    */
-  public void setMetaTableOperatorIdColumn(@Nonnull String operatorIdColumn) {
-
+  public void setMetaTableOperatorIdColumn(@Nonnull String operatorIdColumn)
+  {
     this.metaTableOperatorIdColumn = operatorIdColumn;
   }
 
@@ -108,8 +109,8 @@ public class AerospikeTransactionalStore extends AerospikeStore implements Trans
    *
    * @param windowColumn window column name.
    */
-  public void setMetaTableWindowColumn(@Nonnull String windowColumn) {
-
+  public void setMetaTableWindowColumn(@Nonnull String windowColumn)
+  {
     this.metaTableWindowColumn = windowColumn;
   }
 
@@ -118,14 +119,14 @@ public class AerospikeTransactionalStore extends AerospikeStore implements Trans
    *
    * @param namespace namespace.
    */
-  public void setNamespace(@Nonnull String namespace) {
-
+  public void setNamespace(@Nonnull String namespace)
+  {
     this.namespace = namespace;
   }
 
   @Override
-  public void connect() {
-
+  public void connect()
+  {
     super.connect();
     createIndexes();
     try {
@@ -133,44 +134,43 @@ public class AerospikeTransactionalStore extends AerospikeStore implements Trans
       lastWindowFetchCommand.setNamespace(namespace);
       lastWindowFetchCommand.setSetName(metaSet);
       lastWindowFetchCommand.setBinNames(metaTableWindowColumn);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
   @Override
-  public void disconnect() {
-
+  public void disconnect()
+  {
     super.disconnect();
   }
 
   @Override
-  public void beginTransaction() {
-
+  public void beginTransaction()
+  {
     inTransaction = true;
   }
 
   @Override
-  public void commitTransaction() {
-
+  public void commitTransaction()
+  {
     inTransaction = false;
   }
 
   @Override
-  public void rollbackTransaction() {
-
+  public void rollbackTransaction()
+  {
     inTransaction = false;
   }
 
   @Override
-  public boolean isInTransaction() {
-
+  public boolean isInTransaction()
+  {
     return inTransaction;
   }
 
-  private void createIndexes() {
-
+  private void createIndexes()
+  {
     IndexTask task;
     try {
       task = client.createIndex(null, namespace, metaSet,
@@ -186,26 +186,25 @@ public class AerospikeTransactionalStore extends AerospikeStore implements Trans
   }
 
   @Override
-  public long getCommittedWindowId(String appId, int operatorId) {
-
+  public long getCommittedWindowId(String appId, int operatorId)
+  {
     try {
       lastWindowFetchCommand.setFilters(Filter.equal(metaTableOperatorIdColumn, operatorId));
       lastWindowFetchCommand.setFilters(Filter.equal(metaTableAppIdColumn, appId));
       long lastWindow = -1;
       RecordSet recordSet = client.query(null, lastWindowFetchCommand);
-      while(recordSet.next()) {
+      while (recordSet.next()) {
         lastWindow = Long.parseLong(recordSet.getRecord().getValue(metaTableWindowColumn).toString());
       }
       return lastWindow;
-    }
-    catch (AerospikeException ex) {
+    } catch (AerospikeException ex) {
       throw new RuntimeException(ex);
     }
   }
 
   @Override
-  public void storeCommittedWindowId(String appId, int operatorId, long windowId) {
-
+  public void storeCommittedWindowId(String appId, int operatorId, long windowId)
+  {
     try {
       String keyString = appId + String.valueOf(operatorId);
       Key key = new Key(namespace,metaSet,keyString.hashCode());
@@ -213,21 +212,19 @@ public class AerospikeTransactionalStore extends AerospikeStore implements Trans
       Bin bin2 = new Bin(metaTableOperatorIdColumn,operatorId);
       Bin bin3 = new Bin(metaTableWindowColumn,windowId);
       client.put(null, key, bin1,bin2,bin3);
-    }
-    catch (AerospikeException e) {
+    } catch (AerospikeException e) {
       throw new RuntimeException(e);
     }
   }
 
   @Override
-  public void removeCommittedWindowId(String appId, int operatorId) {
-
+  public void removeCommittedWindowId(String appId, int operatorId)
+  {
     try {
       String keyString = appId + String.valueOf(operatorId);
       Key key = new Key(namespace,metaSet,keyString.hashCode());
       client.delete(null, key);
-    }
-    catch (AerospikeException e) {
+    } catch (AerospikeException e) {
       throw new RuntimeException(e);
     }
   }

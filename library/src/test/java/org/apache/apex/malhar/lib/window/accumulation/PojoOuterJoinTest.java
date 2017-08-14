@@ -27,9 +27,9 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.common.collect.Multimap;
+import org.apache.apex.malhar.lib.util.KeyValPair;
 
-import com.datatorrent.lib.util.KeyValPair;
+import com.google.common.collect.Multimap;
 
 /**
  * Test for POJO outer join accumulations

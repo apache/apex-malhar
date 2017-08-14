@@ -27,7 +27,7 @@ import java.io.InputStreamReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
+import org.apache.apex.malhar.lib.io.SimpleSinglePortInputOperator;
 
 /**
  * <p>WordCountInputOperator class.</p>

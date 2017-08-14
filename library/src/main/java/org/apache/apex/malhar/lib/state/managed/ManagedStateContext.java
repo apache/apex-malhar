@@ -20,8 +20,9 @@ package org.apache.apex.malhar.lib.state.managed;
 
 import java.util.Comparator;
 
+import org.apache.apex.malhar.lib.fileaccess.FileAccess;
+
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.fileaccess.FileAccess;
 import com.datatorrent.netlet.util.Slice;
 
 /**

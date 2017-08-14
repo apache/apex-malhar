@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.db;
+package org.apache.apex.malhar.lib.db;
 
 /**
  * This interface is for a store that supports transactions

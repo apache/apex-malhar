@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.hbase;
+package org.apache.apex.malhar.contrib.hbase;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,19 +38,17 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ZooKeeperServer;
 
-//import org.apache.hadoop.hbase.EmptyWatcher;
-
 /**
  *
  */
 public class HBaseTestHelper
 {
-
   public static final byte[] table_bytes = Bytes.toBytes("table1");
   public static final byte[] colfam0_bytes = Bytes.toBytes("colfam0");
   public static final byte[] col0_bytes = Bytes.toBytes("col-0");
 
-  public static void startLocalCluster() throws IOException, InterruptedException {
+  public static void startLocalCluster() throws IOException, InterruptedException
+  {
     startZooKeeperServer();
     //Configuration conf = HBaseConfiguration.create();
     Configuration conf = getConfiguration();
@@ -58,7 +56,8 @@ public class HBaseTestHelper
     lc.startup();
   }
 
-  private static void startZooKeeperServer() throws IOException, InterruptedException {
+  private static void startZooKeeperServer() throws IOException, InterruptedException
+  {
     String zooLocation = System.getProperty("java.io.tmpdir");
     File zooFile = new File(zooLocation, "zookeeper-malhartest");
     ZooKeeperServer zooKeeper = new ZooKeeperServer(zooFile, zooFile, 2000);
@@ -68,34 +67,40 @@ public class HBaseTestHelper
     serverFactory.startup(zooKeeper);
   }
 
-  public static void populateHBase() throws IOException {
-      Configuration conf = getConfiguration();
-      clearHBase(conf);
-      HTable table1 = new HTable(conf, "table1");
-      for (int i=0; i < 500; ++i) {
-        Put put = new Put(Bytes.toBytes("row" + i));
-        for (int j=0; j < 500; ++j) {
-          put.add(colfam0_bytes, Bytes.toBytes("col" + "-" +  j ), Bytes.toBytes("val" + "-" + i + "-" + j));
-        }
-        table1.put(put);
+  public static void populateHBase() throws IOException
+  {
+    Configuration conf = getConfiguration();
+    clearHBase(conf);
+    HTable table1 = new HTable(conf, "table1");
+    for (int i = 0; i < 500; ++i) {
+      Put put = new Put(Bytes.toBytes("row" + i));
+      for (int j = 0; j < 500; ++j) {
+        put.add(colfam0_bytes, Bytes.toBytes("col" + "-" +  j ), Bytes.toBytes("val" + "-" + i + "-" + j));
       }
+      table1.put(put);
+    }
+    table1.close();
   }
 
-  public static void clearHBase() throws IOException {
+  public static void clearHBase() throws IOException
+  {
     Configuration conf = getConfiguration();
     clearHBase(conf);
   }
 
-  private static void clearHBase(Configuration conf) throws IOException {
+  private static void clearHBase(Configuration conf) throws IOException
+  {
     HBaseAdmin admin = new HBaseAdmin(conf);
     if (admin.tableExists(table_bytes)) {
       try {
         admin.disableTable(table_bytes);
       } catch (Exception ex) {
+        // ignore
       }
       try {
         admin.deleteTable(table_bytes);
       } catch (Exception ex) {
+        // ignore
       }
     }
     HTableDescriptor tdesc = new HTableDescriptor(table_bytes);
@@ -104,7 +109,8 @@ public class HBaseTestHelper
     admin.createTable(tdesc);
   }
 
-  public static HBaseTuple getHBaseTuple(String row, String colFamily, String colName) throws IOException {
+  public static HBaseTuple getHBaseTuple(String row, String colFamily, String colName) throws IOException
+  {
     Configuration conf = getConfiguration();
     HTable table1 = new HTable(conf, "table1");
     Get get = new Get(Bytes.toBytes(row));
@@ -114,7 +120,8 @@ public class HBaseTestHelper
     return getHBaseTuple(result);
   }
 
-  public static HBaseTuple getHBaseTuple(Result result) {
+  public static HBaseTuple getHBaseTuple(Result result)
+  {
     HBaseTuple tuple = null;
     KeyValue[] kvs = result.raw();
     for (KeyValue kv : kvs) {
@@ -124,20 +131,22 @@ public class HBaseTestHelper
     return tuple;
   }
 
-  public static HBaseTuple getHBaseTuple(KeyValue kv) {
-      HBaseTuple tuple = new HBaseTuple();
-      tuple.setRow(new String(kv.getRow()));
-      tuple.setColFamily(new String(kv.getFamily()));
-      tuple.setColName(new String(kv.getQualifier()));
-      tuple.setColValue(new String(kv.getValue()));
-      return tuple;
+  public static HBaseTuple getHBaseTuple(KeyValue kv)
+  {
+    HBaseTuple tuple = new HBaseTuple();
+    tuple.setRow(new String(kv.getRow()));
+    tuple.setColFamily(new String(kv.getFamily()));
+    tuple.setColName(new String(kv.getQualifier()));
+    tuple.setColValue(new String(kv.getValue()));
+    return tuple;
   }
 
-  public static HBaseTuple findTuple(List<HBaseTuple> tuples, String row, String colFamily, String colName) {
+  public static HBaseTuple findTuple(List<HBaseTuple> tuples, String row, String colFamily, String colName)
+  {
     HBaseTuple mtuple = null;
     for (HBaseTuple tuple : tuples) {
       if (tuple.getRow().equals(row) && tuple.getColFamily().equals(colFamily)
-              && tuple.getColName().equals(colName)) {
+          && tuple.getColName().equals(colName)) {
         mtuple = tuple;
         break;
       }
@@ -145,7 +154,8 @@ public class HBaseTestHelper
     return mtuple;
   }
 
-  private static Configuration getConfiguration() {
+  private static Configuration getConfiguration()
+  {
     Configuration conf = HBaseConfiguration.create();
     conf.set("hbase.zookeeper.quorum", "127.0.0.1");
     conf.set("hbase.zookeeper.property.clientPort", "2181");

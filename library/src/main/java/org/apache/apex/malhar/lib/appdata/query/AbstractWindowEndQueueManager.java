@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.appdata.query;
+package org.apache.apex.malhar.lib.appdata.query;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,12 +24,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.appdata.QueueUtils.ConditionBarrier;
+import org.apache.apex.malhar.lib.appdata.query.QueueList.QueueListNode;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.appdata.QueueUtils.ConditionBarrier;
-import com.datatorrent.lib.appdata.query.QueueList.QueueListNode;
 
 /**
  * This is an abstract implementation of a QueueManager which works in the following way.

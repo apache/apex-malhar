@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.kinesis;
+package org.apache.apex.malhar.contrib.kinesis;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -36,6 +36,7 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.util.KryoCloneUtils;
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -56,7 +57,6 @@ import com.datatorrent.api.Stats;
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.Pair;
-import com.datatorrent.lib.util.KryoCloneUtils;
 
 /**
  * Base implementation of Kinesis Input Operator. Fetches records from kinesis and emits them as tuples.<br/>
@@ -75,7 +75,7 @@ import com.datatorrent.lib.util.KryoCloneUtils;
  * @since 2.0.0
  */
 @SuppressWarnings("rawtypes")
-public abstract class AbstractKinesisInputOperator <T> implements InputOperator, ActivationListener<OperatorContext>, Partitioner<AbstractKinesisInputOperator>, StatsListener,Operator.CheckpointNotificationListener
+public abstract class AbstractKinesisInputOperator<T> implements InputOperator, ActivationListener<OperatorContext>, Partitioner<AbstractKinesisInputOperator>, StatsListener, Operator.CheckpointNotificationListener
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractKinesisInputOperator.class);
 
@@ -141,6 +141,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
     windowDataManager = new WindowDataManager.NoopWindowDataManager();
     currentWindowRecoveryState = new HashMap<String, MutablePair<String, Integer>>();
   }
+
   /**
    * Derived class has to implement this method, so that it knows what type of message it is going to send to Malhar.
    * It converts a ByteBuffer message into a Tuple. A Tuple can be of any type (derived from Java Object) that
@@ -170,11 +171,11 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   {
     boolean isInitialParitition = partitions.iterator().next().getStats() == null;
     // Set the credentials to get the list of shards
-    if(isInitialParitition) {
+    if (isInitialParitition) {
       try {
         KinesisUtil.getInstance().createKinesisClient(accessKey, secretKey, endPoint);
       } catch (Exception e) {
-         throw new RuntimeException("[definePartitions]: Unable to load credentials. ", e);
+        throw new RuntimeException("[definePartitions]: Unable to load credentials. ", e);
       }
     }
     List<Shard> shards = KinesisUtil.getInstance().getShardList(getStreamName());
@@ -185,89 +186,90 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
 
     // initialize the shard positions
     Map<String, String> initShardPos = null;
-    if(isInitialParitition && shardManager !=null){
+    if (isInitialParitition && shardManager != null) {
       initShardPos = shardManager.loadInitialShardPositions();
     }
 
     switch (strategy) {
     // For the 1 to 1 mapping The framework will create number of operator partitions based on kinesis shards
     // Each operator partition will consume from only one kinesis shard
-    case ONE_TO_ONE:
-      if (isInitialParitition) {
-        lastRepartitionTime = System.currentTimeMillis();
-        logger.info("[ONE_TO_ONE]: Initializing partition(s)");
-        // initialize the number of operator partitions according to number of shards
-        newPartitions = new ArrayList<Partition<AbstractKinesisInputOperator>>(shards.size());
-        for (int i = 0; i < shards.size(); i++) {
-          logger.info("[ONE_TO_ONE]: Create operator partition for kinesis partition: " + shards.get(i).getShardId() + ", StreamName: " + this.getConsumer().streamName);
-          newPartitions.add(createPartition(Sets.newHashSet(shards.get(i).getShardId()), initShardPos));
+      case ONE_TO_ONE:
+        if (isInitialParitition) {
+          lastRepartitionTime = System.currentTimeMillis();
+          logger.info("[ONE_TO_ONE]: Initializing partition(s)");
+          // initialize the number of operator partitions according to number of shards
+          newPartitions = new ArrayList<Partition<AbstractKinesisInputOperator>>(shards.size());
+          for (int i = 0; i < shards.size(); i++) {
+            logger.info("[ONE_TO_ONE]: Create operator partition for kinesis partition: " + shards.get(i).getShardId() + ", StreamName: " + this.getConsumer().streamName);
+            newPartitions.add(createPartition(Sets.newHashSet(shards.get(i).getShardId()), initShardPos));
+          }
+        } else if (newWaitingPartition.size() != 0) {
+          // Remove the partitions for the closed shards
+          removePartitionsForClosedShards(partitions, deletedOperators);
+          // add partition for new kinesis shard
+          for (String pid : newWaitingPartition) {
+            logger.info("[ONE_TO_ONE]: Add operator partition for kinesis partition " + pid);
+            partitions.add(createPartition(Sets.newHashSet(pid), null));
+          }
+          newWaitingPartition.clear();
+          List<WindowDataManager> managers = windowDataManager.partition(partitions.size(), deletedOperators);
+          int i = 0;
+          for (Partition<AbstractKinesisInputOperator> partition : partitions) {
+            partition.getPartitionedInstance().setWindowDataManager(managers.get(i));
+            i++;
+          }
+          return partitions;
         }
-      } else if (newWaitingPartition.size() != 0) {
-        // Remove the partitions for the closed shards
-        removePartitionsForClosedShards(partitions, deletedOperators);
-        // add partition for new kinesis shard
-        for (String pid : newWaitingPartition) {
-          logger.info("[ONE_TO_ONE]: Add operator partition for kinesis partition " + pid);
-          partitions.add(createPartition(Sets.newHashSet(pid), null));
-        }
-        newWaitingPartition.clear();
-        List<WindowDataManager> managers = windowDataManager.partition(partitions.size(), deletedOperators);
-        int i = 0;
-        for (Partition<AbstractKinesisInputOperator> partition : partitions) {
-          partition.getPartitionedInstance().setWindowDataManager(managers.get(i));
-          i++;
-        }
-        return partitions;
-      }
-      break;
+        break;
     // For the N to 1 mapping The initial partition number is defined by stream application
     // Afterwards, the framework will dynamically adjust the partition
-    case MANY_TO_ONE:
+      case MANY_TO_ONE:
       /* This case was handled into two ways.
          1. Dynamic Partition: Number of DT partitions is depends on the number of open shards.
          2. Static Partition: Number of DT partitions is fixed, whether the number of shards are increased/decreased.
       */
-      int size = initialPartitionCount;
-      if (newWaitingPartition.size() != 0) {
-        // Get the list of open shards
-        shards = getOpenShards(partitions);
-        if (shardsPerPartition > 1)
-          size = (int)Math.ceil(shards.size() / (shardsPerPartition * 1.0));
-        initShardPos = shardManager.loadInitialShardPositions();
-      }
-      @SuppressWarnings("unchecked")
-      Set<String>[] pIds = (Set<String>[]) Array.newInstance((new HashSet<String>()).getClass(), size);
-
-      newPartitions = new ArrayList<Partition<AbstractKinesisInputOperator>>(size);
-      for (int i = 0; i < shards.size(); i++) {
-        Shard pm = shards.get(i);
-        if (pIds[i % size] == null) {
-          pIds[i % size] = new HashSet<String>();
+        int size = initialPartitionCount;
+        if (newWaitingPartition.size() != 0) {
+          // Get the list of open shards
+          shards = getOpenShards(partitions);
+          if (shardsPerPartition > 1) {
+            size = (int)Math.ceil(shards.size() / (shardsPerPartition * 1.0));
+          }
+          initShardPos = shardManager.loadInitialShardPositions();
         }
-        pIds[i % size].add(pm.getShardId());
-      }
-      if (isInitialParitition) {
-        lastRepartitionTime = System.currentTimeMillis();
-        logger.info("[MANY_TO_ONE]: Initializing partition(s)");
-      } else {
-        logger.info("[MANY_TO_ONE]: Add operator partition for kinesis partition(s): " + StringUtils.join(newWaitingPartition, ", ") + ", StreamName: " + this.getConsumer().streamName);
-        newWaitingPartition.clear();
-      }
-      // Add the existing partition Ids to the deleted operators
-      for (Partition<AbstractKinesisInputOperator> op : partitions) {
-        deletedOperators.add(op.getPartitionedInstance().operatorId);
-      }
+        @SuppressWarnings("unchecked")
+        Set<String>[] pIds = (Set<String>[])Array.newInstance((new HashSet<String>()).getClass(), size);
 
-      for (int i = 0; i < pIds.length; i++) {
-        logger.info("[MANY_TO_ONE]: Create operator partition for kinesis partition(s): " + StringUtils.join(pIds[i], ", ") + ", StreamName: " + this.getConsumer().streamName);
-
-        if (pIds[i] != null) {
-          newPartitions.add(createPartition(pIds[i], initShardPos));
+        newPartitions = new ArrayList<Partition<AbstractKinesisInputOperator>>(size);
+        for (int i = 0; i < shards.size(); i++) {
+          Shard pm = shards.get(i);
+          if (pIds[i % size] == null) {
+            pIds[i % size] = new HashSet<String>();
+          }
+          pIds[i % size].add(pm.getShardId());
         }
-      }
-      break;
-    default:
-      break;
+        if (isInitialParitition) {
+          lastRepartitionTime = System.currentTimeMillis();
+          logger.info("[MANY_TO_ONE]: Initializing partition(s)");
+        } else {
+          logger.info("[MANY_TO_ONE]: Add operator partition for kinesis partition(s): " + StringUtils.join(newWaitingPartition, ", ") + ", StreamName: " + this.getConsumer().streamName);
+          newWaitingPartition.clear();
+        }
+        // Add the existing partition Ids to the deleted operators
+        for (Partition<AbstractKinesisInputOperator> op : partitions) {
+          deletedOperators.add(op.getPartitionedInstance().operatorId);
+        }
+
+        for (int i = 0; i < pIds.length; i++) {
+          logger.info("[MANY_TO_ONE]: Create operator partition for kinesis partition(s): " + StringUtils.join(pIds[i], ", ") + ", StreamName: " + this.getConsumer().streamName);
+
+          if (pIds[i] != null) {
+            newPartitions.add(createPartition(pIds[i], initShardPos));
+          }
+        }
+        break;
+      default:
+        break;
     }
     int i = 0;
     List<WindowDataManager> managers = windowDataManager.partition(partitions.size(), deletedOperators);
@@ -300,7 +302,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
     List<KinesisConsumer.KinesisShardStats> kmsList = new LinkedList<KinesisConsumer.KinesisShardStats>();
     for (Stats.OperatorStats os : stats.getLastWindowedStats()) {
       if (os != null && os.counters instanceof KinesisConsumer.KinesisShardStats) {
-        kmsList.add((KinesisConsumer.KinesisShardStats) os.counters);
+        kmsList.add((KinesisConsumer.KinesisShardStats)os.counters);
       }
     }
     return kmsList;
@@ -317,12 +319,12 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
     }
     logger.debug("Use ShardManager to update the Shard Positions");
     updateShardPositions(kstats);
-    if(repartitionInterval < 0){
+    if (repartitionInterval < 0) {
       // if repartition is disabled
       return false;
     }
 
-    if(t - lastRepartitionTime < repartitionInterval) {
+    if (t - lastRepartitionTime < repartitionInterval) {
       // return false if it's still within repartitionInterval since last (re)partition
       return false;
     }
@@ -356,19 +358,15 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   private void removePartitionsForClosedShards(Collection<Partition<AbstractKinesisInputOperator>> partitions, Set<Integer> deletedOperators)
   {
     List<Partition<AbstractKinesisInputOperator>> closedPartitions = new ArrayList<Partition<AbstractKinesisInputOperator>>();
-    for(Partition<AbstractKinesisInputOperator> op : partitions)
-    {
-      if(op.getPartitionedInstance().getConsumer().getClosedShards().size() ==
-          op.getPartitionedInstance().getConsumer().getNumOfShards())
-      {
+    for (Partition<AbstractKinesisInputOperator> op : partitions) {
+      if (op.getPartitionedInstance().getConsumer().getClosedShards().size() ==
+          op.getPartitionedInstance().getConsumer().getNumOfShards()) {
         closedPartitions.add(op);
         deletedOperators.add(op.getPartitionedInstance().operatorId);
       }
     }
-    if(closedPartitions.size() != 0)
-    {
-      for(Partition<AbstractKinesisInputOperator> op : closedPartitions)
-      {
+    if (closedPartitions.size() != 0) {
+      for (Partition<AbstractKinesisInputOperator> op : closedPartitions) {
         partitions.remove(op);
       }
     }
@@ -378,22 +376,21 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   private List<Shard> getOpenShards(Collection<Partition<AbstractKinesisInputOperator>> partitions)
   {
     List<Shard> closedShards = new ArrayList<Shard>();
-    for(Partition<AbstractKinesisInputOperator> op : partitions)
-    {
+    for (Partition<AbstractKinesisInputOperator> op : partitions) {
       closedShards.addAll(op.getPartitionedInstance().getConsumer().getClosedShards());
     }
     List<Shard> shards = KinesisUtil.getInstance().getShardList(getStreamName());
     List<Shard> openShards = new ArrayList<Shard>();
     for (Shard shard :shards) {
-      if(!closedShards.contains(shard)) {
+      if (!closedShards.contains(shard)) {
         openShards.add(shard);
       }
     }
     return openShards;
   }
+
   // Create a new partition with the shardIds and initial shard positions
-  private
-  Partition<AbstractKinesisInputOperator> createPartition(Set<String> shardIds, Map<String, String> initShardPos)
+  private Partition<AbstractKinesisInputOperator> createPartition(Set<String> shardIds, Map<String, String> initShardPos)
   {
     Partition<AbstractKinesisInputOperator> p = new DefaultPartition<AbstractKinesisInputOperator>(KryoCloneUtils.cloneObject(this));
     p.getPartitionedInstance().getConsumer().setShardIds(shardIds);
@@ -416,8 +413,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
     this.context = context;
     try {
       KinesisUtil.getInstance().createKinesisClient(accessKey, secretKey, endPoint);
-    } catch(Exception e)
-    {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
     consumer.create();
@@ -468,8 +464,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
             emitTuple(new Pair<String, Record>(rc.getKey(), record));
             shardPosition.put(rc.getKey(), record.getSequenceNumber());
           }
-        } catch(Exception e)
-        {
+        } catch (Exception e) {
           throw new RuntimeException(e);
         }
       }
@@ -485,11 +480,11 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
         getConsumer().resetShardPositions(statsData);
         consumer.start();
       }
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException("replay", e);
     }
   }
+
   /**
    * Implement Operator Interface.
    */
@@ -500,8 +495,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
       context.setCounters(getConsumer().getConsumerStats(shardPosition));
       try {
         windowDataManager.save(currentWindowRecoveryState, currentWindowId);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         throw new RuntimeException("saving recovery", e);
       }
     }
@@ -517,7 +511,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   {
     // If it is a replay state, don't start the consumer
     if (context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) != Stateless.WINDOW_ID &&
-      context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) < windowDataManager.getLargestCompletedWindow()) {
+        context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) < windowDataManager.getLargestCompletedWindow()) {
       return;
     }
     consumer.start();
@@ -528,8 +522,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   {
     try {
       windowDataManager.committed(windowId);
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       throw new RuntimeException("deleting state", e);
     }
   }
@@ -563,8 +556,9 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
       return;
     }
     int count = consumer.getQueueSize();
-    if(maxTuplesPerWindow > 0)
+    if (maxTuplesPerWindow > 0) {
       count = Math.min(count, maxTuplesPerWindow - emitCount);
+    }
     for (int i = 0; i < count; i++) {
       Pair<String, Record> data = consumer.pollRecord();
       String shardId = data.getFirst();
@@ -574,7 +568,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
       if (shardOffsetAndCount == null) {
         currentWindowRecoveryState.put(shardId, new MutablePair<String, Integer>(recordId, 1));
       } else {
-        shardOffsetAndCount.setRight(shardOffsetAndCount.right+1);
+        shardOffsetAndCount.setRight(shardOffsetAndCount.right + 1);
       }
       shardPosition.put(shardId, recordId);
     }

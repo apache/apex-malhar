@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.algo;
+package org.apache.apex.malhar.lib.algo;
 
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.util.UnifierSumNumber;
+
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-
-import com.datatorrent.lib.util.UnifierSumNumber;
 
 /**
  * This operator produces a count of how many tuples of value type Number satisfy and do not satisfy a specified compare function.

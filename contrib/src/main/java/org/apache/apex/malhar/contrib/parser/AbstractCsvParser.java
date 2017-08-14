@@ -16,29 +16,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.parser;
+package org.apache.apex.malhar.contrib.parser;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.supercsv.cellprocessor.Optional;
+import org.supercsv.cellprocessor.ParseChar;
+import org.supercsv.cellprocessor.ParseDate;
+import org.supercsv.cellprocessor.ParseDouble;
+import org.supercsv.cellprocessor.ParseInt;
+import org.supercsv.cellprocessor.ParseLong;
+import org.supercsv.cellprocessor.ift.CellProcessor;
+import org.supercsv.io.ICsvReader;
 import org.supercsv.prefs.CsvPreference;
 
-import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.netlet.util.DTThrowable;
-import com.datatorrent.lib.util.ReusableStringReader;
-import java.io.*;
+import org.apache.apex.malhar.lib.util.ReusableStringReader;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.supercsv.cellprocessor.*;
-import org.supercsv.cellprocessor.ift.CellProcessor;
-import org.supercsv.io.*;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.netlet.util.DTThrowable;
 
 /**
  *  This is a base implementation of Delimited data parser which can be extended to output
@@ -78,7 +86,7 @@ public abstract class AbstractCsvParser<T> extends BaseOperator
   public enum FIELD_TYPE
   {
     BOOLEAN, DOUBLE, INTEGER, FLOAT, LONG, SHORT, CHARACTER, STRING, DATE
-  };
+  }
 
   @NotNull
   private transient ReusableStringReader csvStringReader = new ReusableStringReader();
@@ -128,8 +136,7 @@ public abstract class AbstractCsvParser<T> extends BaseOperator
           logger.debug("data in loop is {}", data.toString());
           output.emit(data);
         }
-      }
-      catch (IOException ex) {
+      } catch (IOException ex) {
         throw new RuntimeException(ex);
       }
 
@@ -157,12 +164,10 @@ public abstract class AbstractCsvParser<T> extends BaseOperator
             field.setType(temp[1]);
             getFields().add(field);
           }
-        }
-        else {
+        } else {
           logger.debug("File containing fields and their data types does not exist.Please specify the fields and data type through properties of this operator.");
         }
-      }
-      catch (IOException ex) {
+      } catch (IOException ex) {
         DTThrowable.rethrow(ex);
       }
 
@@ -185,29 +190,21 @@ public abstract class AbstractCsvParser<T> extends BaseOperator
       properties[i] = getFields().get(i).name;
       if (type == FIELD_TYPE.DOUBLE) {
         processors[i] = new Optional(new ParseDouble());
-      }
-      else if (type == FIELD_TYPE.INTEGER) {
+      } else if (type == FIELD_TYPE.INTEGER) {
         processors[i] = new Optional(new ParseInt());
-      }
-      else if (type == FIELD_TYPE.FLOAT) {
+      } else if (type == FIELD_TYPE.FLOAT) {
         processors[i] = new Optional(new ParseDouble());
-      }
-      else if (type == FIELD_TYPE.LONG) {
+      } else if (type == FIELD_TYPE.LONG) {
         processors[i] = new Optional(new ParseLong());
-      }
-      else if (type == FIELD_TYPE.SHORT) {
+      } else if (type == FIELD_TYPE.SHORT) {
         processors[i] = new Optional(new ParseInt());
-      }
-      else if (type == FIELD_TYPE.STRING) {
+      } else if (type == FIELD_TYPE.STRING) {
         processors[i] = new Optional();
-      }
-      else if (type == FIELD_TYPE.CHARACTER) {
+      } else if (type == FIELD_TYPE.CHARACTER) {
         processors[i] = new Optional(new ParseChar());
-      }
-      else if (type == FIELD_TYPE.BOOLEAN) {
+      } else if (type == FIELD_TYPE.BOOLEAN) {
         processors[i] = new Optional(new ParseChar());
-      }
-      else if (type == FIELD_TYPE.DATE) {
+      } else if (type == FIELD_TYPE.DATE) {
         processors[i] = new Optional(new ParseDate("dd/MM/yyyy"));
       }
     }
@@ -219,8 +216,7 @@ public abstract class AbstractCsvParser<T> extends BaseOperator
   {
     try {
       csvReader.close();
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       DTThrowable.rethrow(e);
     }
   }

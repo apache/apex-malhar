@@ -28,6 +28,8 @@ import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.fileaccess.FileAccess;
+import org.apache.apex.malhar.lib.util.comparator.SliceComparator;
 import org.apache.apex.malhar.lib.utils.serde.BufferSlice;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.RemoteIterator;
@@ -38,11 +40,9 @@ import com.google.common.collect.Maps;
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.lib.fileaccess.FileAccess;
-import com.datatorrent.lib.util.comparator.SliceComparator;
 import com.datatorrent.netlet.util.Slice;
 
-import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
+import static org.apache.apex.malhar.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
 public class ManagedStateTestUtils
 {

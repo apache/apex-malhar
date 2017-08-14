@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.parser;
+package org.apache.apex.malhar.lib.parser;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -38,6 +38,8 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import org.apache.apex.malhar.lib.util.ReusableStringReader;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -47,7 +49,6 @@ import org.apache.hadoop.fs.Path;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
-import com.datatorrent.lib.util.ReusableStringReader;
 import com.datatorrent.netlet.util.DTThrowable;
 
 /**

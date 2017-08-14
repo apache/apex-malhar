@@ -27,6 +27,7 @@ import java.util.TimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.util.KeyValPair;
 import org.apache.apex.malhar.lib.window.ControlTuple;
 import org.apache.apex.malhar.lib.window.Tuple;
 
@@ -34,7 +35,6 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.BaseOperator;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Operator that fills in the zip code based on the lat-lon coordinates in the incoming tuples and prepares

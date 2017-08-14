@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.lib.db.cache;
+package org.apache.apex.malhar.lib.db.cache;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -36,13 +36,14 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.db.KeyValueStore;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Component;
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.db.KeyValueStore;
 
 /**
  * Manages primary and secondary stores.<br/>

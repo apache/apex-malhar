@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets;
 
 import javax.validation.constraints.NotNull;
 
-import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
+import org.apache.apex.malhar.lib.io.fs.AbstractFileOutputOperator;
 
 /**
  * Converts each tuple to a string and writes it as a new line to the output file
