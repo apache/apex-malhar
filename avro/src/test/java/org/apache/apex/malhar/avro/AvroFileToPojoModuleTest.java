@@ -32,6 +32,7 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.python.google.common.collect.Lists;
 
+import org.apache.apex.engine.EmbeddedAppLauncherImpl;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericData;
@@ -48,11 +49,9 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.lib.helper.TestPortContext;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 
 import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 
@@ -73,16 +72,8 @@ public class AvroFileToPojoModuleTest
 
   private static final String FILENAME = "/tmp/simpleorder.avro";
   private static final String OTHER_FILE = "/tmp/simpleorder2.avro";
-  private static final String ERROR_FILE = "/tmp/errorFile.avro";
-
-  CollectorTestSink<Object> output = new CollectorTestSink<Object>();
-
-  CollectorTestSink<Object> completedFilesPort = new CollectorTestSink<Object>();
-
-  CollectorTestSink<Object> errorRecordsPort = new CollectorTestSink<Object>();
 
   AvroFileToPojoModule avroFileToPojoModule = new AvroFileToPojoModule();
-//  AvroFileInputOperator avroFileInput = new AvroFileInputOperator();
 
   private List<GenericRecord> recordList = null;
 
@@ -135,27 +126,24 @@ public class AvroFileToPojoModuleTest
     }
   }
 
-  private void writeAvroFile(File outputFile) throws IOException
+  private void writeAvroFile(File outputFile)
   {
-
-    DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<GenericRecord>(
+    DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(
         new Schema.Parser().parse(AVRO_SCHEMA));
+    try (DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter)) {
+      dataFileWriter.create(new Schema.Parser().parse(AVRO_SCHEMA), outputFile);
 
-    DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<GenericRecord>(datumWriter);
-    dataFileWriter.create(new Schema.Parser().parse(AVRO_SCHEMA), outputFile);
-
-    for (GenericRecord record : recordList) {
-      dataFileWriter.append(record);
+      for (GenericRecord record : recordList) {
+        dataFileWriter.append(record);
+      }
+      FileUtils.moveFileToDirectory(new File(outputFile.getAbsolutePath()), new File(testMeta.dir), true);
+    } catch (IOException e) {
+      e.printStackTrace();
     }
-
-    dataFileWriter.close();
-
-    FileUtils.moveFileToDirectory(new File(outputFile.getAbsolutePath()), new File(testMeta.dir), true);
-
   }
 
   @Test
-  public void testApplicationWithPojoConversion() throws IOException, Exception
+  public void testAvroToPojoModule() throws Exception
   {
     try {
       FileContext.getLocalFSFileContext().delete(new Path(new File(testMeta.dir).getAbsolutePath()), true);
@@ -171,14 +159,14 @@ public class AvroFileToPojoModuleTest
       AvroToPojo avroToPojo = new AvroToPojo();
       avroToPojo.setPojoClass(SimpleOrder.class);
 
-      LocalMode lma = LocalMode.newInstance();
+      EmbeddedAppLauncherImpl lma = new EmbeddedAppLauncherImpl();
       Configuration conf = new Configuration(false);
 
       AvroToPojoApplication avroToPojoApplication = new AvroToPojoApplication();
       avroToPojoApplication.setAvroFileToPojoModule(avroFileToPojoModule);
 
       lma.prepareDAG(avroToPojoApplication, conf);
-      LocalMode.Controller lc = lma.getController();
+      EmbeddedAppLauncherImpl.Controller lc = lma.getController();
       lc.run(10000);// runs for 10 seconds and quits
     } catch (ConstraintViolationException e) {
       Assert.fail("constraint violations: " + e.getConstraintViolations());
