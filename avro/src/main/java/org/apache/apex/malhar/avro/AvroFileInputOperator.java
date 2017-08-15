@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.avro;
+
+package org.apache.apex.malhar.avro;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,7 +56,7 @@ import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
  * @category Input
  * @tags fs, file,avro, input operator
  *
- * @since 3.4.0
+ * @since
  */
 @InterfaceStability.Evolving
 public class AvroFileInputOperator extends AbstractFileInputOperator<GenericRecord>

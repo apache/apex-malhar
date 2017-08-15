@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.avro;
+
+package org.apache.apex.malhar.avro;
 
 import java.text.ParseException;
 import java.util.List;
@@ -31,7 +32,7 @@ import org.apache.avro.Schema.Type;
  * This is an utility class for reading Avro converted records.<br>
  * This class can be used with the {@link PojoToAvro} or in isolation to get Avro values.
  *
- * @since 3.4.0
+ * @since
  */
 public class AvroRecordHelper
 {

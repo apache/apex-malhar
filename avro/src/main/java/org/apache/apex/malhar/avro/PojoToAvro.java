@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.avro;
+
+package org.apache.apex.malhar.avro;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,7 +59,7 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
  * @category Converter
  * @tags avro
  *
- * @since 3.4.0
+ * @since
  */
 @InterfaceStability.Evolving
 public class PojoToAvro extends BaseOperator
@@ -155,7 +156,7 @@ public class PojoToAvro extends BaseOperator
    * @return Getter
    */
   private Getter<?, ?> generateGettersForField(Class<?> cls, String inputFieldName)
-      throws NoSuchFieldException, SecurityException
+    throws NoSuchFieldException, SecurityException
   {
     java.lang.reflect.Field f = cls.getDeclaredField(inputFieldName);
     Class<?> c = ClassUtils.primitiveToWrapper(f.getType());

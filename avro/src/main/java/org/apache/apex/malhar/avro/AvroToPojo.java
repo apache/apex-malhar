@@ -16,7 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.contrib.avro;
+
+package org.apache.apex.malhar.avro;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +60,7 @@ import com.datatorrent.lib.util.PojoUtils;
  * @category Converter
  * @tags avro
  *
- * @since 3.4.0
+ * @since
  */
 @InterfaceStability.Evolving
 public class AvroToPojo extends BaseOperator
@@ -87,7 +88,7 @@ public class AvroToPojo extends BaseOperator
   @AutoMetric
   @VisibleForTesting
   int fieldErrorCount = 0;
-  
+
   public final transient DefaultOutputPort<GenericRecord> errorPort = new DefaultOutputPort<GenericRecord>();
 
   /**
