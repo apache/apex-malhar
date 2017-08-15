@@ -244,7 +244,7 @@ public class PojoToAvro extends BaseOperator
     for (int i = 0; i < columnNames.size(); i++) {
       try {
         rec.put(columnNames.get(i).name(), AvroRecordHelper.convertValueStringToAvroKeyType(getSchema(),
-          columnNames.get(i).name(), keyMethodMap.get(i).get(tuple).toString()));
+            columnNames.get(i).name(), keyMethodMap.get(i).get(tuple).toString()));
       } catch (AvroRuntimeException e) {
         LOG.error("Could not set Field [" + columnNames.get(i).name() + "] in the generic record", e);
         fieldErrorCount++;
