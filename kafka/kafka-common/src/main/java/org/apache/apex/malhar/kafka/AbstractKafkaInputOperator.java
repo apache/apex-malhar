@@ -513,21 +513,28 @@ public abstract class AbstractKafkaInputOperator implements InputOperator,
           Joiner.on(';').withKeyValueSeparator("=").join(map), e);
     }
 
-    if (shutdownMode) {
-      for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : map.entrySet()) {
-        Pair pair = Pair.of(entry.getKey().topic(), entry.getKey().partition());
-        Long endOffset = endOffsets.get(pair);
-        if (endOffset != null && endOffset <= entry.getValue().offset()) {
-          reachedEndOffsets.remove(pair);
-        } else {
-          logger.warn("Unexpected partition found {}", pair);
+    for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : map.entrySet()) {
+      Pair<String, Integer> committed = Pair.of(entry.getKey().topic(), entry.getKey().partition());
+
+      Pair toRemove = null;
+
+      for (Pair<String, Integer> reachedOffset : reachedEndOffsets) {
+        if (reachedOffset.getLeft().equals(committed.getLeft())) {
+          if (reachedOffset.getRight() <= committed.getRight()) {
+            toRemove = reachedOffset;
+            break;
+          }
         }
       }
 
-      if (reachedEndOffsets.isEmpty()) {
-        logger.info("All the requested end offsets have reached commited status.");
-        throwShutdownException = true;
+      if (toRemove != null) {
+        reachedEndOffsets.remove(toRemove);
       }
+    }
+
+    if (reachedEndOffsets.isEmpty()) {
+      logger.info("All the requested end offsets have reached committed status.");
+      throwShutdownException = true;
     }
   }
 
