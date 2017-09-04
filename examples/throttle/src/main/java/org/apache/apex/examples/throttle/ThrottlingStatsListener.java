@@ -50,7 +50,7 @@ public class ThrottlingStatsListener implements StatsListener, Serializable
 
   Map<Integer, ThrottleState> throttleStates = Maps.newHashMap();
 
-  static class ThrottleState
+  static class ThrottleState implements Serializable
   {
     // The current state of the operator, normal or throttled
     boolean normal = true;
