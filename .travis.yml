@@ -15,10 +15,13 @@
 
 language: java
 
+jdk:
+  - openjdk7
+
 #skip default installation step (mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V)
 install: true
 
-script: mvn apache-rat:check verify -Dlicense.skip=false -Dtravis=true -Dtest.log.console.threshold=WARN -Pall-modules -B -V
+script: mvn -B -V -q apache-rat:check verify -Dlicense.skip=false -Dtravis=true -Dtest.log.console.threshold=WARN -Pall-modules
 
 notifications:
   slack:

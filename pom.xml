@@ -69,6 +69,7 @@
             <exclude>src/test/resources/com/datatorrent/contrib/romesyndication/*.rss</exclude>
             <exclude>**/*.md</exclude>
             <exclude>**/*.yml</exclude>
+            <exclude>.mvn/jvm.config</exclude>
           </excludes>
           <mapping combine.children="append">
             <R>SCRIPT_STYLE</R>
@@ -97,6 +98,7 @@
             <exclude>**/*.json</exclude>
             <exclude>**/*.md</exclude>
             <exclude>**/*.yml</exclude>
+            <exclude>.mvn/jvm.config</exclude>
           </excludes>
         </configuration>
       </plugin>
