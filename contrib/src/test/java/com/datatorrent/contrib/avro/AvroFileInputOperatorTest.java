@@ -152,7 +152,7 @@ public class AvroFileInputOperatorTest
     avroFileInput.teardown();
 
   }
-  
+
   @Test
   public void testIdempotencyWithCheckPoint() throws Exception
   {
@@ -162,7 +162,7 @@ public class AvroFileInputOperatorTest
       public void writeFile(int count, String fileName) throws IOException
       {
         recordList = Lists.newArrayList();
-        
+
         while (count > 0) {
           GenericRecord rec = new GenericData.Record(new Schema.Parser().parse(AVRO_SCHEMA));
           rec.put("orderId", count * 1L);
@@ -172,7 +172,7 @@ public class AvroFileInputOperatorTest
           count--;
           recordList.add(rec);
         }
-        
+
         writeAvroFile(new File(fileName));
       }
 
@@ -195,8 +195,8 @@ public class AvroFileInputOperatorTest
       }
     });
   }
-  
-  
+
+
   @Test
   public void testMultipleFileAvroReads() throws Exception
   {
