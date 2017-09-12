@@ -678,5 +678,10 @@
       <version>1.3.0</version>
       <optional>true</optional>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-avro</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 </project>
