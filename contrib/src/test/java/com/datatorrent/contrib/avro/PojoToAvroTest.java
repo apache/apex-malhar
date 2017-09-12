@@ -16,8 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.apache.apex.malhar.avro;
+package com.datatorrent.contrib.avro;
 
 import java.util.ArrayList;
 import java.util.List;

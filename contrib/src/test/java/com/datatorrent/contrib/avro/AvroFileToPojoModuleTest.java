@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.apex.malhar.avro;
+package com.datatorrent.contrib.avro;
 
 import java.io.File;
 import java.io.IOException;
