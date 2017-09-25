@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.contrib.kudu;
+package org.apache.apex.malhar.kudu;
 
 
 import java.nio.ByteBuffer;
@@ -121,5 +121,21 @@ public class UnitTestTablePojo
   public void setBooldata(boolean booldata)
   {
     this.booldata = booldata;
+  }
+
+  @Override
+  public String toString()
+  {
+    return "UnitTestTablePojo{" +
+      "introwkey=" + introwkey +
+      ", stringrowkey='" + stringrowkey + '\'' +
+      ", timestamprowkey=" + timestamprowkey +
+      ", longdata=" + longdata +
+      ", stringdata='" + stringdata + '\'' +
+      ", timestampdata=" + timestampdata +
+      ", binarydata=" + binarydata +
+      ", floatdata=" + floatdata +
+      ", booldata=" + booldata +
+      '}';
   }
 }

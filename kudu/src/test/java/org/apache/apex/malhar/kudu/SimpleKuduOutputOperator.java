@@ -16,19 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.contrib.kudu;
+package org.apache.apex.malhar.kudu;
 
+import org.junit.Rule;
+
+import org.apache.apex.malhar.kudu.test.KuduClusterAvailabilityTestRule;
 import org.apache.kudu.client.ExternalConsistencyMode;
 import org.apache.kudu.client.SessionConfiguration;
 
 public class SimpleKuduOutputOperator extends AbstractKuduOutputOperator
 {
+  @Rule
+  public KuduClusterAvailabilityTestRule kuduClusterAvailabilityTestRule = new KuduClusterAvailabilityTestRule();
+
   @Override
   ApexKuduConnection.ApexKuduConnectionBuilder getKuduConnectionConfig()
   {
     return new ApexKuduConnection.ApexKuduConnectionBuilder()
-        .withAPossibleMasterHostAs("localhost:7051")
-        .withTableName("unittests")
+        .withAPossibleMasterHostAs(KuduClientTestCommons.kuduMasterAddresses)
+        .withTableName(KuduClientTestCommons.tableName)
         .withExternalConsistencyMode(ExternalConsistencyMode.COMMIT_WAIT)
         .withFlushMode(SessionConfiguration.FlushMode.AUTO_FLUSH_SYNC)
         .withNumberOfBossThreads(1)
