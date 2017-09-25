@@ -16,58 +16,39 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.contrib.kudu;
+package org.apache.apex.malhar.kudu;
 
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.junit.AfterClass;
+
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.kudu.ColumnSchema;
-import org.apache.kudu.Schema;
-import org.apache.kudu.Type;
-import org.apache.kudu.client.CreateTableOptions;
-import org.apache.kudu.client.KuduClient;
-import org.apache.kudu.client.KuduException;
-import org.apache.kudu.client.KuduPredicate;
-import org.apache.kudu.client.KuduScanner;
-import org.apache.kudu.client.KuduTable;
-import org.apache.kudu.client.RowResult;
-import org.apache.kudu.client.RowResultIterator;
+
+import org.apache.apex.malhar.kudu.test.KuduClusterAvailabilityTestRule;
+import org.apache.apex.malhar.kudu.test.KuduClusterTestContext;
+
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
-import com.datatorrent.api.DAG;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
 import com.datatorrent.lib.helper.TestPortContext;
+
 import static com.datatorrent.lib.helper.OperatorContextTestHelper.mockOperatorContext;
 import static org.junit.Assert.assertEquals;
 
-
-public class KuduCreateUpdateDeleteOutputOperatorTest
+public class KuduCreateUpdateDeleteOutputOperatorTest extends KuduClientTestCommons
 {
+  @Rule
+  public KuduClusterAvailabilityTestRule kuduClusterAvailabilityTestRule = new KuduClusterAvailabilityTestRule();
 
 
   private static final transient Logger LOG = LoggerFactory.getLogger(KuduCreateUpdateDeleteOutputOperatorTest.class);
 
-  private static final String tableName = "unittests";
-
   private final String APP_ID = "TestKuduOutputOperator";
 
   private final int OPERATOR_ID_FOR_KUDU_CRUD = 0;
-
-  private static KuduClient kuduClient;
-
-  private static KuduTable kuduTable;
-
-  private static Map<String,ColumnSchema> columnDefs = new HashMap<>();
 
   private BaseKuduOutputOperator simpleKuduOutputOperator;
 
@@ -75,23 +56,7 @@ public class KuduCreateUpdateDeleteOutputOperatorTest
 
   private TestPortContext testPortContextForKuduOutput;
 
-  @BeforeClass
-  public static void setup() throws Exception
-  {
-    kuduClient = getClientHandle();
-    if (kuduClient.tableExists(tableName)) {
-      kuduClient.deleteTable(tableName);
-    }
-    createTestTable(tableName,kuduClient);
-    kuduTable = kuduClient.openTable(tableName);
-  }
-
-  @AfterClass
-  public static void shutdown() throws Exception
-  {
-    kuduClient.close();
-  }
-
+  @KuduClusterTestContext(kuduClusterBasedTest = true)
   @Before
   public void setUpKuduOutputOperatorContext() throws Exception
   {
@@ -107,96 +72,8 @@ public class KuduCreateUpdateDeleteOutputOperatorTest
     simpleKuduOutputOperator.input.setup(testPortContextForKuduOutput);
   }
 
-  private static KuduClient getClientHandle() throws Exception
-  {
-    KuduClient.KuduClientBuilder builder = new KuduClient.KuduClientBuilder("localhost:7051");
-    KuduClient client = builder.build();
-    return client;
-  }
 
-  private static void createTestTable(String tableName, KuduClient client) throws Exception
-  {
-    List<ColumnSchema> columns = new ArrayList<>();
-    ColumnSchema intRowKeyCol = new ColumnSchema.ColumnSchemaBuilder("introwkey", Type.INT32)
-        .key(true)
-        .build();
-    columns.add(intRowKeyCol);
-    columnDefs.put("introwkey",intRowKeyCol);
-    ColumnSchema stringRowKeyCol = new ColumnSchema.ColumnSchemaBuilder("stringrowkey", Type.STRING)
-        .key(true)
-        .build();
-    columns.add(stringRowKeyCol);
-    columnDefs.put("stringrowkey",stringRowKeyCol);
-    ColumnSchema timestampRowKey = new ColumnSchema.ColumnSchemaBuilder("timestamprowkey", Type.UNIXTIME_MICROS)
-        .key(true)
-        .build();
-    columns.add(timestampRowKey);
-    columnDefs.put("timestamprowkey",timestampRowKey);
-    ColumnSchema longData = new ColumnSchema.ColumnSchemaBuilder("longdata", Type.INT64)
-        .build();
-    columns.add(longData);
-    columnDefs.put("longdata",longData);
-    ColumnSchema stringData = new ColumnSchema.ColumnSchemaBuilder("stringdata", Type.STRING)
-        .build();
-    columns.add(stringData);
-    columnDefs.put("stringdata",stringData);
-    ColumnSchema timestampdata = new ColumnSchema.ColumnSchemaBuilder("timestampdata", Type.UNIXTIME_MICROS)
-        .build();
-    columns.add(timestampdata);
-    columnDefs.put("timestampdata",timestampdata);
-    ColumnSchema binarydata = new ColumnSchema.ColumnSchemaBuilder("binarydata", Type.BINARY)
-        .build();
-    columns.add(binarydata);
-    columnDefs.put("binarydata",binarydata);
-    ColumnSchema floatdata = new ColumnSchema.ColumnSchemaBuilder("floatdata", Type.FLOAT)
-        .build();
-    columns.add(floatdata);
-    columnDefs.put("floatdata",floatdata);
-    ColumnSchema booldata = new ColumnSchema.ColumnSchemaBuilder("booldata", Type.BOOL)
-        .build();
-    columns.add(booldata);
-    columnDefs.put("booldata",booldata);
-    List<String> rangeKeys = new ArrayList<>();
-    rangeKeys.add("stringrowkey");
-    rangeKeys.add("timestamprowkey");
-    List<String> hashPartitions = new ArrayList<>();
-    hashPartitions.add("introwkey");
-    Schema schema = new Schema(columns);
-    try {
-      client.createTable(tableName, schema,
-          new CreateTableOptions()
-          .setNumReplicas(1)
-          .setRangePartitionColumns(rangeKeys)
-          .addHashPartitions(hashPartitions,2));
-    } catch (KuduException e) {
-      LOG.error("Error while creating table for unit tests " + e.getMessage(), e);
-      throw e;
-    }
-  }
-
-  private void lookUpAndPopulateRecord(UnitTestTablePojo keyInfo) throws Exception
-  {
-    KuduScanner scanner = kuduClient.newScannerBuilder(kuduTable)
-        .addPredicate(KuduPredicate.newComparisonPredicate(columnDefs.get("introwkey"),
-        KuduPredicate.ComparisonOp.EQUAL,keyInfo.getIntrowkey()))
-        .addPredicate(KuduPredicate.newComparisonPredicate(columnDefs.get("stringrowkey"),
-        KuduPredicate.ComparisonOp.EQUAL,keyInfo.getStringrowkey()))
-        .addPredicate(KuduPredicate.newComparisonPredicate(columnDefs.get("timestamprowkey"),
-        KuduPredicate.ComparisonOp.EQUAL,keyInfo.getTimestamprowkey()))
-        .build();
-    RowResultIterator rowResultItr = scanner.nextRows();
-    while (rowResultItr.hasNext()) {
-      RowResult thisRow = rowResultItr.next();
-      keyInfo.setFloatdata(thisRow.getFloat("floatdata"));
-      keyInfo.setBooldata(thisRow.getBoolean("booldata"));
-      keyInfo.setBinarydata(thisRow.getBinary("binarydata"));
-      keyInfo.setLongdata(thisRow.getLong("longdata"));
-      keyInfo.setTimestampdata(thisRow.getLong("timestampdata"));
-      keyInfo.setStringdata("stringdata");
-      break;
-    }
-  }
-
+  @KuduClusterTestContext(kuduClusterBasedTest = true)
   @Test
   public void processForUpdate() throws Exception
   {
@@ -235,6 +112,7 @@ public class KuduCreateUpdateDeleteOutputOperatorTest
     assertEquals(unitTestTablePojoRead.isBooldata(), false);
   }
 
+  @KuduClusterTestContext(kuduClusterBasedTest = true)
   @Test
   public void processForUpsert() throws Exception
   {
@@ -267,6 +145,7 @@ public class KuduCreateUpdateDeleteOutputOperatorTest
     assertEquals(unitTestTablePojoRead.isBooldata(), true);
   }
 
+  @KuduClusterTestContext(kuduClusterBasedTest = true)
   @Test
   public void processForDelete() throws Exception
   {
@@ -304,6 +183,7 @@ public class KuduCreateUpdateDeleteOutputOperatorTest
     assertEquals(unitTestTablePojoRead.getBinarydata(), null);
   }
 
+  @KuduClusterTestContext(kuduClusterBasedTest = true)
   @Test
   public void processForInsert() throws Exception
   {

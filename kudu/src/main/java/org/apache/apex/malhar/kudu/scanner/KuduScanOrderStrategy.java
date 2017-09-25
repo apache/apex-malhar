@@ -16,17 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.contrib.kudu;
+package org.apache.apex.malhar.kudu.scanner;
 
 /**
- * <p>Used in {@link KuduExecutionContext} to denote the type of mutation we would like to be executed for the
- * mutation being represented by the current tuple</p>
+ * Used to define the scan order strategy when multiple scan tokens are assigned to a single Apex partition
  */
-public enum KuduMutationType
+public enum KuduScanOrderStrategy
 {
-
-    INSERT,
-    DELETE,
-    UPDATE,
-    UPSERT
+  CONSISTENT_ORDER_SCANNER,
+  RANDOM_ORDER_SCANNER
 }

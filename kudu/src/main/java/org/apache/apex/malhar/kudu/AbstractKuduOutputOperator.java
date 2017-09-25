@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.contrib.kudu;
+package org.apache.apex.malhar.kudu;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -31,6 +31,7 @@ import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -48,6 +49,7 @@ import org.apache.kudu.client.PartialRow;
 import org.apache.kudu.client.Statistics;
 import org.apache.kudu.client.Update;
 import org.apache.kudu.client.Upsert;
+
 import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
@@ -338,8 +340,7 @@ public abstract class AbstractKuduOutputOperator extends BaseOperator
     try {
       kuduSession.apply(currentOperation);
     } catch (KuduException e) {
-      LOG.error("Could not execute operation because " + e.getMessage(), e);
-      throw new RuntimeException(e.getMessage());
+      throw new RuntimeException("Could not execute operation because " + e.getMessage(), e);
     }
   }
 
@@ -443,8 +444,7 @@ public abstract class AbstractKuduOutputOperator extends BaseOperator
     try {
       windowDataManager.committed(windowId);
     } catch (IOException e) {
-      LOG.error("Error while committing the window id " + windowId + " because " + e.getMessage());
-      throw new RuntimeException(e);
+      throw new RuntimeException("Error while committing the window id " + windowId + " because " + e.getMessage(), e );
     }
   }
 
@@ -496,15 +496,14 @@ public abstract class AbstractKuduOutputOperator extends BaseOperator
     try {
       kuduSession.flush();
     } catch (KuduException e) {
-      LOG.error("Could not flush kudu session on an end window boundary " + e.getMessage(), e);
-      throw new RuntimeException(e);
+      throw new RuntimeException("Could not flush kudu session on an end window boundary " + e.getMessage(), e);
     }
     if ( currentWindowId > windowDataManager.getLargestCompletedWindow()) {
       try {
         windowDataManager.save(currentWindowId,currentWindowId);
       } catch (IOException e) {
-        LOG.error("Error while persisting the current window state " + currentWindowId + " because " + e.getMessage());
-        throw new RuntimeException(e);
+        throw new RuntimeException("Error while persisting the current window state " + currentWindowId +
+            " because " + e.getMessage(), e);
       }
     }
     numOpsErrors = kuduClientHandle.getStatistics().getClientStatistic(Statistics.Statistic.OPS_ERRORS) -

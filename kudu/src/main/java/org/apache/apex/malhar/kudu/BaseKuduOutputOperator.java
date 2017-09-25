@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.contrib.kudu;
+package org.apache.apex.malhar.kudu;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.apex.malhar.lib.wal.FSWindowDataManager;
-import org.apache.apex.malhar.lib.wal.WindowDataManager;
 import org.apache.kudu.client.ExternalConsistencyMode;
 import org.apache.kudu.client.SessionConfiguration;
 
@@ -53,7 +52,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class BaseKuduOutputOperator extends AbstractKuduOutputOperator
 {
-  public static final String DEFAULT_CONNECTION_PROPS_FILE_NAME = "kuduoutputoperator.properties";
+  public static String DEFAULT_CONNECTION_PROPS_FILE_NAME = "kuduoutputoperator.properties";
 
   public static final String TABLE_NAME = "tablename";
 
@@ -84,6 +83,7 @@ public class BaseKuduOutputOperator extends AbstractKuduOutputOperator
     InputStream kuduPropsFileAsStream = loader.getResourceAsStream(configFileInClasspath);
     if (kuduPropsFileAsStream != null) {
       kuduConnectionProperties.load(kuduPropsFileAsStream);
+      kuduPropsFileAsStream.close();
     } else {
       throw new IOException("Properties file required for Kudu connection " + configFileInClasspath +
       " is not locatable in the root classpath");
@@ -151,7 +151,7 @@ public class BaseKuduOutputOperator extends AbstractKuduOutputOperator
    * The default is to implement for ATLEAST_ONCE semantics. Override this control this behavior.
    * @param executionContext The tuple which represents the execution context along with the payload
    * @param reconcilingWindowId The window Id of the reconciling window
-   * @return
+   * @return True if the current row is to be written to the Kudu Store, false to be skipped
    */
   @Override
   protected boolean isEligibleForPassivationInReconcilingWindow(KuduExecutionContext executionContext,

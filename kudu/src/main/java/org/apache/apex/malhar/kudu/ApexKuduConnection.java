@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.contrib.kudu;
+package org.apache.apex.malhar.kudu;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -33,7 +33,6 @@ import org.apache.kudu.client.SessionConfiguration;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-
 
 /**
  * <p>Represents a connection to the Kudu cluster. An instance of this class is to be supplied (via a builder pattern to)
@@ -52,12 +51,14 @@ public class ApexKuduConnection implements AutoCloseable, Serializable
 
   public static final Logger LOG = LoggerFactory.getLogger(ApexKuduConnection.class);
 
+  private ApexKuduConnectionBuilder builderForThisConnection;
 
   private ApexKuduConnection(ApexKuduConnectionBuilder builder)
   {
     checkNotNull(builder,"Builder cannot be null to establish kudu session");
     checkArgument(builder.mastersCollection.size() > 0, "Atleast one kudu master needs to be specified");
     checkNotNull(builder.tableName,"Kudu table cannot be null");
+    builderForThisConnection = builder;
     KuduClient.KuduClientBuilder kuduClientBuilder = new KuduClient.KuduClientBuilder(builder.mastersCollection);
     if (builder.isOperationTimeOutSet) {
       kuduClientBuilder.defaultOperationTimeoutMs(builder.operationTimeOutMs);
@@ -86,8 +87,7 @@ public class ApexKuduConnection implements AutoCloseable, Serializable
         kuduTable = kuduClient.openTable(builder.tableName);
       }
     } catch (Exception e) {
-      LOG.error("Kudu table existence could not be ascertained  " + e.getMessage());
-      throw new RuntimeException(e.getMessage());
+      throw new RuntimeException("Kudu table existence could not be ascertained  " + e.getMessage(), e);
     }
   }
 
@@ -128,8 +128,20 @@ public class ApexKuduConnection implements AutoCloseable, Serializable
     this.kuduClient = kuduClient;
   }
 
-  public static class ApexKuduConnectionBuilder
+  public ApexKuduConnectionBuilder getBuilderForThisConnection()
   {
+    return builderForThisConnection;
+  }
+
+  public void setBuilderForThisConnection(ApexKuduConnectionBuilder builderForThisConnection)
+  {
+    this.builderForThisConnection = builderForThisConnection;
+  }
+
+  public static class ApexKuduConnectionBuilder implements Serializable
+  {
+    private static final long serialVersionUID = -3428649955056723311L;
+
     List<String> mastersCollection = new ArrayList<>();
 
     String tableName;

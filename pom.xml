@@ -214,6 +214,7 @@
     <module>library</module>
     <module>contrib</module>
     <module>kafka</module>
+    <module>kudu</module>
     <module>examples</module>
   </modules>
 
