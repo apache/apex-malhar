@@ -40,8 +40,8 @@ public class DataGenerator extends BaseOperator implements InputOperator
   public static int NUM_CIRCLES = 10;
 
   private Random r;
-  private int count = 0;
-  private int limit = 1000;
+  private volatile int count = 0;
+  private int limit = 15;
 
   public final transient DefaultOutputPort<byte[]> output = new DefaultOutputPort<>();
 
@@ -52,17 +52,11 @@ public class DataGenerator extends BaseOperator implements InputOperator
   }
 
   @Override
-  public void beginWindow(long windowId)
-  {
-    super.beginWindow(windowId);
-    count = 0;
-  }
-
-  @Override
   public void emitTuples()
   {
-    if (count++ < limit) {
+    if (count < limit) {
       output.emit(getRecord());
+      count++;
     }
   }
 
@@ -71,8 +65,7 @@ public class DataGenerator extends BaseOperator implements InputOperator
     String phone = getRandomNumber(10);
     String imsi = getHashInRange(phone, 15);
     String imei = getHashInRange(imsi, 15);
-    String circleId = Math.abs(phone.hashCode()) % NUM_CIRCLES + "";
-//    String record = MessageFormat.format(baseDataTemplate, phone, imsi, imei, circleId);
+    String circleId = Math.abs(count) % NUM_CIRCLES + "";
     String record = "{" + "\"phone\":\"" + phone + "\","
         + "\"imei\":\"" + imei + "\","
         + "\"imsi\":\"" + imsi + "\","
@@ -110,5 +103,15 @@ public class DataGenerator extends BaseOperator implements InputOperator
   public void setLimit(int limit)
   {
     this.limit = limit;
+  }
+
+  public int getCount()
+  {
+    return count;
+  }
+
+  public void setCount(int count)
+  {
+    this.count = count;
   }
 }
