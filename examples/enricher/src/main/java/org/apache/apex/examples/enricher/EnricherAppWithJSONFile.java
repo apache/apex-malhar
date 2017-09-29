@@ -29,7 +29,6 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.enrich.JsonFSLoader;
 import com.datatorrent.contrib.enrich.POJOEnricher;
 import com.datatorrent.contrib.parser.JsonParser;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 @ApplicationAnnotation(name = "EnricherAppWithJSONFile")
 /**
@@ -37,10 +36,15 @@ import com.datatorrent.lib.io.ConsoleOutputOperator;
  */
 public class EnricherAppWithJSONFile implements StreamingApplication
 {
+
+
+
+  DataGenerator dataGenerator;
+
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    DataGenerator dataGenerator = dag.addOperator("DataGenerator", DataGenerator.class);
+    dataGenerator = dag.addOperator("DataGenerator", DataGenerator.class);
     JsonParser parser = dag.addOperator("Parser", JsonParser.class);
 
     /**
@@ -60,10 +64,21 @@ public class EnricherAppWithJSONFile implements StreamingApplication
     enrich.setIncludeFields(includeFields);
     enrich.setLookupFields(lookupFields);
 
-    ConsoleOutputOperator console = dag.addOperator("Console", ConsoleOutputOperator.class);
+    LineOutputOperator fileOut = dag.addOperator("fileOut", LineOutputOperator.class);
+
 
     dag.addStream("Parse", dataGenerator.output, parser.in);
     dag.addStream("Enrich", parser.out, enrich.input);
-    dag.addStream("Console", enrich.output, console.input);
+    dag.addStream("Console", enrich.output, fileOut.input);
+  }
+
+  public DataGenerator getDataGenerator()
+  {
+    return dataGenerator;
+  }
+
+  public void setDataGenerator(DataGenerator dataGenerator)
+  {
+    this.dataGenerator = dataGenerator;
   }
 }

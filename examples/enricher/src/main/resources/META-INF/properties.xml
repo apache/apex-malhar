@@ -37,13 +37,13 @@
   </property>
   <property>
     <name>dt.application.EnricherAppWithJSONFile.operator.Enrich.prop.store.fileName</name>
-    <value>/tmp/circleMapping.txt</value>
+    <value>./src/main/resources/circleMapping.txt</value>
   </property>
 
   <!-- file output operator -->
   <property>
     <name>dt.application.EnricherAppWithJSONFile.operator.fileOut.prop.filePath</name>
-    <value>/tmp/enrichedData</value>
+    <value>./target/enrichedData</value>
   </property>
   <property>
     <name>dt.application.EnricherAppWithJSONFile.operator.fileOut.prop.baseName</name>
@@ -51,11 +51,11 @@
   </property>
   <property>
     <name>dt.application.EnricherAppWithJSONFile.operator.fileOut.prop.maxLength</name>
-    <value>1024</value>
+    <value>102400</value>
   </property>
   <property>
     <name>dt.application.EnricherAppWithJSONFile.operator.fileOut.prop.rotationWindows</name>
-    <value>4</value>
+    <value>0</value>
   </property>
 </configuration>
 

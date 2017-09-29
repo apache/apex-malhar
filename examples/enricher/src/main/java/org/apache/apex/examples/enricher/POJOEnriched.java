@@ -83,12 +83,12 @@ public class POJOEnriched
   @Override
   public String toString()
   {
-    return "POJOEnriched{" +
-        "phone='" + phone + '\'' +
-        ", imei='" + imei + '\'' +
-        ", imsi='" + imsi + '\'' +
-        ", circleId=" + circleId +
-        ", circleName='" + circleName + '\'' +
-        '}';
+    return "{" +
+        "\"phone\":\"" + phone + "\"," +
+        "\"imei\":\"" + imei + "\"," +
+        "\"imsi\":\"" + imsi + "\"," +
+        "\"circleId\":" + circleId + "," +
+        "\"circleName\":\"" + circleName + "\"" +
+        "}";
   }
 }
