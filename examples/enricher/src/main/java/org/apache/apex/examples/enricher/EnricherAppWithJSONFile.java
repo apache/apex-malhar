@@ -19,9 +19,14 @@
 
 package org.apache.apex.examples.enricher;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 
+import org.apache.apex.malhar.lib.function.Function;
+import org.apache.apex.malhar.lib.function.FunctionOperator.MapFunctionOperator;
 import org.apache.hadoop.conf.Configuration;
+
+import com.google.common.annotations.VisibleForTesting;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
@@ -36,9 +41,20 @@ import com.datatorrent.contrib.parser.JsonParser;
  */
 public class EnricherAppWithJSONFile implements StreamingApplication
 {
+  @SuppressWarnings("serial")
+  public static final Function.MapFunction<Object, Void> CONSOLE_OUTPUT_FN = new Function.MapFunction<Object, Void>()
+  {
+    @Override
+    public Void f(Object input)
+    {
+      PrintStream out = System.out;
+      out.println(input);
+      return null;
+    }
+  };
 
-
-
+  @VisibleForTesting
+  Function.MapFunction<Object, ?> outputFn = CONSOLE_OUTPUT_FN;
   DataGenerator dataGenerator;
 
   @Override
@@ -56,20 +72,18 @@ public class EnricherAppWithJSONFile implements StreamingApplication
     POJOEnricher enrich = dag.addOperator("Enrich", POJOEnricher.class);
     enrich.setStore(fsLoader);
 
-    ArrayList includeFields = new ArrayList();
+    ArrayList<String> includeFields = new ArrayList<>();
     includeFields.add("circleName");
-    ArrayList lookupFields = new ArrayList();
+    ArrayList<String> lookupFields = new ArrayList<>();
     lookupFields.add("circleId");
 
     enrich.setIncludeFields(includeFields);
     enrich.setLookupFields(lookupFields);
 
-    LineOutputOperator fileOut = dag.addOperator("fileOut", LineOutputOperator.class);
-
-
+    MapFunctionOperator<Object, ?> out = dag.addOperator("out", new MapFunctionOperator<>(outputFn));
     dag.addStream("Parse", dataGenerator.output, parser.in);
     dag.addStream("Enrich", parser.out, enrich.input);
-    dag.addStream("Console", enrich.output, fileOut.input);
+    dag.addStream("Console", enrich.output, out.input);
   }
 
   public DataGenerator getDataGenerator()
