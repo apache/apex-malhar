@@ -79,7 +79,16 @@ public class FunctionOperator<OUT, FUNCTION extends Function> implements Operato
   {
     isAnnonymous = f.getClass().isAnonymousClass();
     if (isAnnonymous) {
+      // legacy behavior for functions that don't support Java serialization
       annonymousFunctionClass = functionClassData(f);
+      try {
+        readFunction();
+      } catch (Exception e) {
+        // cannot be handled by custom serialization, but may be Java serializable
+        annonymousFunctionClass = null;
+        statefulF.setValue(f);
+        stateful = true;
+      }
     } else if (f instanceof Function.Stateful) {
       statelessF = f;
     } else {
