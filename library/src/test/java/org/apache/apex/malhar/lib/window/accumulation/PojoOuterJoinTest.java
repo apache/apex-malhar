@@ -438,4 +438,321 @@ public class PojoOuterJoinTest
     }
     Assert.assertEquals(3,checkMap.size());
   }
+
+  @Test
+  public void PojoLeftOuterJoinTestDuplicateKeysLeftTable()
+  {
+    String[] leftKeys = {"uId"};
+    String[] rightKeys = {"uId"};
+    PojoLeftOuterJoin<TestPojo1, TestPojo3> pij = new PojoLeftOuterJoin<>(TestOutClass.class, leftKeys, rightKeys);
+    List<Multimap<List<Object>, Object>> accu = pij.defaultAccumulatedValue();
+    Assert.assertEquals(2, accu.size());
+    accu = pij.accumulate(accu, new TestPojo1(1, "Josh"));
+    accu = pij.accumulate(accu, new TestPojo1(2, "Bob"));
+    accu = pij.accumulate(accu, new TestPojo1(1, "Emily"));
+    accu = pij.accumulate2(accu, new TestPojo3(1, "NickJosh", 12));
+    accu = pij.accumulate2(accu, new TestPojo3(3, "NickBob", 13));
+    List result = pij.getOutput(accu);
+    Assert.assertEquals(3, result.size());
+    boolean checkJosh = false;
+    boolean checkEmily = false;
+    for (int i = 0; i < result.size(); i++) {
+      Object o = result.get(i);
+      Assert.assertTrue(o instanceof TestOutClass);
+      TestOutClass testOutClass = (TestOutClass)o;
+      int uId = testOutClass.getUId();
+      if (uId == 1) {
+        Assert.assertEquals("NickJosh", testOutClass.getUNickName());
+        String name = testOutClass.getUName();
+        if (name.equalsIgnoreCase("Josh")) {
+          if (!checkJosh) {
+            checkNameAge("Josh", 12, testOutClass);
+            checkJosh = true;
+          } else {
+            Assert.fail("Multiple entries for Josh");
+          }
+        } else if (name.equalsIgnoreCase("Emily")) {
+          if (!checkEmily) {
+            checkNameAge("Emily", 12, testOutClass);
+            checkEmily = true;
+          } else {
+            Assert.fail("Multiple entries for Emily");
+          }
+        } else {
+          Assert.fail("incorrect name");
+        }
+      } else if (uId == 2) {
+        checkNameAge("Bob", 0, testOutClass);
+      } else {
+        Assert.fail("Incorrect uid");
+      }
+    }
+  }
+
+  @Test
+  public void PojoLeftOuterJoinTestDuplicateKeysRightTable()
+  {
+    String[] leftKeys = {"uId"};
+    String[] rightKeys = {"uId"};
+    PojoLeftOuterJoin<TestPojo1, TestPojo3> pij = new PojoLeftOuterJoin<>(TestOutClass.class, leftKeys, rightKeys);
+    List<Multimap<List<Object>, Object>> accu = pij.defaultAccumulatedValue();
+    Assert.assertEquals(2, accu.size());
+    accu = pij.accumulate(accu, new TestPojo1(1, "Josh"));
+    accu = pij.accumulate(accu, new TestPojo1(2, "Bob"));
+
+    accu = pij.accumulate2(accu, new TestPojo3(1, "NickEmily", 14));
+    accu = pij.accumulate2(accu, new TestPojo3(1, "NickJosh", 12));
+    accu = pij.accumulate2(accu, new TestPojo3(3, "NickBob", 13));
+
+    List result = pij.getOutput(accu);
+    Assert.assertEquals(3, result.size());
+    boolean checkJosh = false;
+    boolean checkEmily = false;
+    for (int i = 0; i < result.size(); i++) {
+      Object o = result.get(i);
+      Assert.assertTrue(o instanceof TestOutClass);
+      TestOutClass testOutClass = (TestOutClass)o;
+      int uId = testOutClass.getUId();
+      if (uId == 1) {
+        String name = testOutClass.getUNickName();
+        if (name.equalsIgnoreCase("NickJosh")) {
+          if (!checkJosh) {
+            checkNameAge("Josh", 12, testOutClass);
+            checkJosh = true;
+          } else {
+            Assert.fail("Multiple entries for NickJosh");
+          }
+        } else if (name.equalsIgnoreCase("NickEmily")) {
+          if (!checkEmily) {
+            checkNameAge("Josh", 14, testOutClass);
+            checkEmily = true;
+          } else {
+            Assert.fail("Multiple entries for NickEmily");
+          }
+        } else {
+          Assert.fail("incorrect name");
+        }
+      } else if (uId == 2) {
+        checkNameAge("Bob", 0, testOutClass);
+      } else {
+        Assert.fail("Incorrect uid");
+      }
+    }
+  }
+
+  @Test
+  public void PojoRightOuterJoinTestDuplicateKeysLeftTable()
+  {
+    String[] leftKeys = {"uId"};
+    String[] rightKeys = {"uId"};
+    PojoRightOuterJoin<TestPojo1, TestPojo3> pij = new PojoRightOuterJoin<>(TestOutClass.class, leftKeys, rightKeys);
+    List<Multimap<List<Object>, Object>> accu = pij.defaultAccumulatedValue();
+    Assert.assertEquals(2, accu.size());
+    accu = pij.accumulate(accu, new TestPojo1(1, "Josh"));
+    accu = pij.accumulate(accu, new TestPojo1(2, "Bob"));
+    accu = pij.accumulate(accu, new TestPojo1(1, "Emily"));
+    accu = pij.accumulate2(accu, new TestPojo3(1, "NickJosh", 12));
+    accu = pij.accumulate2(accu, new TestPojo3(3, "NickBob", 13));
+
+    List result = pij.getOutput(accu);
+    Assert.assertEquals(3, result.size());
+    boolean checkJosh = false;
+    boolean checkEmily = false;
+    for (int i = 0; i < result.size(); i++) {
+      Object o = result.get(i);
+      Assert.assertTrue(o instanceof TestOutClass);
+      TestOutClass testOutClass = (TestOutClass)o;
+      int uId = testOutClass.getUId();
+      if (uId == 1) {
+        Assert.assertEquals("NickJosh", testOutClass.getUNickName());
+        String name = testOutClass.getUName();
+        if (name.equalsIgnoreCase("Josh")) {
+          if (!checkJosh) {
+            checkNameAge("Josh", 12, testOutClass);
+            checkJosh = true;
+          } else {
+            Assert.fail("Multiple entries for Josh");
+          }
+        } else if (name.equalsIgnoreCase("Emily")) {
+          if (!checkEmily) {
+            checkNameAge("Emily", 12, testOutClass);
+            checkEmily = true;
+          } else {
+            Assert.fail("Multiple entries for Emily");
+          }
+        } else {
+          Assert.fail("incorrect name");
+        }
+      } else if (uId == 3) {
+        Assert.assertEquals("NickBob", testOutClass.getUNickName());
+        Assert.assertEquals(13, testOutClass.getAge());
+
+      } else {
+        Assert.fail("Incorrect uid");
+      }
+    }
+  }
+
+  @Test
+  public void PojoRightOuterJoinTestDuplicateKeysRightTable()
+  {
+    String[] leftKeys = {"uId"};
+    String[] rightKeys = {"uId"};
+    PojoRightOuterJoin<TestPojo1, TestPojo3> pij = new PojoRightOuterJoin<>(TestOutClass.class, leftKeys, rightKeys);
+    List<Multimap<List<Object>, Object>> accu = pij.defaultAccumulatedValue();
+    Assert.assertEquals(2, accu.size());
+    accu = pij.accumulate(accu, new TestPojo1(1, "Josh"));
+    accu = pij.accumulate(accu, new TestPojo1(2, "Bob"));
+
+    accu = pij.accumulate2(accu, new TestPojo3(1, "NickEmily", 14));
+    accu = pij.accumulate2(accu, new TestPojo3(1, "NickJosh", 12));
+    accu = pij.accumulate2(accu, new TestPojo3(3, "NickBob", 13));
+
+    List result = pij.getOutput(accu);
+    Assert.assertEquals(3, result.size());
+    boolean checkJosh = false;
+    boolean checkEmily = false;
+    for (int i = 0; i < result.size(); i++) {
+      Object o = result.get(i);
+      Assert.assertTrue(o instanceof TestOutClass);
+      TestOutClass testOutClass = (TestOutClass)o;
+      int uId = testOutClass.getUId();
+      if (uId == 1) {
+        String name = testOutClass.getUNickName();
+        if (name.equalsIgnoreCase("NickJosh")) {
+          if (!checkJosh) {
+            checkNameAge("Josh", 12, testOutClass);
+            checkJosh = true;
+          } else {
+            Assert.fail("Multiple entries for NickJosh");
+          }
+        } else if (name.equalsIgnoreCase("NickEmily")) {
+          if (!checkEmily) {
+            checkNameAge("Josh", 14, testOutClass);
+            checkEmily = true;
+          } else {
+            Assert.fail("Multiple entries for NickEmily");
+          }
+        } else {
+          Assert.fail("incorrect name");
+        }
+      } else if (uId == 3) {
+        Assert.assertEquals("NickBob", testOutClass.getUNickName());
+        Assert.assertEquals(13, testOutClass.getAge());
+
+      } else {
+        Assert.fail("Incorrect uid ");
+      }
+    }
+  }
+
+  @Test
+  public void PojoFullOuterJoinTestDuplicateKeysLeftTable()
+  {
+    String[] leftKeys = {"uId"};
+    String[] rightKeys = {"uId"};
+    PojoFullOuterJoin<TestPojo1, TestPojo3> pij = new PojoFullOuterJoin<>(TestOutClass.class, leftKeys, rightKeys);
+    List<Multimap<List<Object>, Object>> accu = pij.defaultAccumulatedValue();
+    Assert.assertEquals(2, accu.size());
+    accu = pij.accumulate(accu, new TestPojo1(1, "Josh"));
+    accu = pij.accumulate(accu, new TestPojo1(2, "Bob"));
+    accu = pij.accumulate(accu, new TestPojo1(1, "Emily"));
+    accu = pij.accumulate2(accu, new TestPojo3(1, "NickJosh", 12));
+    accu = pij.accumulate2(accu, new TestPojo3(3, "NickBob", 13));
+
+    List result = pij.getOutput(accu);
+    Assert.assertEquals(4, result.size());
+    boolean checkJosh = false;
+    boolean checkEmily = false;
+    for (int i = 0; i < result.size(); i++) {
+      Object o = result.get(i);
+      Assert.assertTrue(o instanceof TestOutClass);
+      TestOutClass testOutClass = (TestOutClass)o;
+      int uId = testOutClass.getUId();
+      if (uId == 1) {
+        Assert.assertEquals("NickJosh", testOutClass.getUNickName());
+        String name = testOutClass.getUName();
+        if (name.equalsIgnoreCase("Josh")) {
+          if (!checkJosh) {
+            checkNameAge("Josh", 12, testOutClass);
+            checkJosh = true;
+          } else {
+            Assert.fail("Multiple entries for Josh");
+          }
+        } else if (name.equalsIgnoreCase("Emily")) {
+          if (!checkEmily) {
+            checkNameAge("Emily", 12, testOutClass);
+            checkEmily = true;
+          } else {
+            Assert.fail("Multiple entries for Emily");
+          }
+        } else {
+          Assert.fail("incorrect name");
+        }
+      } else if (uId == 3) {
+        Assert.assertEquals("NickBob", testOutClass.getUNickName());
+        Assert.assertEquals(13, testOutClass.getAge());
+
+      } else if (uId == 2) {
+        checkNameAge("Bob", 0, testOutClass);
+      } else {
+        Assert.fail("Incorrect uid ");
+      }
+    }
+  }
+
+  @Test
+  public void PojoFullOuterJoinTestDuplicateKeysRightTable()
+  {
+    String[] leftKeys = {"uId"};
+    String[] rightKeys = {"uId"};
+    PojoFullOuterJoin<TestPojo1, TestPojo3> pij = new PojoFullOuterJoin<>(TestOutClass.class, leftKeys, rightKeys);
+    List<Multimap<List<Object>, Object>> accu = pij.defaultAccumulatedValue();
+    Assert.assertEquals(2, accu.size());
+    accu = pij.accumulate(accu, new TestPojo1(1, "Josh"));
+    accu = pij.accumulate(accu, new TestPojo1(2, "Bob"));
+
+    accu = pij.accumulate2(accu, new TestPojo3(1, "NickEmily", 14));
+    accu = pij.accumulate2(accu, new TestPojo3(1, "NickJosh", 12));
+    accu = pij.accumulate2(accu, new TestPojo3(3, "NickBob", 13));
+
+    List result = pij.getOutput(accu);
+    Assert.assertEquals(4, result.size());
+    boolean checkJosh = false;
+    boolean checkEmily = false;
+    for (int i = 0; i < result.size(); i++) {
+      Object o = result.get(i);
+      Assert.assertTrue(o instanceof TestOutClass);
+      TestOutClass testOutClass = (TestOutClass)o;
+      int uId = testOutClass.getUId();
+      if (uId == 1) {
+        String name = testOutClass.getUNickName();
+        if (name.equalsIgnoreCase("NickJosh")) {
+          if (!checkJosh) {
+            checkNameAge("Josh", 12, testOutClass);
+            checkJosh = true;
+          } else {
+            Assert.fail("Multiple entries for NickJosh");
+          }
+        } else if (name.equalsIgnoreCase("NickEmily")) {
+          if (!checkEmily) {
+            checkNameAge("Josh", 14, testOutClass);
+            checkEmily = true;
+          } else {
+            Assert.fail("Multiple entries for NickEmily");
+          }
+        } else {
+          Assert.fail("incorrect name");
+        }
+      } else if (uId == 3) {
+        Assert.assertEquals("NickBob", testOutClass.getUNickName());
+        Assert.assertEquals(13, testOutClass.getAge());
+
+      } else if (uId == 2) {
+        checkNameAge("Bob", 0, testOutClass);
+      } else {
+        Assert.fail("Incorrect uid ");
+      }
+    }
+  }
 }

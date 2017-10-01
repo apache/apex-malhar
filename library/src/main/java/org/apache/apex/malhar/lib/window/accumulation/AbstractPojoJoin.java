@@ -53,9 +53,9 @@ public abstract class AbstractPojoJoin<InputT1, InputT2>
   private transient Map<String,PojoUtils.Getter> gettersStream1;
   private transient Map<String,PojoUtils.Getter> gettersStream2;
   protected transient Map<String,PojoUtils.Setter> setters;
-  protected transient Map<String, KeyValPair<STREAM, String>> outputToInputMap;
-  protected transient String[] leftKeys;
-  protected transient String[] rightKeys;
+  protected Map<String, KeyValPair<STREAM, String>> outputToInputMap;
+  protected String[] leftKeys;
+  protected String[] rightKeys;
   public enum STREAM
   {
     LEFT, RIGHT
@@ -236,14 +236,14 @@ public abstract class AbstractPojoJoin<InputT1, InputT2>
       Collection<Object> left = leftStream.get(lMap);
       if (rightStream.containsKey(lMap)) {
         Collection<Object> right = rightStream.get(lMap);
-        Object o;
-        try {
-          o = outClass.newInstance();
-        } catch (Throwable e) {
-          throw Throwables.propagate(e);
-        }
         for (Object lObj:left) {
           for (Object rObj:right) {
+            Object o;
+            try {
+              o = outClass.newInstance();
+            } catch (Throwable e) {
+              throw Throwables.propagate(e);
+            }
             if (outputToInputMap != null) {
               for (Map.Entry<String, KeyValPair<STREAM,String>> entry : outputToInputMap.entrySet()) {
                 KeyValPair<STREAM,String> kv = entry.getValue();
@@ -262,8 +262,8 @@ public abstract class AbstractPojoJoin<InputT1, InputT2>
               setObjectForResult(leftGettersStream, lObj, o);
               setObjectForResult(rightGettersStream, rObj, o);
             }
+            result.add(o);
           }
-          result.add(o);
         }
         rightStream.removeAll(lMap);
       } else {
