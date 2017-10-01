@@ -27,6 +27,7 @@ import org.apache.apex.malhar.lib.window.Accumulation;
 import org.apache.apex.malhar.lib.window.TriggerOption;
 import org.apache.apex.malhar.lib.window.Tuple;
 import org.apache.apex.malhar.lib.window.accumulation.FoldFn;
+import org.apache.apex.malhar.lib.window.accumulation.Reduce;
 import org.apache.apex.malhar.lib.window.accumulation.ReduceFn;
 import org.apache.apex.malhar.lib.window.impl.KeyedWindowedOperatorImpl;
 import org.apache.apex.malhar.lib.window.impl.WindowedOperatorImpl;
@@ -134,7 +135,7 @@ public interface WindowedStream<T> extends ApexStream<T>
    * @param <STREAM> return type
    * @return new stream of same type
    */
-  <STREAM extends WindowedStream<Tuple.WindowedTuple<T>>> STREAM reduce(ReduceFn<T> reduce, Option... opts);
+  <STREAM extends WindowedStream<Tuple.WindowedTuple<T>>> STREAM reduce(Reduce<T> reduce, Option... opts);
 
   /**
    * Add {@link KeyedWindowedOperatorImpl} with specified {@link ReduceFn} <br>
@@ -147,7 +148,7 @@ public interface WindowedStream<T> extends ApexStream<T>
    * @param <STREAM> return type
    * @return new stream of key value pair
    */
-  <K, V, STREAM extends WindowedStream<Tuple.WindowedTuple<KeyValPair<K, V>>>> STREAM reduceByKey(ReduceFn<V> reduce, Function.ToKeyValue<T, K, V> convertToKeyVal, Option... opts);
+  <K, V, STREAM extends WindowedStream<Tuple.WindowedTuple<KeyValPair<K, V>>>> STREAM reduceByKey(Reduce<V> reduce, Function.ToKeyValue<T, K, V> convertToKeyVal, Option... opts);
 
 
   /**

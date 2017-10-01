@@ -1,0 +1,212 @@
+#!/bin/bash 
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+
+# Support functions
+
+# TODO :
+# ACCEPTED ARGUMENTS:
+# shell
+# launch input_python.py
+# kill app-id
+# shutdown app-id
+
+usage() { echo "Usage: $0 [-sh] [-l <python program file> ] [-m HADOOP|LOCAL ] [-k <app-id>] [-t <app-id>]" 1>&2; exit 1; }
+COMMAND_MODE='SHELL_MODE' 
+RUNNING_MODE='HADOOP'
+EXECUTABLE_FILE=false
+while getopts ":s:l:k:t:m:" o; do
+    case "${o}" in
+        s)
+            s=${OPTARG}
+            COMMAND_MODE="SHELL_MODE"
+            ;;
+        l)
+            EXECUTABLE_FILE=${OPTARG}
+            COMMAND_MODE="LAUNCH_MODE"
+            ;;
+        k)  
+            APP_ID=${OPTARG}
+            COMMAND_MODE="KILL_MODE"
+            ;;
+        m)  
+            RUNNING_MODE=${OPTARG}
+            ;;
+        t) 
+            APP_ID=${OPTARG}
+            COMMAND_MODE="SHUTDOWN_MODE"
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+echoerr() { echo "$@" 1>&2; }
+if [ -e "pyapex" ]
+then 
+  rm pyapex
+fi
+if [ -z $APEX_HOME ]
+then 
+  echo "APEX_HOME is not set correctly; Please set it to apex-core path"
+  exit
+fi
+real_dir() {
+  SOURCE="${1:-${BASH_SOURCE[0]}}"
+  while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+    SOURCE_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ $SOURCE != /* ]] && SOURCE="$SOURCE_DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+  done
+  SOURCE_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  echo $SOURCE_DIR
+}
+script_dir=$(real_dir "${BASH_SOURCE[0]}")
+# Create missing clirc file for current user
+if [ ! -f "${HOME}/.dt/clirc" ]; then
+  mkdir -p "${HOME}/.dt"
+  cat >${HOME}/.dt/clirc <<EOF
+# User editable apex settings
+EOF
+fi
+# Load DataTorrent environment settings
+for conf_dir in "${script_dir}/../conf" "$HOME/.dt"; do
+    [[ -f "${conf_dir}/dt-env.sh" ]] && . "${conf_dir}/dt-env.sh"
+done
+
+# In development mode, if configuration files are not found, locate DT_HADOOP manually
+if [ -z "${DT_HADOOP}" ]; then
+  HADOOP_SEARCH_PATH="${HADOOP_PREFIX}/bin:${HADOOP_HOME}/bin:${PATH}:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:."
+  export DT_HADOOP=`PATH=${HADOOP_SEARCH_PATH} && command -v hadoop 2>/dev/null`
+fi
+
+if [ "$DT_CLIENT_OPTS" = "" ]; then
+#  DT_CLIENT_OPTS="-Xmx1024m -XX:MaxPermSize=512m -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled"
+  DT_CLIENT_OPTS="-Xmx1024m -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled"
+fi
+
+export HADOOP_CLIENT_OPTS="$DT_CLIENT_OPTS"
+
+PYTHON_BUILD="$( dirname "$0" )/../dist"
+BUILD_DIR="$( dirname "$0" )/../target"
+PYAPEX_HOME="`pwd`/../apex-python"
+
+if [[ (-z "$DT_HADOOP" ) || ( "$RUNNING_MODE" == "LOCAL" ) ]]; then
+  echo "Development Mode without Hadoop Installation: Using jars from mvn generated path"
+  MVN_GENERATED_PATH="$BUILD_DIR/mvn-generated-runtime-classpath"
+else
+  echo "Development Mode with Hadoop Installation:  Using jars to be provided externally "
+  MVN_GENERATED_PATH="$BUILD_DIR/mvn-generated-runtime-classpath-no-hadoop"
+fi
+if [ -f "$MVN_GENERATED_PATH" ]; then
+  # development launch mode
+  DT_CORE_JAR="$BUILD_DIR/malhar-python-3.8.0-SNAPSHOT.jar"
+  if [ ! -f "$DT_CORE_JAR" ]; then
+    echoerr "Error: Cannot find $DT_CORE_JAR";
+    exit 1;
+  fi
+  DT_CLASSPATH="$DT_CLASSPATH:$DT_CORE_JAR"
+  DT_CLASSPATH=$BASEDIR/libs'/*'":${DT_CLASSPATH}"
+  DT_CLASSPATH="$DT_CLASSPATH:`cat $MVN_GENERATED_PATH`"
+else
+  # running from installation
+  if [ -z "$DT_HADOOP" ]; then
+    echoerr "Hadoop installation not found. Please include hadoop in PATH."
+    exit 1;
+  fi
+  BASEDIR=$( cd ${script_dir}/..; pwd -P )
+fi
+
+if [ -n "$DT_CLASSPATH" ]; then
+  if [ -z "$HADOOP_CLASSPATH" ]; then
+    export HADOOP_CLASSPATH="$DT_CLASSPATH"
+  else
+    export HADOOP_CLASSPATH="$HADOOP_CLASSPATH:$DT_CLASSPATH"
+  fi
+fi
+APEXRUNERPID=0
+APEXRUNNERLOG="$( dirname "$0")/ApexRunner.out"
+rm -f $APEXRUNNERLOG
+export PYAPEX_HOME=$PYAPEX_HOME
+cp $BUILD_DIR/runtime_libs/* $PYAPEX_HOME/deps
+cp $DT_CORE_JAR $PYAPEX_HOME/deps
+echo "PYAPEX_HOME $PYAPEX_HOME"
+
+echo "Intiating PYSHELL now " 
+
+#ln -sf $PYAPEX_HOME "$script_dir/pyapex"
+if [ -z "$PYTHONPATH" ] 
+then
+  export PYTHONPATH="$PYAPEX_HOME/deps/pyapex-0.0.4-src.zip"
+
+else
+  export PYTHONPATH="$PYTHONPATH:$PYAPEX_HOME/deps/pyapex-0.0.4-src.zip"
+fi
+if [ "$COMMAND_MODE" = "KILL_MODE" ]
+then 
+   echo "Killing APP $APP_ID"
+   echo "kill-app $APP_ID"| $APEX_HOME/engine/src/main/scripts/apex
+   exit 0
+elif [ "$COMMAND_MODE" = "SHUTDOWN_MODE" ]
+then 
+   echo "Shutting down APP $APP_ID"
+   echo "shutdown-app $APP_ID"| $APEX_HOME/engine/src/main/scripts/apex
+   exit 0
+fi
+
+echo "Launching python shell now"    
+if [[ ( -z "$DT_HADOOP" ) || ( "$RUNNING_MODE" == "LOCAL" ) ]]; then
+  echo "Warning: hadoop executable not found.  Running standalone with ${DT_JAVA:-java}."
+  echoerr "Warning: hadoop executable not found.  Running standalone with ${DT_JAVA:-java}."
+  echo "Starting Apex Runner without hadoop"
+  export CLASSPATH=$DT_CLASSPATH
+  "${DT_JAVA:-java}" $DT_CLIENT_OPTS org.apache.apex.malhar.python.PyApex "$@" >$APEXRUNNERLOG 2>&1 &
+  APEXRUNNERPID="$!"  
+  echo $APEXRUNNERPID
+else
+  echo "Warning: hadoop found.  Running with $DT_HADOOP"
+  export HADOOP_USER_CLASSPATH_FIRST=1
+  # remove hadoop and duplicate slf4j binding (bash replace is too slow)
+  export HADOOP_CLASSPATH=$(echo -n "$HADOOP_CLASSPATH" | tr ":" "\n" | sed "/slf4j-log4j/d" | sed "/org\/apache\/hadoop/d" | tr "\n" ":")
+  echo "Starting Apex Runner with hadoop $@" 
+  echo $DT_CLASSPATH
+  "$DT_HADOOP" org.apache.apex.malhar.python.PyApex "$@"   >$APEXRUNNERLOG 2>&1  &
+  APEXRUNNERPID="$!"
+fi
+echo "Apex Runner is started as process id: " $APEXRUNNERPID
+
+if [ "$COMMAND_MODE" = "SHELL_MODE" ]
+then
+   PYTHONPATH=$PYTHONPATH:"python" ipython "$@"
+elif [ "$COMMAND_MODE" = "LAUNCH_MODE" ]
+then
+   PYTHONPATH=$PYTHONPATH:"python" ipython "$EXECUTABLE_FILE" 
+fi    
+if [[ "$RUNNING_MODE" == "LOCAL" ]]; then
+   sleep 60
+fi
+if ! kill $APEXRUNNERPID > /dev/null 2>&1; then
+  echo "Could not send SIGTERM to process $PID. Force killing" >/dev/null >&2
+  kill -9 $APEXRUNNERPID >/dev/null 2>&1 
+fi
+if [ -e pyapex ]
+then
+  rm pyapex
+fi
