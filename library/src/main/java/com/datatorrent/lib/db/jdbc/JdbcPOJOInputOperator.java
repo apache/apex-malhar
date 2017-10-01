@@ -175,8 +175,16 @@ public class JdbcPOJOInputOperator extends AbstractJdbcInputOperator<Object>
       }
 
       if (query != null) {
+        List<Integer> invalidFields = Lists.newArrayList();
         for (FieldInfo fieldInfo : fieldInfos) {
-          columnDataTypes.add(nameToType.get(fieldInfo.getColumnName()));
+          if (nameToType.get(fieldInfo.getColumnName()) == null) {
+            invalidFields.add(fieldInfos.indexOf(fieldInfo));
+          } else {
+            columnDataTypes.add(nameToType.get(fieldInfo.getColumnName()));
+          }
+        }
+        for (int invalidField : invalidFields) {
+          fieldInfos.remove(invalidField);
         }
       }
     }
