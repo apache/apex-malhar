@@ -16,39 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.apex.malhar.stream.api.impl;
+package org.apache.apex.malhar.stream.api.annotation;
 
-import java.util.UUID;
-
-import org.apache.hadoop.classification.InterfaceStability;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 import com.datatorrent.api.Operator;
 
-import static java.lang.System.currentTimeMillis;
-
 /**
- * A util class to generate unique ids in dag
- *
- * @since 3.4.0
+ * Mark an {@link Operator.InputPort} or an {@link Operator.OutputPort} as for control tuple only
+ * So the port would be recognized and connected by high-level API
  */
-@InterfaceStability.Evolving
-public class IDGenerator
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ControlPort
 {
-  public static final String STREAM_PREFIX = "ControlPassThrough";
-
-  public static String generateOperatorIDWithClock(Class<? extends Operator> operatorClazz)
-  {
-    return operatorClazz.getName() + currentTimeMillis();
-  }
-
-  public static String generateOperatorIDWithUUID(Class<? extends Operator> operatorClazz)
-  {
-    return operatorClazz.getName() + UUID.randomUUID();
-  }
-
-  public static String generateControlStreamNameWithUUID() {
-    return STREAM_PREFIX + UUID.randomUUID();
-  }
-
-
 }

@@ -18,31 +18,79 @@
  */
 package org.apache.apex.malhar.stream.api;
 
-import org.apache.hadoop.classification.InterfaceStability;
+import org.apache.apex.malhar.lib.window.ControlTuple;
 
 import com.datatorrent.api.Attribute;
+import com.datatorrent.api.Component;
+import com.datatorrent.api.Context;
 
 /**
- * Options for the operators in the dag
- *
- * @since 3.5.0
+ * Options for each transformation in the dag
  */
-@InterfaceStability.Evolving
 public interface Option
 {
+  abstract class WatermarkGenerator<T> implements Option, Component<Context.OperatorContext>
+  {
 
+    @Override
+    public void setup(Context.OperatorContext context)
+    {
+
+    }
+
+    @Override
+    public void teardown()
+    {
+
+    }
+
+    /**
+     * The current watermark generation will be called each endWindow to generate watermark
+     * @return null if you don't want to generate watermark for this window
+     */
+    public abstract ControlTuple.Watermark currentWatermark();
+
+    /**
+     * Generate the watermark from current tuple
+     * @param input
+     * @return null if you can't generate watermark from current tuple
+     */
+    public abstract ControlTuple.Watermark getWatermarkFromTuple(T input);
+  }
+
+  /**
+   * Factory class to generate options
+   */
   class Options
   {
+    /**
+     * Create name options so the operator will be create with the name
+     * @param name operator name
+     * @return
+     */
     public static Option name(String name)
     {
       return new OpName(name);
     }
 
+    /**
+     * Create property options to set properties for the operator
+     * @param name
+     * @param value
+     * @return
+     */
     public static Option prop(String name, Object value)
     {
       return new PropSetting(name, value);
     }
 
+    /**
+     * Create attribte options to set the operator attributes
+     * @param attr
+     * @param obj
+     * @param <T>
+     * @return
+     */
     public static <T> Option attr(Attribute<T> attr, T obj)
     {
       return new AttributeSetting<>(attr, obj);
@@ -50,7 +98,7 @@ public interface Option
   }
 
   /**
-   * An option used to set the name of the operator
+   * An option to set the operator name
    */
   class OpName implements Option
   {
@@ -69,7 +117,7 @@ public interface Option
   }
 
   /**
-   * An option used to set the property value of the operator
+   * An option to set an operator property value
    */
   class PropSetting implements Option
   {
@@ -96,7 +144,7 @@ public interface Option
   }
 
   /**
-   * An option used to set the {@link Attribute}
+   * An option to set an attribute value
    * @param <T>
    */
   class AttributeSetting<T> implements Option

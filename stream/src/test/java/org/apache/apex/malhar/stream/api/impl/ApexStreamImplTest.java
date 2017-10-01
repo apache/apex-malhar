@@ -23,13 +23,26 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.junit.Assert;
 import org.junit.Test;
+
+import org.apache.apex.malhar.lib.window.ControlTuple;
+import org.apache.apex.malhar.stream.api.Option;
+import org.apache.apex.malhar.stream.api.annotation.ControlPort;
+import org.apache.apex.malhar.stream.api.function.Function;
+
+import com.esotericsoftware.kryo.io.Output;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.stram.plan.logical.LogicalPlan;
 import com.datatorrent.stram.plan.logical.LogicalPlan.InputPortMeta;
@@ -92,6 +105,75 @@ public class ApexStreamImplTest
 
   }
 
+
+  @Test
+  public void testControlPortConnection()
+  {
+    LogicalPlan dag = new LogicalPlan();
+
+    OperatorWithControlPorts<String, String> first = new OperatorWithControlPorts<>();
+    OperatorWithControlPorts<String, String> second = new OperatorWithControlPorts<>();
+    OperatorWithControlPorts<String, String> last = new OperatorWithControlPorts<>();
+
+    new ApexStreamImpl<String>().addOperator(first, null, first.output, name("first"))
+        .addOperator(second, second.input, second.output, name("second"))
+        .map(new Function.MapFunction<String, String>()
+        {
+          @Override
+          public String f(String input)
+          {
+            // mock function
+            return input;
+          }
+        }, name("third")).endWith(last, last.input, name("fourth")).populateDag(dag);
+
+    // There are 3 data streams and 2 control streams (The map operator is skipped in this case)
+    Assert.assertEquals(5, dag.getAllStreams().size());
+    for (LogicalPlan.StreamMeta sm : dag.getAllStreams()){
+      if (!sm.getSource().getPortName().equals("controlTupleOutput")) {
+        continue;
+      }
+
+      if (sm.getSource().getOperatorMeta().getName().equals("first")) {
+        Assert.assertEquals(1, sm.getSinks().size());
+        Assert.assertEquals("second", sm.getSinks().get(0).getOperatorWrapper().getName());
+      } else if (sm.getSource().getOperatorMeta().getName().equals("second")) {
+        Assert.assertEquals(1, sm.getSinks().size());
+        // third operator is skipped because it has no control tuple port
+        Assert.assertEquals("fourth", sm.getSinks().get(0).getOperatorWrapper().getName());
+      }
+    }
+
+  }
+
+
+  @Test
+  public void testWatermarkInjection()
+  {
+    LogicalPlan dag = new LogicalPlan();
+
+    OperatorWithControlPorts<String, String> first = new OperatorWithControlPorts<>();
+    OperatorWithControlPorts<String, String> second = new OperatorWithControlPorts<>();
+
+    new ApexStreamImpl<String>().addOperator(first, null, first.output, name("first"), new TestWatermarkGenerator<String>())
+        .addOperator(second, second.input, second.output, name("second")).populateDag(dag);
+
+    // There are 3 data streams and 2 control streams (The map operator is skipped in this case)
+    Assert.assertEquals(3, dag.getAllOperators().size());
+    // 2 data stream first -> first_postprocess -> second
+    // 1 control stream first_postprocess -> second
+    Assert.assertEquals(3, dag.getAllStreams().size());
+    Assert.assertTrue(Iterables.any(dag.getAllOperators(), new Predicate<LogicalPlan.OperatorMeta>()
+    {
+      @Override
+      public boolean apply(@Nullable LogicalPlan.OperatorMeta operatorMeta)
+      {
+        return operatorMeta.getName().endsWith(DagMeta.POST_PROCESS_OPERATOR_SUFFIX);
+      }
+    }));
+
+  }
+
   /**
    * A mock operator for test
    * @param <T>
@@ -123,6 +205,63 @@ public class ApexStreamImplTest
 
     public final transient OutputPort<O> output = new DefaultOutputPort<>();
 
+  }
+
+  public static class OperatorWithControlPorts<T, O> extends TestOperator<T, O>
+  {
+    @Override
+    public void beginWindow(long l)
+    {
+
+    }
+
+    @Override
+    public void endWindow()
+    {
+
+    }
+
+    @Override
+    public void setup(Context.OperatorContext context)
+    {
+
+    }
+
+    @Override
+    public void teardown()
+    {
+
+    }
+
+    @ControlPort
+    public final transient OutputPort<ControlTuple> controlTupleOutputPort = new DefaultOutputPort<>();
+
+    @ControlPort
+    public final transient DefaultInputPort<ControlTuple> controlTupleInputOperator = new DefaultInputPort<ControlTuple>()
+    {
+      @Override
+      public void process(ControlTuple o)
+      {
+
+      }
+    };
+
+  }
+
+  public static class TestWatermarkGenerator<T> extends Option.WatermarkGenerator<T>
+  {
+
+    @Override
+    public ControlTuple.Watermark currentWatermark()
+    {
+      return null;
+    }
+
+    @Override
+    public ControlTuple.Watermark getWatermarkFromTuple(T input)
+    {
+      return null;
+    }
   }
 
 }
