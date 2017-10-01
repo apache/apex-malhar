@@ -70,6 +70,8 @@ public class FilterAppTest
       errorConsole.setSilent(true);
 
       dag.getMeta(filter).getMeta(filter.input).getAttributes().put(Context.PortContext.TUPLE_CLASS, DummyPOJO.class);
+      dag.getMeta(filter).getMeta(filter.truePort).getAttributes().put(Context.PortContext.TUPLE_CLASS, DummyPOJO.class);
+      dag.getMeta(filter).getMeta(filter.falsePort).getAttributes().put(Context.PortContext.TUPLE_CLASS, DummyPOJO.class);
 
       dag.addStream("Connect", input.output, filter.input);
 

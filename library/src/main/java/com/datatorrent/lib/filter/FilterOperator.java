@@ -38,6 +38,7 @@ import com.datatorrent.api.DefaultOutputPort;
 
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.lib.expression.Expression;
@@ -79,8 +80,10 @@ public class FilterOperator extends BaseOperator implements Operator.ActivationL
   @AutoMetric
   private long errorTuples;
 
+  @OutputPortFieldAnnotation(schemaRequired = true)
   public final transient DefaultOutputPort<Object> truePort = new DefaultOutputPort<Object>();
 
+  @OutputPortFieldAnnotation(schemaRequired = true)
   public final transient DefaultOutputPort<Object> falsePort = new DefaultOutputPort<Object>();
 
   public final transient DefaultOutputPort<Object> error = new DefaultOutputPort<Object>();
