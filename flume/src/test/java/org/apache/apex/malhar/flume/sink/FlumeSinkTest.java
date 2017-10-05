@@ -54,12 +54,20 @@ public class FlumeSinkTest
       @Override
       public synchronized void unadvertise(Service<byte[]> service)
       {
+        logger.info("Unadvertise invoked");
         notify();
       }
 
       @Override
       public synchronized void advertise(Service<byte[]> service)
       {
+        logger.info("Advertise invoked");
+        // There is a race condition that is breaking the test (Advertise invoked before discover started, hence sleep
+        try {
+          Thread.sleep(1000);
+        } catch (InterruptedException e) {
+          logger.warn("Not able to sleep because of interruption " + e.getMessage(),e);
+        }
         port = service.getPort();
         logger.debug("listening at {}", service);
         notify();
@@ -69,8 +77,10 @@ public class FlumeSinkTest
       @SuppressWarnings("unchecked")
       public synchronized Collection<Service<byte[]>> discover()
       {
+        logger.info("Discover invoked");
         try {
           wait();
+          logger.info("Discover wait completed");
         } catch (InterruptedException ie) {
           throw new RuntimeException(ie);
         }
@@ -78,6 +88,8 @@ public class FlumeSinkTest
       }
 
     };
+    DefaultEventLoop eventloop = new DefaultEventLoop("Eventloop-TestClient");
+    eventloop.start();
     FlumeSink sink = new FlumeSink();
     sink.setName("TeskSink");
     sink.setHostname(hostname);
@@ -86,6 +98,7 @@ public class FlumeSinkTest
     sink.setChannel(new MemoryChannel());
     sink.setDiscovery(discovery);
     sink.start();
+    logger.info("Sink started");
     AbstractLengthPrependerClient client = new AbstractLengthPrependerClient()
     {
       private byte[] array;
@@ -119,12 +132,10 @@ public class FlumeSinkTest
         array[offset + 8] = 8;
         Server.writeLong(array, offset + Server.Request.TIME_OFFSET, System.currentTimeMillis());
         write(array, offset, Server.Request.FIXED_SIZE);
+        logger.info("Connect complete");
       }
 
     };
-
-    DefaultEventLoop eventloop = new DefaultEventLoop("Eventloop-TestClient");
-    eventloop.start();
     discovery.discover();
     try {
       eventloop.connect(new InetSocketAddress(hostname, port), client);
@@ -138,7 +149,6 @@ public class FlumeSinkTest
     } finally {
       eventloop.stop();
     }
-
     sink.stop();
   }
 
