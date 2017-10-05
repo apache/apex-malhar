@@ -19,7 +19,11 @@
 
 package org.apache.apex.examples.transform;
 
+import java.util.ArrayList;
+
+import org.junit.Assert;
 import org.junit.Test;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.LocalMode;
 
@@ -36,5 +40,11 @@ public class ApplicationTest
     lc.runAsync();
     Thread.sleep(10 * 1000);
     lc.shutdown();
+
+    ArrayList<Object> results = Application.Collector.getResult();
+    for (Object result : results) {
+      Assert.assertTrue(((CustomerInfo)result).getName().contains(" "));
+      Assert.assertTrue(StringUtils.isAllLowerCase(((CustomerInfo)result).getAddress()));
+    }
   }
 }
