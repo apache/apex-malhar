@@ -19,11 +19,11 @@
 
 package org.apache.apex.examples.enricher;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 
 import org.apache.apex.malhar.lib.function.Function;
 import org.apache.apex.malhar.lib.function.FunctionOperator.MapFunctionOperator;
+import org.apache.apex.malhar.lib.function.FunctionOperatorUtil;
 import org.apache.hadoop.conf.Configuration;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -41,20 +41,8 @@ import com.datatorrent.contrib.parser.JsonParser;
  */
 public class EnricherAppWithJSONFile implements StreamingApplication
 {
-  @SuppressWarnings("serial")
-  public static final Function.MapFunction<Object, Void> CONSOLE_OUTPUT_FN = new Function.MapFunction<Object, Void>()
-  {
-    @Override
-    public Void f(Object input)
-    {
-      PrintStream out = System.out;
-      out.println(input);
-      return null;
-    }
-  };
-
   @VisibleForTesting
-  Function.MapFunction<Object, ?> outputFn = CONSOLE_OUTPUT_FN;
+  Function.MapFunction<Object, ?> outputFn = FunctionOperatorUtil.CONSOLE_SINK_FN;
   DataGenerator dataGenerator;
 
   @Override

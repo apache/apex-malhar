@@ -22,26 +22,36 @@ package org.apache.apex.examples.transform;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.apex.malhar.lib.function.Function;
+import org.apache.apex.malhar.lib.function.FunctionOperator;
+import org.apache.apex.malhar.lib.function.FunctionOperatorUtil;
 import org.apache.hadoop.conf.Configuration;
+
+import com.google.common.annotations.VisibleForTesting;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.common.partitioner.StatelessPartitioner;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.transform.TransformOperator;
 
 @ApplicationAnnotation(name = "TransformExample")
 /**
  * @since 3.7.0
  */
-public class Application implements StreamingApplication
+public class SimpleTransformApplication implements StreamingApplication
 {
+  @VisibleForTesting
+  Function.MapFunction<Object, ?> outputFn = FunctionOperatorUtil.CONSOLE_SINK_FN;
+
+  @VisibleForTesting
+  POJOGenerator pojoDataGenerator;
+
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    POJOGenerator input = dag.addOperator("Input", new POJOGenerator());
+    pojoDataGenerator = dag.addOperator("Input", new POJOGenerator());
     TransformOperator transform = dag.addOperator("Process", new TransformOperator());
     // Set expression map
     Map<String, String> expMap = new HashMap<>();
@@ -49,13 +59,20 @@ public class Application implements StreamingApplication
     expMap.put("age", "(new java.util.Date()).getYear() - {$.dateOfBirth}.getYear()");
     expMap.put("address", "{$.address}.toLowerCase()");
     transform.setExpressionMap(expMap);
-    ConsoleOutputOperator output = dag.addOperator("Output", new ConsoleOutputOperator());
+    FunctionOperator.MapFunctionOperator<Object, ?> output = dag.addOperator("out",
+        new FunctionOperator.MapFunctionOperator<>(outputFn));
 
-    dag.addStream("InputToTransform", input.output, transform.input);
+    dag.addStream("InputToTransform", pojoDataGenerator.output, transform.input);
     dag.addStream("TransformToOutput", transform.output, output.input);
 
     dag.setInputPortAttribute(transform.input, Context.PortContext.TUPLE_CLASS, CustomerEvent.class);
     dag.setOutputPortAttribute(transform.output, Context.PortContext.TUPLE_CLASS, CustomerInfo.class);
-    dag.setAttribute(transform, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<TransformOperator>(2));
+    setPartitioner(dag,conf,transform);
+  }
+
+  void setPartitioner(DAG dag,Configuration conf, TransformOperator transform)
+  {
+    dag.setAttribute(transform, Context.OperatorContext.PARTITIONER,
+        new StatelessPartitioner<TransformOperator>(2));
   }
 }

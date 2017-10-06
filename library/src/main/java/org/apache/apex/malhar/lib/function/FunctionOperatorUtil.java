@@ -16,25 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.apex.malhar.lib.function;
 
-package org.apache.apex.examples.transform;
+import java.io.PrintStream;
 
-import org.junit.Test;
-import org.apache.hadoop.conf.Configuration;
-import com.datatorrent.api.LocalMode;
+import org.apache.hadoop.classification.InterfaceStability;
 
-public class ApplicationTest
+/***
+ * A utility class that can be used in conjunction with the FunctionOperator class
+ */
+@InterfaceStability.Evolving
+public class FunctionOperatorUtil
 {
-  @Test
-  public void testApplication() throws Exception
+
+  /***
+   * A Map Function implementation that can be used to write to the Console as a sink.
+   */
+  @SuppressWarnings("serial")
+  public static final Function.MapFunction<Object, Void> CONSOLE_SINK_FN = new Function.MapFunction<Object, Void>()
   {
-    LocalMode lma = LocalMode.newInstance();
-    Configuration conf = new Configuration(false);
-    conf.addResource(this.getClass().getResourceAsStream("/META-INF/properties.xml"));
-    lma.prepareDAG(new Application(), conf);
-    LocalMode.Controller lc = lma.getController();
-    lc.runAsync();
-    Thread.sleep(10 * 1000);
-    lc.shutdown();
-  }
+    @Override
+    public Void f(Object input)
+    {
+      PrintStream out = System.out;
+      out.println(input);
+      return null;
+    }
+  };
 }
