@@ -21,6 +21,7 @@ package org.apache.apex.malhar.kafka;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,6 +31,8 @@ import java.util.Set;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.apex.malhar.lib.wal.WindowDataManager;
@@ -186,6 +189,36 @@ public abstract class AbstractKafkaInputOperator implements InputOperator,
 
   private transient volatile Throwable consumerError;
 
+  private transient Map<Pair<String, Integer>, Long> endOffsets = new HashMap<>();
+  private transient Map<Pair<String, Integer>, Long> initialOffsets = new HashMap<>();
+  private transient Set<Pair<String, Integer>> reachedEndOffsets = new HashSet<>();
+
+  private volatile boolean shutdownMode = false;
+  private volatile boolean throwShutdownException = false;
+
+  private String initialOffsetsJson;
+  private String endOffsetsJson;
+
+  public void setInitialOffsetsJson(String offsets) throws Exception
+  {
+    initialOffsetsJson = offsets;
+  }
+
+  public String getInitialOffsetsJson()
+  {
+    return initialOffsetsJson;
+  }
+
+  public void setEndOffsetsJson(String offsets) throws Exception
+  {
+    endOffsetsJson = offsets;
+  }
+
+  public String getEndOffsetsJson()
+  {
+    return endOffsetsJson;
+  }
+
   /**
    * Creates the Wrapper consumer object
    * It maintains consumer thread and store messages in a queue
@@ -202,7 +235,25 @@ public abstract class AbstractKafkaInputOperator implements InputOperator,
   @Override
   public void activate(Context.OperatorContext context)
   {
-    consumerWrapper.start(isIdempotent());
+    if (offsetTrack == null || offsetTrack.isEmpty()) {
+      if (initialOffsetsJson != null) {
+        initialOffsets = parseStringToOffset(initialOffsetsJson);
+        logger.info("Initial offsets are {}", initialOffsets);
+      } else {
+        logger.info("Initial Offsets are not set.");
+      }
+    } else {
+      logger.info("Initial offset will be picked up from the previous state.");
+    }
+
+    if (endOffsetsJson != null) {
+      endOffsets = parseStringToOffset(endOffsetsJson);
+      logger.info("EndOffsets are set to {}", endOffsets);
+    } else {
+      logger.info("EndOffsets are not set.");
+    }
+
+    consumerWrapper.start(isIdempotent(), initialOffsets);
   }
 
   @Override
@@ -252,6 +303,17 @@ public abstract class AbstractKafkaInputOperator implements InputOperator,
   @Override
   public void emitTuples()
   {
+    processConsumerError();
+
+    if (shutdownMode) {
+
+      if (throwShutdownException) {
+        throw new ShutdownException();
+      }
+
+      return;
+    }
+
     int count = consumerWrapper.messageSize();
     if (maxTuplesPerWindow > 0) {
       count = Math.min(count, maxTuplesPerWindow - emitCount);
@@ -259,6 +321,30 @@ public abstract class AbstractKafkaInputOperator implements InputOperator,
     for (int i = 0; i < count; i++) {
       Pair<String, ConsumerRecord<byte[], byte[]>> tuple = consumerWrapper.pollMessage();
       ConsumerRecord<byte[], byte[]> msg = tuple.getRight();
+
+      if (endOffsets != null && !endOffsets.isEmpty()) {
+
+        Long endOffset = endOffsets.get(Pair.of(msg.topic(), msg.partition()));
+
+        if (endOffset == null) {
+          logger.warn("Found a topic {} and partition {} with no end offset defined", msg.topic(), msg.partition());
+          continue;
+        }
+
+        if (msg.offset() == endOffset) {
+          reachedEndOffsets.add(Pair.of(msg.topic(), msg.partition()));
+          if (reachedEndOffsets.size() == assignment.size()) {
+            logger.info("End of offsets reached for all the Topic and Partitions");
+            shutdownMode = true;
+            return;
+          }
+        }
+
+        if (msg.offset() > endOffset) {
+          continue;
+        }
+      }
+
       emitTuple(tuple.getLeft(), msg);
       AbstractKafkaPartitioner.PartitionMeta pm = new AbstractKafkaPartitioner.PartitionMeta(tuple.getLeft(),
           msg.topic(), msg.partition());
@@ -268,7 +354,6 @@ public abstract class AbstractKafkaInputOperator implements InputOperator,
       }
     }
     emitCount += count;
-    processConsumerError();
   }
 
   protected abstract void emitTuple(String cluster, ConsumerRecord<byte[], byte[]> message);
@@ -426,6 +511,30 @@ public abstract class AbstractKafkaInputOperator implements InputOperator,
       consumerError = e;
       logger.warn("Exceptions in committing offsets {} : {} ",
           Joiner.on(';').withKeyValueSeparator("=").join(map), e);
+    }
+
+    for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : map.entrySet()) {
+      Pair<String, Integer> committed = Pair.of(entry.getKey().topic(), entry.getKey().partition());
+
+      Pair toRemove = null;
+
+      for (Pair<String, Integer> reachedOffset : reachedEndOffsets) {
+        if (reachedOffset.getLeft().equals(committed.getLeft())) {
+          if (reachedOffset.getRight() <= committed.getRight()) {
+            toRemove = reachedOffset;
+            break;
+          }
+        }
+      }
+
+      if (toRemove != null) {
+        reachedEndOffsets.remove(toRemove);
+      }
+    }
+
+    if (reachedEndOffsets.isEmpty()) {
+      logger.info("All the requested end offsets have reached committed status.");
+      throwShutdownException = true;
     }
   }
 
@@ -646,5 +755,27 @@ public abstract class AbstractKafkaInputOperator implements InputOperator,
   public Map<AbstractKafkaPartitioner.PartitionMeta, Long> getOffsetTrack()
   {
     return offsetTrack;
+  }
+
+  private Map<Pair<String, Integer>, Long> parseStringToOffset(String offsetsJson)
+  {
+    Map<Pair<String, Integer>, Long> offsets = new HashMap<>();
+
+    try {
+      JSONArray offsetsJ = new JSONObject(offsetsJson).getJSONArray("offsets");
+
+      for (int i = 0; i < offsetsJ.length(); ++i) {
+        JSONObject offset = offsetsJ.getJSONObject(i);
+        String topic = offset.getString("topic");
+        int partitionId = offset.getInt("partitionId");
+        long partiionOffset = offset.getInt("offset");
+        offsets.put(Pair.of(topic, partitionId), partiionOffset);
+      }
+    } catch (Exception ex) {
+      logger.error("Parsing of the String {} failed", offsetsJson, ex);
+      return null;
+    }
+
+    return offsets;
   }
 }
