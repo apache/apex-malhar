@@ -18,19 +18,24 @@
  */
 package com.datatorrent.apps.logstream;
 
-import java.net.URI;
-import java.util.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.apex.malhar.contrib.misc.streamquery.SelectOperator;
 import org.apache.apex.malhar.contrib.misc.streamquery.condition.EqualValueCondition;
-
-import org.apache.commons.lang.StringUtils;
+import org.apache.apex.malhar.lib.utils.PubSubHelper;
 import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.Operator.InputPort;
+import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.contrib.redis.RedisKeyValPairOutputOperator;
+import com.datatorrent.contrib.redis.RedisMapOutputOperator;
+import com.datatorrent.contrib.redis.RedisNumberSummationMapOutputOperator;
 import com.datatorrent.lib.algo.TopN;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
@@ -42,13 +47,6 @@ import com.datatorrent.lib.stream.JsonByteArrayOperator;
 import com.datatorrent.lib.streamquery.index.ColumnIndex;
 import com.datatorrent.lib.util.AbstractDimensionTimeBucketOperator;
 import com.datatorrent.lib.util.DimensionTimeBucketSumOperator;
-
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.Operator.InputPort;
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.contrib.redis.RedisKeyValPairOutputOperator;
-import com.datatorrent.contrib.redis.RedisMapOutputOperator;
-import com.datatorrent.contrib.redis.RedisNumberSummationMapOutputOperator;
 
 /**
  * Log stream processing application based on Apex platform.<br>
@@ -156,14 +154,12 @@ public class Application implements StreamingApplication
 
   private InputPort<Object> wsOutput(DAG dag, String operatorName)
   {
-    String daemonAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
-    if (!StringUtils.isEmpty(daemonAddress)) {
-      URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
+    if (PubSubHelper.isGatewayConfigured(dag)) {
       String appId = "appid";
       //appId = dag.attrValue(DAG.APPLICATION_ID, null); // will be used once UI is able to pick applications from list and listen to corresponding application
       String topic = "apps.logstream." + appId + "." + operatorName;
       PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator(operatorName, new PubSubWebSocketOutputOperator<Object>());
-      wsOut.setUri(uri);
+      wsOut.setUri(PubSubHelper.getURI(dag));
       wsOut.setTopic(topic);
       return wsOut.input;
     }

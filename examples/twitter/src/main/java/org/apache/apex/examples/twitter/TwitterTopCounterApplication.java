@@ -22,11 +22,10 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.apex.malhar.lib.utils.PubSubHelper;
 import org.apache.hadoop.conf.Configuration;
 
 import com.google.common.collect.Maps;
-
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
@@ -34,7 +33,6 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.OutputPort;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-
 import com.datatorrent.contrib.twitter.TwitterSampleInput;
 import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
@@ -189,9 +187,8 @@ public class TwitterTopCounterApplication implements StreamingApplication
 
   public static void consoleOutput(DAG dag, String operatorName, OutputPort<List<Map<String, Object>>> topCount, String schemaFile, String alias)
   {
-    String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
-    if (!StringUtils.isEmpty(gatewayAddress)) {
-      URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
+    if (PubSubHelper.isGatewayConfigured(dag)) {
+      URI uri = PubSubHelper.getURI(dag);
 
       AppDataSnapshotServerMap snapshotServer = dag.addOperator("SnapshotServer", new AppDataSnapshotServerMap());
 

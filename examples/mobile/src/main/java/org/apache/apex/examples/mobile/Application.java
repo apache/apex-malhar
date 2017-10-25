@@ -26,6 +26,7 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.utils.PubSubHelper;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.commons.lang3.Range;
 import org.apache.hadoop.conf.Configuration;
@@ -157,8 +158,7 @@ public class Application implements StreamingApplication
     // done generating data
     LOG.info("Finished generating seed data.");
 
-    String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
-    URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
+    URI uri = PubSubHelper.getURI(dag);
     PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator("LocationResults", new PubSubWebSocketOutputOperator<Object>());
     wsOut.setUri(uri);
     PubSubWebSocketInputOperator<Map<String, String>> wsIn = dag.addOperator("QueryLocation", new PubSubWebSocketInputOperator<Map<String, String>>());

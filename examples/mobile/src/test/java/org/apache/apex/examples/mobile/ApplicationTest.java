@@ -21,7 +21,6 @@ package org.apache.apex.examples.mobile;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.servlet.Servlet;
 
 import org.eclipse.jetty.server.Connector;
@@ -32,11 +31,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.apache.apex.malhar.lib.utils.PubSubHelper;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.LocalMode;
-
 import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
@@ -67,7 +65,7 @@ public class ApplicationTest
     server.start();
     Connector[] connector = server.getConnectors();
     conf.set("dt.attr.GATEWAY_CONNECT_ADDRESS", "localhost:" + connector[0].getLocalPort());
-    URI uri = URI.create("ws://localhost:" + connector[0].getLocalPort() + "/pubsub");
+    URI uri = PubSubHelper.getURI("localhost:" + connector[0].getLocalPort());
 
     PubSubWebSocketOutputOperator<Object> outputOperator = new PubSubWebSocketOutputOperator<Object>();
     outputOperator.setUri(uri);

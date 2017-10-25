@@ -20,25 +20,25 @@ package com.datatorrent.lib.io;
 
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.apache.apex.malhar.lib.utils.PubSubHelper;
 
 import com.datatorrent.common.experimental.AppData;
 
 public abstract class PubSubWebSocketAppDataOperatorTest
 {
   public static final String GATEWAY_CONNECT_ADDRESS_STRING = "my.gateway.com";
-  public static final String URI_ADDRESS_STRING = "ws://localhost:6666/pubsub";
+  public static final String URI_ADDRESS_STRING = "localhost:6666";
   public static final URI GATEWAY_CONNECT_ADDRESS;
   public static final URI URI_ADDRESS;
 
   static {
     try {
-      GATEWAY_CONNECT_ADDRESS = new URI("ws://" + GATEWAY_CONNECT_ADDRESS_STRING + "/pubsub");
-      URI_ADDRESS = new URI(URI_ADDRESS_STRING);
-    } catch (URISyntaxException ex) {
+      GATEWAY_CONNECT_ADDRESS = PubSubHelper.getURI(GATEWAY_CONNECT_ADDRESS_STRING);
+      URI_ADDRESS = PubSubHelper.getURI(URI_ADDRESS_STRING);
+    } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
   }

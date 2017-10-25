@@ -30,6 +30,8 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.Assert;
 import org.junit.Test;
 
+import org.apache.apex.malhar.lib.utils.PubSubHelper;
+
 import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
@@ -51,7 +53,7 @@ public class PubSubWebSocketOperatorTest
     contextHandler.addServlet(sh, "/*");
     server.start();
     Connector[] connector = server.getConnectors();
-    URI uri = URI.create("ws://localhost:" + connector[0].getLocalPort() + "/pubsub");
+    URI uri = PubSubHelper.getURI("localhost:" + connector[0].getLocalPort());
 
     PubSubWebSocketOutputOperator<Object> outputOperator = new PubSubWebSocketOutputOperator<Object>();
     outputOperator.setUri(uri);
