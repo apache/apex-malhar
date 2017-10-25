@@ -20,17 +20,15 @@ package com.datatorrent.lib.io;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.apex.malhar.lib.utils.PubSubHelper;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.Maps;
-
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
@@ -129,9 +127,8 @@ public class WidgetOutputOperator extends BaseOperator
   @Override
   public void setup(OperatorContext context)
   {
-    String gatewayAddress = context.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
-    if (!StringUtils.isEmpty(gatewayAddress)) {
-      wsoo.setUri(URI.create("ws://" + gatewayAddress + "/pubsub"));
+    if (PubSubHelper.isGatewayConfigured(context)) {
+      wsoo.setUri(PubSubHelper.getURI(context));
       wsoo.setup(context);
     } else {
       isWebSocketConnected = false;

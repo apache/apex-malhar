@@ -19,14 +19,13 @@
 package com.datatorrent.lib.io;
 
 import java.net.URI;
-import java.net.URISyntaxException;
-
 import javax.validation.constraints.Min;
 
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.apex.malhar.lib.utils.PubSubHelper;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
@@ -116,10 +115,8 @@ public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<St
       }
 
       try {
-        uri = new URI("ws://"
-                      + context.getValue(DAG.GATEWAY_CONNECT_ADDRESS)
-                      + "/pubsub");
-      } catch (URISyntaxException ex) {
+        uri = PubSubHelper.getURI(context);
+      } catch (Exception ex) {
         throw new RuntimeException(ex);
       }
     }

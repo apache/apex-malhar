@@ -22,15 +22,13 @@ import java.net.URI;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.apache.commons.lang.StringUtils;
+import org.apache.apex.malhar.lib.utils.PubSubHelper;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.appdata.snapshot.AppDataSnapshotServerMap;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
@@ -84,10 +82,8 @@ public class ApplicationWithQuerySupport implements StreamingApplication
     dag.addStream("windowWordCounts", windowWordCount.output, fileWordCount.input);
     dag.addStream("fileWordCounts", fileWordCount.fileOutput, wcWriter.input);
 
-    String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
-
-    if (!StringUtils.isEmpty(gatewayAddress)) {        // add query support
-      URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
+    if (PubSubHelper.isGatewayConfigured(dag)) {        // add query support
+      URI uri = PubSubHelper.getURI(dag);
 
       AppDataSnapshotServerMap snapshotServerFile
           = dag.addOperator("snapshotServerFile", new AppDataSnapshotServerMap());

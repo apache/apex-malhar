@@ -20,11 +20,13 @@ package org.apache.apex.examples.frauddetect;
 
 import java.io.Serializable;
 import java.net.URI;
+
 import org.apache.apex.examples.frauddetect.operator.HdfsStringOutputOperator;
 import org.apache.apex.examples.frauddetect.operator.MongoDBOutputOperator;
+import org.apache.apex.malhar.lib.utils.PubSubHelper;
 import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.Context;
-import com.datatorrent.api.Context.DAGContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
@@ -88,11 +90,7 @@ public class Application implements StreamingApplication
   {
 
     try {
-      String gatewayAddress = dag.getValue(DAGContext.GATEWAY_CONNECT_ADDRESS);
-      if (gatewayAddress == null) {
-        gatewayAddress = "localhost:9090";
-      }
-      URI duri = URI.create("ws://" + gatewayAddress + "/pubsub");
+      URI duri = PubSubHelper.getURIWithDefault(dag, "localhost:9090");
 
       PubSubWebSocketInputOperator userTxWsInput = getPubSubWebSocketInputOperator("userTxInput", dag, duri, "examples.app.frauddetect.submitTransaction");
       PubSubWebSocketOutputOperator ccUserAlertWsOutput = getPubSubWebSocketOutputOperator("ccUserAlertQueryOutput", dag, duri, "examples.app.frauddetect.fraudAlert");

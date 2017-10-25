@@ -23,6 +23,7 @@ import java.net.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.malhar.lib.utils.PubSubHelper;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
@@ -48,10 +49,8 @@ public class MRMonitoringApplication implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    String daemonAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
     MRJobStatusOperator mrJobOperator = dag.addOperator("JobMonitor", new MRJobStatusOperator());
-    URI uri = URI.create("ws://" + daemonAddress + "/pubsub");
-    logger.info("WebSocket with daemon at {}", daemonAddress);
+    URI uri = PubSubHelper.getURI(dag);
 
     PubSubWebSocketInputOperator wsIn = dag.addOperator("Query", new PubSubWebSocketInputOperator());
     wsIn.setUri(uri);

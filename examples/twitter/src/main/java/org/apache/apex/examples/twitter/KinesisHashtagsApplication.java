@@ -18,9 +18,9 @@
  */
 package org.apache.apex.examples.twitter;
 
-import java.net.URI;
-import org.apache.commons.lang.StringUtils;
+import org.apache.apex.malhar.lib.utils.PubSubHelper;
 import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator.InputPort;
@@ -174,13 +174,11 @@ public class KinesisHashtagsApplication implements StreamingApplication
 
   private InputPort<Object> consoleOutput(DAG dag, String operatorName)
   {
-    String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
-    if (!StringUtils.isEmpty(gatewayAddress)) {
-      URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
+    if (PubSubHelper.isGatewayConfigured(dag)) {
       String topic = "examples.twitter." + operatorName;
       //LOG.info("WebSocket with gateway at: {}", gatewayAddress);
       PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator(operatorName, new PubSubWebSocketOutputOperator<Object>());
-      wsOut.setUri(uri);
+      wsOut.setUri(PubSubHelper.getURI(dag));
       wsOut.setTopic(topic);
       return wsOut.input;
     }
