@@ -29,6 +29,8 @@ import com.datatorrent.common.util.BaseOperator;
 
 /**
  * Simple operator that emits Strings from 1 to maxTuplesTotal
+ *
+ * @since 3.8.0
  */
 public class BatchSequenceGenerator extends BaseOperator implements InputOperator
 {

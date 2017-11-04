@@ -34,6 +34,8 @@ import com.esotericsoftware.kryo.util.ObjectMap;
  *
  * <p>This class can be removed after upgrade to a Kryo release > 4.0
  * see https://github.com/EsotericSoftware/kryo/commit/19a6b5edee7125fbaf54c64084a8d0e13509920b
+ *
+ * @since 3.8.0
  */
 public class KryoJavaSerializer extends JavaSerializer
 {

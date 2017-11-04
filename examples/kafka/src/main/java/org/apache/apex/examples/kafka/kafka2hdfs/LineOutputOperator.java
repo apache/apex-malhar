@@ -27,6 +27,8 @@ import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
 
 /**
  * Converts each tuple to a string and writes it as a new line to the output file
+ *
+ * @since 3.8.0
  */
 public class LineOutputOperator extends AbstractFileOutputOperator<byte[]>
 {

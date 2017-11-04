@@ -22,6 +22,9 @@ import org.apache.apex.malhar.lib.fs.LineByLineFileInputOperator;
 
 import com.datatorrent.api.DefaultOutputPort;
 
+/**
+ * @since 3.8.0
+ */
 public class FileReader extends LineByLineFileInputOperator
 {
   /**

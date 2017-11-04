@@ -28,6 +28,8 @@ import org.apache.apex.malhar.lib.fs.LineByLineFileInputOperator;
  *
  * Note that unlike the raw LineByLineFileInputOperator, we advance the streaming
  * window whenever we see a difference in the timestamp in the data.
+ *
+ * @since 3.8.0
  */
 public class NycTaxiDataReader extends LineByLineFileInputOperator
 {

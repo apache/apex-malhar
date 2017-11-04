@@ -20,6 +20,8 @@ package org.apache.apex.malhar.kudu.partitioner;
 
 /**
  * Used to set the partition scan.
+ *
+ * @since 3.8.0
  */
 public enum KuduPartitionScanStrategy
 {

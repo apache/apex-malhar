@@ -28,6 +28,8 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 /**
  * Simple application illustrating file copy from S3
+ *
+ * @since 3.8.0
  */
 @ApplicationAnnotation(name = "s3-output-line")
 public class Application implements StreamingApplication

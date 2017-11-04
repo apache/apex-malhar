@@ -35,6 +35,8 @@ import org.apache.kafka.common.TopicPartition;
 
 /**
  * Wrapper for 0.10.x version of Kafka consumer
+ *
+ * @since 3.8.0
  */
 @InterfaceStability.Evolving
 public class KafkaConsumer010 implements AbstractKafkaConsumer

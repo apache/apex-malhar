@@ -27,6 +27,8 @@ import com.amazonaws.services.kinesis.model.Record;
  *
  * @category Input
  * @tags Kinesis, input, ByteArray
+ *
+ * @since 3.8.0
  */
 
 public class KinesisByteArrayInputOperator extends AbstractKinesisInputOperator<byte[]>

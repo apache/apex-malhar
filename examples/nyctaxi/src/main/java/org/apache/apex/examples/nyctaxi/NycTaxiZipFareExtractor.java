@@ -39,6 +39,8 @@ import com.datatorrent.lib.util.KeyValPair;
 /**
  * Operator that fills in the zip code based on the lat-lon coordinates in the incoming tuples and prepares
  * the tuples for the WindowedOperator downstream. It also generates a watermark that is t - 1 minute.
+ *
+ * @since 3.8.0
  */
 public class NycTaxiZipFareExtractor extends BaseOperator
 {

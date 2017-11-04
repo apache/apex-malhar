@@ -22,6 +22,8 @@ import org.apache.apex.api.operator.ControlTuple;
 
 /**
  * A simple control tuple class that is used to represent a begin or end of a given SQL expression.
+ *
+ * @since 3.8.0
  */
 public class InputOperatorControlTuple implements ControlTuple
 {

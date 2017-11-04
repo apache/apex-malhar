@@ -28,6 +28,9 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
 
 @ApplicationAnnotation(name = "Hdfs2Kafka")
+/**
+ * @since 3.8.0
+ */
 public class Application implements StreamingApplication
 {
 

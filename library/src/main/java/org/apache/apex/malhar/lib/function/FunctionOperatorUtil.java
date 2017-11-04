@@ -26,6 +26,9 @@ import org.apache.hadoop.classification.InterfaceStability;
  * A utility class that can be used in conjunction with the FunctionOperator class
  */
 @InterfaceStability.Evolving
+/**
+ * @since 3.8.0
+ */
 public class FunctionOperatorUtil
 {
 

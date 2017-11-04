@@ -48,6 +48,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * scan token range from a single Kudu tablet. The rows are sent to the input operator buffer so that they
  * can be emitted as windows progress.
  */
+/**
+ * @since 3.8.0
+ */
 public class KuduPartitionScannerCallable<T,C extends InputOperatorControlTuple> implements Callable<Long>
 {
   private AbstractKuduInputOperator<T,C> operatorUsingThisScanner;

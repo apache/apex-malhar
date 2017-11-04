@@ -31,6 +31,8 @@ import com.google.common.base.Throwables;
 /**
  * Delegating handling to an adapter so that the same adapter can be reused
  * from different inheritance hierarchies.
+ *
+ * @since 3.8.0
  */
 public class OutputAdapter<T>
 {

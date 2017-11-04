@@ -35,6 +35,8 @@ import com.google.common.base.Preconditions;
 /**
  * A class responsible for parsing an SQL expression and return parsed Kudu Client equivalent objects.
  * This class is not Thread safe.
+ *
+ * @since 3.8.0
  */
 public class SQLToKuduPredicatesTranslator
 {

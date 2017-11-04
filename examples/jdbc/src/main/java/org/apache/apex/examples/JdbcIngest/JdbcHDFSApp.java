@@ -34,6 +34,9 @@ import com.datatorrent.lib.util.FieldInfo;
 import com.datatorrent.lib.util.FieldInfo.SupportType;
 
 @ApplicationAnnotation(name = "SimpleJdbcToHDFSApp")
+/**
+ * @since 3.8.0
+ */
 public class JdbcHDFSApp implements StreamingApplication
 {
   @Override

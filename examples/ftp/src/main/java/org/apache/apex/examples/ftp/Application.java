@@ -29,6 +29,8 @@ import com.datatorrent.lib.io.AbstractFTPInputOperator.FTPStringInputOperator;
 /**
  * This application demonstrates the FTPStringInputOperator. It uses the FTPStringInputOperator which reads
  * data from a directory on an FTP server, and then writes it to a file using the  StringFileOutputOperator.
+ *
+ * @since 3.8.0
  */
 @ApplicationAnnotation(name = "FTPInputExample")
 public class Application implements StreamingApplication

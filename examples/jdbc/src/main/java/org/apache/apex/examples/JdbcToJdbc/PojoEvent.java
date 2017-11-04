@@ -18,6 +18,9 @@
  */
 package org.apache.apex.examples.JdbcToJdbc;
 
+/**
+ * @since 3.8.0
+ */
 public class PojoEvent
 {
   @Override

@@ -24,6 +24,8 @@ import org.apache.apex.malhar.kudu.sqlparser.KuduSQLExpressionParser;
 
 /**
  * A simple wrapper on the top of the auto-generated KuduSQL expression parser.
+ *
+ * @since 3.8.0
  */
 public class KuduSQLParser extends KuduSQLExpressionParser
 {

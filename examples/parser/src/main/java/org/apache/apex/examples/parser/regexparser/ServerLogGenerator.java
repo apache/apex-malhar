@@ -22,6 +22,9 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.common.util.BaseOperator;
 
+/**
+ * @since 3.8.0
+ */
 public class ServerLogGenerator extends BaseOperator implements InputOperator
 {
   public transient DefaultOutputPort<byte[]> outputPort = new DefaultOutputPort<byte[]>();

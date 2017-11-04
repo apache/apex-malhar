@@ -29,6 +29,8 @@ import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator
 /**
  * A base implementation of an AggregateTransactionableStoreOutputOperator that stores tuples in HBase
  * and provides batch insert.&nbsp; Subclasses should provide implementation for specific Hbase operations. <br>
+ *
+ * @since 3.8.0
  */
 public abstract class AbstractHBaseWindowOutputOperator<T> extends AbstractPassThruTransactionableStoreOutputOperator<T, HBaseWindowStore> implements OutputAdapter.Driver<T>,  Operator.CheckpointNotificationListener
 {

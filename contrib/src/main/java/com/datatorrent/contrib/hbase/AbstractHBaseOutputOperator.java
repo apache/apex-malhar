@@ -26,6 +26,8 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 /**
  * A base implementation of a HBase output operator that stores tuples in HBase and offers 
  * non-transactional Insert.&nbsp; Subclasses should provide implementation for specific Hbase operations.
+ *
+ * @since 3.8.0
  */
 public abstract class AbstractHBaseOutputOperator<T> extends AbstractStoreOutputOperator<T, HBaseStore> implements OutputAdapter.Driver<T>, Operator.CheckpointNotificationListener
 {

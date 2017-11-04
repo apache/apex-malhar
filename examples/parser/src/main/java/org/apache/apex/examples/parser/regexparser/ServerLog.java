@@ -20,6 +20,9 @@ package org.apache.apex.examples.parser.regexparser;
 
 import java.util.Date;
 
+/**
+ * @since 3.8.0
+ */
 public class ServerLog
 {
   private Date date;

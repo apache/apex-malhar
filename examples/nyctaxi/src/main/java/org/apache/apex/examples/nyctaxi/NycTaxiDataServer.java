@@ -44,6 +44,8 @@ import com.datatorrent.lib.util.KeyValPair;
  *
  * The KeyValPair input tuples are zip to total payment of the window. They are collected by an internal map so that
  * the data can be served.
+ *
+ * @since 3.8.0
  */
 public class NycTaxiDataServer extends AbstractAppDataServer<String>
 {

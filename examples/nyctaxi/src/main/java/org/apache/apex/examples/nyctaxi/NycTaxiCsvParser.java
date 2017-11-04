@@ -30,6 +30,8 @@ import com.datatorrent.common.util.BaseOperator;
 /**
  * Operator that parses historical New York City Yellow Cab ride data
  * from http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml.
+ *
+ * @since 3.8.0
  */
 public class NycTaxiCsvParser extends BaseOperator
 {
