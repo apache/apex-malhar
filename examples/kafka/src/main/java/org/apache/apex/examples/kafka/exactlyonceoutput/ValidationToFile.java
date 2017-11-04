@@ -34,6 +34,9 @@ import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.lib.io.fs.AbstractSingleFileOutputOperator;
 
+/**
+ * @since 3.8.0
+ */
 public class ValidationToFile extends AbstractSingleFileOutputOperator<byte[]>
 {
   private static final Logger LOG = LoggerFactory.getLogger(ValidationToFile.class);

@@ -31,6 +31,8 @@ import org.apache.kafka.common.TopicPartition;
 
 /**
  * Interface for Kafka Consumer. It wraps around the KafkaConsumer.
+ *
+ * @since 3.8.0
  */
 public interface AbstractKafkaConsumer
 {

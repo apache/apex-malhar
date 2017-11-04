@@ -29,6 +29,8 @@ import com.datatorrent.lib.io.fs.S3InputModule;
 
 /**
  * Simple application illustrating file copy from S3. S3 Input
+ *
+ * @since 3.8.0
  */
 @ApplicationAnnotation(name = "S3-to-HDFS-Sync")
 public class S3ToHDFSSyncApplication implements StreamingApplication

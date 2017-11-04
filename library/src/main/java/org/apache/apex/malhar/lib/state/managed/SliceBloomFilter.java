@@ -71,6 +71,8 @@ import com.datatorrent.netlet.util.Slice;
  * <a href="https://github.com/sangupta/bloomfilter/blob/master/src/main/java/com/sangupta/bloomfilter/BloomFilter.java">BloomFilter.java</a>
  * <a href="https://github.com/sangupta/murmur/blob/master/src/main/java/com/sangupta/murmur/Murmur3.java">Murmur3.java</a>
  *
+ *
+ * @since 3.8.0
  */
 public class SliceBloomFilter
 {

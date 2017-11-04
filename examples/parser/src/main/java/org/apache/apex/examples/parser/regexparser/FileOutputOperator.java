@@ -23,6 +23,9 @@ import javax.validation.constraints.NotNull;
 
 import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
 
+/**
+ * @since 3.8.0
+ */
 public class FileOutputOperator extends AbstractFileOutputOperator<Object>
 {
   @NotNull

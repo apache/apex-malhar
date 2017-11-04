@@ -32,6 +32,8 @@ import com.google.common.base.Throwables;
 
 /**
  * Provides utilities for zip codes and lat-lon coordinates in New York City.
+ *
+ * @since 3.8.0
  */
 public class NycLocationUtils
 {

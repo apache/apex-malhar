@@ -58,6 +58,8 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
  * **ValidationToFile:**
  * Puts values of input into list depending on topic. If value of maxTuplesTotal is reached it will calculate duplicates
  * and write validation output to HDFS. (output line will be printed in container dt.log as well).
+ *
+ * @since 3.8.0
  */
 
 @ApplicationAnnotation(name = "KafkaExactlyOnceOutput")

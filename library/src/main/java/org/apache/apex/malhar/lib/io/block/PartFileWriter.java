@@ -41,6 +41,8 @@ import com.datatorrent.netlet.util.Slice;
  * Writes the blocks into the specified directory.
  * If f1 is the file of size 10 MB and the block size is 1 MB then this operator writes the blocks into the
  * specified directory as f1.part1, f1.part2 , ...., f1.part10. Here, size of each part is 1 MB.
+ *
+ * @since 3.8.0
  */
 public class PartFileWriter extends BlockWriter implements Operator.IdleTimeHandler
 {

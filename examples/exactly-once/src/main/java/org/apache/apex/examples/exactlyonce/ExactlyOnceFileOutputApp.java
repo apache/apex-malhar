@@ -31,6 +31,9 @@ import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
 import com.datatorrent.lib.util.KeyValPair;
 
 @ApplicationAnnotation(name = "ExactlyOnceFileOutput")
+/**
+ * @since 3.8.0
+ */
 public class ExactlyOnceFileOutputApp implements StreamingApplication
 {
   @Override

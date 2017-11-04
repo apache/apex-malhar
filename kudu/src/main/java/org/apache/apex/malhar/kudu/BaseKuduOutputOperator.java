@@ -49,6 +49,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * <br>pojoclassname=somepojoclasswithgettersandsetters; # Do not append name with .class at the end and
  *  do not forget to give the complete class name including the package</br>
  * </p>
+ *
+ * @since 3.8.0
  */
 public class BaseKuduOutputOperator extends AbstractKuduOutputOperator
 {

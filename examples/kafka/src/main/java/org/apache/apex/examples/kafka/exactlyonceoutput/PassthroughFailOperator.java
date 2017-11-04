@@ -38,6 +38,8 @@ import com.datatorrent.common.util.BaseOperator;
  * To produce an exactly-once scenario the PassthroughFailOperator kills itself after a certain number
  * of processed lines by throwing an exception. YARN will deploy the Operator in a new container,
  * hence not checkpointed tuples will be passed to the OutputOperators more than once.
+ *
+ * @since 3.8.0
  */
 public class PassthroughFailOperator extends BaseOperator
 {

@@ -36,6 +36,8 @@ import com.google.common.collect.Iterables;
 
 /**
  * Wrapper for 0.9.x version of Kafka consumer
+ *
+ * @since 3.8.0
  */
 @InterfaceStability.Evolving
 public class KafkaConsumer09 implements AbstractKafkaConsumer

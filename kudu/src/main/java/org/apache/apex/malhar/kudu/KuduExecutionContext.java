@@ -29,6 +29,8 @@ import org.apache.kudu.client.ExternalConsistencyMode;
  * <p>Represents a summary of the mutation that needs to be done on the Kudu table. The type of mutation is
  * decided by the KuduMutation Type field. The actual data that is mutated inside the kudu table row is
  * represented by the payload. The execution context itself a templated class based on the payload class.</p>
+ *
+ * @since 3.8.0
  */
 public class KuduExecutionContext<T>
 {

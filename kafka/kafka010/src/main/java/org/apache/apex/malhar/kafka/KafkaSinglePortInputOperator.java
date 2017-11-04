@@ -30,6 +30,8 @@ import com.datatorrent.api.DefaultOutputPort;
  * The key and cluster information are ignored
  * This class emit the value to the single output port
  *
+ *
+ * @since 3.8.0
  */
 @InterfaceStability.Evolving
 public class KafkaSinglePortInputOperator extends AbstractKafkaInputOperator

@@ -27,6 +27,9 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 @ApplicationAnnotation(name = "Kafka2HDFS")
+/**
+ * @since 3.8.0
+ */
 public class KafkaApp implements StreamingApplication
 {
 

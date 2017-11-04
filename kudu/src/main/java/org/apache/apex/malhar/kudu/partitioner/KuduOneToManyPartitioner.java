@@ -34,6 +34,8 @@ import org.apache.apex.malhar.kudu.sqltranslator.SQLToKuduPredicatesTranslator;
 
 /**
  * Used when a user would like to assign multiple kudu tablets to a single physical instance of the Kudu input operator
+ *
+ * @since 3.8.0
  */
 public class KuduOneToManyPartitioner extends AbstractKuduInputPartitioner
 {

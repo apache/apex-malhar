@@ -44,6 +44,8 @@ import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
 
 /**
  * The DAG definition of the example that illustrates New York City taxi ride data processing.
+ *
+ * @since 3.8.0
  */
 @ApplicationAnnotation(name = "NycTaxiExample")
 public class Application implements StreamingApplication

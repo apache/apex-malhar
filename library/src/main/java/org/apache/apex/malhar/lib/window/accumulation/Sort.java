@@ -28,6 +28,8 @@ import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * Sort accumulation
+ *
+ * @since 3.8.0
  */
 @InterfaceStability.Evolving
 public class Sort<T> implements Accumulation<T, List<T>, List<T>>

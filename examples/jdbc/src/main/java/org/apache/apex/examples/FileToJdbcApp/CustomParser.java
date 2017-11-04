@@ -28,6 +28,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
 
 // parse input line into pojo event
+/**
+ * @since 3.8.0
+ */
 public class CustomParser extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(CustomParser.class);

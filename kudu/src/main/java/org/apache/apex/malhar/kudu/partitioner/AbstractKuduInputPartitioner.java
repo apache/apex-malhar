@@ -43,6 +43,8 @@ import com.datatorrent.lib.util.KryoCloneUtils;
 
 /**
  * An abstract class that contains logic that is common across all partitioners available for the Kudu input operator.
+ *
+ * @since 3.8.0
  */
 public abstract class AbstractKuduInputPartitioner implements Partitioner<AbstractKuduInputOperator>
 {

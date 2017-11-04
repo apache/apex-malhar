@@ -35,6 +35,9 @@ import static java.sql.Types.INTEGER;
 import static java.sql.Types.VARCHAR;
 
 @ApplicationAnnotation(name = "FileToJdbcCustomParser")
+/**
+ * @since 3.8.0
+ */
 public class FileToJdbcCustomParser implements StreamingApplication
 {
   @Override

@@ -41,6 +41,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *   <li>The consistent order scanner always scans one tablet after another ( and hence less performant compared to
  *   that of the Random order scanner {@link KuduPartitionRandomOrderScanner}) </li>
  * </ol>
+ *
+ * @since 3.8.0
  */
 public class KuduPartitionConsistentOrderScanner<T,C extends InputOperatorControlTuple>
     extends AbstractKuduPartitionScanner<T,C>

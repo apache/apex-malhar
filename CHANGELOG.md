@@ -1,6 +1,87 @@
 Apex Malhar Changelog
 ========================================================================================================================
 
+Version 3.8.0 - 2017-11-08
+------------------------------------------------------------------------------------------------------------------------
+
+### Sub-task
+* [APEXMALHAR-2458] - Move kafka related examples from datatorrent examples to apex-malhar examples
+* [APEXMALHAR-2462] - Move JDBC related examples from datatorrent examples to apex-malhar examples
+* [APEXMALHAR-2474] - FSLoader only returns value at the beginning
+* [APEXMALHAR-2475] - CacheStore needn't expire data if it read-only data
+* [APEXMALHAR-2480] - Move Amazon S3 related examples from datatorrent examples to apex-malhar examples
+
+### Bug
+* [APEXMALHAR-2397] - Malhar demo application PiDemoAppData fails apex get-app-package-info command
+* [APEXMALHAR-2404] - Avro file input operator should call beginWindow of AbstractFileInputOperator
+* [APEXMALHAR-2434] - JMSTransactionableStore uses Session.createQueue() which fails
+* [APEXMALHAR-2460] - Redshift output module tuples unable to emit tuples
+* [APEXMALHAR-2461] - Fix dependencies on libraries licensed under Category X
+* [APEXMALHAR-2465] - Travis build is failing because of excessive logging
+* [APEXMALHAR-2476] - Unable to override tupleSeparator property of GenericFileOutputOperator using configurations
+* [APEXMALHAR-2481] - High Level Stream API does not support lambda expressions
+* [APEXMALHAR-2491] - GenericFileOutputOperatorTest : runTestApplication() does not call shutdown() and can continue to run.
+* [APEXMALHAR-2492] - Correct usage of empty Slice in Malhar Library
+* [APEXMALHAR-2493] - KafkaSinglePortExactlyOnceOutputOperator going to the blocked state during recovery
+* [APEXMALHAR-2500] - Code comment for FSInputModule mentions "...is abstract class..." but the class is not abstract
+* [APEXMALHAR-2502] - Fix KuduOutput operator for extensibility
+* [APEXMALHAR-2505] - SnapshotSchema should retain original field order
+* [APEXMALHAR-2508] - CacheManager throws exception when the operator receives a shutdown request
+* [APEXMALHAR-2513] - JDBCPollInputOperator issues
+* [APEXMALHAR-2518] - Kafka input operator stops reading tuples when there is a UNKNOWN_MEMBER_ID error during committed offset processing
+* [APEXMALHAR-2519] - Performance Benchmark containers stop repeatedly as they exceed physical memory allocated
+* [APEXMALHAR-2525] - YahooFinance example crashes with java.lang.NumberFormatException because YHOO doesn't exist anymore
+* [APEXMALHAR-2526] - FunctionOperator deserialization failure in CLI
+* [APEXMALHAR-2532] - Transform Application Test flooding CI logs
+* [APEXMALHAR-2533] - In TopNWordsWithQueries example, input data from individual files is sorted and written in a single file instead of different files.
+* [APEXMALHAR-2534] - In TopNWordsWithQueries example, input data from individual files is sorted and written in a single file instead of different files.
+* [APEXMALHAR-2535] - Timeouts in AbstractEnricher specified as int which limits duration of time which could be specified.
+* [APEXMALHAR-2540] - Serialization exception with throttle example
+* [APEXMALHAR-2542] - enricher.ApplicationTest access to hard coded /tmp location
+* [APEXMALHAR-2544] - Flume test leads to Travis timeout
+
+### Dependency upgrade
+*  [APEXMALHAR-2516] - Fix few dependency issues in malhar-contrib
+
+### Documentation
+* [APEXMALHAR-2384] - Add documentation for FixedWIdthParser
+* [APEXMALHAR-2457] - Duplicate entries in navigation panel
+
+### Improvement
+* [APEXMALHAR-2324] - Add support for flume
+* [APEXMALHAR-2366] - Apply BloomFilter to Bucket
+* [APEXMALHAR-2435] - specify KeyedWindowedOperatorBenchmarkApp application name
+* [APEXMALHAR-2447] - No indication from AbstractFileInputOperator when directory is empty
+* [APEXMALHAR-2473] - Support for global cache meta information in db CacheManager
+* [APEXMALHAR-2487] - Malhar should support outputting data in Snappy compression
+* [APEXMALHAR-2489] - Change algorithm for average calculation in RunningAverage
+* [APEXMALHAR-2494] - Update demo apps with description
+* [APEXMALHAR-2504] - Allow for customization of TwitterSampleInput ConfigurationBuilder
+* [APEXMALHAR-2506] - Kafka Input operator - needs better handling of failure of Kafka reader thread
+* [APEXMALHAR-2514] - JDBCPollInputOperator support for offset rebase
+* [APEXMALHAR-2515] - HBase output operator Multi Table feature.
+* [APEXMALHAR-2529] - Allow subclass of AbstractFileInputOperator to control when to advance streaming window
+* [APEXMALHAR-2530] - Refactor AbstractAppDataSnapshotServer so that subclasses don't need schemas
+* [APEXMALHAR-2546] - Mocking dependencies should ideally be in the maven parent instead of individual modules
+
+### New Feature
+* [APEXMALHAR-2278] - Implement Kudu Output Operator for non-transactional streams
+* [APEXMALHAR-2453] - Add sort Accumulation for Windowed operator
+* [APEXMALHAR-2455] - Create example for Kafka 0.9 API exactly-once output operator
+* [APEXMALHAR-2472] - Implement Kudu Input Operator
+* [APEXMALHAR-2547] - Add ride data processing example to Apex Library
+
+### Task
+* [APEXMALHAR-2426] - Add user document for RegexParser operator
+* [APEXMALHAR-2431] - Create Kinesis Input operator which emits byte array as tuple
+* [APEXMALHAR-2459] - KafkaInputoperator using 0.10.* Kafka consumer API
+* [APEXMALHAR-2463] - FTP Input Operator Example app and documentation
+* [APEXMALHAR-2471] - Upgrade apex-core dependency to 3.6.0
+* [APEXMALHAR-2479] - Create example for RegexParser operator
+* [APEXMALHAR-2484] - BlockWriter for writing the part files into the specified directory
+* [APEXMALHAR-2541] - Fix travis-ci build
+
+
 Version 3.7.0 - 2017-03-31
 ------------------------------------------------------------------------------------------------------------------------
 

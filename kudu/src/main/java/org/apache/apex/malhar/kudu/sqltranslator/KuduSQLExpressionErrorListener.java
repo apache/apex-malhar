@@ -27,6 +27,8 @@ import org.antlr.v4.runtime.Recognizer;
 
 /**
  * A simple error listener that is plugged into the Kudu expression parser
+ *
+ * @since 3.8.0
  */
 public class KuduSQLExpressionErrorListener extends BaseErrorListener
 {

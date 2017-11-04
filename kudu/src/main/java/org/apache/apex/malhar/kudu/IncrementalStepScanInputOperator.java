@@ -62,6 +62,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *   Note that the implementation assumes the templated column data type is of type long. Considering other types
  *    is a trivial extenstion and perhaps best achieved by extending the Abstract implementation.
  * </p>
+ *
+ * @since 3.8.0
  */
 public class IncrementalStepScanInputOperator<T,C extends InputOperatorControlTuple>
     extends AbstractKuduInputOperator<T,C>

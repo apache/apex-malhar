@@ -22,6 +22,8 @@ package org.apache.apex.malhar.kudu.scanner;
  * Represents a Kudu row and metadata for the row that was consumed by the Kudu scanner client.
  * The metadata includes information like the ordinal position for this scan instance, the query and the scan
  * token was scheduled.
+ *
+ * @since 3.8.0
  */
 public class KuduRecordWithMeta<T>
 {

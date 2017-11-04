@@ -36,6 +36,8 @@ import com.datatorrent.lib.appdata.StoreUtils;
  * Subclasses are expected to implement the processQuery method for the logic of handling the query. Note that
  * processQuery cannot directly emit to the operator's output port because it's called from the thread of the
  * embeddable query info provider.
+ *
+ * @since 3.8.0
  */
 public abstract class AbstractAppDataServer<QueryType> implements Operator, AppData.Store<QueryType>
 {

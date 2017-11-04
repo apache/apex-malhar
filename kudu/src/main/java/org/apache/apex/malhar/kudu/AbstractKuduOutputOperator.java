@@ -93,6 +93,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * mandatory columns. In such scenarios, the method setDoNotWriteColumns() in {@link KuduExecutionContext} can be
  * used to specify only those columns that need an update. This ways a read and Update pattern can be merged to a
  * simple update pattern thus avoiding a read if required.</p>
+ *
+ * @since 3.8.0
  * */
 @InterfaceStability.Evolving
 public abstract class AbstractKuduOutputOperator extends BaseOperator

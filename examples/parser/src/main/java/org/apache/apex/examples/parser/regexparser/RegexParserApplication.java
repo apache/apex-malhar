@@ -27,6 +27,9 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.parser.RegexParser;
 
 @ApplicationAnnotation(name = "RegexParser")
+/**
+ * @since 3.8.0
+ */
 public class RegexParserApplication implements StreamingApplication
 {
   @Override

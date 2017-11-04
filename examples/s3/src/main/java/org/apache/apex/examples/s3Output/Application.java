@@ -28,6 +28,8 @@ import com.datatorrent.lib.io.fs.FSInputModule;
 
 /**
  * Application illustrating copy files from HDFS to S3 bucket.
+ *
+ * @since 3.8.0
  */
 @ApplicationAnnotation(name = "HDFSToS3App")
 public class Application implements StreamingApplication

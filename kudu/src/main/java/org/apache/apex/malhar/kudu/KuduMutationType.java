@@ -21,6 +21,8 @@ package org.apache.apex.malhar.kudu;
 /**
  * <p>Used in {@link KuduExecutionContext} to denote the type of mutation we would like to be executed for the
  * mutation being represented by the current tuple</p>
+ *
+ * @since 3.8.0
  */
 public enum KuduMutationType
 {

@@ -24,6 +24,8 @@ import java.util.Arrays;
 /**
  * The main metadata class that is used to hold the information about the scan token and also the ordinal
  * position out of the total.
+ *
+ * @since 3.8.0
  */
 public class KuduPartitionScanAssignmentMeta implements Serializable
 {

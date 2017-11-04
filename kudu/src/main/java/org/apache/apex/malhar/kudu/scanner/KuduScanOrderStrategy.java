@@ -20,6 +20,8 @@ package org.apache.apex.malhar.kudu.scanner;
 
 /**
  * Used to define the scan order strategy when multiple scan tokens are assigned to a single Apex partition
+ *
+ * @since 3.8.0
  */
 public enum KuduScanOrderStrategy
 {

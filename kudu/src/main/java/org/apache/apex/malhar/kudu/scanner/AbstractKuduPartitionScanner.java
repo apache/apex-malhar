@@ -47,6 +47,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * An abstract class that contains logic common to all types of Scanner. A scanner is responsible for scanning rows from
  * the kudu table based on the incoming SQL query. See {@link KuduPartitionConsistentOrderScanner}
  *  and {@link KuduPartitionRandomOrderScanner} for options available as scanners.
+ *
+ * @since 3.8.0
  */
 public abstract class AbstractKuduPartitionScanner<T,C extends InputOperatorControlTuple>
 {

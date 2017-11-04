@@ -31,6 +31,8 @@ import org.apache.apex.malhar.kudu.sqltranslator.SQLToKuduPredicatesTranslator;
  * sequence of tuples in case of restart after a crash/kill. The nature of unordered scans is because
  * of an eager approach to scan kudu tablets as all the thread pool based threads scan in parallel and hence
  * ordering cannot be guaranteed to the same for each run on the same data set.
+ *
+ * @since 3.8.0
  */
 public class KuduPartitionRandomOrderScanner<T,C extends InputOperatorControlTuple>
     extends AbstractKuduPartitionScanner<T,C>

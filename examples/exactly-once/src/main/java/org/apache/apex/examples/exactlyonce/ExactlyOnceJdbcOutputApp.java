@@ -42,6 +42,9 @@ import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.util.KeyValPair;
 
 @ApplicationAnnotation(name = "ExactlyOnceJbdcOutput")
+/**
+ * @since 3.8.0
+ */
 public class ExactlyOnceJdbcOutputApp implements StreamingApplication
 {
 
