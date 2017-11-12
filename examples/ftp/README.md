@@ -24,12 +24,12 @@ Users can choose the application and additional configuration file to use during
 ### How to compile
 `shell> mvn clean package`
 
-This will generate application package malhar-examples-ftp-3.8.0-SNAPSHOT.apa inside target directory.
+This will generate application package malhar-examples-ftp-3.8.1-SNAPSHOT.apa inside target directory.
 
 ### How to run
 Use the application package generated above to launch the application from UI console(if available) or apex command line interface.
 
-`apex> launch target/malhar-examples-ftp-3.8.0-SNAPSHOT.apa`
+`apex> launch target/malhar-examples-ftp-3.8.1-SNAPSHOT.apa`
 
 
 

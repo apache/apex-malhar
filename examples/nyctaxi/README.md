@@ -48,7 +48,7 @@ Open the Apex CLI command prompt and run the application:
 
 ```bash
 bash> apex
-apex> launch target/malhar-examples-nyc-taxi-3.8.0-SNAPSHOT.apa
+apex> launch target/malhar-examples-nyc-taxi-3.8.1-SNAPSHOT.apa
 ```
 
 After the application has been running for 5 minutes, we can start querying the data. The reason why we need to wait
