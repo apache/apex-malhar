@@ -94,5 +94,12 @@
       <classifier>test</classifier>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka-clients</artifactId>
+      <version>0.10.2.1</version>
+      <classifier>test</classifier>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>

@@ -30,6 +30,7 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.consumer.OffsetCommitCallback;
 import org.apache.kafka.common.Metric;
 import org.apache.kafka.common.MetricName;
+import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 
 import com.google.common.collect.Iterables;
@@ -40,9 +41,9 @@ import com.google.common.collect.Iterables;
  * @since 3.8.0
  */
 @InterfaceStability.Evolving
-public class KafkaConsumer09 implements AbstractKafkaConsumer
+public class KafkaConsumer09<K, V> implements AbstractKafkaConsumer
 {
-  private KafkaConsumer<byte[], byte[]> consumer;
+  private KafkaConsumer<K, V> consumer;
 
   public KafkaConsumer09(Properties properties)
   {
@@ -77,7 +78,7 @@ public class KafkaConsumer09 implements AbstractKafkaConsumer
    * @return records
    */
   @Override
-  public ConsumerRecords<byte[], byte[]> pollRecords(long timeOut)
+  public ConsumerRecords pollRecords(long timeOut)
   {
     return consumer.poll(timeOut);
   }
@@ -198,5 +199,11 @@ public class KafkaConsumer09 implements AbstractKafkaConsumer
   public long positionPartition(TopicPartition tp)
   {
     return consumer.position(tp);
+  }
+
+  @Override
+  public List<PartitionInfo> partitionsFor(String topic)
+  {
+    return consumer.partitionsFor(topic);
   }
 }

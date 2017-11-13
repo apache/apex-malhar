@@ -25,11 +25,11 @@ import java.util.Map;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
 
-public class KafkaHelper implements Serializer<KafkaOutputOperatorTest.Person>,
-    Deserializer<KafkaOutputOperatorTest.Person>
+public class KafkaHelper implements Serializer<AbstractKafkaOutputOperatorTest.Person>,
+    Deserializer<AbstractKafkaOutputOperatorTest.Person>
 {
   @Override
-  public KafkaOutputOperatorTest.Person deserialize(String s, byte[] bytes)
+  public AbstractKafkaOutputOperatorTest.Person deserialize(String s, byte[] bytes)
   {
     ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
     int nameLength = byteBuffer.getInt();
@@ -37,11 +37,11 @@ public class KafkaHelper implements Serializer<KafkaOutputOperatorTest.Person>,
 
     byteBuffer.get(name, 0, nameLength);
 
-    return new KafkaOutputOperatorTest.Person(new String(name), byteBuffer.getInt());
+    return new AbstractKafkaOutputOperatorTest.Person(new String(name), byteBuffer.getInt());
   }
 
   @Override
-  public byte[] serialize(String s, KafkaOutputOperatorTest.Person person)
+  public byte[] serialize(String s, AbstractKafkaOutputOperatorTest.Person person)
   {
     byte[] name = person.name.getBytes();
 
