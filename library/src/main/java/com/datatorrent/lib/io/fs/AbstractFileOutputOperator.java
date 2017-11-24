@@ -1311,7 +1311,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator imp
       if (statusName.endsWith(TMP_EXTENSION) && statusName.startsWith(destPath.getName())) {
         //a tmp file has tmp extension always preceded by timestamp
         String actualFileName = statusName.substring(0, statusName.lastIndexOf('.', statusName.lastIndexOf('.') - 1));
-        if (fileName.equals(actualFileName)) {
+        if (destPath.getName().equals(actualFileName)) {
           LOG.debug("deleting stray file {}", statusName);
           fs.delete(status.getPath(), true);
         }
