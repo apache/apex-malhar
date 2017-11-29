@@ -21,6 +21,7 @@ package org.apache.apex.examples.nyctaxi;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 
 import org.joda.time.Duration;
 
@@ -33,6 +34,7 @@ import org.apache.apex.malhar.lib.window.impl.InMemoryWindowedStorage;
 import org.apache.apex.malhar.lib.window.impl.KeyedWindowedOperatorImpl;
 import org.apache.commons.lang3.mutable.MutableDouble;
 import org.apache.hadoop.conf.Configuration;
+
 import com.google.common.base.Throwables;
 
 import com.datatorrent.api.DAG;
@@ -87,16 +89,16 @@ public class Application implements StreamingApplication
     wsQuery.enableEmbeddedMode();
     wsQuery.setTopic("nyctaxi.query");
     try {
-      wsQuery.setUri(new URI("ws://localhost:8890/pubsub"));
-    } catch (URISyntaxException ex) {
+      wsQuery.setUri(new URI("ws://" + java.net.InetAddress.getLocalHost().getHostName() + ":8890/pubsub"));
+    } catch (URISyntaxException | UnknownHostException ex) {
       throw Throwables.propagate(ex);
     }
     dataServer.setEmbeddableQueryInfoProvider(wsQuery);
     PubSubWebSocketAppDataResult wsResult = dag.addOperator("QueryResult", new PubSubWebSocketAppDataResult());
     wsResult.setTopic("nyctaxi.result");
     try {
-      wsResult.setUri(new URI("ws://localhost:8890/pubsub"));
-    } catch (URISyntaxException ex) {
+      wsResult.setUri(new URI("ws://" + java.net.InetAddress.getLocalHost().getHostName() + ":8890/pubsub"));
+    } catch (URISyntaxException | UnknownHostException ex) {
       throw Throwables.propagate(ex);
     }
     dag.addStream("server_to_query_output", dataServer.queryResult, wsResult.input);
