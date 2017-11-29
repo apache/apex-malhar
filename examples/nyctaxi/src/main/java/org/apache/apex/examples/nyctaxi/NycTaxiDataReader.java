@@ -54,14 +54,16 @@ public class NycTaxiDataReader extends LineByLineFileInputOperator
   protected String readEntity() throws IOException
   {
     String line = super.readEntity();
-    String[] fields = line.split(",");
-    String timestamp = fields[1];
-    if (currentTimestamp == null) {
-      currentTimestamp = timestamp;
-    } else if (timestamp != currentTimestamp) {
-      // suspend emit until the next streaming window when timestamp is different from the current timestamp.
-      suspendEmit = true;
-      currentTimestamp = timestamp;
+    String[] fields = line.split(",", -1);
+    if (fields.length > 1) {
+      String timestamp = fields[1];
+      if (currentTimestamp == null) {
+        currentTimestamp = timestamp;
+      } else if (timestamp != currentTimestamp) {
+        // suspend emit until the next streaming window when timestamp is different from the current timestamp.
+        suspendEmit = true;
+        currentTimestamp = timestamp;
+      }
     }
     return line;
   }
