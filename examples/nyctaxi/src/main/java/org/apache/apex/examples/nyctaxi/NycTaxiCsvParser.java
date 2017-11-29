@@ -21,6 +21,9 @@ package org.apache.apex.examples.nyctaxi;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.datatorrent.api.DefaultInputPort;
@@ -40,17 +43,20 @@ public class NycTaxiCsvParser extends BaseOperator
     @Override
     public void process(String tuple)
     {
-      String[] values = tuple.split(",");
+      String[] values = tuple.split(",", -1);
       Map<String, String> outputTuple = new HashMap<>();
-      if (StringUtils.isNumeric(values[0])) {
+      if (values.length > 18 && StringUtils.isNumeric(values[0])) {
         outputTuple.put("pickup_time", values[1]);
         outputTuple.put("pickup_lon", values[5]);
         outputTuple.put("pickup_lat", values[6]);
         outputTuple.put("total_fare", values[18]);
         output.emit(outputTuple);
+      } else {
+        LOG.warn("Dropping tuple with unrecognized format: {}", tuple);
       }
     }
   };
 
   public final transient DefaultOutputPort<Map<String, String>> output = new DefaultOutputPort<>();
+  private static final Logger LOG = LoggerFactory.getLogger(NycTaxiCsvParser.class);
 }
