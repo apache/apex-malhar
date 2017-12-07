@@ -41,7 +41,7 @@ import com.datatorrent.stram.StramLocalCluster;
  */
 public class XmlParserApplicationTest
 {
-  public static int TupleCount;
+  public static volatile int TupleCount;
   public static com.datatorrent.lib.parser.XmlParserTest.EmployeeBean obj;
   @Test
   public void testApplication()

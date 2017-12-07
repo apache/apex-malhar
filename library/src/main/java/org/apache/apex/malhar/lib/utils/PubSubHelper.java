@@ -24,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.classification.InterfaceStability;
 
+import com.google.common.base.Preconditions;
+
 import com.datatorrent.api.Context;
 
 @InterfaceStability.Evolving
@@ -57,9 +59,7 @@ public class PubSubHelper
 
   public static URI getURI(String address, boolean useSSL)
   {
-    if (address == null) {
-      throw new NullPointerException("No address specified");
-    }
+    Preconditions.checkNotNull(address,"No address specified");
     String uri = (useSSL ? "wss://" : "ws://") + address + "/pubsub";
     logger.debug("PubSub uri {}", uri);
     return URI.create(uri);
