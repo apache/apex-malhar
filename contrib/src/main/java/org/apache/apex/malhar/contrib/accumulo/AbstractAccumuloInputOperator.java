@@ -31,7 +31,7 @@ import org.apache.apex.malhar.lib.db.AbstractStoreInputOperator;
  * implementation of getting the tuples and scanner methods.
  *
  * <p>
- * This is an abstract class. Sub-classes need to implement {@link #getScanner()} and {@link #getTuple(Entry)}.
+ * This is an abstract class. Sub-classes need to implement {@link #getScanner(Connector)} and {@link #getTuple(Entry)}.
  * </p>
  * @displayName Abstract Accumulo Input
  * @category Input
