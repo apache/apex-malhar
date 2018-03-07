@@ -216,6 +216,7 @@
     <module>contrib</module>
     <module>kafka</module>
     <module>kudu</module>
+    <module>python</module>
     <module>examples</module>
   </modules>
 
