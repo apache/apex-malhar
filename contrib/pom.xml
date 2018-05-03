@@ -42,17 +42,6 @@
       <id>couchbase</id>
       <url>http://files.couchbase.com/maven2</url>
     </repository>
-    <repository>
-      <id>datatorrent-3rd-party</id>
-      <name>Embedded repository for dependencies not available online</name>
-      <url>https://www.datatorrent.com/maven/content/repositories/thirdparty</url>
-      <snapshots>
-        <updatePolicy>daily</updatePolicy>
-      </snapshots>
-      <releases>
-        <updatePolicy>daily</updatePolicy>
-      </releases>
-    </repository>
   </repositories>
 
   <build>
@@ -577,9 +566,9 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.rosuda</groupId>
-      <artifactId>rengine</artifactId>
-      <version>1.0</version>
+      <groupId>org.rosuda.REngine</groupId>
+      <artifactId>Rserve</artifactId>
+      <version>1.8.1</version>
       <optional>true</optional>
     </dependency>
     <dependency>
