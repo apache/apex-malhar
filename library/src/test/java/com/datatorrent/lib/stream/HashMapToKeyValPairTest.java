@@ -15,15 +15,15 @@
  */
 package com.datatorrent.lib.stream;
 
-import com.datatorrent.lib.stream.HashMapToKeyValPair;
-import com.datatorrent.lib.testbench.CountTestSink;
-
 import java.util.HashMap;
-import junit.framework.Assert;
+
+import org.junit.Assert;
 import org.junit.Test;
 
+import com.datatorrent.lib.testbench.CountTestSink;
+
 /**
- * Functional test for {@link com.datatorrent.lib.testbench.HashMapToKeyValPair}
+ * Functional test for {@link com.datatorrent.lib.stream.HashMapToKeyValPair}
  */
 public class HashMapToKeyValPairTest
 {

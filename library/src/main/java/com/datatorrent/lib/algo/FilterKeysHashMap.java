@@ -18,6 +18,7 @@ package com.datatorrent.lib.algo;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.util.BaseKeyOperator;
@@ -27,9 +28,12 @@ import javax.validation.constraints.NotNull;
 
 
 /**
- *
+ * This operator filters the incoming stream of key value pairs based on the keys specified by property "keys".
+ * <p>
  * Filters the incoming stream based of keys specified by property "keys". If
- * property "inverse" is set to "true", then all keys except those specified by "keys" are emitted<p>
+ * property "inverse" is set to "true", then all keys except those specified by "keys" are emitted
+ * </p>
+ * <p>
  * Operator assumes that the key, val pairs are immutable objects. If this operator has to be used for mutable objects,
  * override "cloneKey()" to make copy of K, and "cloneValue()" to make copy of V.<br>
  * This is a pass through node.<br>
@@ -44,10 +48,16 @@ import javax.validation.constraints.NotNull;
  * <b>Properties</b>:<br>
  * <b>keys</b>: The keys to pass through, rest are filtered/dropped. A comma separated list of keys.<br>
  * <br>
+ * </p>
+ *
+ * @displayName Filter Keyval Pairs By Key HashMap
+ * @category Algorithmic
+ * @tags filter, key value
  *
  * @since 0.3.2
  */
 @Stateless
+@OperatorAnnotation(partitionable = true)
 public class FilterKeysHashMap<K, V> extends BaseKeyOperator<K>
 {
   /**
@@ -55,16 +65,15 @@ public class FilterKeysHashMap<K, V> extends BaseKeyOperator<K>
    */
   @NotNull()
   HashMap<K, V> keys = new HashMap<K, V>();
-  
+
   /**
    * Emits key not in filter map.
    */
   boolean inverse = false;
-  
+
   /**
-   * Input port.
+   * The input port on which key value pairs are received.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, HashMap<K, V>>> data = new DefaultInputPort<Map<K, HashMap<K, V>>>()
   {
     /**
@@ -98,11 +107,10 @@ public class FilterKeysHashMap<K, V> extends BaseKeyOperator<K>
       }
     }
   };
-  
+
   /**
-   * Output port.
+   * The output port on which filtered key value pairs are emitted.
    */
-  @OutputPortFieldAnnotation(name = "filter")
   public final transient DefaultOutputPort<HashMap<K, HashMap<K, V>>> filter = new DefaultOutputPort<HashMap<K, HashMap<K, V>>>();
 
   /**

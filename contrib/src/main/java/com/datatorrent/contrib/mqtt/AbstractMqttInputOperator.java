@@ -15,10 +15,9 @@
  */
 package com.datatorrent.contrib.mqtt;
 
-import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.annotation.ShipContainingJars;
+import com.datatorrent.api.Operator.ActivationListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -27,11 +26,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * MQTT input adapter operator, which receives data from MQTT and provide tuples to the DAG.<p><br>
- *
+ * This is the base implementation for and MQTT input operator.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
+ * <p></p>
+ * @displayName Abstract MQTT Input
+ * @category Messaging
+ * @tags input operator
  * @since 0.9.3
  */
-@ShipContainingJars(classes = {MQTT.class})
 public abstract class AbstractMqttInputOperator implements InputOperator, ActivationListener<OperatorContext>
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractMqttInputOperator.class);

@@ -15,14 +15,15 @@
  */
 package com.datatorrent.lib.stream;
 
-import com.datatorrent.lib.stream.ArrayListAggregator;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.ArrayList;
-import junit.framework.Assert;
+
+import org.junit.Assert;
 import org.junit.Test;
 
+import com.datatorrent.lib.testbench.CollectorTestSink;
+
 /**
- * Functional test for {@link com.datatorrent.lib.testbench.ArrayListAggregator}
+ * Functional test for {@link com.datatorrent.lib.stream.ArrayListAggregator}
  */
 public class ArrayListAggregatorTest
 {

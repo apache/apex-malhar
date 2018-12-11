@@ -15,13 +15,13 @@
  */
 package com.datatorrent.samples.lib.io;
 
+import com.datatorrent.api.Context.DAGContext;
 import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAGContext;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.HttpJsonChunksInputOperator;
 

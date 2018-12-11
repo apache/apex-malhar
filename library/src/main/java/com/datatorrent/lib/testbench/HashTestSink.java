@@ -21,8 +21,11 @@ import java.util.HashMap;
 import org.apache.commons.lang.mutable.MutableInt;
 
 /**
- * A sink implementation to collect expected test results in a HashMap
- *
+ * A sink implementation, which counts the number of times each tuples is collected and stores the results in a hash map.
+ * <p></p>
+ * @displayName Hash Count Test Sink
+ * @category Testbench
+ * @tags sink, count
  * @since 0.3.2
  */
 public class HashTestSink<T> implements Sink<T>

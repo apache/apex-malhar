@@ -26,8 +26,8 @@ import java.util.Map;
 
 /**
  *
- * Emits at end of window minimum of all values sub-classed from Number for each key. <br>
- * <br>
+ * This operator implements Unifier interface and emits minimum of all values sub-classed from Number for each key at end of window. 
+ * <p>
  * <b>StateFull :</b> Yes, min value is computed over application window. <br>
  * <b>Partitions :</b> Yes, min operator is min unifier for output port.
  * <b>Ports</b>:<br>
@@ -38,7 +38,9 @@ import java.util.Map;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
- *
+ * @displayName Minimum Map
+ * @category Math
+ * @tags minimum, hash map, numeric
  * @since 0.3.2
  */
 public class MinMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V> implements Unifier<HashMap<K,V>>
@@ -47,9 +49,8 @@ public class MinMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
   protected HashMap<K, V> low = new HashMap<K, V>();
   
 	/**
-	 * Input data port.
+	 * Input data port that takes a hashmap and updates the value if there is a new minimum.
 	 */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>()
   {
     /**
@@ -84,9 +85,8 @@ public class MinMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
   }
 
   /**
-   * Min value output port
+   * Min value output port.
    */
-  @OutputPortFieldAnnotation(name = "min")
   public final transient DefaultOutputPort<HashMap<K, V>> min = new DefaultOutputPort<HashMap<K, V>>()
   {
     @Override

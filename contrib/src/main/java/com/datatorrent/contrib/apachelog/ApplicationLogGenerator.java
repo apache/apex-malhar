@@ -24,8 +24,12 @@ import java.util.List;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * This application just generates apache log file on the fly and dumps the parsed data to output
- *
+ * An implementation of Streaming Application that generates apache log file on the fly and dumps the parsed data to output. 
+ * 
+ * <p>
+ * @displayName Application Log Generator
+ * @category Database
+ * @tags streaming
  * @since 0.9.4
  */
 public class ApplicationLogGenerator implements StreamingApplication
@@ -38,7 +42,7 @@ public class ApplicationLogGenerator implements StreamingApplication
     containingJars.add(net.sf.uadetector.service.UADetectorServiceFactory.class);
     containingJars.add(net.sf.qualitycheck.Check.class);
 
-    String oldlibjar = dag.getValue(DAGContext.LIBRARY_JARS);
+    String oldlibjar = dag.getValue(Context.DAGContext.LIBRARY_JARS);
     if (oldlibjar == null) {
       oldlibjar = "";
     }
@@ -50,7 +54,7 @@ public class ApplicationLogGenerator implements StreamingApplication
       }
       libjars.append(clazz.getProtectionDomain().getCodeSource().getLocation().toString());
     }
-    dag.setAttribute(DAGContext.LIBRARY_JARS, libjars.toString());
+    dag.setAttribute(Context.DAGContext.LIBRARY_JARS, libjars.toString());
   }
 
   @Override

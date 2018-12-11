@@ -22,8 +22,13 @@ import com.datatorrent.api.Context.OperatorContext;
 
 import java.util.HashMap;
 import javax.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
+ * An implementation of BaseOperator that creates a load with pair of keys by taking in an input stream event and adding to incoming keys
+ * to create a new tuple of Hashmap &lt;String,Double&gt; that is emitted on output port data.
+ * <p>
  * Takes a in stream event and adds to incoming keys to create a new tuple that is emitted on output port data. The aim is to create a load with pair of keys<p>
  * <br>
  * Examples of pairs include<br>
@@ -51,11 +56,14 @@ import javax.validation.constraints.NotNull;
  * <br>
  * <br>
  * <b>Benchmarks</b>: This node has been benchmarked at over 5 million tuples/second in local/inline mode<br>
- *
+ * @displayName Event Classifier Number To HashDouble
+ * @category Testbench
+ * @tags number, classifier
  * @since 0.3.2
  */
 public class EventClassifierNumberToHashDouble<K extends Number> extends BaseOperator
 {
+  private static final Logger logger = LoggerFactory.getLogger(EventClassifierNumberToHashDouble.class);
   public final transient DefaultInputPort<K> event = new DefaultInputPort<K>()
   {
     @Override
@@ -71,6 +79,10 @@ public class EventClassifierNumberToHashDouble<K extends Number> extends BaseOpe
       }
     }
   };
+  
+  /**
+   * Output data port that emits a hashmap of &lt;string,double&gt;.
+   */
   public final transient DefaultOutputPort<HashMap<String, Double>> data = new DefaultOutputPort<HashMap<String, Double>>();
 
   @NotNull
@@ -144,6 +156,7 @@ public class EventClassifierNumberToHashDouble<K extends Number> extends BaseOpe
    */
   public void setKey(String i)
   {
+    logger.debug("In setter of key");
     key = i;
   }
 

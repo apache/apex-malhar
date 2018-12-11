@@ -19,13 +19,16 @@ import java.util.Map;
 
 
 /**
- * Class to implement generate sum index expression.
- *
+ * An implementation of Binary Generate that implements sum generation index expression.
+ * <p>
+ * @displayName Generate Sum
+ * @category Pig Query
+ * @tags map, string, sum
  * @since 0.3.4
  */
 public class SumGenerate  extends BinaryGenerate
 {
-
+   
   /**
    * @param leftField left field name.
    * @param rightField right field name.

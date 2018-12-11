@@ -26,8 +26,8 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
- * This operator computes weighted mean of incoming data. <br>
- * <br>
+ * An implementation of BaseOperator that calculates most frequent value occurring in incoming data. <br>
+ * <p>
  * <b>Input Port(s) : </b><br>
  * <b>data : </b> Data values input port. <br>
  * <br>
@@ -37,7 +37,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * <b>StateFull : Yes</b>, value are aggregated over application window. <br>
  * <b>Partitions : No</b>, no will yeild wrong results. <br>
  * <br>
- *
+ * @displayName Mode
+ * @category Statistics
+ * @tags numeric, integer, count
  * @since 0.3.4
  */
 @OperatorAnnotation(partitionable = false)
@@ -48,9 +50,8 @@ public class ModeOperator<V extends Comparable<?>> extends BaseOperator
    */
   HashMap<V, Integer>   values = new  HashMap<V, Integer>();
   /**
-   * Input data port.
+   * Input data port that takes comparable values.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
   {
     /**
@@ -69,9 +70,8 @@ public class ModeOperator<V extends Comparable<?>> extends BaseOperator
   };
   
   /**
-   * Output port
+   * Output port that emits most frequent value in incoming data.
    */
-  @OutputPortFieldAnnotation(name = "mean")
   public final transient DefaultOutputPort<V> mode = new DefaultOutputPort<V>();
   
   /**

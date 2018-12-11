@@ -18,14 +18,16 @@ package com.datatorrent.lib.algo;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 /**
- * 
+ *
  * Functional tests for {@link com.datatorrent.lib.algo.AllAfter}
  * <p>
  */
@@ -44,7 +46,7 @@ public class AllAfterMatchMapTest
     testNodeProcessingSchema(new AllAfterMatchMap<String, Long>());
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({ "unchecked", "rawtypes", "unchecked" })
   public void testNodeProcessingSchema(AllAfterMatchMap oper)
   {
     CollectorTestSink allSink = new CollectorTestSink();
@@ -77,16 +79,16 @@ public class AllAfterMatchMapTest
         allSink.collectedTuples.size());
     for (Object o : allSink.collectedTuples) {
       for (Map.Entry<String, Number> e : ((HashMap<String, Number>) o)
-          .entrySet()) {
+              .entrySet()) {
         if (e.getKey().equals("a")) {
-          Assert.assertEquals("emitted value for 'a' was ", new Double(3), e
-              .getValue().doubleValue());
+          Assert.assertEquals("emitted value for 'a' was ", new Double(3), new Double( e
+                  .getValue().doubleValue()));
         } else if (e.getKey().equals("b")) {
-          Assert.assertEquals("emitted tuple for 'b' was ", new Double(6), e
-              .getValue().doubleValue());
+          Assert.assertEquals("emitted tuple for 'b' was ", new Double(6), new Double(e
+                  .getValue().doubleValue()));
         } else if (e.getKey().equals("c")) {
-          Assert.assertEquals("emitted tuple for 'c' was ", new Double(9), e
-              .getValue().doubleValue());
+          Assert.assertEquals("emitted tuple for 'c' was ", new Double(9), new Double(e
+                  .getValue().doubleValue()));
         }
       }
     }

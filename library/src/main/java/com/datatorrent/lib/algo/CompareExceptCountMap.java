@@ -18,14 +18,18 @@ package com.datatorrent.lib.algo;
 import java.util.Map;
 
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.UnifierSumNumber;
 
 /**
- *
+ * This operator produces a count of how many tuples of value type Number satisfy and do not satisfy a specified compare function.
+ * <p>
  * A count is done on how many tuples of value type Number satisfy the compare function. The function is given by
  * "key", "value", and "cmp". If a tuple passed the test count is incremented. On end of window count is emitted on the output port "count".
- * The comparison is done by getting double value from the Number.<p>
+ * The comparison is done by getting double value from the Number.
+ * </p>
+ * <p>
  * This module is an end of window module. If no tuple comes in during a window 0 is emitted on both ports, thus no matter what one Integer
  * tuple is emitted on each port<br>
  * <br>
@@ -47,15 +51,21 @@ import com.datatorrent.lib.util.UnifierSumNumber;
  * Value must be able to convert to a "double"<br>
  * Compare string, if specified, must be one of "lte", "lt", "eq", "neq", "gt", "gte"<br>
  * <br>
+ * </p>
+ *
+ * @displayName Count All Who Don't Compare Generic
+ * @category Algorithmic
+ * @tags count, key value
  *
  * @since 0.3.2
  */
+
+@OperatorAnnotation(partitionable = true)
 public class CompareExceptCountMap<K, V extends Number> extends MatchMap<K, V>
 {
   /**
-   * Match count output port.
+   * The output port on which the number of tuples satisfying the compare function is emitted.
    */
-  @OutputPortFieldAnnotation(name = "count")
   public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>()
   {
     @Override
@@ -67,9 +77,8 @@ public class CompareExceptCountMap<K, V extends Number> extends MatchMap<K, V>
 
 
   /**
-   * Not match count output port.
+   * The output port on which the number of tuples not satisfying the compare function is emitted.
    */
-  @OutputPortFieldAnnotation(name = "except")
   public final transient DefaultOutputPort<Integer> except = new DefaultOutputPort<Integer>()
   {
     @Override

@@ -112,7 +112,14 @@ public class HttpMultiValuedMapGetOperatorTest
 
 
     Assert.assertEquals("emitted size", 1, sink.collectedTuples.size());
-    Assert.assertEquals("emitted tuples", KEY2, ((String)sink.collectedTuples.get(0)).trim());
+    MultivaluedMapImpl map = new MultivaluedMapImpl();
+    map.add(pojo.getName1(), pojo.getValue11());
+    map.add(pojo.getName1(), pojo.getValue12());
+    map.add(pojo.getName2(), pojo.getValue21());
+    map.add(pojo.getName2(), pojo.getValue22());
+    map.add(pojo.getName2(), pojo.getValue23());
+    Map.Entry<String,List<String>> entry = map.entrySet().iterator().next();
+    Assert.assertEquals("emitted tuples", entry.getKey(), ((String)sink.collectedTuples.get(0)).trim());
   }
 
   public static class TestHttpGetMultiValuedMapOperator extends AbstractHttpGetMultiValuedMapOperator<TestPojo, String>

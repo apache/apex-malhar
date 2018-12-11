@@ -22,14 +22,16 @@ import javax.validation.constraints.NotNull;
 
 
 /**
+ * An implementation of equal join condition class. 
  * <p>
- * Equal join condition class.
  * This compares values of given keys in both row data.
  * <br>
  * <b> Properties : </b> <br>
  * <b. equalkeys : </b> Keys for which value must be compared. <br>
  * <br>
- *
+ * @displayName Join Column Equal Condition
+ * @category Streamquery/Condition
+ * @tags sql condition, equal join
  * @since 0.3.3
  */
 public class JoinColumnEqualCondition  extends Condition

@@ -15,12 +15,13 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.lib.math.SumCountMap;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.Assert;
+
+import org.junit.Assert;
 import org.junit.Test;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  * Functional tests for {@link com.datatorrent.lib.math.SumCountMap}.

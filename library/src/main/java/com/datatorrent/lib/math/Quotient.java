@@ -23,12 +23,10 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
+ * This operator adds all the values on "numerator" and "denominator" and emits quotient at end of window. 
  * <p>
- * Adds all the values on "numerator" and "denominator" and emits quotient at
- * end of window. <br>
- * Application can set multiply by value for quotient. <br>
  * <br>
- * <b>StateFull : Yes </b>, Values are sumed over application window. <br>
+ * <b>StateFull : Yes </b>, Sum of values is taken over application window. <br>
  * <b>Partitions : No </b>, will yield wrong results, since values are
  * accumulated over application window. <br>
  * <br>
@@ -40,7 +38,9 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <b>Properties : </b> <br>
  * <b>mult_by : </b>Multiply by value(default = 1). <br>
  * <br>
- *
+ * @displayName Quotient
+ * @category Math
+ * @tags division, sum, numeric
  * @since 0.3.3
  */
 @OperatorAnnotation(partitionable = false)
@@ -51,9 +51,8 @@ public class Quotient<V extends Number> extends BaseNumberValueOperator<V>
 	int mult_by = 1;
 
 	/**
-	 * Numerator values port.
+	 * Numerator values input port.
 	 */
-	@InputPortFieldAnnotation(name = "numerator")
 	public final transient DefaultInputPort<V> numerator = new DefaultInputPort<V>()
 	{
 		/**
@@ -67,9 +66,8 @@ public class Quotient<V extends Number> extends BaseNumberValueOperator<V>
 	};
 
 	/**
-	 * Denominator values port.
+	 * Denominator values input port.
 	 */
-	@InputPortFieldAnnotation(name = "denominator")
 	public final transient DefaultInputPort<V> denominator = new DefaultInputPort<V>()
 	{
 		/**
@@ -85,7 +83,6 @@ public class Quotient<V extends Number> extends BaseNumberValueOperator<V>
 	/**
 	 * Quotient output port.
 	 */
-	@OutputPortFieldAnnotation(name = "quotient")
 	public final transient DefaultOutputPort<V> quotient = new DefaultOutputPort<V>();
 
 	public void setMult_by(int i)

@@ -16,14 +16,13 @@
 
 package com.datatorrent.lib.multiwindow;
 
-import static junit.framework.Assert.*;
-
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils.Null;
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
@@ -59,7 +58,7 @@ public class SortedMovingWindowTest
     smw.endWindow();
     
     // The outcome is sorted
-    assertEquals(Lists.newArrayList(1, 2, 3, 4, 5, 6), testSink.collectedTuples);
+    Assert.assertEquals(Lists.newArrayList(1, 2, 3, 4, 5, 6), testSink.collectedTuples);
     
   }
   
@@ -96,7 +95,7 @@ public class SortedMovingWindowTest
     smw.endWindow();
 
     // The outcome is ordered by the value of the key "number"
-    assertEquals(Arrays.asList(createHashMapTuples(keys, new Integer[][] { { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 } })), testSink.collectedTuples);
+    Assert.assertEquals(Arrays.asList(createHashMapTuples(keys, new Integer[][] { { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 } })), testSink.collectedTuples);
   }
   
   
@@ -142,7 +141,7 @@ public class SortedMovingWindowTest
     smw.endWindow();
 
     // All tuples with same "name" are sorted by key "number"
-    assertEquals(Arrays.asList(createHashMapTuples(keys, new Object[][] { { "bob", 1 }, { "jim", 1 }, { "jim", 2 }, { "bob", 2 }, 
+    Assert.assertEquals(Arrays.asList(createHashMapTuples(keys, new Object[][] { { "bob", 1 }, { "jim", 1 }, { "jim", 2 }, { "bob", 2 },
         { "bob", 3 }, { "jim", 3 }, { "jim", 4 }, { "bob", 4 }, { "bob", 5 } })), testSink.collectedTuples);
   }
   

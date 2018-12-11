@@ -46,10 +46,10 @@ public class RandomKeyValGenerator implements InputOperator
   private Random rand = new Random();
   private boolean once;
   private boolean clearHistory;
-  @OutputPortFieldAnnotation(name = "keys", optional = false)
+  @OutputPortFieldAnnotation(optional = false)
   public transient DefaultOutputPort<KeyValPair<Integer, Object>> outport = new DefaultOutputPort<KeyValPair<Integer, Object>>();
 
-  @OutputPortFieldAnnotation(name = "checker", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public transient DefaultOutputPort<KeyValPair<Integer, Integer>> verport = new DefaultOutputPort<KeyValPair<Integer, Integer>>();
 
   /**

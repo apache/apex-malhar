@@ -15,15 +15,7 @@
  */
 package com.datatorrent.lib.io.fs;
 
-import java.io.IOException;
-import java.net.ConnectException;
-import java.net.URISyntaxException;
-
-import junit.framework.Assert;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;

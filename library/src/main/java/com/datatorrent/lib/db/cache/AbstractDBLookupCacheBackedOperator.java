@@ -31,13 +31,20 @@ import com.datatorrent.lib.db.Connectable;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * Base operator that maintains a loading cache that has a maximum size and its entries expire after specified time.<br/>
- * Concrete implementations of this class should provide:<br/>
+ * This is the base implementation of an operator that maintains a loading cache.&nbsp;
+ * The cache has a maximum size and its entries expire after a specified time.&nbsp;
+ * Subclasses should implement the method which extracts a cache key from a tuple.
+ * <p>
+ * Specifically concrete implementations of this class should provide:<br/>
  * <ul>
  * <li>{@link Connectable} that holds connection parameters and setup/teardown functionality.</li>
  * <li>Method to extract a key from tuple.</li>
  * <li>Query to fetch the value of the key from tuple when the value is not present in the cache.</li>
  * </ul>
+ * </p>
+ * @displayName Abstract DB Lookup Cache Backed
+ * @category Database
+ * @tags cache, key value
  *
  * @param <T> type of tuples
  * @param <S> type of store
@@ -55,6 +62,9 @@ public abstract class AbstractDBLookupCacheBackedOperator<T, S extends Connectab
     cacheManager = new CacheManager();
   }
 
+  /**
+   * The input port on which tuples are received.
+   */
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
     @Override
@@ -118,9 +128,9 @@ public abstract class AbstractDBLookupCacheBackedOperator<T, S extends Connectab
   }
 
   @Override
-  public boolean connected()
+  public boolean isConnected()
   {
-    return store.connected();
+    return store.isConnected();
   }
 
   @Override

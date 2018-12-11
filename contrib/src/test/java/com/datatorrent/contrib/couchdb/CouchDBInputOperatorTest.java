@@ -20,9 +20,9 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 
 import com.google.common.collect.Maps;
 
-import junit.framework.Assert;
 import org.ektorp.ViewQuery;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;

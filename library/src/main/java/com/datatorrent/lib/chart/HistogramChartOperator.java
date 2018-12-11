@@ -20,7 +20,12 @@ import com.datatorrent.lib.util.HighLow;
 import java.util.TreeMap;
 
 /**
- * This is the base class for all chart operators that plot a histogram
+ * This is the base implementation of a histogram charting operator.&nbsp;
+ * Subclasses of this operator must implement the method which determines the histogram bucket each tuple belongs to.
+ * <p></p>
+ * @displayName Abstract Histogram Chart
+ * @category Charting
+ * @tags output operator
  *
  * @param <K> The key type
  * @since 0.3.2

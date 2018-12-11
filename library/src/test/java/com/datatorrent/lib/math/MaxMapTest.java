@@ -15,15 +15,19 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.math.MaxMap;
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import junit.framework.Assert;
+
+import org.junit.Assert;
 import org.junit.Test;
+
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+
+import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 /**
  *
@@ -115,7 +119,6 @@ public class MaxMapTest
 	public static class TestInputOperator extends BaseOperator implements
 			InputOperator
 	{
-		@OutputPortFieldAnnotation(name = "output")
 		public final transient DefaultOutputPort<HashMap<String, Integer>> output = new DefaultOutputPort<HashMap<String, Integer>>();
 		public transient boolean first = true;
 

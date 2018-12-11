@@ -28,12 +28,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 
 /**
- * <p/>
- * Operator takes input from two ports. Operator stores input arriving base port
- * for comparison across the windows. kay/value map arriving are compared with
- * base map, on per key base. For all existing keys map of key/change and
- * key/percent change values are emitted on separate ports. <br>
- * <p/>
+ * Operator takes input from two ports and stores input arriving at base port for comparison across the windows.
+ * <p>
+ * &lt;key,value&gt; maps arriving are compared with base map, on per key basis.For all existing keys, map of &lt;key,change&gt; and &lt;key,percent change&gt; are emitted on separate ports.
  * <br>
  * StateFull : Yes, base values are stored across windows for comparison. <br>
  * Partitions : Yes, values on the base port are replicated across all partitions. The order of tuples from output port may
@@ -51,7 +48,9 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
- *
+ * @displayName Change Map
+ * @category Math
+ * @tags change, key value, number, map
  * @since 0.3.3
  */
 public class ChangeMap<K, V extends Number> extends
@@ -63,9 +62,8 @@ public class ChangeMap<K, V extends Number> extends
   private HashMap<K, MutableDouble> basemap = new HashMap<K, MutableDouble>();
 
   /**
-   * Data key/value map input port.
+   * Input data port that takes in a map of &lt;key,value&gt;.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**
@@ -93,9 +91,8 @@ public class ChangeMap<K, V extends Number> extends
   };
 
   /**
-   * Base key/value map input port, for comparison.
+   * Base key,value map input port, for comparison.
    */
-  @InputPortFieldAnnotation(name = "base")
   public final transient DefaultInputPort<Map<K, V>> base = new DefaultInputPort<Map<K, V>>()
   {
     /**
@@ -120,14 +117,14 @@ public class ChangeMap<K, V extends Number> extends
   };
 
   /**
-   * Output port emits map for key/change.
+   * Output port emits map for key, change.
    */
-  @OutputPortFieldAnnotation(name = "change", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<HashMap<K, V>> change = new DefaultOutputPort<HashMap<K, V>>();
 
   /**
-   * Output port emits map for key/percent change.
+   * Output port emits map for key,percentage change.
    */
-  @OutputPortFieldAnnotation(name = "percent", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<HashMap<K, Double>> percent = new DefaultOutputPort<HashMap<K, Double>>();
 }

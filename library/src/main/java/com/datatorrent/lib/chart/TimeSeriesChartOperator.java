@@ -15,14 +15,19 @@
  */
 package com.datatorrent.lib.chart;
 
-import com.datatorrent.api.DAGContext;
+import com.datatorrent.api.Context.DAGContext;
 import com.datatorrent.api.Context.OperatorContext;
 
 import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * This is the base class for all chart operators that use X-axis as a time series
+ * This is the base implementation class time series chart operators where the x-axis represents time.&nbsp;
+ * Subclasses must implement the method which determines the y-axis value for a tuple.
+ * <p></p>
+ * @displayName Time Series Chart
+ * @category Charting
+ * @tags output operator
  *
  * @param <K> The type of the key
  * @param <Y> The type of values on the Y-axis

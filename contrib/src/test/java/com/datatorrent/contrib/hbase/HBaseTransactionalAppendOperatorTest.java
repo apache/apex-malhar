@@ -16,26 +16,30 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.LocalMode;
-import junit.framework.Assert;
 import org.apache.hadoop.hbase.client.Append;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.LocalMode;
+
 /**
  * Test for transactional append operator
  */
-public class HBaseTransactionalAppendOperatorTest {
+public class HBaseTransactionalAppendOperatorTest
+{
   private static final Logger logger = LoggerFactory
-      .getLogger(HBaseTransactionalAppendOperatorTest.class);
+    .getLogger(HBaseTransactionalAppendOperatorTest.class);
 
-  public HBaseTransactionalAppendOperatorTest() {
+  public HBaseTransactionalAppendOperatorTest()
+  {
   }
 
   @Test
-  public void testAppend() {
+  public void testAppend()
+  {
     try {
       HBaseTestHelper.startLocalCluster();
       HBaseTestHelper.clearHBase();
@@ -44,9 +48,9 @@ public class HBaseTransactionalAppendOperatorTest {
 
       dag.setAttribute(DAG.APPLICATION_NAME, "HBaseAppendOperatorTest");
       HBaseColTupleGenerator ctg = dag.addOperator("coltuplegenerator",
-          HBaseColTupleGenerator.class);
+        HBaseColTupleGenerator.class);
       TestHBaseAppendOperator thop = dag.addOperator("testhbaseput",
-          TestHBaseAppendOperator.class);
+        TestHBaseAppendOperator.class);
       dag.addStream("ss", ctg.outputPort, thop.input);
 
       thop.getStore().setTableName("table1");
@@ -57,27 +61,27 @@ public class HBaseTransactionalAppendOperatorTest {
       lc.setHeartbeatMonitoringEnabled(false);
       lc.run(30000);
 
-
       HBaseTuple tuple = HBaseTestHelper.getHBaseTuple("row0", "colfam0",
-          "col-0");
+        "col-0");
       Assert.assertNotNull("Tuple", tuple);
       Assert.assertEquals("Tuple row", tuple.getRow(), "row0");
       Assert.assertEquals("Tuple column family", tuple.getColFamily(),
-          "colfam0");
+        "colfam0");
       Assert.assertEquals("Tuple column name", tuple.getColName(),
-          "col-0");
+        "col-0");
       Assert.assertEquals("Tuple column value", tuple.getColValue(),
-          "val-0-0");
+        "val-0-0");
       tuple = HBaseTestHelper.getHBaseTuple("row0", "colfam0", "col-499");
       Assert.assertNotNull("Tuple", tuple);
       Assert.assertEquals("Tuple row", tuple.getRow(), "row0");
       Assert.assertEquals("Tuple column family", tuple.getColFamily(),
-          "colfam0");
+        "colfam0");
       Assert.assertEquals("Tuple column name", tuple.getColName(),
-          "col-499");
+        "col-499");
       Assert.assertEquals("Tuple column value", tuple.getColValue(),
-          "val-0-499");
-    } catch (Exception ex) {
+        "val-0-499");
+    }
+    catch (Exception ex) {
       logger.error(ex.getMessage());
       assert false;
     }
@@ -85,13 +89,15 @@ public class HBaseTransactionalAppendOperatorTest {
 
   @SuppressWarnings("serial")
   public static class TestHBaseAppendOperator extends
-  AbstractHBaseWindowAppendOutputOperator<HBaseTuple> {
+    AbstractHBaseWindowAppendOutputOperator<HBaseTuple>
+  {
 
     @Override
-    public Append operationAppend(HBaseTuple t) {
+    public Append operationAppend(HBaseTuple t)
+    {
       Append append = new Append(t.getRow().getBytes());
       append.add(t.getColFamily().getBytes(), t.getColName().getBytes(),
-          t.getColValue().getBytes());
+        t.getColValue().getBytes());
       return append;
     }
 

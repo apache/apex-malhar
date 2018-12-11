@@ -15,13 +15,13 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.lib.math.CompareMap;
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
-
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.Assert;
+
+import org.junit.Assert;
 import org.junit.Test;
+
+import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 /**
  *
@@ -68,13 +68,13 @@ public class CompareMapTest
     Assert.assertEquals("number emitted tuples", 1, matchSink.count);
     for (Map.Entry<String, Number> e: ((HashMap<String, Number>)matchSink.tuple).entrySet()) {
       if (e.getKey().equals("a")) {
-        Assert.assertEquals("emitted value for 'a' was ", new Double(2), e.getValue().doubleValue());
+        Assert.assertEquals("emitted value for 'a' was ", new Double(2), e.getValue().doubleValue(), 0);
       }
       else if (e.getKey().equals("b")) {
-        Assert.assertEquals("emitted tuple for 'b' was ", new Double(20), e.getValue().doubleValue());
+        Assert.assertEquals("emitted tuple for 'b' was ", new Double(20), e.getValue().doubleValue(), 0);
       }
       else if (e.getKey().equals("c")) {
-        Assert.assertEquals("emitted tuple for 'c' was ", new Double(1000), e.getValue().doubleValue());
+        Assert.assertEquals("emitted tuple for 'c' was ", new Double(1000), e.getValue().doubleValue(), 0);
       }
     }
   }

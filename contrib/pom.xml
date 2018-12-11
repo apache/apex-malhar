@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>malhar-all</artifactId>
-    <version>1.0.5-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>malhar-contrib</artifactId>
@@ -14,7 +14,7 @@
 
   <properties>
     <!-- skip tests by default as they depend on manual setup -->
-    <skip.contrib.module.tests>true</skip.contrib.module.tests>
+    <skip.contrib.module.tests>false</skip.contrib.module.tests>
     <skipTests>true</skipTests>
   </properties>
   <repositories>
@@ -47,7 +47,131 @@
           </execution>
         </executions>
       </plugin>
-     
+     <!-- create resource directory for xml javadoc-->
+     <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-antrun-plugin</artifactId>
+         <executions>
+           <execution>
+               <id>createJavadocDirectory</id>
+               <phase>generate-resources</phase>
+               <configuration>
+                   <tasks>
+                     <delete dir="${project.build.directory}/generated-resources/xml-javadoc"/>
+                     <mkdir dir="${project.build.directory}/generated-resources/xml-javadoc"/>
+                   </tasks>
+               </configuration>
+               <goals>
+                   <goal>run</goal>
+               </goals>
+           </execution>
+         </executions>
+      </plugin>
+     <!-- generate javdoc -->
+     <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+       <artifactId>maven-javadoc-plugin</artifactId>
+       <executions>
+         <!-- generate xml javadoc -->
+         <execution>
+           <id>xml-doclet</id>
+           <phase>generate-resources</phase>
+           <goals>
+             <goal>javadoc</goal>
+           </goals>
+           <configuration>
+             <doclet>com.github.markusbernhardt.xmldoclet.XmlDoclet</doclet>
+             <additionalparam>-d ${project.build.directory}/generated-resources/xml-javadoc -filename ${project.artifactId}-${project.version}-javadoc.xml</additionalparam>
+             <useStandardDocletOptions>false</useStandardDocletOptions>
+             <docletArtifact>
+               <groupId>com.github.markusbernhardt</groupId>
+               <artifactId>xml-doclet</artifactId>
+               <version>1.0.4</version>
+             </docletArtifact>
+           </configuration>
+         </execution>
+         <!-- generate default javadoc jar with custom tags -->
+         <execution>
+           <id>attach-sources</id>
+           <goals>
+             <goal>jar</goal>
+           </goals>
+           <configuration>
+             <skip>true</skip>
+             <tags>
+               <tag>
+                 <name>customTag1</name>
+                 <placement>a</placement>
+                 <head>Custom Tag One:</head>
+               </tag>
+               <tag>
+                 <name>customTag2</name>
+                 <placement>a</placement>
+                 <head>Custom Tag two:</head>
+               </tag>
+               <tag>
+                 <name>customTag3</name>
+                 <placement>a</placement>
+                 <head>Custom Tag three:</head>
+               </tag>
+             </tags>
+           </configuration>
+         </execution>
+       </executions>
+     </plugin>
+     <!-- Transform xml javadoc to stripped down version containing only class/interface comments and tags-->
+     <plugin>
+       <groupId>org.codehaus.mojo</groupId>
+       <artifactId>xml-maven-plugin</artifactId>
+       <version>1.0</version>
+       <executions>
+         <execution>
+           <id>transform-xmljavadoc</id>
+           <phase>generate-resources</phase>
+           <goals>
+             <goal>transform</goal>
+           </goals>
+         </execution>
+       </executions>
+       <configuration>
+         <transformationSets>
+           <transformationSet>
+             <dir>${project.build.directory}/generated-resources/xml-javadoc</dir>
+             <includes>
+               <include>${project.artifactId}-${project.version}-javadoc.xml</include>
+             </includes>
+             <stylesheet>XmlJavadocCommentsExtractor.xsl</stylesheet>
+             <outputDir>${project.build.directory}/generated-resources/xml-javadoc</outputDir>
+           </transformationSet>
+         </transformationSets>
+       </configuration>
+     </plugin>
+     <!-- copy xml javadoc to class jar -->
+     <plugin>
+       <artifactId>maven-resources-plugin</artifactId>
+       <version>2.6</version>
+       <executions>
+         <execution>
+           <id>copy-resources</id>
+           <phase>process-resources</phase>
+           <goals>
+             <goal>copy-resources</goal>
+           </goals>
+           <configuration>
+             <outputDirectory>${basedir}/target/classes</outputDirectory>
+             <resources>
+               <resource>
+                 <directory>${project.build.directory}/generated-resources/xml-javadoc</directory>
+                 <includes>
+                   <include>${project.artifactId}-${project.version}-javadoc.xml</include>
+                 </includes>
+                 <filtering>true</filtering>
+               </resource>
+             </resources>
+           </configuration>
+         </execution>
+       </executions>
+     </plugin>
     </plugins>
   </build>
 
@@ -326,7 +450,7 @@
     <dependency>
       <groupId>com.esotericsoftware.kryo</groupId>
       <artifactId>kryo</artifactId>
-      <version>2.23.0</version>
+      <version>2.24.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

@@ -202,7 +202,6 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
   {
     if (!emittedAll) {
       try {
-
         K1 key = reader.createKey();
         V1 val = reader.createValue();
         emittedAll = !reader.next(key, val);
@@ -268,7 +267,7 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
   private InputSplit[] getSplits(JobConf conf, int numSplits, String path) throws Exception
   {
     FileInputFormat.setInputPaths(conf, new Path(path));
-    if (inputFormat == null) {      
+    if (inputFormat == null) {
         inputFormat = inputFormatClass.newInstance();
         String inputFormatClassName = inputFormatClass.getName();
         if (inputFormatClassName.equals("org.apache.hadoop.mapred.TextInputFormat")) {
@@ -276,7 +275,7 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
         }
         else if (inputFormatClassName.equals("org.apache.hadoop.mapred.KeyValueTextInputFormat")) {
           ((KeyValueTextInputFormat) inputFormat).configure(conf);
-        }      
+        }
     }
     return inputFormat.getSplits(conf, numSplits);
     // return null;
@@ -290,10 +289,10 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
   @SuppressWarnings("rawtypes")
   @Override
   public Collection<Partition<MapOperator<K1, V1, K2, V2>>> definePartitions(Collection<Partition<MapOperator<K1, V1, K2, V2>>> partitions, int incrementalCapacity)
-  {   
+  {
     Collection c = partitions;
     Collection<Partition<MapOperator<K1, V1, K2, V2>>> operatorPartitions = c;
-    Partition<MapOperator<K1, V1, K2, V2>> template = null;
+    Partition<MapOperator<K1, V1, K2, V2>> template;
     Iterator<Partition<MapOperator<K1, V1, K2, V2>>> itr = operatorPartitions.iterator();
     template = itr.next();
     Configuration conf = new Configuration();

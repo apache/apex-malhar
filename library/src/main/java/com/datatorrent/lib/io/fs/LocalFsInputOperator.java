@@ -24,11 +24,10 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 
 /**
+ * This operator opens a given file from the local file system.&nbsp;
+ * Each line is emitted on the output port.&nbsp;
+ * The thread waits for the given sleep interval after emitting a line.
  * <p>
- * This operator opens given file from local file system. Each line is emitted on
- * output port, Thread waits for sleep interval after emitting line.
- *
- * <br>
  * <b>Ports</b>:<br>
  * <b>outport</b>: emits &lt;String&gt;<br>
  * <br>
@@ -36,11 +35,18 @@ import com.datatorrent.api.DefaultOutputPort;
  * <b>filePath</b> : Path for file to be read. <br>
  * <b>sleepInterval</b>: Thread sleep interval after emitting line.<br>
  * <br>
+ * </p>
+ * @displayName Local FS Line File Input
+ * @category Output
+ * @tags local fs, file, output operator
  *
  * @since 0.3.2
  */
 public class LocalFsInputOperator extends AbstractLocalFSInputOperator
 {
+  /**
+   * This is the output port which emits the lines read from a specified file.
+   */
   public final transient DefaultOutputPort<String> outport = new DefaultOutputPort<String>();
   private DataInputStream in;
   private BufferedReader br;

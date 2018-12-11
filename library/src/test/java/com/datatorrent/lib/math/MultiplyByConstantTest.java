@@ -15,14 +15,13 @@
  */
 package com.datatorrent.lib.math;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.SumTestSink;
 
 /**
- * Functional tests for {@link com.datatorrent.lib.math.MultiplyByConstact}
+ * Functional tests for {@link com.datatorrent.lib.math.MultiplyByConstant}
  */
 public class MultiplyByConstantTest
 {

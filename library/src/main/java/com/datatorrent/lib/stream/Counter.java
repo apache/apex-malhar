@@ -22,8 +22,7 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.Unifier;
 
 /**
- * Counter counts the number of tuples delivered to it in each window and emits
- * the count.
+ * An implementation of Operator and Unifier that counts the number of tuples delivered to it in each window and emits the count.
  * <p>
  * This is a pass through operator<br>
  * <br>
@@ -33,11 +32,16 @@ import com.datatorrent.api.Operator.Unifier;
  * <b>input</b>: expects Object<br>
  * <b>output</b>: emits Integer<br>
  * <br>
- *
+ * @displayName Counter
+ * @category Stream
+ * @tags integer, object, count
  * @since 0.3.3
  */
 public class Counter implements Operator, Unifier<Integer>
 {
+        /**
+	 * Input port that takes objects to be counted in each window.
+	 */
 	public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
 	{
 		@Override
@@ -47,6 +51,10 @@ public class Counter implements Operator, Unifier<Integer>
 		}
 
 	};
+        
+          /**
+	 * Output port that takes emits count in each window.
+	 */
 	public final transient DefaultOutputPort<Integer> output = new DefaultOutputPort<Integer>()
 	{
 		@Override

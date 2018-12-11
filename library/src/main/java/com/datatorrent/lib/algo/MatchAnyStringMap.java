@@ -20,15 +20,22 @@ import java.util.Map;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseMatchOperator;
 import com.datatorrent.lib.util.UnifierBooleanOr;
 
 /**
- *
+ * This operator filters the incoming stream of key value pairs by obtaining the values corresponding to a specified key,
+ * and comparing those values to a specified number.&nbsp;
+ * If the comparison returns true for any of the key value pairs within a window,
+ * then a true is emitted at the end of the window.&nbsp;Otherwise a false is emitted at the end of the window.
+ * <p>
  * Each tuple is tested for the compare function. The function is given by
  * "key", "value", and "compare". If any tuple passes a Boolean(true) is emitted, else a Boolean(false) is emitted on the output port "any".
- * The comparison is done by getting double value from the Number.<p>
+ * The comparison is done by getting double value from the Number.
+ * </p>
+ * <p>
  * This module is a pass through as it emits the moment the condition is met<br>
  * <br>
  * <b>StateFull : Yes, </b> tuple are compared across application window(s). <br>
@@ -48,12 +55,21 @@ import com.datatorrent.lib.util.UnifierBooleanOr;
  * Value must be able to convert to a "double"<br>
  * Compare string, if specified, must be one of "lte", "lt", "eq", "neq", "gt", "gte"<br>
  * <br>
+ * </p>
+ *
+ * @displayName Emit Boolean For Match (String)
+ * @category Algorithmic
+ * @tags filter, key value, string
  *
  * @since 0.3.2
  */
+
+@OperatorAnnotation(partitionable = true)
 public class MatchAnyStringMap<K> extends BaseMatchOperator<K, String>
 {
-  @InputPortFieldAnnotation(name = "data")
+  /**
+   * The input port which receives key value pairs.
+   */
   public final transient DefaultInputPort<Map<K, String>> data = new DefaultInputPort<Map<K, String>>()
   {
     /**
@@ -83,7 +99,9 @@ public class MatchAnyStringMap<K> extends BaseMatchOperator<K, String>
       }
     }
   };
-  @OutputPortFieldAnnotation(name = "any")
+  /**
+   * The output port that emits true at the end of an application window if any tuple satisfies the comparison.
+   */
   public final transient DefaultOutputPort<Boolean> any = new DefaultOutputPort<Boolean>()
   {
     @Override

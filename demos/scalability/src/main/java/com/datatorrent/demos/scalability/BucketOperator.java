@@ -44,7 +44,7 @@ public class BucketOperator extends BaseOperator
 
   private HashMap<AggrKey, Map<String, MutableDouble>> aggrMap;
 
-  @OutputPortFieldAnnotation(name = "outputPort", optional = false)
+  @OutputPortFieldAnnotation(optional = false)
   public final transient DefaultOutputPort<KeyHashValPair<Map<String, MutableDouble>>> outputPort = new DefaultOutputPort<KeyHashValPair<Map<String, MutableDouble>>>() {
     @Override
     public Unifier<KeyHashValPair<Map<String, MutableDouble>>> getUnifier()
@@ -99,7 +99,7 @@ public class BucketOperator extends BaseOperator
     this.partitions = partitions;
   }
 
-  @InputPortFieldAnnotation(name = "inputPort", optional = false)
+  @InputPortFieldAnnotation(optional = false)
   public transient DefaultInputPort<AdInfo> inputPort = new DefaultInputPort<AdInfo>() {
 
     @Override

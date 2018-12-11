@@ -15,15 +15,20 @@
  */
 package com.datatorrent.lib.util;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.datatorrent.api.StreamCodec;
 import com.datatorrent.lib.codec.JavaSerializationStreamCodec;
 
+import com.datatorrent.api.StreamCodec;
+
 /**
- * Base class for operators that allows cloneValue and cloneKey for enabling users to use mutable objects<p>
- *
+ * This is an abstract operator that allows cloneKey and cloneValue to allow users to use mutable objects.
+ * <p></p>
+ * @displayName Base Key Value
+ * @category Algorithmic
+ * @tags key value
  * @since 0.3.2
  */
 public class BaseKeyValueOperator<K, V> extends BaseKeyOperator<K>
@@ -85,14 +90,12 @@ public class BaseKeyValueOperator<K, V> extends BaseKeyOperator<K>
   /**
    * A codec to enable partitioning to be done by key
    */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  public Class<? extends StreamCodec<KeyValPair<K, V>>> getKeyValPairStreamCodec()
+  public StreamCodec<KeyValPair<K, V>> getKeyValPairStreamCodec()
   {
-    Class c = DefaultPartitionCodec.class;
-    return (Class<? extends StreamCodec<KeyValPair<K, V>>>)c;
+    return new DefaultPartitionCodec<K, V>();
   }
 
-  public static class DefaultPartitionCodec<K, V> extends JavaSerializationStreamCodec<KeyValPair<K, V>> 
+  public static class DefaultPartitionCodec<K, V> extends JavaSerializationStreamCodec<KeyValPair<K, V>> implements Serializable
   {
     /**
      * A codec to enable partitioning to be done by key
@@ -103,6 +106,7 @@ public class BaseKeyValueOperator<K, V> extends BaseKeyOperator<K>
       return o.getKey().hashCode();
     }
 
+    private static final long serialVersionUID = 201411031350L;
   }
 
 }

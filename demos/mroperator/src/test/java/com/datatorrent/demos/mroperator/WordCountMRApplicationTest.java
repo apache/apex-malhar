@@ -18,7 +18,6 @@ package com.datatorrent.demos.mroperator;
 import org.junit.Test;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.demos.mroperator.NewWordCountApplication;
 
 
 public class WordCountMRApplicationTest {

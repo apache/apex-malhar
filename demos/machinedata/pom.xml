@@ -12,7 +12,7 @@
 
   <properties>
     <!-- change this if you desire to use a different version of DataTorrent -->
-    <datatorrent.version>1.0.5-SNAPSHOT</datatorrent.version>
+    <datatorrent.version>2.0.0-SNAPSHOT</datatorrent.version>
     <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
   </properties>
 
@@ -170,6 +170,16 @@
       <groupId>redis.clients</groupId>
       <artifactId>jedis</artifactId>
       <version>2.2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.mail</groupId>
+      <artifactId>javax.mail-api</artifactId>
+      <version>1.5.2</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.mail</groupId>
+      <artifactId>javax.mail</artifactId>
+      <version>1.5.2</version>
     </dependency>
   </dependencies>
 

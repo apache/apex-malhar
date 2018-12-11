@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,24 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.Context.OperatorContext;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+
 /**
  *
- * Generates synthetic load. Creates tuples and keeps emitting them on the output port "data"<p>
+ * Generates synthetic load.&nbsp; Creates tuples and keeps emitting them on the output port "data".
+ * <p>
  * <br>
  * The load is generated as per config parameters. This class is mainly meant for testing
  * nodes.<br>
@@ -60,14 +63,28 @@ import org.slf4j.LoggerFactory;
  * <b>Benchmarks></b>: Send as many tuples in in-line mode, the receiver just counts the tuples and drops the object<br>
  * String schema does about 26 Million tuples/sec in throughput<br>
  * HashMap schema does about 10 Million tuples/sec in throughput<br>
- *
+ * @displayName Event Generator
+ * @category Testbench
+ * @tags input operator, generator
  * @since 0.3.2
  */
 public class EventGenerator implements InputOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
+  
+  /**
+   * Output string port that emits string data.
+   */
   public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>();
+  
+  /**
+   * Output hash data port that emits a hashmap of &lt;string,double&gt;.
+   */
   public final transient DefaultOutputPort<HashMap<String, Double>> hash_data = new DefaultOutputPort<HashMap<String, Double>>();
+  
+  /**
+   * Output count port that emits a hashmap of &lt;string,number&gt; which contains per window count of throughput.
+   */
   public final transient DefaultOutputPort<HashMap<String, Number>> count = new DefaultOutputPort<HashMap<String, Number>>();
   public static final String OPORT_COUNT_TUPLE_AVERAGE = "avg";
   public static final String OPORT_COUNT_TUPLE_COUNT = "count";
@@ -97,13 +114,21 @@ public class EventGenerator implements InputOperator
   private transient long windowStartTime = 0;
   private transient int generatedTupleCount = 0;
   @NotNull
-  private String[] key_keys = null;
-  private String[] key_weights = null;
-  private String[] key_values = null;
+  private String keysHelper = null;
+  private String weightsHelper = null;
+
+  private String valuesHelper = null;
+
+  @NotNull
+  private String[] keysArray = null;
+
+  private String[] weightsArray = null;
+  private String[] valuesArray = null;
 
   /**
    *
    * Sets up all the config parameters. Assumes checking is done and has passed
+   *
    * @param context
    */
   @Override
@@ -119,22 +144,22 @@ public class EventGenerator implements InputOperator
       tuple_index = 0;
     }
 
-    // Keys and weights would are accessed via same key
+    // Keys and weights are accessed via same key
     int i = 0;
     total_weight = 0;
-    for (String s: key_keys) {
-      if ((key_weights != null) && key_weights.length != 0) {
+    for (String s: keysArray) {
+      if ((weightsArray != null) && weightsArray.length != 0) {
         if (weights == null) {
           weights = new ArrayList<Integer>();
         }
-        weights.add(Integer.parseInt(key_weights[i]));
-        total_weight += Integer.parseInt(key_weights[i]);
+        weights.add(Integer.parseInt(weightsArray[i]));
+        total_weight += Integer.parseInt(weightsArray[i]);
       }
       else {
         total_weight += 1;
       }
-      if ((key_values != null) && key_values.length != 0) {
-        keys.put(s, new Double(Double.parseDouble(key_values[i])));
+      if ((valuesArray != null) && valuesArray.length != 0) {
+        keys.put(s, new Double(Double.parseDouble(valuesArray[i])));
       }
       else {
         keys.put(s, 0.0);
@@ -220,30 +245,48 @@ public class EventGenerator implements InputOperator
     maxCountOfWindows = i;
   }
 
-  public void setKeys(String key)
+  public String getKeysHelper()
   {
-    key_keys = key.split(",");
+    return keysHelper;
   }
 
-  public void setWeights(String weight)
+  public void setKeysHelper(String keys)
+  {
+    LOG.debug("in key setter");
+    this.keysHelper = keys;
+    keysArray = keysHelper.split(",");
+  }
+
+  public String getWeightsHelper()
+  {
+    return weightsHelper;
+  }
+
+  public void setWeightsHelper(String weight)
   {
     if (weight.isEmpty()) {
-      key_weights = null;
+      weightsArray = null;
     }
     else {
-      key_weights = weight.split(",");
+      weightsArray = weight.split(",");
     }
   }
 
-  public void setValues(String value)
+  public String getValuesHelper()
+  {
+    return valuesHelper;
+  }
+
+  public void setValuesHelper(String value)
   {
     if (value.isEmpty()) {
-      key_values = null;
+      valuesArray = null;
     }
     else {
-      key_values = value.split(",");
+      valuesArray = value.split(",");
     }
   }
+
 
   /**
    * @param tuples_blast the tuples_blast to set
@@ -272,7 +315,7 @@ public class EventGenerator implements InputOperator
         j = 0; // for randomization, need to reset to 0
         int wval = 0;
         for (Integer e: weights) {
-          wval += e.intValue();
+          wval += e;
           if (wval >= rval) {
             break;
           }
@@ -297,4 +340,5 @@ public class EventGenerator implements InputOperator
       }
     }
   }
+
 }

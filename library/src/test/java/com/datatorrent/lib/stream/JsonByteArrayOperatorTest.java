@@ -16,9 +16,9 @@
 package com.datatorrent.lib.stream;
 
 import java.util.Map;
-import junit.framework.Assert;
 
 import org.codehaus.jettison.json.JSONObject;
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;

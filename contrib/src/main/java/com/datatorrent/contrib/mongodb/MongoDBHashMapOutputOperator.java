@@ -16,15 +16,12 @@
 package com.datatorrent.contrib.mongodb;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.*;
-import org.bson.types.ObjectId;
 
 /**
- * MongoDB HashMap output adapter operator, which send insertion data to database.<p><br>
- *
+ * This is a MongoDB Output Operator, which uses Lists to map tuples to appropriate tables and columns in MongoDB,
+ * when doing writes.
+ * <p>
  * <br>
  * Ports:<br>
  * <b>Input</b>: Can have one input port, derived from base class <br>
@@ -42,7 +39,10 @@ import org.bson.types.ObjectId;
  * <br>
  * <b>Benchmarks</b>:
  * <br>
- *
+ * </p>
+ * @displayName MongoDB Hash Map Output
+ * @category Database
+ * @tags output operator
  * @since 0.3.2
  */
 public class MongoDBHashMapOutputOperator<T> extends MongoDBOutputOperator<HashMap<String, T>>

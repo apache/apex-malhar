@@ -18,19 +18,18 @@ package com.datatorrent.lib.math;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.StreamCodec;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 import com.datatorrent.lib.util.HighLow;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.UnifierKeyValRange;
 
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.StreamCodec;
+
 /**
+ *  This operator emits the range for each key at the end of window.
  * <p>
- * Emits the range for each key at the end of window. <br>
  * <br>
  * <b>StateFull : Yes</b>, values are computed over application window. <br>
  * <b>Partitions : Yes, </b> high/low values are each key is unified at output port. <br>
@@ -43,7 +42,9 @@ import com.datatorrent.lib.util.UnifierKeyValRange;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
- *
+ * @displayName Range Key Value
+ * @category Math
+ * @tags range, number, comparison, key value
  * @since 0.3.3
  */
 public class RangeKeyVal<K, V extends Number> extends
@@ -54,16 +55,15 @@ public class RangeKeyVal<K, V extends Number> extends
 	 * key/high value map.
 	 */
 	protected HashMap<K, V> high = new HashMap<K, V>();
-	
+
 	/**
 	 * key/low value map.
 	 */
 	protected HashMap<K, V> low = new HashMap<K, V>();
-	
+
 	/**
-	 * Input port.
+	 *  Input port that takes a key value pair.
 	 */
-	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
 	{
 		/**
@@ -89,16 +89,15 @@ public class RangeKeyVal<K, V extends Number> extends
 		}
 
 		@Override
-		public Class<? extends StreamCodec<KeyValPair<K, V>>> getStreamCodec()
+		public StreamCodec<KeyValPair<K, V>> getStreamCodec()
 		{
 			return getKeyValPairStreamCodec();
 		}
 	};
 
 	/**
-	 * Output port to send out the high low range.
+	 * Range output port to send out the high low range.
 	 */
-	@OutputPortFieldAnnotation(name = "range")
 	public final transient DefaultOutputPort<KeyValPair<K, HighLow<V>>> range = new DefaultOutputPort<KeyValPair<K, HighLow<V>>>()
 	{
 		@Override

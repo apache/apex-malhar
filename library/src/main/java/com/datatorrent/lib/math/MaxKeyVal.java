@@ -18,17 +18,17 @@ package com.datatorrent.lib.math;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.StreamCodec;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 import com.datatorrent.lib.util.KeyValPair;
 
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.StreamCodec;
+
 /**
  *
- * Emits at end of window maximum of all values sub-classed from Number for each key in KeyValPair. <p>
+ * This operator emits maximum of all values sub-classed from Number at end of window for each key in KeyValPair.
+ * <p>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects KeyValPair&lt;K,V extends Number&gt;<br>
@@ -38,15 +38,16 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
- *
+ * @displayName Maximum Key Value
+ * @category Math
+ * @tags maximum, numeric, key value
  * @since 0.3.2
  */
 public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
-	/**
-	 * Input port.
-	 */
-  @InputPortFieldAnnotation(name = "data")
+  /**
+   * Input port that takes a key value pair and compares to max and stores the new max.
+   */
   public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
   {
     /**
@@ -74,16 +75,15 @@ public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
      * Set StreamCodec used for partitioning.
      */
     @Override
-    public Class<? extends StreamCodec<KeyValPair<K, V>>> getStreamCodec()
+    public StreamCodec<KeyValPair<K, V>> getStreamCodec()
     {
       return getKeyValPairStreamCodec();
     }
   };
-  
+
   /**
    * Max value output port.
    */
-  @OutputPortFieldAnnotation(name = "max")
   public final transient DefaultOutputPort<KeyValPair<K, V>> max = new DefaultOutputPort<KeyValPair<K, V>>();
 
   protected HashMap<K, V> highs = new HashMap<K, V>();

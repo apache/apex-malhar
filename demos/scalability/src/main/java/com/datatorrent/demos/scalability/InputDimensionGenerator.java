@@ -29,10 +29,8 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 public class InputDimensionGenerator extends BaseOperator
 {
 
-  @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<AdInfo> outputPort = new DefaultOutputPort<AdInfo>();
 
-  @InputPortFieldAnnotation(name = "inputPort")
   public final transient DefaultInputPort<AdInfo> inputPort = new DefaultInputPort<AdInfo>() {
 
     @Override

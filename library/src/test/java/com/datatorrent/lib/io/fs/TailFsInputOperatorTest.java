@@ -19,14 +19,13 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- * Functional tests for {@link com.datatorrent.lib.io.localfs.TailFsInputOperator}
+ * Functional tests for {@link com.datatorrent.lib.io.fs.TailFsInputOperator}
  * <p>
  */
 public class TailFsInputOperatorTest

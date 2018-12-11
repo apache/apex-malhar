@@ -33,7 +33,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -43,21 +42,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Input operator that reads files from a directory.
- * <p/>
+ * This is the base implementation of a directory input operator, which scans a directory for files.&nbsp;
+ * Files are then read and split into tuples, which are emitted.&nbsp;
+ * Subclasses should implement the methods required to read and emit tuples from files.
+ * <p>
  * Derived class defines how to read entries from the input stream and emit to the port.
- * <p/>
+ * </p>
+ * <p>
  * The directory scanning logic is pluggable to support custom directory layouts and naming schemes. The default
  * implementation scans a single directory.
- * <p/>
+ * </p>
+ * <p>
  * Fault tolerant by tracking previously read files and current offset as part of checkpoint state. In case of failure
  * the operator will skip files that were already processed and fast forward to the offset of the current file.
- * <p/>
+ * </p>
+ * <p>
  * Supports partitioning and dynamic changes to number of partitions through property {@link #partitionCount}. The
  * directory scanner is responsible to only accept the files that belong to a partition.
- * <p/>
+ * </p>
+ * <p>
  * This class supports retrying of failed files by putting them into failed list, and retrying them after pending
  * files are processed. Retrying is disabled when maxRetryCount is set to zero.
+ * </p>
+ * @displayName FS Directory Scan Input
+ * @category Input
+ * @tags fs, file, input operator
+ *
  * @param <T> The type of the object that this input operator reads.
  * @since 1.0.2
  */
@@ -81,7 +91,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   transient protected int skipCount = 0;
   private transient OperatorContext context;
 
-  private BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
+  private final BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
   protected MutableLong globalNumberOfFailures = new MutableLong();
   protected MutableLong localNumberOfFailures = new MutableLong();
   protected MutableLong globalNumberOfRetries = new MutableLong();
@@ -393,7 +403,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void setup(OperatorContext context)
   {
-    globalProcessedFileCount.setValue((long) processedFiles.size());
+    globalProcessedFileCount.setValue(processedFiles.size());
     LOG.debug("Setup processed file count: {}", globalProcessedFileCount);
     this.context = context;
 
@@ -442,8 +452,42 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void teardown()
   {
-    IOUtils.closeQuietly(inputStream);
-    IOUtils.closeQuietly(fs);
+    IOException savedException = null;
+    boolean fileFailed = false;
+
+    try {
+      if(inputStream != null) {
+        inputStream.close();
+      }
+    }
+    catch (IOException ex) {
+      savedException = ex;
+      fileFailed = true;
+    }
+
+    boolean fsFailed = false;
+
+    try {
+      fs.close();
+    }
+    catch (IOException ex) {
+      savedException = ex;
+      fsFailed = true;
+    }
+
+    if(savedException != null) {
+      String errorMessage = "";
+
+      if(fileFailed) {
+        errorMessage += "Failed to close " + currentFile + ". ";
+      }
+
+      if(fsFailed) {
+        errorMessage += "Failed to close filesystem.";
+      }
+
+      throw new RuntimeException(errorMessage, savedException);
+    }
   }
 
   @Override
@@ -829,12 +873,6 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       this.regex = null;
     }
 
-    public Pattern getRegex() {
-      if (this.regex == null && this.filePatternRegexp != null)
-        this.regex = Pattern.compile(this.filePatternRegexp);
-      return this.regex;
-    }
-
     public int getPartitionCount() {
       return partitionCount;
     }
@@ -843,12 +881,14 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       return partitionIndex;
     }
 
+    protected Pattern getRegex() {
+      if (this.regex == null && this.filePatternRegexp != null)
+        this.regex = Pattern.compile(this.filePatternRegexp);
+      return this.regex;
+    }
+
     public LinkedHashSet<Path> scan(FileSystem fs, Path filePath, Set<String> consumedFiles)
     {
-      if (filePatternRegexp != null && this.regex == null) {
-        this.regex = Pattern.compile(this.filePatternRegexp);
-      }
-
       LinkedHashSet<Path> pathSet = Sets.newLinkedHashSet();
       try {
         LOG.debug("Scanning {} with pattern {}", filePath, this.filePatternRegexp);
@@ -896,10 +936,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
           return false;
         }
       }
-      if (filePatternRegexp != null && this.regex == null) {
-        regex = Pattern.compile(this.filePatternRegexp);
-      }
-
+      Pattern regex = this.getRegex();
       if (regex != null)
       {
         Matcher matcher = regex.matcher(filePathStr);

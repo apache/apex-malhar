@@ -23,8 +23,11 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 
 /**
- * <p>CompareFilterTuples class.</p>
- *
+ * <p>Implements Compare Filter Tuples class.</p>
+ * <p>
+ * @displayName Compare Filter Tuples
+ * @category Testbench
+ * @tags map, compare
  * @since 0.3.2
  */
 public class CompareFilterTuples<k> extends BaseOperator
@@ -47,7 +50,9 @@ public class CompareFilterTuples<k> extends BaseOperator
   // Collected result tuples
   private Map<k, Integer> result;
   
-  // input port
+        /**
+	 * Input port that takes a map of integer values.
+	 */
 	public final transient DefaultInputPort<Map<k, Integer>> inport = new DefaultInputPort<Map<k, Integer>>() {
     @Override
     public void process(Map<k, Integer> map) {
@@ -63,8 +68,14 @@ public class CompareFilterTuples<k> extends BaseOperator
     }
 	};
 	
-	//out port
+	/**
+	 * Output port that emits a map of integer values.
+	 */
 	public final transient DefaultOutputPort<Map<k, Integer>> outport = new DefaultOutputPort<Map<k, Integer>>();
+        
+        /**
+	 * Output redis port that emits a map of &lt;integer,string&gt; values.
+	 */
 	public final transient DefaultOutputPort<Map<Integer, String>> redisport = new DefaultOutputPort<Map<Integer, String>>();
 	
 	@Override

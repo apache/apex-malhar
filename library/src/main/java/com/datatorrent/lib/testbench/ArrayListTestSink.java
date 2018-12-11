@@ -16,18 +16,19 @@
 package com.datatorrent.lib.testbench;
 
 import com.datatorrent.api.Sink;
-import com.datatorrent.api.annotation.ShipContainingJars;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.apache.commons.lang.mutable.MutableInt;
 
 /**
- * A sink implementation to collect expected test results in a HashMap
- *
+ * A sink implementation to collect expected test results in a HashMap. 
+ * <p>
+ * @displayName ArrayList Test Sink
+ * @category Testbench
+ * @tags sink
  * @since 0.3.2
  */
-@ShipContainingJars(classes={MutableInt.class})
 public class ArrayListTestSink<T> implements Sink<T>
 {
   public HashMap<Object, MutableInt> map = new HashMap<Object, MutableInt>();

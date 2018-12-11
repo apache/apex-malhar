@@ -18,11 +18,11 @@ package com.datatorrent.contrib.couchdb;
 import java.io.IOException;
 import java.util.Map;
 
-import junit.framework.Assert;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ektorp.ViewQuery;
 import org.ektorp.ViewResult;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

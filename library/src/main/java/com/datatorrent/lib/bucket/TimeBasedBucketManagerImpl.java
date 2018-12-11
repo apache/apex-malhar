@@ -54,10 +54,6 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   private transient Timer bucketSlidingTimer;
   private final transient Lock lock;
 
-  private transient MutableLong low;
-  private transient MutableLong high;
-  private transient MutableLong numIgnoredEvents;
-
   public TimeBasedBucketManagerImpl()
   {
     super();
@@ -127,17 +123,9 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   public void setBucketCounters(@Nonnull BasicCounters<MutableLong> bucketCounters)
   {
     super.setBucketCounters(bucketCounters);
-    try {
-      low = bucketCounters.findCounter(CounterKeys.LOW);
-      high = bucketCounters.findCounter(CounterKeys.HIGH);
-      numIgnoredEvents = bucketCounters.findCounter(CounterKeys.IGNORED_EVENTS);
-    }
-    catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-    catch (InstantiationException e) {
-      throw new RuntimeException(e);
-    }
+    bucketCounters.setCounter(CounterKeys.LOW, new MutableLong());
+    bucketCounters.setCounter(CounterKeys.HIGH, new MutableLong());
+    bucketCounters.setCounter(CounterKeys.IGNORED_EVENTS, new MutableLong());
   }
 
   @Override
@@ -157,9 +145,9 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
         synchronized (lock) {
           time = (expiryTime += bucketSpanInMillis);
           endOBucketsInMillis += bucketSpanInMillis;
-          if (count) {
-            high.setValue(endOBucketsInMillis);
-            low.setValue(expiryTime);
+          if (recordStats) {
+            bucketCounters.getCounter(CounterKeys.HIGH).setValue(endOBucketsInMillis);
+            bucketCounters.getCounter(CounterKeys.LOW).setValue(expiryTime);
           }
         }
         try {
@@ -179,8 +167,8 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   {
     long eventTime = event.getTime();
     if (eventTime < expiryTime) {
-      if (count) {
-        numIgnoredEvents.increment();
+      if (recordStats) {
+        bucketCounters.getCounter(CounterKeys.IGNORED_EVENTS).increment();
       }
       return -1;
     }
@@ -191,9 +179,9 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
         long move = ((eventTime - endOBucketsInMillis) / bucketSpanInMillis + 1) * bucketSpanInMillis;
         expiryTime += move;
         endOBucketsInMillis += move;
-        if (count) {
-          high.setValue(endOBucketsInMillis);
-          low.setValue(expiryTime);
+        if (recordStats) {
+          bucketCounters.getCounter(CounterKeys.HIGH).setValue(endOBucketsInMillis);
+          bucketCounters.getCounter(CounterKeys.LOW).setValue(expiryTime);
         }
       }
     }
@@ -260,7 +248,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
     }
 
     bucket.addNewEvent(event.getEventKey(), writeEventKeysOnly ? null : event);
-    numEventsInMemory.increment();
+    bucketCounters.getCounter(BucketManager.CounterKeys.EVENTS_IN_MEMORY).increment();
 
     Long max = maxTimesPerBuckets[bucketIdx];
     if (max == null || event.getTime() > max) {

@@ -1,4 +1,4 @@
-/*
+      /*
  * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,9 +30,9 @@ public class DimensionObject<T> implements Comparable<DimensionObject<T>>
 
   private MutableDouble count;
   private T val;
-  
+
   private DimensionObject(){
-    
+
   }
 
   public DimensionObject(MutableDouble count, T s)

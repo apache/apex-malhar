@@ -25,8 +25,8 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.Unifier;
 
 /**
+ *  An implementation of Operator that provides sql order by operator semantic over live stream data. <br>
  * <p>
- * This operator provides sql oredr by operator semantic over luve stream data. <br>
  * Input data rows are ordered by order rules, ordered result is emitted on output port. <br>
  * <br>
  *  *  <br>
@@ -39,7 +39,9 @@ import com.datatorrent.api.Operator.Unifier;
  * <br>
  * <b> Properties : </b> <br>
  * <b> oredrByRules : </b>List of order by rules for tuples.
- *
+ * @displayName OrderBy
+ * @category Streamquery
+ * @tags orderby operator
  * @since 0.3.5
  */
 public class OrderByOperator implements Operator, Unifier<Map<String, Object>>
@@ -123,7 +125,7 @@ public class OrderByOperator implements Operator, Unifier<Map<String, Object>>
   }
   
   /**
-   * Input port.
+   * Input port that takes a map of &lt;string,object&gt;.
    */
   public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>() {
     @Override
@@ -134,7 +136,7 @@ public class OrderByOperator implements Operator, Unifier<Map<String, Object>>
   };
   
   /**
-   * Output port.
+   * Output port that emits a map of &lt;string,object&gt;.
    */
   public final transient DefaultOutputPort<Map<String, Object>> outport =  new DefaultOutputPort<Map<String, Object>>()
       {

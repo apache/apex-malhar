@@ -29,8 +29,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>SqliteStreamOperator class.</p>
- *
+ * This is an SQLite input operator.
+ * <p></p>
+ * @displayName Sqlite Stream
+ * @category Database
+ * @tags input operator
  * @since 0.3.2
  */
 public class SqliteStreamOperator extends AbstractSqlStreamOperator

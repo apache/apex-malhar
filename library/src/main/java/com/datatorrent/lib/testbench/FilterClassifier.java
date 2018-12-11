@@ -26,7 +26,9 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Filters the tuples as per the filter (pass through percent) and emits them. The aim is to create another stream representing a subsection of incoming load<p>
+ * Filters the tuples as per the filter (pass through percent) and emits them.
+ * <p>
+ * The aim is to create another stream representing a subsection of incoming load<p>
  * <br>
  * Examples of pairs include<br>
  * publisher,advertizer<br>
@@ -48,11 +50,17 @@ import java.util.Random;
  * <br>
  * Compile time checks are:<br>
  * <br>
- *
+ * </p>
+ * @displayName Filter Classifier
+ * @category Testbench
+ * @tags filter
  * @since 0.3.2
  */
 public class FilterClassifier<T> extends BaseOperator
 {
+  /**
+   * The input port on which tuples are received.
+   */
   public final transient DefaultInputPort<HashMap<String, T>> data = new DefaultInputPort<HashMap<String, T>>()
   {
     @Override
@@ -99,6 +107,10 @@ public class FilterClassifier<T> extends BaseOperator
       }
     }
   };
+
+  /**
+   * The output port which emits filtered tuples.
+   */
   public final transient DefaultOutputPort<HashMap<String, T>> filter = new DefaultOutputPort<HashMap<String, T>>();
 
   HashMap<String, T> keys = new HashMap<String, T>();
@@ -110,17 +122,17 @@ public class FilterClassifier<T> extends BaseOperator
   int total_filter = 0;
   private Random random = new Random();
 
-  void setPassFilter(int i)
+  public void setPassFilter(int i)
   {
     pass_filter = i;
   }
 
-  void setTotalFilter(int i)
+  public void setTotalFilter(int i)
   {
     total_filter = i;
   }
 
-  void setKeyMap(HashMap<String, T> map)
+  public void setKeyMap(HashMap<String, T> map)
   {
     int i = 0;
     // First load up the keys and the index hash (wtostr_index) for randomization to work
@@ -131,7 +143,7 @@ public class FilterClassifier<T> extends BaseOperator
     }
   }
 
-  void setKeyWeights(HashMap<String, ArrayList<Integer>> map)
+  public void setKeyWeights(HashMap<String, ArrayList<Integer>> map)
   {
     if (inkeys == null) {
       inkeys = new HashMap<String, ArrayList<Integer>>();

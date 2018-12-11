@@ -27,16 +27,17 @@ import java.util.List;
 
 /**
  * <p>
- * Generic Aerospike Output Adaptor which creates a transaction at the start of window.<br/>
- * Executes all the put updates and closes the transaction at the end of the window.
+ * Generic base adaptor which creates a transaction at the start of window.&nbsp; Subclasses should provide implementation for getting updated bins. <br/>
  * </p>
- *
  * <p>
+ * Executes all the put updates and closes the transaction at the end of the window.
  * The tuples in a window are stored in check-pointed collection which is cleared in the endWindow().
  * This is needed for the recovery. The operator writes a tuple at least once in the database, which is why
  * only when all the updates are executed, the transaction is committed in the end window call.
  * </p>
- *
+ * @displayName Abstract Aerospike Transactional Put
+ * @category Database
+ * @tags output operator, put, transactional
  * @param <T>type of tuple</T>
  * @since 1.0.4
  */

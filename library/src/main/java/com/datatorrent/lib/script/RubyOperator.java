@@ -16,16 +16,20 @@
 
 package com.datatorrent.lib.script;
 
-import com.datatorrent.api.Context.OperatorContext;
+import java.util.Map;
+
 import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
 import org.jruby.javasupport.JavaEmbedUtils.EvalUnit;
 
-import java.util.Map;
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
- * Operator to execute ruby script on tuples
- *
+ * An implementation of ScriptOperator that executes ruby script on tuples
+ * <p>
+ * @displayName Ruby Operator
+ * @category Scripting
+ * @tags script operator, map, string
  * @since 1.0.4
  */
 public class RubyOperator extends ScriptOperator {

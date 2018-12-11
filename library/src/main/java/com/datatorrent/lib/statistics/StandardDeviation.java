@@ -25,8 +25,8 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
- * This operator computes variance and standard deviation over incoming data. <br>
- * <br>
+ * An implementation of BaseOperator that computes variance and standard deviation over incoming data. <br>
+ * <p>
  * <b>Input Port(s) : </b><br>
  * <b>data : </b> Data values input port. <br>
  * <br>
@@ -37,7 +37,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * <b>StateFull : Yes</b>, value are aggregated over application window. <br>
  * <b>Partitions : No</b>, no will yield wrong results. <br>
  * <br>
- *
+ * @displayName Standard Deviation
+ * @category Statistics
+ * @tags numeric, math, calculation, sum, count 
  * @since 0.3.4
  */
 @OperatorAnnotation(partitionable = false)
@@ -46,9 +48,8 @@ public class StandardDeviation extends BaseOperator
   private ArrayList<Double> values = new ArrayList<Double>();
   
   /**
-   * Input data port.
+   * Input data port that takes in a number.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Number> data = new DefaultInputPort<Number>()
   {
     /**
@@ -62,15 +63,14 @@ public class StandardDeviation extends BaseOperator
   };
   
   /**
-   * Variance output port
+   * Variance output port.
    */
-  @OutputPortFieldAnnotation(name = "variance", optional=true)
+  @OutputPortFieldAnnotation(optional=true)
   public final transient DefaultOutputPort<Number> variance = new DefaultOutputPort<Number>();
   
   /**
-   * Standard deviation output port
+   * Standard deviation output port.
    */
-  @OutputPortFieldAnnotation(name = "standardDeviation")
   public final transient DefaultOutputPort<Number> standardDeviation = new DefaultOutputPort<Number>();
   
   /**

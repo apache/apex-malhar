@@ -18,8 +18,12 @@ package com.datatorrent.lib.pigquery.generate;
 import javax.validation.constraints.NotNull;
 
 /**
- * <p>Abstract BinaryGenerate class.</p>
+ * <p>A base implementation of Generate interface.&nbsp; Subclasses should provide the 
+   implementation of evaluate method. </p>
  *
+ * @displayName Binary Generate
+ * @category Pig Query
+ * @tags binary, string
  * @since 0.3.4
  */
 abstract public class BinaryGenerate implements Generate

@@ -15,11 +15,15 @@
  */
 package com.datatorrent.contrib.memcache;
 
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.db.AbstractKeyValueStoreInputOperator;
 
 /**
- * This abstract class provides the base class for any memcache input adapter.
+ * This is the base implementation used for memcached input adapters.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
+ * <p></p>
+ * @displayName Abstract Memcache Input
+ * @category Store
+ * @tags output operator, key value
  *
  * @param <T> The tuple type.
  * @since 0.9.3

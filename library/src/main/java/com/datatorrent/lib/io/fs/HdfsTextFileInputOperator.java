@@ -28,9 +28,11 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
- * An adaptor to read from hdfs text file input operator
- * Read tuple from the text file in HDFS distributed filesystem
- * Read #linesEachWindow lines for each dag window
+ * This operator reads tuples from an HDFS text file.
+ * <p></p>
+ * @displayName HDFS Text File Input
+ * @category Input
+ * @tags hdfs, file, input operator
  *
  * @since 0.3.4
  */
@@ -39,7 +41,9 @@ public class HdfsTextFileInputOperator extends AbstractHDFSInputOperator
 
   private int linesEachWindow = 1;
 
-  @OutputPortFieldAnnotation(name = "HDFSOutput")
+  /**
+   * This is the output port which emits text read from an HDFS text file.
+   */
   public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
 
   private transient BufferedReader br = null;

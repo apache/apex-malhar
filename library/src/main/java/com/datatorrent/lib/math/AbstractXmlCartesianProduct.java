@@ -29,6 +29,7 @@ import java.util.List;
 
 /**
  * An operator that performs a cartesian product between different elements in a xml document.
+ * <p>
  * The cartesian product is performed between two sets of elements. The elements are specified
  * using xpath. The resultant product contains the values of the elements, Multiple
  * cartesian products can be specified in a single operator.
@@ -122,6 +123,9 @@ import java.util.List;
  *
  *    a1,a2:b1,b2|c1,c2:d1,d2|e1,e2,e3:f1
  *
+ * @displayName Abstract XML Cartesian Product
+ * @category Math
+ * @tags cartesian product, xml, multiple products, dom operator
  * @since 1.0.1
  */
 public abstract class AbstractXmlCartesianProduct<T> extends AbstractXmlDOMOperator<T>

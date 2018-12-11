@@ -29,12 +29,19 @@ public class FrauddetectApplicationTest {
 
     @Test
     public void testApplication() throws Exception {
+      try
+      {
         Application application = new Application();
         Configuration conf = new Configuration(false);
         conf.addResource("dt-site-frauddetect.xml");
         LocalMode lma = LocalMode.newInstance();
         application.populateDAG(lma.getDAG(), conf);
         lma.getController().run(120000);
+      }
+      catch(Exception e)
+      {
+        e.printStackTrace();
+      }
     }
 
 }

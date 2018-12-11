@@ -20,8 +20,12 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- * Abstract select condition for selecting/filtering rows.
- *
+ * A base class for select condition for selecting or filtering the rows.&nbsp; Subclasses should provide the 
+   implementation to filter valid rows and valid joins.
+ * <p>
+ * @displayName Condition
+ * @category Streamquery/Condition
+ * @tags sql condition, filter
  * @since 0.3.3
  */
 abstract public class Condition

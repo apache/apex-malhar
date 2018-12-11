@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package com.datatorrent.lib.testbench;
 
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.lib.testbench.EventGenerator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -94,23 +93,23 @@ public class EventGeneratorTest
 	public void testSingleSchemaNodeProcessing(boolean stringschema) throws Exception
   {
   	EventGenerator node = new EventGenerator();
-    node.setKeys("a,b,c,d");
-    node.setValues("");
-    node.setWeights("10,40,20,30");
-  	CollectorTestSink count = new CollectorTestSink(); 
+    node.setKeysHelper("a,b,c,d");
+    node.setValuesHelper("");
+    node.setWeightsHelper("10,40,20,30");
+  	CollectorTestSink count = new CollectorTestSink();
   	node.count.setSink(count);
-  	CollectorTestSink data = new CollectorTestSink(); 
+  	CollectorTestSink data = new CollectorTestSink();
   	node.string_data.setSink(data);
-  	CollectorTestSink hashData = new CollectorTestSink(); 
+  	CollectorTestSink hashData = new CollectorTestSink();
   	node.hash_data.setSink(hashData);
-    
+
   	node.setup(null);
   	node.beginWindow(1);
   	node.emitTuples();
   	node.endWindow();
   	node.teardown();
-  	
+
   	assertTrue("Default number of tuples generated", 10000 == data.collectedTuples.size());
-  	
+
   }
 }

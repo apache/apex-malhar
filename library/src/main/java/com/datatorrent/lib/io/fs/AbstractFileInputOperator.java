@@ -23,18 +23,18 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator.ActivationListener;
 
 /**
- *
- */
-/**
- * Input Adapter for reading from File<p>
- * <br>
- *
- * <br>
+ * This is the base implementation for an input operator,
+ * which reads from a file and produces tuples.&nbsp;
+ * Subclasses should implement the methods required to read the files.
+ * <p></p>
+ * @displayName FS File Input
+ * @category Input
+ * @tags fs, directory, input operator
  *
  * @param <STREAM>
  * @since 0.3.2

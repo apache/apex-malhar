@@ -121,7 +121,7 @@ public class MongoDBConnectable implements Connectable
   }
 
   @Override
-  public boolean connected()
+  public boolean isConnected()
   {
     try {
       mongoClient.getConnector().getDBPortPool(mongoClient.getAddress()).get().ensureOpen();

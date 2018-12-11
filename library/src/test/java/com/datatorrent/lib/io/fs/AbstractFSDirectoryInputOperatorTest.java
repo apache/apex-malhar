@@ -17,7 +17,6 @@ package com.datatorrent.lib.io.fs;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Partitioner.Partition;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.io.fs.AbstractFSDirectoryInputOperator.DirectoryScanner;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.esotericsoftware.kryo.Kryo;
@@ -51,7 +50,6 @@ public class AbstractFSDirectoryInputOperatorTest
 
   public static class TestFSDirectoryInputOperator extends AbstractFSDirectoryInputOperator<String>
   {
-    @OutputPortFieldAnnotation(name = "output")
     public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
     private transient BufferedReader br = null;
 

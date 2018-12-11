@@ -32,22 +32,22 @@ import com.datatorrent.api.Context;
 import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator;
 
 /**
+ * This is the base class implementation of a transactionable JDBC output operator.&nbsp;
+ * Subclasses should implement the method which provides the insertion command.
  * <p>
- * Generic JDBC Output Adaptor which creates a transaction at the start of window.<br/>
- * Executes batches of sql updates and closes the transaction at the end of the window.
- * </p>
- *
- * <p>
- * Each tuple corresponds to an SQL update statement. The operator groups the updates in a batch
- * and submits them with one call to the database. Batch processing improves performance considerably.<br/>
+ * This operator creates a transaction at the start of window, executes batches of sql updates,
+ * and closes the transaction at the end of the window. Each tuple corresponds to an SQL update statement.
+ * The operator groups the updates in a batch and submits them with one call to the database. Batch processing improves performance considerably.<br/>
  * The size of a batch is configured by batchSize property.
  * </p>
- *
  * <p>
  * The tuples in a window are stored in check-pointed collection which is cleared in the endWindow().
  * This is needed for the recovery. The operator writes a tuple exactly once in the database, which is why
  * only when all the updates are executed, the transaction is committed in the end window call.
  * </p>
+ * @displayName Abstract JDBC Transactionable Output
+ * @category Database
+ * @tags output operator, transactional
  *
  * @param <T> type of tuple
  * @since 0.9.4

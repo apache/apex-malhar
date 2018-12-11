@@ -33,8 +33,8 @@ import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
 
 /**
- * Operator for storing tuples in HBase columns.<br>
- *
+ * A base implementation of an AggregateTransactionableStoreOutputOperator operator that stores tuples in HBase columns and provides batch append.&nbsp; Subclasses should provide implementation for appending operations. <br>
+ * <p>
  * <br>
  * This class provides a HBase output operator that can be used to store tuples
  * in columns in a HBase table. It should be extended by the end-operator
@@ -53,7 +53,9 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperato
  * the operator shutdown.
  * It supports atleast once and atmost once processing modes.
  * Exactly once is not supported
- *
+ * @displayName Abstract HBase Window Append Output
+ * @category Store
+ * @tags output operator, append, transactionable, batch
  * @param <T>
  *            The tuple type
  * @since 1.0.2

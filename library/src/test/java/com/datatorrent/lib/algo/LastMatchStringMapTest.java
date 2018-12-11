@@ -15,16 +15,16 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.LastMatchStringMap;
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
-
 import java.util.HashMap;
-import junit.framework.Assert;
+
+import org.junit.Assert;
 import org.junit.Test;
+
+import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 /**
  *
- * Functional tests for {@link com.datatorrent.lib.algo.LastMatch}<p>
+ * Functional tests for {@link com.datatorrent.lib.algo.LastMatchStringMap}<p>
  *
  */
 public class LastMatchStringMapTest

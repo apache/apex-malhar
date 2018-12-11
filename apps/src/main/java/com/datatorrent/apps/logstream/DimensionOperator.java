@@ -71,9 +71,9 @@ public class DimensionOperator extends BaseOperator implements Partitioner<Dimen
     }
 
     @Override
-    public Class<? extends StreamCodec<Map<String, Object>>> getStreamCodec()
+    public StreamCodec<Map<String, Object>> getStreamCodec()
     {
-      return DimensionOperatorStreamCodec.class;
+      return new DimensionOperatorStreamCodec();
     }
 
   };
@@ -100,7 +100,7 @@ public class DimensionOperator extends BaseOperator implements Partitioner<Dimen
   {
     super.setup(context);
     if (context != null) {
-      windowWidth = context.getValue(DAGContext.STREAMING_WINDOW_SIZE_MILLIS);
+      windowWidth = context.getValue(Context.DAGContext.STREAMING_WINDOW_SIZE_MILLIS);
     }
 
     LogstreamPropertyRegistry.setInstance(registry);
@@ -568,6 +568,7 @@ public class DimensionOperator extends BaseOperator implements Partitioner<Dimen
 
     }
 
+    private static final long serialVersionUID = 1L;
   }
 
 }

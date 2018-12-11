@@ -16,20 +16,27 @@
 package com.datatorrent.contrib.kafka;
 
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import kafka.message.Message;
 
 /**
- * <p>Abstract AbstractPartitionableKafkaSinglePortInputOperator class.</p>
+ * This is the base implementation of Kafka input operator, with a single output port, which consumes data from Kafka message bus.&nbsp;
+ * It will be dynamically partitioned based on the upstream Kafka partition.&nbsp;
+ * Subclasses should implement the methods which convert Kafka messages to tuples.
+ * <p></p>
+ * @displayName Abstract Partitionable Kafka Single Port Input
+ * @category Messaging
+ * @tags input operator
  *
  * @since 0.9.0
  */
+@OperatorAnnotation(partitionable = true)
 public abstract class AbstractPartitionableKafkaSinglePortInputOperator<T> extends AbstractPartitionableKafkaInputOperator
 {
   /**
-   * The single output port.
+   * This output port emits tuples extracted from Kafka messages.
    */
-  @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**
