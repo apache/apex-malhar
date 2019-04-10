@@ -484,6 +484,10 @@ public class FSWindowDataManager implements WindowDataManager
 
       if (wal.retrievedWindow == null) {
         wal.retrievedWindow = readNext(reader);
+        if(wal.retrievedWindow == null &&
+           reader.getCurrentPointer().compareTo(wal.walEndPointerAfterRecovery) < 0) {
+          continue;
+        }
         Preconditions.checkNotNull(wal.retrievedWindow);
       }
       currentWindow = Longs.fromByteArray(wal.retrievedWindow.toByteArray());
